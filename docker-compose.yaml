@@ -1,0 +1,23 @@
+name: vs-finanzverwaltung
+
+services:
+  development-db:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      TZ: Europe/Berlin
+      POSTGRES_DB: vsf
+      POSTGRES_USER: vsf
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5334:5432
+  test-db:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      TZ: Europe/Berlin
+      POSTGRES_DB: vsf
+      POSTGRES_USER: vsf
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5335:5432

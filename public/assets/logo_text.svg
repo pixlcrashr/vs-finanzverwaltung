@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 586 200" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;">
+    <g id="Artboard1" transform="matrix(2.92538,0,0,1,0,0)">
+        <rect x="0" y="0" width="200" height="200" style="fill:none;"/>
+        <g transform="matrix(0.341835,0,0,1,34.1835,100)">
+            <g transform="matrix(1,0,0,1,-100,-100)">
+                <g transform="matrix(2.5,0,0,2.5,-25,-25)">
+                    <path d="M90,12L90,88C90,89.104 89.104,90 88,90L12,90C10.896,90 10,89.104 10,88L10,12C10,10.896 10.896,10 12,10L88,10C89.104,10 90,10.896 90,12Z" style="fill:rgb(0,85,89);"/>
+                </g>
+                <g transform="matrix(2.5,0,0,2.5,-25,-25)">
+                    <path d="M20,25L80,25M20,42L80,42M20,58L80,58M20,75L80,75" style="fill:rgb(0,209,178);fill-rule:nonzero;stroke:rgb(0,209,178);stroke-width:3px;"/>
+                </g>
+                <g transform="matrix(2.5,0,0,2.5,-25,-25)">
+                    <circle cx="30" cy="25" r="6" style="fill:rgb(0,209,178);"/>
+                </g>
+                <g transform="matrix(2.5,0,0,2.5,-25,-25)">
+                    <circle cx="45" cy="25" r="6" style="fill:rgb(0,209,178);"/>
+                </g>
+                <g transform="matrix(2.5,0,0,2.5,-25,-25)">
+                    <circle cx="65" cy="42" r="6" style="fill:rgb(0,209,178);"/>
+                </g>
+                <g transform="matrix(2.5,0,0,2.5,-25,-25)">
+                    <circle cx="38" cy="58" r="6" style="fill:rgb(0,209,178);"/>
+                </g>
+                <g transform="matrix(2.5,0,0,2.5,-25,-25)">
+                    <circle cx="55" cy="58" r="6" style="fill:rgb(0,209,178);"/>
+                </g>
+                <g transform="matrix(2.5,0,0,2.5,-25,-25)">
+                    <circle cx="72" cy="58" r="6" style="fill:rgb(0,209,178);"/>
+                </g>
+                <g transform="matrix(2.5,0,0,2.5,-25,-25)">
+                    <circle cx="40" cy="75" r="6" style="fill:rgb(0,209,178);"/>
+                </g>
+            </g>
+        </g>
+        <g transform="matrix(0.341835,0,0,1,-4.15066,74.1259)">
+            <g transform="matrix(130,0,0,130,596.245,71.7641)">
+            </g>
+            <text x="251.095px" y="71.764px" style="font-family:'ReemKufi-Bold', 'Reem Kufi';font-weight:700;font-size:130px;fill:rgb(0,209,178);">VSFV</text>
+        </g>
+    </g>
+</svg>

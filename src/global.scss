@@ -1,1 +1,23 @@
 @use 'bulma/sass';
+@use 'bulma-calendar/src/scss';
+
+:root {
+  --bulma-family-primary: Roboto,Oxygen,Ubuntu,Helvetica Neue,Helvetica,Arial,sans-serif;
+  --bulma-family-secondary: Roboto,Oxygen,Ubuntu,Helvetica Neue,Helvetica,Arial,sans-serif;
+}
+
+html {
+    width: 100vw;
+    height: 100vh;
+    font-size: 11pt;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    width: 100%;
+    height: 100%;
+}

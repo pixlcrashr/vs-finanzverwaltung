@@ -1,33 +1,65 @@
-import { component$ } from "@builder.io/qwik";
+import { component$, useStylesScoped$ } from "@builder.io/qwik";
 import { DocumentHead, routeLoader$ } from "@builder.io/qwik-city";
-import { getBudgets } from "~/lib/prisma";
+import { Prisma } from "~/lib/prisma";
+import { Budget } from "./types";
+import { BudgetsService } from "~/lib/prisma/budgets";
+import { formatDateShort } from "~/lib/format";
+import styles from "./index.scss?inline";
+import Header from "~/components/layout/Header";
+import HeaderTitle from "~/components/layout/HeaderTitle";
+import HeaderButtons from "~/components/layout/HeaderButtons";
 
-export interface Budget {
-  id: string;
-  display_name: string;
-  display_description: string;
-}
+
 
 export const useGetBudgets = routeLoader$<Budget[]>(async ({params, status}) => {
-    const budgets = await getBudgets(0, 10);
-    return budgets.map((budget) => ({
-      id: budget.id,
-      display_name: budget.display_name,
-      display_description: budget.display_description,
-    }));
+  const service = new BudgetsService(Prisma);
+  return await service.getBudgets(0, 10);
 });
 
 export default component$(() => {
   const budgets = useGetBudgets();
+  useStylesScoped$(styles);
 
   return (
     <>
-      <h1>Haushaltspläne</h1>
-      <ul>
-        {budgets.value.map((budget) => (
-            <li key={budget.id}>{budget.display_name}</li>
-        ))}
-      </ul>
+    <Header>
+      <HeaderTitle>Haushaltspläne</HeaderTitle>
+      <HeaderButtons>
+          <a class="button is-primary is-rounded" href="/budgets/new">Hinzufügen</a>
+      </HeaderButtons>
+    </Header>
+      <table class="table is-narrow is-hoverable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Beschreibung</th>
+            <th>Start Zeitraum</th>
+            <th>Ende Zeitraum</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {budgets.value.map((budget) => (
+            <tr>
+              <td>{budget.display_name}</td>
+              <td>{budget.display_description === '' ? '-' : ''}</td>
+              <td>{formatDateShort(budget.period_start)}</td>
+              <td>{formatDateShort(budget.period_end)}</td>
+              <td><span class={[
+                'tag',
+                budget.is_closed ? 'is-danger' : 'is-success'
+              ]}>{budget.is_closed ? 'Geschlossen' : 'Offen'}</span></td>
+              <td>
+                <p class="buttons are-small is-right">
+                  <a class="button is-primary is-outlined" href={`/budgets/${budget.id}`}>Bearbeiten</a>
+                  <a class="button is-danger is-outlined" href={`/budgets/${budget.id}/delete`}>Entfernen</a>
+                </p>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </>
   );
 });

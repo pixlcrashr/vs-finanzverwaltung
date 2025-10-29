@@ -4,6 +4,7 @@ import { RouterHead } from "./components/router-head/router-head";
 
 import "./global.scss";
 import "./bulma-jumbo-tiny.min.css";
+import bulmaCalendar from "bulma-calendar";
 
 export default component$(() => {
   /**

@@ -1,0 +1,10 @@
+
+.header-title {
+    h1 {
+        font-weight: 700;
+
+        @media (prefers-color-scheme: dark) {
+            color: white;
+        }
+    }
+}

@@ -34,6 +34,7 @@ export class BudgetService implements Service {
           createdAt: r.created_at,
           updatedAt: r.updated_at,
         })),
+        lastRevisionDate: m.budget_revisions[m.budget_revisions.length - 1].date ?? new Date(),
       }
     } catch (error) {
       return null;

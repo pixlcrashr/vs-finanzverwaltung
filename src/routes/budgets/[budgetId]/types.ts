@@ -17,6 +17,7 @@ export interface Budget {
   created_at: Date;
   updated_at: Date;
   revisions: Revision[];
+  lastRevisionDate: Date;
 }
 
 export interface Service {

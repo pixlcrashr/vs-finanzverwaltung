@@ -109,7 +109,7 @@ export default component$(() => {
                 <th>Nr.</th>
                 <th>Datum</th>
                 <th>Beschreibung</th>
-                <th></th>
+                {isEditing.value && <th></th>}
               </tr>
             </thead>
             <tbody>
@@ -117,26 +117,57 @@ export default component$(() => {
                 <tr key={revision.id}>
                   <td>{index + 1}</td>
                   <td>
+                    <input hidden type="hidden" value={revision.id} name={`revisions.${index}.id`} />
                     <div class="field">
                       <div class="control is-small">
                         <input
                           class="input is-small"
                           type="date"
+                          name={`revisions.${index}.date`}
                           placeholder="Revisionsdatum"
+                          disabled={!isEditing.value || isLoading.value}
+                          min={formatDateInputField(budget.value.lastRevisionDate)}
                           value={formatDateInputField(revision.date)}
                         />
                       </div>
                     </div>
                   </td>
-                  <td>{revision.description || "-"}</td>
-                  <td></td>
+                  <td>
+                    <div class="field">
+                      <div class="control is-small">
+                        <textarea
+                          class="textarea is-small"
+                          placeholder="Revisionsbeschreibung"
+                          rows="1"
+                          name={`revisions.${index}.description`}
+                          disabled={!isEditing.value || isLoading.value}
+                          value={revision.description || "-"}
+                        ></textarea>
+                      </div>
+                    </div>
+                  </td>
+                  {isEditing.value && <td>
+                    {index === budget.value.revisions.length - 1 && isEditing.value && (
+                      <div class="buttons are-small is-right">
+                        <button class="button is-danger is-outlined">Entfernen</button>
+                      </div>
+                    )}
+                  </td>}
                 </tr>
               ))}
             </tbody>
           </table>
           {isEditing.value && (
             <div class="buttons are-small">
-              <button class="button" disabled={isLoading.value}>Revision hinzufügen</button>
+              <button class="button" disabled={isLoading.value} onClick$={() => {
+                budget.value.revisions.push({
+                  id: '',
+                  date: new Date(),
+                  description: "",
+                  createdAt: new Date(),
+                  updatedAt: new Date()
+                });
+              }}>Revision hinzufügen</button>
             </div>
           )}
         </div>

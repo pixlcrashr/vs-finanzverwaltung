@@ -15,3 +15,7 @@ export function formatUuid(id: string, format?: 'short' | 'separatorless'): stri
 export function formatDateShort(d: Date): string {
   return `${d.getDate().toString().padStart(2, '0')}.${(d.getMonth() + 1).toString().padStart(2, '0')}.${d.getFullYear()}`;
 }
+
+export function formatDateInputField(d: Date): string {
+  return d.toISOString().split('T')[0];
+}

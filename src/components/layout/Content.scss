@@ -31,17 +31,6 @@
     margin: 0;
 }
 
-.menu-list {
-    li a {
-        background-color: transparent;
-        font-weight: normal;
-
-        &.is-active {
-        font-weight: 500;
-        }
-    }
-}
-
 .content-column {
     display: flex;
     flex-direction: column;

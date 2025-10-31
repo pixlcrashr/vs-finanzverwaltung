@@ -1,5 +1,5 @@
-import { Budget, Service } from "~/routes/budgets/types";
 import { PrismaClient } from "@prisma/client";
+import { Budget, Service } from "~/routes/budgets/types";
 
 
 
@@ -26,4 +26,3 @@ export class BudgetsService implements Service {
     }));
   }
 }
-

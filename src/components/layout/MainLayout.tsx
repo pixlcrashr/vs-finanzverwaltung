@@ -1,6 +1,7 @@
 import { component$, Slot, useStylesScoped$ } from "@builder.io/qwik";
 import { Link, useLocation } from "@builder.io/qwik-city";
-import styles from "./Content.scss?inline";
+import MainContentContainer from "./MainContentContainer";
+import styles from "./MainLayout.scss?inline";
 
 const menuItems = [
   {
@@ -53,12 +54,14 @@ export default component$(() => {
             </li>)}
           </ul>
         </aside>
+
+        <footer class="nav-menu-footer">
+          <p>Copyright © 2025 Vincent Heins<br/><a href="https://github.com/pixlcrashr/vs-finanzverwaltung" target="_blank">github.com/pixlcrashr/vs-finanzverwaltung</a></p>
+        </footer>
       </div>
-      <div class="column content-column">
-        <div class="content-container">
-          <Slot />
-        </div>
-      </div>
+      <MainContentContainer>
+        <Slot />
+      </MainContentContainer>
     </div>
   );
 });

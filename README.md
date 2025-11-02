@@ -16,3 +16,13 @@ Finanzverwaltungssoftware für Verfasste Studierendenschaften.
     - Zuordnung von (Finanz-)Anträgen zu Haushaltskonten
 - SSO/OAuth2 Authentifizierung
 - Benutzer- und Rechteverwaltung
+
+## Fastify Server
+
+This app has a minimal [Fastify server](https://fastify.dev/) implementation. After running a full build, you can preview the build using the command:
+
+```
+npm run serve
+```
+
+Then visit [http://localhost:3000/](http://localhost:3000/)

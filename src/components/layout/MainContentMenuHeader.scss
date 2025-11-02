@@ -1,0 +1,15 @@
+.main-content-menu-header {
+    position: relative;
+
+    h2 {
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .main-content-menu-close {
+        right: 0;
+        top: 0;
+        position: absolute;
+    }
+}

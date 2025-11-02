@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import { Service } from "~/routes/budgets/new/types";
 
-export class BudgetNewService implements Service {
+/*export class BudgetNewService implements Service {
   public constructor(
     private readonly _prismaClient: PrismaClient
   ) {
@@ -22,4 +21,4 @@ export class BudgetNewService implements Service {
       },
     });
   }
-}
+}*/

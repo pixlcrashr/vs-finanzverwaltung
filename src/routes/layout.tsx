@@ -1,12 +1,12 @@
 import { component$, Slot } from "@builder.io/qwik";
-import Content from "~/components/layout/Content";
+import MainLayout from "~/components/layout/MainLayout";
 
 export default component$(() => {
   return (
     <>
-      <Content>
+      <MainLayout>
         <Slot />
-      </Content>
+      </MainLayout>
     </>
   );
-})
+});

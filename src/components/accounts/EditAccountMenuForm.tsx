@@ -45,22 +45,28 @@ type EditAccountMenuFormProps = {
 }
 
 export const useFormAction = formAction$<EditAccountForm>(async (values) => {
-  const q = P.sql`WITH RECURSIVE ancestors(id, parent_id) AS (
-  SELECT id, parent_account_id FROM accounts WHERE id = $1
+
+  if (values.parentAccountId !== null) {
+    const q = P.sql`WITH RECURSIVE ancestors(id, parent_id) AS (
+  SELECT id, parent_account_id FROM accounts WHERE id = $1::uuid
   UNION
   SELECT a.id, a.parent_account_id
   FROM accounts a
   JOIN ancestors an ON a.id = an.parent_id
 )
-SELECT EXISTS (SELECT 1 FROM ancestors WHERE id = $2) AS has_cycle`;
-  q.values = [values.parentAccountId, values.id];
+SELECT EXISTS (SELECT 1 FROM ancestors WHERE id = $2::uuid) AS has_cycle`;
+    q.values = [values.parentAccountId, values.id];
 
-  const hasCycle = await Prisma.$queryRaw<{ has_cycle: boolean }>(q);
+    const hasCycle = await Prisma.$queryRaw<{ has_cycle: boolean }[]>(q);
 
-  if (hasCycle.has_cycle) {
-    return {
-      status: "error",
-      message: "Konto kann nicht als übergeordnetes Konto verwendet werden, da es einen Zyklus erzeugt."
+    if (hasCycle[0].has_cycle) {
+      return {
+        errors: {
+          parentAccountId: "Konto kann nicht als übergeordnetes Konto verwendet werden, da es einen Zyklus erzeugt."
+        },
+        status: "error",
+        message: "Konto kann nicht als übergeordnetes Konto verwendet werden, da es einen Zyklus erzeugt."
+      };
     }
   }
 

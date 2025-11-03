@@ -49,6 +49,7 @@ model accounts {
   budget_revision_account_values budget_revision_account_values[]
   transactions                   transactions[]
   view_account_assignments       view_account_assignments[]
+  is_archived                    Boolean                          @default(false)
 
   @@index([display_code], map: "idx_accounts_display_code")
   @@index([display_name], map: "idx_accounts_display_name")

@@ -98,11 +98,13 @@ export default component$(() => {
               <td class="is-vcentered">{account.name}</td>
               <td class="is-vcentered">{account.description}</td>
               <td class="is-vcentered">
-                <div class="buttons are-small">
+                <div class="buttons are-small is-flex-wrap-nowrap">
                   <button class="button" onClick$={() => {
                     editMenuAccountId.value = account.id;
                     menuStatus.value = MenuStatus.Edit;
                   }}>Bearbeiten</button>
+                  <button class="button is-warning is-outlined">Archivieren</button>
+                  <button class="button is-danger is-outlined">Entfernen</button>
                 </div>
               </td>
             </tr>)}

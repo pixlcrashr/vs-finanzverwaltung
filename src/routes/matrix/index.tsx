@@ -3,7 +3,7 @@ import styles from "./index.scss?inline";
 import { routeLoader$ } from "@builder.io/qwik-city";
 import { formatDateShort } from "~/lib/format";
 
-type Matrix = {
+export type Matrix = {
   budgets: {
     id: string;
     name: string;
@@ -31,7 +31,7 @@ type Matrix = {
   }[];
 }
 
-const useGetMatrix = routeLoader$<Matrix>(() => {
+export const useGetMatrix = routeLoader$<Matrix>(() => {
   return {
     budgets: [
       {
@@ -158,14 +158,14 @@ export default component$(() => {
           </tr>
         </thead>
         <tbody>
-          {matrix.value.rows.map((row, i) => <tr key={row.accountId}>
+          {matrix.value.rows.map((row) => <tr key={row.accountId}>
               <td>{row.accountCode}</td>
               <td>{row.accountName}</td>
               {showDescription.value && <td>{row.accountDescription}</td>}
-              {row.values.map((value, j) => <>
-                {showTarget.value && value.revisions.map((revision, k) => <td key={revision.revisionId}>{revision.targetValue}</td>)}
+              {row.values.map((value) => <>
+                {showTarget.value && value.revisions.map((revision) => <td key={revision.revisionId}>{revision.targetValue}</td>)}
                 {showActual.value && <td>{value.actualValue}</td>}
-                {showDiff.value && value.revisions.map((revision, k) => <td key={revision.revisionId}>{revision.diffValue}</td>)}
+                {showDiff.value && value.revisions.map((revision) => <td key={revision.revisionId}>{revision.diffValue}</td>)}
               </>)}
             </tr>)}
         </tbody>

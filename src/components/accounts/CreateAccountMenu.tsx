@@ -2,7 +2,6 @@ import { component$, QRL, Signal } from "@builder.io/qwik";
 import { formAction$, reset, useForm, valiForm$ } from "@modular-forms/qwik";
 import * as v from 'valibot';
 import { Prisma } from "~/lib/prisma";
-import AccountSelectPrefix from "./AccountSelectPrefix";
 
 
 
@@ -59,14 +58,7 @@ export const useFormAction = formAction$<CreateAccountForm>(async (values) => {
   }
 }, valiForm$(CreateAccountSchema));
 
-function formatAccountSelectPrefix(depth: number) {
-  const arr = new Array(depth * 5);
 
-  return <>
-    {arr.map(() => <>&nbsp;</>)}
-    └─
-  </>;
-}
 
 export default component$<CreateAccountFormProps>((compProps) => {
   const [form, { Form, Field }] = useForm({
@@ -92,7 +84,7 @@ export default component$<CreateAccountFormProps>((compProps) => {
                   <option value="">Kein übergeordnetes Konto</option>
                   {compProps.accounts.value.map((account) => (
                     <option key={account.id} value={account.id}>
-                      <AccountSelectPrefix depth={account.depth}><span>{account.code} | {account.name}</span></AccountSelectPrefix>
+                      {`${"\u00A0".repeat(account.depth * 5)}└─ ${account.code} | ${account.name}`}
                     </option>
                   ))}
                 </select>

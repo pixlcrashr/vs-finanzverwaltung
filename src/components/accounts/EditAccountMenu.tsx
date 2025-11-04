@@ -31,18 +31,9 @@ async function getAccount(id: string): Promise<Account | null> {
       code: m.display_code,
       parentAccountId: m.parent_account_id
     };
-  } catch (error) {
+  } catch {
     return null;
   }
-}
-
-async function removeRevision(revisionId: string): Promise<void> {
-  // TODO: remove also all budget account values
-  await Prisma.budget_revisions.delete({
-    where: {
-      id: revisionId,
-    },
-  });
 }
 
 export const fetchAccount = server$(async (accountId: string) => {

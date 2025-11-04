@@ -29,7 +29,7 @@ async function getBudget(id: string): Promise<Budget | null> {
       id: m.id,
       name: m.display_name,
     }
-  } catch (error) {
+  } catch {
     return null;
   }
 }

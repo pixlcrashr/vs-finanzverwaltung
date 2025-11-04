@@ -64,18 +64,9 @@ async function getBudget(id: string): Promise<Budget | null> {
       })),
       lastRevisionDate: m.budget_revisions[m.budget_revisions.length - 1].date ?? new Date(),
     };
-  } catch (error) {
+  } catch {
     return null;
   }
-}
-
-async function removeRevision(revisionId: string): Promise<void> {
-  // TODO: remove also all budget account values
-  await Prisma.budget_revisions.delete({
-    where: {
-      id: revisionId,
-    },
-  });
 }
 
 export const fetchBudget = server$(async (budgetId: string) => {

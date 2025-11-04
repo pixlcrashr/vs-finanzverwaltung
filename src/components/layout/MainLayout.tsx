@@ -49,8 +49,8 @@ export default component$(() => {
 
         <aside class="menu p-4">
           <ul class="menu-list">
-            {menuItems.map(({ name, path }) => <li key="name">
-              <Link class={["menu-list-link", { 'is-active': location.url.pathname.startsWith(path) }]} href={path}>{name}</Link>
+            {menuItems.map(({ name, path }) => <li key={name}>
+              <Link class={["menu-list-link", { 'is-active': location.url.pathname.startsWith(path) }]} href={path} prefetch="js">{name}</Link>
             </li>)}
           </ul>
         </aside>

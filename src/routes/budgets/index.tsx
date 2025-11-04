@@ -123,19 +123,19 @@ export default component$(() => {
       </MainContent>
 
       <MainContentMenu isShown={editMenuShown}>
-        <MainContentMenuHeader onClose$={() => menuStatus.value = MenuStatus.None} q:slot="header">
+        <MainContentMenuHeader onClose$={() => menuStatus.value = MenuStatus.None}>
           Haushaltsplan bearbeiten
         </MainContentMenuHeader>
 
-        <EditBudgetMenu budgetId={editMenuBudgetId} q:slot="content"></EditBudgetMenu>
+        <EditBudgetMenu budgetId={editMenuBudgetId} />
       </MainContentMenu>
 
       <MainContentMenu isShown={createMenuShown}>
-        <MainContentMenuHeader onClose$={() => menuStatus.value = MenuStatus.None} q:slot="header">
+        <MainContentMenuHeader onClose$={() => menuStatus.value = MenuStatus.None}>
           Haushaltsplan erstellen
         </MainContentMenuHeader>
 
-        <AddBudgetMenu q:slot="content"></AddBudgetMenu>
+        <AddBudgetMenu />
       </MainContentMenu >
     </>
   );

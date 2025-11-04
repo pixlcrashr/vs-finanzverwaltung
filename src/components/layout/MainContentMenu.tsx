@@ -18,8 +18,7 @@ export default component$<MainContentMenuProps>(({
         "is-active": isShown.value
       }]}>
         <div class="main-content-menu-wrapper">
-          <Slot name="header" />
-          <Slot name="content" />
+          <Slot />
         </div>
       </div>
     </>

@@ -1,4 +1,4 @@
-import { component$, QRL, useSignal, useStore } from "@builder.io/qwik";
+import { $, component$, QRL, useSignal } from "@builder.io/qwik";
 import { formAction$, InitialValues, useForm, valiForm$ } from '@modular-forms/qwik';
 import * as v from 'valibot';
 import { BudgetStatus } from "~/lib/types";
@@ -208,9 +208,9 @@ export default component$<EditBudgetMenuFormProps>(({ value, onSubmit$, lastRevi
       <div class="field">
         <label class="label">Beschreibung</label>
         <div class="control">
-          <Field name="description">{(field, props) => (
-            <textarea {...props} class="textarea is-small" disabled={form.submitting} rows={10} value={field.value} />
-          )}</Field>
+          <Field name="description">{(field, props) => {
+            return (<textarea {...props} class="textarea is-small" disabled={form.submitting} rows={10} value={field.value} />);
+          }}</Field>
         </div>
       </div>
 

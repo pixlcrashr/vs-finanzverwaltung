@@ -1,6 +1,7 @@
 import { component$, QRL } from "@builder.io/qwik";
-import { formAction$, InitialValues, useForm, valiForm$ } from "@modular-forms/qwik";
+import { formAction$, useForm, valiForm$ } from "@modular-forms/qwik";
 import * as v from 'valibot';
+import { Prisma } from "~/lib/prisma";
 
 
 
@@ -26,8 +27,24 @@ type CreateBudgetMenuFormProps = {
   onCreated$?: QRL<() => void>;
 }
 
+async function createBudget(name: string, description: string, startDate: Date, endDate: Date): Promise<void> {
+  await Prisma.budgets.create({
+    data: {
+      display_name: name,
+      display_description: description,
+      period_start: startDate,
+      period_end: endDate,
+      budget_revisions: {
+        create: {
+          date: startDate,
+        }
+      }
+    }
+  });
+}
+
 export const useFormAction = formAction$<CreateBudgetForm>(async (values) => {
-  console.log(values);
+  await createBudget(values.name, values.description, new Date(values.startDate), new Date(values.endDate));
 }, valiForm$(CreateBudgetSchema));
 
 export default component$<CreateBudgetMenuFormProps>((props) => {

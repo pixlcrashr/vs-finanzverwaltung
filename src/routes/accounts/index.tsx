@@ -112,18 +112,18 @@ export default component$(() => {
         </table>
       </MainContent>
       <MainContentMenu isShown={createMenuShown}>
-        <MainContentMenuHeader onClose$={() => menuStatus.value = MenuStatus.None} q:slot="header">
+        <MainContentMenuHeader onClose$={() => menuStatus.value = MenuStatus.None}>
           Haushaltskonto erstellen
         </MainContentMenuHeader>
 
-        <CreateAccountMenu accounts={accounts} q:slot="content"/>
+        <CreateAccountMenu accounts={accounts} />
       </MainContentMenu>
       <MainContentMenu isShown={editMenuShown}>
-        <MainContentMenuHeader onClose$={() => menuStatus.value = MenuStatus.None} q:slot="header">
+        <MainContentMenuHeader onClose$={() => menuStatus.value = MenuStatus.None}>
           Haushaltskonto bearbeiten
         </MainContentMenuHeader>
 
-        <EditAccountMenu accounts={accounts} accountId={editMenuAccountId} q:slot="content"></EditAccountMenu>
+        <EditAccountMenu accounts={accounts} accountId={editMenuAccountId} />
       </MainContentMenu>
     </>
   );

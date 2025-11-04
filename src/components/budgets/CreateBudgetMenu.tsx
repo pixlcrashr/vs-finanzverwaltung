@@ -55,7 +55,8 @@ export default component$<CreateBudgetMenuFormProps>((props) => {
       startDate: '',
       endDate: ''
     }},
-    action: useFormAction()
+    action: useFormAction(),
+    validate: valiForm$(CreateBudgetSchema)
   });
 
   return (

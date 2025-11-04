@@ -89,7 +89,8 @@ SELECT EXISTS (SELECT 1 FROM ancestors WHERE id = $2::uuid) AS has_cycle`;
 export default component$<EditAccountMenuFormProps>((compProps) => {
   const [form, { Form, Field }] = useForm({
     loader: { value: compProps.value },
-    action: useFormAction()
+    action: useFormAction(),
+    validate: valiForm$(EditAccountSchema)
   });
 
   return (

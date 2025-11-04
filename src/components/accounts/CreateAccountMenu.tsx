@@ -69,6 +69,7 @@ export default component$<CreateAccountFormProps>((compProps) => {
       parentAccountId: null
     }},
     action: useFormAction(),
+    validate: valiForm$(CreateAccountSchema)
   });
 
 

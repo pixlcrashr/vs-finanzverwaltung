@@ -7,6 +7,7 @@ import { server$ } from "@builder.io/qwik-city";
 import { formatDateInputField } from "~/lib/format";
 
 
+
 const EditBudgetSchema = v.object({
   id: v.pipe(
     v.string(),
@@ -182,7 +183,8 @@ export default component$<EditBudgetMenuFormProps>(({ value, onSubmit$, lastRevi
   const [form, { Form, Field, FieldArray }] = useForm({
     loader: valueStore,
     action: useFormAction(),
-    fieldArrays: ['revisions']
+    fieldArrays: ['revisions'],
+    validate: valiForm$(EditBudgetSchema)
   });
 
   return (

@@ -11,6 +11,7 @@ import MainContentMenuHeader from "~/components/layout/MainContentMenuHeader";
 import { formatDateShort } from "~/lib/format";
 import { Prisma } from "~/lib/prisma";
 import styles from "./index.scss?inline";
+import CreateBudgetMenu from "~/components/budgets/CreateBudgetMenu";
 
 
 
@@ -127,7 +128,6 @@ export default component$(() => {
           Haushaltsplan bearbeiten
         </MainContentMenuHeader>
 
-        <EditBudgetMenu budgetId={editMenuBudgetId} />
       </MainContentMenu>
 
       <MainContentMenu isShown={createMenuShown}>
@@ -135,7 +135,7 @@ export default component$(() => {
           Haushaltsplan erstellen
         </MainContentMenuHeader>
 
-        <AddBudgetMenu />
+        <CreateBudgetMenu />
       </MainContentMenu >
     </>
   );

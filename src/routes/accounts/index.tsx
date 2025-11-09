@@ -116,14 +116,12 @@ export default component$(() => {
           Haushaltskonto erstellen
         </MainContentMenuHeader>
 
-        <CreateAccountMenu accounts={accounts} />
       </MainContentMenu>
       <MainContentMenu isShown={editMenuShown}>
         <MainContentMenuHeader onClose$={() => menuStatus.value = MenuStatus.None}>
           Haushaltskonto bearbeiten
         </MainContentMenuHeader>
 
-        <EditAccountMenu accounts={accounts} accountId={editMenuAccountId} />
       </MainContentMenu>
     </>
   );

@@ -1,66 +1,64 @@
-import { component$, isBrowser, type QRL } from "@builder.io/qwik";
-import type { SubmitHandler } from '@modular-forms/qwik';
-import { formAction$, useForm, valiForm$ } from "@modular-forms/qwik";
-import * as v from 'valibot';
-import { Prisma } from "~/lib/prisma";
+import { component$ } from "@builder.io/qwik";
+import { Form } from "@builder.io/qwik-city";
+import { useCreateBudgetRouteAction } from "~/routes/budgets";
 
 
 
-const CreateBudgetSchema = v.object({
-  name: v.pipe(
-    v.string(),
-    v.minLength(1)
-  ),
-  description: v.string(),
-  startDate: v.pipe(
-    v.string(),
-    v.isoDate()
-  ),
-  endDate: v.pipe(
-    v.string(),
-    v.isoDate()
-  )
-});
+export interface CreateBudgetMenuFormProps {}
 
-type CreateBudgetForm = v.InferInput<typeof CreateBudgetSchema>;
-
-interface CreateBudgetMenuFormProps {
-  onCreated$?: QRL<SubmitHandler<CreateBudgetForm>>;
-};
-
-async function createBudget(name: string, description: string, startDate: Date, endDate: Date): Promise<void> {
-  await Prisma.budgets.create({
-    data: {
-      display_name: name,
-      display_description: description,
-      period_start: startDate,
-      period_end: endDate,
-      budget_revisions: {
-        create: {
-          date: startDate,
-        }
-      }
-    }
-  });
-}
-
-export const useFormAction = formAction$<CreateBudgetForm>(async (values) => {
-  await createBudget(values.name, values.description, new Date(values.startDate), new Date(values.endDate));
-}, valiForm$(CreateBudgetSchema));
-
-export default component$((props) => {
-  /*const [form, { Form, Field }] = useForm<CreateBudgetForm>({
-    loader: { value: {
-      name: '',
-      description: '',
-      startDate: '',
-      endDate: ''
-    }},
-    action: useFormAction(),
-    validate: valiForm$(CreateBudgetSchema)
-  });*/
+export default component$<CreateBudgetMenuFormProps>((props) => {
+  const action = useCreateBudgetRouteAction();
 
   return (
-    <p>test</p>
+    <>
+      <Form action={action}>
+        <div class="field">
+          <label class="label">Name</label>
+          <div class="control">
+            <input name="name" class="input is-small" disabled={action.isRunning} type="text" />
+          </div>
+
+          {action.value?.fieldErrors?.name && <p class="help is-danger">{action.value?.fieldErrors?.name}</p>}
+        </div>
+
+        <div class="field">
+          <label class="label">Beschreibung</label>
+          <div class="control">
+            <textarea name="description" class="textarea is-small" disabled={action.isRunning} rows={10} />
+          </div>
+
+          {action.value?.fieldErrors?.description && <p class="help is-danger">{action.value?.fieldErrors?.description}</p>}
+        </div>
+
+        <div class="field is-horizontal">
+          <div class="field-body">
+            <div class="field">
+              <label class="label">Start Zeitraum</label>
+              <div class="control">
+                <input name="startDate" class="input is-small" disabled={action.isRunning} type="date" />
+              </div>
+
+              {action.value?.fieldErrors?.startDate && <p class="help is-danger">{action.value?.fieldErrors?.startDate}</p>}
+            </div>
+
+            <div class="field">
+              <label class="label">Ende Zeitraum</label>
+              <div class="control">
+                <input name="endDate" class="input is-small" disabled={action.isRunning} type="date" />
+              </div>
+
+              {action.value?.fieldErrors?.endDate && <p class="help is-danger">{action.value?.fieldErrors?.endDate}</p>}
+            </div>
+          </div>
+        </div>
+
+        <div class="buttons mt-5 is-right are-small">
+          <button type="submit" class={["button", "is-primary", {
+            'is-loading': action.isRunning
+          }]}>Hinzufügen</button>
+        </div>
+      </Form>
+
+    </>
   );
 });

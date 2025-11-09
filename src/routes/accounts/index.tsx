@@ -7,10 +7,8 @@ import styles from "./index.scss?inline";
 import MainContent from "~/components/layout/MainContent";
 import MainContentMenu from "~/components/layout/MainContentMenu";
 import MainContentMenuHeader from "~/components/layout/MainContentMenuHeader";
-import CreateAccountMenu from "~/components/accounts/CreateAccountMenu";
 import { Prisma } from "~/lib/prisma";
 import { accounts } from "@prisma/client";
-import EditAccountMenu from "~/components/accounts/EditAccountMenu";
 
 
 

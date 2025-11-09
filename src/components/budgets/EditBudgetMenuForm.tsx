@@ -1,4 +1,4 @@
-import { $, component$, QRL, useSignal } from "@builder.io/qwik";
+import { component$, QRL, useSignal } from "@builder.io/qwik";
 import { formAction$, InitialValues, useForm, valiForm$ } from '@modular-forms/qwik';
 import * as v from 'valibot';
 import { BudgetStatus } from "~/lib/types";
@@ -177,7 +177,7 @@ export const useFormAction = formAction$<EditBudgetForm>(async (values) => {
   }
 }, valiForm$(EditBudgetSchema));
 
-export default component$<EditBudgetMenuFormProps>(({ value, onSubmit$, lastRevisionDate, status }) => {
+export default component$<EditBudgetMenuFormProps>(({ value, onSubmit$, status }) => {
   const valueStore = useSignal(value);
 
   const [form, { Form, Field, FieldArray }] = useForm({

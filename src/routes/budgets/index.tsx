@@ -1,7 +1,5 @@
 import { component$, useComputed$, useSignal, useStylesScoped$, useTask$ } from "@builder.io/qwik";
-import { DocumentHead, Link, routeLoader$ } from "@builder.io/qwik-city";
-import AddBudgetMenu from "~/components/budgets/CreateBudgetMenu";
-import EditBudgetMenu from "~/components/budgets/EditBudgetMenu";
+import { DocumentHead, Link, routeAction$, routeLoader$, zod$, z } from "@builder.io/qwik-city";
 import Header from "~/components/layout/Header";
 import HeaderButtons from "~/components/layout/HeaderButtons";
 import HeaderTitle from "~/components/layout/HeaderTitle";
@@ -14,6 +12,33 @@ import styles from "./index.scss?inline";
 import CreateBudgetMenu from "~/components/budgets/CreateBudgetMenu";
 
 
+
+export const CreateBudgetSchema = {
+  name: z.string(),
+  description: z.string(),
+  startDate: z.string().date(),
+  endDate: z.string().date()
+};
+
+async function createBudget(name: string, description: string, startDate: Date, endDate: Date): Promise<void> {
+  await Prisma.budgets.create({
+    data: {
+      display_name: name,
+      display_description: description,
+      period_start: startDate,
+      period_end: endDate,
+      budget_revisions: {
+        create: {
+          date: startDate,
+        }
+      }
+    }
+  });
+}
+
+export const useCreateBudgetRouteAction = routeAction$(async (args) => {
+  await createBudget(args.name, args.description, new Date(args.startDate), new Date(args.endDate));
+}, zod$(CreateBudgetSchema));
 
 export enum MenuStatus {
   None,

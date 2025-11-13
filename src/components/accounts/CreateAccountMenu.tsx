@@ -1,146 +1,87 @@
-import { component$, QRL, Signal } from "@builder.io/qwik";
-import { formAction$, reset, useForm, valiForm$ } from "@modular-forms/qwik";
-import * as v from 'valibot';
-import { Prisma } from "~/lib/prisma";
+import { component$, QRL, Signal, useComputed$, useSignal, useStylesScoped$, useTask$ } from "@builder.io/qwik";
+import { Form } from "@builder.io/qwik-city";
+import { useCreateAccountAction } from "~/routes/accounts";
+import styles from "./CreateAccountMenu.scss?inline";
 
 
-
-const CreateAccountSchema = v.object({
-  name: v.pipe(
-    v.string(),
-    v.minLength(1)
-  ),
-  code: v.pipe(
-    v.string(),
-    v.minLength(1)
-  ),
-  description: v.string(),
-  parentAccountId: v.pipe(
-    v.nullable(v.string())
-  )
-});
-
-type CreateAccountForm = v.InferInput<typeof CreateAccountSchema>;
 
 export interface Account {
   id: string;
+  depth: number;
   code: string;
   name: string;
-  depth: number;
 }
 
-type CreateAccountFormProps = {
-  onCreated$?: QRL<() => void>;
-  accounts: Signal<Account[]>;
+export interface CreateAccountFormProps {
+  accounts: Account[];
 }
-
-async function createAccount(parentAccountId: string | null, name: string, code: string, description: string): Promise<void> {
-  await Prisma.accounts.create({
-    data: {
-      parent_account_id: parentAccountId,
-      display_name: name,
-      display_code: code,
-      display_description: description
-    }
-  });
-}
-
-export const useFormAction = formAction$<CreateAccountForm>(async (values) => {
-  await createAccount(
-    values.parentAccountId,
-    values.name,
-    values.code,
-    values.description
-  );
-
-  return {
-    status: "success"
-  }
-}, valiForm$(CreateAccountSchema));
-
-
 
 export default component$<CreateAccountFormProps>((compProps) => {
-  const [form, { Form, Field }] = useForm({
-    loader: { value: {
-      name: '',
-      description: '',
-      code: '',
-      parentAccountId: null
-    }},
-    action: useFormAction(),
-    validate: valiForm$(CreateAccountSchema)
+  useStylesScoped$(styles);
+
+  const createAction = useCreateAccountAction();
+
+  const refSig = useSignal<HTMLFormElement>();
+
+  useTask$(({ track }) => {
+    const success = track(() => createAction.value?.success);
+    if (success) {
+      if (refSig.value) {
+        refSig.value.reset();
+      }
+    }
   });
 
-
   return (
-    <>
-      <Form onSubmit$={() => { reset(form); compProps.onCreated$?.(); }}>
-        <div class="field">
-          <label class="label">Übergeordnetes Konto</label>
-          <Field name="parentAccountId">
-            {(field, props) => (<>
-              <div class="select">
-                <select {...props} disabled={form.submitting} value={field.value ?? ''}>
-                  <option value="">Kein übergeordnetes Konto</option>
-                  {compProps.accounts.value.map((account) => (
-                    <option key={account.id} value={account.id}>
-                      {`${"\u00A0".repeat(account.depth * 5)}└─ ${account.code} | ${account.name}`}
-                    </option>
-                  ))}
-                </select>
-              </div>
+    <Form action={createAction} ref={refSig}>
+      <div class="field">
+        <label class="label">Gruppe</label>
+        <div class="control">
+          <div class="select is-small is-fullwidth">
+            <select value="" name="parentAccountId">
+              <option value="">- keine -</option>
 
-              {field.error && <p class="help is-danger">{field.error}</p>}
-            </>)}
-          </Field>
+              {compProps.accounts.map((account) => (
+                <option key={account.id} value={account.id}>
+                  {`${"\u00A0".repeat(account.depth * 6)}└─ ${account.code} | ${account.name}`}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        <div class="field">
-          <label class="label">Code</label>
-          <Field name="code">
-            {(field, props) => (<>
-              <div class="control">
-                <input {...props} class="input is-small" disabled={form.submitting} type="text" value={field.value} />
-              </div>
+        {createAction.value?.fieldErrors?.parentAccountId && <p class="help is-danger">{createAction.value?.fieldErrors?.parentAccountId}</p>}
+      </div>
 
-              {field.error && <p class="help is-danger">{field.error}</p>}
-            </>)}
-          </Field>
+      <div class="field is-grouped">
+        <div class="field-body">
+          <div class="field">
+            <label class="label">Code</label>
+            <p class="control">
+              <input name="code" class="input is-small code-input" disabled={createAction.isRunning} type="text" placeholder="Code" />
+            </p>
+          </div>
+          <div class="field">
+            <label class="label">Name</label>
+            <p class="control">
+              <input name="name" class="input is-small" disabled={createAction.isRunning} type="text" placeholder="Name" />
+            </p>
+          </div>
         </div>
+      </div>
 
-        <div class="field">
-          <label class="label">Name</label>
-          <Field name="name">
-            {(field, props) => (<>
-              <div class="control">
-                <input {...props} class="input is-small" disabled={form.submitting} type="text" value={field.value} />
-              </div>
-
-              {field.error && <p class="help is-danger">{field.error}</p>}
-            </>)}
-          </Field>
+      <div class="field">
+        <label class="label">Beschreibung</label>
+        <div class="control">
+          <textarea class="textarea is-small"></textarea>
         </div>
+      </div>
 
-        <div class="field">
-          <label class="label">Beschreibung</label>
-          <Field name="description">
-            {(field, props) => (<>
-              <div class="control">
-                <textarea {...props} class="textarea is-small" disabled={form.submitting} rows={10} value={field.value} />
-              </div>
-
-              {field.error && <p class="help is-danger">{field.error}</p>}
-            </>)}
-          </Field>
-        </div>
-
-        <div class="buttons mt-5 is-right are-small">
-          <button type="submit" class={["button", "is-primary", {
-            'is-loading': form.submitting
-          }]}>Hinzufügen</button>
-        </div>
-      </Form>
-    </>
+      <div class="buttons mt-5 is-right are-small">
+        <button type="submit" class={["button", "is-primary", {
+          'is-loading': createAction.isRunning
+        }]}>Hinzufügen</button>
+      </div>
+    </Form>
   );
 });

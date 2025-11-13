@@ -21,10 +21,6 @@ const menuItems = [
     path: '/journal'
   },
   {
-    name: 'Buchhaltung importieren...',
-    path: '/import'
-  },
-  {
     name: 'Einstellungen',
     path: '/settings'
   }

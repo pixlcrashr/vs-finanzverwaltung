@@ -1,4 +1,4 @@
-import { component$ } from "@builder.io/qwik";
+import { component$, useSignal, useTask$ } from "@builder.io/qwik";
 import { Form } from "@builder.io/qwik-city";
 import { useCreateBudgetRouteAction } from "~/routes/budgets";
 
@@ -8,10 +8,20 @@ export interface CreateBudgetMenuFormProps {}
 
 export default component$<CreateBudgetMenuFormProps>((props) => {
   const action = useCreateBudgetRouteAction();
+  const refSig = useSignal<HTMLFormElement>();
+
+  useTask$(({ track }) => {
+    const success = track(() => action.value?.success);
+    if (success) {
+      if (refSig.value) {
+        refSig.value.reset();
+      }
+    }
+  });
 
   return (
     <>
-      <Form action={action}>
+      <Form action={action} ref={refSig}>
         <div class="field">
           <label class="label">Name</label>
           <div class="control">

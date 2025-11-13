@@ -1,4 +1,10 @@
+
+@use 'fontawesome-free/scss/fontawesome';
+@use 'fontawesome-free/scss/solid';
+@use 'fontawesome-free/scss/regular';
+@use 'fontawesome-free/scss/brands';
 @use 'bulma/sass';
+
 
 :root {
   --bulma-family-primary: Roboto,Oxygen,Ubuntu,Helvetica Neue,Helvetica,Arial,sans-serif;

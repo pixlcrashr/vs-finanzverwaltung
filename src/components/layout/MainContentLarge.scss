@@ -1,0 +1,36 @@
+@use "bulma/sass/utilities/mixins";
+
+.main-content-wrapper {
+    flex: 1;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    overflow-y: auto;
+
+    .main-content {
+        padding: 2rem;
+
+        @include mixins.tablet {
+            width: 100%;
+        }
+
+        @include mixins.mobile {
+            width: 100%;
+        }
+        
+        @include mixins.desktop {
+            width: 1100px;
+        }
+
+        @include mixins.widescreen {
+            width: 1100px;
+        }
+
+        @include mixins.fullhd {
+            width: 1100px;
+        }
+    }
+}

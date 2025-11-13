@@ -9,14 +9,15 @@ import MainContent from "~/components/layout/MainContent";
 
 
 
-interface Budget {
+interface Account {
   id: string;
+  code: string;
   name: string;
 }
 
-async function getBudget(id: string): Promise<Budget | null> {
+async function getAccount(id: string): Promise<Account | null> {
   try {
-    const m = await Prisma.budgets.findUnique({
+    const m = await Prisma.accounts.findUnique({
       where: {
         id: id,
       },
@@ -27,6 +28,7 @@ async function getBudget(id: string): Promise<Budget | null> {
 
     return {
       id: m.id,
+      code: m.display_code,
       name: m.display_name,
     }
   } catch {
@@ -34,54 +36,45 @@ async function getBudget(id: string): Promise<Budget | null> {
   }
 }
 
-async function deleteBudget(budgetId: string): Promise<void> {
-  // TODO: deny deletion if budget is closed
-  // TODO: delete all budget values referenced to all revisions
-
-  await Prisma.budget_revisions.deleteMany({
-    where: {
-      budget_id: budgetId,
-    },
-  });
-
-  await Prisma.budgets.delete({
+async function deleteAccount(budgetId: string): Promise<void> {
+  await Prisma.accounts.delete({
     where: {
       id: budgetId,
     },
   });
 }
 
-export const useGetBudget = routeLoader$<Budget>(async (req) => {
-  const b = await getBudget(req.params.budgetId);
+export const useGetAccount = routeLoader$<Account>(async (req) => {
+  const a = await getAccount(req.params.accountId);
 
-  if (!b) {
-    throw req.redirect(307, "/budgets");
+  if (!a) {
+    throw req.redirect(307, "/accounts");
   }
 
-  return b;
+  return a;
 });
 
-export const useDeleteBudgetAction = routeAction$(async (_, req) => {
-  await deleteBudget(req.params.budgetId);
+export const useDeleteAccountAction = routeAction$(async (_, req) => {
+  await deleteAccount(req.params.accountId);
 
-  throw req.redirect(307, "/budgets");
+  throw req.redirect(307, "/accounts");
 });
 
 export default component$(() => {
-  const budget = useGetBudget();
-  const deleteBudgetAction = useDeleteBudgetAction();
-  const isLoading = useMinLoading($(() => deleteBudgetAction.isRunning));
+  const budget = useGetAccount();
+  const deleteAccountAction = useDeleteAccountAction();
+  const isLoading = useMinLoading($(() => deleteAccountAction.isRunning));
 
   return (
     <>
       <MainContent>
-        <Form action={deleteBudgetAction}>
+        <Form action={deleteAccountAction}>
           <Header>
             <HeaderTitle>
               <nav class="breadcrumb" aria-label="breadcrumbs">
                 <ul>
-                  <li><Link href="/budgets">Haushaltspläne</Link></li>
-                  <li class="is-active"><Link href="#" aria-current="page">Haushaltsplan {budget.value.name} entfernen</Link></li>
+                  <li><Link href="/accounts">Haushaltskonten</Link></li>
+                  <li class="is-active"><Link href="#" aria-current="page">Haushaltskonto {budget.value.code} | {budget.value.name} entfernen</Link></li>
                 </ul>
               </nav>
             </HeaderTitle>
@@ -90,7 +83,7 @@ export default component$(() => {
           </Header>
 
           <div>
-            <p class="has-text-centered is-size-5">Möchtest du den Haushaltsplan <strong>{budget.value.name}</strong> wirklich entfernen?</p>
+            <p class="has-text-centered is-size-5">Möchtest du das Haushaltskonto <strong>{budget.value.code} | {budget.value.name}</strong> wirklich entfernen?</p>
           </div>
 
           <div class="buttons mt-6 is-centered">

@@ -1,10 +1,9 @@
 import { component$, QRL, Resource, Signal, useResource$ } from "@builder.io/qwik";
-import { server$ } from "@builder.io/qwik-city";
+import { Form, server$ } from "@builder.io/qwik-city";
 import { delay } from "~/lib/delay";
 import { formatDateInputField } from "~/lib/format";
-import EditBudgetMenuForm from "./EditBudgetMenuForm";
 import { Prisma } from "~/lib/prisma";
-import { BudgetStatus } from "~/lib/types";
+import { useSaveBudgetRouteAction } from "~/routes/budgets";
 
 interface EditBudgetMenuProps {
   budgetId: Signal<string>;
@@ -69,6 +68,27 @@ async function getBudget(id: string): Promise<Budget | null> {
   }
 }
 
+async function addRevision(budgetId: string): Promise<Revision> {
+  const m = await Prisma.budget_revisions.create({
+    data: {
+      budget_id: budgetId,
+      date: new Date(),
+    }
+  });
+
+  return {
+    id: m.id,
+    date: m.date,
+    description: m.display_description,
+    createdAt: m.created_at,
+    updatedAt: m.updated_at
+  };
+}
+
+export const addRevisionServer = server$(async (budgetId: string) => {
+  return await addRevision(budgetId);
+});
+
 export const fetchBudget = server$(async (budgetId: string) => {
   const b = await getBudget(budgetId);
 
@@ -89,6 +109,7 @@ export default component$<EditBudgetMenuProps>(({ budgetId, onSaved$ }) => {
 
     return b;
   });
+  const saveBudgetAction = useSaveBudgetRouteAction();
 
   return (
     <>
@@ -96,21 +117,119 @@ export default component$<EditBudgetMenuProps>(({ budgetId, onSaved$ }) => {
         return <progress class="progress is-small is-primary" max="100"></progress>;
       }} onResolved={(budget) => {
         return (<>
-          {budget !== null && <EditBudgetMenuForm onSubmit$={onSaved$} value={{
-            id: budget.id,
-            name: budget.name,
-            description: budget.description,
-            startDate: formatDateInputField(budget.startDate),
-            endDate: formatDateInputField(budget.endDate),
-            revisions: budget.revisions.map((r) => ({
-              id: r.id,
-              date: formatDateInputField(r.date),
-              description: r.description,
-            }))
-          }} lastRevisionDate={formatDateInputField(budget.lastRevisionDate)} status={budget.is_closed ? BudgetStatus.Closed : BudgetStatus.Open} />}
+          {budget !== null && <Form action={saveBudgetAction}>
+            <input hidden name="id" type="hidden" value={budget.id} />
+
+            <div class="field">
+              <label class="label">Status</label>
+              <div class="control">
+                <p>{!budget.is_closed ? 'Offen' : 'Geschlossen'}</p>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Name</label>
+              <div class="control">
+                <input name="name" class="input is-small" disabled={saveBudgetAction.isRunning} type="text" value={budget.name} />
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Beschreibung</label>
+              <div class="control">
+                <textarea name="description" class="textarea is-small" disabled={saveBudgetAction.isRunning} rows={10} value={budget.description} />
+              </div>
+            </div>
+
+            <div class="field is-horizontal">
+              <div class="field-body">
+                <div class="field">
+                  <label class="label">Start Zeitraum</label>
+                  <div class="control">
+                    <input name="startDate" class="input is-small" disabled={saveBudgetAction.isRunning} type="date" value={formatDateInputField(budget.startDate)} />
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="label">Ende Zeitraum</label>
+                  <div class="control">
+                    <input name="endDate" class="input is-small" disabled={saveBudgetAction.isRunning} type="date" value={formatDateInputField(budget.endDate)} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Revisionen</label>
+              <table class="table is-narrow is-fullwidth">
+                <thead>
+                  <tr>
+                    <th>Nr.</th>
+                    <th>Datum</th>
+                    <th>Beschreibung</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {budget.revisions.map((revision, index) => <tr key={revision.id}>
+                        <td class="is-vcentered">{index + 1}</td>
+                        <td class="is-vcentered">
+                          <input hidden name={`revisions.${index}.id`} disabled={index !== budget.revisions.length - 1} type="hidden" value={revision.id} />
+                          <div class="field">
+                            <div class="control is-small">
+                              <input
+                                name={`revisions.${index}.date`}
+                                class="input is-small"
+                                disabled={index !== budget.revisions.length - 1}
+                                type="date"
+                                placeholder="Revisionsdatum"
+                                value={formatDateInputField(revision.date)}
+                              />
+                            </div>
+                          </div>
+                        </td>
+                        <td class="is-vcentered">
+                          <textarea
+                              class="textarea is-small"
+                              disabled={index !== budget.revisions.length - 1}
+                              placeholder="Revisionsbeschreibung"
+                              rows={3}
+                              name={`revisions.${index}.description`}
+                              value={revision.description}
+                            ></textarea>
+                        </td>
+                        <td class="is-vcentered">
+                          {index === budget.revisions.length - 1 && <button type="button" class="delete" onClick$={() => {
+                            budget.revisions.splice(index, 1);
+                          }}></button>}
+                        </td>
+                      </tr>)}
+                </tbody>
+              </table>
+              <div class="buttons is-right are-small">
+                <button class="button" type="button" onClick$={async () => {
+                  const r = await addRevisionServer(budget.id ?? '');
+
+                  budget.revisions.push({
+                    id: r.id,
+                    date: r.date,
+                    description: r.description,
+                    createdAt: r.createdAt,
+                    updatedAt: r.updatedAt
+                  });
+                }}>Revision hinzufügen</button>
+              </div>
+            </div>
+
+            <div class="buttons mt-5 is-right are-small">
+              <button type="submit" class={["button", "is-warning", {
+                'is-loading': saveBudgetAction.isRunning
+              }]}>Speichern</button>
+            </div>
+          </Form>}
         </>);
       }} />
 
     </>
   );
 });
+

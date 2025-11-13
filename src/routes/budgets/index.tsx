@@ -10,6 +10,7 @@ import { formatDateShort } from "~/lib/format";
 import { Prisma } from "~/lib/prisma";
 import styles from "./index.scss?inline";
 import CreateBudgetMenu from "~/components/budgets/CreateBudgetMenu";
+import EditBudgetMenu from "~/components/budgets/EditBudgetMenu";
 
 
 
@@ -18,6 +19,19 @@ export const CreateBudgetSchema = {
   description: z.string(),
   startDate: z.string().date(),
   endDate: z.string().date()
+};
+
+export const SaveBudgetSchema = {
+  id: z.string().uuid(),
+  name: z.string().min(1),
+  description: z.string(),
+  startDate: z.string().date(),
+  endDate: z.string().date(),
+  revisions: z.array(z.object({
+    id: z.string().uuid(),
+    date: z.string().date(),
+    description: z.string()
+  }))
 };
 
 async function createBudget(name: string, description: string, startDate: Date, endDate: Date): Promise<void> {
@@ -36,9 +50,117 @@ async function createBudget(name: string, description: string, startDate: Date, 
   });
 }
 
+interface Revision {
+  id: string;
+  date: Date;
+  description: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+async function listRevisions(budgetId: string): Promise<Revision[]> {
+  const revisions = await Prisma.budget_revisions.findMany({
+    where: {
+      budget_id: budgetId,
+    },
+    orderBy: {
+      created_at: "asc"
+    }
+  });
+
+  return revisions.map((r) => ({
+    id: r.id,
+    date: r.date,
+    description: r.display_description,
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+  }));
+}
+
+async function saveBudget(id: string, name: string, description: string, startDate: Date, endDate: Date): Promise<void> {
+  const m = await Prisma.budgets.findFirst({
+    where: {
+      id: id,
+    },
+  });
+  if (!m) {
+    return;
+  }
+
+  m.display_name = name;
+  m.display_description = description;
+  m.period_start = startDate;
+  m.period_end = endDate;
+
+  await Prisma.budgets.update({
+    where: {
+      id: id,
+    },
+    data: m,
+  });
+}
+
+async function saveRevision(id: string, date: Date, description: string): Promise<void> {
+  const m = await Prisma.budget_revisions.findFirst({
+    where: {
+      id: id,
+    },
+  });
+  if (!m) {
+    return;
+  }
+
+  m.display_description = description;
+  m.date = date;
+
+  await Prisma.budget_revisions.update({
+    where: {
+      id: id,
+    },
+    data: m,
+  });
+};
+
+async function deleteRevision(id: string): Promise<void> {
+  await Prisma.budget_revisions.delete({
+    where: {
+      id: id,
+    },
+  });
+}
+
 export const useCreateBudgetRouteAction = routeAction$(async (args) => {
   await createBudget(args.name, args.description, new Date(args.startDate), new Date(args.endDate));
+
+  return {
+    success: true
+  };
 }, zod$(CreateBudgetSchema));
+
+export const useSaveBudgetRouteAction = routeAction$(async (values) => {
+  await saveBudget(
+    values.id,
+    values.name,
+    values.description,
+    new Date(values.startDate),
+    new Date(values.endDate)
+  );
+
+  const rs = await listRevisions(values.id);
+
+  for (const r of rs) {
+    const v = values.revisions.find((v) => v.id === r.id);
+    if (v) {
+      await saveRevision(r.id, new Date(v.date), v.description);
+    } else {
+      await deleteRevision(r.id);
+    }
+  }
+
+  return {
+    status: "success"
+  }
+}, zod$(SaveBudgetSchema));
 
 export enum MenuStatus {
   None,
@@ -132,7 +254,7 @@ export default component$(() => {
                       editMenuBudgetId.value = budget.id;
                       menuStatus.value = MenuStatus.Edit;
                     }}>Bearbeiten</button>
-                    <a class="button is-danger is-outlined" href={`/budgets/${budget.id}/delete`}>Entfernen</a>
+                    <Link class="button is-danger is-outlined" href={`/budgets/${budget.id}/delete`}>Entfernen</Link>
                   </p>
                 </td>
               </tr>
@@ -153,6 +275,7 @@ export default component$(() => {
           Haushaltsplan bearbeiten
         </MainContentMenuHeader>
 
+        <EditBudgetMenu budgetId={editMenuBudgetId}></EditBudgetMenu>
       </MainContentMenu>
 
       <MainContentMenu isShown={createMenuShown}>

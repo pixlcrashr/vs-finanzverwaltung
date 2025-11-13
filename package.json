@@ -26,7 +26,8 @@
     "prisma:migrate:prod": "prisma migrate deploy",
     "serve": "node server/entry.fastify",
     "start": "vite --open --mode ssr",
-    "qwik": "qwik"
+    "qwik": "qwik",
+    "html2pdf:generate-openapi": "openapi-typescript https://raw.githubusercontent.com/theater-improrama/html2pdf-server/refs/tags/v1.2.0/openapi.yaml -o ./src/lib/html2pdf/v1.d.ts"
   },
   "devDependencies": {
     "@builder.io/qwik": "^1.17.1",
@@ -41,11 +42,12 @@
     "eslint": "9.32.0",
     "eslint-plugin-qwik": "^1.17.1",
     "globals": "16.4.0",
+    "openapi-typescript": "^7.10.1",
     "prettier": "3.6.2",
-    "prisma": "^5.3.1",
+    "prisma": "^6.19.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "typescript": "5.4.5",
+    "typescript": "^5.4.5",
     "typescript-eslint": "8.38.0",
     "typescript-plugin-css-modules": "latest",
     "undici": "*",
@@ -55,9 +57,14 @@
   "dependencies": {
     "@fastify/compress": "^6.2.1",
     "@fastify/static": "^6.10.1",
+    "@types/csv-parse": "^1.1.12",
     "bulma": "^1.0.4",
+    "csv": "^6.4.1",
+    "decimal.js": "^10.6.0",
     "fastify": "^4.17.0",
     "fastify-plugin": "^4.5.0",
+    "fontawesome-free": "^1.0.4",
+    "openapi-fetch": "^0.15.0",
     "sass": "^1.93.2"
   }
 }

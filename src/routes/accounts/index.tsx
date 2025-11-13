@@ -1,5 +1,5 @@
-import { component$, useComputed$, useSignal, useStylesScoped$ } from "@builder.io/qwik";
-import { DocumentHead, Link, routeLoader$ } from "@builder.io/qwik-city";
+import { component$, Signal, useComputed$, useSignal, useStylesScoped$ } from "@builder.io/qwik";
+import { DocumentHead, Link, routeAction$, routeLoader$, z, zod$ } from "@builder.io/qwik-city";
 import Header from "~/components/layout/Header";
 import HeaderButtons from "~/components/layout/HeaderButtons";
 import HeaderTitle from "~/components/layout/HeaderTitle";
@@ -7,15 +7,102 @@ import styles from "./index.scss?inline";
 import MainContent from "~/components/layout/MainContent";
 import MainContentMenu from "~/components/layout/MainContentMenu";
 import MainContentMenuHeader from "~/components/layout/MainContentMenuHeader";
-import { Prisma } from "~/lib/prisma";
 import { accounts } from "@prisma/client";
+import CreateAccountMenu from "~/components/accounts/CreateAccountMenu";
+import { Prisma } from "~/lib/prisma";
+import { Prisma as P } from '@prisma/client';
+import EditAccountMenu from "~/components/accounts/EditAccountMenu";
 
 
+
+export const CreateAccountActionSchema = {
+  name: z.string().min(1),
+  code: z.string().min(1),
+  parentAccountId: z.string().uuid().optional()
+};
+
+async function createAccount(parentAccountId: string | null, name: string, code: string, description: string = ''): Promise<void> {
+  await Prisma.accounts.create({
+    data: {
+      parent_account_id: parentAccountId,
+      display_name: name,
+      display_code: code,
+      display_description: description
+    }
+  });
+}
+
+export const useCreateAccountAction = routeAction$(async (values) => {
+  await createAccount(
+    values.parentAccountId ?? null,
+    values.name,
+    values.code
+  );
+
+  return {
+    success: true
+  };
+}, zod$(CreateAccountActionSchema));
+
+export const SaveAccountActionSchema = {
+  id: z.string().uuid(),
+  name: z.string().min(1),
+  code: z.string().min(1),
+  parentAccountId: z.string().uuid().optional(),
+  description: z.string()
+};
+
+async function saveAccount(id: string, name: string, code: string, parentAccountId: string | null, description: string): Promise<void> {
+
+  if (parentAccountId !== null) {
+    const q = P.sql`WITH RECURSIVE ancestors(id, parent_id) AS (
+  SELECT id, parent_account_id FROM accounts WHERE id = $1::uuid
+  UNION
+  SELECT a.id, a.parent_account_id
+  FROM accounts a
+  JOIN ancestors an ON a.id = an.parent_id
+)
+SELECT EXISTS (SELECT 1 FROM ancestors WHERE id = $2::uuid) AS has_cycle`;
+    q.values = [parentAccountId, id];
+
+    const hasCycle = await Prisma.$queryRaw<{ has_cycle: boolean }[]>(q);
+
+    if (hasCycle[0].has_cycle) {
+      throw new Error('Konto kann nicht als obergeordnetes Konto verwendet werden, da es einen Zyklus erzeugt.');
+    }
+  }
+
+  await Prisma.accounts.update({
+    where: {
+      id: id
+    },
+    data: {
+      parent_account_id: parentAccountId,
+      display_name: name,
+      display_code: code,
+      display_description: description
+    }
+  });
+}
+
+export const useSaveAccountAction = routeAction$(async (values) => {
+  await saveAccount(
+    values.id,
+    values.name,
+    values.code,
+    values.parentAccountId ?? null,
+    values.description
+  );
+
+  return {
+    success: true
+  };
+}, zod$(SaveAccountActionSchema));
 
 enum MenuStatus {
   None,
-  Create,
-  Edit
+  Edit,
+  Create
 }
 
 interface Account {
@@ -24,45 +111,110 @@ interface Account {
   code: string;
   description: string;
   depth: number;
+  children: Account[];
 }
 
 async function getAccounts(): Promise<Account[]> {
   const as = await Prisma.accounts.findMany({
     orderBy: {
-      display_code: 'asc'
+      display_code: 'asc',
     }
   });
 
-  const res: Account[] = [];
+  const traverseChildren: (children: accounts[], depth: number) => Account[] = (children: accounts[], depth: number) => {
+    return children.map(x => {
+      const cs = traverseChildren(as.filter(y => y.parent_account_id === x.id), depth + 1);
+      cs.sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true }));
 
-  const traverse = (parentAccount: accounts, childAccounts: accounts[], depth: number) => {
-    res.push({
-      id: parentAccount.id,
-      name: parentAccount.display_name,
-      code: parentAccount.display_code,
-      description: parentAccount.display_description,
-      depth: depth,
+      return {
+        id: x.id,
+        name: x.display_name,
+        code: x.display_code,
+        description: x.display_description,
+        depth: depth,
+        children: cs
+      };
     });
-
-    childAccounts.forEach(x => traverse(x, as.filter(y => y.parent_account_id === x.id), depth + 1));
   };
 
-  as.filter(x => x.parent_account_id === null).forEach(x => traverse(x, as.filter(y => y.parent_account_id === x.id), 0));
-
-  return res;
+  return traverseChildren(as.filter(x => x.parent_account_id === null), 0);
 }
 
 export const useGetAccounts = routeLoader$<Account[]>(async () => await getAccounts());
+
+export interface AccountRowProps {
+  account: Account;
+  maxDepth: number;
+  editMenuAccountId: Signal<string>;
+  menuStatus: Signal<MenuStatus>;
+}
+
+export const AccountRow = component$<AccountRowProps>((props) => {
+  return (
+    <>
+      <tr key={props.account.id}>
+        {Array.from({ length: props.maxDepth + 1 }).map((_, index) => <td class="is-vcentered" key={index}>
+            {index === props.account.depth ? props.account.code : ''}
+          </td>)}
+        <td class="is-vcentered">{props.account.name}</td>
+        <td class="is-vcentered">{props.account.description}</td>
+        <td class="is-vcentered">
+          <div class="buttons are-small is-flex-wrap-nowrap">
+            <button class="button" onClick$={() => {
+              props.editMenuAccountId.value = props.account.id;
+              props.menuStatus.value = MenuStatus.Edit;
+            }}>Bearbeiten</button>
+            <button class="button is-warning is-outlined">Archivieren</button>
+            <Link class="button is-danger is-outlined" href={`/accounts/${props.account.id}/delete`}>Entfernen</Link>
+          </div>
+        </td>
+      </tr>
+      {props.account.children.map(x => <AccountRow editMenuAccountId={props.editMenuAccountId} menuStatus={props.menuStatus} maxDepth={props.maxDepth} account={x} />)}
+    </>
+  );
+});
 
 export default component$(() => {
   useStylesScoped$(styles);
 
   const accounts = useGetAccounts();
-  const maxDepth = useComputed$(() => accounts.value.reduce((max, account) => Math.max(max, account.depth), 0));
+  const maxDepth = useComputed$(() => {
+    const traverseDepth = (accounts: Account[]): number => {
+      return accounts.reduce((max, account) => Math.max(max, account.depth, traverseDepth(account.children)), 0);
+    };
+
+    return traverseDepth(accounts.value);
+  });
+
   const menuStatus = useSignal<MenuStatus>(MenuStatus.None);
-  const createMenuShown = useComputed$(() => menuStatus.value === MenuStatus.Create);
   const editMenuShown = useComputed$(() => menuStatus.value === MenuStatus.Edit);
   const editMenuAccountId = useSignal<string>('');
+  const createMenuShown = useComputed$(() => menuStatus.value === MenuStatus.Create);
+
+  const flatAccounts = useComputed$(() => {
+    const res: Account[] = [];
+
+    const traverse = (accounts: Account[]): void => {
+      accounts.forEach(x => {
+        res.push(x);
+        traverse(x.children);
+      });
+    };
+
+    traverse(accounts.value);
+
+    return res;
+  });
+
+  const lastRootAccount = useComputed$(() => {
+    const as = accounts.value.filter(a => a.depth === 0);
+
+    if (as.length === 0) {
+      return null;
+    }
+
+    return as[as.length - 1];
+  })
 
   return (
     <>
@@ -76,7 +228,8 @@ export default component$(() => {
             </nav>
           </HeaderTitle>
           <HeaderButtons>
-            <button class="button is-primary is-rounded" onClick$={() => menuStatus.value = MenuStatus.Create}>Hinzufügen</button>
+            <button class="button is-primary is-rounded"
+              onClick$={() => menuStatus.value = menuStatus.value === MenuStatus.Create ? MenuStatus.None : MenuStatus.Create}>Hinzufügen</button>
           </HeaderButtons>
         </Header>
         <table class="table is-hoverable is-fullwidth is-narrow">
@@ -89,37 +242,23 @@ export default component$(() => {
             </tr>
           </thead>
           <tbody>
-            {accounts.value.map((account) => <tr key={account.id}>
-              {Array.from({ length: maxDepth.value + 1 }).map((_, index) => <td class="is-vcentered" key={index}>
-                {index === account.depth ? account.code : ''}
-              </td>)}
-              <td class="is-vcentered">{account.name}</td>
-              <td class="is-vcentered">{account.description}</td>
-              <td class="is-vcentered">
-                <div class="buttons are-small is-flex-wrap-nowrap">
-                  <button class="button" onClick$={() => {
-                    editMenuAccountId.value = account.id;
-                    menuStatus.value = MenuStatus.Edit;
-                  }}>Bearbeiten</button>
-                  <button class="button is-warning is-outlined">Archivieren</button>
-                  <button class="button is-danger is-outlined">Entfernen</button>
-                </div>
-              </td>
-            </tr>)}
+            {accounts.value.map((account) => <AccountRow editMenuAccountId={editMenuAccountId} menuStatus={menuStatus} maxDepth={maxDepth.value} account={account} />)}
           </tbody>
         </table>
       </MainContent>
-      <MainContentMenu isShown={createMenuShown}>
-        <MainContentMenuHeader onClose$={() => menuStatus.value = MenuStatus.None}>
-          Haushaltskonto erstellen
-        </MainContentMenuHeader>
-
-      </MainContentMenu>
       <MainContentMenu isShown={editMenuShown}>
         <MainContentMenuHeader onClose$={() => menuStatus.value = MenuStatus.None}>
           Haushaltskonto bearbeiten
         </MainContentMenuHeader>
 
+        <EditAccountMenu accounts={accounts} accountId={editMenuAccountId}></EditAccountMenu>
+      </MainContentMenu>
+      <MainContentMenu isShown={createMenuShown}>
+        <MainContentMenuHeader onClose$={() => menuStatus.value = MenuStatus.None}>
+          Haushaltskonto hinzufügen
+        </MainContentMenuHeader>
+
+        <CreateAccountMenu accounts={flatAccounts.value} />
       </MainContentMenu>
     </>
   );

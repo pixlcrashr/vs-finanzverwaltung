@@ -2,7 +2,7 @@ name: vsfv-dev
 
 services:
   development-db:
-    image: postgres
+    image: postgres:18
     restart: unless-stopped
     environment:
       TZ: Europe/Berlin
@@ -12,7 +12,7 @@ services:
     ports:
       - 127.0.0.1:5334:5432
   test-db:
-    image: postgres
+    image: postgres:18
     restart: unless-stopped
     environment:
       TZ: Europe/Berlin

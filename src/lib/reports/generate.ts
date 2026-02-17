@@ -380,30 +380,11 @@ GROUP BY f1.budget_id, f1.account_id`;
 
     const currentValue = bravMap.get(bravKey(budgetRevisionId, accountId)) ?? new Decimal(0);
 
-    // Check immediate previous revision in the global timeline
-    if (globalIdx >= 1) {
-      const prevRevision = globalRevisionList[globalIdx - 1];
-      const prevValue = bravMap.get(bravKey(prevRevision.revisionId, accountId)) ?? new Decimal(0);
+    const prevRevision = globalRevisionList[globalIdx - 1];
+    const prevValue = bravMap.get(bravKey(prevRevision.revisionId, accountId)) ?? new Decimal(0);
 
-      // If different from immediate previous, show it
-      if (!currentValue.equals(prevValue)) {
-        return true;
-      }
-
-      // If same as immediate previous, check 2nd previous revision (if exists)
-      if (globalIdx >= 2) {
-        const prev2Revision = globalRevisionList[globalIdx - 2];
-        const prev2Value = bravMap.get(bravKey(prev2Revision.revisionId, accountId)) ?? new Decimal(0);
-        // Show if different from 2nd previous
-        return !currentValue.equals(prev2Value);
-      }
-
-      // If no 2nd previous exists, don't show (since it's same as immediate previous)
-      return false;
-    }
-
-    // If no previous revision exists, show if non-zero
-    return !currentValue.isZero();
+    // Show value only if it differs from the immediate previous revision
+    return !currentValue.equals(prevValue);
   };
 
   return {

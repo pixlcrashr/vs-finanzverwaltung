@@ -2,7 +2,7 @@ name: vsfv-test
 
 services:
   db:
-    image: postgres
+    image: postgres:18
     restart: unless-stopped
     environment:
       TZ: Europe/Berlin

@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      TZ: Europe/Berlin
+      POSTGRES_DB: vsf
+      POSTGRES_USER: vsf
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    expose:
+      - 5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks:
+      - database
+  app-migrate:
+    environment:
+      DB_URL: postgresql://vsf:${DB_PASSWORD:-postgres}@db:5432/vsf
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - database
+  app:
+    environment:
+      DB_URL: postgresql://vsf:${DB_PASSWORD:-postgres}@db:5432/vsf
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - database
+
+volumes:
+  db-data:
+
+networks:
+  database:

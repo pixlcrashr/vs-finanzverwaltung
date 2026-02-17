@@ -9,6 +9,8 @@ services:
       DB_URL: ${DB_URL}
     entrypoint: ["./node_modules/.bin/prisma"]
     command: ["migrate", "deploy"]
+    networks:
+      - internal
   app:
     image: pixlcrashr/vsfv:${VERSION:-latest}
     restart: unless-stopped

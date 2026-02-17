@@ -22,7 +22,7 @@ VS-Finanzverwaltung is a financial management system for German student organiza
 ### Setup
 ```bash
 npm install                      # Install dependencies and generate Prisma client
-docker compose -f docker-compose.dev.yaml up -d  # Start PostgreSQL + html2pdf services
+docker compose -f compose.dev.yaml up -d  # Start PostgreSQL + html2pdf services
 npm run prisma:migrate          # Run database migrations
 ```
 
@@ -242,7 +242,7 @@ ORGANISATION_NAME="Organization Name"
 PUBLIC_VERSION="version-string"
 ```
 
-**Development Services** (via docker-compose.dev.yaml):
+**Development Services** (via compose.dev.yaml):
 - PostgreSQL: `localhost:5334` (development DB)
 - PostgreSQL: `localhost:5335` (test DB)
 - html2pdf: `localhost:8082` (PDF generation service)

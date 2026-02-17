@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.10.0](https://github.com/pixlcrashr/vsfv/compare/v1.9.1...v1.10.0) (2026-02-17)
+
+
+### Features
+
+* add Hugo-based documentation site with GitHub Pages deployment ([663a360](https://github.com/pixlcrashr/vsfv/commit/663a3603b1c6f2297701b2e98fa291456e28169e))
+
+
+### Bug Fixes
+
+* **ci:** correct Hugo build working directory and artifact path in release workflow ([a2648d8](https://github.com/pixlcrashr/vsfv/commit/a2648d8d5dcdb31a6b352a74e2124dbcb66caf63))
+
 ## [1.9.1](https://github.com/pixlcrashr/vsfv/compare/v1.9.0...v1.9.1) (2026-02-17)
 
 

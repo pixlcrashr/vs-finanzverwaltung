@@ -49,7 +49,7 @@ jobs:
     name: Update Pages
     runs-on: ubuntu-latest
     env:
-      HUGO_VERSION: 0.140.0
+      HUGO_VERSION: 0.155.3
     permissions:
       contents: write
       pages: write

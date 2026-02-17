@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.9.0](https://github.com/pixlcrashr/vsfv/compare/v1.8.2...v1.9.0) (2026-02-17)
+
+
+### Features
+
+* add option to show only changed values in reports ([fd677e2](https://github.com/pixlcrashr/vsfv/commit/fd677e2233f23a15721f8476dc7357f3f085f651))
+
 ## [1.8.2](https://github.com/pixlcrashr/vsfv/compare/v1.8.1...v1.8.2) (2026-01-27)
 
 

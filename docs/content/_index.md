@@ -24,9 +24,3 @@ VSFV ist ein Finanzverwaltungssystem fuer Verfasste Studierendenschaften. Es bie
 {{< cards >}}
   {{< card link="installation" title="Installation" icon="download" subtitle="Installiere und betreibe VSFV mit Docker Compose." >}}
 {{< /cards >}}
-
-## Referenz
-
-{{< cards >}}
-  {{< card link="webhooks" title="Webhooks" icon="globe-alt" subtitle="Erfahre wie du unsere Webhooks verwendest." >}}
-{{< /cards >}}

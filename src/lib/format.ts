@@ -1,5 +1,8 @@
 import { Decimal } from "decimal.js";
 
+// Symbol used to indicate an unchanged value in reports
+export const UNCHANGED_VALUE_SYMBOL = '<';
+
 export function formatUuid(id: string, format?: 'short' | 'separatorless'): string {
   switch (format) {
     case 'short':
@@ -22,6 +25,16 @@ export function formatDateInputField(d: Date): string {
 }
 
 export function formatCurrency(d: string): string {
+  // Handle unchanged value symbol (pass through as-is)
+  if (d === UNCHANGED_VALUE_SYMBOL) {
+    return UNCHANGED_VALUE_SYMBOL;
+  }
+
+  // Handle empty string or null (used for hiding unchanged values)
+  if (d === '' || d === null || d === undefined) {
+    return UNCHANGED_VALUE_SYMBOL;
+  }
+
   const currencyFormatter = new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" });
 
   return currencyFormatter.format(new Decimal(d).toNumber());
@@ -39,7 +52,7 @@ export function parseGermanDate(input: string): Date | null {
   if (!match) {
     return null;
   }
-  
+
   const [, dd, mm, yyyy] = match;
   const day = Number(dd);
   const month = Number(mm) - 1;

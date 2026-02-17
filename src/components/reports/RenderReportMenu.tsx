@@ -90,6 +90,16 @@ export default component$<RenderReportMenuProps>((props) => {
           <input name="budgetDescriptionsEnabled" type="checkbox" />
           Budgetbeschreibungen anzeigen
         </label>
+
+        <label class="checkbox">
+          <input name="latestRevisionOnly" type="checkbox" />
+          Nur letzte Revision anzeigen
+        </label>
+
+        <label class="checkbox">
+          <input name="showChangedValuesOnly" type="checkbox" />
+          Nur geänderte Werte anzeigen (ab 2. Revision)
+        </label>
       </div>
 
       <div class="buttons mt-4">

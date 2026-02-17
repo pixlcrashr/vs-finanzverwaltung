@@ -798,6 +798,7 @@ export default component$(() => {
             <input type="hidden" name="accountDescriptionsEnabled" value={showDescription.value ? "on" : ""} />
             <input type="hidden" name="budgetDescriptionsEnabled" value={showDescription.value ? "on" : ""} />
             <input type="hidden" name="latestRevisionOnly" value={showOnlyLatestRevision.value ? "on" : ""} />
+            <input type="hidden" name="showChangedValuesOnly" value="" />
             <button type="submit" class="button is-small is-link is-outlined">
               <span class="icon is-small">
                 <i class="fa fa-file-export" aria-hidden="true"></i>

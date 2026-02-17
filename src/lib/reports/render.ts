@@ -1,5 +1,5 @@
 import { Decimal } from "decimal.js";
-import { formatCurrency, formatDateShort } from "../format";
+import { formatCurrency, formatDateShort, UNCHANGED_VALUE_SYMBOL } from "../format";
 import { createHtm2PdfClient } from "../html2pdf";
 import Handlebars from "handlebars";
 
@@ -35,9 +35,11 @@ export interface Account {
 export interface RenderReportParams {
   accounts?: Account[];
   budgets?: Budget[];
-  getTargetValueHandler?: (budgetRevisionId: string, accountId: string) => Decimal;
-  getDiffValueHandler?: (budgetRevisionId: string, accountId: string) => Decimal;
-  getActualValueHandler?: (budgetId: string, accountId: string) => Decimal;
+  getTargetValueHandler?: (budgetRevisionId: string, accountId: string) => Decimal | null;
+  getDiffValueHandler?: (budgetRevisionId: string, accountId: string) => Decimal | null;
+  getActualValueHandler?: (budgetId: string, accountId: string) => Decimal | null;
+  revisionToBudgetMap?: Map<string, string>;
+  shouldShowValueHandler?: (budgetRevisionId: string, accountId: string) => boolean;
   actualValuesEnabled?: boolean,
   targetValuesEnabled?: boolean,
   differenceValuesEnabled?: boolean,
@@ -72,13 +74,28 @@ function buildReportHtml(
   Handlebars.registerHelper('formatCurrency', formatCurrency);
   Handlebars.registerHelper('formatDateShort', formatDateShort);
   Handlebars.registerHelper('getTargetValue', function (budgetRevisionId: string, accountId: string): string {
-    return (params?.getTargetValueHandler?.(budgetRevisionId, accountId) ?? new Decimal(0)).toFixed(2);
+    const value = params?.getTargetValueHandler?.(budgetRevisionId, accountId);
+    if (value === null || value === undefined) return UNCHANGED_VALUE_SYMBOL;
+    return (value ?? new Decimal(0)).toFixed(2);
   });
   Handlebars.registerHelper('getDiffValue', function (budgetRevisionId: string, accountId: string): string {
-    return (params?.getDiffValueHandler?.(budgetRevisionId, accountId) ?? new Decimal(0)).toFixed(2);
+    const value = params?.getDiffValueHandler?.(budgetRevisionId, accountId);
+    if (value === null || value === undefined) return UNCHANGED_VALUE_SYMBOL;
+    return (value ?? new Decimal(0)).toFixed(2);
   });
-  Handlebars.registerHelper('getActualValue', function (budgetRevisionId: string, accountId: string): string {
-    return (params?.getActualValueHandler?.(budgetRevisionId, accountId) ?? new Decimal(0)).toFixed(2);
+  Handlebars.registerHelper('getActualValue', function (this: any, budgetId: string, accountId: string): string {
+    // The template passes the budget ID (via ../id) as the first argument.
+    // For shouldShowValueHandler we need the revision ID, which is available
+    // from the Handlebars context (this.id) when inside {{#each revisions}}.
+    const revisionId: string | undefined = this?.id;
+    if (revisionId && params?.shouldShowValueHandler && !params.shouldShowValueHandler(revisionId, accountId)) {
+      return UNCHANGED_VALUE_SYMBOL;
+    }
+
+    // budgetId is already the budget ID from the template (../id), use it directly
+    const value = params?.getActualValueHandler?.(budgetId, accountId);
+    if (value === null || value === undefined) return UNCHANGED_VALUE_SYMBOL;
+    return (value ?? new Decimal(0)).toFixed(2);
   });
   Handlebars.registerHelper('subtract', function (a: any, b: any) {
     const na = Number(a);

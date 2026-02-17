@@ -5,7 +5,6 @@ import { Prisma as P } from "~/lib/prisma/generated/client";
 import { Decimal as PDecimal } from "@prisma/client/runtime/library";
 import { Account as ReportAccount, renderReport, renderReportHtml } from "~/lib/reports/render";
 import { buildTreeFromDB, Node as AccountNode } from "~/lib/accounts/tree";
-import { describe } from "node:test";
 
 
 
@@ -79,6 +78,8 @@ interface ReportRenderData {
     getTargetValueHandler?: (budgetRevisionId: string, accountId: string) => Decimal;
     getDiffValueHandler?: (budgetRevisionId: string, accountId: string) => Decimal;
     getActualValueHandler?: (budgetId: string, accountId: string) => Decimal;
+    revisionToBudgetMap?: Map<string, string>;
+    shouldShowValueHandler?: (budgetRevisionId: string, accountId: string) => boolean;
     actualValuesEnabled?: boolean;
     targetValuesEnabled?: boolean;
     differenceValuesEnabled?: boolean;
@@ -96,7 +97,8 @@ async function buildReportRenderData(
   differenceValuesEnabled: boolean,
   accountDescriptionsEnabled: boolean,
   budgetDescriptionsEnabled: boolean,
-  latestRevisionOnly: boolean
+  latestRevisionOnly: boolean,
+  showChangedValuesOnly: boolean
 ): Promise<ReportRenderData> {
   const reportTemplate = await Prisma.report_templates.findUnique({
     where: {
@@ -187,11 +189,29 @@ GROUP BY f1.budget_id, f1.account_id`;
   const bravMap = new Map<string, Decimal>();
   const avMap = new Map<string, Decimal>();
   const brbMap = new Map<string, string>();
+  const revisionIndexMap = new Map<string, number>();
+  const budgetRevisionsMap = new Map<string, { id: string; idx: number }[]>();
+
+  // Create a global revision timeline across all budgets
+  const globalRevisionList: { budgetId: string; revisionId: string; globalIdx: number }[] = [];
+  let globalIdx = 0;
 
   budgets.forEach(b => {
+    budgetRevisionsMap.set(b.id, b.budget_revisions);
     b.budget_revisions.forEach(r => {
       brbMap.set(r.id, b.id);
+      revisionIndexMap.set(r.id, r.idx);
+      globalRevisionList.push({
+        budgetId: b.id,
+        revisionId: r.id,
+        globalIdx: globalIdx++
+      });
     });
+  });
+
+  const globalRevisionMap = new Map<string, number>(); // revisionId -> globalIdx
+  globalRevisionList.forEach(item => {
+    globalRevisionMap.set(item.revisionId, item.globalIdx);
   });
 
   const tree = buildTreeFromDB(allAccounts);
@@ -342,6 +362,50 @@ GROUP BY f1.budget_id, f1.account_id`;
     children: rootAccountsForReport
   }];
 
+
+  // Helper to check if account is a leaf node
+  const isLeafAccount = (accountId: string): boolean => {
+    const account = allAccounts.find(a => a.id === accountId);
+    if (!account) return true;
+    return !allAccounts.some(a => a.parent_account_id === accountId);
+  };
+
+  // Helper to check if target value should be shown (for showChangedValuesOnly mode)
+  const shouldShowTargetValue = (budgetRevisionId: string, accountId: string): boolean => {
+    if (!showChangedValuesOnly) return true;
+    if (!isLeafAccount(accountId)) return true; // Always show non-leaf nodes
+
+    const globalIdx = globalRevisionMap.get(budgetRevisionId);
+    if (globalIdx === undefined || globalIdx === 0) return true; // Always show first revision globally
+
+    const currentValue = bravMap.get(bravKey(budgetRevisionId, accountId)) ?? new Decimal(0);
+
+    // Check immediate previous revision in the global timeline
+    if (globalIdx >= 1) {
+      const prevRevision = globalRevisionList[globalIdx - 1];
+      const prevValue = bravMap.get(bravKey(prevRevision.revisionId, accountId)) ?? new Decimal(0);
+
+      // If different from immediate previous, show it
+      if (!currentValue.equals(prevValue)) {
+        return true;
+      }
+
+      // If same as immediate previous, check 2nd previous revision (if exists)
+      if (globalIdx >= 2) {
+        const prev2Revision = globalRevisionList[globalIdx - 2];
+        const prev2Value = bravMap.get(bravKey(prev2Revision.revisionId, accountId)) ?? new Decimal(0);
+        // Show if different from 2nd previous
+        return !currentValue.equals(prev2Value);
+      }
+
+      // If no 2nd previous exists, don't show (since it's same as immediate previous)
+      return false;
+    }
+
+    // If no previous revision exists, show if non-zero
+    return !currentValue.isZero();
+  };
+
   return {
     template: reportTemplate.template,
     params: {
@@ -350,17 +414,24 @@ GROUP BY f1.budget_id, f1.account_id`;
       differenceValuesEnabled,
       accountDescriptionsEnabled,
       budgetDescriptionsEnabled,
+      revisionToBudgetMap: brbMap,
+      shouldShowValueHandler: shouldShowTargetValue,
       getActualValueHandler: (budgetId: string, accountId: string) => {
         return avMap.get(avKey(budgetId, accountId)) ?? new Decimal(0);
       },
       getTargetValueHandler: (budgetRevisionId: string, accountId: string) => {
+        if (!shouldShowTargetValue(budgetRevisionId, accountId)) {
+          return null as any;
+        }
         return bravMap.get(bravKey(budgetRevisionId, accountId)) ?? new Decimal(0);
       },
       getDiffValueHandler: (budgetRevisionId: string, accountId: string) => {
+        if (!shouldShowTargetValue(budgetRevisionId, accountId)) {
+          return null as any;
+        }
         const bId = brbMap.get(budgetRevisionId);
         const av = avMap.get(avKey(bId ?? '', accountId)) ?? new Decimal(0);
         const tv = bravMap.get(bravKey(budgetRevisionId, accountId)) ?? new Decimal(0);
-
         return tv.sub(av);
       },
       budgets: budgets.map(x => ({
@@ -391,7 +462,8 @@ export async function generateReportPdf(
   differenceValuesEnabled: boolean,
   accountDescriptionsEnabled: boolean,
   budgetDescriptionsEnabled: boolean,
-  latestRevisionOnly: boolean
+  latestRevisionOnly: boolean,
+  showChangedValuesOnly: boolean
 ): Promise<Blob> {
   const data = await buildReportRenderData(
     reportTemplateId,
@@ -402,7 +474,8 @@ export async function generateReportPdf(
     differenceValuesEnabled,
     accountDescriptionsEnabled,
     budgetDescriptionsEnabled,
-    latestRevisionOnly
+    latestRevisionOnly,
+    showChangedValuesOnly
   );
 
   const d = await renderReport(
@@ -423,7 +496,8 @@ export async function generateReportHtml(
   differenceValuesEnabled: boolean,
   accountDescriptionsEnabled: boolean,
   budgetDescriptionsEnabled: boolean,
-  latestRevisionOnly: boolean
+  latestRevisionOnly: boolean,
+  showChangedValuesOnly: boolean
 ): Promise<string> {
   const data = await buildReportRenderData(
     reportTemplateId,
@@ -434,7 +508,8 @@ export async function generateReportHtml(
     differenceValuesEnabled,
     accountDescriptionsEnabled,
     budgetDescriptionsEnabled,
-    latestRevisionOnly
+    latestRevisionOnly,
+    showChangedValuesOnly
   );
 
   return renderReportHtml(

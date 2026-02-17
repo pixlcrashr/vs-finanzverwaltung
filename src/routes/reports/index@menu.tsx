@@ -176,7 +176,8 @@ export const CreateReportSchema = {
   differenceValuesEnabled: z.string().optional().transform(x => x === 'on'),
   accountDescriptionsEnabled: z.string().optional().transform(x => x === 'on'),
   budgetDescriptionsEnabled: z.string().optional().transform(x => x === 'on'),
-  latestRevisionOnly: z.string().optional().transform(x => x === 'on')
+  latestRevisionOnly: z.string().optional().transform(x => x === 'on'),
+  showChangedValuesOnly: z.string().optional().transform(x => x === 'on')
 };
 
 async function createReport(
@@ -190,7 +191,8 @@ async function createReport(
   differenceValuesEnabled: boolean,
   accountDescriptionsEnabled: boolean,
   budgetDescriptionsEnabled: boolean,
-  latestRevisionOnly: boolean
+  latestRevisionOnly: boolean,
+  showChangedValuesOnly: boolean
 ): Promise<void> {
   const d = await generateReportPdf(
     html2pdfUrl,
@@ -202,7 +204,8 @@ async function createReport(
     differenceValuesEnabled,
     accountDescriptionsEnabled,
     budgetDescriptionsEnabled,
-    latestRevisionOnly
+    latestRevisionOnly,
+    showChangedValuesOnly
   );
 
   await Prisma.reports.create({
@@ -230,7 +233,8 @@ export const useCreateReportAction = routeAction$(async (values, { env, sharedMa
     values.differenceValuesEnabled,
     values.accountDescriptionsEnabled,
     values.budgetDescriptionsEnabled,
-    values.latestRevisionOnly
+    values.latestRevisionOnly,
+    values.showChangedValuesOnly
   );
 
   return {

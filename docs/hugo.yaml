@@ -1,0 +1,41 @@
+baseURL: https://pixlcrashr.github.io/vsfv
+defaultContentLanguage: de
+defaultContentLanguageInSubdir: true
+
+languages:
+  de:
+    languageCode: de-DE
+    languageName: Deutsch
+    title: VSFV Dokumentation
+    weight: 0
+    menu:
+      main:
+        - name: Suche
+          weight: 5
+          params:
+            type: search
+        - name: GitHub
+          weight: 6
+          url: "https://github.com/pixlcrashr/vsfv"
+          params:
+            icon: github
+
+module:
+  imports:
+    - path: github.com/imfing/hextra
+
+params:
+  footer:
+    displayCopyright: true
+  navbar:
+    displayTitle: true
+    displayLogo: true
+  editURL:
+    enable: true
+    base: "https://github.com/pixlcrashr/vsfv/edit/main/docs/content/"
+
+deployment:
+  targets:
+    - name: "pixlcrashr.github.io/vsfv"
+      url: "file://./public"
+      stripIndexHTML: true

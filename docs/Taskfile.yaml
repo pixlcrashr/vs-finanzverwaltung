@@ -1,0 +1,9 @@
+version: "3"
+
+tasks:
+  build:
+    cmds:
+      - hugo --gc --minify --baseURL "https://pixlcrashr.github.io/vsfv/"
+  serve:
+    cmds:
+      - hugo server --buildDrafts --disableFastRender

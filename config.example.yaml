@@ -1,0 +1,26 @@
+server:
+  # Address and port the HTTP server listens on.
+  addr: "127.0.0.1:8080"
+
+database:
+  # PostgreSQL connection string.
+  url: "postgres://user:password@localhost:5432/vsfv?sslmode=disable"
+
+auth:
+  # Random secret used to sign session tokens. Generate with: openssl rand -hex 32
+  secret: "change-me"
+  gitlab:
+    # GitLab OAuth2 application credentials.
+    client-id: "your-gitlab-client-id"
+    client-secret: "your-gitlab-client-secret"
+    # Base URL of the GitLab instance used as the OAuth2 issuer.
+    issuer: "https://gitlab.com"
+
+html2pdf:
+  # URL of the html2pdf conversion service.
+  url: "http://127.0.0.1:8082"
+
+app:
+  organisation-name: "Your Organisation Name"
+  # Displayed in API responses and the OpenAPI spec. Defaults to "dev".
+  version: "1.0.0"

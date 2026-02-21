@@ -1,0 +1,19 @@
+server:
+  addr: "127.0.0.1:8080"
+
+database:
+  url: "postgres://vsf:postgres@127.0.0.1:5335/vsf?sslmode=disable"
+
+auth:
+  secret: "dev-secret-do-not-use-in-production"
+  gitlab:
+    client-id: "dev-client-id"
+    client-secret: "dev-client-secret"
+    issuer: "https://gitlab.com"
+
+html2pdf:
+  url: "http://127.0.0.1:8082"
+
+app:
+  organisation-name: "Dev Organisation"
+  version: "dev"

@@ -25,7 +25,7 @@ func New(db *gorm.DB, version string) *Server {
 	api := humafiber.New(app, humaConfig)
 
 	s := &Server{app: app, API: api}
-	RegisterRoutes(s.API)
+	RegisterRoutes(s.API, db)
 	return s
 }
 

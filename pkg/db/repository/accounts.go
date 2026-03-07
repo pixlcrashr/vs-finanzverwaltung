@@ -2,55 +2,27 @@ package repository
 
 import (
 	"context"
-	"database/sql/driver"
-	"fmt"
-	"time"
+	"strings"
 
 	"github.com/google/uuid"
-	"github.com/pixlcrashr/go-pagetoken"
-	ptGorm "github.com/pixlcrashr/go-pagetoken/database/gorm"
+	"github.com/pixlcrashr/go-pagetoken/order"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
-	"github.com/samber/lo"
-	"gorm.io/gen"
-	"gorm.io/gen/field"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
-// OrderDir indicates sort direction.
-type OrderDir int
-
-const (
-	OrderAsc OrderDir = iota
-	OrderDesc
-)
-
-// OrderField describes one term in an ORDER BY clause.
-type OrderField struct {
-	Path string
-	Dir  OrderDir
-}
-
-// CursorField carries one keyset boundary value.
-// Value must be the Go type that GORM will bind correctly for the column
-// (e.g. uuid.UUID for id, string for display_name, time.Time for timestamps).
-type CursorField struct {
-	Path  field.Field
-	Value driver.Valuer
-	Dir   OrderDir
-}
-
-// ListAccountsOpts drives the List query.
-type ListAccountsOpts struct {
-	// NamePrefix filters accounts whose display_name starts with this string (case-sensitive).
+// ListAccountsParams drives the List query.
+type ListAccountsParams struct {
+	// NamePrefix filters accounts whose display_name starts with this string (case-insensitive).
 	NamePrefix string
 	// IncludeArchived includes archived accounts when true.
 	IncludeArchived bool
-	// KeysetFields defines the sort order.
-	KeysetFields []pagetoken.KeysetField
-	// Limit caps the number of rows returned.
-	Limit int
+	// OrderBy specifies the sort field and direction (e.g. "displayName", "createTime desc").
+	OrderBy order.Fields
+	// Page number (1-indexed).
+	Page int
+	// PageSize caps the number of rows returned.
+	PageSize int
 }
 
 // AccountRepository provides CRUD and specialised queries for the accounts table.
@@ -64,94 +36,53 @@ func NewAccountRepository(db *gorm.DB) *AccountRepository {
 	return &AccountRepository{db: db, q: dao.Use(db)}
 }
 
-func (r *AccountRepository) fieldToExpr(field string, value string, op ptGorm.KeysetFieldOp) (clause.Expression, error) {
-	var v any
-
-	switch field {
-	case r.q.Account.ID.ColumnName().String():
-		id, err := uuid.Parse(value)
-		if err != nil {
-			return nil, err
-		}
-
-		v = id
-	case r.q.Account.CreatedAt.ColumnName().String():
-		t, err := time.Parse(time.RFC3339Nano, value)
-		if err != nil {
-			return nil, err
-		}
-
-		v = t
-	default:
-		return nil, fmt.Errorf("unknown field %q", field)
+// List returns accounts matching params along with the total count.
+func (r *AccountRepository) List(ctx context.Context, params ListAccountsParams) ([]*model.Account, int64, error) {
+	if params.PageSize <= 0 {
+		params.PageSize = 20
 	}
-
-	switch op {
-	case ptGorm.KeysetFieldOpEq:
-		return clause.Eq{Column: field, Value: v}, nil
-	case ptGorm.KeysetFieldOpLt:
-		return clause.Lt{Column: field, Value: v}, nil
-	case ptGorm.KeysetFieldOpGt:
-		return clause.Gt{Column: field, Value: v}, nil
-	default:
-		return nil, fmt.Errorf("unknown op %d", op)
-	}
-}
-
-// List returns accounts matching opts.
-func (r *AccountRepository) List(ctx context.Context, opts ListAccountsOpts) ([]*model.Account, error) {
-	if opts.Limit <= 0 {
-		opts.Limit = 20
+	if params.Page <= 0 {
+		params.Page = 1
 	}
 
 	a := r.q.Account.WithContext(ctx)
 
-	if opts.NamePrefix != "" {
-		a = a.Where(r.q.Account.DisplayName.Like(opts.NamePrefix + "%"))
+	if params.NamePrefix != "" {
+		a = a.Where(r.q.Account.DisplayName.Lower().Like("%" + strings.ToLower(params.NamePrefix) + "%"))
 	}
 
-	if !opts.IncludeArchived {
+	if !params.IncludeArchived {
 		a = a.Where(r.q.Account.IsArchived.Is(false))
 	}
 
-	e, err := ptGorm.KeysetFieldsExpr(opts.KeysetFields, r.fieldToExpr)
+	// Get total count before pagination
+	total, err := a.Count()
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	if e != nil {
-		a = a.Clauses(clause.Where{
-			Exprs: []clause.Expression{e},
-		})
-	}
-
-	for _, o := range opts.KeysetFields {
-		f, ok := r.q.Account.GetFieldByName(o.Path)
-		if !ok {
-			return nil, fmt.Errorf("unknown field %q", o.Path)
+	// Apply ordering
+	if exprs := ResolveOrderBy(&r.q.Account, params.OrderBy); len(exprs) > 0 {
+		for _, expr := range exprs {
+			a = a.Order(expr)
 		}
-
-		if o.Order == pagetoken.OrderDesc {
-			a = a.Order(f.Desc())
-		} else {
-			a = a.Order(f.Asc())
-		}
-	}
-
-	if len(opts.KeysetFields) == 0 {
+	} else {
 		a = a.Order(r.q.Account.CreatedAt.Desc())
 	}
 
-	if opts.Limit > 0 {
-		a = a.Limit(opts.Limit)
+	// Apply pagination
+	offset := (params.Page - 1) * params.PageSize
+	if offset > 0 {
+		a = a.Offset(offset)
 	}
+	a = a.Limit(params.PageSize)
 
 	ms, err := a.Find()
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return ms, nil
+	return ms, total, nil
 }
 
 // GetByID returns the account with the given ID.
@@ -165,9 +96,10 @@ func (r *AccountRepository) Create(ctx context.Context, m *model.Account) error 
 	return r.q.Account.WithContext(ctx).Create(m)
 }
 
-// Save updates all fields of an existing account matched by its primary key.
-func (r *AccountRepository) Save(ctx context.Context, m *model.Account) error {
-	return r.q.Account.WithContext(ctx).Save(m)
+// Update updates fields of an existing account matched by its primary key.
+func (r *AccountRepository) Update(ctx context.Context, m *model.Account) error {
+	_, err := r.q.Account.WithContext(ctx).Where(r.q.Account.ID.Eq(m.ID)).Updates(m)
+	return err
 }
 
 // Delete removes the account with the given ID.
@@ -204,39 +136,4 @@ func (r *AccountRepository) HasTransactionAssignments(ctx context.Context, accou
 		Where(r.q.TransactionAccountAssignment.AccountID.Eq(accountID)).
 		Count()
 	return count > 0, err
-}
-
-// ---------------------------------------------------------------------------
-// Keyset helpers
-// ---------------------------------------------------------------------------
-
-// accountColumns maps API field paths to DB column names for the accounts table.
-// Only paths present here are accepted; this prevents SQL injection.
-var accountColumns = map[string]string{
-	"id":           "id",
-	"display_name": "display_name",
-	"display_code": "display_code",
-	"created_at":   "created_at",
-	"updated_at":   "updated_at",
-}
-
-// buildKeysetClause builds a WHERE clause for keyset (seek) pagination.
-//
-// For cursor fields [(a, asc, va), (b, desc, vb), (c, asc, vc)] it produces:
-//
-//	(a > va) OR (a = va AND b < vb) OR (a = va AND b = vb AND c > vc)
-func buildKeysetClause(fields []CursorField) gen.Condition {
-	if len(fields) == 0 {
-		return nil
-	}
-
-	return field.And(
-		lo.Map(fields, func(f CursorField, _ int) field.Expr {
-			if f.Dir == OrderDesc {
-				return f.Path.Lte(f.Value)
-			}
-
-			return f.Path.Gte(f.Value)
-		})...,
-	)
 }

@@ -1,0 +1,34 @@
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  image: string | null;
+  groups: UserGroup[];
+}
+
+export interface UserGroup {
+  id: string;
+  name: string;
+  description: string;
+}
+
+export interface ImportSource {
+  id: string;
+  name: string;
+  description: string;
+  periodStart: Date;
+  periods: ImportSourcePeriod[];
+}
+
+export interface ImportSourcePeriod {
+  id: string;
+  year: number;
+  isClosed: boolean;
+  closedAt: Date | null;
+}
+
+export interface Setting {
+  key: string;
+  value: string;
+  description: string;
+}

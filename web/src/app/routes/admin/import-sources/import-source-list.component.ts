@@ -1,0 +1,114 @@
+import {
+  Component,
+  ChangeDetectionStrategy,
+  inject,
+  signal,
+  OnInit,
+} from '@angular/core';
+import { RouterLink } from '@angular/router';
+import {
+  PageHeaderComponent,
+  BreadcrumbItem,
+  LoadingSpinnerComponent,
+  EmptyStateComponent,
+  StatusBadgeComponent,
+} from '../../../shared/components';
+import { formatDateShort } from '../../../shared/utils';
+import { ImportSource } from '../../../shared/models';
+import { ImportSourceListDataService } from './import-source-list.data-service';
+
+@Component({
+  selector: 'app-import-source-list',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    RouterLink,
+    PageHeaderComponent,
+    LoadingSpinnerComponent,
+    EmptyStateComponent,
+    StatusBadgeComponent,
+  ],
+  template: `
+    <div class="flex flex-col h-full">
+      <app-page-header [breadcrumbs]="breadcrumbs" />
+
+      <div class="flex flex-1 justify-center overflow-auto p-4">
+        @if (loading()) {
+          <app-loading-spinner [fullPage]="true" text="Importquellen werden geladen..." />
+        } @else if (importSources().length === 0) {
+          <app-empty-state
+            title="Keine Importquellen vorhanden"
+            description="Es wurden noch keine Importquellen konfiguriert."
+          />
+        } @else {
+          <div class="w-full max-w-4xl space-y-2">
+            @for (source of importSources(); track source.id) {
+              <div class="bg-white rounded-lg border border-gray-200 p-4">
+                <div class="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 class="text-sm font-medium text-gray-900">
+                      {{ source.name }}
+                    </h3>
+                    <p class="text-xs text-gray-500">
+                      {{ source.description }}
+                    </p>
+                    <p class="text-xs text-gray-500 mt-1">
+                      Erfassung seit: {{ formatDate(source.periodStart) }}
+                    </p>
+                  </div>
+                  <a
+                    [routerLink]="['/admin/import-sources', source.id, 'edit']"
+                    class="text-xs text-blue-600 hover:underline"
+                  >
+                    Bearbeiten
+                  </a>
+                </div>
+
+                <!-- Periods -->
+                <div class="border-t border-gray-200 pt-3">
+                  <div class="flex flex-wrap gap-2">
+                    @for (period of source.periods; track period.id) {
+                      <div class="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded">
+                        <span class="text-sm text-gray-900">{{ period.year }}</span>
+                        <app-status-badge [variant]="period.isClosed ? 'neutral' : 'success'" size="sm">
+                          {{ period.isClosed ? 'Abgeschlossen' : 'Aktiv' }}
+                        </app-status-badge>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  `,
+})
+export class ImportSourceListComponent implements OnInit {
+  private readonly dataService = inject(ImportSourceListDataService);
+
+  readonly loading = signal(true);
+  readonly importSources = signal<ImportSource[]>([]);
+
+  readonly breadcrumbs: BreadcrumbItem[] = [{ label: 'Importquellen' }];
+
+  ngOnInit(): void {
+    this.loadImportSources();
+  }
+
+  private loadImportSources(): void {
+    this.dataService.getImportSources().subscribe({
+      next: (sources) => {
+        this.importSources.set(sources);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+      },
+    });
+  }
+
+  formatDate(date: Date): string {
+    return formatDateShort(date);
+  }
+}

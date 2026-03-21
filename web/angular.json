@@ -6,13 +6,9 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "web": {
+    "web2": {
       "projectType": "application",
-      "schematics": {
-        "@schematics/angular:component": {
-          "style": "scss"
-        }
-      },
+      "schematics": {},
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -22,14 +18,13 @@
           "options": {
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
-            "inlineStyleLanguage": "scss",
             "assets": [
               {
                 "glob": "**/*",
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.scss"]
+            "styles": ["src/styles.css"]
           },
           "configurations": {
             "production": {
@@ -59,10 +54,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "web:build:production"
+              "buildTarget": "web2:build:production"
             },
             "development": {
-              "buildTarget": "web:build:development"
+              "buildTarget": "web2:build:development"
             }
           },
           "defaultConfiguration": "development"

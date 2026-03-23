@@ -38,8 +38,8 @@ import { GroupNewDataService } from './group-new.data-service';
         </div>
       </app-page-header>
 
-      <div class="flex-1 overflow-auto p-4">
-        <div class="max-w-xl">
+      <div class="flex flex-1 justify-center overflow-auto p-4">
+        <div class="w-full max-w-3xl">
           <div class="bg-white rounded-lg border border-gray-200 p-4">
             <h2 class="text-sm font-semibold text-gray-900 mb-4">
               Neue Gruppe erstellen

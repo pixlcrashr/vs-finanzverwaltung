@@ -148,7 +148,7 @@ export class ReportTemplateNewComponent {
   ];
 
   readonly breadcrumbs: BreadcrumbItem[] = [
-    { label: 'Berichtsvorlagen', path: '/report-templates' },
+    { label: 'Berichtsvorlagen', path: '/reportTemplates' },
     { label: 'Neu' },
   ];
 
@@ -166,7 +166,7 @@ export class ReportTemplateNewComponent {
       template: this.templateContent,
     }).subscribe({
       next: () => {
-        this.router.navigate(['/report-templates']);
+        this.router.navigate(['/reportTemplates']);
       },
       error: () => {
         this.saving.set(false);
@@ -175,6 +175,6 @@ export class ReportTemplateNewComponent {
   }
 
   cancel(): void {
-    this.router.navigate(['/report-templates']);
+    this.router.navigate(['/reportTemplates']);
   }
 }

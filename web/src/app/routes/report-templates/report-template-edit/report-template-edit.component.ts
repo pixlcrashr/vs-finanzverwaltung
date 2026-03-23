@@ -47,7 +47,7 @@ import { ReportTemplateEditDataService } from './report-template-edit.data-servi
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" text="Vorlage wird geladen..." />
         } @else if (template()) {
-          <div class="w-full max-w-4xl space-y-3">
+          <div class="w-full max-w-3xl space-y-3">
             <!-- Basic Info -->
             <div class="bg-white rounded-lg border border-gray-200 p-4">
               <h2 class="text-sm font-semibold text-gray-900 mb-4">
@@ -89,10 +89,10 @@ import { ReportTemplateEditDataService } from './report-template-edit.data-servi
             <div class="bg-white rounded-lg border border-gray-200 p-4">
               <div class="flex items-center justify-between mb-4">
                 <h2 class="text-sm font-semibold text-gray-900">
-                  Vorlage (Handlebars HTML)
+                  Vorlage (Go Template HTML)
                 </h2>
                 <span class="text-xs text-gray-500">
-                  Verwenden Sie Handlebars-Syntax für dynamische Inhalte
+                  Verwenden Sie Go-Template-Syntax für dynamische Inhalte
                 </span>
               </div>
               <textarea
@@ -139,18 +139,18 @@ export class ReportTemplateEditComponent implements OnInit {
   templateContent = '';
 
   readonly variables = [
-    { code: '{{budget.name}}', label: 'Budgetname' },
-    { code: '{{budget.startDate}}', label: 'Startdatum' },
-    { code: '{{budget.endDate}}', label: 'Enddatum' },
-    { code: '{{#each accounts}}', label: 'Kontenliste' },
-    { code: '{{code}}', label: 'Kontonummer' },
-    { code: '{{name}}', label: 'Kontoname' },
-    { code: '{{balance}}', label: 'Kontosaldo' },
-    { code: '{{formatDate date}}', label: 'Datum formatieren' },
+    { code: '{{ .Budget.Name }}', label: 'Budgetname' },
+    { code: '{{ .Budget.StartDate }}', label: 'Startdatum' },
+    { code: '{{ .Budget.EndDate }}', label: 'Enddatum' },
+    { code: '{{ range .Accounts }}...{{ end }}', label: 'Kontenliste' },
+    { code: '{{ .Code }}', label: 'Kontonummer' },
+    { code: '{{ .Name }}', label: 'Kontoname' },
+    { code: '{{ .Balance }}', label: 'Kontosaldo' },
+    { code: '{{ .Date | formatDate }}', label: 'Datum formatieren' },
   ];
 
   readonly breadcrumbs: BreadcrumbItem[] = [
-    { label: 'Berichtsvorlagen', path: '/report-templates' },
+    { label: 'Berichtsvorlagen', path: '/reportTemplates' },
     { label: 'Bearbeiten' },
   ];
 
@@ -202,7 +202,7 @@ export class ReportTemplateEditComponent implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigate(['/report-templates']);
+    this.router.navigate(['/reportTemplates']);
   }
 
   formatDate(date: Date): string {

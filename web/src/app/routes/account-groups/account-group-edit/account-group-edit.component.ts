@@ -81,7 +81,7 @@ import { AccountGroupEditDataService, AccountGroupDetails } from './account-grou
 
                 <div class="flex justify-end gap-2 mt-4">
                   <a
-                    routerLink="/account-groups"
+                    routerLink="/accountGroups"
                     class="px-4 py-2 text-sm font-medium text-gray-900 bg-gray-100 rounded-lg hover:bg-gray-50"
                   >
                     Abbrechen
@@ -153,7 +153,7 @@ import { AccountGroupEditDataService, AccountGroupDetails } from './account-grou
 
     <!-- Add Account Dialog Template -->
     <ng-template #addAccountDialogTemplate>
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-4">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-4">
         <h2 class="text-sm font-semibold text-gray-900 mb-4">
           Konto hinzufügen
         </h2>
@@ -213,7 +213,7 @@ export class AccountGroupEditComponent implements OnInit {
   selectedAccountId = '';
 
   readonly breadcrumbs = signal<BreadcrumbItem[]>([
-    { label: 'Kontengruppen', path: '/account-groups' },
+    { label: 'Kontengruppen', path: '/accountGroups' },
     { label: 'Laden...' },
   ]);
 
@@ -246,7 +246,7 @@ export class AccountGroupEditComponent implements OnInit {
           description: group.description,
         });
         this.breadcrumbs.set([
-          { label: 'Kontengruppen', path: '/account-groups' },
+          { label: 'Kontengruppen', path: '/accountGroups' },
           { label: group.name },
           { label: 'Bearbeiten' },
         ]);
@@ -254,7 +254,7 @@ export class AccountGroupEditComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
-        this.router.navigate(['/account-groups']);
+        this.router.navigate(['/accountGroups']);
       },
     });
   }
@@ -287,6 +287,7 @@ export class AccountGroupEditComponent implements OnInit {
         this.dialogRef = this.dialog.open(this.addAccountDialogTemplate(), {
           panelClass: ['flex', 'items-center', 'justify-center'],
           backdropClass: 'bg-black/50',
+          width: '500px'
         });
       },
     });

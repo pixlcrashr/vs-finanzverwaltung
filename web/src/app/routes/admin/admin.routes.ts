@@ -61,7 +61,7 @@ export const ADMIN_ROUTES: Routes = [
     ],
   },
   {
-    path: 'import-sources',
+    path: 'importSources',
     loadComponent: () =>
       import('./import-sources/import-source-list.component').then(
         (m) => m.ImportSourceListComponent
@@ -71,7 +71,7 @@ export const ADMIN_ROUTES: Routes = [
     ],
   },
   {
-    path: 'import-sources/:id/edit',
+    path: 'importSources/:id/edit',
     loadComponent: () =>
       import('./import-sources/import-source-edit.component').then(
         (m) => m.ImportSourceEditComponent

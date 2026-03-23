@@ -52,7 +52,7 @@ import { BudgetListDataService } from './budget-list.data-service';
             <app-button (clicked)="openCreateDialog()">Haushaltsplan erstellen</app-button>
           </app-empty-state>
         } @else {
-          <div class="w-full max-w-6xl">
+          <div class="w-full max-w-3xl">
             <div class="bg-white rounded-lg border border-gray-200">
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -127,7 +127,7 @@ import { BudgetListDataService } from './budget-list.data-service';
 
     <!-- Create Dialog Template -->
     <ng-template #createDialogTemplate>
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-4">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-4">
         <h2 class="text-sm font-semibold text-gray-900 mb-3">
           Haushaltsplan erstellen
         </h2>
@@ -213,7 +213,7 @@ import { BudgetListDataService } from './budget-list.data-service';
 
     <!-- Delete Confirmation Dialog Template -->
     <ng-template #deleteDialogTemplate>
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-4">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-4">
         <h2 class="text-sm font-semibold text-gray-900 mb-2">
           Haushaltsplan entfernen
         </h2>
@@ -300,6 +300,7 @@ export class BudgetListComponent implements OnInit {
     this.dialogRef = this.dialog.open(this.createDialogTemplate(), {
       panelClass: ['flex', 'items-center', 'justify-center'],
       backdropClass: 'bg-black/50',
+      width: '500px',
     });
   }
 
@@ -308,6 +309,7 @@ export class BudgetListComponent implements OnInit {
     this.dialogRef = this.dialog.open(this.deleteDialogTemplate(), {
       panelClass: ['flex', 'items-center', 'justify-center'],
       backdropClass: 'bg-black/50',
+      width: '500px',
     });
   }
 

@@ -4,12 +4,13 @@ import {
   inject,
   signal,
   OnInit,
+  OnDestroy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import {
   PageHeaderComponent,
   BreadcrumbItem,
-  ButtonComponent,
   LoadingSpinnerComponent,
 } from '../../../shared/components';
 import { Setting } from '../../../shared/models';
@@ -21,7 +22,6 @@ import { SettingsDataService } from './settings.data-service';
   imports: [
     FormsModule,
     PageHeaderComponent,
-    ButtonComponent,
     LoadingSpinnerComponent,
   ],
   template: `
@@ -47,25 +47,23 @@ import { SettingsDataService } from './settings.data-service';
                     >
                       {{ setting.description }}
                     </label>
-                    <div class="flex gap-2">
+                    <div class="relative">
                       <input
                         [id]="setting.key"
                         type="text"
                         [(ngModel)]="editValues[setting.key]"
-                        class="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        (ngModelChange)="onSettingChange(setting.key, $event)"
+                        class="w-full px-2 py-1.5 pr-8 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
-                      <app-button
-                        variant="secondary"
-                        size="sm"
-                        [disabled]="saving() === setting.key || editValues[setting.key] === setting.value"
-                        (clicked)="saveSetting(setting)"
-                      >
-                        {{ saving() === setting.key ? 'Speichern...' : 'Speichern' }}
-                      </app-button>
+                      @if (saving() === setting.key) {
+                        <div class="absolute right-2 top-1/2 -translate-y-1/2">
+                          <svg class="animate-spin h-4 w-4 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        </div>
+                      }
                     </div>
-                    <p class="text-xs text-gray-500">
-                      Schlüssel: {{ setting.key }}
-                    </p>
                   </div>
                 }
               </div>
@@ -76,8 +74,10 @@ import { SettingsDataService } from './settings.data-service';
     </div>
   `,
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent implements OnInit, OnDestroy {
   private readonly dataService = inject(SettingsDataService);
+  private readonly destroy$ = new Subject<void>();
+  private readonly settingChange$ = new Subject<{ key: string; value: string }>();
 
   private readonly hiddenSettingKeys = new Set([
     'default_currency',
@@ -96,6 +96,31 @@ export class SettingsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadSettings();
+    this.setupAutoSave();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private setupAutoSave(): void {
+    this.settingChange$
+      .pipe(
+        debounceTime(500),
+        distinctUntilChanged((a, b) => a.key === b.key && a.value === b.value),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(({ key, value }) => {
+        const setting = this.settings().find((s) => s.key === key);
+        if (setting && value !== setting.value) {
+          this.saveSettingInternal(key, value);
+        }
+      });
+  }
+
+  onSettingChange(key: string, value: string): void {
+    this.settingChange$.next({ key, value });
   }
 
   private loadSettings(): void {
@@ -115,12 +140,9 @@ export class SettingsComponent implements OnInit {
     });
   }
 
-  saveSetting(setting: Setting): void {
-    const newValue = this.editValues[setting.key];
-    if (newValue === setting.value) return;
-
-    this.saving.set(setting.key);
-    this.dataService.updateSetting(setting.key, newValue).subscribe({
+  private saveSettingInternal(key: string, value: string): void {
+    this.saving.set(key);
+    this.dataService.updateSetting(key, value).subscribe({
       next: (updated) => {
         this.settings.update((settings) =>
           settings.map((s) => (s.key === updated.key ? updated : s))

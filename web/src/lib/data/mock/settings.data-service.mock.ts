@@ -11,6 +11,11 @@ export class MockSettingsDataService extends SettingsDataService {
       value: 'Studierendenschaft Beispiel-Universität',
       description: 'Name der Organisation',
     },
+    {
+      key: 'default_groups',
+      value: '',
+      description: 'Standard-Gruppen für neue Benutzer (kommagetrennte Gruppen-IDs)',
+    },
   ];
 
   getSettings(): Observable<Setting[]> {

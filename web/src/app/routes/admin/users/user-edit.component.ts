@@ -35,7 +35,7 @@ import { UserEditDataService } from './user-edit.data-service';
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" text="Benutzer wird geladen..." />
         } @else if (user()) {
-          <div class="w-full max-w-2xl space-y-3">
+          <div class="w-full max-w-3xl space-y-3">
             <!-- User Info -->
             <div class="bg-white rounded-lg border border-gray-200 p-4">
               <div class="flex items-center gap-4 mb-4">

@@ -51,7 +51,7 @@ import {
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" text="Journal wird geladen..." />
         } @else {
-          <div class="w-full max-w-6xl space-y-3">
+          <div class="w-full space-y-3">
             <div class="bg-white rounded-lg border border-gray-200 p-4">
               <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
                 <div>
@@ -380,11 +380,11 @@ export class JournalListComponent implements OnInit {
 
   statusLabel(status: JournalAssignmentStatus): string {
     if (status === 'assigned') {
-      return 'Vollständig zugeordnet';
+      return 'Vollst. zugeordnet';
     }
 
     if (status === 'partial') {
-      return 'Teilweise zugeordnet';
+      return 'Teilw. zugeordnet';
     }
 
     if (status === 'ignored') {

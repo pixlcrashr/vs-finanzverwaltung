@@ -19,15 +19,15 @@ export const routes: Routes = [
           import('./routes/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
       },
       {
-        path: 'antraege',
+        path: 'applications',
         loadComponent: () =>
-          import('./routes/antraege/antraege.component').then((m) => m.AntraegeComponent),
+          import('./routes/applications/applications.component').then((m) => m.ApplicationsComponent),
       },
       {
-        path: 'antragsarten',
+        path: 'applicationTypes',
         loadComponent: () =>
-          import('./routes/antragsarten/antragsarten.component').then(
-            (m) => m.AntragsartenComponent,
+          import('./routes/application-types/application-types.component').then(
+            (m) => m.ApplicationTypesComponent,
           ),
       },
       {
@@ -40,7 +40,7 @@ export const routes: Routes = [
           import('./routes/accounts/accounts.routes').then((m) => m.ACCOUNTS_ROUTES),
       },
       {
-        path: 'account-groups',
+        path: 'accountGroups',
         loadChildren: () =>
           import('./routes/account-groups/account-groups.routes').then(
             (m) => m.ACCOUNT_GROUPS_ROUTES,
@@ -60,7 +60,7 @@ export const routes: Routes = [
         loadChildren: () => import('./routes/reports/reports.routes').then((m) => m.REPORTS_ROUTES),
       },
       {
-        path: 'report-templates',
+        path: 'reportTemplates',
         loadChildren: () =>
           import('./routes/report-templates/report-templates.routes').then(
             (m) => m.REPORT_TEMPLATES_ROUTES,

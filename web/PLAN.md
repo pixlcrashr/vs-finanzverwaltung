@@ -10,18 +10,18 @@ Migrate the Qwik-based application to Angular 21, implementing all existing rout
 2. **Budgets** (`/budgets`) - List, create, edit, delete budgets
 3. **Accounts** (`/accounts`) - Hierarchical account list with CRUD
 4. **Account Compare** (`/accounts/compare`) - Account comparison view
-5. **Account Groups** (`/account-groups`) - Group management with CRUD
+5. **Account Groups** (`/accountGroups`) - Group management with CRUD
 6. **Journal** (`/journal`) - Transaction list with pagination
 7. **Journal Import** (`/journal/import`) - Import transactions
 8. **Transactions** (`/transactions/:id`) - Edit/delete transactions
 9. **Reports** (`/reports`) - Report list and viewing
-10. **Report Templates** (`/report-templates`) - Template management
+10. **Report Templates** (`/reportTemplates`) - Template management
 
 ### Admin Routes
 11. **Settings** (`/admin/settings`) - System settings
 12. **Users** (`/admin/users`) - User management
 13. **Groups** (`/admin/groups`) - Role group management
-14. **Import Sources** (`/admin/import-sources`) - Import source configuration
+14. **Import Sources** (`/admin/importSources`) - Import source configuration
 
 ## Directory Structure
 
@@ -212,7 +212,7 @@ web/src/
 ### Routing Strategy
 - Lazy load all route modules for better initial load time
 - Use Angular Router with child routes for nested pages
-- Convert kebab-case URLs (e.g., `/account-groups` instead of `/accountGroups`)
+- Convert to camelCase URLs (e.g., `/accountGroups` instead of `/account-groups`)
 
 ### State Management
 - Use signals for component state
@@ -244,16 +244,16 @@ web/src/
 - Pläne (Budgets) (`/budgets`)
 - Konten (Accounts) (`/accounts`)
 - Kontenvergleich (`/accounts/compare`)
-- Kontengruppen (`/account-groups`)
+- Kontengruppen (`/accountGroups`)
 - Journal (`/journal`)
 - Berichte (`/reports`)
-- Berichtsvorlagen (`/report-templates`)
+- Berichtsvorlagen (`/reportTemplates`)
 
 ### Admin Menu
 - Einstellungen (`/admin/settings`)
 - Benutzer (`/admin/users`)
 - Gruppen (`/admin/groups`)
-- Importquellen (`/admin/import-sources`)
+- Importquellen (`/admin/importSources`)
 
 ## Theme Configuration
 

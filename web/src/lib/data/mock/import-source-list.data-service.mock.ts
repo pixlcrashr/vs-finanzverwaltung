@@ -9,8 +9,8 @@ export class MockImportSourceListDataService extends ImportSourceListDataService
   private importSources: ImportSource[] = [
     {
       id: faker.string.uuid(),
-      name: 'Sparkasse Hauptkonto',
-      description: 'Hauptgirokonto der Studierendenschaft',
+      name: 'Bank CSV Export',
+      description: 'Monthly bank statement exports in CSV format',
       periodStart: new Date(2020, 0, 1),
       periods: [
         { id: 'p1', year: 2024, isClosed: true, closedAt: new Date(2025, 0, 15) },
@@ -20,8 +20,8 @@ export class MockImportSourceListDataService extends ImportSourceListDataService
     },
     {
       id: faker.string.uuid(),
-      name: 'Volksbank Rücklagenkonto',
-      description: 'Rücklagenkonto für größere Projekte',
+      name: 'SAP Finance Interface',
+      description: 'Automated import from SAP financial module',
       periodStart: new Date(2022, 0, 1),
       periods: [
         { id: 'p4', year: 2024, isClosed: true, closedAt: new Date(2025, 0, 20) },
@@ -30,8 +30,8 @@ export class MockImportSourceListDataService extends ImportSourceListDataService
     },
     {
       id: faker.string.uuid(),
-      name: 'PayPal Veranstaltungen',
-      description: 'PayPal-Konto für Veranstaltungseinnahmen',
+      name: 'Manual Entry Upload',
+      description: 'Excel spreadsheet uploads for manual transactions',
       periodStart: new Date(2023, 0, 1),
       periods: [
         { id: 'p6', year: 2024, isClosed: true, closedAt: new Date(2025, 1, 1) },

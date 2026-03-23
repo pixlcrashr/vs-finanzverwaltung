@@ -33,7 +33,7 @@ import { MenuItem } from '../../models';
 
           <div class="mt-4">
             <p class="px-2 mb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-500">
-              Antragsverwaltung
+              Application Management
             </p>
             <ul class="space-y-0.5">
               @for (item of applicationMenuItems(); track item.path) {
@@ -79,6 +79,27 @@ import { MenuItem } from '../../models';
           }
         </nav>
 
+        <!-- Theme Toggle -->
+        <div class="px-2 py-2 border-t border-gray-800">
+          <button
+            type="button"
+            (click)="toggleTheme()"
+            class="flex items-center gap-2 w-full px-2 py-1.5 rounded text-xs text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+          >
+            @if (isDarkMode()) {
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+              <span>Light Mode</span>
+            } @else {
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+              <span>Dark Mode</span>
+            }
+          </button>
+        </div>
+
         <!-- Footer -->
         <footer class="px-2 py-2 border-t border-gray-800">
           <p class="text-[10px] text-center text-gray-500">
@@ -105,30 +126,32 @@ import { MenuItem } from '../../models';
 export class MainLayoutComponent {
   protected readonly router = inject(Router);
 
+  readonly isDarkMode = signal(false);
+
   readonly generalMenuItems = signal<MenuItem[]>([
     { name: 'Dashboard', path: '/dashboard' },
   ]);
 
   readonly applicationMenuItems = signal<MenuItem[]>([
-    { name: 'Anträge', path: '/antraege' },
-    { name: 'Antragsarten', path: '/antragsarten' },
+    { name: 'Applications', path: '/applications' },
+    { name: 'Application Types', path: '/applicationTypes' },
   ]);
 
   readonly householdMenuItems = signal<MenuItem[]>([
     { name: 'Pläne', path: '/budgets' },
     { name: 'Konten', path: '/accounts', excludePaths: ['/accounts/compare'] },
     { name: 'Kontenvergleich', path: '/accounts/compare' },
-    { name: 'Kontengruppen', path: '/account-groups' },
+    { name: 'Kontengruppen', path: '/accountGroups' },
     { name: 'Journal', path: '/journal' },
     { name: 'Berichte', path: '/reports' },
-    { name: 'Berichtsvorlagen', path: '/report-templates' },
+    { name: 'Berichtsvorlagen', path: '/reportTemplates' },
   ]);
 
   readonly adminMenuItems = signal<MenuItem[]>([
     { name: 'Einstellungen', path: '/admin/settings' },
     { name: 'Benutzer', path: '/admin/users' },
     { name: 'Gruppen', path: '/admin/groups' },
-    { name: 'Importquellen', path: '/admin/import-sources' },
+    { name: 'Importquellen', path: '/admin/importSources' },
   ]);
 
   isMenuItemActive(item: MenuItem): boolean {
@@ -153,5 +176,14 @@ export class MainLayoutComponent {
     }
 
     return `${baseClasses} text-gray-300 hover:bg-gray-800 hover:text-white`;
+  }
+
+  toggleTheme(): void {
+    this.isDarkMode.update((current) => !current);
+    if (this.isDarkMode()) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   }
 }

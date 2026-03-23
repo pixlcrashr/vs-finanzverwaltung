@@ -35,7 +35,7 @@ import { ReportTemplateListDataService } from './report-template-list.data-servi
     <div class="flex flex-col h-full">
       <app-page-header [breadcrumbs]="breadcrumbs">
         <a
-          routerLink="/report-templates/new"
+          routerLink="/reportTemplates/new"
           class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
         >
           Neue Vorlage
@@ -51,14 +51,14 @@ import { ReportTemplateListDataService } from './report-template-list.data-servi
             description="Erstellen Sie Ihre erste Berichtsvorlage."
           >
             <a
-              routerLink="/report-templates/new"
+              routerLink="/reportTemplates/new"
               class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
             >
               Erste Vorlage erstellen
             </a>
           </app-empty-state>
         } @else {
-          <div class="w-full max-w-6xl">
+          <div class="w-full max-w-3xl">
             <div class="bg-white rounded-lg border border-gray-200">
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -100,7 +100,7 @@ import { ReportTemplateListDataService } from './report-template-list.data-servi
                         <td class="px-3 py-2 text-right text-xs">
                           <div class="flex items-center justify-end gap-2">
                             <a
-                              [routerLink]="['/report-templates', template.id, 'edit']"
+                              [routerLink]="['/reportTemplates', template.id, 'edit']"
                               class="text-xs text-blue-600 hover:underline"
                             >
                               Bearbeiten
@@ -126,7 +126,7 @@ import { ReportTemplateListDataService } from './report-template-list.data-servi
     </div>
 
     <ng-template #deleteDialogTemplate>
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-4">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-4">
         <h2 class="text-sm font-semibold text-gray-900 mb-2">
           Vorlage löschen
         </h2>
@@ -182,6 +182,7 @@ export class ReportTemplateListComponent implements OnInit {
     this.dialogRef = this.dialog.open(this.deleteDialogTemplate(), {
       panelClass: ['flex', 'items-center', 'justify-center'],
       backdropClass: 'bg-black/50',
+      width: '500px',
     });
   }
 

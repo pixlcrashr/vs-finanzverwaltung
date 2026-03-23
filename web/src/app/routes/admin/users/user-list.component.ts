@@ -37,7 +37,7 @@ import { UserListDataService } from './user-list.data-service';
             description="Es wurden noch keine Benutzer registriert."
           />
         } @else {
-          <div class="w-full max-w-4xl">
+          <div class="w-full max-w-3xl">
             <div class="bg-white rounded-lg border border-gray-200">
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">

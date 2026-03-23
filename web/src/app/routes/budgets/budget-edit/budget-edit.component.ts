@@ -189,7 +189,7 @@ import { BudgetEditDataService, BudgetDetails } from './budget-edit.data-service
     </div>
 
     <ng-template #closeBudgetDialogTemplate>
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-4">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-4">
         <h2 class="text-sm font-semibold text-gray-900 mb-2">
           Haushaltsplan schließen
         </h2>
@@ -322,6 +322,7 @@ export class BudgetEditComponent implements OnInit {
     this.dialogRef = this.dialog.open(this.closeBudgetDialogTemplate(), {
       panelClass: ['flex', 'items-center', 'justify-center'],
       backdropClass: 'bg-black/50',
+      width: '500px',
     });
   }
 

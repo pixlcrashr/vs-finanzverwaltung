@@ -142,7 +142,7 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                 <h2 class="text-sm font-semibold text-gray-900">
                   Kontenzuordnungen
                 </h2>
-                <div class="text-xs text-gray-500">
+                <div class="text-xs" [class.text-red-500]="assignmentPercentage() > 100" [class.text-gray-500]="assignmentPercentage() <= 100">
                   {{ formatAmount(assignedTotal()) }} von {{ formatAmount(transaction()!.amount) }} zugeordnet
                 </div>
               </div>
@@ -152,7 +152,7 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                 <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
                   <div
                     class="h-full transition-all duration-300"
-                    [class]="assignmentPercentage() >= 100 ? 'bg-green-500' : 'bg-amber-500'"
+                    [class]="assignmentPercentage() === 100 ? 'bg-green-500' : assignmentPercentage() > 100 ? 'bg-red-500' : 'bg-amber-500'"
                     [style.width.%]="Math.min(assignmentPercentage(), 100)"
                   ></div>
                 </div>

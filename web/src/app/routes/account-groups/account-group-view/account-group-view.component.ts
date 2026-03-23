@@ -26,7 +26,7 @@ import { AccountGroupViewDataService } from './account-group-view.data-service';
     <div class="flex flex-col h-full">
       <app-page-header [breadcrumbs]="breadcrumbs()">
         <a
-          [routerLink]="['/account-groups', group()?.id, 'edit']"
+          [routerLink]="['/accountGroups', group()?.id, 'edit']"
           class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
         >
           Bearbeiten
@@ -117,7 +117,7 @@ export class AccountGroupViewComponent implements OnInit {
   readonly group = signal<AccountGroupStats | null>(null);
 
   readonly breadcrumbs = signal<BreadcrumbItem[]>([
-    { label: 'Kontengruppen', path: '/account-groups' },
+    { label: 'Kontengruppen', path: '/accountGroups' },
     { label: 'Laden...' },
   ]);
 
@@ -133,14 +133,14 @@ export class AccountGroupViewComponent implements OnInit {
       next: (group) => {
         this.group.set(group);
         this.breadcrumbs.set([
-          { label: 'Kontengruppen', path: '/account-groups' },
+          { label: 'Kontengruppen', path: '/accountGroups' },
           { label: group.name },
         ]);
         this.loading.set(false);
       },
       error: () => {
         this.loading.set(false);
-        this.router.navigate(['/account-groups']);
+        this.router.navigate(['/accountGroups']);
       },
     });
   }

@@ -36,7 +36,7 @@ import { ReportListDataService } from './report-list.data-service';
   template: `
     <div class="flex flex-col h-full">
       <app-page-header [breadcrumbs]="breadcrumbs">
-        <app-button variant="primary" (clicked)="showGenerateForm.set(true)">
+        <app-button variant="primary" (clicked)="openCreateDialog()">
           Neuen Bericht erstellen
         </app-button>
       </app-page-header>
@@ -45,70 +45,14 @@ import { ReportListDataService } from './report-list.data-service';
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" text="Berichte werden geladen..." />
         } @else {
-          <div class="w-full max-w-6xl space-y-3">
-            <!-- Generate Report Form -->
-            @if (showGenerateForm()) {
-              <div class="bg-white rounded-lg border border-gray-200 p-4">
-                <h2 class="text-sm font-semibold text-gray-900 mb-4">
-                  Neuen Bericht erstellen
-                </h2>
-                <div class="space-y-3">
-                  <div>
-                    <label
-                      for="template"
-                      class="block text-xs font-medium text-gray-500 mb-1"
-                    >
-                      Vorlage
-                    </label>
-                    <select
-                      id="template"
-                      [(ngModel)]="selectedTemplateId"
-                      class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Vorlage auswählen...</option>
-                      @for (template of templates(); track template.id) {
-                        <option [value]="template.id">{{ template.name }}</option>
-                      }
-                    </select>
-                  </div>
-                  <div>
-                    <label
-                      for="name"
-                      class="block text-xs font-medium text-gray-500 mb-1"
-                    >
-                      Berichtsname
-                    </label>
-                    <input
-                      id="name"
-                      type="text"
-                      [(ngModel)]="reportName"
-                      placeholder="z.B. Haushaltsbericht Q1 2026"
-                      class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div class="flex gap-2">
-                    <app-button
-                      variant="primary"
-                      [disabled]="generating() || !selectedTemplateId || !reportName"
-                      (clicked)="generateReport()"
-                    >
-                      {{ generating() ? 'Wird erstellt...' : 'Bericht erstellen' }}
-                    </app-button>
-                    <app-button variant="secondary" (clicked)="cancelGenerate()">
-                      Abbrechen
-                    </app-button>
-                  </div>
-                </div>
-              </div>
-            }
-
+          <div class="w-full max-w-3xl space-y-3">
             <!-- Reports List -->
             @if (reports().length === 0) {
               <app-empty-state
                 title="Keine Berichte vorhanden"
                 description="Erstellen Sie einen neuen Bericht aus einer Vorlage."
               >
-                <app-button variant="primary" (clicked)="showGenerateForm.set(true)">
+                <app-button variant="primary" (clicked)="openCreateDialog()">
                   Ersten Bericht erstellen
                 </app-button>
               </app-empty-state>
@@ -177,7 +121,7 @@ import { ReportListDataService } from './report-list.data-service';
     </div>
 
     <ng-template #deleteDialogTemplate>
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-4">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-4">
         <h2 class="text-sm font-semibold text-gray-900 mb-2">
           Bericht löschen
         </h2>
@@ -195,6 +139,61 @@ import { ReportListDataService } from './report-list.data-service';
         </div>
       </div>
     </ng-template>
+
+    <ng-template #createDialogTemplate>
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-4">
+        <h2 class="text-sm font-semibold text-gray-900 mb-4">
+          Neuen Bericht erstellen
+        </h2>
+        <div class="space-y-3">
+          <div>
+            <label
+              for="template"
+              class="block text-xs font-medium text-gray-500 mb-1"
+            >
+              Vorlage
+            </label>
+            <select
+              id="template"
+              [(ngModel)]="selectedTemplateId"
+              class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Vorlage auswählen...</option>
+              @for (template of templates(); track template.id) {
+                <option [value]="template.id">{{ template.name }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label
+              for="name"
+              class="block text-xs font-medium text-gray-500 mb-1"
+            >
+              Berichtsname
+            </label>
+            <input
+              id="name"
+              type="text"
+              [(ngModel)]="reportName"
+              placeholder="z.B. Haushaltsbericht Q1 2026"
+              class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div class="flex justify-end gap-2">
+            <app-button variant="secondary" (clicked)="closeDialog()">
+              Abbrechen
+            </app-button>
+            <app-button
+              variant="primary"
+              [disabled]="generating() || !selectedTemplateId || !reportName"
+              (clicked)="generateReport()"
+            >
+              {{ generating() ? 'Wird erstellt...' : 'Bericht erstellen' }}
+            </app-button>
+          </div>
+        </div>
+      </div>
+    </ng-template>
   `,
 })
 export class ReportListComponent implements OnInit {
@@ -202,11 +201,11 @@ export class ReportListComponent implements OnInit {
   private readonly dialog = inject(Dialog);
 
   readonly deleteDialogTemplate = viewChild.required<TemplateRef<unknown>>('deleteDialogTemplate');
+  readonly createDialogTemplate = viewChild.required<TemplateRef<unknown>>('createDialogTemplate');
 
   readonly loading = signal(true);
   readonly generating = signal(false);
   readonly deleting = signal(false);
-  readonly showGenerateForm = signal(false);
   readonly reports = signal<Report[]>([]);
   readonly templates = signal<ReportTemplate[]>([]);
   readonly reportToDelete = signal<Report | null>(null);
@@ -248,7 +247,7 @@ export class ReportListComponent implements OnInit {
       next: (report) => {
         this.reports.update((reports) => [report, ...reports]);
         this.generating.set(false);
-        this.cancelGenerate();
+        this.closeDialog();
       },
       error: () => {
         this.generating.set(false);
@@ -256,10 +255,14 @@ export class ReportListComponent implements OnInit {
     });
   }
 
-  cancelGenerate(): void {
-    this.showGenerateForm.set(false);
+  openCreateDialog(): void {
     this.selectedTemplateId = '';
     this.reportName = '';
+    this.dialogRef = this.dialog.open(this.createDialogTemplate(), {
+      panelClass: ['flex', 'items-center', 'justify-center'],
+      backdropClass: 'bg-black/50',
+      width: '500px',
+    });
   }
 
   openDeleteDialog(report: Report): void {
@@ -267,6 +270,7 @@ export class ReportListComponent implements OnInit {
     this.dialogRef = this.dialog.open(this.deleteDialogTemplate(), {
       panelClass: ['flex', 'items-center', 'justify-center'],
       backdropClass: 'bg-black/50',
+      width: '500px',
     });
   }
 

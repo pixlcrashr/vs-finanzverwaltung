@@ -40,7 +40,7 @@ import { ImportSourceListDataService } from './import-source-list.data-service';
             description="Es wurden noch keine Importquellen konfiguriert."
           />
         } @else {
-          <div class="w-full max-w-4xl space-y-2">
+          <div class="w-full max-w-3xl space-y-2">
             @for (source of importSources(); track source.id) {
               <div class="bg-white rounded-lg border border-gray-200 p-4">
                 <div class="flex items-start justify-between mb-4">
@@ -56,7 +56,7 @@ import { ImportSourceListDataService } from './import-source-list.data-service';
                     </p>
                   </div>
                   <a
-                    [routerLink]="['/admin/import-sources', source.id, 'edit']"
+                    [routerLink]="['/admin/importSources', source.id, 'edit']"
                     class="text-xs text-blue-600 hover:underline"
                   >
                     Bearbeiten

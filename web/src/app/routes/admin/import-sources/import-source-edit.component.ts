@@ -53,7 +53,7 @@ import { ImportSourceEditDataService } from './import-source-edit.data-service';
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" text="Importquelle wird geladen..." />
         } @else if (importSource()) {
-          <div class="w-full max-w-2xl space-y-3">
+          <div class="w-full max-w-3xl space-y-3">
             <!-- Basic Info -->
             <div class="bg-white rounded-lg border border-gray-200 p-4">
               <h2 class="text-sm font-semibold text-gray-900 mb-4">
@@ -141,7 +141,7 @@ import { ImportSourceEditDataService } from './import-source-edit.data-service';
     </div>
 
     <ng-template #closePeriodDialogTemplate>
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-4">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-4">
         <h2 class="text-sm font-semibold text-gray-900 mb-2">
           Zeitraum abschließen
         </h2>
@@ -184,7 +184,7 @@ export class ImportSourceEditComponent implements OnInit {
   description = '';
 
   readonly breadcrumbs: BreadcrumbItem[] = [
-    { label: 'Importquellen', path: '/admin/import-sources' },
+    { label: 'Importquellen', path: '/admin/importSources' },
     { label: 'Bearbeiten' },
   ];
 
@@ -239,6 +239,7 @@ export class ImportSourceEditComponent implements OnInit {
     this.dialogRef = this.dialog.open(this.closePeriodDialogTemplate(), {
       panelClass: ['flex', 'items-center', 'justify-center'],
       backdropClass: 'bg-black/50',
+      width: '500px',
     });
   }
 
@@ -274,7 +275,7 @@ export class ImportSourceEditComponent implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigate(['/admin/import-sources']);
+    this.router.navigate(['/admin/importSources']);
   }
 
   formatDate(date: Date): string {

@@ -55,7 +55,7 @@ import { GroupListDataService } from './group-list.data-service';
             </a>
           </app-empty-state>
         } @else {
-          <div class="w-full max-w-4xl">
+          <div class="w-full max-w-3xl">
             <div class="bg-white rounded-lg border border-gray-200">
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -116,7 +116,7 @@ import { GroupListDataService } from './group-list.data-service';
     </div>
 
     <ng-template #deleteDialogTemplate>
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-4">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-4">
         <h2 class="text-sm font-semibold text-gray-900 mb-2">
           Gruppe löschen
         </h2>
@@ -172,6 +172,7 @@ export class GroupListComponent implements OnInit {
     this.dialogRef = this.dialog.open(this.deleteDialogTemplate(), {
       panelClass: ['flex', 'items-center', 'justify-center'],
       backdropClass: 'bg-black/50',
+      width: '500px',
     });
   }
 

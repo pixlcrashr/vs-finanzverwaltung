@@ -54,7 +54,7 @@ import { AccountListDataService } from './account-list.data-service';
             <app-button (clicked)="openCreateDialog()">Konto erstellen</app-button>
           </app-empty-state>
         } @else {
-          <div class="w-full max-w-6xl">
+          <div class="w-full max-w-3xl">
             <div class="bg-white rounded-lg border border-gray-200">
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -96,36 +96,16 @@ import { AccountListDataService } from './account-list.data-service';
         <td class="px-2.5 py-1.5 text-xs text-gray-900">
           <span [style.padding-left.rem]="account.depth * 1.25">
             @if (account.children.length > 0) {
-              <button
-                type="button"
-                (click)="toggleExpanded(account.id)"
-                class="mr-1.5 text-gray-400 hover:text-gray-600"
-                [attr.aria-label]="expandedIds().has(account.id) ? 'Zuklappen' : 'Aufklappen'"
+              <svg
+                class="mr-1.5 h-3 w-3 inline-block text-gray-400"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.75"
+                aria-hidden="true"
               >
-                @if (expandedIds().has(account.id)) {
-                  <svg
-                    class="h-3 w-3"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.75"
-                    aria-hidden="true"
-                  >
-                    <path d="M5 7.5 10 12.5 15 7.5" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                } @else {
-                  <svg
-                    class="h-3 w-3"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.75"
-                    aria-hidden="true"
-                  >
-                    <path d="M7.5 5 12.5 10 7.5 15" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                }
-              </button>
+                <path d="M5 7.5 10 12.5 15 7.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
             } @else {
               <span class="mr-1.5 inline-block w-3"></span>
             }
@@ -147,41 +127,42 @@ import { AccountListDataService } from './account-list.data-service';
         </td>
         <td class="px-2.5 py-1.5 text-right text-xs">
           <div class="flex items-center justify-end gap-2">
-            <a [routerLink]="['/accounts', account.id]">
-              <app-button variant="secondary">Bearbeiten</app-button>
-            </a>
             @if (account.isArchived) {
-              <app-button
-                variant="secondary"
-                [loading]="restoringAccountId() === account.id"
+              <button
+                type="button"
+                class="text-xs text-blue-600 hover:underline disabled:text-gray-400 disabled:no-underline"
                 [disabled]="isMutatingAccount(account.id)"
                 (click)="restoreAccount(account)"
               >
-                Wiederherstellen
-              </app-button>
+                {{ restoringAccountId() === account.id ? 'Wird wiederhergestellt...' : 'Wiederherstellen' }}
+              </button>
             } @else {
-              <app-button
-                variant="secondary"
-                [loading]="archivingAccountId() === account.id"
+              <button
+                type="button"
+                class="text-xs text-blue-600 hover:underline disabled:text-gray-400 disabled:no-underline"
                 [disabled]="isMutatingAccount(account.id)"
                 (click)="archiveAccount(account)"
               >
-                Archivieren
-              </app-button>
+                {{ archivingAccountId() === account.id ? 'Wird archiviert...' : 'Archivieren' }}
+              </button>
             }
+            <a
+              [routerLink]="['/accounts', account.id]"
+              class="text-xs text-blue-600 hover:underline"
+            >
+              Bearbeiten
+            </a>
           </div>
         </td>
       </tr>
-      @if (expandedIds().has(account.id)) {
-        @for (child of account.children; track child.id) {
-          <ng-container *ngTemplateOutlet="accountRow; context: { $implicit: child }" />
-        }
+      @for (child of account.children; track child.id) {
+        <ng-container *ngTemplateOutlet="accountRow; context: { $implicit: child }" />
       }
     </ng-template>
 
     <!-- Create Dialog Template -->
     <ng-template #createDialogTemplate>
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-4">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-4">
         <h2 class="text-sm font-semibold text-gray-900 mb-4">
           Konto erstellen
         </h2>
@@ -360,6 +341,7 @@ export class AccountListComponent implements OnInit {
     this.dialogRef = this.dialog.open(this.createDialogTemplate(), {
       panelClass: ['flex', 'items-center', 'justify-center'],
       backdropClass: 'bg-black/50',
+      width: '500px',
     });
   }
 

@@ -49,7 +49,7 @@ import { AccountGroupListDataService } from './account-group-list.data-service';
             <app-button (clicked)="openCreateDialog()">Kontengruppe erstellen</app-button>
           </app-empty-state>
         } @else {
-          <div class="w-full max-w-4xl">
+          <div class="w-full max-w-3xl">
             <div class="bg-white rounded-lg border border-gray-200">
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -93,13 +93,13 @@ import { AccountGroupListDataService } from './account-group-list.data-service';
                       <td class="px-3 py-2 text-right text-xs">
                         <div class="flex items-center justify-end gap-2">
                           <a
-                            [routerLink]="['/account-groups', group.id]"
+                            [routerLink]="['/accountGroups', group.id]"
                             class="text-xs text-blue-600 hover:underline"
                           >
                             Anzeigen
                           </a>
                           <a
-                            [routerLink]="['/account-groups', group.id, 'edit']"
+                            [routerLink]="['/accountGroups', group.id, 'edit']"
                             class="text-xs text-blue-600 hover:underline"
                           >
                             Bearbeiten
@@ -126,7 +126,7 @@ import { AccountGroupListDataService } from './account-group-list.data-service';
 
     <!-- Create Dialog Template -->
     <ng-template #createDialogTemplate>
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-4">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-4">
         <h2 class="text-sm font-semibold text-gray-900 mb-4">
           Kontengruppe erstellen
         </h2>
@@ -180,7 +180,7 @@ import { AccountGroupListDataService } from './account-group-list.data-service';
 
     <!-- Delete Confirmation Dialog Template -->
     <ng-template #deleteDialogTemplate>
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-4">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-4">
         <h2 class="text-sm font-semibold text-gray-900 mb-2">
           Kontengruppe entfernen
         </h2>
@@ -253,6 +253,7 @@ export class AccountGroupListComponent implements OnInit {
     this.dialogRef = this.dialog.open(this.createDialogTemplate(), {
       panelClass: ['flex', 'items-center', 'justify-center'],
       backdropClass: 'bg-black/50',
+      width: '500px'
     });
   }
 
@@ -261,6 +262,7 @@ export class AccountGroupListComponent implements OnInit {
     this.dialogRef = this.dialog.open(this.deleteDialogTemplate(), {
       panelClass: ['flex', 'items-center', 'justify-center'],
       backdropClass: 'bg-black/50',
+      width: '500px'
     });
   }
 

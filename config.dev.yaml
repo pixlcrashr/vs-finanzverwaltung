@@ -17,3 +17,22 @@ html2pdf:
 app:
   organisation-name: "Dev Organisation"
   version: "dev"
+
+cors:
+  enabled: true
+  allow-origins:
+    - "http://localhost:4200"
+  allow-methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "PATCH"
+    - "DELETE"
+    - "OPTIONS"
+  allow-headers:
+    - "Origin"
+    - "Content-Type"
+    - "Accept"
+    - "Authorization"
+  allow-credentials: false
+  max-age: 300

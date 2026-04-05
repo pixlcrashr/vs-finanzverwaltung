@@ -24,3 +24,28 @@ app:
   organisation-name: "Your Organisation Name"
   # Displayed in API responses and the OpenAPI spec. Defaults to "dev".
   version: "1.0.0"
+
+cors:
+  # Enable CORS middleware. Defaults to false.
+  enabled: false
+  # Allowed origins. Defaults to ["*"].
+  allow-origins:
+    - "*"
+  # Allowed HTTP methods. Defaults to common methods.
+  allow-methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "PATCH"
+    - "DELETE"
+    - "OPTIONS"
+  # Allowed request headers.
+  allow-headers:
+    - "Origin"
+    - "Content-Type"
+    - "Accept"
+    - "Authorization"
+  # Whether to allow credentials (cookies, auth headers).
+  allow-credentials: false
+  # Preflight cache duration in seconds.
+  max-age: 300

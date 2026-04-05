@@ -11,6 +11,7 @@ import {
   BreadcrumbItem,
   LoadingSpinnerComponent,
   EmptyStateComponent,
+  NotificationService,
 } from '../../../shared/components';
 import { User } from '../../../shared/models';
 import { UserListDataService } from './user-list.data-service';
@@ -30,11 +31,11 @@ import { UserListDataService } from './user-list.data-service';
 
       <div class="flex flex-1 justify-center overflow-auto p-4">
         @if (loading()) {
-          <app-loading-spinner [fullPage]="true" text="Benutzer werden geladen..." />
+          <app-loading-spinner [fullPage]="true" i18n-text text="Benutzer werden geladen..." />
         } @else if (users().length === 0) {
           <app-empty-state
-            title="Keine Benutzer vorhanden"
-            description="Es wurden noch keine Benutzer registriert."
+            i18n-title title="Keine Benutzer vorhanden"
+            i18n-description description="Es wurden noch keine Benutzer registriert."
           />
         } @else {
           <div class="w-full max-w-3xl">
@@ -47,19 +48,19 @@ import { UserListDataService } from './user-list.data-service';
                         scope="col"
                         class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500"
                       >
-                        Name
+                        <ng-container i18n>Name</ng-container>
                       </th>
                       <th
                         scope="col"
                         class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500"
                       >
-                        E-Mail
+                        <ng-container i18n>E-Mail</ng-container>
                       </th>
                       <th
                         scope="col"
                         class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500"
                       >
-                        Gruppen
+                        <ng-container i18n>Gruppen</ng-container>
                       </th>
                       <th scope="col" class="px-3 py-2 text-right">
                         <span class="sr-only">Actions</span>
@@ -83,7 +84,7 @@ import { UserListDataService } from './user-list.data-service';
                             [routerLink]="['/admin/users', user.id, 'edit']"
                             class="text-xs text-blue-600 hover:underline"
                           >
-                            Bearbeiten
+                            <ng-container i18n>Bearbeiten</ng-container>
                           </a>
                         </td>
                       </tr>
@@ -100,11 +101,12 @@ import { UserListDataService } from './user-list.data-service';
 })
 export class UserListComponent implements OnInit {
   private readonly dataService = inject(UserListDataService);
+  private readonly notifications = inject(NotificationService);
 
   readonly loading = signal(true);
   readonly users = signal<User[]>([]);
 
-  readonly breadcrumbs: BreadcrumbItem[] = [{ label: 'Benutzer' }];
+  readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Benutzer` }];
 
   ngOnInit(): void {
     this.loadUsers();
@@ -117,6 +119,7 @@ export class UserListComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
+        this.notifications.error($localize`Fehler beim Laden der Benutzer`);
         this.loading.set(false);
       },
     });

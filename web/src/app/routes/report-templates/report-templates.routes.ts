@@ -1,10 +1,8 @@
 import { Routes } from '@angular/router';
 import { ReportTemplateListDataService } from './report-template-list/report-template-list.data-service';
-import { MockReportTemplateListDataService } from '../../../lib/data/mock/report-template-list.data-service.mock';
 import { ReportTemplateNewDataService } from './report-template-new/report-template-new.data-service';
-import { MockReportTemplateNewDataService } from '../../../lib/data/mock/report-template-new.data-service.mock';
 import { ReportTemplateEditDataService } from './report-template-edit/report-template-edit.data-service';
-import { MockReportTemplateEditDataService } from '../../../lib/data/mock/report-template-edit.data-service.mock';
+import { environment } from '../../../environments/environment';
 
 export const REPORT_TEMPLATES_ROUTES: Routes = [
   {
@@ -13,7 +11,7 @@ export const REPORT_TEMPLATES_ROUTES: Routes = [
       import('./report-template-list/report-template-list.component').then(
         (m) => m.ReportTemplateListComponent
       ),
-    providers: [{ provide: ReportTemplateListDataService, useClass: MockReportTemplateListDataService }],
+    providers: [{ provide: ReportTemplateListDataService, useClass: environment.dataServices.reportTemplateList }],
   },
   {
     path: 'new',
@@ -21,7 +19,7 @@ export const REPORT_TEMPLATES_ROUTES: Routes = [
       import('./report-template-new/report-template-new.component').then(
         (m) => m.ReportTemplateNewComponent
       ),
-    providers: [{ provide: ReportTemplateNewDataService, useClass: MockReportTemplateNewDataService }],
+    providers: [{ provide: ReportTemplateNewDataService, useClass: environment.dataServices.reportTemplateNew }],
   },
   {
     path: ':id/edit',
@@ -29,6 +27,6 @@ export const REPORT_TEMPLATES_ROUTES: Routes = [
       import('./report-template-edit/report-template-edit.component').then(
         (m) => m.ReportTemplateEditComponent
       ),
-    providers: [{ provide: ReportTemplateEditDataService, useClass: MockReportTemplateEditDataService }],
+    providers: [{ provide: ReportTemplateEditDataService, useClass: environment.dataServices.reportTemplateEdit }],
   },
 ];

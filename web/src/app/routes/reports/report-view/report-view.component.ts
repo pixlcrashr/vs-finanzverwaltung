@@ -14,6 +14,7 @@ import {
   BreadcrumbItem,
   ButtonComponent,
   LoadingSpinnerComponent,
+  NotificationService,
 } from '../../../shared/components';
 import { formatDateShort } from '../../../shared/utils';
 import { Report } from '../../../shared/models';
@@ -32,21 +33,21 @@ import { ReportViewDataService } from './report-view.data-service';
       <app-page-header [breadcrumbs]="breadcrumbs">
         <div class="flex gap-2">
           <app-button variant="secondary" (clicked)="goBack()">
-            Zurück zur Liste
+            <ng-container i18n>Zurück zur Liste</ng-container>
           </app-button>
           <app-button
             variant="primary"
             [disabled]="downloading()"
             (clicked)="downloadPdf()"
           >
-            {{ downloading() ? 'Wird heruntergeladen...' : 'Als PDF herunterladen' }}
+            <ng-container i18n>{{ downloading() ? 'Wird heruntergeladen...' : 'Als PDF herunterladen' }}</ng-container>
           </app-button>
         </div>
       </app-page-header>
 
       <div class="flex-1 overflow-auto p-4">
         @if (loading()) {
-          <app-loading-spinner [fullPage]="true" text="Bericht wird geladen..." />
+          <app-loading-spinner [fullPage]="true" i18n-text text="Bericht wird geladen..." />
         } @else if (report()) {
           <div class="max-w-4xl mx-auto">
             <!-- Report Header -->
@@ -54,7 +55,7 @@ import { ReportViewDataService } from './report-view.data-service';
               <h1 class="text-xl font-bold text-gray-900">
                 {{ report()!.name }}
               </h1>
-              <p class="text-xs text-gray-500 mt-1">
+              <p i18n class="text-xs text-gray-500 mt-1">
                 {{ report()!.templateName }} · Erstellt am {{ formatDate(report()!.createdAt) }}
               </p>
             </div>
@@ -76,6 +77,7 @@ export class ReportViewComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly dataService = inject(ReportViewDataService);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly notifications = inject(NotificationService);
 
   readonly reportContent = viewChild<ElementRef>('reportContent');
 
@@ -85,8 +87,8 @@ export class ReportViewComponent implements OnInit {
   readonly htmlContent = signal<SafeHtml>('');
 
   readonly breadcrumbs: BreadcrumbItem[] = [
-    { label: 'Berichte', path: '/reports' },
-    { label: 'Ansehen' },
+    { label: $localize`Berichte`, path: '/reports' },
+    { label: $localize`Ansehen` },
   ];
 
   private reportId = '';
@@ -106,6 +108,7 @@ export class ReportViewComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
+        this.notifications.error($localize`Fehler beim Laden des Berichts`);
         this.loading.set(false);
       },
     });
@@ -128,6 +131,7 @@ export class ReportViewComponent implements OnInit {
         this.downloading.set(false);
       },
       error: () => {
+        this.notifications.error($localize`Fehler beim Herunterladen des Berichts`);
         this.downloading.set(false);
       },
     });

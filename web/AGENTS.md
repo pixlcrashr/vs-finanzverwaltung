@@ -50,6 +50,51 @@ web/
 - Container centering: `flex flex-1 justify-center` with `w-full max-w-3xl`
 - Text sizes: `text-xs` for body, `text-sm` for headings, `text-[10px]` for labels
 
+### Edit View Layout Pattern (Two-Column)
+For routes that edit entries, use a two-column layout:
+- **Left column** (`lg:col-span-2`): Editable form fields (auto-saving), related data tables below
+- **Right column** (`lg:col-span-1`): Readonly info, status, and non-save action buttons
+
+Grid structure:
+```html
+<div class="w-full max-w-4xl">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <!-- Left Column -->
+    <div class="lg:col-span-2 space-y-4">
+      <!-- Form cards -->
+    </div>
+    <!-- Right Column -->
+    <div class="space-y-4">
+      <!-- Action cards -->
+    </div>
+  </div>
+</div>
+```
+
+- Container: `max-w-4xl` (wider than single-column `max-w-3xl`)
+- Responsive: Single column on mobile, two columns on large screens (`lg:` breakpoint)
+
+### Auto-Save Pattern
+- No explicit Save buttons on edit forms
+- Fields update interactively using `debounceTime(500ms)`
+- Show saving indicator during request (inline spinner with "Speichern...")
+- Display success/error notification after save
+- Non-save actions (Delete, Archive, Close) remain as buttons in right column
+
+Example implementation:
+```typescript
+private setupAutoSave(): void {
+  this.form.valueChanges.pipe(
+    takeUntil(this.destroy$),
+    debounceTime(500),
+    distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+    filter(() => this.form.valid && this.form.dirty && !this.loading())
+  ).subscribe(() => {
+    this.saveForm();
+  });
+}
+```
+
 ### Data Services
 - Abstract data service classes in route folders (e.g., `*.data-service.ts`)
 - Mock implementations in `src/lib/data/mock/`

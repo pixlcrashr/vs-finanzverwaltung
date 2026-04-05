@@ -78,8 +78,8 @@ func (h *Handler) CreateBudget(ctx context.Context, req *CreateBudgetRequest) (*
 		ID:          uuid.New(),
 		DisplayName: req.Body.DisplayName,
 		IsClosed:    false,
-		PeriodStart: req.Body.PeriodStart,
-		PeriodEnd:   req.Body.PeriodEnd,
+		PeriodStart: req.Body.PeriodStart.Time,
+		PeriodEnd:   req.Body.PeriodEnd.Time,
 		CreatedAt:   now,
 		UpdatedAt:   now,
 	}
@@ -111,10 +111,10 @@ func (h *Handler) UpdateBudget(ctx context.Context, req *UpdateBudgetRequest) (*
 		m.DisplayDescription = req.Body.DisplayDescription.Value
 	}
 	if req.Body.PeriodStart.IsSet {
-		m.PeriodStart = req.Body.PeriodStart.Value
+		m.PeriodStart = req.Body.PeriodStart.Value.Time
 	}
 	if req.Body.PeriodEnd.IsSet {
-		m.PeriodEnd = req.Body.PeriodEnd.Value
+		m.PeriodEnd = req.Body.PeriodEnd.Value.Time
 	}
 	m.UpdatedAt = time.Now()
 

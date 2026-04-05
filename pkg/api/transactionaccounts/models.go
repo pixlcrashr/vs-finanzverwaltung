@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pixlcrashr/vsfv/pkg/api/optional"
+	"github.com/pixlcrashr/vsfv/pkg/api/types"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 )
 
@@ -42,11 +42,11 @@ type GetTransactionAccountResponse struct {
 // --- ListTransactionAccounts
 
 type ListTransactionAccountsRequest struct {
-	PageSize       int                               `query:"pageSize" doc:"Accounts per page (max 100)" minimum:"1" maximum:"100" default:"20"`
-	Page           int                               `query:"page" doc:"Page number (1-indexed)" minimum:"1" default:"1"`
-	ImportSourceID optional.OptionalParam[uuid.UUID] `query:"importSourceId" doc:"Filter by import source ID"`
-	Code           string                            `query:"code" doc:"Filter by code prefix" maxLength:"200"`
-	OrderBy        string                            `query:"orderBy" doc:"Order by field (e.g. 'code', 'displayName', 'createTime desc')" maxLength:"100"`
+	PageSize       int                       `query:"pageSize" doc:"Accounts per page (max 100)" minimum:"1" maximum:"100" default:"20"`
+	Page           int                       `query:"page" doc:"Page number (1-indexed)" minimum:"1" default:"1"`
+	ImportSourceID types.Optional[uuid.UUID] `query:"importSourceId" doc:"Filter by import source ID"`
+	Code           string                    `query:"code" doc:"Filter by code prefix" maxLength:"200"`
+	OrderBy        string                    `query:"orderBy" doc:"Order by field (e.g. 'code', 'displayName', 'createTime desc')" maxLength:"100"`
 }
 
 type ListTransactionAccountsResponse struct {
@@ -60,10 +60,10 @@ type ListTransactionAccountsResponse struct {
 
 type CreateTransactionAccountRequest struct {
 	Body struct {
-		Code               string                         `json:"code" doc:"Unique account code" maxLength:"64"`
-		ImportSourceID     uuid.UUID                      `json:"importSourceId" doc:"Import source UUID"`
-		DisplayName        optional.OptionalParam[string] `json:"displayName" doc:"Human-readable name" maxLength:"200"`
-		DisplayDescription optional.OptionalParam[string] `json:"displayDescription,omitempty" doc:"Optional description" maxLength:"1000"`
+		Code               string                 `json:"code" doc:"Unique account code" maxLength:"64"`
+		ImportSourceID     uuid.UUID              `json:"importSourceId" doc:"Import source UUID"`
+		DisplayName        types.Optional[string] `json:"displayName,omitempty" doc:"Human-readable name" maxLength:"200"`
+		DisplayDescription types.Optional[string] `json:"displayDescription,omitempty" doc:"Optional description" maxLength:"1000"`
 	}
 }
 
@@ -76,8 +76,8 @@ type CreateTransactionAccountResponse struct {
 type UpdateTransactionAccountRequest struct {
 	TransactionAccountID uuid.UUID `path:"transactionAccountId" doc:"Transaction account UUID"`
 	Body                 struct {
-		DisplayName        optional.OptionalParam[string] `json:"displayName" doc:"Human-readable name" maxLength:"200"`
-		DisplayDescription optional.OptionalParam[string] `json:"displayDescription,omitempty" doc:"Optional description" maxLength:"1000"`
+		DisplayName        types.Optional[string] `json:"displayName,omitempty" doc:"Human-readable name" maxLength:"200"`
+		DisplayDescription types.Optional[string] `json:"displayDescription,omitempty" doc:"Optional description" maxLength:"1000"`
 	}
 }
 

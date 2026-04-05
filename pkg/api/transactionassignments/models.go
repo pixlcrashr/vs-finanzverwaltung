@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pixlcrashr/vsfv/pkg/api/optional"
+	"github.com/pixlcrashr/vsfv/pkg/api/types"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 )
 
@@ -65,7 +65,7 @@ type UpdateTransactionAccountAssignmentRequest struct {
 	TransactionID uuid.UUID `path:"transactionId"`
 	AssignmentID  uuid.UUID `path:"assignmentId"`
 	Body          struct {
-		Value optional.OptionalParam[string] `json:"value" doc:"Decimal value as string"`
+		Value types.Optional[string] `json:"value,omitempty" doc:"Decimal value as string"`
 	}
 }
 

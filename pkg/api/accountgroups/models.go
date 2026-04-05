@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pixlcrashr/vsfv/pkg/api/optional"
+	"github.com/pixlcrashr/vsfv/pkg/api/types"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 )
 
@@ -55,8 +55,8 @@ type ListAccountGroupsResponse struct {
 
 type CreateAccountGroupRequest struct {
 	Body struct {
-		DisplayName        string                         `json:"displayName" doc:"Human-readable account group name" maxLength:"200"`
-		DisplayDescription optional.OptionalParam[string] `json:"displayDescription,omitempty" doc:"Optional free-text description" maxLength:"1000"`
+		DisplayName        string                 `json:"displayName" doc:"Human-readable account group name" maxLength:"200"`
+		DisplayDescription types.Optional[string] `json:"displayDescription,omitempty" doc:"Optional free-text description" maxLength:"1000"`
 	}
 }
 
@@ -69,8 +69,8 @@ type CreateAccountGroupResponse struct {
 type UpdateAccountGroupRequest struct {
 	AccountGroupID uuid.UUID `path:"accountGroupId" doc:"Account group UUID"`
 	Body           struct {
-		DisplayName        optional.OptionalParam[string] `json:"displayName" doc:"Human-readable account group name" maxLength:"200"`
-		DisplayDescription optional.OptionalParam[string] `json:"displayDescription,omitempty" doc:"Optional free-text description" maxLength:"1000"`
+		DisplayName        types.Optional[string] `json:"displayName" doc:"Human-readable account group name" maxLength:"200"`
+		DisplayDescription types.Optional[string] `json:"displayDescription,omitempty" doc:"Optional free-text description" maxLength:"1000"`
 	}
 }
 

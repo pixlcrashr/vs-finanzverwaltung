@@ -10,6 +10,7 @@ import {
   PageHeaderComponent,
   BreadcrumbItem,
   ButtonComponent,
+  NotificationService,
 } from '../../../shared/components';
 import { GroupNewDataService } from './group-new.data-service';
 
@@ -26,14 +27,14 @@ import { GroupNewDataService } from './group-new.data-service';
       <app-page-header [breadcrumbs]="breadcrumbs">
         <div class="flex gap-2">
           <app-button variant="secondary" (clicked)="cancel()">
-            Abbrechen
+            <ng-container i18n>Abbrechen</ng-container>
           </app-button>
           <app-button
             variant="primary"
             [disabled]="saving() || !isValid()"
             (clicked)="save()"
           >
-            {{ saving() ? 'Wird erstellt...' : 'Erstellen' }}
+            <ng-container i18n>{{ saving() ? 'Wird erstellt...' : 'Erstellen' }}</ng-container>
           </app-button>
         </div>
       </app-page-header>
@@ -41,7 +42,7 @@ import { GroupNewDataService } from './group-new.data-service';
       <div class="flex flex-1 justify-center overflow-auto p-4">
         <div class="w-full max-w-3xl">
           <div class="bg-white rounded-lg border border-gray-200 p-4">
-            <h2 class="text-sm font-semibold text-gray-900 mb-4">
+            <h2 i18n class="text-sm font-semibold text-gray-900 mb-4">
               Neue Gruppe erstellen
             </h2>
             <div class="space-y-3">
@@ -50,7 +51,7 @@ import { GroupNewDataService } from './group-new.data-service';
                   for="name"
                   class="block text-xs font-medium text-gray-500 mb-1"
                 >
-                  Name *
+                  <ng-container i18n>Name *</ng-container>
                 </label>
                 <input
                   id="name"
@@ -65,7 +66,7 @@ import { GroupNewDataService } from './group-new.data-service';
                   for="description"
                   class="block text-xs font-medium text-gray-500 mb-1"
                 >
-                  Beschreibung
+                  <ng-container i18n>Beschreibung</ng-container>
                 </label>
                 <textarea
                   id="description"
@@ -85,6 +86,7 @@ import { GroupNewDataService } from './group-new.data-service';
 export class GroupNewComponent {
   private readonly router = inject(Router);
   private readonly dataService = inject(GroupNewDataService);
+  private readonly notifications = inject(NotificationService);
 
   readonly saving = signal(false);
 
@@ -92,8 +94,8 @@ export class GroupNewComponent {
   description = '';
 
   readonly breadcrumbs: BreadcrumbItem[] = [
-    { label: 'Gruppen', path: '/admin/groups' },
-    { label: 'Neu' },
+    { label: $localize`Gruppen`, path: '/admin/groups' },
+    { label: $localize`Neu` },
   ];
 
   isValid(): boolean {
@@ -112,6 +114,7 @@ export class GroupNewComponent {
         this.router.navigate(['/admin/groups', group.id, 'edit']);
       },
       error: () => {
+        this.notifications.error($localize`Fehler beim Erstellen der Gruppe`);
         this.saving.set(false);
       },
     });

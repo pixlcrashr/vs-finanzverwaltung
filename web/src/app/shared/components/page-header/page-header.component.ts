@@ -16,7 +16,7 @@ export interface BreadcrumbItem {
   }
   `,
   template: `
-    <header class="w-full border-b border-gray-200 bg-white">
+    <header class="w-full border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
       <div class="flex h-full w-full items-center justify-between px-4 py-2 sm:px-6">
         <div>
           <!-- Breadcrumb -->
@@ -25,11 +25,11 @@ export interface BreadcrumbItem {
               @for (item of breadcrumbs(); track item.label; let last = $last) {
                 <li class="flex items-center">
                   @if (!last && item.path) {
-                    <a [routerLink]="item.path" class="text-gray-500 hover:text-blue-600">
+                    <a [routerLink]="item.path" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
                       {{ item.label }}
                     </a>
                     <svg
-                      class="w-3 h-3 mx-1.5 text-gray-400"
+                      class="w-3 h-3 mx-1.5 text-gray-400 dark:text-gray-600"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -37,7 +37,7 @@ export interface BreadcrumbItem {
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                   } @else {
-                    <span class="font-medium text-gray-900">
+                    <span class="font-medium text-gray-900 dark:text-gray-100">
                       {{ item.label }}
                     </span>
                   }
@@ -48,7 +48,7 @@ export interface BreadcrumbItem {
 
           <!-- Title -->
           @if (title()) {
-            <h1 class="mt-0.5 text-lg font-semibold text-gray-900">
+            <h1 class="mt-0.5 text-lg font-semibold text-gray-900 dark:text-gray-100">
               {{ title() }}
             </h1>
           }

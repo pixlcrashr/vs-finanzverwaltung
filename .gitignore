@@ -45,3 +45,5 @@ lerna-debug.log*
 # Claude
 
 .claude/*.local.json
+
+*.exe

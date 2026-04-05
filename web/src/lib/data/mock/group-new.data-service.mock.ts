@@ -7,10 +7,13 @@ import { GroupNewDataService, CreateGroupInput } from '../../../app/routes/admin
 @Injectable()
 export class MockGroupNewDataService extends GroupNewDataService {
   createGroup(input: CreateGroupInput): Observable<UserGroup> {
+    const now = new Date();
     const group: UserGroup = {
       id: faker.string.uuid(),
       name: input.name,
       description: input.description,
+      createdAt: now,
+      updatedAt: now,
     };
     return of(group).pipe(delay(400));
   }

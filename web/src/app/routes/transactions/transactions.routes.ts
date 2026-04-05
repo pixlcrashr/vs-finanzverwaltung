@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { TransactionEditDataService } from './transaction-edit/transaction-edit.data-service';
-import { MockTransactionEditDataService } from '../../../lib/data/mock/transaction-edit.data-service.mock';
+import { environment } from '../../../environments/environment';
 
 export const TRANSACTIONS_ROUTES: Routes = [
   {
@@ -9,6 +9,6 @@ export const TRANSACTIONS_ROUTES: Routes = [
       import('./transaction-edit/transaction-edit.component').then(
         (m) => m.TransactionEditComponent
       ),
-    providers: [{ provide: TransactionEditDataService, useClass: MockTransactionEditDataService }],
+    providers: [{ provide: TransactionEditDataService, useClass: environment.dataServices.transactionEdit }],
   },
 ];

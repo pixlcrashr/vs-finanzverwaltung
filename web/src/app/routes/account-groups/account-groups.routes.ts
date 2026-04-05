@@ -1,10 +1,14 @@
 import { Routes } from '@angular/router';
 import { AccountGroupListDataService } from './account-group-list/account-group-list.data-service';
-import { MockAccountGroupListDataService } from '../../../lib/data/mock/account-group-list.data-service.mock';
-import { AccountGroupViewDataService } from './account-group-view/account-group-view.data-service';
-import { MockAccountGroupViewDataService } from '../../../lib/data/mock/account-group-view.data-service.mock';
+import { AccountGroupStatsDataService } from './account-group-stats/account-group-stats.data-service';
 import { AccountGroupEditDataService } from './account-group-edit/account-group-edit.data-service';
-import { MockAccountGroupEditDataService } from '../../../lib/data/mock/account-group-edit.data-service.mock';
+import {
+  CreateAccountGroupDialogDataService,
+} from '../../shared/dialogs/create-account-group-dialog/create-account-group-dialog.data-service';
+import {
+  AddAccountToGroupDialogDataService,
+} from '../../shared/dialogs/add-account-to-group-dialog/add-account-to-group-dialog.data-service';
+import { environment } from '../../../environments/environment';
 
 export const ACCOUNT_GROUPS_ROUTES: Routes = [
   {
@@ -13,22 +17,28 @@ export const ACCOUNT_GROUPS_ROUTES: Routes = [
       import('./account-group-list/account-group-list.component').then(
         (m) => m.AccountGroupListComponent
       ),
-    providers: [{ provide: AccountGroupListDataService, useClass: MockAccountGroupListDataService }],
+    providers: [
+      { provide: AccountGroupListDataService, useClass: environment.dataServices.accountGroupList },
+      { provide: CreateAccountGroupDialogDataService, useClass: environment.dataServices.createAccountGroupDialog },
+    ],
   },
   {
     path: ':id',
     loadComponent: () =>
-      import('./account-group-view/account-group-view.component').then(
-        (m) => m.AccountGroupViewComponent
-      ),
-    providers: [{ provide: AccountGroupViewDataService, useClass: MockAccountGroupViewDataService }],
-  },
-  {
-    path: ':id/edit',
-    loadComponent: () =>
       import('./account-group-edit/account-group-edit.component').then(
         (m) => m.AccountGroupEditComponent
       ),
-    providers: [{ provide: AccountGroupEditDataService, useClass: MockAccountGroupEditDataService }],
+    providers: [
+      { provide: AccountGroupEditDataService, useClass: environment.dataServices.accountGroupEdit },
+      { provide: AddAccountToGroupDialogDataService, useClass: environment.dataServices.addAccountToGroupDialog },
+    ],
+  },
+  {
+    path: ':id/stats',
+    loadComponent: () =>
+      import('./account-group-stats/account-group-stats.component').then(
+        (m) => m.AccountGroupStatsComponent
+      ),
+    providers: [{ provide: AccountGroupStatsDataService, useClass: environment.dataServices.accountGroupStats }],
   },
 ];

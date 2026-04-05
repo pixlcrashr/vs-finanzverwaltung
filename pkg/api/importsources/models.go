@@ -4,25 +4,25 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pixlcrashr/vsfv/pkg/api/optional"
+	"github.com/pixlcrashr/vsfv/pkg/api/types"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 )
 
 // ImportSource is the API representation of an import source.
 type ImportSource struct {
-	ID                 uuid.UUID `json:"id" doc:"Import source UUID"`
-	DisplayName        string    `json:"displayName" doc:"Human-readable import source name"`
-	DisplayDescription string    `json:"displayDescription" doc:"Optional free-text description"`
-	PeriodStart        time.Time `json:"periodStart" doc:"Period start date"`
-	UpdatedAt          time.Time `json:"updateTime" doc:"Last modification timestamp"`
-	CreatedAt          time.Time `json:"createTime" doc:"Creation timestamp"`
+	ID                 uuid.UUID  `json:"id" doc:"Import source UUID"`
+	DisplayName        string     `json:"displayName" doc:"Human-readable import source name"`
+	DisplayDescription string     `json:"displayDescription" doc:"Optional free-text description"`
+	PeriodStart        types.Date `json:"periodStart" doc:"Period start date"`
+	UpdatedAt          time.Time  `json:"updateTime" doc:"Last modification timestamp"`
+	CreatedAt          time.Time  `json:"createTime" doc:"Creation timestamp"`
 }
 
 func (is *ImportSource) fromModel(m *model.ImportSource) {
 	is.ID = m.ID
 	is.DisplayName = m.DisplayName
 	is.DisplayDescription = m.DisplayDescription
-	is.PeriodStart = m.PeriodStart
+	is.PeriodStart = types.NewDate(m.PeriodStart)
 	is.UpdatedAt = m.UpdatedAt
 	is.CreatedAt = m.CreatedAt
 }
@@ -57,9 +57,9 @@ type ListImportSourcesResponse struct {
 
 type CreateImportSourceRequest struct {
 	Body struct {
-		DisplayName        string                         `json:"displayName" doc:"Human-readable import source name" maxLength:"200"`
-		DisplayDescription optional.OptionalParam[string] `json:"displayDescription,omitempty" doc:"Optional free-text description" maxLength:"1000"`
-		PeriodStart        time.Time                      `json:"periodStart" doc:"Period start date"`
+		DisplayName        string                 `json:"displayName" doc:"Human-readable import source name" maxLength:"200"`
+		DisplayDescription types.Optional[string] `json:"displayDescription,omitempty" doc:"Optional free-text description" maxLength:"1000"`
+		PeriodStart        types.Date             `json:"periodStart" doc:"Period start date"`
 	}
 }
 
@@ -72,8 +72,8 @@ type CreateImportSourceResponse struct {
 type UpdateImportSourceRequest struct {
 	ImportSourceID uuid.UUID `path:"importSourceId" doc:"Import source UUID"`
 	Body           struct {
-		DisplayName        optional.OptionalParam[string] `json:"displayName" doc:"Human-readable import source name" maxLength:"200"`
-		DisplayDescription optional.OptionalParam[string] `json:"displayDescription,omitempty" doc:"Optional free-text description" maxLength:"1000"`
+		DisplayName        types.Optional[string] `json:"displayName,omitempty" doc:"Human-readable import source name" maxLength:"200"`
+		DisplayDescription types.Optional[string] `json:"displayDescription,omitempty" doc:"Optional free-text description" maxLength:"1000"`
 	}
 }
 

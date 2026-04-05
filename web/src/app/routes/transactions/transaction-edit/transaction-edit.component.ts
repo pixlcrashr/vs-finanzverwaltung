@@ -14,6 +14,7 @@ import {
   ButtonComponent,
   LoadingSpinnerComponent,
   StatusBadgeComponent,
+  NotificationService,
 } from '../../../shared/components';
 import { formatDateShort, formatCurrency } from '../../../shared/utils';
 import { Transaction, TransactionAccountAssignment, Account } from '../../../shared/models';
@@ -31,20 +32,16 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
   ],
   template: `
     <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs">
-        <app-button variant="secondary" (clicked)="goBack()">
-          Zurück zum Journal
-        </app-button>
-      </app-page-header>
+      <app-page-header [breadcrumbs]="breadcrumbs"></app-page-header>
 
       <div class="flex flex-1 justify-center overflow-auto p-4">
         @if (loading()) {
-          <app-loading-spinner [fullPage]="true" text="Transaktion wird geladen..." />
+          <app-loading-spinner [fullPage]="true" i18n-text text="Transaktion wird geladen..." />
         } @else if (transaction()) {
           <div class="w-full max-w-4xl space-y-3">
             <!-- Transaction Details Card -->
             <div class="bg-white rounded-lg border border-gray-200 p-4">
-              <h2 class="text-sm font-semibold text-gray-900 mb-4">
+              <h2 i18n class="text-sm font-semibold text-gray-900 mb-4">
                 Transaktionsdetails
               </h2>
 
@@ -52,7 +49,7 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                 <!-- Left Column -->
                 <div class="space-y-3">
                   <div>
-                    <label class="block text-xs font-medium text-gray-500 mb-1">
+                    <label i18n class="block text-xs font-medium text-gray-500 mb-1">
                       Belegdatum
                     </label>
                     <p class="text-sm text-gray-900">
@@ -61,7 +58,7 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                   </div>
 
                   <div>
-                    <label class="block text-xs font-medium text-gray-500 mb-1">
+                    <label i18n class="block text-xs font-medium text-gray-500 mb-1">
                       Gebucht am
                     </label>
                     <p class="text-sm text-gray-900">
@@ -70,7 +67,7 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                   </div>
 
                   <div>
-                    <label class="block text-xs font-medium text-gray-500 mb-1">
+                    <label i18n class="block text-xs font-medium text-gray-500 mb-1">
                       Betrag
                     </label>
                     <p class="text-xl font-semibold text-gray-900">
@@ -82,7 +79,7 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                 <!-- Right Column -->
                 <div class="space-y-3">
                   <div>
-                    <label class="block text-xs font-medium text-gray-500 mb-1">
+                    <label i18n class="block text-xs font-medium text-gray-500 mb-1">
                       Soll-Konto
                     </label>
                     <p class="text-sm text-gray-900">
@@ -91,7 +88,7 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                   </div>
 
                   <div>
-                    <label class="block text-xs font-medium text-gray-500 mb-1">
+                    <label i18n class="block text-xs font-medium text-gray-500 mb-1">
                       Haben-Konto
                     </label>
                     <p class="text-sm text-gray-900">
@@ -100,11 +97,11 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                   </div>
 
                   <div>
-                    <label class="block text-xs font-medium text-gray-500 mb-1">
+                    <label i18n class="block text-xs font-medium text-gray-500 mb-1">
                       Zuordnungsstatus
                     </label>
                     <app-status-badge size="sm" [variant]="isFullyAssigned() ? 'success' : 'warning'">
-                      {{ isFullyAssigned() ? 'Vollständig zugeordnet' : 'Teilweise zugeordnet' }}
+                      <ng-container i18n>{{ isFullyAssigned() ? 'Vollständig zugeordnet' : 'Teilweise zugeordnet' }}</ng-container>
                     </app-status-badge>
                   </div>
                 </div>
@@ -116,7 +113,7 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                   for="description"
                   class="block text-xs font-medium text-gray-500 mb-1"
                 >
-                  Beschreibung
+                  <ng-container i18n>Beschreibung</ng-container>
                 </label>
                 <div class="flex gap-2">
                   <input
@@ -130,7 +127,7 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                     [disabled]="saving() || description === transaction()!.description"
                     (clicked)="saveDescription()"
                   >
-                    {{ saving() ? 'Speichern...' : 'Speichern' }}
+                    <ng-container i18n>{{ saving() ? 'Speichern...' : 'Speichern' }}</ng-container>
                   </app-button>
                 </div>
               </div>
@@ -139,10 +136,10 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
             <!-- Account Assignments Card -->
             <div class="bg-white rounded-lg border border-gray-200 p-4">
               <div class="flex items-center justify-between mb-4">
-                <h2 class="text-sm font-semibold text-gray-900">
+                <h2 i18n class="text-sm font-semibold text-gray-900">
                   Kontenzuordnungen
                 </h2>
-                <div class="text-xs" [class.text-red-500]="assignmentPercentage() > 100" [class.text-gray-500]="assignmentPercentage() <= 100">
+                <div i18n class="text-xs" [class.text-red-500]="assignmentPercentage() > 100" [class.text-gray-500]="assignmentPercentage() <= 100">
                   {{ formatAmount(assignedTotal()) }} von {{ formatAmount(transaction()!.amount) }} zugeordnet
                 </div>
               </div>
@@ -156,7 +153,7 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                     [style.width.%]="Math.min(assignmentPercentage(), 100)"
                   ></div>
                 </div>
-                <p class="text-xs text-gray-500 mt-1">
+                <p i18n class="text-xs text-gray-500 mt-1">
                   {{ assignmentPercentage().toFixed(1) }}% zugeordnet
                 </p>
               </div>
@@ -167,13 +164,13 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                   <table class="w-full">
                     <thead>
                       <tr class="border-b border-gray-200">
-                        <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">
+                        <th i18n class="text-left py-2 px-3 text-xs font-medium text-gray-500">
                           Konto
                         </th>
-                        <th class="text-right py-2 px-3 text-xs font-medium text-gray-500">
+                        <th i18n class="text-right py-2 px-3 text-xs font-medium text-gray-500">
                           Betrag
                         </th>
-                        <th class="text-right py-2 px-3 text-xs font-medium text-gray-500">
+                        <th i18n class="text-right py-2 px-3 text-xs font-medium text-gray-500">
                           Aktionen
                         </th>
                       </tr>
@@ -194,7 +191,7 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                               [disabled]="removing()"
                               (click)="removeAssignment(assignment)"
                             >
-                              Entfernen
+                              <ng-container i18n>Entfernen</ng-container>
                             </button>
                           </td>
                         </tr>
@@ -203,14 +200,14 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                   </table>
                 </div>
               } @else {
-                <p class="text-xs text-gray-500 text-center py-4 mb-4">
+                <p i18n class="text-xs text-gray-500 text-center py-4 mb-4">
                   Keine Kontenzuordnungen vorhanden.
                 </p>
               }
 
               <!-- Add Assignment Form -->
               <div class="border-t border-gray-200 pt-4">
-                <h3 class="text-xs font-medium text-gray-900 mb-3">
+                <h3 i18n class="text-xs font-medium text-gray-900 mb-3">
                   Neue Zuordnung hinzufügen
                 </h3>
                 <div class="flex flex-col sm:flex-row gap-2">
@@ -218,7 +215,7 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                     [(ngModel)]="selectedAccountId"
                     class="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="">Konto auswählen...</option>
+                    <option i18n value="">Konto auswählen...</option>
                     @for (account of availableAccounts(); track account.id) {
                       <option [value]="account.id">
                         {{ account.code }} {{ account.name }}
@@ -238,7 +235,7 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                     [disabled]="adding() || !selectedAccountId || !assignmentValue"
                     (clicked)="addAssignment()"
                   >
-                    {{ adding() ? 'Hinzufügen...' : 'Hinzufügen' }}
+                    <ng-container i18n>{{ adding() ? 'Hinzufügen...' : 'Hinzufügen' }}</ng-container>
                   </app-button>
                 </div>
                 @if (remainingAmount() > 0) {
@@ -246,6 +243,7 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                     type="button"
                     class="mt-2 text-xs text-blue-600 hover:underline"
                     (click)="fillRemainingAmount()"
+                    i18n
                   >
                     Restbetrag übernehmen ({{ formatAmount(remainingAmount().toFixed(2)) }})
                   </button>
@@ -254,7 +252,7 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
             </div>
 
             <!-- Metadata -->
-            <div class="text-xs text-gray-500">
+            <div i18n class="text-xs text-gray-500">
               Zuletzt aktualisiert: {{ formatDate(transaction()!.updatedAt) }}
             </div>
           </div>
@@ -267,6 +265,7 @@ export class TransactionEditComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dataService = inject(TransactionEditDataService);
+  private readonly notifications = inject(NotificationService);
 
   readonly loading = signal(true);
   readonly saving = signal(false);
@@ -280,8 +279,8 @@ export class TransactionEditComponent implements OnInit {
   assignmentValue: number | null = null;
 
   readonly breadcrumbs: BreadcrumbItem[] = [
-    { label: 'Journal', path: '/journal' },
-    { label: 'Transaktion bearbeiten' },
+    { label: $localize`Journal`, path: '/journal' },
+    { label: $localize`Transaktion bearbeiten` },
   ];
 
   readonly Math = Math;
@@ -332,6 +331,7 @@ export class TransactionEditComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
+        this.notifications.error($localize`Fehler beim Laden der Buchung`);
         this.loading.set(false);
       },
     });
@@ -345,10 +345,6 @@ export class TransactionEditComponent implements OnInit {
     });
   }
 
-  goBack(): void {
-    this.router.navigate(['/journal']);
-  }
-
   saveDescription(): void {
     const tx = this.transaction();
     if (!tx) return;
@@ -360,6 +356,7 @@ export class TransactionEditComponent implements OnInit {
         this.saving.set(false);
       },
       error: () => {
+        this.notifications.error($localize`Fehler beim Speichern der Buchung`);
         this.saving.set(false);
       },
     });
@@ -385,6 +382,7 @@ export class TransactionEditComponent implements OnInit {
         });
       },
       error: () => {
+        this.notifications.error($localize`Fehler beim Hinzufügen des Kontos`);
         this.adding.set(false);
       },
     });
@@ -406,6 +404,7 @@ export class TransactionEditComponent implements OnInit {
         });
       },
       error: () => {
+        this.notifications.error($localize`Fehler beim Entfernen des Kontos`);
         this.removing.set(false);
       },
     });

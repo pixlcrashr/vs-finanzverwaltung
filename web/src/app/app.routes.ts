@@ -19,15 +19,10 @@ export const routes: Routes = [
           import('./routes/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
       },
       {
-        path: 'applications',
-        loadComponent: () =>
-          import('./routes/applications/applications.component').then((m) => m.ApplicationsComponent),
-      },
-      {
-        path: 'applicationTypes',
-        loadComponent: () =>
-          import('./routes/application-types/application-types.component').then(
-            (m) => m.ApplicationTypesComponent,
+        path: 'reimbursements',
+        loadChildren: () =>
+          import('./routes/reimbursements/reimbursements.routes').then(
+            (m) => m.REIMBURSEMENTS_ROUTES,
           ),
       },
       {

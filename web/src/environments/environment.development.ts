@@ -1,0 +1,80 @@
+import { MockAccountGroupListDataService } from '../lib/data/mock/account-group-list.data-service.mock';
+import { MockAccountGroupEditDataService } from '../lib/data/mock/account-group-edit.data-service.mock';
+import { MockAccountGroupStatsDataService } from '../lib/data/mock/account-group-stats.data-service.mock';
+import { MockAccountListDataService } from '../lib/data/mock/account-list.data-service.mock';
+import { MockAccountEditDataService } from '../lib/data/mock/account-edit.data-service.mock';
+import { MockAccountCompareDataService } from '../lib/data/mock/account-compare.data-service.mock';
+import { MockBudgetListDataService } from '../lib/data/mock/budget-list.data-service.mock';
+import { MockBudgetEditDataService } from '../lib/data/mock/budget-edit.data-service.mock';
+import { MockReimbursementListDataService } from '../lib/data/mock/reimbursement-list.data-service.mock';
+import { MockReimbursementEditDataService } from '../lib/data/mock/reimbursement-edit.data-service.mock';
+import { MockReimbursementNewDataService } from '../lib/data/mock/reimbursement-new.data-service.mock';
+import { MockReportTemplateListDataService } from '../lib/data/mock/report-template-list.data-service.mock';
+import { MockReportTemplateEditDataService } from '../lib/data/mock/report-template-edit.data-service.mock';
+import { MockReportTemplateNewDataService } from '../lib/data/mock/report-template-new.data-service.mock';
+import { MockReportListDataService } from '../lib/data/mock/report-list.data-service.mock';
+import { MockReportViewDataService } from '../lib/data/mock/report-view.data-service.mock';
+import { MockTransactionEditDataService } from '../lib/data/mock/transaction-edit.data-service.mock';
+import { MockJournalListDataService } from '../lib/data/mock/journal-list.data-service.mock';
+import { MockJournalImportDataService } from '../lib/data/mock/journal-import.data-service.mock';
+import { MockDashboardDataService } from '../lib/data/mock/dashboard.data-service.mock';
+import { MockSettingsDataService } from '../lib/data/mock/settings.data-service.mock';
+import { MockUserListDataService } from '../lib/data/mock/user-list.data-service.mock';
+import { MockUserEditDataService } from '../lib/data/mock/user-edit.data-service.mock';
+import { MockGroupListDataService } from '../lib/data/mock/group-list.data-service.mock';
+import { MockGroupEditDataService } from '../lib/data/mock/group-edit.data-service.mock';
+import { MockGroupNewDataService } from '../lib/data/mock/group-new.data-service.mock';
+import { MockImportSourceListDataService } from '../lib/data/mock/import-source-list.data-service.mock';
+import { MockImportSourceEditDataService } from '../lib/data/mock/import-source-edit.data-service.mock';
+import { MockCreateAccountGroupDialogDataService } from '../lib/data/mock/create-account-group-dialog.data-service.mock';
+import { MockAddAccountToGroupDialogDataService } from '../lib/data/mock/add-account-to-group-dialog.data-service.mock';
+import { MockCreateBudgetDialogDataService } from '../lib/data/mock/create-budget-dialog.data-service.mock';
+import { MockCloseBudgetDialogDataService } from '../lib/data/mock/close-budget-dialog.data-service.mock';
+import { MockCreateAccountDialogDataService } from '../lib/data/mock/create-account-dialog.data-service.mock';
+import { MockCreateReportDialogDataService } from '../lib/data/mock/create-report-dialog.data-service.mock';
+import { MockClosePeriodDialogDataService } from '../lib/data/mock/close-period-dialog.data-service.mock';
+import { MockAddReceiptDialogDataService } from '../lib/data/mock/add-receipt-dialog.data-service.mock';
+
+export const environment = {
+  production: false,
+  apiBaseUrl: '',
+  dataServices: {
+    accountGroupList: MockAccountGroupListDataService,
+    accountGroupEdit: MockAccountGroupEditDataService,
+    accountGroupStats: MockAccountGroupStatsDataService,
+    accountList: MockAccountListDataService,
+    accountEdit: MockAccountEditDataService,
+    accountCompare: MockAccountCompareDataService,
+    budgetList: MockBudgetListDataService,
+    budgetEdit: MockBudgetEditDataService,
+    reimbursementList: MockReimbursementListDataService,
+    reimbursementEdit: MockReimbursementEditDataService,
+    reimbursementNew: MockReimbursementNewDataService,
+    reportTemplateList: MockReportTemplateListDataService,
+    reportTemplateEdit: MockReportTemplateEditDataService,
+    reportTemplateNew: MockReportTemplateNewDataService,
+    reportList: MockReportListDataService,
+    reportView: MockReportViewDataService,
+    transactionEdit: MockTransactionEditDataService,
+    journalList: MockJournalListDataService,
+    journalImport: MockJournalImportDataService,
+    dashboard: MockDashboardDataService,
+    settings: MockSettingsDataService,
+    userList: MockUserListDataService,
+    userEdit: MockUserEditDataService,
+    groupList: MockGroupListDataService,
+    groupEdit: MockGroupEditDataService,
+    groupNew: MockGroupNewDataService,
+    importSourceList: MockImportSourceListDataService,
+    importSourceEdit: MockImportSourceEditDataService,
+    // Dialog data services
+    createAccountGroupDialog: MockCreateAccountGroupDialogDataService,
+    addAccountToGroupDialog: MockAddAccountToGroupDialogDataService,
+    createBudgetDialog: MockCreateBudgetDialogDataService,
+    closeBudgetDialog: MockCloseBudgetDialogDataService,
+    createAccountDialog: MockCreateAccountDialogDataService,
+    createReportDialog: MockCreateReportDialogDataService,
+    closePeriodDialog: MockClosePeriodDialogDataService,
+    addReceiptDialog: MockAddReceiptDialogDataService,
+  },
+};

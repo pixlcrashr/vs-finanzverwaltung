@@ -4,20 +4,20 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pixlcrashr/vsfv/pkg/api/optional"
+	"github.com/pixlcrashr/vsfv/pkg/api/types"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 )
 
 // Budget is the API representation of a budget.
 type Budget struct {
-	ID                 uuid.UUID `json:"id" doc:"Budget UUID"`
-	DisplayName        string    `json:"displayName" doc:"Human-readable budget name"`
-	DisplayDescription string    `json:"displayDescription" doc:"Optional free-text description"`
-	IsClosed           bool      `json:"isClosed" doc:"Whether the budget is closed"`
-	PeriodStart        time.Time `json:"periodStart" doc:"Budget period start date"`
-	PeriodEnd          time.Time `json:"periodEnd" doc:"Budget period end date"`
-	UpdatedAt          time.Time `json:"updateTime" doc:"Last modification timestamp"`
-	CreatedAt          time.Time `json:"createTime" doc:"Creation timestamp"`
+	ID                 uuid.UUID  `json:"id" doc:"Budget UUID"`
+	DisplayName        string     `json:"displayName" doc:"Human-readable budget name"`
+	DisplayDescription string     `json:"displayDescription" doc:"Optional free-text description"`
+	IsClosed           bool       `json:"isClosed" doc:"Whether the budget is closed"`
+	PeriodStart        types.Date `json:"periodStart" doc:"Budget period start date"`
+	PeriodEnd          types.Date `json:"periodEnd" doc:"Budget period end date"`
+	UpdatedAt          time.Time  `json:"updateTime" doc:"Last modification timestamp"`
+	CreatedAt          time.Time  `json:"createTime" doc:"Creation timestamp"`
 }
 
 func (b *Budget) fromModel(m *model.Budget) {
@@ -25,8 +25,8 @@ func (b *Budget) fromModel(m *model.Budget) {
 	b.DisplayName = m.DisplayName
 	b.DisplayDescription = m.DisplayDescription
 	b.IsClosed = m.IsClosed
-	b.PeriodStart = m.PeriodStart
-	b.PeriodEnd = m.PeriodEnd
+	b.PeriodStart = types.NewDate(m.PeriodStart)
+	b.PeriodEnd = types.NewDate(m.PeriodEnd)
 	b.UpdatedAt = m.UpdatedAt
 	b.CreatedAt = m.CreatedAt
 }
@@ -62,10 +62,10 @@ type ListBudgetsResponse struct {
 
 type CreateBudgetRequest struct {
 	Body struct {
-		DisplayName        string                         `json:"displayName" doc:"Human-readable budget name" maxLength:"200"`
-		DisplayDescription optional.OptionalParam[string] `json:"displayDescription,omitempty" doc:"Optional free-text description" maxLength:"1000"`
-		PeriodStart        time.Time                      `json:"periodStart" doc:"Budget period start date"`
-		PeriodEnd          time.Time                      `json:"periodEnd" doc:"Budget period end date"`
+		DisplayName        string                 `json:"displayName" doc:"Human-readable budget name" maxLength:"200"`
+		DisplayDescription types.Optional[string] `json:"displayDescription,omitempty" doc:"Optional free-text description" maxLength:"1000"`
+		PeriodStart        types.Date             `json:"periodStart" doc:"Budget period start date"`
+		PeriodEnd          types.Date             `json:"periodEnd" doc:"Budget period end date"`
 	}
 }
 
@@ -78,10 +78,10 @@ type CreateBudgetResponse struct {
 type UpdateBudgetRequest struct {
 	BudgetID uuid.UUID `path:"budgetId" doc:"Budget UUID"`
 	Body     struct {
-		DisplayName        optional.OptionalParam[string]    `json:"displayName" doc:"Human-readable budget name" maxLength:"200"`
-		DisplayDescription optional.OptionalParam[string]    `json:"displayDescription,omitempty" doc:"Optional free-text description" maxLength:"1000"`
-		PeriodStart        optional.OptionalParam[time.Time] `json:"periodStart" doc:"Budget period start date"`
-		PeriodEnd          optional.OptionalParam[time.Time] `json:"periodEnd" doc:"Budget period end date"`
+		DisplayName        types.Optional[string]     `json:"displayName,omitempty" doc:"Human-readable budget name" maxLength:"200"`
+		DisplayDescription types.Optional[string]     `json:"displayDescription,omitempty" doc:"Optional free-text description" maxLength:"1000"`
+		PeriodStart        types.Optional[types.Date] `json:"periodStart,omitempty" doc:"Budget period start date"`
+		PeriodEnd          types.Optional[types.Date] `json:"periodEnd,omitempty" doc:"Budget period end date"`
 	}
 }
 

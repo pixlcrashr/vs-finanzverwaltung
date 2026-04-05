@@ -33,7 +33,7 @@ incoming HTTP requests. It shuts down gracefully on SIGINT or SIGTERM.`,
 		}
 		defer sqlDB.Close()
 
-		srv := api.New(gormDB, config.App.Version)
+		srv := api.New(gormDB, config.App.Version, config.CORS)
 
 		fmt.Printf("Organisation: %s\n", config.App.OrganisationName)
 		fmt.Printf("Listening on %s\n", config.Server.Address)

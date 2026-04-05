@@ -4,21 +4,29 @@ import {
   inject,
   signal,
   OnInit,
-  TemplateRef,
-  viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { Dialog, DialogModule } from '@angular/cdk/dialog';
+import { Dialog } from '@angular/cdk/dialog';
 import {
   PageHeaderComponent,
   BreadcrumbItem,
   ButtonComponent,
   LoadingSpinnerComponent,
   EmptyStateComponent,
+  NotificationService,
 } from '../../../shared/components';
+import {
+  ConfirmDeleteDialogComponent,
+  ConfirmDeleteDialogInput,
+  ConfirmDeleteDialogOutput,
+} from '../../../shared/dialogs/confirm-delete-dialog/confirm-delete-dialog.component';
+import {
+  CreateReportDialogComponent,
+  CreateReportDialogOutput,
+} from '../../../shared/dialogs/create-report-dialog/create-report-dialog.component';
+
 import { formatDateShort } from '../../../shared/utils';
-import { Report, ReportTemplate } from '../../../shared/models';
+import { Report } from '../../../shared/models';
 import { ReportListDataService } from './report-list.data-service';
 
 @Component({
@@ -26,8 +34,6 @@ import { ReportListDataService } from './report-list.data-service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    FormsModule,
-    DialogModule,
     PageHeaderComponent,
     ButtonComponent,
     LoadingSpinnerComponent,
@@ -37,23 +43,23 @@ import { ReportListDataService } from './report-list.data-service';
     <div class="flex flex-col h-full">
       <app-page-header [breadcrumbs]="breadcrumbs">
         <app-button variant="primary" (clicked)="openCreateDialog()">
-          Neuen Bericht erstellen
+          <ng-container i18n>Neuen Bericht erstellen</ng-container>
         </app-button>
       </app-page-header>
 
       <div class="flex flex-1 justify-center overflow-auto p-4">
         @if (loading()) {
-          <app-loading-spinner [fullPage]="true" text="Berichte werden geladen..." />
+          <app-loading-spinner [fullPage]="true" i18n-text text="Berichte werden geladen..." />
         } @else {
           <div class="w-full max-w-3xl space-y-3">
             <!-- Reports List -->
             @if (reports().length === 0) {
               <app-empty-state
-                title="Keine Berichte vorhanden"
-                description="Erstellen Sie einen neuen Bericht aus einer Vorlage."
+                i18n-title title="Keine Berichte vorhanden"
+                i18n-description description="Erstellen Sie einen neuen Bericht aus einer Vorlage."
               >
                 <app-button variant="primary" (clicked)="openCreateDialog()">
-                  Ersten Bericht erstellen
+                  <ng-container i18n>Ersten Bericht erstellen</ng-container>
                 </app-button>
               </app-empty-state>
             } @else {
@@ -66,19 +72,19 @@ import { ReportListDataService } from './report-list.data-service';
                           scope="col"
                           class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500"
                         >
-                          Bericht
+                          <ng-container i18n>Bericht</ng-container>
                         </th>
                         <th
                           scope="col"
                           class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500"
                         >
-                          Vorlage
+                          <ng-container i18n>Vorlage</ng-container>
                         </th>
                         <th
                           scope="col"
                           class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500"
                         >
-                          Erstellt am
+                          <ng-container i18n>Erstellt am</ng-container>
                         </th>
                         <th scope="col" class="px-3 py-2 text-right">
                           <span class="sr-only">Actions</span>
@@ -97,14 +103,14 @@ import { ReportListDataService } from './report-list.data-service';
                                 [routerLink]="['/reports', report.id, 'view']"
                                 class="text-xs text-blue-600 hover:underline"
                               >
-                                Ansehen
+                                <ng-container i18n>Ansehen</ng-container>
                               </a>
                               <button
                                 type="button"
                                 class="text-xs text-red-600 hover:underline"
                                 (click)="openDeleteDialog(report)"
                               >
-                                Löschen
+                                <ng-container i18n>Löschen</ng-container>
                               </button>
                             </div>
                           </td>
@@ -119,103 +125,17 @@ import { ReportListDataService } from './report-list.data-service';
         }
       </div>
     </div>
-
-    <ng-template #deleteDialogTemplate>
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-4">
-        <h2 class="text-sm font-semibold text-gray-900 mb-2">
-          Bericht löschen
-        </h2>
-        <p class="text-xs text-gray-600 mb-4">
-          Möchten Sie den Bericht
-          <span class="font-medium text-gray-900">"{{ reportToDelete()?.name }}"</span>
-          wirklich löschen?
-        </p>
-
-        <div class="flex justify-end gap-2">
-          <app-button variant="secondary" (clicked)="closeDialog()">Abbrechen</app-button>
-          <app-button variant="danger" [loading]="deleting()" (clicked)="deleteReport()">
-            Löschen
-          </app-button>
-        </div>
-      </div>
-    </ng-template>
-
-    <ng-template #createDialogTemplate>
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-4">
-        <h2 class="text-sm font-semibold text-gray-900 mb-4">
-          Neuen Bericht erstellen
-        </h2>
-        <div class="space-y-3">
-          <div>
-            <label
-              for="template"
-              class="block text-xs font-medium text-gray-500 mb-1"
-            >
-              Vorlage
-            </label>
-            <select
-              id="template"
-              [(ngModel)]="selectedTemplateId"
-              class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Vorlage auswählen...</option>
-              @for (template of templates(); track template.id) {
-                <option [value]="template.id">{{ template.name }}</option>
-              }
-            </select>
-          </div>
-          <div>
-            <label
-              for="name"
-              class="block text-xs font-medium text-gray-500 mb-1"
-            >
-              Berichtsname
-            </label>
-            <input
-              id="name"
-              type="text"
-              [(ngModel)]="reportName"
-              placeholder="z.B. Haushaltsbericht Q1 2026"
-              class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div class="flex justify-end gap-2">
-            <app-button variant="secondary" (clicked)="closeDialog()">
-              Abbrechen
-            </app-button>
-            <app-button
-              variant="primary"
-              [disabled]="generating() || !selectedTemplateId || !reportName"
-              (clicked)="generateReport()"
-            >
-              {{ generating() ? 'Wird erstellt...' : 'Bericht erstellen' }}
-            </app-button>
-          </div>
-        </div>
-      </div>
-    </ng-template>
   `,
 })
 export class ReportListComponent implements OnInit {
   private readonly dataService = inject(ReportListDataService);
   private readonly dialog = inject(Dialog);
-
-  readonly deleteDialogTemplate = viewChild.required<TemplateRef<unknown>>('deleteDialogTemplate');
-  readonly createDialogTemplate = viewChild.required<TemplateRef<unknown>>('createDialogTemplate');
+  private readonly notifications = inject(NotificationService);
 
   readonly loading = signal(true);
-  readonly generating = signal(false);
-  readonly deleting = signal(false);
   readonly reports = signal<Report[]>([]);
-  readonly templates = signal<ReportTemplate[]>([]);
-  readonly reportToDelete = signal<Report | null>(null);
 
-  selectedTemplateId = '';
-  reportName = '';
-
-  private dialogRef: ReturnType<typeof this.dialog.open> | null = null;
-
-  readonly breadcrumbs: BreadcrumbItem[] = [{ label: 'Berichte' }];
+  readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Berichte` }];
 
   ngOnInit(): void {
     this.loadData();
@@ -228,71 +148,62 @@ export class ReportListComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
+        this.notifications.error($localize`Fehler beim Laden der Berichte`);
         this.loading.set(false);
-      },
-    });
-
-    this.dataService.getTemplates().subscribe({
-      next: (templates) => {
-        this.templates.set(templates);
-      },
-    });
-  }
-
-  generateReport(): void {
-    if (!this.selectedTemplateId || !this.reportName) return;
-
-    this.generating.set(true);
-    this.dataService.generateReport(this.selectedTemplateId, this.reportName).subscribe({
-      next: (report) => {
-        this.reports.update((reports) => [report, ...reports]);
-        this.generating.set(false);
-        this.closeDialog();
-      },
-      error: () => {
-        this.generating.set(false);
       },
     });
   }
 
   openCreateDialog(): void {
-    this.selectedTemplateId = '';
-    this.reportName = '';
-    this.dialogRef = this.dialog.open(this.createDialogTemplate(), {
-      panelClass: ['flex', 'items-center', 'justify-center'],
-      backdropClass: 'bg-black/50',
-      width: '500px',
+    const dialogRef = this.dialog.open<CreateReportDialogOutput>(
+      CreateReportDialogComponent,
+      {
+        backdropClass: 'cdk-overlay-dark-backdrop',
+        width: '500px',
+      }
+    );
+
+    dialogRef.closed.subscribe((result) => {
+      if (result?.created && result.report) {
+        this.reports.update((reports) => [
+          {
+            id: result.report!.id,
+            templateId: result.report!.templateId,
+            name: result.report!.name,
+            templateName: result.report!.templateName,
+            createdAt: result.report!.createdAt,
+          },
+          ...reports,
+        ]);
+      }
     });
   }
 
   openDeleteDialog(report: Report): void {
-    this.reportToDelete.set(report);
-    this.dialogRef = this.dialog.open(this.deleteDialogTemplate(), {
-      panelClass: ['flex', 'items-center', 'justify-center'],
-      backdropClass: 'bg-black/50',
-      width: '500px',
+    const dialogRef = this.dialog.open<ConfirmDeleteDialogOutput, ConfirmDeleteDialogInput>(
+      ConfirmDeleteDialogComponent,
+      {
+        backdropClass: 'cdk-overlay-dark-backdrop',
+        width: '500px',
+        data: {
+          title: $localize`Bericht löschen`,
+          message: $localize`Möchten Sie den Bericht wirklich löschen?`,
+          itemName: report.name,
+        },
+      }
+    );
+
+    dialogRef.closed.subscribe((result) => {
+      if (result?.confirmed) {
+        this.deleteReport(report);
+      }
     });
   }
 
-  closeDialog(): void {
-    this.dialogRef?.close();
-    this.dialogRef = null;
-    this.reportToDelete.set(null);
-  }
-
-  deleteReport(): void {
-    const report = this.reportToDelete();
-    if (!report) return;
-
-    this.deleting.set(true);
+  private deleteReport(report: Report): void {
     this.dataService.deleteReport(report.id).subscribe({
       next: () => {
         this.reports.update((reports) => reports.filter((r) => r.id !== report.id));
-        this.deleting.set(false);
-        this.closeDialog();
-      },
-      error: () => {
-        this.deleting.set(false);
       },
     });
   }

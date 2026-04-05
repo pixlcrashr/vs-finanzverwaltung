@@ -1,12 +1,13 @@
 {
-  "name": "web2",
+  "name": "web",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
     "dev": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "generate:api": "ng-openapi-gen --input http://127.0.0.1:8080/openapi.json --output .\\src\\lib\\api\\ --ignore-unused-models false"
   },
   "private": true,
   "packageManager": "npm@11.6.4",
@@ -25,6 +26,7 @@
     "@angular/build": "^21.2.1",
     "@angular/cli": "^21.2.1",
     "@angular/compiler-cli": "^21.2.0",
+    "@angular/localize": "^21.2.1",
     "@tailwindcss/postcss": "^4.1.12",
     "jsdom": "^28.0.0",
     "postcss": "^8.5.3",

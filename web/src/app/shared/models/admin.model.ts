@@ -9,7 +9,10 @@ export interface User {
 export interface UserGroup {
   id: string;
   name: string;
-  description: string;
+  description: string | null;
+  isActive?: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ImportSource {

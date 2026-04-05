@@ -12,6 +12,7 @@ import {
   PageHeaderComponent,
   BreadcrumbItem,
   LoadingSpinnerComponent,
+  NotificationService,
 } from '../../../shared/components';
 import { Setting } from '../../../shared/models';
 import { SettingsDataService } from './settings.data-service';
@@ -30,11 +31,11 @@ import { SettingsDataService } from './settings.data-service';
 
       <div class="flex flex-1 items-start justify-center overflow-auto p-4">
         @if (loading()) {
-          <app-loading-spinner [fullPage]="true" text="Einstellungen werden geladen..." />
+          <app-loading-spinner [fullPage]="true" i18n-text text="Einstellungen werden geladen..." />
         } @else {
           <div class="w-full max-w-2xl space-y-3">
             <div class="bg-white rounded-lg border border-gray-200 p-4">
-              <h2 class="text-sm font-semibold text-gray-900 mb-4">
+              <h2 i18n class="text-sm font-semibold text-gray-900 mb-4">
                 Systemeinstellungen
               </h2>
 
@@ -76,6 +77,7 @@ import { SettingsDataService } from './settings.data-service';
 })
 export class SettingsComponent implements OnInit, OnDestroy {
   private readonly dataService = inject(SettingsDataService);
+  private readonly notifications = inject(NotificationService);
   private readonly destroy$ = new Subject<void>();
   private readonly settingChange$ = new Subject<{ key: string; value: string }>();
 
@@ -92,7 +94,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   editValues: Record<string, string> = {};
 
-  readonly breadcrumbs: BreadcrumbItem[] = [{ label: 'Einstellungen' }];
+  readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Einstellungen` }];
 
   ngOnInit(): void {
     this.loadSettings();
@@ -135,6 +137,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.loading.set(false);
       },
       error: () => {
+        this.notifications.error($localize`Fehler beim Laden der Einstellungen`);
         this.loading.set(false);
       },
     });
@@ -150,6 +153,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.saving.set(null);
       },
       error: () => {
+        this.notifications.error($localize`Fehler beim Speichern der Einstellung`);
         this.saving.set(null);
       },
     });

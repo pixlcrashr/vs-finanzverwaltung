@@ -12,6 +12,7 @@ import {
   BreadcrumbItem,
   LoadingSpinnerComponent,
   EmptyStateComponent,
+  NotificationService,
 } from '../../../shared/components';
 import { formatDateShort } from '../../../shared/utils';
 import {
@@ -31,12 +32,12 @@ import {
 
       <div class="flex-1 overflow-auto p-4">
         @if (loading()) {
-          <app-loading-spinner [fullPage]="true" text="Vergleichsdaten werden geladen..." />
+          <app-loading-spinner [fullPage]="true" i18n-text text="Vergleichsdaten werden geladen..." />
         } @else if (budgets().length === 0) {
           <div class="mx-auto w-full max-w-6xl">
             <app-empty-state
-              title="Keine Haushaltspläne vorhanden"
-              description="Es sind keine Haushaltspläne verfügbar, um Konten zu vergleichen."
+              i18n-title title="Keine Haushaltspläne vorhanden"
+              i18n-description description="Es sind keine Haushaltspläne verfügbar, um Konten zu vergleichen."
             />
           </div>
         } @else {
@@ -48,7 +49,7 @@ import {
                     for="budget"
                     class="block text-xs font-medium text-gray-700 mb-1"
                   >
-                    Haushaltsjahr
+                    <ng-container i18n>Haushaltsjahr</ng-container>
                   </label>
                   <select
                     id="budget"
@@ -67,7 +68,7 @@ import {
                     for="leftAccount"
                     class="block text-xs font-medium text-gray-700 mb-1"
                   >
-                    Linkes Konto
+                    <ng-container i18n>Linkes Konto</ng-container>
                   </label>
                   <select
                     id="leftAccount"
@@ -75,7 +76,7 @@ import {
                     (ngModelChange)="onLeftAccountChange()"
                     class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="">Bitte auswählen...</option>
+                    <option i18n value="">Bitte auswählen...</option>
                     @for (account of accounts(); track account.id) {
                       <option [value]="account.id">{{ account.code }} {{ account.name }}</option>
                     }
@@ -87,7 +88,7 @@ import {
                     for="rightAccount"
                     class="block text-xs font-medium text-gray-700 mb-1"
                   >
-                    Rechtes Konto
+                    <ng-container i18n>Rechtes Konto</ng-container>
                   </label>
                   <select
                     id="rightAccount"
@@ -95,7 +96,7 @@ import {
                     (ngModelChange)="onRightAccountChange()"
                     class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="">Bitte auswählen...</option>
+                    <option i18n value="">Bitte auswählen...</option>
                     @for (account of accounts(); track account.id) {
                       <option [value]="account.id">{{ account.code }} {{ account.name }}</option>
                     }
@@ -104,7 +105,7 @@ import {
               </div>
 
               @if (leftAccountId && rightAccountId && leftAccountId === rightAccountId) {
-                <p class="mt-3 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5">
+                <p i18n class="mt-3 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5">
                   Bitte wählen Sie zwei unterschiedliche Konten für den Vergleich aus.
                 </p>
               }
@@ -117,42 +118,42 @@ import {
                     {{ leftAccountId ? accountLabel(leftAccountId) : 'Linkes Konto' }}
                   </h2>
                   @if (leftAccountId) {
-                    <p class="text-xs text-gray-500">
+                    <p i18n class="text-xs text-gray-500">
                       Summe: {{ formatAmount(leftTotal()) }} ({{ leftTransactions().length }} Buchungen)
                     </p>
                   }
                 </div>
 
                 @if (leftLoading()) {
-                  <app-loading-spinner [fullPage]="false" text="Buchungen werden geladen..." />
+                  <app-loading-spinner [fullPage]="false" i18n-text text="Buchungen werden geladen..." />
                 } @else if (!leftAccountId) {
-                  <p class="text-xs text-gray-500 py-6 text-center">Bitte ein linkes Konto auswählen.</p>
+                  <p i18n class="text-xs text-gray-500 py-6 text-center">Bitte ein linkes Konto auswählen.</p>
                 } @else {
                   <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                       <thead class="bg-gray-50">
                         <tr>
                           <th scope="col" class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500">
-                            Belegdatum
+                            <ng-container i18n>Belegdatum</ng-container>
                           </th>
                           <th scope="col" class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-right text-gray-500">
-                            Betrag
+                            <ng-container i18n>Betrag</ng-container>
                           </th>
                           <th scope="col" class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-right text-gray-500">
-                            Soll
+                            <ng-container i18n>Soll</ng-container>
                           </th>
                           <th scope="col" class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-right text-gray-500">
-                            Haben
+                            <ng-container i18n>Haben</ng-container>
                           </th>
                           <th scope="col" class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500">
-                            Buchungstext
+                            <ng-container i18n>Buchungstext</ng-container>
                           </th>
                         </tr>
                       </thead>
                       <tbody class="divide-y divide-gray-200 bg-white">
                         @if (leftTransactions().length === 0) {
                           <tr>
-                            <td colspan="5" class="px-3 py-4 text-center text-xs text-gray-500">
+                            <td i18n colspan="5" class="px-3 py-4 text-center text-xs text-gray-500">
                               Keine Buchungen im ausgewählten Jahr.
                             </td>
                           </tr>
@@ -178,42 +179,42 @@ import {
                     {{ rightAccountId ? accountLabel(rightAccountId) : 'Rechtes Konto' }}
                   </h2>
                   @if (rightAccountId) {
-                    <p class="text-xs text-gray-500">
+                    <p i18n class="text-xs text-gray-500">
                       Summe: {{ formatAmount(rightTotal()) }} ({{ rightTransactions().length }} Buchungen)
                     </p>
                   }
                 </div>
 
                 @if (rightLoading()) {
-                  <app-loading-spinner [fullPage]="false" text="Buchungen werden geladen..." />
+                  <app-loading-spinner [fullPage]="false" i18n-text text="Buchungen werden geladen..." />
                 } @else if (!rightAccountId) {
-                  <p class="text-xs text-gray-500 py-6 text-center">Bitte ein rechtes Konto auswählen.</p>
+                  <p i18n class="text-xs text-gray-500 py-6 text-center">Bitte ein rechtes Konto auswählen.</p>
                 } @else {
                   <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                       <thead class="bg-gray-50">
                         <tr>
                           <th scope="col" class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500">
-                            Belegdatum
+                            <ng-container i18n>Belegdatum</ng-container>
                           </th>
                           <th scope="col" class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-right text-gray-500">
-                            Betrag
+                            <ng-container i18n>Betrag</ng-container>
                           </th>
                           <th scope="col" class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-right text-gray-500">
-                            Soll
+                            <ng-container i18n>Soll</ng-container>
                           </th>
                           <th scope="col" class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-right text-gray-500">
-                            Haben
+                            <ng-container i18n>Haben</ng-container>
                           </th>
                           <th scope="col" class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500">
-                            Buchungstext
+                            <ng-container i18n>Buchungstext</ng-container>
                           </th>
                         </tr>
                       </thead>
                       <tbody class="divide-y divide-gray-200 bg-white">
                         @if (rightTransactions().length === 0) {
                           <tr>
-                            <td colspan="5" class="px-3 py-4 text-center text-xs text-gray-500">
+                            <td i18n colspan="5" class="px-3 py-4 text-center text-xs text-gray-500">
                               Keine Buchungen im ausgewählten Jahr.
                             </td>
                           </tr>
@@ -241,6 +242,7 @@ import {
 })
 export class AccountCompareComponent implements OnInit {
   private readonly dataService = inject(AccountCompareDataService);
+  private readonly notifications = inject(NotificationService);
 
   readonly loading = signal(true);
   readonly leftLoading = signal(false);
@@ -255,8 +257,8 @@ export class AccountCompareComponent implements OnInit {
   rightAccountId = '';
 
   readonly breadcrumbs: BreadcrumbItem[] = [
-    { label: 'Haushaltskonten', path: '/accounts' },
-    { label: 'Kontenvergleich' },
+    { label: $localize`Haushaltskonten`, path: '/accounts' },
+    { label: $localize`Kontenvergleich` },
   ];
 
   readonly leftTotal = computed(() =>
@@ -288,6 +290,7 @@ export class AccountCompareComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
+        this.notifications.error($localize`Fehler beim Laden der Haushaltspläne`);
       },
     });
   }
@@ -306,6 +309,7 @@ export class AccountCompareComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
+        this.notifications.error($localize`Fehler beim Laden der Konten`);
       },
     });
   }
@@ -361,6 +365,7 @@ export class AccountCompareComponent implements OnInit {
         } else {
           this.rightLoading.set(false);
         }
+        this.notifications.error($localize`Fehler beim Laden der Buchungen`);
       },
     });
   }

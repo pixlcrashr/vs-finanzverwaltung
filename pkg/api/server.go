@@ -1,10 +1,15 @@
 package api
 
 import (
+	"strings"
+
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humafiber"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"gorm.io/gorm"
+
+	"github.com/pixlcrashr/vsfv/pkg/cfg"
 )
 
 // Server wraps the Fiber app and the Huma API instance.
@@ -15,11 +20,22 @@ type Server struct {
 
 // New creates a Server, registers all routes, and returns it ready to listen.
 // db is threaded through so domain services can be injected as the API grows.
-func New(db *gorm.DB, version string) *Server {
+func New(db *gorm.DB, version string, corsCfg cfg.CORS) *Server {
 	app := fiber.New(fiber.Config{
 		// Disable default startup banner — the serve command prints its own.
 		DisableStartupMessage: true,
 	})
+
+	if corsCfg.Enabled {
+		app.Use(cors.New(cors.Config{
+			AllowOrigins:     strings.Join(corsCfg.AllowOrigins, ","),
+			AllowMethods:     strings.Join(corsCfg.AllowMethods, ","),
+			AllowHeaders:     strings.Join(corsCfg.AllowHeaders, ","),
+			ExposeHeaders:    strings.Join(corsCfg.ExposeHeaders, ","),
+			AllowCredentials: corsCfg.AllowCredentials,
+			MaxAge:           corsCfg.MaxAge,
+		}))
+	}
 
 	humaConfig := huma.DefaultConfig("VS-Finanzverwaltung API", version)
 	api := humafiber.New(app, humaConfig)

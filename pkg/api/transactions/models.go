@@ -7,7 +7,7 @@ import (
 	"github.com/cockroachdb/apd/v3"
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/go-pagetoken/checksum"
-	"github.com/pixlcrashr/vsfv/pkg/api/optional"
+	"github.com/pixlcrashr/vsfv/pkg/api/types"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 )
 
@@ -52,12 +52,12 @@ type GetTransactionResponse struct {
 // --- ListTransactions (with keyset pagination)
 
 type ListTransactionsRequest struct {
-	PageSize               int                               `query:"pageSize" doc:"Transactions per page (max 100)" minimum:"1" maximum:"100" default:"20"`
-	PageToken              string                            `query:"pageToken" doc:"Opaque continuation token from the previous response; omit for the first page" maxLength:"1024"`
-	CreditTransactionAccID optional.OptionalParam[uuid.UUID] `query:"creditTransactionAccountId" doc:"Filter by credit transaction account ID"`
-	DebitTransactionAccID  optional.OptionalParam[uuid.UUID] `query:"debitTransactionAccountId" doc:"Filter by debit transaction account ID"`
-	BookedAtStart          optional.OptionalParam[time.Time] `query:"bookedAtStart" doc:"Filter transactions booked on or after this date"`
-	BookedAtEnd            optional.OptionalParam[time.Time] `query:"bookedAtEnd" doc:"Filter transactions booked on or before this date"`
+	PageSize               int                       `query:"pageSize" doc:"Transactions per page (max 100)" minimum:"1" maximum:"100" default:"20"`
+	PageToken              string                    `query:"pageToken" doc:"Opaque continuation token from the previous response; omit for the first page" maxLength:"1024"`
+	CreditTransactionAccID types.Optional[uuid.UUID] `query:"creditTransactionAccountId" doc:"Filter by credit transaction account ID"`
+	DebitTransactionAccID  types.Optional[uuid.UUID] `query:"debitTransactionAccountId" doc:"Filter by debit transaction account ID"`
+	BookedAtStart          types.Optional[time.Time] `query:"bookedAtStart" doc:"Filter transactions booked on or after this date"`
+	BookedAtEnd            types.Optional[time.Time] `query:"bookedAtEnd" doc:"Filter transactions booked on or before this date"`
 }
 
 func (r *ListTransactionsRequest) GetPageToken() string { return r.PageToken }
@@ -92,14 +92,14 @@ type ListTransactionsResponse struct {
 
 type CreateTransactionRequest struct {
 	Body struct {
-		CreditTransactionAccountID uuid.UUID                         `json:"creditTransactionAccountId" doc:"Credit transaction account UUID"`
-		DebitTransactionAccountID  uuid.UUID                         `json:"debitTransactionAccountId" doc:"Debit transaction account UUID"`
-		Amount                     string                            `json:"amount" doc:"Transaction amount as decimal string"`
-		Description                optional.OptionalParam[string]    `json:"description,omitempty" doc:"Transaction description" maxLength:"1000"`
-		Reference                  optional.OptionalParam[string]    `json:"reference,omitempty" doc:"Transaction reference" maxLength:"200"`
-		AssignedAccountID          optional.OptionalParam[uuid.UUID] `json:"assignedAccountId,omitempty" doc:"Assigned budget account UUID"`
-		BookedAt                   time.Time                         `json:"bookedAt" doc:"Booking date"`
-		DocumentDate               time.Time                         `json:"documentDate" doc:"Document date"`
+		CreditTransactionAccountID uuid.UUID                 `json:"creditTransactionAccountId" doc:"Credit transaction account UUID"`
+		DebitTransactionAccountID  uuid.UUID                 `json:"debitTransactionAccountId" doc:"Debit transaction account UUID"`
+		Amount                     string                    `json:"amount" doc:"Transaction amount as decimal string"`
+		Description                types.Optional[string]    `json:"description,omitempty" doc:"Transaction description" maxLength:"1000"`
+		Reference                  types.Optional[string]    `json:"reference,omitempty" doc:"Transaction reference" maxLength:"200"`
+		AssignedAccountID          types.Optional[uuid.UUID] `json:"assignedAccountId,omitempty" doc:"Assigned budget account UUID"`
+		BookedAt                   time.Time                 `json:"bookedAt" doc:"Booking date"`
+		DocumentDate               time.Time                 `json:"documentDate" doc:"Document date"`
 	}
 }
 
@@ -112,9 +112,9 @@ type CreateTransactionResponse struct {
 type UpdateTransactionRequest struct {
 	TransactionID uuid.UUID `path:"transactionId" doc:"Transaction UUID"`
 	Body          struct {
-		Description       optional.OptionalParam[string]    `json:"description,omitempty" doc:"Transaction description" maxLength:"1000"`
-		Reference         optional.OptionalParam[string]    `json:"reference,omitempty" doc:"Transaction reference" maxLength:"200"`
-		AssignedAccountID optional.OptionalParam[uuid.UUID] `json:"assignedAccountId,omitempty" doc:"Assigned budget account UUID"`
+		Description       types.Optional[string]    `json:"description,omitempty" doc:"Transaction description" maxLength:"1000"`
+		Reference         types.Optional[string]    `json:"reference,omitempty" doc:"Transaction reference" maxLength:"200"`
+		AssignedAccountID types.Optional[uuid.UUID] `json:"assignedAccountId,omitempty" doc:"Assigned budget account UUID"`
 	}
 }
 

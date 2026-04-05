@@ -9,6 +9,8 @@ export class MockGroupEditDataService extends GroupEditDataService {
     id: 'g1',
     name: 'Administratoren',
     description: 'Voller Zugriff auf alle Funktionen',
+    createdAt: new Date('2024-01-15T10:30:00'),
+    updatedAt: new Date('2024-03-20T14:45:00'),
   };
 
   getGroup(id: string): Observable<UserGroup> {
@@ -21,6 +23,7 @@ export class MockGroupEditDataService extends GroupEditDataService {
       id,
       name: input.name,
       description: input.description,
+      updatedAt: new Date(),
     };
     return of({ ...this.group }).pipe(delay(400));
   }

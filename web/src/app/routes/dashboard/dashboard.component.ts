@@ -10,8 +10,12 @@ import {
   AfterViewInit,
 } from '@angular/core';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
-import { PageHeaderComponent, BreadcrumbItem } from '../../shared/components';
-import { LoadingSpinnerComponent } from '../../shared/components';
+import {
+  PageHeaderComponent,
+  BreadcrumbItem,
+  LoadingSpinnerComponent,
+  NotificationService,
+} from '../../shared/components';
 import { DashboardDataService, DashboardStats } from './dashboard.data-service';
 
 Chart.register(...registerables);
@@ -39,15 +43,15 @@ const CHART_COLORS = [
 
       <div class="flex-1 overflow-auto p-6">
         @if (loading()) {
-          <app-loading-spinner [fullPage]="true" text="Dashboard wird geladen..." />
+          <app-loading-spinner [fullPage]="true" i18n-text text="Dashboard wird geladen..." />
         } @else if (stats()) {
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Budgets Chart -->
             <div class="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 class="text-lg font-medium text-gray-900 mb-1">
+              <h3 i18n class="text-lg font-medium text-gray-900 mb-1">
                 Haushaltspläne
               </h3>
-              <p class="text-sm text-gray-500 mb-4">
+              <p i18n class="text-sm text-gray-500 mb-4">
                 Gesamt: {{ stats()!.budgets.total }}
               </p>
               <div class="h-64">
@@ -57,10 +61,10 @@ const CHART_COLORS = [
 
             <!-- Accounts Chart -->
             <div class="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 class="text-lg font-medium text-gray-900 mb-1">
+              <h3 i18n class="text-lg font-medium text-gray-900 mb-1">
                 Haushaltskonten
               </h3>
-              <p class="text-sm text-gray-500 mb-4">
+              <p i18n class="text-sm text-gray-500 mb-4">
                 Gesamt: {{ stats()!.accounts.total }}
               </p>
               <div class="h-64">
@@ -71,7 +75,7 @@ const CHART_COLORS = [
             <!-- Monthly Transactions Line Chart -->
             @if (stats()!.rootAccountMonthly.length > 0) {
               <div class="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                <h3 i18n class="text-lg font-medium text-gray-900 mb-4">
                   Buchungen der letzten 12 Monate
                 </h3>
                 <div class="h-80">
@@ -83,19 +87,19 @@ const CHART_COLORS = [
             <!-- Quick Stats -->
             <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div class="bg-white rounded-lg border border-gray-200 p-6">
-                <p class="text-sm text-gray-500">Transaktionen gesamt</p>
+                <p i18n class="text-sm text-gray-500">Transaktionen gesamt</p>
                 <p class="text-2xl font-semibold text-gray-900">
                   {{ stats()!.transactions.total }}
                 </p>
               </div>
               <div class="bg-white rounded-lg border border-gray-200 p-6">
-                <p class="text-sm text-gray-500">Zugeordnet</p>
+                <p i18n class="text-sm text-gray-500">Zugeordnet</p>
                 <p class="text-2xl font-semibold text-green-600">
                   {{ stats()!.transactions.assigned }}
                 </p>
               </div>
               <div class="bg-white rounded-lg border border-gray-200 p-6">
-                <p class="text-sm text-gray-500">Nicht zugeordnet</p>
+                <p i18n class="text-sm text-gray-500">Nicht zugeordnet</p>
                 <p class="text-2xl font-semibold text-red-600">
                   {{ stats()!.transactions.unassigned }}
                 </p>
@@ -109,6 +113,7 @@ const CHART_COLORS = [
 })
 export class DashboardComponent implements OnInit, AfterViewInit {
   private readonly dataService = inject(DashboardDataService);
+  private readonly notifications = inject(NotificationService);
 
   readonly budgetsChartRef = viewChild<ElementRef<HTMLCanvasElement>>('budgetsChart');
   readonly accountsChartRef = viewChild<ElementRef<HTMLCanvasElement>>('accountsChart');
@@ -117,7 +122,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   readonly loading = signal(true);
   readonly stats = signal<DashboardStats | null>(null);
 
-  readonly breadcrumbs: BreadcrumbItem[] = [{ label: 'Dashboard' }];
+  readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Dashboard` }];
 
   private budgetsChart: Chart | null = null;
   private accountsChart: Chart | null = null;
@@ -151,6 +156,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         this.loading.set(false);
       },
       error: () => {
+        this.notifications.error($localize`Fehler beim Laden des Dashboards`);
         this.loading.set(false);
       },
     });
@@ -171,7 +177,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     const config: ChartConfiguration = {
       type: 'doughnut',
       data: {
-        labels: ['Offen', 'Geschlossen'],
+        labels: [$localize`Offen`, $localize`Geschlossen`],
         datasets: [
           {
             data: [data.budgets.open, data.budgets.closed],
@@ -202,7 +208,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     const config: ChartConfiguration = {
       type: 'doughnut',
       data: {
-        labels: ['Aktiv', 'Archiviert'],
+        labels: [$localize`Aktiv`, $localize`Archiviert`],
         datasets: [
           {
             data: [data.accounts.active, data.accounts.archived],

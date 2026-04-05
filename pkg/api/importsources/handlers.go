@@ -75,7 +75,7 @@ func (h *Handler) CreateImportSource(ctx context.Context, req *CreateImportSourc
 	m := &model.ImportSource{
 		ID:          uuid.New(),
 		DisplayName: req.Body.DisplayName,
-		PeriodStart: req.Body.PeriodStart,
+		PeriodStart: req.Body.PeriodStart.Time,
 		CreatedAt:   now,
 		UpdatedAt:   now,
 	}

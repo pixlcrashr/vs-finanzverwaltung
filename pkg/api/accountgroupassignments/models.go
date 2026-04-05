@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pixlcrashr/vsfv/pkg/api/optional"
+	"github.com/pixlcrashr/vsfv/pkg/api/types"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 )
 
@@ -36,12 +36,12 @@ type GetAccountGroupAssignmentResponse struct {
 }
 
 type ListAccountGroupAssignmentsRequest struct {
-	AccountGroupID uuid.UUID                         `path:"accountGroupId"`
-	PageSize       int                               `query:"pageSize" minimum:"1" maximum:"100" default:"20"`
-	Page           int                               `query:"page" doc:"Page number (1-indexed)" minimum:"1" default:"1"`
-	AccountID      optional.OptionalParam[uuid.UUID] `query:"accountId" doc:"Filter by account ID"`
-	Negate         optional.OptionalParam[bool]      `query:"negate" doc:"Filter by negate flag"`
-	OrderBy        string                            `query:"orderBy" doc:"Order by field (e.g. 'createTime desc')" maxLength:"100"`
+	AccountGroupID uuid.UUID                 `path:"accountGroupId"`
+	PageSize       int                       `query:"pageSize" minimum:"1" maximum:"100" default:"20"`
+	Page           int                       `query:"page" doc:"Page number (1-indexed)" minimum:"1" default:"1"`
+	AccountID      types.Optional[uuid.UUID] `query:"accountId" doc:"Filter by account ID"`
+	Negate         types.Optional[bool]      `query:"negate" doc:"Filter by negate flag"`
+	OrderBy        string                    `query:"orderBy" doc:"Order by field (e.g. 'createTime desc')" maxLength:"100"`
 }
 
 type ListAccountGroupAssignmentsResponse struct {
@@ -67,7 +67,7 @@ type UpdateAccountGroupAssignmentRequest struct {
 	AccountGroupID uuid.UUID `path:"accountGroupId"`
 	AssignmentID   uuid.UUID `path:"assignmentId"`
 	Body           struct {
-		Negate optional.OptionalParam[bool] `json:"negate"`
+		Negate types.Optional[bool] `json:"negate"`
 	}
 }
 

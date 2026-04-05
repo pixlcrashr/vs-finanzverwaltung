@@ -1,6 +1,18 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+@import '@angular/cdk/overlay-prebuilt.css';
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+/* Use class-based dark mode so html.dark controls dark: utilities */
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* Light mode (default) */
 :root {
@@ -26,28 +38,170 @@
   --color-warning: #d97706;
 }
 
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Background colors */
-    --color-bg-primary: #1f2937;
-    --color-bg-secondary: #111827;
-    --color-bg-tertiary: #374151;
+/* Dark mode driven by html.dark (set in MainLayoutComponent) */
+:root.dark {
+  /* Background colors */
+  --color-bg-primary: #1f2937;
+  --color-bg-secondary: #111827;
+  --color-bg-tertiary: #374151;
 
-    /* Text colors */
-    --color-text-primary: #f9fafb;
-    --color-text-secondary: #d1d5db;
-    --color-text-tertiary: #9ca3af;
+  /* Text colors */
+  --color-text-primary: #f9fafb;
+  --color-text-secondary: #d1d5db;
+  --color-text-tertiary: #9ca3af;
 
-    /* Border color */
-    --color-border: #4b5563;
+  /* Border color */
+  --color-border: #4b5563;
 
-    /* Accent colors */
-    --color-primary: #3b82f6;
-    --color-primary-hover: #2563eb;
-    --color-danger: #ef4444;
-    --color-danger-hover: #dc2626;
-    --color-success: #22c55e;
-    --color-warning: #f59e0b;
+  /* Accent colors */
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-danger: #ef4444;
+  --color-danger-hover: #dc2626;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+}
+
+/* Route content/table compatibility for legacy light-only utility usage. */
+:is(main, .cdk-overlay-container) .rounded-lg > .overflow-x-auto {
+  border-radius: inherit;
+  overflow-y: hidden;
+}
+
+.dark :is(main, .cdk-overlay-container) .bg-white:not([class*='dark:bg-']) {
+  background-color: #111827;
+}
+
+.dark :is(main, .cdk-overlay-container) .bg-gray-50:not([class*='dark:bg-']),
+.dark :is(main, .cdk-overlay-container) .hover\:bg-gray-50:not([class*='dark:hover:bg-']):hover {
+  background-color: #1f2937;
+}
+
+.dark :is(main, .cdk-overlay-container) .bg-gray-100:not([class*='dark:bg-']),
+.dark :is(main, .cdk-overlay-container) .hover\:bg-gray-100:not([class*='dark:hover:bg-']):hover {
+  background-color: #374151;
+}
+
+.dark :is(main, .cdk-overlay-container) .border-gray-200:not([class*='dark:border-']),
+.dark :is(main, .cdk-overlay-container) .divide-gray-200 > * {
+  border-color: #374151;
+}
+
+.dark :is(main, .cdk-overlay-container) .border-gray-300:not([class*='dark:border-']),
+.dark :is(main, .cdk-overlay-container) .divide-gray-300 > * {
+  border-color: #4b5563;
+}
+
+.dark :is(main, .cdk-overlay-container) table > tbody > tr:first-child,
+.dark :is(main, .cdk-overlay-container) table > tbody > tr:first-child > :is(td, th) {
+  border-color: #374151;
+}
+
+.dark :is(main, .cdk-overlay-container) .text-gray-900:not([class*='dark:text-']),
+.dark :is(main, .cdk-overlay-container) .hover\:text-gray-900:not([class*='dark:hover:text-']):hover {
+  color: #f3f4f6;
+}
+
+.dark :is(main, .cdk-overlay-container) .text-gray-700:not([class*='dark:text-']),
+.dark :is(main, .cdk-overlay-container) .hover\:text-gray-700:not([class*='dark:hover:text-']):hover {
+  color: #d1d5db;
+}
+
+.dark :is(main, .cdk-overlay-container) .text-gray-600:not([class*='dark:text-']),
+.dark :is(main, .cdk-overlay-container) .text-gray-500:not([class*='dark:text-']) {
+  color: #9ca3af;
+}
+
+.dark :is(main, .cdk-overlay-container) .text-gray-400:not([class*='dark:text-']) {
+  color: #6b7280;
+}
+
+/* Fix black text in dark mode */
+.dark :is(main, .cdk-overlay-container) .text-black:not([class*='dark:text-']) {
+  color: #f9fafb;
+}
+
+/* Fix placeholder text in dark mode */
+.dark :is(main, .cdk-overlay-container) ::placeholder {
+  color: #6b7280;
+}
+
+/* Fix form inputs without explicit dark styles */
+.dark :is(main, .cdk-overlay-container) :is(input, select, textarea):not([class*='dark:']) {
+  background-color: #374151;
+  color: #f9fafb;
+  border-color: #4b5563;
+}
+
+.dark :is(main, .cdk-overlay-container) :is(input, select, textarea) {
+  color-scheme: dark;
+}
+
+/* Fix select option styling in dark mode */
+.dark :is(main, .cdk-overlay-container) select option {
+  background-color: #374151;
+  color: #f9fafb;
+}
+
+/* CDK Dialog styling */
+.cdk-overlay-dark-backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.cdk-global-overlay-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Notification overlay styles */
+.notification-panel {
+  pointer-events: auto;
+  z-index: 1000;
+}
+
+/* Notification animations */
+@keyframes notification-slide-in-from-top {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes notification-slide-in-from-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes notification-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.notification-from-top {
+  animation: notification-slide-in-from-top 0.3s ease-out forwards;
+}
+
+.notification-from-bottom {
+  animation: notification-slide-in-from-bottom 0.3s ease-out forwards;
+}
+
+/* Ensure notifications stack properly */
+.cdk-overlay-pane.notification-panel {
+  position: fixed !important;
+  transition: top 0.2s ease-out, bottom 0.2s ease-out;
 }

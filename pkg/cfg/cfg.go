@@ -13,6 +13,7 @@ type Config struct {
 	Auth     Auth     `mapstructure:"auth"`
 	Html2Pdf Html2Pdf `mapstructure:"html2pdf"`
 	App      App      `mapstructure:"app"`
+	CORS     CORS     `mapstructure:"cors"`
 }
 
 type Server struct {
@@ -24,7 +25,7 @@ type Database struct {
 }
 
 type Auth struct {
-	Secret string    `mapstructure:"secret"`
+	Secret string      `mapstructure:"secret"`
 	GitLab GitLabOAuth `mapstructure:"gitlab"`
 }
 
@@ -41,6 +42,16 @@ type Html2Pdf struct {
 type App struct {
 	OrganisationName string `mapstructure:"organisation-name"`
 	Version          string `mapstructure:"version"`
+}
+
+type CORS struct {
+	Enabled          bool     `mapstructure:"enabled"`
+	AllowOrigins     []string `mapstructure:"allow-origins"`
+	AllowMethods     []string `mapstructure:"allow-methods"`
+	AllowHeaders     []string `mapstructure:"allow-headers"`
+	ExposeHeaders    []string `mapstructure:"expose-headers"`
+	AllowCredentials bool     `mapstructure:"allow-credentials"`
+	MaxAge           int      `mapstructure:"max-age"`
 }
 
 func Load(cfgFile string) (*Config, error) {
@@ -61,6 +72,13 @@ func Load(cfgFile string) (*Config, error) {
 	viper.SetDefault("server.addr", "127.0.0.1:8080")
 	viper.SetDefault("html2pdf.url", "http://127.0.0.1:8082")
 	viper.SetDefault("app.version", "dev")
+	viper.SetDefault("cors.enabled", false)
+	viper.SetDefault("cors.allow-origins", []string{"*"})
+	viper.SetDefault("cors.allow-methods", []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"})
+	viper.SetDefault("cors.allow-headers", []string{"Origin", "Content-Type", "Accept", "Authorization"})
+	viper.SetDefault("cors.expose-headers", []string{})
+	viper.SetDefault("cors.allow-credentials", false)
+	viper.SetDefault("cors.max-age", 300)
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {

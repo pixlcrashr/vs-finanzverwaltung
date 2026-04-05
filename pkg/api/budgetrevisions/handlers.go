@@ -75,7 +75,7 @@ func (h *Handler) CreateBudgetRevision(ctx context.Context, req *CreateBudgetRev
 	m := &model.BudgetRevision{
 		ID:        uuid.New(),
 		BudgetID:  req.BudgetID,
-		Date:      req.Body.Date,
+		Date:      req.Body.Date.Time,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
@@ -101,7 +101,7 @@ func (h *Handler) UpdateBudgetRevision(ctx context.Context, req *UpdateBudgetRev
 	}
 
 	if req.Body.Date.IsSet {
-		m.Date = req.Body.Date.Value
+		m.Date = req.Body.Date.Value.Time
 	}
 	if req.Body.DisplayDescription.IsSet {
 		m.DisplayDescription = req.Body.DisplayDescription.Value

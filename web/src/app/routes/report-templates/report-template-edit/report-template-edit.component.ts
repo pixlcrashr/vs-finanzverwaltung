@@ -12,6 +12,7 @@ import {
   BreadcrumbItem,
   ButtonComponent,
   LoadingSpinnerComponent,
+  NotificationService,
 } from '../../../shared/components';
 import { formatDateShort } from '../../../shared/utils';
 import { ReportTemplate } from '../../../shared/models';
@@ -31,26 +32,26 @@ import { ReportTemplateEditDataService } from './report-template-edit.data-servi
       <app-page-header [breadcrumbs]="breadcrumbs">
         <div class="flex gap-2">
           <app-button variant="secondary" (clicked)="cancel()">
-            Abbrechen
+            <ng-container i18n>Abbrechen</ng-container>
           </app-button>
           <app-button
             variant="primary"
             [disabled]="saving() || !isValid()"
             (clicked)="save()"
           >
-            {{ saving() ? 'Wird gespeichert...' : 'Speichern' }}
+            <ng-container i18n>{{ saving() ? 'Wird gespeichert...' : 'Speichern' }}</ng-container>
           </app-button>
         </div>
       </app-page-header>
 
       <div class="flex flex-1 justify-center overflow-auto p-4">
         @if (loading()) {
-          <app-loading-spinner [fullPage]="true" text="Vorlage wird geladen..." />
+          <app-loading-spinner [fullPage]="true" i18n-text text="Vorlage wird geladen..." />
         } @else if (template()) {
           <div class="w-full max-w-3xl space-y-3">
             <!-- Basic Info -->
             <div class="bg-white rounded-lg border border-gray-200 p-4">
-              <h2 class="text-sm font-semibold text-gray-900 mb-4">
+              <h2 i18n class="text-sm font-semibold text-gray-900 mb-4">
                 Grundinformationen
               </h2>
               <div class="space-y-3">
@@ -59,7 +60,7 @@ import { ReportTemplateEditDataService } from './report-template-edit.data-servi
                     for="name"
                     class="block text-xs font-medium text-gray-500 mb-1"
                   >
-                    Name *
+                    <ng-container i18n>Name *</ng-container>
                   </label>
                   <input
                     id="name"
@@ -73,7 +74,7 @@ import { ReportTemplateEditDataService } from './report-template-edit.data-servi
                     for="description"
                     class="block text-xs font-medium text-gray-500 mb-1"
                   >
-                    Beschreibung
+                    <ng-container i18n>Beschreibung</ng-container>
                   </label>
                   <textarea
                     id="description"
@@ -88,10 +89,10 @@ import { ReportTemplateEditDataService } from './report-template-edit.data-servi
             <!-- Template Editor -->
             <div class="bg-white rounded-lg border border-gray-200 p-4">
               <div class="flex items-center justify-between mb-4">
-                <h2 class="text-sm font-semibold text-gray-900">
+                <h2 i18n class="text-sm font-semibold text-gray-900">
                   Vorlage (Go Template HTML)
                 </h2>
-                <span class="text-xs text-gray-500">
+                <span i18n class="text-xs text-gray-500">
                   Verwenden Sie Go-Template-Syntax für dynamische Inhalte
                 </span>
               </div>
@@ -104,7 +105,7 @@ import { ReportTemplateEditDataService } from './report-template-edit.data-servi
 
             <!-- Help Section -->
             <div class="bg-gray-50 rounded-lg border border-gray-200 p-4">
-              <h3 class="text-xs font-medium text-gray-900 mb-2">
+              <h3 i18n class="text-xs font-medium text-gray-900 mb-2">
                 Verfügbare Variablen
               </h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-gray-500">
@@ -115,7 +116,7 @@ import { ReportTemplateEditDataService } from './report-template-edit.data-servi
             </div>
 
             <!-- Metadata -->
-            <div class="text-xs text-gray-500">
+            <div i18n class="text-xs text-gray-500">
               Erstellt: {{ formatDate(template()!.createdAt) }} ·
               Zuletzt aktualisiert: {{ formatDate(template()!.updatedAt) }}
             </div>
@@ -129,6 +130,7 @@ export class ReportTemplateEditComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dataService = inject(ReportTemplateEditDataService);
+  private readonly notifications = inject(NotificationService);
 
   readonly loading = signal(true);
   readonly saving = signal(false);
@@ -139,19 +141,19 @@ export class ReportTemplateEditComponent implements OnInit {
   templateContent = '';
 
   readonly variables = [
-    { code: '{{ .Budget.Name }}', label: 'Budgetname' },
-    { code: '{{ .Budget.StartDate }}', label: 'Startdatum' },
-    { code: '{{ .Budget.EndDate }}', label: 'Enddatum' },
-    { code: '{{ range .Accounts }}...{{ end }}', label: 'Kontenliste' },
-    { code: '{{ .Code }}', label: 'Kontonummer' },
-    { code: '{{ .Name }}', label: 'Kontoname' },
-    { code: '{{ .Balance }}', label: 'Kontosaldo' },
-    { code: '{{ .Date | formatDate }}', label: 'Datum formatieren' },
+    { code: '{{ .Budget.Name }}', label: $localize`Budgetname` },
+    { code: '{{ .Budget.StartDate }}', label: $localize`Startdatum` },
+    { code: '{{ .Budget.EndDate }}', label: $localize`Enddatum` },
+    { code: '{{ range .Accounts }}...{{ end }}', label: $localize`Kontenliste` },
+    { code: '{{ .Code }}', label: $localize`Kontonummer` },
+    { code: '{{ .Name }}', label: $localize`Kontoname` },
+    { code: '{{ .Balance }}', label: $localize`Kontosaldo` },
+    { code: '{{ .Date | formatDate }}', label: $localize`Datum formatieren` },
   ];
 
   readonly breadcrumbs: BreadcrumbItem[] = [
-    { label: 'Berichtsvorlagen', path: '/reportTemplates' },
-    { label: 'Bearbeiten' },
+    { label: $localize`Berichtsvorlagen`, path: '/reportTemplates' },
+    { label: $localize`Bearbeiten` },
   ];
 
   private templateId = '';
@@ -173,6 +175,7 @@ export class ReportTemplateEditComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
+        this.notifications.error($localize`Fehler beim Laden der Berichtsvorlage`);
         this.loading.set(false);
       },
     });
@@ -196,6 +199,7 @@ export class ReportTemplateEditComponent implements OnInit {
         this.saving.set(false);
       },
       error: () => {
+        this.notifications.error($localize`Fehler beim Speichern der Berichtsvorlage`);
         this.saving.set(false);
       },
     });

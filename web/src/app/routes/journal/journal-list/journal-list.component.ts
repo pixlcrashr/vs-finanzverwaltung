@@ -15,6 +15,7 @@ import {
   StatusBadgeComponent,
   LoadingSpinnerComponent,
   EmptyStateComponent,
+  NotificationService,
 } from '../../../shared/components';
 import { formatDateShort } from '../../../shared/utils';
 import {
@@ -43,19 +44,19 @@ import {
           routerLink="/journal/import"
           class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
         >
-          Import
+          <ng-container i18n>Import</ng-container>
         </a>
       </app-page-header>
 
       <div class="flex flex-1 justify-center overflow-auto p-4">
         @if (loading()) {
-          <app-loading-spinner [fullPage]="true" text="Journal wird geladen..." />
+          <app-loading-spinner [fullPage]="true" i18n-text text="Journal wird geladen..." />
         } @else {
           <div class="w-full space-y-3">
             <div class="bg-white rounded-lg border border-gray-200 p-4">
               <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
                 <div>
-                  <label for="afterDate" class="block text-xs font-medium text-gray-700 mb-1">
+                  <label i18n for="afterDate" class="block text-xs font-medium text-gray-700 mb-1">
                     Nach Datum
                   </label>
                   <input
@@ -67,7 +68,7 @@ import {
                 </div>
 
                 <div>
-                  <label for="beforeDate" class="block text-xs font-medium text-gray-700 mb-1">
+                  <label i18n for="beforeDate" class="block text-xs font-medium text-gray-700 mb-1">
                     Vor Datum
                   </label>
                   <input
@@ -79,7 +80,7 @@ import {
                 </div>
 
                 <div class="xl:col-span-2">
-                  <label for="searchQuery" class="block text-xs font-medium text-gray-700 mb-1">
+                  <label i18n for="searchQuery" class="block text-xs font-medium text-gray-700 mb-1">
                     Allgemeine Suche
                   </label>
                   <input
@@ -92,7 +93,7 @@ import {
                 </div>
 
                 <div>
-                  <label for="assignmentStatus" class="block text-xs font-medium text-gray-700 mb-1">
+                  <label i18n for="assignmentStatus" class="block text-xs font-medium text-gray-700 mb-1">
                     Zuordnungsstatus
                   </label>
                   <select
@@ -100,40 +101,40 @@ import {
                     [(ngModel)]="filterAssignmentStatus"
                     class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="all">Alle</option>
-                    <option value="ignored">Ignoriert</option>
-                    <option value="assigned">Vollständig zugeordnet</option>
-                    <option value="partial">Teilweise zugeordnet</option>
-                    <option value="open">Offen</option>
+                    <option i18n value="all">Alle</option>
+                    <option i18n value="ignored">Ignoriert</option>
+                    <option i18n value="assigned">Vollständig zugeordnet</option>
+                    <option i18n value="partial">Teilweise zugeordnet</option>
+                    <option i18n value="open">Offen</option>
                   </select>
                 </div>
               </div>
 
               <div class="mt-3 flex items-center justify-end gap-2">
                 <app-button variant="secondary" (clicked)="resetFilters()">
-                  Zurücksetzen
+                  <ng-container i18n>Zurücksetzen</ng-container>
                 </app-button>
                 <app-button variant="primary" (clicked)="applyFilters()">
-                  Filtern
+                  <ng-container i18n>Filtern</ng-container>
                 </app-button>
               </div>
             </div>
 
             @if (entries().length === 0) {
               <app-empty-state
-                title="Keine Buchungen gefunden"
-                [description]="hasActiveFilters() ? 'Passen Sie die Filter an oder setzen Sie sie zurück.' : 'Importieren Sie Buchungen, um das Journal zu füllen.'"
+                i18n-title title="Keine Buchungen gefunden"
+                [description]="hasActiveFilters() ? filterActiveDescription : filterInactiveDescription"
               >
                 @if (hasActiveFilters()) {
                   <app-button variant="secondary" (clicked)="resetFilters()">
-                    Filter zurücksetzen
+                    <ng-container i18n>Filter zurücksetzen</ng-container>
                   </app-button>
                 } @else {
                   <a
                     routerLink="/journal/import"
                     class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
                   >
-                    Buchungen importieren
+                    <ng-container i18n>Buchungen importieren</ng-container>
                   </a>
                 }
               </app-empty-state>
@@ -147,49 +148,49 @@ import {
                         scope="col"
                         class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500"
                       >
-                        Belegdatum
+                        <ng-container i18n>Belegdatum</ng-container>
                       </th>
                       <th
                         scope="col"
                         class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500"
                       >
-                        Belegnummer
+                        <ng-container i18n>Belegnummer</ng-container>
                       </th>
                       <th
                         scope="col"
                         class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500"
                       >
-                        Soll
+                        <ng-container i18n>Soll</ng-container>
                       </th>
                       <th
                         scope="col"
                         class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500"
                       >
-                        Haben
+                        <ng-container i18n>Haben</ng-container>
                       </th>
                       <th
                         scope="col"
                         class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-right text-gray-500"
                       >
-                        Betrag
+                        <ng-container i18n>Betrag</ng-container>
                       </th>
                       <th
                         scope="col"
                         class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500"
                       >
-                        Beschreibung
+                        <ng-container i18n>Beschreibung</ng-container>
                       </th>
                       <th
                         scope="col"
                         class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500"
                       >
-                        Haushaltskonten
+                        <ng-container i18n>Haushaltskonten</ng-container>
                       </th>
                       <th
                         scope="col"
                         class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500"
                       >
-                        Status
+                        <ng-container i18n>Status</ng-container>
                       </th>
                       <th scope="col" class="px-3 py-2 text-right">
                         <span class="sr-only">Actions</span>
@@ -216,7 +217,7 @@ import {
                         <td class="px-3 py-2 text-xs text-gray-900">
                           @if (entry.accountAssignments.length === 0) {
                             @if (entry.assignmentStatus === 'ignored') {
-                              <span class="text-gray-500 italic">Ignoriert</span>
+                              <span i18n class="text-gray-500 italic">Ignoriert</span>
                             } @else {
                               <span class="text-gray-400">-</span>
                             }
@@ -230,7 +231,7 @@ import {
                                 </li>
                               }
                               @if (entry.assignmentStatus === 'partial') {
-                                <li class="text-[11px] text-gray-500 italic">Teilweise ignoriert</li>
+                                <li i18n class="text-[11px] text-gray-500 italic">Teilweise ignoriert</li>
                               }
                             </ul>
                           }
@@ -248,7 +249,7 @@ import {
                             [routerLink]="['/transactions', entry.id]"
                             class="text-xs text-blue-600 hover:underline"
                           >
-                            Bearbeiten
+                            <ng-container i18n>Bearbeiten</ng-container>
                           </a>
                         </td>
                       </tr>
@@ -259,7 +260,7 @@ import {
             </div>
 
             <div class="flex items-center justify-between">
-              <p class="text-xs text-gray-500">
+              <p i18n class="text-xs text-gray-500">
                 Geladen {{ entries().length }} von {{ total() }} Einträgen
               </p>
               @if (hasMore()) {
@@ -269,7 +270,7 @@ import {
                   [disabled]="loadingMore()"
                   (clicked)="loadMore()"
                 >
-                  Mehr laden
+                  <ng-container i18n>Mehr laden</ng-container>
                 </app-button>
               }
             </div>
@@ -283,6 +284,7 @@ import {
 })
 export class JournalListComponent implements OnInit {
   private readonly dataService = inject(JournalListDataService);
+  private readonly notifications = inject(NotificationService);
 
   readonly loading = signal(true);
   readonly loadingMore = signal(false);
@@ -292,7 +294,10 @@ export class JournalListComponent implements OnInit {
   readonly pageSize = 20;
   readonly hasMore = computed(() => this.entries().length < this.total());
 
-  readonly breadcrumbs: BreadcrumbItem[] = [{ label: 'Journal' }];
+  readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Journal` }];
+
+  readonly filterActiveDescription = $localize`Passen Sie die Filter an oder setzen Sie sie zurück.`;
+  readonly filterInactiveDescription = $localize`Importieren Sie Buchungen, um das Journal zu füllen.`;
 
   filterAfterDate = '';
   filterBeforeDate = '';
@@ -354,6 +359,7 @@ export class JournalListComponent implements OnInit {
         this.total.set(result.total);
       },
       error: () => {
+        this.notifications.error($localize`Fehler beim Laden der Buchungen`);
         if (append) {
           this.loadingMore.set(false);
         } else {
@@ -380,18 +386,18 @@ export class JournalListComponent implements OnInit {
 
   statusLabel(status: JournalAssignmentStatus): string {
     if (status === 'assigned') {
-      return 'Vollst. zugeordnet';
+      return $localize`Vollst. zugeordnet`;
     }
 
     if (status === 'partial') {
-      return 'Teilw. zugeordnet';
+      return $localize`Teilw. zugeordnet`;
     }
 
     if (status === 'ignored') {
-      return 'Ignoriert';
+      return $localize`Ignoriert`;
     }
 
-    return 'Offen';
+    return $localize`Offen`;
   }
 
   statusVariant(status: JournalAssignmentStatus): 'success' | 'warning' | 'neutral' {

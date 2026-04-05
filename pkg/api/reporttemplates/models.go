@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pixlcrashr/vsfv/pkg/api/optional"
+	"github.com/pixlcrashr/vsfv/pkg/api/types"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 )
 
@@ -69,8 +69,8 @@ type CreateReportTemplateResponse struct {
 type UpdateReportTemplateRequest struct {
 	ReportTemplateID uuid.UUID `path:"reportTemplateId" doc:"Report template UUID"`
 	Body             struct {
-		DisplayName optional.OptionalParam[string] `json:"displayName" doc:"Human-readable name" maxLength:"200"`
-		Template    optional.OptionalParam[string] `json:"template" doc:"Handlebars template content"`
+		DisplayName types.Optional[string] `json:"displayName,omitempty" doc:"Human-readable name" maxLength:"200"`
+		Template    types.Optional[string] `json:"template,omitempty" doc:"Handlebars template content"`
 	}
 }
 

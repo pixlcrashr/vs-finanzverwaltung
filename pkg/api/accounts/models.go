@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pixlcrashr/vsfv/pkg/api/optional"
+	"github.com/pixlcrashr/vsfv/pkg/api/types"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 )
 
@@ -65,10 +65,10 @@ type ListAccountsResponse struct {
 
 type CreateAccountRequest struct {
 	Body struct {
-		ParentAccountID    optional.OptionalParam[uuid.UUID] `json:"parentAccountId,omitempty" doc:"Parent account UUID; omit for root accounts"`
-		DisplayName        string                            `json:"displayName" doc:"Human-readable account name" maxLength:"200"`
-		DisplayCode        string                            `json:"displayCode" doc:"Short account code" maxLength:"50"`
-		DisplayDescription optional.OptionalParam[string]    `json:"displayDescription,omitempty" doc:"Optional free-text description" maxLength:"1000"`
+		ParentAccountID    types.Optional[uuid.UUID] `json:"parentAccountId,omitempty" doc:"Parent account UUID; omit for root accounts"`
+		DisplayName        string                    `json:"displayName" doc:"Human-readable account name" maxLength:"200"`
+		DisplayCode        string                    `json:"displayCode" doc:"Short account code" maxLength:"50"`
+		DisplayDescription types.Optional[string]    `json:"displayDescription,omitempty" doc:"Optional free-text description" maxLength:"1000"`
 	}
 }
 
@@ -81,9 +81,9 @@ type CreateAccountResponse struct {
 type UpdateAccountRequest struct {
 	AccountID uuid.UUID `path:"accountId" doc:"Account UUID"`
 	Body      struct {
-		ParentAccountID    optional.OptionalParam[uuid.UUID] `json:"parentAccountId,omitempty" doc:"Parent account UUID; omit for root accounts"`
-		DisplayName        optional.OptionalParam[string]    `json:"displayName" doc:"Human-readable account name" maxLength:"200"`
-		DisplayDescription optional.OptionalParam[string]    `json:"displayDescription,omitempty" doc:"Optional free-text description" maxLength:"1000"`
+		ParentAccountID    types.Optional[uuid.UUID] `json:"parentAccountId,omitempty" doc:"Parent account UUID; omit for root accounts"`
+		DisplayName        types.Optional[string]    `json:"displayName,omitempty" doc:"Human-readable account name" maxLength:"200"`
+		DisplayDescription types.Optional[string]    `json:"displayDescription,omitempty" doc:"Optional free-text description" maxLength:"1000"`
 	}
 }
 

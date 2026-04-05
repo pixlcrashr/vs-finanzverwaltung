@@ -4,18 +4,21 @@ import {
   inject,
   signal,
   OnInit,
-  TemplateRef,
-  viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Dialog, DialogModule } from '@angular/cdk/dialog';
+import { Dialog } from '@angular/cdk/dialog';
 import {
   PageHeaderComponent,
   BreadcrumbItem,
-  ButtonComponent,
   LoadingSpinnerComponent,
   EmptyStateComponent,
+  NotificationService,
 } from '../../../shared/components';
+import {
+  ConfirmDeleteDialogComponent,
+  ConfirmDeleteDialogInput,
+  ConfirmDeleteDialogOutput,
+} from '../../../shared/dialogs/confirm-delete-dialog/confirm-delete-dialog.component';
 import { formatDateShort } from '../../../shared/utils';
 import { ReportTemplate } from '../../../shared/models';
 import { ReportTemplateListDataService } from './report-template-list.data-service';
@@ -25,9 +28,7 @@ import { ReportTemplateListDataService } from './report-template-list.data-servi
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    DialogModule,
     PageHeaderComponent,
-    ButtonComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
   ],
@@ -38,23 +39,23 @@ import { ReportTemplateListDataService } from './report-template-list.data-servi
           routerLink="/reportTemplates/new"
           class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
         >
-          Neue Vorlage
+          <ng-container i18n>Neue Vorlage</ng-container>
         </a>
       </app-page-header>
 
       <div class="flex flex-1 justify-center overflow-auto p-4">
         @if (loading()) {
-          <app-loading-spinner [fullPage]="true" text="Vorlagen werden geladen..." />
+          <app-loading-spinner [fullPage]="true" i18n-text text="Vorlagen werden geladen..." />
         } @else if (templates().length === 0) {
           <app-empty-state
-            title="Keine Vorlagen vorhanden"
-            description="Erstellen Sie Ihre erste Berichtsvorlage."
+            i18n-title title="Keine Vorlagen vorhanden"
+            i18n-description description="Erstelle deine erste Berichtsvorlage."
           >
             <a
               routerLink="/reportTemplates/new"
               class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
             >
-              Erste Vorlage erstellen
+              <ng-container i18n>Erste Vorlage erstellen</ng-container>
             </a>
           </app-empty-state>
         } @else {
@@ -68,19 +69,19 @@ import { ReportTemplateListDataService } from './report-template-list.data-servi
                         scope="col"
                         class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500"
                       >
-                        Name
+                        <ng-container i18n>Name</ng-container>
                       </th>
                       <th
                         scope="col"
                         class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500"
                       >
-                        Beschreibung
+                        <ng-container i18n>Beschreibung</ng-container>
                       </th>
                       <th
                         scope="col"
                         class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500"
                       >
-                        Aktualisiert
+                        <ng-container i18n>Aktualisiert</ng-container>
                       </th>
                       <th scope="col" class="px-3 py-2 text-right">
                         <span class="sr-only">Actions</span>
@@ -103,14 +104,14 @@ import { ReportTemplateListDataService } from './report-template-list.data-servi
                               [routerLink]="['/reportTemplates', template.id, 'edit']"
                               class="text-xs text-blue-600 hover:underline"
                             >
-                              Bearbeiten
+                              <ng-container i18n>Bearbeiten</ng-container>
                             </a>
                             <button
                               type="button"
                               class="text-xs text-red-600 hover:underline"
                               (click)="openDeleteDialog(template)"
                             >
-                              Löschen
+                              <ng-container i18n>Löschen</ng-container>
                             </button>
                           </div>
                         </td>
@@ -124,42 +125,17 @@ import { ReportTemplateListDataService } from './report-template-list.data-servi
         }
       </div>
     </div>
-
-    <ng-template #deleteDialogTemplate>
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-4">
-        <h2 class="text-sm font-semibold text-gray-900 mb-2">
-          Vorlage löschen
-        </h2>
-        <p class="text-xs text-gray-600 mb-4">
-          Möchten Sie die Vorlage
-          <span class="font-medium text-gray-900">"{{ templateToDelete()?.name }}"</span>
-          wirklich löschen?
-        </p>
-
-        <div class="flex justify-end gap-2">
-          <app-button variant="secondary" (clicked)="closeDialog()">Abbrechen</app-button>
-          <app-button variant="danger" [loading]="deleting()" (clicked)="deleteTemplate()">
-            Löschen
-          </app-button>
-        </div>
-      </div>
-    </ng-template>
   `,
 })
 export class ReportTemplateListComponent implements OnInit {
   private readonly dataService = inject(ReportTemplateListDataService);
   private readonly dialog = inject(Dialog);
-
-  readonly deleteDialogTemplate = viewChild.required<TemplateRef<unknown>>('deleteDialogTemplate');
+  private readonly notifications = inject(NotificationService);
 
   readonly loading = signal(true);
-  readonly deleting = signal(false);
   readonly templates = signal<ReportTemplate[]>([]);
-  readonly templateToDelete = signal<ReportTemplate | null>(null);
 
-  private dialogRef: ReturnType<typeof this.dialog.open> | null = null;
-
-  readonly breadcrumbs: BreadcrumbItem[] = [{ label: 'Berichtsvorlagen' }];
+  readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Berichtsvorlagen` }];
 
   ngOnInit(): void {
     this.loadTemplates();
@@ -172,39 +148,37 @@ export class ReportTemplateListComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
+        this.notifications.error($localize`Fehler beim Laden der Berichtsvorlagen`);
         this.loading.set(false);
       },
     });
   }
 
   openDeleteDialog(template: ReportTemplate): void {
-    this.templateToDelete.set(template);
-    this.dialogRef = this.dialog.open(this.deleteDialogTemplate(), {
-      panelClass: ['flex', 'items-center', 'justify-center'],
-      backdropClass: 'bg-black/50',
-      width: '500px',
+    const dialogRef = this.dialog.open<ConfirmDeleteDialogOutput, ConfirmDeleteDialogInput>(
+      ConfirmDeleteDialogComponent,
+      {
+        backdropClass: 'cdk-overlay-dark-backdrop',
+        width: '500px',
+        data: {
+          title: $localize`Vorlage löschen`,
+          message: $localize`Möchten Sie die Vorlage wirklich löschen?`,
+          itemName: template.name,
+        },
+      }
+    );
+
+    dialogRef.closed.subscribe((result) => {
+      if (result?.confirmed) {
+        this.deleteTemplate(template);
+      }
     });
   }
 
-  closeDialog(): void {
-    this.dialogRef?.close();
-    this.dialogRef = null;
-    this.templateToDelete.set(null);
-  }
-
-  deleteTemplate(): void {
-    const template = this.templateToDelete();
-    if (!template) return;
-
-    this.deleting.set(true);
+  private deleteTemplate(template: ReportTemplate): void {
     this.dataService.deleteTemplate(template.id).subscribe({
       next: () => {
         this.templates.update((templates) => templates.filter((t) => t.id !== template.id));
-        this.deleting.set(false);
-        this.closeDialog();
-      },
-      error: () => {
-        this.deleting.set(false);
       },
     });
   }

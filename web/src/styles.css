@@ -1,6 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+@import '@fortawesome/fontawesome-free/css/all.min.css';
 @import '@angular/cdk/overlay-prebuilt.css';
 
 html,
@@ -204,4 +205,12 @@ body {
 .cdk-overlay-pane.notification-panel {
   position: fixed !important;
   transition: top 0.2s ease-out, bottom 0.2s ease-out;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

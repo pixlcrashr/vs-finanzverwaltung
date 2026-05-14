@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
-  PageHeaderComponent,
+  PageContentLayoutComponent,
   BreadcrumbItem,
   LoadingSpinnerComponent,
   NotificationService,
@@ -20,21 +20,20 @@ import { AccountGroupStatsDataService } from './account-group-stats.data-service
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    PageHeaderComponent,
+    PageContentLayoutComponent,
     LoadingSpinnerComponent,
   ],
   template: `
-    <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs()">
-        <a
-          [routerLink]="['/accountGroups', group()?.id]"
-          class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
-        >
-          <ng-container i18n>Bearbeiten</ng-container>
-        </a>
-      </app-page-header>
+    <app-page-content-layout [breadcrumbs]="breadcrumbs()">
+      <a
+        layout-header-actions
+        [routerLink]="['/accountGroups', group()?.id]"
+        class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
+      >
+        <ng-container i18n>Bearbeiten</ng-container>
+      </a>
 
-      <div class="flex flex-1 justify-center overflow-auto p-4">
+      <div layout-content class="flex flex-1 justify-center">
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Statistik wird geladen..." />
         } @else if (group()) {
@@ -106,7 +105,7 @@ import { AccountGroupStatsDataService } from './account-group-stats.data-service
           </div>
         }
       </div>
-    </div>
+    </app-page-content-layout>
   `,
 })
 export class AccountGroupStatsComponent implements OnInit {

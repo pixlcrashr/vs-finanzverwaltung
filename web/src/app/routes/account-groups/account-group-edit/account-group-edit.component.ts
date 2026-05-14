@@ -12,7 +12,7 @@ import { Dialog } from '@angular/cdk/dialog';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
 import {
-  PageHeaderComponent,
+  PageContentLayoutComponent,
   BreadcrumbItem,
   ButtonComponent,
   LoadingSpinnerComponent,
@@ -32,15 +32,13 @@ import { AccountGroupEditDataService, AccountGroupDetails } from './account-grou
   imports: [
     RouterLink,
     ReactiveFormsModule,
-    PageHeaderComponent,
+    PageContentLayoutComponent,
     ButtonComponent,
     LoadingSpinnerComponent,
   ],
   template: `
-    <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs()" />
-
-      <div class="flex flex-1 justify-center overflow-auto p-4">
+    <app-page-content-layout [breadcrumbs]="breadcrumbs()">
+      <div layout-content class="flex flex-1 justify-center">
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Kontengruppe wird geladen..." />
         } @else if (group()) {
@@ -176,7 +174,7 @@ import { AccountGroupEditDataService, AccountGroupDetails } from './account-grou
           </div>
         }
       </div>
-    </div>
+    </app-page-content-layout>
   `,
 })
 export class AccountGroupEditComponent implements OnInit, OnDestroy {

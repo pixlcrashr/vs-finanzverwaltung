@@ -10,7 +10,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Dialog } from '@angular/cdk/dialog';
 import { forkJoin, timer } from 'rxjs';
 import {
-  PageHeaderComponent,
+  PageContentLayoutComponent,
   BreadcrumbItem,
   ButtonComponent,
   StatusBadgeComponent,
@@ -31,19 +31,17 @@ import { AccountListDataService } from './account-list.data-service';
   imports: [
     RouterLink,
     NgTemplateOutlet,
-    PageHeaderComponent,
+    PageContentLayoutComponent,
     ButtonComponent,
     StatusBadgeComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
   ],
   template: `
-    <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs">
-        <app-button (clicked)="openCreateDialog()"><ng-container i18n>Hinzufügen</ng-container></app-button>
-      </app-page-header>
+    <app-page-content-layout [breadcrumbs]="breadcrumbs">
+      <app-button layout-header-actions (clicked)="openCreateDialog()"><ng-container i18n>Hinzufügen</ng-container></app-button>
 
-      <div class="flex flex-1 justify-center overflow-auto p-4">
+      <div layout-content class="flex flex-1 justify-center">
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Konten werden geladen..." />
         } @else if (accounts().length === 0) {
@@ -88,7 +86,7 @@ import { AccountListDataService } from './account-list.data-service';
           </div>
         }
       </div>
-    </div>
+    </app-page-content-layout>
 
     <!-- Account Row Template (recursive) -->
     <ng-template #accountRow let-account>

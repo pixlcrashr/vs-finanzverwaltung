@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  PageHeaderComponent,
+  PageContentLayoutComponent,
   BreadcrumbItem,
   LoadingSpinnerComponent,
   EmptyStateComponent,
@@ -25,12 +25,10 @@ import {
 @Component({
   selector: 'app-account-compare',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, PageHeaderComponent, LoadingSpinnerComponent, EmptyStateComponent],
+  imports: [FormsModule, PageContentLayoutComponent, LoadingSpinnerComponent, EmptyStateComponent],
   template: `
-    <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs" />
-
-      <div class="flex-1 overflow-auto p-4">
+    <app-page-content-layout [breadcrumbs]="breadcrumbs">
+      <div layout-content>
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Vergleichsdaten werden geladen..." />
         } @else if (budgets().length === 0) {
@@ -237,7 +235,7 @@ import {
           </div>
         }
       </div>
-    </div>
+    </app-page-content-layout>
   `,
 })
 export class AccountCompareComponent implements OnInit {

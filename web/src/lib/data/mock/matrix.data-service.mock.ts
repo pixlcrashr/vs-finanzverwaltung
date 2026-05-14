@@ -1,0 +1,127 @@
+import { Injectable } from '@angular/core';
+import { Observable, of, delay, map } from 'rxjs';
+import { faker } from '@faker-js/faker';
+import { Account, Budget } from '../../../app/routes/matrix/matrix-data-provider.service';
+import { MatrixActualValues, MatrixTargetValues } from '../../../app/routes/matrix/matrix.data-service';
+import { MatrixDataService } from '../../../app/routes/matrix/matrix.data-service';
+import { Decimal } from 'decimal.js';
+
+
+
+const ACCOUNT_IDS = [
+  faker.string.uuid(),
+  faker.string.uuid(),
+  faker.string.uuid(),
+  faker.string.uuid(),
+  faker.string.uuid(),
+  faker.string.uuid(),
+  faker.string.uuid(),
+  faker.string.uuid(),
+  faker.string.uuid(),
+  faker.string.uuid(),
+  faker.string.uuid(),
+  faker.string.uuid(),
+  faker.string.uuid(),
+  faker.string.uuid(),
+];
+
+const MOCK_ACCOUNTS: Account[] = [
+  { id: ACCOUNT_IDS[0], displayCode: '1000', name: 'Einnahmen', depth: 0, parentAccountId: null, isArchived: false },
+  { id: ACCOUNT_IDS[1], displayCode: '1100', name: 'Steuern', depth: 1, parentAccountId: ACCOUNT_IDS[0], isArchived: false },
+  { id: ACCOUNT_IDS[2], displayCode: '1110', name: 'Umsatzsteuer', depth: 2, parentAccountId: ACCOUNT_IDS[1], isArchived: false },
+  { id: ACCOUNT_IDS[3], displayCode: '1120', name: 'Gewerbesteuer', depth: 2, parentAccountId: ACCOUNT_IDS[1], isArchived: false },
+  { id: ACCOUNT_IDS[4], displayCode: '1200', name: 'Zuweisungen', depth: 1, parentAccountId: ACCOUNT_IDS[0], isArchived: false },
+  { id: ACCOUNT_IDS[5], displayCode: '1210', name: 'Landesmittel', depth: 2, parentAccountId: ACCOUNT_IDS[4], isArchived: false },
+  { id: ACCOUNT_IDS[6], displayCode: '1211', name: 'Projektfoerderung', depth: 3, parentAccountId: ACCOUNT_IDS[5], isArchived: false },
+  { id: ACCOUNT_IDS[7], displayCode: '2000', name: 'Ausgaben', depth: 0, parentAccountId: null, isArchived: false },
+  { id: ACCOUNT_IDS[8], displayCode: '2100', name: 'Personal', depth: 1, parentAccountId: ACCOUNT_IDS[7], isArchived: false },
+  { id: ACCOUNT_IDS[9], displayCode: '2110', name: 'Wissenschaftliches Personal', depth: 2, parentAccountId: ACCOUNT_IDS[8], isArchived: false },
+  { id: ACCOUNT_IDS[10], displayCode: '2200', name: 'Sachausgaben', depth: 1, parentAccountId: ACCOUNT_IDS[7], isArchived: false },
+  { id: ACCOUNT_IDS[11], displayCode: '2210', name: 'IT-Infrastruktur', depth: 2, parentAccountId: ACCOUNT_IDS[10], isArchived: false },
+  { id: ACCOUNT_IDS[12], displayCode: '2211', name: 'Lizenzen', depth: 3, parentAccountId: ACCOUNT_IDS[11], isArchived: false },
+  { id: ACCOUNT_IDS[13], displayCode: '9000', name: 'Archiviertes Konto', depth: 0, parentAccountId: null, isArchived: true },
+];
+
+const LEAF_ACCOUNTS = MOCK_ACCOUNTS.filter(
+  account => !MOCK_ACCOUNTS.some(candidate => candidate.parentAccountId === account.id)
+);
+
+const MOCK_BUDGETS: Budget[] = (() => {
+  const budgets: Budget[] = [];
+  const currentYear = new Date().getFullYear();
+
+  for (let i = 0; i < 3; i++) {
+    const year = currentYear - i;
+    budgets.push({
+      id: faker.string.uuid(),
+      displayName: `Haushaltsplan ${year}`,
+      displayDescription: `Beschreibung für ${year}`,
+      isClosed: i > 0,
+      tags: [
+        {
+          id: faker.string.uuid(),
+          displayName: 'Revision 1',
+          displayDescription: 'Ursprünglicher Plan',
+          createdAt: new Date(year, 0, 1)
+        },
+        {
+          id: faker.string.uuid(),
+          displayName: 'Revision 2',
+          displayDescription: 'Nachtrag 1',
+          createdAt: new Date(year, 5, 1)
+        }
+      ]
+    });
+  }
+
+  return budgets;
+})();
+
+@Injectable()
+export class MockMatrixDataService extends MatrixDataService {
+  getBudgets(): Observable<Budget[]> {
+    return of(MOCK_BUDGETS).pipe(delay(500));
+  }
+
+  getAccounts(): Observable<Account[]> {
+    return of(MOCK_ACCOUNTS).pipe(delay(500));
+  }
+
+  getMatrixTargetValues(): Observable<MatrixTargetValues> {
+    return this.getBudgets().pipe(
+      map(budgets => {
+        const values: MatrixTargetValues = {};
+        budgets.forEach(budget => {
+          budget.tags.forEach(tag => {
+            values[tag.id] = {};
+            LEAF_ACCOUNTS.forEach(account => {
+              values[tag.id][account.id] = {
+                targetValue: new Decimal(faker.finance.amount({ min: 1000, max: 100000, dec: 2 }))
+              };
+            });
+          });
+        });
+        return values;
+      }),
+      delay(500)
+    );
+  }
+
+  getMatrixActualValues(): Observable<MatrixActualValues> {
+    return this.getBudgets().pipe(
+      map(budgets => {
+        const values: MatrixActualValues = {};
+        budgets.forEach(budget => {
+          values[budget.id] = {};
+          LEAF_ACCOUNTS.forEach(account => {
+            values[budget.id][account.id] = {
+              actualValue: new Decimal(faker.finance.amount({ min: 1000, max: 100000, dec: 2 }))
+            };
+          });
+        });
+        return values;
+      }),
+      delay(500)
+    );
+  }
+}

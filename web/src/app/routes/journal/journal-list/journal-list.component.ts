@@ -9,7 +9,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
-  PageHeaderComponent,
+  PageContentLayoutComponent,
   BreadcrumbItem,
   ButtonComponent,
   StatusBadgeComponent,
@@ -31,24 +31,23 @@ import {
   imports: [
     FormsModule,
     RouterLink,
-    PageHeaderComponent,
+    PageContentLayoutComponent,
     ButtonComponent,
     StatusBadgeComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
   ],
   template: `
-    <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs">
-        <a
-          routerLink="/journal/import"
-          class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
-        >
-          <ng-container i18n>Import</ng-container>
-        </a>
-      </app-page-header>
+    <app-page-content-layout [breadcrumbs]="breadcrumbs">
+      <a
+        layout-header-actions
+        routerLink="/journal/import"
+        class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
+      >
+        <ng-container i18n>Import</ng-container>
+      </a>
 
-      <div class="flex flex-1 justify-center overflow-auto p-4">
+      <div layout-content class="flex flex-1 justify-center">
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Journal wird geladen..." />
         } @else {
@@ -278,7 +277,7 @@ import {
           </div>
         }
       </div>
-    </div>
+    </app-page-content-layout>
 
   `,
 })

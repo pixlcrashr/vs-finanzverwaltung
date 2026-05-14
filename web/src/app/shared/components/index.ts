@@ -14,4 +14,5 @@ export {
   PageHeaderComponent,
   type BreadcrumbItem,
 } from './page-header/page-header.component';
+export { PageContentLayoutComponent } from './page-content-layout/page-content-layout.component';
 export { StatusBadgeComponent, type BadgeVariant } from './status-badge/status-badge.component';

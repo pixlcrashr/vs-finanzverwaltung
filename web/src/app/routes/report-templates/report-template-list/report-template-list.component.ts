@@ -8,7 +8,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
 import {
-  PageHeaderComponent,
+  PageContentLayoutComponent,
   BreadcrumbItem,
   LoadingSpinnerComponent,
   EmptyStateComponent,
@@ -28,22 +28,21 @@ import { ReportTemplateListDataService } from './report-template-list.data-servi
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    PageHeaderComponent,
+    PageContentLayoutComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
   ],
   template: `
-    <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs">
-        <a
-          routerLink="/reportTemplates/new"
-          class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
-        >
-          <ng-container i18n>Neue Vorlage</ng-container>
-        </a>
-      </app-page-header>
+    <app-page-content-layout [breadcrumbs]="breadcrumbs">
+      <a
+        layout-header-actions
+        routerLink="/reportTemplates/new"
+        class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
+      >
+        <ng-container i18n>Neue Vorlage</ng-container>
+      </a>
 
-      <div class="flex flex-1 justify-center overflow-auto p-4">
+      <div layout-content class="flex flex-1 justify-center">
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Vorlagen werden geladen..." />
         } @else if (templates().length === 0) {
@@ -124,7 +123,7 @@ import { ReportTemplateListDataService } from './report-template-list.data-servi
           </div>
         }
       </div>
-    </div>
+    </app-page-content-layout>
   `,
 })
 export class ReportTemplateListComponent implements OnInit {

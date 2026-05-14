@@ -7,7 +7,7 @@ import {
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
-  PageHeaderComponent,
+  PageContentLayoutComponent,
   BreadcrumbItem,
   ButtonComponent,
   NotificationService,
@@ -19,13 +19,12 @@ import { ReportTemplateNewDataService } from './report-template-new.data-service
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
-    PageHeaderComponent,
+    PageContentLayoutComponent,
     ButtonComponent,
   ],
   template: `
-    <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs">
-        <div class="flex gap-2">
+    <app-page-content-layout [breadcrumbs]="breadcrumbs">
+      <div layout-header-actions class="flex gap-2">
           <app-button variant="secondary" (clicked)="cancel()">
             <ng-container i18n>Abbrechen</ng-container>
           </app-button>
@@ -36,10 +35,9 @@ import { ReportTemplateNewDataService } from './report-template-new.data-service
           >
             <ng-container i18n>{{ saving() ? 'Wird erstellt...' : 'Vorlage erstellen' }}</ng-container>
           </app-button>
-        </div>
-      </app-page-header>
+      </div>
 
-      <div class="flex flex-1 justify-center overflow-auto p-4">
+      <div layout-content class="flex flex-1 justify-center">
         <div class="w-full max-w-4xl space-y-3">
           <!-- Basic Info -->
           <div class="bg-white rounded-lg border border-gray-200 p-4">
@@ -111,7 +109,7 @@ import { ReportTemplateNewDataService } from './report-template-new.data-service
           </div>
         </div>
       </div>
-    </div>
+    </app-page-content-layout>
   `,
 })
 export class ReportTemplateNewComponent {

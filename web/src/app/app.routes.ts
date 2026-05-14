@@ -65,6 +65,10 @@ export const routes: Routes = [
         path: 'admin',
         loadChildren: () => import('./routes/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
       },
+      {
+        path: 'matrix',
+        loadChildren: () => import('./routes/matrix/matrix.routes').then((m) => m.MATRIX_ROUTES),
+      },
     ],
   },
   {

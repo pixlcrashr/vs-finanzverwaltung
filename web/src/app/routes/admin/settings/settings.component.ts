@@ -9,7 +9,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import {
-  PageHeaderComponent,
+  PageContentLayoutComponent,
   BreadcrumbItem,
   LoadingSpinnerComponent,
   NotificationService,
@@ -22,14 +22,12 @@ import { SettingsDataService } from './settings.data-service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
-    PageHeaderComponent,
+    PageContentLayoutComponent,
     LoadingSpinnerComponent,
   ],
   template: `
-    <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs" />
-
-      <div class="flex flex-1 items-start justify-center overflow-auto p-4">
+    <app-page-content-layout [breadcrumbs]="breadcrumbs">
+      <div layout-content class="flex flex-1 items-start justify-center">
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Einstellungen werden geladen..." />
         } @else {
@@ -72,7 +70,7 @@ import { SettingsDataService } from './settings.data-service';
           </div>
         }
       </div>
-    </div>
+    </app-page-content-layout>
   `,
 })
 export class SettingsComponent implements OnInit, OnDestroy {

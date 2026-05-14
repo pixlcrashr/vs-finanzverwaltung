@@ -8,7 +8,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
 import {
-  PageHeaderComponent,
+  PageContentLayoutComponent,
   BreadcrumbItem,
   ButtonComponent,
   LoadingSpinnerComponent,
@@ -28,22 +28,20 @@ import { GroupListDataService } from './group-list.data-service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    PageHeaderComponent,
+    PageContentLayoutComponent,
     ButtonComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
   ],
   template: `
-    <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs">
-        <a routerLink="/admin/groups/new">
-          <app-button variant="primary">
-            <ng-container i18n>Neue Gruppe</ng-container>
-          </app-button>
-        </a>
-      </app-page-header>
+    <app-page-content-layout [breadcrumbs]="breadcrumbs">
+      <a layout-header-actions routerLink="/admin/groups/new">
+        <app-button variant="primary">
+          <ng-container i18n>Neue Gruppe</ng-container>
+        </app-button>
+      </a>
 
-      <div class="flex flex-1 justify-center overflow-auto p-4">
+      <div layout-content class="flex flex-1 justify-center">
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Gruppen werden geladen..." />
         } @else if (groups().length === 0) {
@@ -116,7 +114,7 @@ import { GroupListDataService } from './group-list.data-service';
           </div>
         }
       </div>
-    </div>
+    </app-page-content-layout>
   `,
 })
 export class GroupListComponent implements OnInit {

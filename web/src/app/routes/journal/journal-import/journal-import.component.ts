@@ -8,7 +8,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
-  PageHeaderComponent,
+  PageContentLayoutComponent,
   BreadcrumbItem,
   ButtonComponent,
   LoadingSpinnerComponent,
@@ -27,15 +27,13 @@ import {
   imports: [
     RouterLink,
     FormsModule,
-    PageHeaderComponent,
+    PageContentLayoutComponent,
     ButtonComponent,
     LoadingSpinnerComponent,
   ],
   template: `
-    <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs" />
-
-      <div class="flex-1 overflow-auto p-4">
+    <app-page-content-layout [breadcrumbs]="breadcrumbs">
+      <div layout-content>
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Importquellen werden geladen..." />
         } @else {
@@ -187,7 +185,7 @@ import {
           </div>
         }
       </div>
-    </div>
+    </app-page-content-layout>
   `,
 })
 export class JournalImportComponent implements OnInit {

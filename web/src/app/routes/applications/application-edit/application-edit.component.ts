@@ -9,7 +9,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
-  PageHeaderComponent,
+  PageContentLayoutComponent,
   BreadcrumbItem,
   ButtonComponent,
   StatusBadgeComponent,
@@ -42,17 +42,14 @@ type ActivityItem =
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
-    PageHeaderComponent,
+    PageContentLayoutComponent,
     ButtonComponent,
     StatusBadgeComponent,
     LoadingSpinnerComponent,
   ],
   template: `
-    <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs()">
-      </app-page-header>
-
-      <div class="flex flex-1 overflow-auto p-4">
+    <app-page-content-layout [breadcrumbs]="breadcrumbs()">
+      <div layout-content>
         @if (loading()) {
           <div class="flex flex-1 justify-center">
             <app-loading-spinner [fullPage]="true" i18n-text text="Antrag wird geladen..." />
@@ -517,7 +514,7 @@ type ActivityItem =
           </div>
         }
       </div>
-    </div>
+    </app-page-content-layout>
   `,
 })
 export class ApplicationEditComponent implements OnInit {

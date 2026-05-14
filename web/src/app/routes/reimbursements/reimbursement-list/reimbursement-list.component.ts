@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
-  PageHeaderComponent,
+  PageContentLayoutComponent,
   BreadcrumbItem,
   ButtonComponent,
   StatusBadgeComponent,
@@ -30,21 +30,19 @@ import { ReimbursementListDataService } from './reimbursement-list.data-service'
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    PageHeaderComponent,
+    PageContentLayoutComponent,
     ButtonComponent,
     StatusBadgeComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
   ],
   template: `
-    <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs">
-        <a routerLink="/reimbursements/new">
-          <app-button><ng-container i18n>Neue Kostenerstattung</ng-container></app-button>
-        </a>
-      </app-page-header>
+    <app-page-content-layout [breadcrumbs]="breadcrumbs">
+      <a layout-header-actions routerLink="/reimbursements/new">
+        <app-button><ng-container i18n>Neue Kostenerstattung</ng-container></app-button>
+      </a>
 
-      <div class="flex flex-1 justify-center overflow-auto p-4">
+      <div layout-content class="flex flex-1 justify-center">
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Kostenerstattungen werden geladen..." />
         } @else if (reimbursements().length === 0) {
@@ -123,16 +121,7 @@ import { ReimbursementListDataService } from './reimbursement-list.data-service'
                           {{ reimbursement.committeeName }}
                         </td>
                         <td class="px-3 py-2 text-xs text-gray-500">
-                          @if (reimbursement.financialApplicationPublicId) {
-                            <a
-                              [routerLink]="['/applications', reimbursement.financialApplicationId]"
-                              class="text-blue-600 hover:underline"
-                            >
-                              {{ reimbursement.financialApplicationPublicId }}
-                            </a>
-                          } @else {
-                            <span class="text-gray-400">-</span>
-                          }
+                          {{ reimbursement.financialApplicationPublicId || '-' }}
                         </td>
                         <td class="px-3 py-2 text-xs text-gray-900 text-right font-medium">
                           {{ formatCurrency(reimbursement.totalAmount) }}
@@ -162,7 +151,7 @@ import { ReimbursementListDataService } from './reimbursement-list.data-service'
           </div>
         }
       </div>
-    </div>
+    </app-page-content-layout>
   `,
 })
 export class ReimbursementListComponent implements OnInit {

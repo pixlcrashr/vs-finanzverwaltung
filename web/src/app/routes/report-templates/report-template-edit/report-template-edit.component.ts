@@ -8,7 +8,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
-  PageHeaderComponent,
+  PageContentLayoutComponent,
   BreadcrumbItem,
   ButtonComponent,
   LoadingSpinnerComponent,
@@ -23,14 +23,13 @@ import { ReportTemplateEditDataService } from './report-template-edit.data-servi
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
-    PageHeaderComponent,
+    PageContentLayoutComponent,
     ButtonComponent,
     LoadingSpinnerComponent,
   ],
   template: `
-    <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs">
-        <div class="flex gap-2">
+    <app-page-content-layout [breadcrumbs]="breadcrumbs">
+      <div layout-header-actions class="flex gap-2">
           <app-button variant="secondary" (clicked)="cancel()">
             <ng-container i18n>Abbrechen</ng-container>
           </app-button>
@@ -41,10 +40,9 @@ import { ReportTemplateEditDataService } from './report-template-edit.data-servi
           >
             <ng-container i18n>{{ saving() ? 'Wird gespeichert...' : 'Speichern' }}</ng-container>
           </app-button>
-        </div>
-      </app-page-header>
+      </div>
 
-      <div class="flex flex-1 justify-center overflow-auto p-4">
+      <div layout-content class="flex flex-1 justify-center">
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Vorlage wird geladen..." />
         } @else if (template()) {
@@ -123,7 +121,7 @@ import { ReportTemplateEditDataService } from './report-template-edit.data-servi
           </div>
         }
       </div>
-    </div>
+    </app-page-content-layout>
   `,
 })
 export class ReportTemplateEditComponent implements OnInit {

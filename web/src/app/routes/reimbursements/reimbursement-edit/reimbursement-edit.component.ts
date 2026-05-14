@@ -9,7 +9,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import {
-  PageHeaderComponent,
+  PageContentLayoutComponent,
   BreadcrumbItem,
   ButtonComponent,
   StatusBadgeComponent,
@@ -38,24 +38,22 @@ type ActivityItem =
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
-    PageHeaderComponent,
+    PageContentLayoutComponent,
     ButtonComponent,
     StatusBadgeComponent,
     LoadingSpinnerComponent,
   ],
   template: `
-    <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs()">
-        <div class="flex gap-2">
+    <app-page-content-layout [breadcrumbs]="breadcrumbs()">
+      <div layout-header-actions class="flex gap-2">
           @if (canEdit()) {
             <app-button variant="primary" (clicked)="save()" [disabled]="saving()">
               <ng-container i18n>Speichern</ng-container>
             </app-button>
           }
-        </div>
-      </app-page-header>
+      </div>
 
-      <div class="flex flex-1 overflow-auto p-4">
+      <div layout-content>
         @if (loading()) {
           <div class="flex flex-1 justify-center">
             <app-loading-spinner [fullPage]="true" i18n-text text="Kostenerstattung wird geladen..." />
@@ -66,6 +64,12 @@ type ActivityItem =
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <!-- Left Column: Invoice Items -->
               <div class="lg:col-span-2 space-y-6">
+                <!-- Notice -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                  <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2" i18n>Anmerkung</h2>
+                  <p class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{{ reimbursement()?.notice ?? "-" }}</p>
+                </div>
+
                 <!-- Invoice Items -->
                 <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
                   <div class="flex items-center justify-between mb-4">
@@ -77,7 +81,7 @@ type ActivityItem =
                   } @else {
                     <div class="space-y-4">
                       @for (item of reimbursement()!.invoiceItems; track item.id) {
-                        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                        <div class="rounded-lg border border-gray-200 bg-gray-50/70 p-4 dark:border-gray-700 dark:bg-gray-700/40">
                           <div class="flex items-start justify-between mb-3">
                             <div>
                               <div class="flex items-center gap-2 flex-wrap">
@@ -154,14 +158,6 @@ type ActivityItem =
                     </div>
                   }
                 </div>
-
-                <!-- Notice -->
-                @if (reimbursement()!.notice) {
-                  <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-                    <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2" i18n>Anmerkung</h2>
-                    <p class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{{ reimbursement()!.notice }}</p>
-                  </div>
-                }
 
                 <!-- Activity Feed - Combined Comments & Audit Log (oldest first) -->
                 <div>
@@ -422,7 +418,7 @@ type ActivityItem =
           </div>
         }
       </div>
-    </div>
+    </app-page-content-layout>
   `,
 })
 export class ReimbursementEditComponent implements OnInit {

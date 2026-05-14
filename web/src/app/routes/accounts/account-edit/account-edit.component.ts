@@ -11,7 +11,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
 import {
-  PageHeaderComponent,
+  PageContentLayoutComponent,
   BreadcrumbItem,
   StatusBadgeComponent,
   LoadingSpinnerComponent,
@@ -25,15 +25,13 @@ import { AccountEditDataService, AccountDetails } from './account-edit.data-serv
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
-    PageHeaderComponent,
+    PageContentLayoutComponent,
     StatusBadgeComponent,
     LoadingSpinnerComponent,
   ],
   template: `
-    <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs()" />
-
-      <div class="flex flex-1 justify-center overflow-auto p-4">
+    <app-page-content-layout [breadcrumbs]="breadcrumbs()">
+      <div layout-content class="flex flex-1 justify-center">
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Konto wird geladen..." />
         } @else if (account()) {
@@ -155,7 +153,7 @@ import { AccountEditDataService, AccountDetails } from './account-edit.data-serv
           </div>
         }
       </div>
-    </div>
+    </app-page-content-layout>
   `,
 })
 export class AccountEditComponent implements OnInit, OnDestroy {

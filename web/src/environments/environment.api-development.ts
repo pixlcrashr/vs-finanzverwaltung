@@ -20,6 +20,7 @@ import { HttpJournalListDataService } from '../lib/data/http/journal-list.data-s
 import { HttpJournalImportDataService } from '../lib/data/http/journal-import.data-service.http';
 import { HttpDashboardDataService } from '../lib/data/http/dashboard.data-service.http';
 import { HttpSettingsDataService } from '../lib/data/http/settings.data-service.http';
+import { MockMatrixDataService } from '../lib/data/mock/matrix.data-service.mock';
 import { HttpUserListDataService } from '../lib/data/http/user-list.data-service.http';
 import { HttpUserEditDataService } from '../lib/data/http/user-edit.data-service.http';
 import { HttpGroupListDataService } from '../lib/data/http/group-list.data-service.http';
@@ -61,6 +62,7 @@ export const environment = {
     journalList: HttpJournalListDataService,
     journalImport: HttpJournalImportDataService,
     dashboard: HttpDashboardDataService,
+    matrix: MockMatrixDataService,
     settings: HttpSettingsDataService,
     userList: HttpUserListDataService,
     userEdit: HttpUserEditDataService,

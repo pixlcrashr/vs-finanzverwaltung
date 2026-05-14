@@ -8,7 +8,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
 import {
-  PageHeaderComponent,
+  PageContentLayoutComponent,
   BreadcrumbItem,
   ButtonComponent,
   LoadingSpinnerComponent,
@@ -32,18 +32,16 @@ import { AccountGroupListDataService } from './account-group-list.data-service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    PageHeaderComponent,
+    PageContentLayoutComponent,
     ButtonComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
   ],
   template: `
-    <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs">
-        <app-button (clicked)="openCreateDialog()"><ng-container i18n>Hinzufügen</ng-container></app-button>
-      </app-page-header>
+    <app-page-content-layout [breadcrumbs]="breadcrumbs">
+      <app-button layout-header-actions (clicked)="openCreateDialog()"><ng-container i18n>Hinzufügen</ng-container></app-button>
 
-      <div class="flex flex-1 justify-center overflow-auto p-4">
+      <div layout-content class="flex flex-1 justify-center">
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Kontengruppen werden geladen..." />
         } @else if (groups().length === 0) {
@@ -125,9 +123,10 @@ import { AccountGroupListDataService } from './account-group-list.data-service';
               </div>
             </div>
           </div>
-        }
-      </div>
-    </div>
+          }
+        </div>
+    </app-page-content-layout>
+
   `,
 })
 export class AccountGroupListComponent implements OnInit {

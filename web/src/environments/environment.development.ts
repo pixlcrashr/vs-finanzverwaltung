@@ -18,6 +18,7 @@ import { MockTransactionEditDataService } from '../lib/data/mock/transaction-edi
 import { MockJournalListDataService } from '../lib/data/mock/journal-list.data-service.mock';
 import { MockJournalImportDataService } from '../lib/data/mock/journal-import.data-service.mock';
 import { MockDashboardDataService } from '../lib/data/mock/dashboard.data-service.mock';
+import { MockMatrixDataService } from '../lib/data/mock/matrix.data-service.mock';
 import { MockSettingsDataService } from '../lib/data/mock/settings.data-service.mock';
 import { MockUserListDataService } from '../lib/data/mock/user-list.data-service.mock';
 import { MockUserEditDataService } from '../lib/data/mock/user-edit.data-service.mock';
@@ -34,6 +35,8 @@ import { MockCreateAccountDialogDataService } from '../lib/data/mock/create-acco
 import { MockCreateReportDialogDataService } from '../lib/data/mock/create-report-dialog.data-service.mock';
 import { MockClosePeriodDialogDataService } from '../lib/data/mock/close-period-dialog.data-service.mock';
 import { MockAddReceiptDialogDataService } from '../lib/data/mock/add-receipt-dialog.data-service.mock';
+
+
 
 export const environment = {
   production: false,
@@ -59,6 +62,7 @@ export const environment = {
     journalList: MockJournalListDataService,
     journalImport: MockJournalImportDataService,
     dashboard: MockDashboardDataService,
+    matrix: MockMatrixDataService,
     settings: MockSettingsDataService,
     userList: MockUserListDataService,
     userEdit: MockUserEditDataService,

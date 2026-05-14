@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
-  PageHeaderComponent,
+  PageContentLayoutComponent,
   BreadcrumbItem,
   ButtonComponent,
   LoadingSpinnerComponent,
@@ -20,15 +20,13 @@ import { UserEditDataService } from './user-edit.data-service';
   selector: 'app-user-edit',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    PageHeaderComponent,
+    PageContentLayoutComponent,
     ButtonComponent,
     LoadingSpinnerComponent,
   ],
   template: `
-    <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs" />
-
-      <div class="flex flex-1 justify-center overflow-auto p-4">
+    <app-page-content-layout [breadcrumbs]="breadcrumbs">
+      <div layout-content class="flex flex-1 justify-center">
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Benutzer wird geladen..." />
         } @else if (user()) {
@@ -158,7 +156,7 @@ import { UserEditDataService } from './user-edit.data-service';
           </div>
         }
       </div>
-    </div>
+    </app-page-content-layout>
   `,
 })
 export class UserEditComponent implements OnInit {

@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import {
-  PageHeaderComponent,
+  PageContentLayoutComponent,
   BreadcrumbItem,
   LoadingSpinnerComponent,
   NotificationService,
@@ -36,12 +36,10 @@ const CHART_COLORS = [
 @Component({
   selector: 'app-dashboard',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [PageHeaderComponent, LoadingSpinnerComponent],
+  imports: [PageContentLayoutComponent, LoadingSpinnerComponent],
   template: `
-    <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs" />
-
-      <div class="flex-1 overflow-auto p-6">
+    <app-page-content-layout [breadcrumbs]="breadcrumbs">
+      <div layout-content>
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Dashboard wird geladen..." />
         } @else if (stats()) {
@@ -108,7 +106,7 @@ const CHART_COLORS = [
           </div>
         }
       </div>
-    </div>
+    </app-page-content-layout>
   `,
 })
 export class DashboardComponent implements OnInit, AfterViewInit {

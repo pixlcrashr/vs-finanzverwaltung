@@ -8,7 +8,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
 import {
-  PageHeaderComponent,
+  PageContentLayoutComponent,
   BreadcrumbItem,
   ButtonComponent,
   LoadingSpinnerComponent,
@@ -34,20 +34,18 @@ import { ReportListDataService } from './report-list.data-service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    PageHeaderComponent,
+    PageContentLayoutComponent,
     ButtonComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
   ],
   template: `
-    <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs">
-        <app-button variant="primary" (clicked)="openCreateDialog()">
-          <ng-container i18n>Neuen Bericht erstellen</ng-container>
-        </app-button>
-      </app-page-header>
+    <app-page-content-layout [breadcrumbs]="breadcrumbs">
+      <app-button layout-header-actions variant="primary" (clicked)="openCreateDialog()">
+        <ng-container i18n>Neuen Bericht erstellen</ng-container>
+      </app-button>
 
-      <div class="flex flex-1 justify-center overflow-auto p-4">
+      <div layout-content class="flex flex-1 justify-center">
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Berichte werden geladen..." />
         } @else {
@@ -124,7 +122,7 @@ import { ReportListDataService } from './report-list.data-service';
           </div>
         }
       </div>
-    </div>
+    </app-page-content-layout>
   `,
 })
 export class ReportListComponent implements OnInit {

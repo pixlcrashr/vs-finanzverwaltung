@@ -9,7 +9,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
-  PageHeaderComponent,
+  PageContentLayoutComponent,
   BreadcrumbItem,
   ButtonComponent,
   LoadingSpinnerComponent,
@@ -25,16 +25,14 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
-    PageHeaderComponent,
+    PageContentLayoutComponent,
     ButtonComponent,
     LoadingSpinnerComponent,
     StatusBadgeComponent,
   ],
   template: `
-    <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs"></app-page-header>
-
-      <div class="flex flex-1 justify-center overflow-auto p-4">
+    <app-page-content-layout [breadcrumbs]="breadcrumbs">
+      <div layout-content class="flex flex-1 justify-center">
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Transaktion wird geladen..." />
         } @else if (transaction()) {
@@ -258,7 +256,7 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
           </div>
         }
       </div>
-    </div>
+    </app-page-content-layout>
   `,
 })
 export class TransactionEditComponent implements OnInit {

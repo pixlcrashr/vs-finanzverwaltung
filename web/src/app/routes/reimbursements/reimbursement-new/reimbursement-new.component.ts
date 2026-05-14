@@ -9,7 +9,7 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
 import {
-  PageHeaderComponent,
+  PageContentLayoutComponent,
   BreadcrumbItem,
   ButtonComponent,
   LoadingSpinnerComponent,
@@ -36,7 +36,6 @@ type ReceiptCategory =
 interface InvoiceItemForm {
   documentForm: Belegform;
   receiptCategory: ReceiptCategory | '';
-  orderConfirmation: string;
   description: string;
   amount: number;
   attachment: File | null;
@@ -50,24 +49,22 @@ type ReimbursementScope = 'hoheitlich' | 'gewerblich';
   imports: [
     RouterLink,
     ReactiveFormsModule,
-    PageHeaderComponent,
+    PageContentLayoutComponent,
     ButtonComponent,
     LoadingSpinnerComponent,
   ],
   template: `
-    <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs"> </app-page-header>
-
-      <div class="flex flex-1 overflow-auto p-4">
+    <app-page-content-layout [breadcrumbs]="breadcrumbs">
+      <div layout-content class="flex flex-1">
         @if (loading()) {
           <div class="flex flex-1 justify-center">
             <app-loading-spinner [fullPage]="true" i18n-text text="Daten werden geladen..." />
           </div>
         } @else {
           <div class="w-full max-w-5xl mx-auto">
-            <form [formGroup]="form" class="space-y-6">
-
-                <section class="rounded-lg border border-gray-200 p-6 dark:border-gray-700 dark:bg-gray-800">
+            <form [formGroup]="form">
+              <div class="overflow-hidden rounded-lg border border-gray-200 bg-white divide-y divide-gray-200 dark:border-gray-700 dark:divide-gray-700 dark:bg-gray-800">
+                <section class="p-6">
                   <div class="mb-4 flex items-center gap-3">
                     <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-xs font-semibold text-white dark:bg-slate-700">
                       1
@@ -119,11 +116,15 @@ type ReimbursementScope = 'hoheitlich' | 'gewerblich';
                         Für Kassenbons über 250,00 € kann die enthaltene Steuer nicht als Vorsteuer angesetzt werden.
                         Reiche in diesem Fall bitte bevorzugt eine Rechnung ein.
                       </p>
+                      <p class="mt-2" i18n>
+                        Falls auf einem Beleg private und gewerbliche Einkäufe gemischt sind, berechne den zu erstattenden
+                        Betrag bitte korrekt inklusive MwSt. Das spart Rückfragen und beschleunigt die Prüfung.
+                      </p>
                     </div>
                   }
                 </section>
 
-                <section class="rounded-lg border border-gray-200 p-6 dark:border-gray-700 dark:bg-gray-800">
+                <section class="p-6">
                   <div class="mb-4 flex items-center gap-3">
                     <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-xs font-semibold text-white dark:bg-slate-700">
                       2
@@ -148,7 +149,7 @@ type ReimbursementScope = 'hoheitlich' | 'gewerblich';
                   </div>
                 </section>
 
-                <section class="rounded-lg border border-gray-200 p-6 dark:border-gray-700 dark:bg-gray-800">
+                <section class="p-6">
                   <div class="mb-4 flex items-center gap-3">
                     <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-xs font-semibold text-white dark:bg-slate-700">
                       3
@@ -265,7 +266,7 @@ type ReimbursementScope = 'hoheitlich' | 'gewerblich';
                   </div>
                 </section>
 
-                <section class="rounded-lg border border-gray-200 p-6 dark:border-gray-700 dark:bg-gray-800">
+                <section class="p-6">
                   <div class="mb-4 flex items-center gap-3">
                     <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-xs font-semibold text-white dark:bg-slate-700">
                       4
@@ -275,14 +276,13 @@ type ReimbursementScope = 'hoheitlich' | 'gewerblich';
 
                   <div class="mb-4 rounded-md border-l-4 border-blue-600 bg-blue-50 p-3 dark:border-blue-500 dark:bg-blue-950/40">
                     <p class="text-sm text-blue-900 dark:text-blue-200" i18n>
-                      Bitte erfasse alle Belege vollständig. Nutze Belegform, Belegart und - falls vorhanden -
-                      Bestellbestätigung oder Auftragsbestätigung.
+                      Bitte erfasse alle Belege vollständig und nutze Belegform sowie Belegart.
                     </p>
                   </div>
 
                   <div formArrayName="invoiceItems" class="space-y-4">
                     @for (item of invoiceItems.controls; track $index; let i = $index) {
-                      <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700" [formGroupName]="i">
+                      <div class="rounded-lg border border-gray-200 bg-gray-50/70 p-4 dark:border-gray-700 dark:bg-gray-700/40" [formGroupName]="i">
                         <div class="mb-3 flex items-center justify-between">
                           <span class="text-sm font-semibold text-slate-700 dark:text-slate-200" i18n>Beleg {{ i + 1 }}</span>
                           @if (invoiceItems.length > 1) {
@@ -338,21 +338,8 @@ type ReimbursementScope = 'hoheitlich' | 'gewerblich';
                             </p>
                           </div>
 
-                          <div>
-                            <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300" i18n>
-                              Bestellbestätigung / Auftragsbestätigung (optional)
-                            </label>
-                            <input
-                              type="text"
-                              formControlName="orderConfirmation"
-                              i18n-placeholder
-                              placeholder="z. B. Auftragsnummer oder Bestellreferenz"
-                              class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
-                            />
-                          </div>
-
                           <div class="md:col-span-2">
-                            <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300" i18n>Beschreibung (optional)</label>
+                            <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300" i18n>Anmerkung</label>
                             <input
                               type="text"
                               formControlName="description"
@@ -426,7 +413,7 @@ type ReimbursementScope = 'hoheitlich' | 'gewerblich';
                   </div>
                 </section>
 
-                <section class="rounded-lg border border-gray-200 p-6 dark:border-gray-700 dark:bg-gray-800">
+                <section class="p-6">
                   <div class="mb-4 flex items-center gap-3">
                     <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-xs font-semibold text-white dark:bg-slate-700">
                       5
@@ -434,9 +421,6 @@ type ReimbursementScope = 'hoheitlich' | 'gewerblich';
                     <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-100" i18n>Anmerkung</h2>
                   </div>
 
-                  <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" i18n>
-                    Zusätzliche Informationen (optional)
-                  </label>
                   <textarea
                     formControlName="notice"
                     rows="4"
@@ -446,7 +430,7 @@ type ReimbursementScope = 'hoheitlich' | 'gewerblich';
                   ></textarea>
                 </section>
 
-                <section class="rounded-lg border border-gray-200 p-6 dark:border-gray-700 dark:bg-gray-800" formGroupName="declarations">
+                <section class="p-6" formGroupName="declarations">
                   <div class="mb-4 flex items-center gap-3">
                     <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-xs font-semibold text-white dark:bg-slate-700">
                       6
@@ -477,65 +461,75 @@ type ReimbursementScope = 'hoheitlich' | 'gewerblich';
                   </div>
                 </section>
 
-                <section class="rounded-lg border border-gray-200 p-6 dark:border-gray-700 dark:bg-gray-800">
-                  <div class="mb-4 flex items-center gap-3">
-                    <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-xs font-semibold text-white dark:bg-slate-700">
-                      7
-                    </span>
-                    <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-100" i18n>Weiterer Prozess</h2>
+                <section class="p-6">
+                  <div>
+                    <div class="mb-4 flex items-center gap-3">
+                      <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-xs font-semibold text-white dark:bg-slate-700">
+                        7
+                      </span>
+                      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-100" i18n>Einreichung</h2>
+                    </div>
+
+                    <ol class="list-decimal space-y-2 pl-5 text-sm text-gray-700 dark:text-gray-300">
+                      <li i18n>Nach dem Absenden erhältst du eine Eingangsbestätigung.</li>
+                      <li i18n>Die Unterlagen werden inhaltlich und formal geprüft.</li>
+                      <li i18n>Falls etwas fehlt, melden wir uns mit einer konkreten Rückfrage bei dir.</li>
+                      <li i18n>Nach Freigabe erfolgt die Auszahlung gemäß deiner gewählten Zahlungsart.</li>
+                    </ol>
                   </div>
 
-                  <ol class="list-decimal space-y-2 pl-5 text-sm text-gray-700 dark:text-gray-300">
-                    <li i18n>Nach dem Absenden erhältst du eine Eingangsbestätigung.</li>
-                    <li i18n>Die Unterlagen werden inhaltlich und formal geprüft.</li>
-                    <li i18n>Falls etwas fehlt, melden wir uns mit einer konkreten Rückfrage bei dir.</li>
-                    <li i18n>Nach Freigabe erfolgt die Auszahlung gemäß deiner gewählten Zahlungsart.</li>
-                  </ol>
-                </section>
+                  @if (hasSubmissionWarnings()) {
+                    <div class="rounded-md border border-amber-300 bg-amber-50 my-6 p-4 dark:border-amber-500/60 dark:bg-amber-900/20">
+                      <h2 class="mb-3 text-base font-semibold text-amber-900 dark:text-amber-200" i18n>Wichtige Hinweise</h2>
 
-                @if (hasSubmissionWarnings()) {
-                  <section class="rounded-lg border border-amber-300 bg-amber-50 p-6 dark:border-amber-500/60 dark:bg-amber-900/20">
-                    <h2 class="mb-3 text-base font-semibold text-amber-900 dark:text-amber-200" i18n>Wichtige Hinweise vor dem Absenden</h2>
+                      <div class="space-y-3 text-sm text-amber-900 dark:text-amber-200">
+                        @if (hasPaperOriginalSubmissionWarning()) {
+                          <p i18n>
+                            Da mindestens ein Beleg als "Papierbeleg (Original)" eingereicht ist, wird der beantragte Betrag
+                            erst nach Eingang des Originals überwiesen.
+                          </p>
+                          <p i18n>
+                            Eine hochgeladene Scan-Kopie gilt nur als Kopie und ändert nichts daran, dass das Original
+                            für die Auszahlung eingereicht werden muss.
+                          </p>
+                        }
 
-                    <div class="space-y-3 text-sm text-amber-900 dark:text-amber-200">
-                      @if (hasPaperOriginalSubmissionWarning()) {
-                        <p i18n>
-                          Da mindestens ein Beleg als "Papierbeleg (Original)" eingereicht ist, wird der beantragte Betrag
-                          erst nach Eingang des Originals überwiesen.
-                        </p>
-                        <p i18n>
-                          Eine hochgeladene Scan-Kopie gilt nur als Kopie und ändert nichts daran, dass das Original
-                          für die Auszahlung eingereicht werden muss.
-                        </p>
-                      }
-
-                      @if (hasCommercialReceiptSubmissionWarning()) {
-                        <p i18n>
-                          Bei gewerblicher Einreichung mit "Quittung / Kassenbon" wird der beantragte Betrag nur überwiesen,
-                          wenn der Bon <= 250,00 € ist. Liegt der Betrag darüber, wird der Beleg nicht akzeptiert.
-                        </p>
-                      }
+                        @if (hasCommercialReceiptSubmissionWarning()) {
+                          <p i18n>
+                            Bei gewerblicher Einreichung mit "Quittung / Kassenbon" wird der beantragte Betrag nur überwiesen,
+                            wenn der Bon <= 250,00 € ist. Liegt der Betrag darüber, wird der Beleg nicht akzeptiert.
+                          </p>
+                        }
+                      </div>
                     </div>
-                  </section>
-                }
+                  }
 
-                <div class="flex flex-wrap justify-end gap-3 border-t border-gray-200 pt-2 dark:border-gray-700">
-                  <a routerLink="/reimbursements">
-                    <app-button variant="secondary"><ng-container i18n>Abbrechen</ng-container></app-button>
-                  </a>
-                  <app-button
-                    variant="primary"
-                    (clicked)="submit()"
-                    [disabled]="saving() || !form.valid || invoiceItems.length === 0"
-                  >
-                    <ng-container i18n>Einreichung absenden</ng-container>
-                  </app-button>
-                </div>
+                  @if (!hasSubmittableBillType()) {
+                    <p class="my-6 text-sm text-amber-800 dark:text-amber-200" i18n>
+                      Mindestens ein Beleg mit Belegart „Rechnung“, „Quittung / Kassenbon“, „Eigenbeleg“,
+                      „Fahrtkostennachweis“ oder „Sonstige“ ist für die Einreichung erforderlich.
+                    </p>
+                  }
+
+                  <div class="flex flex-wrap justify-end gap-3">
+                    <a routerLink="/reimbursements">
+                      <app-button variant="secondary"><ng-container i18n>Abbrechen</ng-container></app-button>
+                    </a>
+                    <app-button
+                      variant="primary"
+                      (clicked)="submit()"
+                      [disabled]="saving() || !form.valid || invoiceItems.length === 0 || !hasSubmittableBillType()"
+                    >
+                      <ng-container i18n>Einreichung absenden</ng-container>
+                    </app-button>
+                  </div>
+                </section>
+              </div>
             </form>
           </div>
         }
       </div>
-    </div>
+    </app-page-content-layout>
   `,
 })
 export class ReimbursementNewComponent implements OnInit {
@@ -551,6 +545,7 @@ export class ReimbursementNewComponent implements OnInit {
   readonly selectedReimbursementScope = signal<ReimbursementScope>('hoheitlich');
   readonly hasPaperOriginalSubmissionWarning = signal(false);
   readonly hasCommercialReceiptSubmissionWarning = signal(false);
+  readonly hasSubmittableBillType = signal(false);
   readonly hasSubmissionWarnings = computed(
     () => this.hasPaperOriginalSubmissionWarning() || this.hasCommercialReceiptSubmissionWarning()
   );
@@ -671,6 +666,16 @@ export class ReimbursementNewComponent implements OnInit {
   private updateSubmissionWarnings(): void {
     const items = (this.invoiceItems.value as InvoiceItemForm[] | null) ?? [];
 
+    this.hasSubmittableBillType.set(
+      items.some(
+        (item) => item.receiptCategory === 'rechnung'
+          || item.receiptCategory === 'quittung_kassenbon'
+          || item.receiptCategory === 'eigenbeleg'
+          || item.receiptCategory === 'fahrtkostennachweis'
+          || item.receiptCategory === 'sonstige'
+      )
+    );
+
     this.hasPaperOriginalSubmissionWarning.set(
       items.some((item) => item.documentForm === 'paper_original')
     );
@@ -722,7 +727,6 @@ export class ReimbursementNewComponent implements OnInit {
     const itemGroup = this.fb.group({
       documentForm: ['paper_original' as Belegform, Validators.required],
       receiptCategory: ['', Validators.required],
-      orderConfirmation: [''],
       description: [''],
       amount: [0, [Validators.required, Validators.min(0.01)]],
       attachment: [null as File | null],
@@ -761,7 +765,7 @@ export class ReimbursementNewComponent implements OnInit {
   }
 
   submit(): void {
-    if (!this.form.valid || this.invoiceItems.length === 0) return;
+    if (!this.form.valid || this.invoiceItems.length === 0 || !this.hasSubmittableBillType()) return;
 
     this.saving.set(true);
     const formValue = this.form.value;
@@ -783,9 +787,6 @@ export class ReimbursementNewComponent implements OnInit {
         description: [
           `${$localize`Belegform`}: ${documentFormLabel}`,
           receiptCategoryLabel ? `${$localize`Belegart`}: ${receiptCategoryLabel}` : null,
-          item.orderConfirmation
-            ? `${$localize`Bestell-/Auftragsbestätigung`}: ${item.orderConfirmation}`
-            : null,
           item.description?.trim() ? item.description.trim() : null,
         ]
           .filter((part): part is string => !!part)

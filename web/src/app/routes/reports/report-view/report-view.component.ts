@@ -10,7 +10,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import {
-  PageHeaderComponent,
+  PageContentLayoutComponent,
   BreadcrumbItem,
   ButtonComponent,
   LoadingSpinnerComponent,
@@ -24,14 +24,13 @@ import { ReportViewDataService } from './report-view.data-service';
   selector: 'app-report-view',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    PageHeaderComponent,
+    PageContentLayoutComponent,
     ButtonComponent,
     LoadingSpinnerComponent,
   ],
   template: `
-    <div class="flex flex-col h-full">
-      <app-page-header [breadcrumbs]="breadcrumbs">
-        <div class="flex gap-2">
+    <app-page-content-layout [breadcrumbs]="breadcrumbs">
+      <div layout-header-actions class="flex gap-2">
           <app-button variant="secondary" (clicked)="goBack()">
             <ng-container i18n>Zurück zur Liste</ng-container>
           </app-button>
@@ -42,10 +41,9 @@ import { ReportViewDataService } from './report-view.data-service';
           >
             <ng-container i18n>{{ downloading() ? 'Wird heruntergeladen...' : 'Als PDF herunterladen' }}</ng-container>
           </app-button>
-        </div>
-      </app-page-header>
+      </div>
 
-      <div class="flex-1 overflow-auto p-4">
+      <div layout-content>
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Bericht wird geladen..." />
         } @else if (report()) {
@@ -69,7 +67,7 @@ import { ReportViewDataService } from './report-view.data-service';
           </div>
         }
       </div>
-    </div>
+    </app-page-content-layout>
   `,
 })
 export class ReportViewComponent implements OnInit {

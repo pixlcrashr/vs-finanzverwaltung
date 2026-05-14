@@ -159,6 +159,7 @@ export class MainLayoutComponent {
   ]);
 
   readonly householdMenuItems = signal<MenuItem[]>([
+    { name: $localize`Matrix`, path: '/matrix' },
     { name: $localize`Pläne`, path: '/budgets' },
     { name: $localize`Konten`, path: '/accounts', excludePaths: ['/accounts/compare'] },
     { name: $localize`Kontenvergleich`, path: '/accounts/compare' },

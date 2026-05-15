@@ -1,8 +1,9 @@
-import { Component, computed, inject, OnInit, Signal, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatrixHeader } from "./matrix-header/matrix-header";
 import { MatrixContent } from "./matrix-content/matrix-content";
 import { MatrixValueStoreService } from './matrix-value-store.service';
 import { MatrixData, MatrixDataProviderService } from './matrix-data-provider.service';
+import { MatrixDataService, MatrixBudgetValueUpdate } from './matrix.data-service';
 import { delay } from 'rxjs';
 
 
@@ -40,6 +41,8 @@ import { delay } from 'rxjs';
 })
 export class Matrix implements OnInit {
   private readonly dataProvider = inject(MatrixDataProviderService);
+  private readonly dataService = inject(MatrixDataService);
+  private readonly valueStore = inject(MatrixValueStoreService);
 
   isLoading = signal(true);
   isSaving = signal(false);
@@ -87,12 +90,37 @@ export class Matrix implements OnInit {
   }
 
   onSave(): void {
+    const allDirtyValues = this.valueStore.getAllDirtyValues();
+
+    if (allDirtyValues.size === 0) {
+      console.log('No changes to save');
+      return;
+    }
+
+    const updates: MatrixBudgetValueUpdate[] = [];
+    allDirtyValues.forEach((dirtyValues, budgetId) => {
+      dirtyValues.forEach(dv => {
+        updates.push({
+          budgetId,
+          accountId: dv.accountId,
+          value: dv.value
+        });
+      });
+    });
+
+    console.log('Saving dirty values:', updates);
     this.isSaving.set(true);
-    console.log('Save matrix data');
-    
-    // Simulate API call
-    setTimeout(() => {
-      this.isSaving.set(false);
-    }, 1500);
+
+    this.dataService.updateMatrixBudgetValues(updates).subscribe({
+      next: () => {
+        this.valueStore.markAllAsClean();
+        this.isSaving.set(false);
+        console.log('Save successful');
+      },
+      error: (err) => {
+        console.error('Save failed:', err);
+        this.isSaving.set(false);
+      }
+    });
   }
 }

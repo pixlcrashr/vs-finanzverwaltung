@@ -1,98 +1,193 @@
 import { computed, Injectable, signal, Signal, WritableSignal } from '@angular/core';
 import { Decimal } from 'decimal.js';
 
+export interface DirtyValue {
+  accountId: string;
+  value: Decimal;
+}
+
 @Injectable()
 export class MatrixValueStoreService {
-  private targetValues = new Map<string, Signal<Decimal>>();
-  private actualValues = new Map<string, Signal<Decimal>>();
-  private targetWritableValues = new Map<string, WritableSignal<Decimal>>();
-  private actualWritableValues = new Map<string, WritableSignal<Decimal>>();
+  private editableTargetReadSignals = new Map<string, Signal<Decimal>>();
+  private editableTargetWriteSignals = new Map<string, WritableSignal<Decimal>>();
+  private originalValues = new Map<string, Decimal>();
+  private budgetAccountKeys = new Map<string, Set<string>>(); // budgetId -> Set of keys
 
-  private getKey(budgetId: string, accountId: string, revisionId: string): string {
-    return `${budgetId}-${accountId}-${revisionId}`;
+  private getKey(budgetId: string, accountId: string): string {
+    return `${budgetId}-${accountId}`;
   }
 
-  getTargetValue(budgetId: string, accountId: string, revisionId: string): Signal<Decimal> {
-    const key = this.getKey(budgetId, accountId, revisionId);
-    const existing = this.targetValues.get(key);
+  private trackBudgetKey(budgetId: string, key: string): void {
+    const keys = this.budgetAccountKeys.get(budgetId) ?? new Set();
+    keys.add(key);
+    this.budgetAccountKeys.set(budgetId, keys);
+  }
+
+  private parseKey(key: string): { budgetId: string; accountId: string } | null {
+    const separatorIndex = key.indexOf('-');
+    if (separatorIndex === -1) return null;
+    return {
+      budgetId: key.substring(0, separatorIndex),
+      accountId: key.substring(separatorIndex + 1)
+    };
+  }
+
+  getEditableTargetValue(budgetId: string, accountId: string): Signal<Decimal> {
+    const key = this.getKey(budgetId, accountId);
+    const existing = this.editableTargetReadSignals.get(key);
     if (existing) {
       return existing;
     }
 
     const writable = signal(new Decimal(0));
-    const readonly = writable.asReadonly();
-    this.targetWritableValues.set(key, writable);
-    this.targetValues.set(key, readonly);
-    return readonly;
+    this.editableTargetWriteSignals.set(key, writable);
+    this.editableTargetReadSignals.set(key, writable);
+    return writable;
   }
 
-  getActualValue(budgetId: string, accountId: string, revisionId: string): Signal<Decimal> {
-    const key = this.getKey(budgetId, accountId, revisionId);
-    const existing = this.actualValues.get(key);
-    if (existing) {
-      return existing;
+  updateEditableTargetValue(budgetId: string, accountId: string, value: Decimal, isInitial = false): void {
+    const key = this.getKey(budgetId, accountId);
+    this.trackBudgetKey(budgetId, key);
+
+    if (isInitial || !this.originalValues.has(key)) {
+      this.originalValues.set(key, value);
     }
 
-    const writable = signal(new Decimal(0));
-    const readonly = writable.asReadonly();
-    this.actualWritableValues.set(key, writable);
-    this.actualValues.set(key, readonly);
-    return readonly;
-  }
-
-  updateTargetValue(budgetId: string, accountId: string, revisionId: string, value: Decimal): void {
-    const key = this.getKey(budgetId, accountId, revisionId);
-    const s = this.targetWritableValues.get(key);
+    const s = this.editableTargetWriteSignals.get(key);
     if (s) {
       s.set(value);
     } else {
       const writable = signal(value);
-      this.targetWritableValues.set(key, writable);
-      this.targetValues.set(key, writable.asReadonly());
+      this.editableTargetWriteSignals.set(key, writable);
+      this.editableTargetReadSignals.set(key, writable);
     }
   }
 
-  updateActualValue(budgetId: string, accountId: string, revisionId: string, value: Decimal): void {
-    const key = this.getKey(budgetId, accountId, revisionId);
-    const s = this.actualWritableValues.get(key);
-    if (s) {
-      s.set(value);
+  setEditableTargetAggregateValue(
+    budgetId: string,
+    accountId: string,
+    children: Signal<Decimal>[]
+  ): Signal<Decimal> {
+    const key = this.getKey(budgetId, accountId);
+    const aggregate = computed(() =>
+      children.reduce((sum, child) => sum.plus(child()), new Decimal(0))
+    );
+
+    this.editableTargetWriteSignals.delete(key);
+    this.editableTargetReadSignals.set(key, aggregate);
+    return aggregate;
+  }
+
+  isDirty(budgetId: string, accountId: string): boolean {
+    const key = this.getKey(budgetId, accountId);
+    const original = this.originalValues.get(key);
+    const current = this.editableTargetWriteSignals.get(key)?.();
+    if (original === undefined || current === undefined) {
+      return false;
+    }
+    return !original.equals(current);
+  }
+
+  getDirtyValuesByBudget(budgetId: string): DirtyValue[] {
+    const keys = this.budgetAccountKeys.get(budgetId);
+    if (!keys) {
+      return [];
+    }
+
+    const dirtyValues: DirtyValue[] = [];
+    for (const key of keys) {
+      const parsed = this.parseKey(key);
+      if (!parsed) continue;
+
+      const original = this.originalValues.get(key);
+      const current = this.editableTargetWriteSignals.get(key)?.();
+      if (original === undefined || current === undefined) continue;
+
+      if (!original.equals(current)) {
+        dirtyValues.push({
+          accountId: parsed.accountId,
+          value: current
+        });
+      }
+    }
+
+    return dirtyValues;
+  }
+
+  getAllDirtyValues(): Map<string, DirtyValue[]> {
+    const result = new Map<string, DirtyValue[]>();
+    for (const budgetId of this.budgetAccountKeys.keys()) {
+      const dirtyValues = this.getDirtyValuesByBudget(budgetId);
+      if (dirtyValues.length > 0) {
+        result.set(budgetId, dirtyValues);
+      }
+    }
+    return result;
+  }
+
+  hasDirtyValues(budgetId?: string): boolean {
+    if (budgetId) {
+      return this.getDirtyValuesByBudget(budgetId).length > 0;
+    }
+    for (const bid of this.budgetAccountKeys.keys()) {
+      if (this.getDirtyValuesByBudget(bid).length > 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  markAsClean(budgetId: string, accountId?: string): void {
+    if (accountId) {
+      const key = this.getKey(budgetId, accountId);
+      const current = this.editableTargetWriteSignals.get(key)?.();
+      if (current !== undefined) {
+        this.originalValues.set(key, current);
+      }
     } else {
-      const writable = signal(value);
-      this.actualWritableValues.set(key, writable);
-      this.actualValues.set(key, writable.asReadonly());
+      const keys = this.budgetAccountKeys.get(budgetId);
+      if (!keys) return;
+
+      for (const key of keys) {
+        const current = this.editableTargetWriteSignals.get(key)?.();
+        if (current !== undefined) {
+          this.originalValues.set(key, current);
+        }
+      }
     }
   }
 
-  setTargetAggregateValue(
-    budgetId: string,
-    accountId: string,
-    revisionId: string,
-    children: Signal<Decimal>[]
-  ): Signal<Decimal> {
-    const key = this.getKey(budgetId, accountId, revisionId);
-    const aggregate = computed(() =>
-      children.reduce((sum, child) => sum.plus(child()), new Decimal(0))
-    );
-
-    this.targetWritableValues.delete(key);
-    this.targetValues.set(key, aggregate);
-    return aggregate;
+  markAllAsClean(): void {
+    for (const budgetId of this.budgetAccountKeys.keys()) {
+      this.markAsClean(budgetId);
+    }
   }
 
-  setActualAggregateValue(
-    budgetId: string,
-    accountId: string,
-    revisionId: string,
-    children: Signal<Decimal>[]
-  ): Signal<Decimal> {
-    const key = this.getKey(budgetId, accountId, revisionId);
-    const aggregate = computed(() =>
-      children.reduce((sum, child) => sum.plus(child()), new Decimal(0))
-    );
+  resetToOriginal(budgetId: string, accountId?: string): void {
+    if (accountId) {
+      const key = this.getKey(budgetId, accountId);
+      const original = this.originalValues.get(key);
+      const writable = this.editableTargetWriteSignals.get(key);
+      if (original !== undefined && writable) {
+        writable.set(original);
+      }
+    } else {
+      const keys = this.budgetAccountKeys.get(budgetId);
+      if (!keys) return;
 
-    this.actualWritableValues.delete(key);
-    this.actualValues.set(key, aggregate);
-    return aggregate;
+      for (const key of keys) {
+        const original = this.originalValues.get(key);
+        const writable = this.editableTargetWriteSignals.get(key);
+        if (original !== undefined && writable) {
+          writable.set(original);
+        }
+      }
+    }
+  }
+
+  resetAllToOriginal(): void {
+    for (const budgetId of this.budgetAccountKeys.keys()) {
+      this.resetToOriginal(budgetId);
+    }
   }
 }

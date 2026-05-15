@@ -1,13 +1,15 @@
-import { Component, computed, input } from '@angular/core';
-import { CommonModule, CurrencyPipe } from '@angular/common';
+import { Component, computed, effect, input } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatrixHeader } from '../matrix-header/matrix-header';
 import { MatrixData } from '../matrix-data-provider.service';
+import { MatrixValueSpan } from "../matrix-value-span/matrix-value-span";
+import { MatrixValueInput } from "../matrix-value-input/matrix-value-input";
 
 
 
 @Component({
   selector: 'app-matrix-content',
-  imports: [CommonModule, CurrencyPipe],
+  imports: [CommonModule, MatrixValueSpan, MatrixValueInput],
   styles: `
     :host {
       display: block;
@@ -81,7 +83,7 @@ import { MatrixData } from '../matrix-data-provider.service';
         border-right: 1px solid var(--color-border);
       }
 
-      .value {
+      .value-cell {
         text-align: right;
         padding: 5px 5px 5px 20px;
       }
@@ -104,6 +106,7 @@ import { MatrixData } from '../matrix-data-provider.service';
     @let colGroupSpan = accColSpan + (descriptionEnabled ? 1 : 0);
     @let selectedBudgets = filteredColumns();
     @let rows = filteredRows();
+    @let isEditing = matrixHeader().isEditMode();
 
     <div class="fullwidth fullheight overflow-auto">
       <table class="table is-narrow">
@@ -117,13 +120,17 @@ import { MatrixData } from '../matrix-data-provider.service';
             }
 
             @for (col of selectedBudgets; track col.budgetId) {
-              <th [colSpan]="col.revisions.length * revisionColSpan()" class="budget-column">
+              <th [colSpan]="col.revisions.length * revisionColSpan() + (isEditing ? 1 : 0)" class="budget-column">
                 {{ col.displayName }}
               </th>
             }
           </tr>
           <tr>
             @for (col of selectedBudgets; track col.budgetId) {
+              @if (isEditing) {
+                <th></th>
+              }
+
               @for (rev of col.revisions; track rev.revisionId) {
                 <th [colSpan]="revisionColSpan()" class="revision-column">
                   {{ rev.createdAt | date:'dd.MM.yyyy' }}
@@ -135,8 +142,12 @@ import { MatrixData } from '../matrix-data-provider.service';
             @for (i of [].constructor(accColSpan); track $index) {
               <th class="account-prefix-width"></th>
             }
-            
+
             @for (col of selectedBudgets; track col.budgetId) {
+              @if (isEditing) {
+                <th>Soll bearbeiten</th>
+              }
+
               @for (rev of col.revisions; track rev.revisionId) {
                 @if (targetEnabled) {
                   <th [class.last-revision-column]="!(actualEnabled || differenceEnabled)">Soll</th>
@@ -167,20 +178,40 @@ import { MatrixData } from '../matrix-data-provider.service';
               }
 
               @for (budgetValues of row.values; track budgetValues.budgetId) {
+                @if (isEditing) {
+                  <td class="value-cell">
+                    @if (!row.isParent) {
+                      @if (row.isSumRow) {
+                        <app-matrix-value-span [value]="budgetValues.editableTargetValue()" /> 
+                      } @else if (budgetValues.editableTargetWritableValue) {
+                        <app-matrix-value-input
+                          [(value)]="budgetValues.editableTargetWritableValue"
+                        />
+                      }
+                    }
+                  </td>
+                }
+
                 @for (revValues of budgetValues.revisions; track revValues.revisionId) {
                   @if (targetEnabled) {
-                    <td [class.last-revision-column]="!(actualEnabled || differenceEnabled)" class="value">
-                      {{ revValues.targetValue().toNumber() | currency:'EUR':'symbol':'1.2-2' }}
+                    <td [class.last-revision-column]="!(actualEnabled || differenceEnabled)" class="value-cell">
+                      @if (!row.isParent) {
+                        <app-matrix-value-span [value]="revValues.targetValue" />
+                      }
                     </td>
                   }
                   @if (actualEnabled) {
-                    <td [class.last-revision-column]="!differenceEnabled" class="value">
-                      {{ revValues.actualValue().toNumber() | currency:'EUR':'symbol':'1.2-2' }}
+                    <td [class.last-revision-column]="!differenceEnabled" class="value-cell">
+                      @if (!row.isParent) {
+                        <app-matrix-value-span [value]="budgetValues.actualValue" />
+                      }
                     </td>
                   }
                   @if (differenceEnabled) {
-                    <td class="last-revision-column value">
-                      {{ revValues.diffValue().toNumber() | currency:'EUR':'symbol':'1.2-2' }}
+                    <td class="last-revision-column value-cell">
+                      @if (!row.isParent) {
+                        <app-matrix-value-span [value]="revValues.isLatest ? budgetValues.editableTargetValue().minus(budgetValues.actualValue) : revValues.diffValue" />
+                      }
                     </td>
                   }
                 }
@@ -195,6 +226,10 @@ import { MatrixData } from '../matrix-data-provider.service';
                   <td></td>
                 }
                 @for (col of selectedBudgets; track col.budgetId) {
+                  @if (isEditing) {
+                    <td></td>
+                  }
+
                   @for (rev of col.revisions; track rev.revisionId) {
                     @if (targetEnabled) {
                       <td [class.last-revision-column]="!(actualEnabled || differenceEnabled)"></td>
@@ -276,4 +311,10 @@ export class MatrixContent {
     
     return Math.max((target ? 1 : 0) + (actual ? 1 : 0) + (difference ? 1 : 0), 1);
   });
+
+  constructor() {
+    effect(() => {
+      console.log(this.matrixData());
+    });
+  }
 }

@@ -2,7 +2,12 @@ import { Injectable } from '@angular/core';
 import { Observable, of, delay, map } from 'rxjs';
 import { faker } from '@faker-js/faker';
 import { Account, Budget } from '../../../app/routes/matrix/matrix-data-provider.service';
-import { MatrixActualValues, MatrixTargetValues } from '../../../app/routes/matrix/matrix.data-service';
+import {
+  MatrixActualValues,
+  MatrixBudgetValueUpdate,
+  MatrixEditableValuesByBudget,
+  MatrixTargetValues
+} from '../../../app/routes/matrix/matrix.data-service';
 import { MatrixDataService } from '../../../app/routes/matrix/matrix.data-service';
 import { Decimal } from 'decimal.js';
 
@@ -77,6 +82,16 @@ const MOCK_BUDGETS: Budget[] = (() => {
   return budgets;
 })();
 
+const MOCK_EDITABLE_VALUES: MatrixEditableValuesByBudget[] = MOCK_BUDGETS.map(budget => ({
+  budgetId: budget.id,
+  editableValues: Object.fromEntries(
+    LEAF_ACCOUNTS.map(account => [
+      account.id,
+      new Decimal(faker.finance.amount({ min: 1000, max: 100000, dec: 2 }))
+    ])
+  )
+}));
+
 @Injectable()
 export class MockMatrixDataService extends MatrixDataService {
   getBudgets(): Observable<Budget[]> {
@@ -123,5 +138,22 @@ export class MockMatrixDataService extends MatrixDataService {
       }),
       delay(500)
     );
+  }
+
+  getMatrixEditableValues(): Observable<MatrixEditableValuesByBudget[]> {
+    return of(MOCK_EDITABLE_VALUES).pipe(delay(500));
+  }
+
+  updateMatrixBudgetValues(updates: MatrixBudgetValueUpdate[]): Observable<void> {
+    console.log('MockMatrixDataService.updateMatrixBudgetValues called with:', updates);
+
+    updates.forEach(update => {
+      const budgetEditable = MOCK_EDITABLE_VALUES.find(b => b.budgetId === update.budgetId);
+      if (budgetEditable) {
+        budgetEditable.editableValues[update.accountId] = update.value;
+      }
+    });
+
+    return of(undefined).pipe(delay(300));
   }
 }

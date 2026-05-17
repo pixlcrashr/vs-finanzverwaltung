@@ -22,6 +22,7 @@ export class MockAccountListDataService extends AccountListDataService {
       id: faker.string.uuid(),
       name,
       code,
+      fullCode: code,
       description,
       depth: parentAccountId ? 1 : 0,
       isArchived: false,
@@ -125,6 +126,7 @@ export class MockAccountListDataService extends AccountListDataService {
     return {
       id: faker.string.uuid(),
       code,
+      fullCode: code,
       name,
       description,
       depth,

@@ -16,10 +16,10 @@ import {
   NotificationService,
 } from '../../../shared/components';
 import {
-  ConfirmDeleteDialogComponent,
-  ConfirmDeleteDialogInput,
-  ConfirmDeleteDialogOutput
-} from '../../../shared/dialogs/confirm-delete-dialog/confirm-delete-dialog.component';
+  DeleteAccountGroupDialogComponent,
+  DeleteAccountGroupDialogInput,
+  DeleteAccountGroupDialogOutput
+} from '../../../shared/dialogs/delete-account-group-dialog/delete-account-group-dialog.component';
 import {
   CreateAccountGroupDialogComponent,
   CreateAccountGroupDialogOutput
@@ -112,7 +112,7 @@ import { AccountGroupListDataService } from './account-group-list.data-service';
                             (click)="confirmDelete(group)"
                             class="text-xs text-red-600 hover:underline"
                           >
-                            <ng-container i18n>Entfernen</ng-container>
+                            <ng-container i18n>Löschen</ng-container>
                           </button>
                         </div>
                       </td>
@@ -175,35 +175,31 @@ export class AccountGroupListComponent implements OnInit {
   }
 
   confirmDelete(group: AccountGroup): void {
-    const dialogRef = this.dialog.open<ConfirmDeleteDialogOutput, ConfirmDeleteDialogInput>(
-      ConfirmDeleteDialogComponent,
+    const dialogRef = this.dialog.open<DeleteAccountGroupDialogOutput, DeleteAccountGroupDialogInput>(
+      DeleteAccountGroupDialogComponent,
       {
         backdropClass: 'cdk-overlay-dark-backdrop',
         width: '500px',
         data: {
-          title: $localize`Kontengruppe entfernen`,
-          message: $localize`Bist du sicher, dass du die Kontengruppe entfernen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.`,
-          itemName: group.name,
-          confirmLabel: $localize`Entfernen`,
+          groupId: group.id,
+          groupName: group.name,
+          onDelete: async (groupId: string) => {
+            await new Promise<void>((resolve, reject) => {
+              this.dataService.deleteGroup(groupId).subscribe({
+                next: () => resolve(),
+                error: (err) => reject(err),
+              });
+            });
+          },
         },
       }
     );
 
     dialogRef.closed.subscribe((result) => {
-      if (result?.confirmed) {
-        this.deleteGroup(group);
-      }
-    });
-  }
-
-  private deleteGroup(group: AccountGroup): void {
-    this.dataService.deleteGroup(group.id).subscribe({
-      next: () => {
+      if (result?.deleted) {
+        this.notifications.success($localize`Kontengruppe wurde erfolgreich gelöscht`);
         this.loadGroups();
-      },
-      error: () => {
-        this.notifications.error($localize`Fehler beim Löschen der Kontengruppe`);
-      },
+      }
     });
   }
 }

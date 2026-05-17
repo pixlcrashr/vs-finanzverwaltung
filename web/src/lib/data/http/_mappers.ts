@@ -19,6 +19,7 @@ import {
   AccountGroupAssignment,
   Budget,
   BudgetRevision,
+  BudgetTag,
   ImportSource,
   ImportSourcePeriod,
   Report,
@@ -45,6 +46,7 @@ export function mapApiAccount(a: ApiAccount): Account {
     id: a.id,
     name: a.displayName,
     code: a.displayCode,
+    fullCode: (a as any).displayFullCode ?? a.displayCode,
     description: a.displayDescription,
     depth: 0,
     isArchived: a.isArchived,
@@ -90,6 +92,7 @@ export function mapApiAccountGroupAssignment(
     accountId: a.accountId,
     accountCode,
     accountName,
+    operation: a.negate ? 'S' : 'A',
   };
 }
 
@@ -108,6 +111,23 @@ export function mapApiBudgetRevision(r: ApiBudgetRevision): BudgetRevision {
   return {
     id: r.id,
     date: new Date(r.date),
+    description: r.displayDescription,
+    createdAt: new Date(r.createTime),
+    updatedAt: new Date(r.updateTime),
+  };
+}
+
+export function mapApiBudgetTag(r: ApiBudgetRevision): BudgetTag {
+  const date = new Date(r.date);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  const formattedDate = `${day}.${month}.${year}`;
+
+  return {
+    id: r.id,
+    name: formattedDate,
+    date,
     description: r.displayDescription,
     createdAt: new Date(r.createTime),
     updatedAt: new Date(r.updateTime),

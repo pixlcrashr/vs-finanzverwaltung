@@ -1,9 +1,10 @@
-import { Component, computed, effect, input } from '@angular/core';
+import { Component, computed, effect, inject, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatrixHeader } from '../matrix-header/matrix-header';
 import { MatrixData } from '../matrix-data-provider.service';
 import { MatrixValueSpan } from "../matrix-value-span/matrix-value-span";
 import { MatrixValueInput } from "../matrix-value-input/matrix-value-input";
+import { MatrixValueStoreService } from '../matrix-value-store.service';
 
 
 
@@ -120,20 +121,21 @@ import { MatrixValueInput } from "../matrix-value-input/matrix-value-input";
             }
 
             @for (col of selectedBudgets; track col.budgetId) {
-              <th [colSpan]="col.revisions.length * revisionColSpan() + (isEditing ? 1 : 0)" class="budget-column">
+              <th [colSpan]="col.tags.length * revisionColSpan() + (isEditing && !col.isClosed ? 1 : 0)" class="budget-column">
                 {{ col.displayName }}
               </th>
             }
           </tr>
           <tr>
             @for (col of selectedBudgets; track col.budgetId) {
-              @if (isEditing) {
+              @if (isEditing && !col.isClosed) {
                 <th></th>
               }
 
-              @for (rev of col.revisions; track rev.revisionId) {
+              @for (tag of col.tags; track tag.tagId) {
                 <th [colSpan]="revisionColSpan()" class="revision-column">
-                  {{ rev.createdAt | date:'dd.MM.yyyy' }}
+                  {{ tag.displayName }}<br />
+                  {{ tag.createdAt | date:'dd.MM.yyyy' }}
                 </th>
               }
             }
@@ -144,11 +146,11 @@ import { MatrixValueInput } from "../matrix-value-input/matrix-value-input";
             }
 
             @for (col of selectedBudgets; track col.budgetId) {
-              @if (isEditing) {
+              @if (isEditing && !col.isClosed) {
                 <th>Soll bearbeiten</th>
               }
 
-              @for (rev of col.revisions; track rev.revisionId) {
+              @for (tag of col.tags; track tag.tagId) {
                 @if (targetEnabled) {
                   <th [class.last-revision-column]="!(actualEnabled || differenceEnabled)">Soll</th>
                 }
@@ -167,7 +169,12 @@ import { MatrixValueInput } from "../matrix-value-input/matrix-value-input";
             <tr [class.font-bold]="row.isSumRow || parentAccountIds().has(row.accountId)">
               @for (i of accountCols(); track $index) {
                 @if (row.depth === $index) {
-                  <td [colSpan]="accColSpan - $index">{{ row.displayCode }} &mdash; {{ row.displayName }}</td>
+                  <td [colSpan]="accColSpan - $index">
+                    {{ row.displayCode }} &mdash; {{ row.displayName }}
+                    @if (row.isArchived) {
+                      <span class="ml-1.5 px-1 py-0.5 text-[10px] bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded" i18n>Archiviert</span>
+                    }
+                  </td>
                 } @else if (row.depth > $index) {
                   <td></td>
                 }
@@ -178,25 +185,28 @@ import { MatrixValueInput } from "../matrix-value-input/matrix-value-input";
               }
 
               @for (budgetValues of row.values; track budgetValues.budgetId) {
-                @if (isEditing) {
+                @let budgetColumn = selectedBudgets.find(b => b.budgetId === budgetValues.budgetId);
+                @if (isEditing && budgetColumn && !budgetColumn.isClosed) {
                   <td class="value-cell">
                     @if (!row.isParent) {
                       @if (row.isSumRow) {
-                        <app-matrix-value-span [value]="budgetValues.editableTargetValue()" /> 
+                        <app-matrix-value-span [value]="budgetValues.editableTargetValue()" />
                       } @else if (budgetValues.editableTargetWritableValue) {
                         <app-matrix-value-input
                           [(value)]="budgetValues.editableTargetWritableValue"
+                          [hasChanged]="hasChanged(budgetValues.budgetId, row.accountId)"
+                          (resetClick)="onResetValue(budgetValues.budgetId, row.accountId)"
                         />
                       }
                     }
                   </td>
                 }
 
-                @for (revValues of budgetValues.revisions; track revValues.revisionId) {
+                @for (tagValues of budgetValues.tags; track tagValues.tagId) {
                   @if (targetEnabled) {
                     <td [class.last-revision-column]="!(actualEnabled || differenceEnabled)" class="value-cell">
                       @if (!row.isParent) {
-                        <app-matrix-value-span [value]="revValues.targetValue" />
+                        <app-matrix-value-span [value]="tagValues.targetValue" />
                       }
                     </td>
                   }
@@ -210,7 +220,7 @@ import { MatrixValueInput } from "../matrix-value-input/matrix-value-input";
                   @if (differenceEnabled) {
                     <td class="last-revision-column value-cell">
                       @if (!row.isParent) {
-                        <app-matrix-value-span [value]="revValues.isLatest ? budgetValues.editableTargetValue().minus(budgetValues.actualValue) : revValues.diffValue" />
+                        <app-matrix-value-span [value]="tagValues.isLatest ? budgetValues.editableTargetValue().minus(budgetValues.actualValue) : tagValues.diffValue" />
                       }
                     </td>
                   }
@@ -226,11 +236,11 @@ import { MatrixValueInput } from "../matrix-value-input/matrix-value-input";
                   <td></td>
                 }
                 @for (col of selectedBudgets; track col.budgetId) {
-                  @if (isEditing) {
+                  @if (isEditing && !col.isClosed) {
                     <td></td>
                   }
 
-                  @for (rev of col.revisions; track rev.revisionId) {
+                  @for (tag of col.tags; track tag.tagId) {
                     @if (targetEnabled) {
                       <td [class.last-revision-column]="!(actualEnabled || differenceEnabled)"></td>
                     }
@@ -250,6 +260,8 @@ import { MatrixValueInput } from "../matrix-value-input/matrix-value-input";
     </div>`,
 })
 export class MatrixContent {
+  private readonly valueStore = inject(MatrixValueStoreService);
+
   matrixHeader = input.required<MatrixHeader>();
   matrixData = input.required<MatrixData>();
 
@@ -271,13 +283,18 @@ export class MatrixContent {
   filteredColumns = computed(() => {
     const selectedIds = this.matrixHeader().selectedBudgetIds();
     const latestOnly = this.matrixHeader().isLatestRevisionOnlySelected();
-    
+    const budgets = this.matrixData().budgets;
+
     return this.matrixData().columns
       .filter(col => selectedIds.includes(col.budgetId))
-      .map(col => ({
-        ...col,
-        revisions: latestOnly ? [col.revisions[col.revisions.length - 1]] : col.revisions
-      }));
+      .map(col => {
+        const budget = budgets.find(b => b.id === col.budgetId);
+        return {
+          ...col,
+          isClosed: budget?.isClosed ?? false,
+          tags: latestOnly ? [col.tags[col.tags.length - 1]] : col.tags
+        };
+      });
   });
 
   filteredRows = computed(() => {
@@ -299,7 +316,7 @@ export class MatrixContent {
           .filter(v => selectedBudgetIds.includes(v.budgetId))
           .map(v => ({
             ...v,
-            revisions: latestOnly ? [v.revisions[v.revisions.length - 1]] : v.revisions
+            tags: latestOnly ? [v.tags[v.tags.length - 1]] : v.tags
           }))
       }));
   });
@@ -308,9 +325,17 @@ export class MatrixContent {
     const target = this.matrixHeader().isTargetButtonSelected();
     const actual = this.matrixHeader().isActualButtonSelected();
     const difference = this.matrixHeader().isDifferenceButtonSelected();
-    
+
     return Math.max((target ? 1 : 0) + (actual ? 1 : 0) + (difference ? 1 : 0), 1);
   });
+
+  hasChanged(budgetId: string, accountId: string): boolean {
+    return this.valueStore.hasChanged(budgetId, accountId);
+  }
+
+  onResetValue(budgetId: string, accountId: string): void {
+    this.valueStore.resetToOriginal(budgetId, accountId);
+  }
 
   constructor() {
     effect(() => {

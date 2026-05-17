@@ -1,7 +1,7 @@
 import { computed, Injectable, signal, Signal, WritableSignal } from '@angular/core';
 import { Decimal } from 'decimal.js';
 
-export interface DirtyValue {
+export interface ChangedValue {
   accountId: string;
   value: Decimal;
 }
@@ -78,7 +78,7 @@ export class MatrixValueStoreService {
     return aggregate;
   }
 
-  isDirty(budgetId: string, accountId: string): boolean {
+  hasChanged(budgetId: string, accountId: string): boolean {
     const key = this.getKey(budgetId, accountId);
     const original = this.originalValues.get(key);
     const current = this.editableTargetWriteSignals.get(key)?.();
@@ -88,13 +88,13 @@ export class MatrixValueStoreService {
     return !original.equals(current);
   }
 
-  getDirtyValuesByBudget(budgetId: string): DirtyValue[] {
+  getChangedValuesByBudget(budgetId: string): ChangedValue[] {
     const keys = this.budgetAccountKeys.get(budgetId);
     if (!keys) {
       return [];
     }
 
-    const dirtyValues: DirtyValue[] = [];
+    const changedValues: ChangedValue[] = [];
     for (const key of keys) {
       const parsed = this.parseKey(key);
       if (!parsed) continue;
@@ -104,33 +104,33 @@ export class MatrixValueStoreService {
       if (original === undefined || current === undefined) continue;
 
       if (!original.equals(current)) {
-        dirtyValues.push({
+        changedValues.push({
           accountId: parsed.accountId,
           value: current
         });
       }
     }
 
-    return dirtyValues;
+    return changedValues;
   }
 
-  getAllDirtyValues(): Map<string, DirtyValue[]> {
-    const result = new Map<string, DirtyValue[]>();
+  getAllChangedValues(): Map<string, ChangedValue[]> {
+    const result = new Map<string, ChangedValue[]>();
     for (const budgetId of this.budgetAccountKeys.keys()) {
-      const dirtyValues = this.getDirtyValuesByBudget(budgetId);
-      if (dirtyValues.length > 0) {
-        result.set(budgetId, dirtyValues);
+      const changedValues = this.getChangedValuesByBudget(budgetId);
+      if (changedValues.length > 0) {
+        result.set(budgetId, changedValues);
       }
     }
     return result;
   }
 
-  hasDirtyValues(budgetId?: string): boolean {
+  hasChangedValues(budgetId?: string): boolean {
     if (budgetId) {
-      return this.getDirtyValuesByBudget(budgetId).length > 0;
+      return this.getChangedValuesByBudget(budgetId).length > 0;
     }
     for (const bid of this.budgetAccountKeys.keys()) {
-      if (this.getDirtyValuesByBudget(bid).length > 0) {
+      if (this.getChangedValuesByBudget(bid).length > 0) {
         return true;
       }
     }

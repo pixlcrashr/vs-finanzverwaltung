@@ -1,55 +1,22 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, delay, throwError } from 'rxjs';
 import { faker } from '@faker-js/faker';
-import { BudgetRevision } from '../../../app/shared/models';
+import { Decimal } from 'decimal.js';
+import { BudgetTag } from '../../../app/shared/models';
 import {
   BudgetEditDataService,
   BudgetDetails,
+  BudgetChange,
 } from '../../../app/routes/budgets/budget-edit/budget-edit.data-service';
+import { SharedBudgetMockData } from './_shared-budget-data';
 
 @Injectable()
 export class MockBudgetEditDataService extends BudgetEditDataService {
-  private budgets = new Map<string, BudgetDetails>();
-
-  constructor() {
-    super();
-    // Generate some mock budgets
-    const currentYear = new Date().getFullYear();
-    for (let i = 0; i < 5; i++) {
-      const year = currentYear - i;
-      const id = faker.string.uuid();
-      const startDate = new Date(year, 0, 1);
-
-      this.budgets.set(id, {
-        id,
-        displayName: `Haushaltsplan ${year}`,
-        displayDescription: faker.lorem.sentence(),
-        periodStart: startDate,
-        periodEnd: new Date(year, 11, 31),
-        isClosed: i > 0,
-        revisions: this.generateRevisions(startDate, i > 0 ? 3 : 1),
-      });
-    }
-  }
+  private sharedData = SharedBudgetMockData.getInstance();
 
   getBudget(id: string): Observable<BudgetDetails> {
-    // For demo, return a generated budget if not found
-    if (!this.budgets.has(id)) {
-      const year = new Date().getFullYear();
-      const startDate = new Date(year, 0, 1);
-      const budget: BudgetDetails = {
-        id,
-        displayName: `Haushaltsplan ${year}`,
-        displayDescription: faker.lorem.sentence(),
-        periodStart: startDate,
-        periodEnd: new Date(year, 11, 31),
-        isClosed: false,
-        revisions: this.generateRevisions(startDate, 1),
-      };
-      this.budgets.set(id, budget);
-    }
-
-    return of({ ...this.budgets.get(id)! }).pipe(delay(300));
+    const data = this.sharedData.getBudgetDetailsOrCreate(id);
+    return of({ ...data.budget }).pipe(delay(300));
   }
 
   updateBudget(
@@ -59,82 +26,75 @@ export class MockBudgetEditDataService extends BudgetEditDataService {
     startDate: Date,
     endDate: Date
   ): Observable<void> {
-    const budget = this.budgets.get(id);
-    if (budget) {
-      budget.displayName = name;
-      budget.displayDescription = description;
-      budget.periodStart = startDate;
-      budget.periodEnd = endDate;
+    const data = this.sharedData.getBudgetDetails(id);
+
+    if (data) {
+      data.budget.displayName = name;
+      data.budget.displayDescription = description;
+      data.budget.periodStart = startDate;
+      data.budget.periodEnd = endDate;
+      // Changes are account-based and computed by the server
     }
     return of(undefined).pipe(delay(300));
   }
 
-  addRevision(budgetId: string, date: Date, description: string): Observable<BudgetRevision> {
-    const budget = this.budgets.get(budgetId);
-    if (!budget) {
+  // Changes are now account-based and computed by the server.
+  // In the mock, we keep the existing changes from the shared data.
+
+  addTag(budgetId: string, date: Date, name: string, description: string, force: boolean): Observable<BudgetTag> {
+    const data = this.sharedData.getBudgetDetails(budgetId);
+    if (!data) {
       return throwError(() => new Error('Budget not found'));
     }
 
-    const revision: BudgetRevision = {
+    // If not forcing and no changes exist, return error
+    if (!force && !data.budget.hasUntaggedChanges) {
+      return throwError(() => new Error('No changes to tag'));
+    }
+
+    const tag: BudgetTag = {
       id: faker.string.uuid(),
+      name,
       date,
       description,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
-    budget.revisions.push(revision);
-    return of(revision).pipe(delay(300));
+    data.budget.tags.push(tag);
+
+    // Update baseline snapshot to current state
+    this.sharedData.updateBaseline(budgetId, {
+      displayName: data.budget.displayName,
+      displayDescription: data.budget.displayDescription,
+      periodStart: data.budget.periodStart,
+      periodEnd: data.budget.periodEnd,
+    });
+
+    // Reset changes after tagging
+    data.budget.hasUntaggedChanges = false;
+    data.budget.changes = [];
+
+    return of(tag).pipe(delay(300));
   }
 
-  updateRevision(id: string, date: Date, description: string): Observable<void> {
-    for (const budget of this.budgets.values()) {
-      const revision = budget.revisions.find((r) => r.id === id);
-      if (revision) {
-        revision.date = date;
-        revision.description = description;
-        revision.updatedAt = new Date();
-        break;
-      }
-    }
-    return of(undefined).pipe(delay(300));
-  }
-
-  deleteRevision(id: string): Observable<void> {
-    for (const budget of this.budgets.values()) {
-      const index = budget.revisions.findIndex((r) => r.id === id);
-      if (index >= 0) {
-        budget.revisions.splice(index, 1);
-        break;
+  deleteTag(id: string): Observable<void> {
+    const allBudgets = this.sharedData.getAllBudgets();
+    for (const budget of allBudgets) {
+      const data = this.sharedData.getBudgetDetails(budget.id);
+      if (data) {
+        const index = data.budget.tags.findIndex((t) => t.id === id);
+        if (index >= 0) {
+          data.budget.tags.splice(index, 1);
+          break;
+        }
       }
     }
     return of(undefined).pipe(delay(300));
   }
 
   closeBudget(id: string): Observable<void> {
-    const budget = this.budgets.get(id);
-    if (budget) {
-      budget.isClosed = true;
-    }
+    this.sharedData.updateBudget(id, { isClosed: true });
     return of(undefined).pipe(delay(300));
-  }
-
-  private generateRevisions(startDate: Date, count: number): BudgetRevision[] {
-    const revisions: BudgetRevision[] = [];
-
-    for (let i = 0; i < count; i++) {
-      const revisionDate = new Date(startDate);
-      revisionDate.setMonth(revisionDate.getMonth() + i * 3);
-
-      revisions.push({
-        id: faker.string.uuid(),
-        date: revisionDate,
-        description: i === 0 ? 'Ursprünglicher Plan' : `Revision ${i}`,
-        createdAt: revisionDate,
-        updatedAt: revisionDate,
-      });
-    }
-
-    return revisions;
   }
 }

@@ -42,6 +42,7 @@ export class MockAccountEditDataService extends AccountEditDataService {
       {
         id: faker.string.uuid(),
         code: '1',
+        fullCode: '1',
         name: 'Einnahmen',
         description: 'Alle Einnahmen',
         depth: 0,
@@ -54,6 +55,7 @@ export class MockAccountEditDataService extends AccountEditDataService {
       {
         id: faker.string.uuid(),
         code: '1.1',
+        fullCode: '1-1.1',
         name: 'Mitgliedsbeiträge',
         description: 'Einnahmen aus Mitgliedsbeiträgen',
         depth: 1,
@@ -66,6 +68,7 @@ export class MockAccountEditDataService extends AccountEditDataService {
       {
         id: faker.string.uuid(),
         code: '2',
+        fullCode: '2',
         name: 'Ausgaben',
         description: 'Alle Ausgaben',
         depth: 0,

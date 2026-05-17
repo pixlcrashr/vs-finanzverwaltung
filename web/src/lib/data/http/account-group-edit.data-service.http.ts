@@ -7,12 +7,14 @@ import {
   listAccountGroupAssignments,
   createAccountGroupAssignment,
   deleteAccountGroupAssignment,
+  deleteAccountGroup,
   listAccounts,
 } from '../../api/functions';
-import { Account } from '../../../app/shared/models';
+import { Account, AccountGroupOperation } from '../../../app/shared/models';
 import {
   AccountGroupEditDataService,
   AccountGroupDetails,
+  AccountWithOperation,
 } from '../../../app/routes/account-groups/account-group-edit/account-group-edit.data-service';
 import { mapApiAccount, mapApiAccountGroupAssignment } from './_mappers';
 
@@ -81,6 +83,51 @@ export class HttpAccountGroupEditDataService extends AccountGroupEditDataService
         accountGroupId: groupId,
         assignmentId,
       }),
+    ).pipe(map(() => undefined));
+  }
+
+  getAllAccountsWithOperations(groupId: string): Observable<AccountWithOperation[]> {
+    return from(
+      Promise.all([
+        this.api.invoke(listAccounts, { pageSize: 1000, showDeleted: true }),
+        this.api.invoke(listAccountGroupAssignments, { accountGroupId: groupId, pageSize: 1000 }),
+      ]),
+    ).pipe(
+      map(([accountsResp, assignmentsResp]) => {
+        const accounts = (accountsResp.accounts ?? []).map(mapApiAccount);
+        const assignmentsMap = new Map(
+          (assignmentsResp.assignments ?? []).map((a) => [a.accountId, a]),
+        );
+
+        return accounts.map((account) => {
+          const apiAssignment = assignmentsMap.get(account.id);
+          const assignment = apiAssignment
+            ? {
+                id: apiAssignment.id,
+                accountId: apiAssignment.accountId,
+                accountCode: account.code,
+                accountName: account.name,
+                operation: (apiAssignment.negate ? 'S' : 'A') as AccountGroupOperation,
+              }
+            : null;
+
+          return { account, assignment };
+        });
+      }),
+    );
+  }
+
+  updateAccountOperation(groupId: string, accountId: string, operation: AccountGroupOperation): Observable<void> {
+    // TODO: Implement when backend API supports operation updates
+    // For now, this is a placeholder that does nothing
+    return from(Promise.resolve(undefined));
+  }
+
+  deleteGroup(id: string): Observable<void> {
+    return from(
+      this.api.invoke(deleteAccountGroup, {
+        accountGroupId: id,
+      })
     ).pipe(map(() => undefined));
   }
 }

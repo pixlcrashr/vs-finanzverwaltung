@@ -10,7 +10,7 @@ import {
   updateBudgetRevision,
   deleteBudgetRevision,
 } from '../../api/functions';
-import { BudgetRevision } from '../../../app/shared/models';
+import { BudgetRevision, BudgetTag } from '../../../app/shared/models';
 import {
   BudgetEditDataService,
   BudgetDetails,
@@ -22,19 +22,16 @@ export class HttpBudgetEditDataService extends BudgetEditDataService {
   private readonly api = inject(Api);
   private currentBudgetId = '';
 
-  getBudget(id: string): Observable<BudgetDetails> {
-    this.currentBudgetId = id;
-    return from(
-      Promise.all([
-        this.api.invoke(getBudget, { budgetId: id }),
-        this.api.invoke(listBudgetRevisions, { budgetId: id, pageSize: 100 }),
-      ]),
-    ).pipe(
-      map(([budget, revisionsResp]) => ({
-        ...mapApiBudget(budget),
-        revisions: (revisionsResp.revisions ?? []).map(mapApiBudgetRevision),
-      })),
-    );
+  override getBudget(id: string): Observable<BudgetDetails> {
+    throw new Error('Method not implemented.');
+  }
+
+  override addTag(budgetId: string, date: Date, name: string, description: string, force: boolean): Observable<BudgetTag> {
+    throw new Error('Method not implemented.');
+  }
+
+  override deleteTag(id: string): Observable<void> {
+    throw new Error('Method not implemented.');
   }
 
   updateBudget(
@@ -53,40 +50,6 @@ export class HttpBudgetEditDataService extends BudgetEditDataService {
           periodStart: toDateOnly(startDate),
           periodEnd: toDateOnly(endDate),
         },
-      }),
-    ).pipe(map(() => undefined));
-  }
-
-  addRevision(budgetId: string, date: Date, description: string): Observable<BudgetRevision> {
-    return from(
-      this.api.invoke(createBudgetRevision, {
-        budgetId,
-        body: {
-          date: toDateOnly(date),
-          displayDescription: description,
-        },
-      }),
-    ).pipe(map(mapApiBudgetRevision));
-  }
-
-  updateRevision(id: string, date: Date, description: string): Observable<void> {
-    return from(
-      this.api.invoke(updateBudgetRevision, {
-        budgetId: this.currentBudgetId,
-        revisionId: id,
-        body: {
-          date: toDateOnly(date),
-          displayDescription: description,
-        },
-      }),
-    ).pipe(map(() => undefined));
-  }
-
-  deleteRevision(id: string): Observable<void> {
-    return from(
-      this.api.invoke(deleteBudgetRevision, {
-        budgetId: this.currentBudgetId,
-        revisionId: id,
       }),
     ).pipe(map(() => undefined));
   }

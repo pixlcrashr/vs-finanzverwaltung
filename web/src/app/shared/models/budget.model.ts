@@ -14,3 +14,12 @@ export interface BudgetRevision {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface BudgetTag {
+  id: string;
+  name: string;
+  date: Date;
+  description: string;
+  createdAt: Date;
+  updatedAt: Date;
+}

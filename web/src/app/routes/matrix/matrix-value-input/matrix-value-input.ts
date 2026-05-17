@@ -1,30 +1,62 @@
 import { formatCurrency } from '@angular/common';
-import { Component, effect, input, model, signal } from '@angular/core';
+import { Component, effect, input, model, output, signal } from '@angular/core';
 import { Decimal } from 'decimal.js';
 import { debounceTime, Subject, Subscription } from 'rxjs';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
 
 
 @Component({
   selector: 'app-matrix-value-input',
-  imports: [],
-  template: `<input
-    #inputEl
-    type="text"
-    class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full px-2 text-right text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
-    [value]="displayValue()"
-    [disabled]="disabled()"
-    [tabIndex]="tabIndex()"
-    (input)="onInput($event)"
-    (focusin)="onFocusIn(inputEl)"
-    (focusout)="onFocusOut()"
-  />`,
+  imports: [FontAwesomeModule],
+  template: `
+    <div class="flex items-center gap-1">
+      <input
+        #inputEl
+        type="text"
+        class="appearance-none border-2 rounded w-full px-2 text-right text-gray-700 leading-tight focus:outline-none"
+        [class.bg-yellow-100]="hasChanged()"
+        [class.border-yellow-100]="hasChanged()"
+        [class.focus:border-purple-500]="true"
+        [class.focus:bg-yellow-50]="hasChanged()"
+        [class.bg-gray-200]="!hasChanged()"
+        [class.border-gray-200]="!hasChanged()"
+        [class.focus:bg-white]="!hasChanged()"
+        [value]="displayValue()"
+        [disabled]="disabled()"
+        [tabIndex]="tabIndex()"
+        (input)="onInput($event)"
+        (focusin)="onFocusIn(inputEl)"
+        (focusout)="onFocusOut()"
+      />
+      <button
+        type="button"
+        class="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded text-xs transition-colors"
+        [class.text-red-500]="hasChanged()"
+        [class.hover:text-red-700]="hasChanged()"
+        [class.cursor-pointer]="hasChanged()"
+        [class.text-gray-300]="!hasChanged()"
+        [class.cursor-not-allowed]="!hasChanged()"
+        [disabled]="!hasChanged()"
+        (click)="onResetClick()"
+        title="Reset"
+        i18n-title
+      >
+        <fa-icon [icon]="faXmark"></fa-icon>
+      </button>
+    </div>
+  `,
   styles: ``,
 })
 export class MatrixValueInput {
+  protected readonly faXmark = faXmark;
+
   value = model.required<Decimal>();
   disabled = input(false);
   tabIndex = input(0);
+  hasChanged = input(false);
+  resetClick = output<void>();
 
   private readonly isFocused = signal(false);
   private readonly valueUpdates = new Subject<Decimal>();
@@ -86,6 +118,12 @@ export class MatrixValueInput {
   ngOnDestroy(): void {
     this.valueUpdatesSubscription.unsubscribe();
     this.valueUpdates.complete();
+  }
+
+  protected onResetClick(): void {
+    if (this.hasChanged()) {
+      this.resetClick.emit();
+    }
   }
 
   private static formatValue(v: number): string {

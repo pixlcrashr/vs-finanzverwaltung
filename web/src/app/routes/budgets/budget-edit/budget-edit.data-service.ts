@@ -1,8 +1,20 @@
 import { Observable } from 'rxjs';
-import { Budget, BudgetRevision } from '../../../shared/models';
+import { Decimal } from 'decimal.js';
+import { Budget, BudgetTag } from '../../../shared/models';
+
+export interface BudgetChange {
+  accountId: string;
+  accountFullCode: string;
+  accountName: string;
+  previousValue: Decimal;
+  newValue: Decimal;
+  diff: Decimal;
+}
 
 export interface BudgetDetails extends Budget {
-  revisions: BudgetRevision[];
+  tags: BudgetTag[];
+  hasUntaggedChanges: boolean;
+  changes: BudgetChange[];
 }
 
 export abstract class BudgetEditDataService {
@@ -14,8 +26,7 @@ export abstract class BudgetEditDataService {
     startDate: Date,
     endDate: Date
   ): Observable<void>;
-  abstract addRevision(budgetId: string, date: Date, description: string): Observable<BudgetRevision>;
-  abstract updateRevision(id: string, date: Date, description: string): Observable<void>;
-  abstract deleteRevision(id: string): Observable<void>;
+  abstract addTag(budgetId: string, date: Date, name: string, description: string, force: boolean): Observable<BudgetTag>;
+  abstract deleteTag(id: string): Observable<void>;
   abstract closeBudget(id: string): Observable<void>;
 }

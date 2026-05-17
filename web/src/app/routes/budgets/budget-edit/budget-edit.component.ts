@@ -9,6 +9,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CurrencyPipe } from '@angular/common';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
 import {
@@ -24,6 +25,11 @@ import {
   CloseBudgetDialogInput,
   CloseBudgetDialogOutput,
 } from '../../../shared/dialogs/close-budget-dialog/close-budget-dialog.component';
+import {
+  CreateTagDialogComponent,
+  CreateTagDialogInput,
+  CreateTagDialogOutput,
+} from '../../../shared/dialogs/create-tag-dialog/create-tag-dialog.component';
 import { formatDateShort, formatDateForInput } from '../../../shared/utils';
 import { BudgetEditDataService, BudgetDetails } from './budget-edit.data-service';
 
@@ -32,6 +38,7 @@ import { BudgetEditDataService, BudgetDetails } from './budget-edit.data-service
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
+    CurrencyPipe,
     PageContentLayoutComponent,
     ButtonComponent,
     StatusBadgeComponent,
@@ -135,34 +142,45 @@ import { BudgetEditDataService, BudgetDetails } from './budget-edit.data-service
                   </form>
                 </div>
 
-                <!-- Revisions -->
+                <!-- Tags -->
                 <div class="bg-white rounded-lg border border-gray-200 p-4">
                   <div class="flex items-center justify-between mb-4">
-                    <h2 i18n class="text-sm font-semibold text-gray-900">Revisionen</h2>
-                    @if (!budget()!.isClosed) {
-                      <app-button size="sm" (clicked)="addRevision()"><ng-container i18n>Hinzufügen</ng-container></app-button>
-                    }
+                    <h2 i18n class="text-sm font-semibold text-gray-900">Tags</h2>
+                    <div class="flex items-center gap-2">
+                      @if (!budget()!.hasUntaggedChanges && !budget()!.isClosed) {
+                        <span class="text-xs text-gray-500 font-medium">
+                          <ng-container i18n>Keine Änderungen vorhanden.</ng-container>
+                        </span>
+                      }
+                      <app-button
+                        size="sm"
+                        (clicked)="addTag()"
+                        [disabled]="budget()!.isClosed"
+                      >
+                        <ng-container i18n>Neuen Tag erstellen</ng-container>
+                      </app-button>
+                    </div>
                   </div>
 
-                  @if (budget()!.revisions.length === 0) {
-                    <p i18n class="text-xs text-gray-500">Keine Revisionen vorhanden.</p>
+                  @if (budget()!.tags.length === 0) {
+                    <p i18n class="text-xs text-gray-500">Keine Tags vorhanden.</p>
                   } @else {
                     <div class="space-y-2">
-                      @for (revision of budget()!.revisions; track revision.id) {
+                      @for (tag of budget()!.tags; track tag.id) {
                         <div
                           class="flex items-center justify-between p-3 bg-gray-50 rounded-md"
                         >
                           <div>
                             <p class="text-sm font-medium text-gray-900">
-                              {{ formatDateShort(revision.date) }}
+                              {{ tag.name }}
                             </p>
                             <p class="text-xs text-gray-500">
-                              {{ revision.description || noDescriptionLabel }}
+                              {{ tag.description || noDescriptionLabel }}
                             </p>
                           </div>
-                          @if (!budget()!.isClosed && budget()!.revisions.length > 1) {
+                          @if (!budget()!.isClosed && budget()!.tags.length > 1) {
                             <button
-                              (click)="deleteRevision(revision.id)"
+                              (click)="deleteTag(tag.id)"
                               class="text-xs text-red-600 hover:underline"
                             >
                               <ng-container i18n>Entfernen</ng-container>
@@ -183,6 +201,43 @@ import { BudgetEditDataService, BudgetDetails } from './budget-edit.data-service
                   <app-status-badge size="sm" [variant]="budget()!.isClosed ? 'neutral' : 'success'">
                     <ng-container i18n>{{ budget()!.isClosed ? 'Geschlossen' : 'Offen' }}</ng-container>
                   </app-status-badge>
+                </div>
+
+                <!-- Changes Card -->
+                <div class="bg-white rounded-lg border border-gray-200 p-4">
+                  <h3 i18n class="text-xs font-semibold text-gray-500 uppercase mb-3">Änderungen</h3>
+                  @if (budget()!.hasUntaggedChanges) {
+                    <div class="mb-3">
+                      <div class="flex items-start gap-2 mb-2">
+                        <svg class="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                        </svg>
+                        <div>
+                          <p class="text-xs font-medium text-orange-600"><ng-container i18n>Ungetaggte Änderungen</ng-container></p>
+                          <p class="text-xs text-gray-500 mt-0.5"><ng-container i18n>{{ budget()!.changes.length }} Konto/Konten geändert</ng-container></p>
+                        </div>
+                      </div>
+
+                      <div class="mt-2 space-y-1">
+                        @for (change of budget()!.changes; track change.accountId) {
+                          <div class="flex items-center justify-between text-xs rounded px-2 py-1">
+                            <span class="font-medium text-gray-700">{{ change.accountFullCode }} {{ change.accountName }}</span>
+                            <span class="text-orange-600">{{ (change.diff.toNumber() >= 0 ? '+' : '') + (change.diff.toNumber() | currency: 'EUR':'symbol':'1.2-2':'de-DE') }}</span>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="flex items-start gap-2">
+                      <svg class="w-4 h-4 text-green-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                      </svg>
+                      <div>
+                        <p class="text-xs font-medium text-green-600"><ng-container i18n>Keine Änderungen</ng-container></p>
+                        <p class="text-xs text-gray-500 mt-1"><ng-container i18n>Alle Änderungen sind getaggt.</ng-container></p>
+                      </div>
+                    </div>
+                  }
                 </div>
 
                 <!-- Actions Card -->
@@ -317,30 +372,81 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
       });
   }
 
-  addRevision(): void {
+  addTag(): void {
     const budget = this.budget();
     if (!budget) return;
 
-    this.dataService.addRevision(budget.id, new Date(), '').subscribe({
+    // Prevent tag creation for closed budgets
+    if (budget.isClosed) {
+      this.notifications.error($localize`Tags können nicht für geschlossene Haushaltspläne erstellt werden`);
+      return;
+    }
+
+    // Always show the dialog with changes (or no changes warning)
+    this.openCreateTagDialog();
+  }
+
+  private openCreateTagDialog(): void {
+    const budget = this.budget();
+    if (!budget) return;
+
+    const today = new Date();
+    const defaultName = this.formatDateForTag(today);
+
+    const dialogRef = this.dialog.open<CreateTagDialogOutput, CreateTagDialogInput>(
+      CreateTagDialogComponent,
+      {
+        backdropClass: 'cdk-overlay-dark-backdrop',
+        width: '700px',
+        data: {
+          budgetName: budget.displayName,
+          hasChanges: budget.hasUntaggedChanges,
+          changes: budget.changes,
+          defaultName,
+        },
+      }
+    );
+
+    dialogRef.closed.subscribe((result) => {
+      if (result?.confirmed) {
+        this.createTag(!budget.hasUntaggedChanges, result.name || defaultName, result.description || '');
+      }
+    });
+  }
+
+  private createTag(force: boolean, name: string, description: string): void {
+    const budget = this.budget();
+    if (!budget) return;
+
+    this.dataService.addTag(budget.id, new Date(), name, description, force).subscribe({
       next: () => {
         this.loadBudget(budget.id);
+        this.notifications.success($localize`Tag erfolgreich erstellt`);
       },
       error: () => {
-        this.notifications.error($localize`Fehler beim Hinzufügen der Revision`);
+        this.notifications.error($localize`Fehler beim Hinzufügen des Tags`);
       },
     });
   }
 
-  deleteRevision(revisionId: string): void {
+  private formatDateForTag(date: Date): string {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
+  }
+
+  deleteTag(tagId: string): void {
     const budget = this.budget();
     if (!budget) return;
 
-    this.dataService.deleteRevision(revisionId).subscribe({
+    this.dataService.deleteTag(tagId).subscribe({
       next: () => {
         this.loadBudget(budget.id);
+        this.notifications.success($localize`Tag erfolgreich entfernt`);
       },
       error: () => {
-        this.notifications.error($localize`Fehler beim Entfernen der Revision`);
+        this.notifications.error($localize`Fehler beim Entfernen des Tags`);
       },
     });
   }

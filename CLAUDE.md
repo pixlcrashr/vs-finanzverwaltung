@@ -4,6 +4,8 @@ Use the `developer` agent to suggest improvements in this project.
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+DO NOT provide a summary at the end of your summary.
+
 ## Project Overview
 
 VS-Finanzverwaltung is a financial management system for German student organizations (Verfasste Studierendenschaften). It provides budget planning, transaction management with double-entry bookkeeping, and comprehensive reporting capabilities.

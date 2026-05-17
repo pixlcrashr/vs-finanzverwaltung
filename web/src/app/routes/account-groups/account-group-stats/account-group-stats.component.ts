@@ -12,7 +12,7 @@ import {
   LoadingSpinnerComponent,
   NotificationService,
 } from '../../../shared/components';
-import { AccountGroupStats, AccountGroupAssignment } from '../../../shared/models';
+import { AccountGroupStats, AccountGroupAssignment, AccountGroupOperation } from '../../../shared/models';
 import { AccountGroupStatsDataService } from './account-group-stats.data-service';
 
 @Component({
@@ -89,6 +89,12 @@ import { AccountGroupStatsDataService } from './account-group-stats.data-service
                       >
                         <ng-container i18n>Kontoname</ng-container>
                       </th>
+                      <th
+                        scope="col"
+                        class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-center text-gray-500"
+                      >
+                        <ng-container i18n>Operation</ng-container>
+                      </th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-gray-200 bg-white">
@@ -96,6 +102,11 @@ import { AccountGroupStatsDataService } from './account-group-stats.data-service
                       <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-3 py-2 text-xs text-gray-900">{{ assignment.accountCode }}</td>
                         <td class="px-3 py-2 text-xs text-gray-900">{{ assignment.accountName }}</td>
+                        <td class="px-3 py-2 text-center">
+                          <span class="inline-flex items-center justify-center w-6 h-6 text-xs font-semibold rounded" [class]="getOperationBadgeClass(assignment.operation)">
+                            {{ assignment.operation }}
+                          </span>
+                        </td>
                       </tr>
                     }
                   </tbody>
@@ -156,5 +167,17 @@ export class AccountGroupStatsComponent implements OnInit {
       style: 'currency',
       currency: 'EUR',
     }).format(num);
+  }
+
+  getOperationBadgeClass(operation: AccountGroupOperation): string {
+    switch (operation) {
+      case 'A':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'S':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      case 'I':
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+    }
   }
 }

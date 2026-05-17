@@ -38,8 +38,9 @@ export interface MatrixColumn {
   displayName: string;
   displayDescription: string;
   date: Date;
-  revisions: {
-    revisionId: string;
+  tags: {
+    tagId: string;
+    displayName: string;
     createdAt: Date;
   }[];
 }
@@ -53,13 +54,14 @@ export interface MatrixRow {
   isSumRow: boolean;
   sourceAccountId: string | null;
   isParent: boolean;
+  isArchived: boolean;
   values: {
     budgetId: string;
     actualValue: Decimal;
     editableTargetValue: Signal<Decimal>;
     editableTargetWritableValue?: WritableSignal<Decimal>;
-    revisions: {
-      revisionId: string;
+    tags: {
+      tagId: string;
       isLatest: boolean;
       targetValue: Decimal;
       diffValue: Decimal;
@@ -239,8 +241,9 @@ export class MatrixDataProviderService {
           displayName: budget.displayName,
           displayDescription: budget.displayDescription,
           date: new Date(), // Mock date
-          revisions: budget.tags.map(tag => ({
-            revisionId: tag.id,
+          tags: budget.tags.map(tag => ({
+            tagId: tag.id,
+            displayName: tag.displayName,
             createdAt: tag.createdAt
           }))
         }));
@@ -257,6 +260,7 @@ export class MatrixDataProviderService {
             isSumRow: false,
             sourceAccountId: null,
             isParent,
+            isArchived: account.isArchived,
             values: budgets.map(budget => {
               const editableTargetValue = this.valueStore.getEditableTargetValue(budget.id, account.id);
               const editableTargetWritableValue = 'set' in editableTargetValue
@@ -269,7 +273,7 @@ export class MatrixDataProviderService {
                 actualValue,
                 editableTargetValue,
                 editableTargetWritableValue,
-                revisions: budget.tags.map((tag, index) => {
+                tags: budget.tags.map((tag, index) => {
                   const targetValue = this.getTargetRevisionValue(
                     targetValuesByBudgetAccountTag,
                     budget.id,
@@ -278,7 +282,7 @@ export class MatrixDataProviderService {
                   );
 
                   return {
-                    revisionId: tag.id,
+                    tagId: tag.id,
                     isLatest: index === budget.tags.length - 1,
                     targetValue,
                     diffValue: targetValue.minus(actualValue)
@@ -316,6 +320,7 @@ export class MatrixDataProviderService {
             displayDescription: row.displayDescription,
             isSumRow: true,
             isParent: false,
+            isArchived: row.isArchived,
             values: row.values
           };
 

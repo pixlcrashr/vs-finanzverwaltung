@@ -14,26 +14,26 @@ import { debounceTime, distinctUntilChanged, filter, takeUntil } from 'rxjs/oper
 import {
   PageContentLayoutComponent,
   BreadcrumbItem,
-  ButtonComponent,
   LoadingSpinnerComponent,
   NotificationService,
 } from '../../../shared/components';
 import {
-  AddAccountToGroupDialogComponent,
-  AddAccountToGroupDialogInput,
-  AddAccountToGroupDialogOutput,
-} from '../../../shared/dialogs/add-account-to-group-dialog/add-account-to-group-dialog.component';
-import { AccountGroupAssignment } from '../../../shared/models';
+  DeleteAccountGroupDialogComponent,
+  DeleteAccountGroupDialogInput,
+  DeleteAccountGroupDialogOutput
+} from '../../../shared/dialogs/delete-account-group-dialog/delete-account-group-dialog.component';
+import { AccountGroupOperation } from '../../../shared/models';
 import { AccountGroupEditDataService, AccountGroupDetails } from './account-group-edit.data-service';
+import { AccountGroupEditService } from './account-group-edit.service';
 
 @Component({
   selector: 'app-account-group-edit',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [AccountGroupEditService],
   imports: [
     RouterLink,
     ReactiveFormsModule,
     PageContentLayoutComponent,
-    ButtonComponent,
     LoadingSpinnerComponent,
   ],
   template: `
@@ -98,54 +98,104 @@ import { AccountGroupEditDataService, AccountGroupDetails } from './account-grou
                   </form>
                 </div>
 
-                <!-- Assigned Accounts -->
+                <!-- Account Operations -->
                 <div class="bg-white rounded-lg border border-gray-200">
-                  <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                  <div class="p-4 border-b border-gray-200">
                     <h3 i18n class="text-sm font-semibold text-gray-900">
-                      Zugeordnete Konten
+                      Zuweisungen
                     </h3>
-                    <app-button size="sm" (clicked)="openAddAccountDialog()"><ng-container i18n>Konto hinzufügen</ng-container></app-button>
                   </div>
-                  <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                      <thead class="bg-gray-50">
-                        <tr>
-                          <th
-                            scope="col"
-                            class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500"
-                          >
-                            <ng-container i18n>Kontonummer</ng-container>
-                          </th>
-                          <th
-                            scope="col"
-                            class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500"
-                          >
-                            <ng-container i18n>Kontoname</ng-container>
-                          </th>
-                          <th scope="col" class="px-3 py-2 text-right">
-                            <span class="sr-only">Actions</span>
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody class="divide-y divide-gray-200 bg-white">
-                        @for (assignment of group()!.assignments; track trackById(assignment)) {
-                          <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-3 py-2 text-xs text-gray-900">{{ assignment.accountCode }}</td>
-                            <td class="px-3 py-2 text-xs text-gray-900">{{ assignment.accountName }}</td>
-                            <td class="px-3 py-2 text-right text-xs">
-                              <button
-                                type="button"
-                                (click)="removeAssignment(assignment)"
-                                class="text-xs text-red-600 hover:underline"
-                              >
-                                <ng-container i18n>Entfernen</ng-container>
-                              </button>
-                            </td>
+                  @if (loadingAccounts()) {
+                    <div class="p-8 flex justify-center">
+                      <app-loading-spinner [fullPage]="false" i18n-text text="Konten werden geladen..." />
+                    </div>
+                  } @else {
+                    @let rows = editService.rows();
+                    @let accountCols = editService.accountCols();
+                    @let maxDepth = editService.maxDepth();
+
+                    <div class="overflow-x-auto">
+                      <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                          <tr>
+                            <th
+                              [colSpan]="maxDepth + 1"
+                              scope="col"
+                              class="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500"
+                            >
+                              <ng-container i18n>Konto</ng-container>
+                            </th>
+                            <th
+                              scope="col"
+                              class="py-1 text-[10px] font-semibold uppercase tracking-wider text-center text-gray-500"
+                            >
+                              I
+                            </th>
+                            <th
+                              scope="col"
+                              class="py-1 text-[10px] font-semibold uppercase tracking-wider text-center text-gray-500"
+                            >
+                              A
+                            </th>
+                            <th
+                              scope="col"
+                              class="py-1 text-[10px] font-semibold uppercase tracking-wider text-center text-gray-500"
+                            >
+                              S
+                            </th>
                           </tr>
-                        }
-                      </tbody>
-                    </table>
-                  </div>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 bg-white">
+                          @for (row of rows; track row.accountId) {
+                            <tr [class.bg-gray-50]="row.isArchived" [class.hover:bg-gray-100]="!row.isArchived" [class.hover:bg-gray-50]="row.isArchived" class="transition-colors">
+                              @for (i of accountCols; track $index) {
+                                @if (row.depth === $index) {
+                                  <td [colSpan]="maxDepth + 1 - $index" class="px-3 py-2 text-xs text-gray-900">
+                                    {{ row.displayCode }} &mdash; {{ row.displayName }}
+                                    @if (row.isArchived) {
+                                      <span class="ml-1.5 inline-block px-1 py-0.5 text-[10px] rounded bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                                        <ng-container i18n>Archiviert</ng-container>
+                                      </span>
+                                    }
+                                  </td>
+                                } @else if (row.depth > $index) {
+                                  <td class="px-2"></td>
+                                }
+                              }
+
+                              <td class="px-1 py-1 text-center">
+                                <input
+                                  type="radio"
+                                  [name]="'operation-' + row.accountId"
+                                  [checked]="row.operation === 'I'"
+                                  (change)="onOperationChange(row.accountId, 'I')"
+                                  class="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                                />
+                              </td>
+                              <td class="px-1 py-1 text-center">
+                                <input
+                                  type="radio"
+                                  [name]="'operation-' + row.accountId"
+                                  [checked]="row.operation === 'A'"
+                                  (change)="onOperationChange(row.accountId, 'A')"
+                                  class="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                                />
+                              </td>
+                              <td class="px-1 py-1 text-center">
+                                <input
+                                  type="radio"
+                                  [name]="'operation-' + row.accountId"
+                                  [checked]="row.operation === 'S'"
+                                  (change)="onOperationChange(row.accountId, 'S')"
+                                  class="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                                />
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  }
                 </div>
               </div>
 
@@ -161,12 +211,13 @@ import { AccountGroupEditDataService, AccountGroupDetails } from './account-grou
                     >
                       <ng-container i18n>Statistik anzeigen</ng-container>
                     </a>
-                    <a
-                      routerLink="/accountGroups"
-                      class="block w-full px-3 py-2 text-xs font-medium text-center text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    <button
+                      type="button"
+                      (click)="openDeleteDialog()"
+                      class="block w-full px-3 py-2 text-xs font-medium text-center text-white bg-red-600 rounded-lg hover:bg-red-700"
                     >
-                      <ng-container i18n>Zurück zur Liste</ng-container>
-                    </a>
+                      <ng-container i18n>Löschen</ng-container>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -185,10 +236,13 @@ export class AccountGroupEditComponent implements OnInit, OnDestroy {
   private readonly dialog = inject(Dialog);
   private readonly notifications = inject(NotificationService);
 
+  readonly editService = inject(AccountGroupEditService);
+
   private readonly destroy$ = new Subject<void>();
 
   readonly loading = signal(true);
   readonly saving = signal(false);
+  readonly loadingAccounts = signal(true);
   readonly group = signal<AccountGroupDetails | null>(null);
 
   readonly breadcrumbs = signal<BreadcrumbItem[]>([
@@ -212,6 +266,7 @@ export class AccountGroupEditComponent implements OnInit, OnDestroy {
     if (id) {
       this.groupId = id;
       this.loadGroup(id);
+      this.loadAccountsWithOperations(id);
       this.setupAutoSave();
     }
   }
@@ -255,7 +310,31 @@ export class AccountGroupEditComponent implements OnInit, OnDestroy {
     });
   }
 
-  trackById = (item: AccountGroupAssignment) => item.id;
+  private loadAccountsWithOperations(id: string): void {
+    this.loadingAccounts.set(true);
+    this.dataService.getAllAccountsWithOperations(id).subscribe({
+      next: (accounts) => {
+        this.editService.setAccountsWithOperations(accounts);
+        this.loadingAccounts.set(false);
+      },
+      error: () => {
+        this.loadingAccounts.set(false);
+        this.notifications.error($localize`Fehler beim Laden der Konten`);
+      },
+    });
+  }
+
+  onOperationChange(accountId: string, operation: AccountGroupOperation): void {
+    this.dataService.updateAccountOperation(this.groupId, accountId, operation).subscribe({
+      next: () => {
+        // Reload accounts to update the display
+        this.loadAccountsWithOperations(this.groupId);
+      },
+      error: () => {
+        this.notifications.error($localize`Fehler beim Aktualisieren der Operation`);
+      },
+    });
+  }
 
   private saveGroup(): void {
     if (this.groupForm.invalid) return;
@@ -280,33 +359,36 @@ export class AccountGroupEditComponent implements OnInit, OnDestroy {
     });
   }
 
-  openAddAccountDialog(): void {
-    const dialogRef = this.dialog.open<AddAccountToGroupDialogOutput, AddAccountToGroupDialogInput>(
-      AddAccountToGroupDialogComponent,
+  openDeleteDialog(): void {
+    const group = this.group();
+    if (!group) return;
+
+    const dialogRef = this.dialog.open<DeleteAccountGroupDialogOutput, DeleteAccountGroupDialogInput>(
+      DeleteAccountGroupDialogComponent,
       {
         backdropClass: 'cdk-overlay-dark-backdrop',
         width: '500px',
         data: {
           groupId: this.groupId,
+          groupName: group.name,
+          onDelete: async (groupId: string) => {
+            await new Promise<void>((resolve, reject) => {
+              this.dataService.deleteGroup(groupId).subscribe({
+                next: () => resolve(),
+                error: (err) => reject(err),
+              });
+            });
+          },
         },
       }
     );
 
     dialogRef.closed.subscribe((result) => {
-      if (result?.added) {
-        this.loadGroup(this.groupId);
+      if (result?.deleted) {
+        this.notifications.success($localize`Kontengruppe wurde erfolgreich gelöscht`);
+        this.router.navigate(['/accountGroups']);
       }
     });
   }
 
-  removeAssignment(assignment: AccountGroupAssignment): void {
-    this.dataService.removeAssignment(this.groupId, assignment.id).subscribe({
-      next: () => {
-        this.loadGroup(this.groupId);
-      },
-      error: () => {
-        this.notifications.error($localize`Fehler beim Entfernen des Kontos`);
-      },
-    });
-  }
 }

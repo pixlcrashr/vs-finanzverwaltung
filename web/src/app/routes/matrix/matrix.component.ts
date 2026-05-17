@@ -90,25 +90,25 @@ export class Matrix implements OnInit {
   }
 
   onSave(): void {
-    const allDirtyValues = this.valueStore.getAllDirtyValues();
+    const allChangedValues = this.valueStore.getAllChangedValues();
 
-    if (allDirtyValues.size === 0) {
+    if (allChangedValues.size === 0) {
       console.log('No changes to save');
       return;
     }
 
     const updates: MatrixBudgetValueUpdate[] = [];
-    allDirtyValues.forEach((dirtyValues, budgetId) => {
-      dirtyValues.forEach(dv => {
+    allChangedValues.forEach((changedValues, budgetId) => {
+      changedValues.forEach(cv => {
         updates.push({
           budgetId,
-          accountId: dv.accountId,
-          value: dv.value
+          accountId: cv.accountId,
+          value: cv.value
         });
       });
     });
 
-    console.log('Saving dirty values:', updates);
+    console.log('Saving changed values:', updates);
     this.isSaving.set(true);
 
     this.dataService.updateMatrixBudgetValues(updates).subscribe({

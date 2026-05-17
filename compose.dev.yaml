@@ -21,8 +21,8 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - 127.0.0.1:5335:5432
-  html2pdf:
-    image: improrama/html2pdf-server:v1.2.0
+  gotenberg:
+    image: gotenberg/gotenberg:8
     restart: unless-stopped
     ports:
-      - 127.0.0.1:8082:8082
+      - 127.0.0.1:8082:3000

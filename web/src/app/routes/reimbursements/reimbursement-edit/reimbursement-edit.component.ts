@@ -59,11 +59,11 @@ type ActivityItem =
             <app-loading-spinner [fullPage]="true" i18n-text text="Kostenerstattung wird geladen..." />
           </div>
         } @else if (reimbursement()) {
-          <div class="w-full max-w-4xl mx-auto space-y-6">
+          <div class="w-full max-w-4xl mx-auto space-y-4">
             <!-- Main Content -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
               <!-- Left Column: Invoice Items -->
-              <div class="lg:col-span-2 space-y-6">
+              <div class="lg:col-span-2 space-y-4">
                 <!-- Notice -->
                 <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
                   <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2" i18n>Anmerkung</h2>

@@ -15,14 +15,30 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
       <input
         #inputEl
         type="text"
-        class="appearance-none border-2 rounded w-full px-2 text-right text-gray-700 leading-tight focus:outline-none"
-        [class.bg-yellow-100]="hasChanged()"
-        [class.border-yellow-100]="hasChanged()"
-        [class.focus:border-purple-500]="true"
-        [class.focus:bg-yellow-50]="hasChanged()"
-        [class.bg-gray-200]="!hasChanged()"
-        [class.border-gray-200]="!hasChanged()"
-        [class.focus:bg-white]="!hasChanged()"
+        class="appearance-none border-2 rounded w-full px-2 text-right leading-tight focus:outline-none transition-opacity"
+        [class.opacity-40]="disabled()"
+        [class.cursor-not-allowed]="disabled()"
+        [class.text-gray-700]="!disabled()"
+        [class.dark:text-gray-200]="!disabled()"
+        [class.text-gray-500]="disabled()"
+        [class.dark:text-gray-400]="disabled()"
+        [class.bg-yellow-100]="hasChanged() && !disabled()"
+        [class.dark:bg-yellow-900]="hasChanged() && !disabled()"
+        [class.border-yellow-300]="hasChanged() && !disabled()"
+        [class.dark:border-yellow-700]="hasChanged() && !disabled()"
+        [class.focus:border-purple-500]="!disabled()"
+        [class.focus:bg-yellow-50]="hasChanged() && !disabled()"
+        [class.dark:focus:bg-yellow-950]="hasChanged() && !disabled()"
+        [class.bg-gray-200]="!hasChanged() && !disabled()"
+        [class.dark:bg-gray-700]="!hasChanged() && !disabled()"
+        [class.border-gray-200]="!hasChanged() && !disabled()"
+        [class.dark:border-gray-600]="!hasChanged() && !disabled()"
+        [class.focus:bg-white]="!hasChanged() && !disabled()"
+        [class.dark:focus:bg-gray-800]="!hasChanged() && !disabled()"
+        [class.bg-gray-100]="disabled()"
+        [class.dark:bg-gray-800]="disabled()"
+        [class.border-gray-100]="disabled()"
+        [class.dark:border-gray-700]="disabled()"
         [value]="displayValue()"
         [disabled]="disabled()"
         [tabIndex]="tabIndex()"
@@ -101,7 +117,7 @@ export class MatrixValueInput {
     this.isFocused.set(true);
     const n = this.value().toNumber();
     this.displayValue.set(Number.isNaN(n) ? '' : n.toString());
-    input.select();
+    setTimeout(() => input.select());
   }
 
   protected onFocusOut(): void {

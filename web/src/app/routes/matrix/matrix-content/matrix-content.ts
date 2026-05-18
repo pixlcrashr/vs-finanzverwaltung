@@ -195,6 +195,7 @@ import { MatrixValueStoreService } from '../matrix-value-store.service';
                         <app-matrix-value-input
                           [(value)]="budgetValues.editableTargetWritableValue"
                           [hasChanged]="hasChanged(budgetValues.budgetId, row.accountId)"
+                          [disabled]="isSaving()"
                           (resetClick)="onResetValue(budgetValues.budgetId, row.accountId)"
                         />
                       }
@@ -264,6 +265,7 @@ export class MatrixContent {
 
   matrixHeader = input.required<MatrixHeader>();
   matrixData = input.required<MatrixData>();
+  isSaving = input(false);
 
   parentAccountIds = computed(() => {
     return new Set(

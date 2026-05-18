@@ -43,7 +43,7 @@ const CHART_COLORS = [
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Dashboard wird geladen..." />
         } @else if (stats()) {
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <!-- Budgets Chart -->
             <div class="bg-white rounded-lg border border-gray-200 p-6">
               <h3 i18n class="text-lg font-medium text-gray-900 mb-1">

@@ -1,4 +1,4 @@
-import { computed, Injectable, signal, Signal, WritableSignal } from '@angular/core';
+import { computed, Injectable, Signal, signal, WritableSignal } from '@angular/core';
 import { Decimal } from 'decimal.js';
 
 export interface ChangedValue {

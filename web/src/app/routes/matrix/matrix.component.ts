@@ -20,13 +20,14 @@ import { delay } from 'rxjs';
         [accounts]="accounts()"
         [isLoading]="isLoading()"
         [isSaving]="isSaving()"
+        [hasPendingChanges]="hasPendingChanges()"
         [(selectedBudgetIds)]="selectedBudgetIds"
         [(selectedAccountIds)]="selectedAccountIds"
         (saveClick)="onSave()"
       />
       <div class="flex-grow overflow-auto">
         @if (matrixData(); as data) {
-          <app-matrix-content [matrixHeader]="matrixHeader" [matrixData]="data" />
+          <app-matrix-content [matrixHeader]="matrixHeader" [matrixData]="data" [isSaving]="isSaving()" />
         }
       </div>
     </div>
@@ -42,7 +43,7 @@ import { delay } from 'rxjs';
 export class Matrix implements OnInit {
   private readonly dataProvider = inject(MatrixDataProviderService);
   private readonly dataService = inject(MatrixDataService);
-  private readonly valueStore = inject(MatrixValueStoreService);
+  protected readonly valueStore = inject(MatrixValueStoreService);
 
   isLoading = signal(true);
   isSaving = signal(false);
@@ -56,6 +57,12 @@ export class Matrix implements OnInit {
 
   budgets = computed(() => this.matrixData().budgets);
   accounts = computed(() => this.matrixData().accounts);
+
+  hasPendingChanges = computed(() =>
+    this.matrixData().rows.some(row =>
+      row.values.some(v => this.valueStore.hasChanged(v.budgetId, row.accountId))
+    )
+  );
 
   selectedBudgetIds = signal<string[]>([]);
   selectedAccountIds = signal<string[]>([]);
@@ -114,6 +121,7 @@ export class Matrix implements OnInit {
     this.dataService.updateMatrixBudgetValues(updates).subscribe({
       next: () => {
         this.valueStore.markAllAsClean();
+        this.matrixData.update(d => ({ ...d }));
         this.isSaving.set(false);
         console.log('Save successful');
       },

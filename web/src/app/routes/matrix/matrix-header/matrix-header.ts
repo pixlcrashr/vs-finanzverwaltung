@@ -311,7 +311,7 @@ export interface ExportButtonClickArgs {
                   cursor-pointer flex items-center gap-1 transition-colors
                   disabled:opacity-50 disabled:cursor-not-allowed"
             (click)="saveClick.emit()"
-            [disabled]="isLoading() || isSaving()"
+            [disabled]="isLoading() || isSaving() || !hasPendingChanges()"
             title="Speichern"
             i18n-title
           >
@@ -358,6 +358,7 @@ export class MatrixHeader {
   isLatestRevisionOnlySelected = model<boolean>(false);
   isLoading = input<boolean>(false);
   isSaving = input<boolean>(false);
+  hasPendingChanges = input<boolean>(false);
 
   selectedBudgetIds = model<string[]>([]);
   selectedAccountIds = model<string[]>([]);

@@ -41,6 +41,8 @@ export class SharedBudgetMockData {
         periodStart: startDate,
         periodEnd: new Date(year, 11, 31),
         isClosed: i > 1,
+        publishCurrentTargetValuesAlways: false,
+        publishCurrentActualValuesAlways: false,
         tags: this.generateTags(startDate, i > 1 ? 3 : 1),
         hasUntaggedChanges: i === 0,
         changes: [],
@@ -105,6 +107,7 @@ export class SharedBudgetMockData {
         name: i === 0 ? 'Ursprünglicher Plan' : formattedDate,
         date: tagDate,
         description: i === 0 ? 'Ursprünglicher Plan' : '',
+        isPublished: i === 0,
         createdAt: tagDate,
         updatedAt: tagDate,
       });
@@ -121,6 +124,8 @@ export class SharedBudgetMockData {
       periodStart: data.budget.periodStart,
       periodEnd: data.budget.periodEnd,
       isClosed: data.budget.isClosed,
+      publishCurrentTargetValuesAlways: data.budget.publishCurrentTargetValuesAlways,
+      publishCurrentActualValuesAlways: data.budget.publishCurrentActualValuesAlways,
     }));
   }
 
@@ -142,6 +147,8 @@ export class SharedBudgetMockData {
         periodStart: startDate,
         periodEnd: new Date(year, 11, 31),
         isClosed: false,
+        publishCurrentTargetValuesAlways: false,
+        publishCurrentActualValuesAlways: false,
         tags: this.generateTags(startDate, 1),
         hasUntaggedChanges: true,
         changes: [
@@ -180,6 +187,8 @@ export class SharedBudgetMockData {
   addBudget(budget: Budget): void {
     const budgetDetails: BudgetDetails = {
       ...budget,
+      publishCurrentTargetValuesAlways: budget.publishCurrentTargetValuesAlways ?? false,
+      publishCurrentActualValuesAlways: budget.publishCurrentActualValuesAlways ?? false,
       tags: this.generateTags(budget.periodStart, 1),
       hasUntaggedChanges: false,
       changes: [],

@@ -24,7 +24,9 @@ export class MockBudgetEditDataService extends BudgetEditDataService {
     name: string,
     description: string,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
+    publishCurrentTargetValuesAlways: boolean,
+    publishCurrentActualValuesAlways: boolean
   ): Observable<void> {
     const data = this.sharedData.getBudgetDetails(id);
 
@@ -33,6 +35,8 @@ export class MockBudgetEditDataService extends BudgetEditDataService {
       data.budget.displayDescription = description;
       data.budget.periodStart = startDate;
       data.budget.periodEnd = endDate;
+      data.budget.publishCurrentTargetValuesAlways = publishCurrentTargetValuesAlways;
+      data.budget.publishCurrentActualValuesAlways = publishCurrentActualValuesAlways;
       // Changes are account-based and computed by the server
     }
     return of(undefined).pipe(delay(300));
@@ -57,6 +61,7 @@ export class MockBudgetEditDataService extends BudgetEditDataService {
       name,
       date,
       description,
+      isPublished: false,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -76,6 +81,20 @@ export class MockBudgetEditDataService extends BudgetEditDataService {
     data.budget.changes = [];
 
     return of(tag).pipe(delay(300));
+  }
+
+  updateTagPublication(id: string, isPublished: boolean): Observable<void> {
+    const allBudgets = this.sharedData.getAllBudgets();
+    for (const budget of allBudgets) {
+      const data = this.sharedData.getBudgetDetails(budget.id);
+      const tag = data?.budget.tags.find((candidate) => candidate.id === id);
+      if (tag) {
+        tag.isPublished = isPublished;
+        tag.updatedAt = new Date();
+        break;
+      }
+    }
+    return of(undefined).pipe(delay(300));
   }
 
   deleteTag(id: string): Observable<void> {

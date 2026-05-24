@@ -41,6 +41,7 @@ export class HttpAccountCompareDataService extends AccountCompareDataService {
           id: a.id,
           code: a.displayCode,
           name: a.displayName,
+          parentAccountId: a.parentAccountId ?? null,
         })),
       ),
     );

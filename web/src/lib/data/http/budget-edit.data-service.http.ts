@@ -34,12 +34,18 @@ export class HttpBudgetEditDataService extends BudgetEditDataService {
     throw new Error('Method not implemented.');
   }
 
+  override updateTagPublication(_id: string, _isPublished: boolean): Observable<void> {
+    throw new Error('Method not implemented.');
+  }
+
   updateBudget(
     id: string,
     name: string,
     description: string,
     startDate: Date,
     endDate: Date,
+    _publishCurrentTargetValuesAlways: boolean,
+    _publishCurrentActualValuesAlways: boolean,
   ): Observable<void> {
     return from(
       this.api.invoke(updateBudget, {

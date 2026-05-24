@@ -37,7 +37,7 @@ import { MatrixValueStoreService } from '../matrix-value-store.service';
       .vertical-divider {
         border-right: 4px solid var(--color-border);
       }
-      
+
       tbody > tr:first-child > :is(td, th) {
         border-color: var(--color-border);
       }
@@ -179,7 +179,7 @@ import { MatrixValueStoreService } from '../matrix-value-store.service';
                   <td></td>
                 }
               }
-              
+
               @if (descriptionEnabled) {
                 <td>{{ row.displayDescription }}</td>
               }
@@ -262,6 +262,7 @@ import { MatrixValueStoreService } from '../matrix-value-store.service';
 })
 export class MatrixContent {
   private readonly valueStore = inject(MatrixValueStoreService);
+  private wasEditing = false;
 
   matrixHeader = input.required<MatrixHeader>();
   matrixData = input.required<MatrixData>();
@@ -284,17 +285,18 @@ export class MatrixContent {
 
   filteredColumns = computed(() => {
     const selectedIds = this.matrixHeader().selectedBudgetIds();
-    const latestOnly = this.matrixHeader().isLatestRevisionOnlySelected();
+    const selectedTagIds = this.matrixHeader().selectedTagIds();
     const budgets = this.matrixData().budgets;
 
     return this.matrixData().columns
       .filter(col => selectedIds.includes(col.budgetId))
       .map(col => {
         const budget = budgets.find(b => b.id === col.budgetId);
+        const tags = col.tags.filter(t => selectedTagIds.includes(t.tagId));
         return {
           ...col,
           isClosed: budget?.isClosed ?? false,
-          tags: latestOnly ? [col.tags[col.tags.length - 1]] : col.tags
+          tags: [...tags].reverse()
         };
       });
   });
@@ -302,7 +304,7 @@ export class MatrixContent {
   filteredRows = computed(() => {
     const selectedAccountIds = this.matrixHeader().selectedAccountIds();
     const selectedBudgetIds = this.matrixHeader().selectedBudgetIds();
-    const latestOnly = this.matrixHeader().isLatestRevisionOnlySelected();
+    const selectedTagIds = this.matrixHeader().selectedTagIds();
 
     return this.matrixData().rows
       .filter(row => {
@@ -316,10 +318,10 @@ export class MatrixContent {
         ...row,
         values: row.values
           .filter(v => selectedBudgetIds.includes(v.budgetId))
-          .map(v => ({
-            ...v,
-            tags: latestOnly ? [v.tags[v.tags.length - 1]] : v.tags
-          }))
+          .map(v => {
+            const tags = v.tags.filter(t => selectedTagIds.includes(t.tagId));
+            return { ...v, tags: [...tags].reverse() };
+          })
       }));
   });
 
@@ -342,6 +344,16 @@ export class MatrixContent {
   constructor() {
     effect(() => {
       console.log(this.matrixData());
+    });
+
+    effect(() => {
+      const isEditing = this.matrixHeader().isEditMode();
+
+      if (this.wasEditing && !isEditing) {
+        this.valueStore.resetAllToOriginal();
+      }
+
+      this.wasEditing = isEditing;
     });
   }
 }

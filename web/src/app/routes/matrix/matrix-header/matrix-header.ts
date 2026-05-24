@@ -8,12 +8,12 @@ import { Account, Budget } from '../matrix-data-provider.service';
 
 export interface ExportButtonClickArgs {
   selectedBudgetIds: string[];
+  selectedTagIds: string[];
   selectedAccountIds: string[];
   targetValuesEnabled: boolean;
   actualValuesEnabled: boolean;
   differenceValuesEnabled: boolean;
   accountDescriptionsEnabled: boolean;
-  latestRevisionOnly: boolean;
 }
 
 @Component({
@@ -106,7 +106,7 @@ export interface ExportButtonClickArgs {
               [cdkConnectedOverlayBackdropClass]="'cdk-overlay-transparent-backdrop'"
               (backdropClick)="showBudgetsDropdown.set(false)"
             >
-              <div class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow-lg max-h-72 overflow-y-auto min-w-[200px]">
+              <div class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow-lg max-h-72 overflow-y-auto min-w-[260px]">
               <div class="px-2 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2 bg-gray-50 dark:bg-gray-900 sticky top-0 z-10 h-6">
                 <button type="button" class="text-[10px] text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 font-medium cursor-pointer" (click)="selectAllBudgets()" i18n>Alle auswählen</button>
                 <div class="w-px h-3 bg-gray-300 dark:bg-gray-600"></div>
@@ -115,17 +115,32 @@ export interface ExportButtonClickArgs {
               <table class="w-full text-xs">
                   <tbody>
                     @for (budget of budgets(); track budget.id) {
-                      <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <td class="px-2.5 py-1.5 text-gray-900 dark:text-gray-100">{{ budget.displayName }}</td>
+                      <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer" (click)="toggleBudgetTags(budget)">
+                        <td class="px-2.5 py-1.5 text-gray-900 dark:text-gray-100 font-medium">{{ budget.displayName }}</td>
                         <td class="px-2.5 py-1.5 w-8 text-center">
                           <input
+                            #budgetCheckbox
                             type="checkbox"
                             class="cursor-pointer"
-                            [checked]="selectedBudgetIds().includes(budget.id)"
-                            (change)="toggleBudget(budget.id)"
+                            [checked]="isBudgetFullySelected(budget)"
+                            [indeterminate]="isBudgetPartiallySelected(budget)"
+                            (click)="$event.stopPropagation(); toggleBudgetTags(budget)"
                           />
                         </td>
                       </tr>
+                      @for (tag of budgetTagsNewestFirst(budget); track tag.id) {
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer" (click)="toggleTag(tag.id, budget.id)">
+                          <td class="py-1 pr-2.5 text-gray-600 dark:text-gray-400" style="padding-left: 20px">└─ {{ tag.displayName }}</td>
+                          <td class="px-2.5 py-1 w-8 text-center">
+                            <input
+                              type="checkbox"
+                              class="cursor-pointer"
+                              [checked]="selectedTagIds().includes(tag.id)"
+                              (click)="$event.stopPropagation(); toggleTag(tag.id, budget.id)"
+                            />
+                          </td>
+                        </tr>
+                      }
                     }
                   </tbody>
                 </table>
@@ -203,7 +218,7 @@ export interface ExportButtonClickArgs {
             </ng-template>
           </div>
         }
-        
+
         <!-- Options Dropdown -->
         <div class="relative">
           <button
@@ -247,18 +262,6 @@ export interface ExportButtonClickArgs {
                         [checked]="isDescriptionButtonSelected()"
                         (click)="$event.stopPropagation()"
                         (change)="isDescriptionButtonSelected.set(!isDescriptionButtonSelected())"
-                      />
-                    </td>
-                  </tr>
-                  <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer" (click)="isLatestRevisionOnlySelected.set(!isLatestRevisionOnlySelected())">
-                    <td class="px-2.5 py-1.5 text-gray-900 dark:text-gray-100" i18n>Nur Letzte Revision</td>
-                    <td class="px-2.5 py-1.5 w-8 text-center">
-                      <input
-                        type="checkbox"
-                        class="cursor-pointer"
-                        [checked]="isLatestRevisionOnlySelected()"
-                        (click)="$event.stopPropagation()"
-                        (change)="isLatestRevisionOnlySelected.set(!isLatestRevisionOnlySelected())"
                       />
                     </td>
                   </tr>
@@ -355,12 +358,12 @@ export class MatrixHeader {
   isActualButtonSelected = model<boolean>(false);
   isDifferenceButtonSelected = model<boolean>(false);
   isDescriptionButtonSelected = model<boolean>(false);
-  isLatestRevisionOnlySelected = model<boolean>(false);
   isLoading = input<boolean>(false);
   isSaving = input<boolean>(false);
   hasPendingChanges = input<boolean>(false);
 
   selectedBudgetIds = model<string[]>([]);
+  selectedTagIds = model<string[]>([]);
   selectedAccountIds = model<string[]>([]);
 
   exportButtonClick = output<ExportButtonClickArgs>();
@@ -398,13 +401,44 @@ export class MatrixHeader {
     this.showAccountsDropdown.set(false);
   }
 
-  toggleBudget(budgetId: string): void {
-    this.selectedBudgetIds.update(ids => {
-      const newIds = ids.includes(budgetId)
-        ? ids.filter(id => id !== budgetId)
-        : [...ids, budgetId];
-      return newIds;
+  budgetTagsNewestFirst(budget: Budget): Budget['tags'] {
+    return [...budget.tags].reverse();
+  }
+
+  isBudgetFullySelected(budget: Budget): boolean {
+    return budget.tags.length > 0 && budget.tags.every(t => this.selectedTagIds().includes(t.id));
+  }
+
+  isBudgetPartiallySelected(budget: Budget): boolean {
+    return !this.isBudgetFullySelected(budget) && budget.tags.some(t => this.selectedTagIds().includes(t.id));
+  }
+
+  toggleBudgetTags(budget: Budget): void {
+    const allSelected = this.isBudgetFullySelected(budget);
+    const tagIds = budget.tags.map(t => t.id);
+    this.selectedTagIds.update(ids => {
+      const without = ids.filter(id => !tagIds.includes(id));
+      return allSelected ? without : [...without, ...tagIds];
     });
+    this.selectedBudgetIds.update(ids => {
+      const without = ids.filter(id => id !== budget.id);
+      const nowHasAny = !allSelected;
+      return nowHasAny ? [...without, budget.id] : without;
+    });
+  }
+
+  toggleTag(tagId: string, budgetId: string): void {
+    this.selectedTagIds.update(ids =>
+      ids.includes(tagId) ? ids.filter(id => id !== tagId) : [...ids, tagId]
+    );
+    const budget = this.budgets().find(b => b.id === budgetId);
+    if (budget) {
+      const anyTagSelected = budget.tags.some(t => this.selectedTagIds().includes(t.id));
+      this.selectedBudgetIds.update(ids => {
+        const without = ids.filter(id => id !== budgetId);
+        return anyTagSelected ? [...without, budgetId] : without;
+      });
+    }
   }
 
   toggleAccount(accountId: string): void {
@@ -417,12 +451,13 @@ export class MatrixHeader {
   }
 
   selectAllBudgets(): void {
-    const allIds = this.budgets().map((b: Budget) => b.id);
-    this.selectedBudgetIds.set(allIds);
+    this.selectedBudgetIds.set(this.budgets().map(b => b.id));
+    this.selectedTagIds.set(this.budgets().flatMap(b => b.tags.map(t => t.id)));
   }
 
   unselectAllBudgets(): void {
     this.selectedBudgetIds.set([]);
+    this.selectedTagIds.set([]);
   }
 
   selectAllAccounts(): void {
@@ -437,12 +472,12 @@ export class MatrixHeader {
   onExportClick(): void {
     this.exportButtonClick.emit({
       selectedBudgetIds: this.selectedBudgetIds(),
+      selectedTagIds: this.selectedTagIds(),
       selectedAccountIds: this.selectedAccountIds(),
       targetValuesEnabled: this.isTargetButtonSelected(),
       actualValuesEnabled: this.isActualButtonSelected(),
       differenceValuesEnabled: this.isDifferenceButtonSelected(),
       accountDescriptionsEnabled: this.isDescriptionButtonSelected(),
-      latestRevisionOnly: this.isLatestRevisionOnlySelected(),
     });
   }
 }

@@ -138,6 +138,27 @@ import { BudgetEditDataService, BudgetDetails } from './budget-edit.data-service
                           />
                         </div>
                       </div>
+
+                      <div class="space-y-2 pt-1">
+                        <label class="flex items-center gap-2 text-xs text-gray-700">
+                          <input
+                            type="checkbox"
+                            formControlName="publishCurrentTargetValuesAlways"
+                            [disabled]="budget()!.isClosed"
+                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <ng-container i18n>Aktuelle Soll-Werte immer veröffentlichen</ng-container>
+                        </label>
+                        <label class="flex items-center gap-2 text-xs text-gray-700">
+                          <input
+                            type="checkbox"
+                            formControlName="publishCurrentActualValuesAlways"
+                            [disabled]="budget()!.isClosed"
+                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <ng-container i18n>Aktuelle Ist-Werte immer veröffentlichen</ng-container>
+                        </label>
+                      </div>
                     </div>
                   </form>
                 </div>
@@ -178,14 +199,33 @@ import { BudgetEditDataService, BudgetDetails } from './budget-edit.data-service
                               {{ tag.description || noDescriptionLabel }}
                             </p>
                           </div>
-                          @if (!budget()!.isClosed && budget()!.tags.length > 1) {
-                            <button
-                              (click)="deleteTag(tag.id)"
-                              class="text-xs text-red-600 hover:underline"
+                          <div class="flex items-center gap-2">
+                            <span
+                              class="text-xs px-2 py-0.5 rounded"
+                              [class.bg-green-100]="tag.isPublished"
+                              [class.text-green-700]="tag.isPublished"
+                              [class.bg-gray-200]="!tag.isPublished"
+                              [class.text-gray-600]="!tag.isPublished"
                             >
-                              <ng-container i18n>Entfernen</ng-container>
-                            </button>
-                          }
+                              {{ tag.isPublished ? 'Veröffentlicht' : 'Nicht veröffentlicht' }}
+                            </span>
+                            @if (!budget()!.isClosed) {
+                              <button
+                                (click)="toggleTagPublication(tag)"
+                                class="text-xs text-blue-600 hover:underline"
+                              >
+                                {{ tag.isPublished ? 'Nicht veröffentlichen' : 'Veröffentlichen' }}
+                              </button>
+                            }
+                            @if (!budget()!.isClosed && budget()!.tags.length > 1) {
+                              <button
+                                (click)="deleteTag(tag.id)"
+                                class="text-xs text-red-600 hover:underline"
+                              >
+                                <ng-container i18n>Entfernen</ng-container>
+                              </button>
+                            }
+                          </div>
                         </div>
                       }
                     </div>
@@ -293,6 +333,8 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
       description: [''],
       startDate: ['', Validators.required],
       endDate: ['', Validators.required],
+      publishCurrentTargetValuesAlways: [false],
+      publishCurrentActualValuesAlways: [false],
     });
   }
 
@@ -330,6 +372,8 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
           description: budget.displayDescription,
           startDate: formatDateForInput(budget.periodStart),
           endDate: formatDateForInput(budget.periodEnd),
+          publishCurrentTargetValuesAlways: budget.publishCurrentTargetValuesAlways ?? false,
+          publishCurrentActualValuesAlways: budget.publishCurrentActualValuesAlways ?? false,
         }, { emitEvent: false });
         this.budgetForm.markAsPristine();
         this.breadcrumbs.set([
@@ -351,10 +395,25 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
 
     this.saving.set(true);
     const budget = this.budget()!;
-    const { name, description, startDate, endDate } = this.budgetForm.value;
+    const {
+      name,
+      description,
+      startDate,
+      endDate,
+      publishCurrentTargetValuesAlways,
+      publishCurrentActualValuesAlways,
+    } = this.budgetForm.value;
 
     this.dataService
-      .updateBudget(budget.id, name, description, new Date(startDate), new Date(endDate))
+      .updateBudget(
+        budget.id,
+        name,
+        description,
+        new Date(startDate),
+        new Date(endDate),
+        publishCurrentTargetValuesAlways,
+        publishCurrentActualValuesAlways
+      )
       .subscribe({
         next: () => {
           this.saving.set(false);
@@ -434,6 +493,21 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
     return `${day}.${month}.${year}`;
+  }
+
+  toggleTagPublication(tag: BudgetDetails['tags'][number]): void {
+    const budget = this.budget();
+    if (!budget || budget.isClosed) return;
+
+    this.dataService.updateTagPublication(tag.id, !tag.isPublished).subscribe({
+      next: () => {
+        this.loadBudget(budget.id);
+        this.notifications.success(tag.isPublished ? $localize`Tag wurde unveröffentlicht` : $localize`Tag wurde veröffentlicht`);
+      },
+      error: () => {
+        this.notifications.error($localize`Fehler beim Aktualisieren der Tag-Veröffentlichung`);
+      },
+    });
   }
 
   deleteTag(tagId: string): void {

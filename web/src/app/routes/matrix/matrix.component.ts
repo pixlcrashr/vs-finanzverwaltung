@@ -5,12 +5,13 @@ import { MatrixValueStoreService } from './matrix-value-store.service';
 import { MatrixData, MatrixDataProviderService } from './matrix-data-provider.service';
 import { MatrixDataService, MatrixBudgetValueUpdate } from './matrix.data-service';
 import { delay } from 'rxjs';
+import { LoadingSpinnerComponent } from '../../shared/components';
 
 
 
 @Component({
   selector: 'app-matrix',
-  imports: [MatrixHeader, MatrixContent],
+  imports: [MatrixHeader, MatrixContent, LoadingSpinnerComponent],
   providers: [MatrixValueStoreService, MatrixDataProviderService],
   template: `
     <div class="flex flex-col h-full w-full min-w-[700px]">
@@ -22,11 +23,15 @@ import { delay } from 'rxjs';
         [isSaving]="isSaving()"
         [hasPendingChanges]="hasPendingChanges()"
         [(selectedBudgetIds)]="selectedBudgetIds"
+        [(selectedTagIds)]="selectedTagIds"
         [(selectedAccountIds)]="selectedAccountIds"
         (saveClick)="onSave()"
       />
       <div class="flex-grow overflow-auto">
-        @if (matrixData(); as data) {
+        @if (isLoading() && !hasLoadedData()) {
+          <app-loading-spinner i18n-text text="Matrix wird geladen..." [fullPage]="true" />
+        } @else {
+          @let data = matrixData();
           <app-matrix-content [matrixHeader]="matrixHeader" [matrixData]="data" [isSaving]="isSaving()" />
         }
       </div>
@@ -47,6 +52,7 @@ export class Matrix implements OnInit {
 
   isLoading = signal(true);
   isSaving = signal(false);
+  hasLoadedData = signal(false);
 
   matrixData = signal<MatrixData>({
     columns: [],
@@ -65,6 +71,7 @@ export class Matrix implements OnInit {
   );
 
   selectedBudgetIds = signal<string[]>([]);
+  selectedTagIds = signal<string[]>([]);
   selectedAccountIds = signal<string[]>([]);
 
   ngOnInit(): void {
@@ -73,13 +80,16 @@ export class Matrix implements OnInit {
 
   private loadInitialData(): void {
     this.isLoading.set(true);
-    
+
     this.dataProvider.getMatrixData().pipe(
       delay(200)
     ).subscribe({
       next: (data) => {
         if (data.budgets.length > 0 && this.selectedBudgetIds().length === 0) {
-          this.selectedBudgetIds.set([data.budgets[0].id]);
+          const firstBudget = data.budgets[0];
+          this.selectedBudgetIds.set([firstBudget.id]);
+          const lastTag = firstBudget.tags[firstBudget.tags.length - 1];
+          this.selectedTagIds.set(lastTag ? [lastTag.id] : []);
         }
 
         if (data.accounts.length > 0 && this.selectedAccountIds().length === 0) {
@@ -90,6 +100,7 @@ export class Matrix implements OnInit {
         }
 
         this.matrixData.set(data);
+        this.hasLoadedData.set(true);
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false)

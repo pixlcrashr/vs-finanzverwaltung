@@ -28,13 +28,18 @@ export class MockAccountCompareDataService extends AccountCompareDataService {
   })();
 
   private readonly accounts: CompareAccountOption[] = [
-    { id: 'acc-bank', code: '1100', name: 'Bank' },
-    { id: 'acc-kasse', code: '1200', name: 'Kasse' },
-    { id: 'acc-personal', code: '2100', name: 'Personalkosten' },
-    { id: 'acc-sachmittel', code: '2200', name: 'Sachmittel' },
-    { id: 'acc-events', code: '2300', name: 'Veranstaltungen' },
-    { id: 'acc-beitraege', code: '3100', name: 'Mitgliedsbeiträge' },
-    { id: 'acc-zuschuesse', code: '3200', name: 'Zuschüsse' },
+    { id: 'acc-einnahmen', code: '1000', name: 'Einnahmen', parentAccountId: null },
+    { id: 'acc-beitraege', code: '1100', name: 'Mitgliedsbeiträge', parentAccountId: 'acc-einnahmen' },
+    { id: 'acc-zuschuesse', code: '1200', name: 'Zuschüsse', parentAccountId: 'acc-einnahmen' },
+    { id: 'acc-ausgaben', code: '2000', name: 'Ausgaben', parentAccountId: null },
+    { id: 'acc-personal', code: '2100', name: 'Personalkosten', parentAccountId: 'acc-ausgaben' },
+    { id: 'acc-sachmittel', code: '2200', name: 'Sachmittel', parentAccountId: 'acc-ausgaben' },
+    { id: 'acc-it', code: '2210', name: 'IT-Infrastruktur', parentAccountId: 'acc-sachmittel' },
+    { id: 'acc-lizenzen', code: '2211', name: 'Lizenzen', parentAccountId: 'acc-it' },
+    { id: 'acc-events', code: '2300', name: 'Veranstaltungen', parentAccountId: 'acc-ausgaben' },
+    { id: 'acc-vermoegen', code: '3000', name: 'Vermögen', parentAccountId: null },
+    { id: 'acc-bank', code: '3100', name: 'Bank', parentAccountId: 'acc-vermoegen' },
+    { id: 'acc-kasse', code: '3200', name: 'Kasse', parentAccountId: 'acc-vermoegen' },
   ];
 
   getBudgets(): Observable<BudgetOption[]> {

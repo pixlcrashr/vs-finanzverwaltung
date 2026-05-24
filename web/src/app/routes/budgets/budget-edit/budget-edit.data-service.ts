@@ -24,9 +24,12 @@ export abstract class BudgetEditDataService {
     name: string,
     description: string,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
+    publishCurrentTargetValuesAlways: boolean,
+    publishCurrentActualValuesAlways: boolean
   ): Observable<void>;
   abstract addTag(budgetId: string, date: Date, name: string, description: string, force: boolean): Observable<BudgetTag>;
+  abstract updateTagPublication(id: string, isPublished: boolean): Observable<void>;
   abstract deleteTag(id: string): Observable<void>;
   abstract closeBudget(id: string): Observable<void>;
 }

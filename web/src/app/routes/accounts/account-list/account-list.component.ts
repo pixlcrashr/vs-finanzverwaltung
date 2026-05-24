@@ -8,7 +8,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { NgTemplateOutlet } from '@angular/common';
 import { Dialog } from '@angular/cdk/dialog';
-import { forkJoin, timer } from 'rxjs';
+import { concat, forkJoin, timer } from 'rxjs';
 import {
   PageContentLayoutComponent,
   BreadcrumbItem,
@@ -120,7 +120,7 @@ import { AccountListDataService } from './account-list.data-service';
               >
                 <ng-container i18n>{{ restoringAccountId() === account.id ? 'Wird wiederhergestellt...' : 'Wiederherstellen' }}</ng-container>
               </button>
-            } @else {
+            } @else if (canArchive(account)) {
               <button
                 type="button"
                 class="text-xs text-blue-600 hover:underline disabled:text-gray-400 disabled:no-underline"
@@ -203,6 +203,32 @@ export class AccountListComponent implements OnInit {
     });
   }
 
+  canArchive(account: Account): boolean {
+    return this.allChildrenArchived(account.children);
+  }
+
+  private findArchivedAncestors(targetId: string, nodes: Account[]): string[] | null {
+    for (const node of nodes) {
+      if (node.id === targetId) {
+        return [];
+      }
+      const descendantResult = this.findArchivedAncestors(targetId, node.children);
+      if (descendantResult !== null) {
+        const ids: string[] = [];
+        if (node.isArchived) {
+          ids.push(node.id);
+        }
+        ids.push(...descendantResult);
+        return ids;
+      }
+    }
+    return null;
+  }
+
+  private allChildrenArchived(children: Account[]): boolean {
+    return children.every((child) => child.isArchived && this.allChildrenArchived(child.children));
+  }
+
   isMutatingAccount(id: string): boolean {
     return this.archivingAccountId() === id || this.restoringAccountId() === id;
   }
@@ -226,8 +252,12 @@ export class AccountListComponent implements OnInit {
   restoreAccount(account: Account): void {
     if (this.isMutatingAccount(account.id)) return;
 
+    const archivedAncestorIds = this.findArchivedAncestors(account.id, this.accounts()) ?? [];
+    const restoreCalls = [account.id, ...archivedAncestorIds]
+      .map((id) => this.dataService.restoreAccount(id));
+
     this.restoringAccountId.set(account.id);
-    forkJoin([this.dataService.restoreAccount(account.id), timer(500)]).subscribe({
+    forkJoin([concat(...restoreCalls), timer(500)]).subscribe({
       next: () => {
         this.restoringAccountId.set(null);
         this.loadAccounts();

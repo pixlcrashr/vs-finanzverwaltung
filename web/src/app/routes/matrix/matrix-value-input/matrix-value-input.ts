@@ -18,7 +18,7 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
         class="appearance-none border-2 rounded w-full px-2 text-right leading-tight focus:outline-none transition-opacity"
         [class.opacity-40]="disabled()"
         [class.cursor-not-allowed]="disabled()"
-        [class.text-gray-700]="!disabled()"
+        [class.text-black]="!disabled()"
         [class.dark:text-gray-200]="!disabled()"
         [class.text-gray-500]="disabled()"
         [class.dark:text-gray-400]="disabled()"

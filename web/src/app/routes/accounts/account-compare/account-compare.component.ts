@@ -41,65 +41,23 @@ import {
         } @else {
           <div class="mx-auto w-full max-w-6xl space-y-3">
             <div class="bg-white rounded-lg border border-gray-200 p-4">
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div>
-                  <label
-                    for="budget"
-                    class="block text-xs font-medium text-gray-700 mb-1"
-                  >
-                    <ng-container i18n>Haushaltsjahr</ng-container>
-                  </label>
-                  <select
-                    id="budget"
-                    [(ngModel)]="selectedBudgetId"
-                    (ngModelChange)="onBudgetChange()"
-                    class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    @for (budget of budgets(); track budget.id) {
-                      <option [value]="budget.id">{{ budget.name }}</option>
-                    }
-                  </select>
-                </div>
-
-                <div>
-                  <label
-                    for="leftAccount"
-                    class="block text-xs font-medium text-gray-700 mb-1"
-                  >
-                    <ng-container i18n>Linkes Konto</ng-container>
-                  </label>
-                  <select
-                    id="leftAccount"
-                    [(ngModel)]="leftAccountId"
-                    (ngModelChange)="onLeftAccountChange()"
-                    class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option i18n value="">Bitte auswählen...</option>
-                    @for (account of accounts(); track account.id) {
-                      <option [value]="account.id">{{ account.code }} {{ account.name }}</option>
-                    }
-                  </select>
-                </div>
-
-                <div>
-                  <label
-                    for="rightAccount"
-                    class="block text-xs font-medium text-gray-700 mb-1"
-                  >
-                    <ng-container i18n>Rechtes Konto</ng-container>
-                  </label>
-                  <select
-                    id="rightAccount"
-                    [(ngModel)]="rightAccountId"
-                    (ngModelChange)="onRightAccountChange()"
-                    class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option i18n value="">Bitte auswählen...</option>
-                    @for (account of accounts(); track account.id) {
-                      <option [value]="account.id">{{ account.code }} {{ account.name }}</option>
-                    }
-                  </select>
-                </div>
+              <div class="max-w-sm">
+                <label
+                  for="budget"
+                  class="block text-xs font-medium text-gray-700 mb-1"
+                >
+                  <ng-container i18n>Haushaltsjahr</ng-container>
+                </label>
+                <select
+                  id="budget"
+                  [(ngModel)]="selectedBudgetId"
+                  (ngModelChange)="onBudgetChange()"
+                  class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  @for (budget of budgets(); track budget.id) {
+                    <option [value]="budget.id">{{ budget.name }}</option>
+                  }
+                </select>
               </div>
 
               @if (leftAccountId && rightAccountId && leftAccountId === rightAccountId) {
@@ -120,6 +78,20 @@ import {
                       Summe: {{ formatAmount(leftTotal()) }} ({{ leftTransactions().length }} Buchungen)
                     </p>
                   }
+                </div>
+
+                <div class="mb-3">
+                  <select
+                    id="leftAccount"
+                    [(ngModel)]="leftAccountId"
+                    (ngModelChange)="onLeftAccountChange()"
+                    class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option i18n value="">Bitte auswählen...</option>
+                    @for (account of accounts(); track account.id) {
+                      <option [value]="account.id" [disabled]="isParentAccount(account.id)">{{ accountOptionLabel(account) }}</option>
+                    }
+                  </select>
                 </div>
 
                 @if (leftLoading()) {
@@ -181,6 +153,20 @@ import {
                       Summe: {{ formatAmount(rightTotal()) }} ({{ rightTransactions().length }} Buchungen)
                     </p>
                   }
+                </div>
+
+                <div class="mb-3">
+                  <select
+                    id="rightAccount"
+                    [(ngModel)]="rightAccountId"
+                    (ngModelChange)="onRightAccountChange()"
+                    class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option i18n value="">Bitte auswählen...</option>
+                    @for (account of accounts(); track account.id) {
+                      <option [value]="account.id" [disabled]="isParentAccount(account.id)">{{ accountOptionLabel(account) }}</option>
+                    }
+                  </select>
                 </div>
 
                 @if (rightLoading()) {
@@ -302,7 +288,7 @@ export class AccountCompareComponent implements OnInit {
 
     this.dataService.getAccounts(this.selectedBudgetId).subscribe({
       next: (accounts) => {
-        this.accounts.set(accounts);
+        this.accounts.set(this.arrangeAccountsHierarchically(accounts));
         this.loading.set(false);
       },
       error: () => {
@@ -375,6 +361,56 @@ export class AccountCompareComponent implements OnInit {
     }
 
     return `${account.code} ${account.name}`;
+  }
+
+  accountOptionLabel(account: CompareAccountOption): string {
+    return `${'\u00A0'.repeat((account.depth ?? 0) * 4)}${(account.depth ?? 0) > 0 ? '└─ ' : ''}${account.code} ${account.name}`;
+  }
+
+  isParentAccount(accountId: string): boolean {
+    return this.accounts().some((account) => account.parentAccountId === accountId);
+  }
+
+  private arrangeAccountsHierarchically(accounts: CompareAccountOption[]): CompareAccountOption[] {
+    const childrenByParentId = new Map<string | null, CompareAccountOption[]>();
+
+    accounts.forEach((account) => {
+      const parentId = account.parentAccountId ?? null;
+      const siblings = childrenByParentId.get(parentId) ?? [];
+      siblings.push(account);
+      childrenByParentId.set(parentId, siblings);
+    });
+
+    childrenByParentId.forEach((siblings) => {
+      siblings.sort((left, right) => left.code.localeCompare(right.code));
+    });
+
+    const arranged: CompareAccountOption[] = [];
+    const visited = new Set<string>();
+
+    const appendAccount = (account: CompareAccountOption, depth: number): void => {
+      if (visited.has(account.id)) {
+        return;
+      }
+
+      visited.add(account.id);
+      arranged.push({ ...account, depth });
+
+      for (const child of childrenByParentId.get(account.id) ?? []) {
+        appendAccount(child, depth + 1);
+      }
+    };
+
+    for (const account of childrenByParentId.get(null) ?? []) {
+      appendAccount(account, 0);
+    }
+
+    accounts
+      .filter((account) => !visited.has(account.id))
+      .sort((left, right) => left.code.localeCompare(right.code))
+      .forEach((account) => appendAccount(account, account.depth ?? 0));
+
+    return arranged;
   }
 
   formatDate(date: Date): string {

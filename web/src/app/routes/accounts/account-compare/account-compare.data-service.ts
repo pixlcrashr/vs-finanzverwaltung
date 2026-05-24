@@ -10,6 +10,8 @@ export interface CompareAccountOption {
   id: string;
   code: string;
   name: string;
+  parentAccountId?: string | null;
+  depth?: number;
 }
 
 export interface CompareAccountTransaction {

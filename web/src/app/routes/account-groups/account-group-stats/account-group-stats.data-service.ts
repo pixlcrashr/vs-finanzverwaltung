@@ -1,6 +1,9 @@
 import { Observable } from 'rxjs';
-import { AccountGroupStats } from '../../../shared/models';
+import { AccountGroupStats, Budget, BudgetTag } from '../../../shared/models';
 
 export abstract class AccountGroupStatsDataService {
-  abstract getGroup(id: string): Observable<AccountGroupStats>;
+  abstract getBudgets(): Observable<Budget[]>;
+  abstract getBudgetTags(budgetId: string): Observable<BudgetTag[]>;
+  abstract getGroupStats(groupId: string, budgetId: string): Observable<AccountGroupStats>;
+  abstract getGroupStatsByTag(groupId: string, budgetId: string, tagId: string): Observable<AccountGroupStats>;
 }

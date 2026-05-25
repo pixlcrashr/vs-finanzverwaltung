@@ -13,12 +13,15 @@ export interface AccountGroupAssignment {
   accountCode: string;
   accountName: string;
   operation: AccountGroupOperation;
+  targetValue: string;
+  actualValue: string;
 }
 
 export interface AccountGroupStats {
   id: string;
   name: string;
-  totalValue: string;
+  targetValue: string;
+  actualValue: string;
   transactionCount: number;
   accounts: AccountGroupAssignment[];
 }

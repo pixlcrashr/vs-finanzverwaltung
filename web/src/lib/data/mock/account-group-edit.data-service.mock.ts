@@ -57,6 +57,8 @@ export class MockAccountGroupEditDataService extends AccountGroupEditDataService
           accountCode: '2.1.1',
           accountName: 'Gehälter',
           operation: 'A',
+          targetValue: '0',
+          actualValue: '0',
         },
         {
           id: faker.string.uuid(),
@@ -64,6 +66,8 @@ export class MockAccountGroupEditDataService extends AccountGroupEditDataService
           accountCode: '2.1.2',
           accountName: 'Sozialabgaben',
           operation: 'A',
+          targetValue: '0',
+          actualValue: '0',
         },
         {
           id: faker.string.uuid(),
@@ -71,6 +75,8 @@ export class MockAccountGroupEditDataService extends AccountGroupEditDataService
           accountCode: '2.1.3',
           accountName: 'Weiterbildung',
           operation: 'S',
+          targetValue: '0',
+          actualValue: '0',
         },
       ],
     };
@@ -130,6 +136,8 @@ export class MockAccountGroupEditDataService extends AccountGroupEditDataService
           accountCode: account.code,
           accountName: account.name,
           operation,
+          targetValue: '0',
+          actualValue: '0',
         });
         this.savedGroupData.assignmentCount++;
       }

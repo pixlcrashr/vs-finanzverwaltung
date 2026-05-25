@@ -4,7 +4,10 @@ import { faker } from '@faker-js/faker';
 import {
   JournalImportDataService,
   ImportSourceOption,
-  ImportResult,
+  ImportTransaction,
+  ImportSingleTransactionRequest,
+  AccountOption,
+  UploadResult,
   JournalImportType,
 } from '../../../app/routes/journal/journal-import/journal-import.data-service';
 
@@ -19,18 +22,44 @@ export class MockJournalImportDataService extends JournalImportDataService {
     ]).pipe(delay(200));
   }
 
-  importFile(sourceId: string, type: JournalImportType, file: File): Observable<ImportResult> {
-    const imported =
-      type === 'lexware'
-        ? faker.number.int({ min: 20, max: 70 })
-        : faker.number.int({ min: 10, max: 40 });
-    const skipped = faker.number.int({ min: 0, max: 5 });
+  getAvailableAccounts(): Observable<AccountOption[]> {
+    return of([
+      { id: faker.string.uuid(), name: '1-01 | Mitgliedsbeiträge', isArchived: false },
+      { id: faker.string.uuid(), name: '1-02 | Spenden', isArchived: false },
+      { id: faker.string.uuid(), name: '2-01 | Veranstaltungen', isArchived: false },
+      { id: faker.string.uuid(), name: '2-02 | Material', isArchived: false },
+      { id: faker.string.uuid(), name: '3-01 | Verwaltung', isArchived: false },
+      { id: faker.string.uuid(), name: '3-02 | Reisekosten', isArchived: true },
+    ]).pipe(delay(200));
+  }
+
+  uploadFile(sourceId: string, type: JournalImportType, file: File): Observable<UploadResult> {
+    const count = type === 'lexware'
+      ? faker.number.int({ min: 5, max: 15 })
+      : faker.number.int({ min: 3, max: 10 });
+
+    const transactions: ImportTransaction[] = Array.from({ length: count }, () => ({
+      customId: faker.string.uuid(),
+      receiptFrom: faker.date.recent({ days: 90 }).toISOString().slice(0, 10),
+      bookedAt: faker.date.recent({ days: 90 }).toISOString().slice(0, 10),
+      reference: `${faker.string.alpha({ length: 2, casing: 'upper' })}${faker.number.int({ min: 100, max: 999 })}`,
+      description: faker.finance.transactionDescription(),
+      amount: faker.finance.amount({ min: 10, max: 5000, dec: 2 }),
+      debitAccount: faker.number.int({ min: 1000, max: 9999 }).toString(),
+      debitAccountName: faker.finance.accountName(),
+      creditAccount: faker.number.int({ min: 1000, max: 9999 }).toString(),
+      creditAccountName: faker.finance.accountName(),
+    }));
 
     return of({
       success: true,
-      importedCount: imported,
-      skippedCount: skipped,
-      errors: skipped > 0 ? ['Einige Duplikate wurden übersprungen'] : [],
-    }).pipe(delay(1500));
+      transactions,
+      sourceId,
+      closedYearsCount: 0,
+    }).pipe(delay(1000));
+  }
+
+  importTransaction(request: ImportSingleTransactionRequest): Observable<{ success: boolean }> {
+    return of({ success: true }).pipe(delay(500));
   }
 }

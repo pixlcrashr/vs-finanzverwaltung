@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   inject,
   signal,
+  computed,
   OnInit,
   OnDestroy,
 } from '@angular/core';
@@ -18,7 +19,7 @@ import {
 } from '../../../shared/components';
 import { formatDateShort } from '../../../shared/utils';
 import { UserGroup } from '../../../shared/models';
-import { GroupEditDataService } from './group-edit.data-service';
+import { GroupEditDataService, PermissionCategory } from './group-edit.data-service';
 
 @Component({
   selector: 'app-group-edit',
@@ -87,6 +88,56 @@ import { GroupEditDataService } from './group-edit.data-service';
                     </div>
                   </form>
                 </div>
+
+                <!-- Permissions Section -->
+                <div class="bg-white rounded-lg border border-gray-200 p-4">
+                  <div class="flex items-center justify-between mb-4">
+                    <h2 i18n class="text-sm font-semibold text-gray-900">
+                      Berechtigungen
+                    </h2>
+                    @if (savingPermissions()) {
+                      <span class="text-xs text-gray-500 flex items-center gap-1">
+                        <svg class="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <ng-container i18n>Speichern...</ng-container>
+                      </span>
+                    }
+                  </div>
+
+                  @if (permissionCategories().length === 0) {
+                    <p i18n class="text-xs text-gray-500">Berechtigungen werden geladen...</p>
+                  } @else {
+                    <div class="space-y-4">
+                      @for (category of permissionCategories(); track category.name) {
+                        <div>
+                          <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
+                            {{ category.name }}
+                          </h4>
+                          <div class="space-y-1">
+                            @for (permission of category.permissions; track permission.id) {
+                              <label
+                                class="flex items-center gap-2 cursor-pointer"
+                              >
+                                <input
+                                  type="checkbox"
+                                  [checked]="isPermissionAssigned(permission.id)"
+                                  (change)="togglePermission(permission.id, $event)"
+                                  class="h-4 w-4 shrink-0 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                />
+                                <div>
+                                  <span class="text-sm text-gray-900">{{ permission.name }}</span>
+                                  <p class="text-xs text-gray-500">{{ permission.description }}</p>
+                                </div>
+                              </label>
+                            }
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
               </div>
 
               <!-- Right Column: Info & Actions -->
@@ -124,7 +175,11 @@ export class GroupEditComponent implements OnInit, OnDestroy {
 
   readonly loading = signal(true);
   readonly saving = signal(false);
+  private readonly pendingPermissionSaves = signal(0);
+  readonly savingPermissions = computed(() => this.pendingPermissionSaves() > 0);
   readonly group = signal<UserGroup | null>(null);
+  readonly permissionCategories = signal<PermissionCategory[]>([]);
+  readonly assignedPermissionIds = signal<Set<string>>(new Set());
 
   readonly breadcrumbs = signal<BreadcrumbItem[]>([
     { label: $localize`Gruppen`, path: '/admin/groups' },
@@ -146,6 +201,7 @@ export class GroupEditComponent implements OnInit, OnDestroy {
     this.groupId = this.route.snapshot.paramMap.get('id') || '';
     if (this.groupId) {
       this.loadGroup();
+      this.loadPermissions();
       this.setupAutoSave();
     }
   }
@@ -211,6 +267,61 @@ export class GroupEditComponent implements OnInit, OnDestroy {
       error: () => {
         this.notifications.error($localize`Fehler beim Speichern der Gruppe`);
         this.saving.set(false);
+      },
+    });
+  }
+
+  private loadPermissions(): void {
+    this.dataService.getPermissions().subscribe({
+      next: (categories) => {
+        this.permissionCategories.set(categories);
+        this.loadGroupPermissions();
+      },
+    });
+  }
+
+  private loadGroupPermissions(): void {
+    this.dataService.getGroupPermissions(this.groupId).subscribe({
+      next: (ids) => this.assignedPermissionIds.set(new Set(ids)),
+    });
+  }
+
+  isPermissionAssigned(permissionId: string): boolean {
+    return this.assignedPermissionIds().has(permissionId);
+  }
+
+  togglePermission(permissionId: string, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.assignedPermissionIds.update((ids) => {
+      const next = new Set(ids);
+      if (checked) {
+        next.add(permissionId);
+      } else {
+        next.delete(permissionId);
+      }
+      return next;
+    });
+
+    this.pendingPermissionSaves.update(n => n + 1);
+    const request$ = checked
+      ? this.dataService.addPermission(this.groupId, permissionId)
+      : this.dataService.removePermission(this.groupId, permissionId);
+
+    request$.subscribe({
+      next: () => this.pendingPermissionSaves.update(n => n - 1),
+      error: () => {
+        this.notifications.error($localize`Fehler beim Speichern der Berechtigung`);
+        // Revert optimistic update
+        this.assignedPermissionIds.update((ids) => {
+          const next = new Set(ids);
+          if (checked) {
+            next.delete(permissionId);
+          } else {
+            next.add(permissionId);
+          }
+          return next;
+        });
+        this.pendingPermissionSaves.update(n => n - 1);
       },
     });
   }

@@ -108,6 +108,8 @@ export class HttpAccountGroupEditDataService extends AccountGroupEditDataService
                 accountCode: account.code,
                 accountName: account.name,
                 operation: (apiAssignment.negate ? 'S' : 'A') as AccountGroupOperation,
+                targetValue: '0',
+                actualValue: '0',
               }
             : null;
 

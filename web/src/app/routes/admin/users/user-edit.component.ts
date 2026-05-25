@@ -3,13 +3,13 @@ import {
   ChangeDetectionStrategy,
   inject,
   signal,
+  computed,
   OnInit,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
   PageContentLayoutComponent,
   BreadcrumbItem,
-  ButtonComponent,
   LoadingSpinnerComponent,
   NotificationService,
 } from '../../../shared/components';
@@ -21,7 +21,6 @@ import { UserEditDataService } from './user-edit.data-service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     PageContentLayoutComponent,
-    ButtonComponent,
     LoadingSpinnerComponent,
   ],
   template: `
@@ -59,77 +58,34 @@ import { UserEditDataService } from './user-edit.data-service';
 
                 <!-- Group Management -->
                 <div class="bg-white rounded-lg border border-gray-200 p-4">
-                  <h3 i18n class="text-sm font-semibold text-gray-900 mb-4">
-                    Gruppenzugehörigkeit
-                  </h3>
-
-                  <!-- Current Groups -->
-                  <div class="mb-4">
-                    <h4 i18n class="text-xs font-medium text-gray-500 mb-2">
-                      Aktuelle Gruppen
-                    </h4>
-                    @if (user()!.groups.length === 0) {
-                      <p i18n class="text-xs text-gray-500">
-                        Keine Gruppen zugewiesen
-                      </p>
-                    } @else {
-                      <div class="space-y-2">
-                        @for (group of user()!.groups; track group.id) {
-                          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                            <div>
-                              <span class="text-sm text-gray-900">{{ group.name }}</span>
-                              @if (group.description) {
-                                <p class="text-xs text-gray-500">
-                                  {{ group.description }}
-                                </p>
-                              }
-                            </div>
-                            <app-button
-                              variant="danger"
-                              size="sm"
-                              [disabled]="removingGroup() === group.id"
-                              (clicked)="removeFromGroup(group)"
-                            >
-                              <ng-container i18n>{{ removingGroup() === group.id ? 'Entfernen...' : 'Entfernen' }}</ng-container>
-                            </app-button>
-                          </div>
-                        }
-                      </div>
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 i18n class="text-sm font-semibold text-gray-900">
+                      Gruppenzugehörigkeit
+                    </h3>
+                    @if (savingGroup()) {
+                      <span class="text-xs text-gray-500 flex items-center gap-1">
+                        <svg class="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <ng-container i18n>Speichern...</ng-container>
+                      </span>
                     }
                   </div>
 
-                  <!-- Add to Group -->
-                  <div>
-                    <h4 i18n class="text-xs font-medium text-gray-500 mb-2">
-                      Zu Gruppe hinzufügen
-                    </h4>
-                    @if (availableGroups().length === 0) {
-                      <p i18n class="text-xs text-gray-500">
-                        Der Benutzer ist bereits allen Gruppen zugewiesen
-                      </p>
-                    } @else {
-                      <div class="space-y-2">
-                        @for (group of availableGroups(); track group.id) {
-                          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                            <div>
-                              <span class="text-sm text-gray-900">{{ group.name }}</span>
-                              @if (group.description) {
-                                <p class="text-xs text-gray-500">
-                                  {{ group.description }}
-                                </p>
-                              }
-                            </div>
-                            <app-button
-                              variant="primary"
-                              size="sm"
-                              [disabled]="addingGroup() === group.id"
-                              (clicked)="addToGroup(group)"
-                            >
-                              <ng-container i18n>{{ addingGroup() === group.id ? 'Hinzufügen...' : 'Hinzufügen' }}</ng-container>
-                            </app-button>
-                          </div>
-                        }
-                      </div>
+                  <div class="space-y-1">
+                    @for (group of allGroups(); track group.id) {
+                      <label
+                        class="flex items-center gap-2 cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          [checked]="isGroupAssigned(group.id)"
+                          (change)="toggleGroup(group, $event)"
+                          class="h-4 w-4 shrink-0 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span class="text-sm text-gray-900">{{ group.name }}</span>
+                      </label>
                     }
                   </div>
                 </div>
@@ -165,10 +121,10 @@ export class UserEditComponent implements OnInit {
   private readonly notifications = inject(NotificationService);
 
   readonly loading = signal(true);
-  readonly addingGroup = signal<string | null>(null);
-  readonly removingGroup = signal<string | null>(null);
+  private readonly pendingGroupSaves = signal(0);
+  readonly savingGroup = computed(() => this.pendingGroupSaves() > 0);
   readonly user = signal<User | null>(null);
-  readonly availableGroups = signal<UserGroup[]>([]);
+  readonly allGroups = signal<UserGroup[]>([]);
 
   readonly breadcrumbs: BreadcrumbItem[] = [
     { label: $localize`Benutzer`, path: '/admin/users' },
@@ -188,7 +144,7 @@ export class UserEditComponent implements OnInit {
     this.dataService.getUser(this.userId).subscribe({
       next: (user) => {
         this.user.set(user);
-        this.loadAvailableGroups();
+        this.loadAllGroups();
       },
       error: () => {
         this.notifications.error($localize`Fehler beim Laden des Benutzers`);
@@ -197,53 +153,59 @@ export class UserEditComponent implements OnInit {
     });
   }
 
-  private loadAvailableGroups(): void {
+  private loadAllGroups(): void {
     this.dataService.getAvailableGroups().subscribe({
       next: (groups) => {
-        this.availableGroups.set(groups);
+        this.allGroups.set(groups);
         this.loading.set(false);
       },
       error: () => {
-        this.notifications.error($localize`Fehler beim Laden der verfügbaren Gruppen`);
+        this.notifications.error($localize`Fehler beim Laden der Gruppen`);
         this.loading.set(false);
       },
     });
   }
 
-  addToGroup(group: UserGroup): void {
-    this.addingGroup.set(group.id);
-    this.dataService.addUserToGroup(this.userId, group.id).subscribe({
-      next: () => {
-        this.user.update((u) => {
-          if (!u) return u;
-          return { ...u, groups: [...u.groups, group] };
-        });
-        this.availableGroups.update((groups) =>
-          groups.filter((g) => g.id !== group.id)
+  isGroupAssigned(groupId: string): boolean {
+    return this.user()?.groups.some((g) => g.id === groupId) ?? false;
+  }
+
+  toggleGroup(group: UserGroup, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+
+    // Optimistic update
+    this.user.update((u) => {
+      if (!u) return u;
+      if (checked) {
+        return { ...u, groups: [...u.groups, group] };
+      } else {
+        return { ...u, groups: u.groups.filter((g) => g.id !== group.id) };
+      }
+    });
+
+    this.pendingGroupSaves.update(n => n + 1);
+    const request$ = checked
+      ? this.dataService.addUserToGroup(this.userId, group.id)
+      : this.dataService.removeUserFromGroup(this.userId, group.id);
+
+    request$.subscribe({
+      next: () => this.pendingGroupSaves.update(n => n - 1),
+      error: () => {
+        this.notifications.error(
+          checked
+            ? $localize`Fehler beim Hinzufügen zur Gruppe`
+            : $localize`Fehler beim Entfernen aus der Gruppe`
         );
-        this.addingGroup.set(null);
-      },
-      error: () => {
-        this.notifications.error($localize`Fehler beim Hinzufügen zur Gruppe`);
-        this.addingGroup.set(null);
-      },
-    });
-  }
-
-  removeFromGroup(group: UserGroup): void {
-    this.removingGroup.set(group.id);
-    this.dataService.removeUserFromGroup(this.userId, group.id).subscribe({
-      next: () => {
+        // Revert optimistic update
         this.user.update((u) => {
           if (!u) return u;
-          return { ...u, groups: u.groups.filter((g) => g.id !== group.id) };
+          if (checked) {
+            return { ...u, groups: u.groups.filter((g) => g.id !== group.id) };
+          } else {
+            return { ...u, groups: [...u.groups, group] };
+          }
         });
-        this.availableGroups.update((groups) => [...groups, group]);
-        this.removingGroup.set(null);
-      },
-      error: () => {
-        this.notifications.error($localize`Fehler beim Entfernen aus der Gruppe`);
-        this.removingGroup.set(null);
+        this.pendingGroupSaves.update(n => n - 1);
       },
     });
   }

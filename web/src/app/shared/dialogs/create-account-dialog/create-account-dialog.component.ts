@@ -7,13 +7,14 @@ import {
 } from '@angular/core';
 import { DialogRef } from '@angular/cdk/dialog';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ButtonComponent, LoadingSpinnerComponent } from '../../components';
+import { ButtonComponent } from '../../components';
 import { CreateAccountDialogDataService } from './create-account-dialog.data-service';
 
 export interface ParentAccountOption {
   id: string;
   code: string;
   name: string;
+  depth: number;
 }
 
 export interface CreatedAccount {
@@ -32,19 +33,15 @@ export interface CreateAccountDialogOutput {
 @Component({
   selector: 'app-create-account-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, ButtonComponent, LoadingSpinnerComponent],
+  imports: [ReactiveFormsModule, ButtonComponent],
   template: `
     <div class="bg-white rounded-lg shadow-xl p-4">
       <h2 class="text-sm font-semibold text-gray-900 mb-4">
         <ng-container i18n>Konto erstellen</ng-container>
       </h2>
 
-      @if (loadingAccounts()) {
-        <div class="flex justify-center py-4">
-          <app-loading-spinner i18n-text text="Konten werden geladen..." />
-        </div>
-      } @else {
-        <form [formGroup]="form" (ngSubmit)="submit()">
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <fieldset [disabled]="loadingAccounts()">
           <div class="space-y-3">
             <div>
               <label
@@ -57,7 +54,7 @@ export interface CreateAccountDialogOutput {
                 id="code"
                 type="text"
                 formControlName="code"
-                class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
               />
             </div>
 
@@ -72,7 +69,7 @@ export interface CreateAccountDialogOutput {
                 id="name"
                 type="text"
                 formControlName="name"
-                class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
               />
             </div>
 
@@ -87,7 +84,7 @@ export interface CreateAccountDialogOutput {
                 id="description"
                 formControlName="description"
                 rows="2"
-                class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
               ></textarea>
             </div>
 
@@ -101,32 +98,32 @@ export interface CreateAccountDialogOutput {
               <select
                 id="parentAccount"
                 formControlName="parentAccountId"
-                class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
               >
                 <option i18n value="">Kein übergeordnetes Konto</option>
                 @for (account of parentAccounts(); track account.id) {
                   <option [value]="account.id">
-                    {{ account.code }} - {{ account.name }}
+                    {{ indent(account.depth) }}{{ account.code }} - {{ account.name }}
                   </option>
                 }
               </select>
             </div>
           </div>
+        </fieldset>
 
-          <div class="flex justify-end gap-2 mt-4">
-            <app-button variant="secondary" (clicked)="cancel()">
-              <ng-container i18n>Abbrechen</ng-container>
-            </app-button>
-            <app-button
-              type="submit"
-              [disabled]="form.invalid"
-              [loading]="creating()"
-            >
-              <ng-container i18n>Erstellen</ng-container>
-            </app-button>
-          </div>
-        </form>
-      }
+        <div class="flex justify-end gap-2 mt-4">
+          <app-button variant="secondary" (clicked)="cancel()">
+            <ng-container i18n>Abbrechen</ng-container>
+          </app-button>
+          <app-button
+            type="submit"
+            [disabled]="form.invalid || loadingAccounts()"
+            [loading]="creating()"
+          >
+            <ng-container i18n>Erstellen</ng-container>
+          </app-button>
+        </div>
+      </form>
     </div>
   `,
 })
@@ -160,6 +157,10 @@ export class CreateAccountDialogComponent implements OnInit {
         this.loadingAccounts.set(false);
       },
     });
+  }
+
+  indent(depth: number): string {
+    return '\u00A0\u00A0'.repeat(depth);
   }
 
   cancel(): void {

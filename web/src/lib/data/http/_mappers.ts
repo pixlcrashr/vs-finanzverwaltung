@@ -93,6 +93,8 @@ export function mapApiAccountGroupAssignment(
     accountCode,
     accountName,
     operation: a.negate ? 'S' : 'A',
+    targetValue: '0',
+    actualValue: '0',
   };
 }
 

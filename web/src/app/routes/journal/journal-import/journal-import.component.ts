@@ -3,9 +3,9 @@ import {
   ChangeDetectionStrategy,
   inject,
   signal,
+  computed,
   OnInit,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
   PageContentLayoutComponent,
@@ -17,19 +17,30 @@ import {
 import {
   JournalImportDataService,
   ImportSourceOption,
-  ImportResult,
+  ImportTransaction,
+  AccountOption,
+  AccountAssignment,
   JournalImportType,
 } from './journal-import.data-service';
+import { CurrencyInputComponent } from './currency-input/currency-input.component';
+
+interface TransactionRow {
+  transaction: ImportTransaction;
+  assignments: AccountAssignment[];
+  importing: boolean;
+  imported: boolean;
+  ignored: boolean;
+}
 
 @Component({
   selector: 'app-journal-import',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    RouterLink,
     FormsModule,
     PageContentLayoutComponent,
     ButtonComponent,
     LoadingSpinnerComponent,
+    CurrencyInputComponent,
   ],
   template: `
     <app-page-content-layout [breadcrumbs]="breadcrumbs">
@@ -37,54 +48,9 @@ import {
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Importquellen werden geladen..." />
         } @else {
-          <div class="mx-auto w-full max-w-6xl space-y-3">
-            @if (importResult()) {
-              <!-- Import Result -->
-              <div
-                class="rounded-lg border p-4"
-                [class.bg-green-50]="importResult()!.success"
-                [class.border-green-200]="importResult()!.success"
-                [class.bg-red-50]="!importResult()!.success"
-                [class.border-red-200]="!importResult()!.success"
-              >
-                <h2 class="text-sm font-semibold mb-4" [class.text-green-800]="importResult()!.success" [class.text-red-800]="!importResult()!.success">
-                  <ng-container i18n>{{ importResult()!.success ? 'Import erfolgreich' : 'Import fehlgeschlagen' }}</ng-container>
-                </h2>
-
-                <dl class="grid grid-cols-2 gap-2 text-sm mb-4">
-                  <div>
-                    <dt i18n class="text-xs text-gray-500">Importiert</dt>
-                    <dd class="text-xl font-semibold text-green-600">{{ importResult()!.importedCount }}</dd>
-                  </div>
-                  <div>
-                    <dt i18n class="text-xs text-gray-500">Übersprungen</dt>
-                    <dd class="text-xl font-semibold text-yellow-600">{{ importResult()!.skippedCount }}</dd>
-                  </div>
-                </dl>
-
-                @if (importResult()!.errors.length > 0) {
-                  <div class="mt-4">
-                    <p i18n class="text-xs font-medium text-gray-700 mb-2">Hinweise:</p>
-                    <ul class="text-xs text-gray-500 list-disc list-inside">
-                      @for (error of importResult()!.errors; track error) {
-                        <li>{{ error }}</li>
-                      }
-                    </ul>
-                  </div>
-                }
-
-                <div class="flex gap-2 mt-4">
-                  <app-button (clicked)="resetImport()"><ng-container i18n>Neuer Import</ng-container></app-button>
-                  <a
-                    routerLink="/journal"
-                    class="px-2 py-1 text-xs font-medium text-gray-900 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-50"
-                  >
-                    <ng-container i18n>Zum Journal</ng-container>
-                  </a>
-                </div>
-              </div>
-            } @else {
-              <!-- Import Form -->
+          <div class="mx-auto w-full max-w-7xl space-y-3">
+            @if (!transactions()) {
+              <!-- Upload Form -->
               <div class="bg-white rounded-lg border border-gray-200 p-4">
                 <h2 i18n class="text-sm font-semibold text-gray-900 mb-4">
                   Buchungen importieren
@@ -163,11 +129,11 @@ import {
 
                 <div class="flex justify-end gap-2 mt-4">
                   <app-button
-                    [disabled]="!canImport()"
-                    [loading]="importing()"
-                    (clicked)="startImport()"
+                    [disabled]="!canUpload()"
+                    [loading]="uploading()"
+                    (clicked)="uploadFile()"
                   >
-                    <ng-container i18n>Importieren</ng-container>
+                    <ng-container i18n>Hochladen</ng-container>
                   </app-button>
                 </div>
               </div>
@@ -181,6 +147,151 @@ import {
                   <li i18n>Der Import kann nicht rückgängig gemacht werden</li>
                 </ul>
               </div>
+            } @else {
+              <!-- Transaction Review Table -->
+              @if (closedYearsCount() > 0) {
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                  <p i18n class="text-xs text-yellow-800">
+                    {{ closedYearsCount() }} Buchungen wurden ausgelassen, da die zugehörige Importperiode geschlossen ist.
+                  </p>
+                </div>
+              }
+
+              @if (pendingRows().length === 0) {
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                  <p i18n class="text-sm text-gray-600">Es wurden keine Transaktionen gefunden.</p>
+                  <div class="mt-4">
+                    <app-button (clicked)="resetImport()"><ng-container i18n>Neuer Import</ng-container></app-button>
+                  </div>
+                </div>
+              } @else {
+                <div class="flex items-center justify-between mb-2">
+                  <p class="text-xs text-gray-500">
+                    <ng-container i18n>{{ pendingRows().length }} Transaktionen zum Importieren</ng-container>
+                  </p>
+                  <app-button (clicked)="resetImport()"><ng-container i18n>Neuer Import</ng-container></app-button>
+                </div>
+
+                <div class="bg-white rounded-lg border border-gray-200">
+                  <div class="overflow-x-auto">
+                  <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th scope="col" class="px-2.5 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+                          <ng-container i18n>Datum</ng-container>
+                        </th>
+                        <th scope="col" class="px-2.5 py-1.5 text-right text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+                          <ng-container i18n>Betrag</ng-container>
+                        </th>
+                        <th scope="col" class="px-2.5 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+                          <ng-container i18n>Sollkonto</ng-container>
+                        </th>
+                        <th scope="col" class="px-2.5 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+                          <ng-container i18n>Habenkonto</ng-container>
+                        </th>
+                        <th scope="col" class="px-2.5 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+                          <ng-container i18n>Buchungstext</ng-container>
+                        </th>
+                        <th scope="col" class="px-2.5 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+                          <ng-container i18n>Referenz</ng-container>
+                        </th>
+                        <th scope="col" class="px-2.5 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+                          <ng-container i18n>Haushaltskonto-Zuweisungen</ng-container>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 bg-white">
+                      @for (row of pendingRows(); track row.transaction.customId) {
+                        <tr class="align-top hover:bg-gray-50 transition-colors">
+                          <td class="px-2.5 py-1.5 text-xs text-gray-900 whitespace-nowrap">{{ row.transaction.bookedAt }}</td>
+                          <td class="px-2.5 py-1.5 text-xs text-gray-900 text-right whitespace-nowrap">{{ formatCurrency(row.transaction.amount) }}</td>
+                          <td class="px-2.5 py-1.5 text-xs text-gray-900 whitespace-nowrap">
+                            {{ row.transaction.debitAccount }}
+                            @if (row.transaction.debitAccountName) {
+                              <span class="text-gray-400"> ({{ row.transaction.debitAccountName }})</span>
+                            }
+                          </td>
+                          <td class="px-2.5 py-1.5 text-xs text-gray-900 whitespace-nowrap">
+                            {{ row.transaction.creditAccount }}
+                            @if (row.transaction.creditAccountName) {
+                              <span class="text-gray-400"> ({{ row.transaction.creditAccountName }})</span>
+                            }
+                          </td>
+                          <td class="px-2.5 py-1.5 text-xs text-gray-900">
+                            <div class="max-w-[200px] truncate" [title]="row.transaction.description">
+                              {{ row.transaction.description }}
+                            </div>
+                          </td>
+                          <td class="px-2.5 py-1.5 text-xs text-gray-900 whitespace-nowrap">{{ row.transaction.reference }}</td>
+                          <td class="px-2.5 py-1.5 text-xs text-gray-900 min-w-[280px]">
+                            <!-- Account Assignments -->
+                            <div class="space-y-1">
+                              @for (assignment of row.assignments; track $index; let i = $index) {
+                                <div class="flex gap-1 items-center">
+                                  <select
+                                    [ngModel]="assignment.accountId"
+                                    (ngModelChange)="onAssignmentAccountChange(row, i, $event)"
+                                    class="flex-1 px-1.5 py-1 text-xs border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    [class.border-red-300]="!assignment.accountId"
+                                  >
+                                    <option i18n value="">Konto wählen...</option>
+                                    @for (account of activeAccounts(); track account.id) {
+                                      <option [value]="account.id">{{ account.name }}</option>
+                                    }
+                                  </select>
+                                  <app-currency-input
+                                    [(value)]="assignment.value"
+                                  />
+                                  <button
+                                    type="button"
+                                    (click)="removeAssignment(row, i)"
+                                    [disabled]="row.assignments.length <= 1"
+                                    class="px-1.5 py-1 text-xs text-red-600 border border-red-200 rounded hover:bg-red-50 disabled:opacity-30 disabled:cursor-not-allowed"
+                                  >✕</button>
+                                </div>
+                              }
+                              <button
+                                type="button"
+                                (click)="addAssignment(row)"
+                                class="w-full px-1.5 py-1 text-xs text-green-700 border border-green-200 rounded hover:bg-green-50"
+                                i18n
+                              >+ Zuweisung hinzufügen</button>
+
+                              <!-- Assignment summary -->
+                              <div class="text-right text-[10px] text-gray-400 pt-1 border-t border-gray-100">
+                                <span>{{ getAssignedTotal(row) }}</span>
+                                <span> - {{ row.transaction.amount }}</span>
+                                <span
+                                  [class.text-green-600]="isRowValid(row)"
+                                  [class.text-red-500]="!isRowValid(row)"
+                                > = {{ getAssignmentDiff(row) }}</span>
+                              </div>
+                            </div>
+
+                            <!-- Import / Ignore buttons -->
+                            <div class="flex justify-end gap-1 mt-2">
+                              <button
+                                type="button"
+                                (click)="ignoreTransaction(row)"
+                                class="px-2 py-1 text-xs font-medium text-gray-600 border border-gray-300 rounded hover:bg-gray-100"
+                                i18n
+                              >Ignorieren</button>
+                              <app-button
+                                [disabled]="!isRowValid(row) || row.importing"
+                                [loading]="row.importing"
+                                (clicked)="importSingleTransaction(row)"
+                              >
+                                <ng-container i18n>Importieren</ng-container>
+                              </app-button>
+                            </div>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                  </div>
+                </div>
+              }
             }
           </div>
         }
@@ -193,11 +304,22 @@ export class JournalImportComponent implements OnInit {
   private readonly notifications = inject(NotificationService);
 
   readonly loading = signal(true);
-  readonly importing = signal(false);
+  readonly uploading = signal(false);
   readonly sources = signal<ImportSourceOption[]>([]);
+  readonly accounts = signal<AccountOption[]>([]);
   readonly selectedFile = signal<File | null>(null);
-  readonly importResult = signal<ImportResult | null>(null);
+  readonly transactions = signal<TransactionRow[] | null>(null);
+  readonly closedYearsCount = signal(0);
 
+  readonly activeAccounts = computed(() =>
+    this.accounts().filter(a => !a.isArchived)
+  );
+
+  readonly pendingRows = computed(() =>
+    (this.transactions() ?? []).filter(r => !r.imported && !r.ignored)
+  );
+
+  private sourceId = '';
   selectedType: '' | JournalImportType = '';
   selectedSourceId = '';
 
@@ -208,6 +330,7 @@ export class JournalImportComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadSources();
+    this.loadAccounts();
   }
 
   private loadSources(): void {
@@ -223,6 +346,12 @@ export class JournalImportComponent implements OnInit {
     });
   }
 
+  private loadAccounts(): void {
+    this.dataService.getAvailableAccounts().subscribe({
+      next: (accounts) => this.accounts.set(accounts),
+    });
+  }
+
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -230,41 +359,131 @@ export class JournalImportComponent implements OnInit {
     }
   }
 
-  canImport(): boolean {
+  canUpload(): boolean {
     return !!this.selectedType && !!this.selectedSourceId && !!this.selectedFile();
   }
 
-  startImport(): void {
-    if (!this.canImport()) return;
+  uploadFile(): void {
+    if (!this.canUpload()) return;
 
-    this.importing.set(true);
+    this.uploading.set(true);
 
-    this.dataService.importFile(
+    this.dataService.uploadFile(
       this.selectedSourceId,
       this.selectedType as JournalImportType,
       this.selectedFile()!,
     ).subscribe({
       next: (result) => {
-        this.importing.set(false);
-        this.importResult.set(result);
+        this.uploading.set(false);
+        this.sourceId = result.sourceId;
+        this.closedYearsCount.set(result.closedYearsCount);
+        this.transactions.set(
+          result.transactions.map(t => ({
+            transaction: t,
+            assignments: [{ accountId: '', value: t.amount }],
+            importing: false,
+            imported: false,
+            ignored: false,
+          }))
+        );
       },
       error: () => {
-        this.notifications.error($localize`Fehler beim Importieren der Buchungen`);
-        this.importing.set(false);
-        this.importResult.set({
-          success: false,
-          importedCount: 0,
-          skippedCount: 0,
-          errors: ['Ein unerwarteter Fehler ist aufgetreten'],
-        });
+        this.notifications.error($localize`Fehler beim Hochladen der Datei`);
+        this.uploading.set(false);
       },
     });
   }
 
+  onAssignmentAccountChange(row: TransactionRow, index: number, value: string): void {
+    row.assignments[index] = { ...row.assignments[index], accountId: value };
+  }
+
+  addAssignment(row: TransactionRow): void {
+    const remaining = this.getRemainingAmount(row);
+    row.assignments = [...row.assignments, { accountId: '', value: remaining.toFixed(2) }];
+  }
+
+  removeAssignment(row: TransactionRow, index: number): void {
+    row.assignments = row.assignments.filter((_, i) => i !== index);
+  }
+
+  isRowValid(row: TransactionRow): boolean {
+    const hasUnassigned = row.assignments.some(a => !a.accountId);
+    if (hasUnassigned) return false;
+    const diff = Math.abs(this.parseAmount(this.getAssignedTotal(row)) - this.parseAmount(row.transaction.amount));
+    return diff < 0.01;
+  }
+
+  getAssignedTotal(row: TransactionRow): string {
+    const total = row.assignments.reduce((sum, a) => sum + this.parseAmount(a.value), 0);
+    return total.toFixed(2);
+  }
+
+  getAssignmentDiff(row: TransactionRow): string {
+    const diff = this.parseAmount(this.getAssignedTotal(row)) - this.parseAmount(row.transaction.amount);
+    return diff.toFixed(2);
+  }
+
+  formatCurrency(value: string): string {
+    const num = this.parseAmount(value);
+    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(num);
+  }
+
+  importSingleTransaction(row: TransactionRow): void {
+    if (!this.isRowValid(row) || row.importing) return;
+
+    row.importing = true;
+
+    this.dataService.importTransaction({
+      sourceId: this.sourceId,
+      receiptFrom: row.transaction.receiptFrom,
+      bookedAt: row.transaction.bookedAt,
+      amount: row.transaction.amount,
+      description: row.transaction.description,
+      reference: row.transaction.reference,
+      debitAccount: row.transaction.debitAccount,
+      creditAccount: row.transaction.creditAccount,
+      accountAssignments: row.assignments,
+    }).subscribe({
+      next: (result) => {
+        row.importing = false;
+        if (result.success) {
+          row.imported = true;
+          this.transactions.update(rows => rows ? [...rows] : null);
+        } else {
+          this.notifications.error($localize`Fehler beim Importieren der Buchung`);
+        }
+      },
+      error: () => {
+        row.importing = false;
+        this.notifications.error($localize`Fehler beim Importieren der Buchung`);
+      },
+    });
+  }
+
+  ignoreTransaction(row: TransactionRow): void {
+    row.ignored = true;
+    this.transactions.update(rows => rows ? [...rows] : null);
+  }
+
   resetImport(): void {
-    this.importResult.set(null);
+    this.transactions.set(null);
     this.selectedFile.set(null);
     this.selectedType = '';
     this.selectedSourceId = '';
+    this.sourceId = '';
+    this.closedYearsCount.set(0);
+  }
+
+  private getRemainingAmount(row: TransactionRow): number {
+    const total = this.parseAmount(row.transaction.amount);
+    const assigned = row.assignments.reduce((sum, a) => sum + this.parseAmount(a.value), 0);
+    return Math.max(0, total - assigned);
+  }
+
+  private parseAmount(value: string): number {
+    const normalized = value.replace(',', '.');
+    const parsed = parseFloat(normalized);
+    return isNaN(parsed) ? 0 : parsed;
   }
 }

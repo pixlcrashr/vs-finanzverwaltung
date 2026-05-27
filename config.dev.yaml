@@ -2,7 +2,7 @@ server:
   addr: "127.0.0.1:8080"
 
 database:
-  url: "postgres://vsf:postgres@127.0.0.1:5335/vsf?sslmode=disable"
+  url: "postgres://vsf:postgres@127.0.0.1:5334/vsf?sslmode=disable"
 
 auth:
   secret: "dev-secret-do-not-use-in-production"

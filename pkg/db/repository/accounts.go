@@ -3,9 +3,11 @@ package repository
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/go-pagetoken/order"
+	"github.com/pixlcrashr/vsfv/pkg/api/types"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
 	"gorm.io/gorm"
@@ -136,4 +138,74 @@ func (r *AccountRepository) HasTransactionAssignments(ctx context.Context, accou
 		Where(r.q.TransactionAccountAssignment.AccountID.Eq(accountID)).
 		Count()
 	return count > 0, err
+}
+
+// ListNestedParams drives the ListNested query.
+type ListNestedParams struct {
+	IsArchived types.Optional[bool]
+}
+
+// ListNested returns accounts for building a hierarchical view.
+// If isArchived is set, filters by that status; otherwise returns all accounts.
+func (r *AccountRepository) ListNested(ctx context.Context, params ListNestedParams) ([]*model.Account, error) {
+	a := r.q.Account.WithContext(ctx)
+
+	if params.IsArchived.IsSet {
+		a = a.Where(r.q.Account.IsArchived.Is(params.IsArchived.Value))
+	}
+
+	return a.Find()
+}
+
+// GetSubtree returns the account and all its descendants starting from rootAccountID.
+// If isArchived is set, filters by that status; otherwise returns all accounts.
+func (r *AccountRepository) GetSubtree(ctx context.Context, rootAccountID uuid.UUID, isArchived types.Optional[bool]) ([]*model.Account, error) {
+	type row struct {
+		ID                 uuid.UUID     `gorm:"column:id"`
+		ParentAccountID    uuid.NullUUID `gorm:"column:parent_account_id"`
+		DisplayName        string        `gorm:"column:display_name"`
+		DisplayCode        string        `gorm:"column:display_code"`
+		DisplayDescription string        `gorm:"column:display_description"`
+		IsContainer        bool          `gorm:"column:is_container"`
+		IsArchived         bool          `gorm:"column:is_archived"`
+		UpdatedAt          time.Time     `gorm:"column:updated_at"`
+		CreatedAt          time.Time     `gorm:"column:created_at"`
+	}
+
+	query := `
+WITH RECURSIVE descendants(id, parent_account_id, display_name, display_code, display_description, is_container, is_archived, updated_at, created_at) AS (
+    SELECT id, parent_account_id, display_name, display_code, display_description, is_container, is_archived, updated_at, created_at
+    FROM accounts
+    WHERE id = ?
+    UNION
+    SELECT a.id, a.parent_account_id, a.display_name, a.display_code, a.display_description, a.is_container, a.is_archived, a.updated_at, a.created_at
+    FROM accounts a
+    JOIN descendants d ON a.parent_account_id = d.id
+)
+SELECT * FROM descendants`
+
+	var rows []row
+	db := r.db.WithContext(ctx).Raw(query, rootAccountID)
+	if err := db.Scan(&rows).Error; err != nil {
+		return nil, err
+	}
+
+	var result []*model.Account
+	for _, r := range rows {
+		if isArchived.IsSet && r.IsArchived != isArchived.Value {
+			continue
+		}
+		result = append(result, &model.Account{
+			ID:                 r.ID,
+			ParentAccountID:    r.ParentAccountID,
+			DisplayName:        r.DisplayName,
+			DisplayCode:        r.DisplayCode,
+			DisplayDescription: r.DisplayDescription,
+			IsContainer:        r.IsContainer,
+			IsArchived:         r.IsArchived,
+			UpdatedAt:          r.UpdatedAt,
+			CreatedAt:          r.CreatedAt,
+		})
+	}
+	return result, nil
 }

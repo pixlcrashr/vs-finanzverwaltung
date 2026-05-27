@@ -8,3 +8,6 @@ tasks:
     cmds:
       - commit-and-tag-version {{.CLI_ARGS}}
       - git push --follow-tags origin main
+  migration:create:
+    cmds:
+      - atlas migrate diff --env gorm {{.CLI_ARGS}}

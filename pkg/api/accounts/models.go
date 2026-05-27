@@ -15,6 +15,7 @@ type Account struct {
 	DisplayName        string     `json:"displayName" doc:"Human-readable account name"`
 	DisplayCode        string     `json:"displayCode" doc:"Short account code"`
 	DisplayDescription string     `json:"displayDescription" doc:"Optional free-text description"`
+	IsContainer        bool       `json:"isContainer" doc:"Whether this account is a container account (cannot be changed after creation)"`
 	IsArchived         bool       `json:"isArchived" doc:"Whether the account is archived"`
 	UpdatedAt          time.Time  `json:"updateTime" doc:"Last modification timestamp"`
 	CreatedAt          time.Time  `json:"createTime" doc:"Creation timestamp"`
@@ -25,6 +26,7 @@ func (a *Account) fromModel(m *model.Account) {
 	a.DisplayName = m.DisplayName
 	a.DisplayCode = m.DisplayCode
 	a.DisplayDescription = m.DisplayDescription
+	a.IsContainer = m.IsContainer
 	a.IsArchived = m.IsArchived
 	a.UpdatedAt = m.UpdatedAt
 	a.CreatedAt = m.CreatedAt
@@ -69,6 +71,7 @@ type CreateAccountRequest struct {
 		DisplayName        string                    `json:"displayName" doc:"Human-readable account name" maxLength:"200"`
 		DisplayCode        string                    `json:"displayCode" doc:"Short account code" maxLength:"50"`
 		DisplayDescription types.Optional[string]    `json:"displayDescription,omitempty" doc:"Optional free-text description" maxLength:"1000"`
+		IsContainer        bool                      `json:"isContainer" doc:"Whether this account is a container account (cannot be changed after creation)"`
 	}
 }
 
@@ -108,3 +111,56 @@ type DeleteAccountRequest struct {
 }
 
 type DeleteAccountResponse struct{}
+
+// --- GetAccountHierarchy
+
+// NestedAccount is the API representation of an account with its children.
+type NestedAccount struct {
+	ID                 uuid.UUID        `json:"id" doc:"Account UUID"`
+	ParentAccountID    *uuid.UUID       `json:"parentAccountId,omitempty" doc:"Parent account UUID; null for root accounts"`
+	DisplayName        string           `json:"displayName" doc:"Human-readable account name"`
+	DisplayCode        string           `json:"displayCode" doc:"Short account code"`
+	DisplayDescription string           `json:"displayDescription" doc:"Optional free-text description"`
+	IsContainer        bool             `json:"isContainer" doc:"Whether this account is a container account"`
+	IsArchived         bool             `json:"isArchived" doc:"Whether the account is archived"`
+	Children           []*NestedAccount `json:"children,omitempty" doc:"Child accounts in the hierarchy"`
+	UpdatedAt          time.Time        `json:"updateTime" doc:"Last modification timestamp"`
+	CreatedAt          time.Time        `json:"createTime" doc:"Creation timestamp"`
+}
+
+func (a *NestedAccount) fromModel(m *model.Account) {
+	a.ID = m.ID
+	a.DisplayName = m.DisplayName
+	a.DisplayCode = m.DisplayCode
+	a.DisplayDescription = m.DisplayDescription
+	a.IsContainer = m.IsContainer
+	a.IsArchived = m.IsArchived
+	a.UpdatedAt = m.UpdatedAt
+	a.CreatedAt = m.CreatedAt
+	a.Children = []*NestedAccount{}
+
+	if m.ParentAccountID.Valid {
+		a.ParentAccountID = &m.ParentAccountID.UUID
+	}
+}
+
+type ListNestedAccountRequest struct {
+	IsArchived types.Optional[bool] `query:"isArchived,omitempty" doc:"Filter by archived status: true (only archived), false (only active), unset (all)"`
+}
+
+type ListNestedAccountResponse struct {
+	Body struct {
+		Accounts []*NestedAccount `json:"accounts" doc:"Root-level accounts with their children"`
+	}
+}
+
+// --- GetNestedAccount
+
+type GetNestedAccountRequest struct {
+	AccountID  uuid.UUID            `path:"accountId" doc:"Account UUID to start the hierarchy from"`
+	IsArchived types.Optional[bool] `query:"isArchived,omitempty" doc:"Filter by archived status: true (only archived), false (only active), unset (all)"`
+}
+
+type GetNestedAccountResponse struct {
+	Body *NestedAccount
+}

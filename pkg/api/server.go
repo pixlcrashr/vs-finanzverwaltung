@@ -24,6 +24,8 @@ func New(db *gorm.DB, version string, corsCfg cfg.CORS) *Server {
 	app := fiber.New(fiber.Config{
 		// Disable default startup banner — the serve command prints its own.
 		DisableStartupMessage: true,
+		CaseSensitive:         true,
+		ETag:                  true,
 	})
 
 	if corsCfg.Enabled {

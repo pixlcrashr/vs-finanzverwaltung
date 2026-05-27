@@ -22,6 +22,26 @@ func RegisterRoutes(api huma.API, db *gorm.DB) {
 		Tags:        []string{"Accounts"},
 	}, h.ListAccounts)
 
+	// List nested accounts: GET /accounts/nested
+	huma.Register(api, huma.Operation{
+		OperationID: "list-accounts-nested",
+		Method:      http.MethodGet,
+		Path:        "/v1/accounts/nested",
+		Summary:     "List all accounts in nested form",
+		Description: "Returns all accounts organized in a nested tree structure with their children.",
+		Tags:        []string{"Accounts"},
+	}, h.ListNestedAccount)
+
+	// Get nested account: GET /accounts/{accountId}/nested
+	huma.Register(api, huma.Operation{
+		OperationID: "get-nested-account",
+		Method:      http.MethodGet,
+		Path:        "/v1/accounts/{accountId}/nested",
+		Summary:     "Get account with nested children",
+		Description: "Gets a single budget account with its entire nested subtree of children.",
+		Tags:        []string{"Accounts"},
+	}, h.GetNestedAccount)
+
 	// Get account: GET /accounts/{accountId}
 	huma.Register(api, huma.Operation{
 		OperationID: "get-account",
@@ -42,6 +62,16 @@ func RegisterRoutes(api huma.API, db *gorm.DB) {
 		Tags:        []string{"Accounts"},
 	}, h.CreateAccount)
 
+	// Archive account: POST /accounts/{accountId}/archive
+	huma.Register(api, huma.Operation{
+		OperationID: "archive-account",
+		Method:      http.MethodPost,
+		Path:        "/v1/accounts/{accountId}/archive",
+		Summary:     "Archive an account",
+		Description: "Archives a budget account.",
+		Tags:        []string{"Accounts"},
+	}, h.ArchiveAccount)
+
 	// Update account: PATCH /accounts/{accountId}
 	huma.Register(api, huma.Operation{
 		OperationID: "update-account",
@@ -51,16 +81,6 @@ func RegisterRoutes(api huma.API, db *gorm.DB) {
 		Description: "Updates an existing budget account.",
 		Tags:        []string{"Accounts"},
 	}, h.UpdateAccount)
-
-	// Archive account: POST /accounts/{accountId}:archive
-	huma.Register(api, huma.Operation{
-		OperationID: "archive-account",
-		Method:      http.MethodPost,
-		Path:        "/v1/accounts/{accountId}:archive",
-		Summary:     "Archive an account",
-		Description: "Archives a budget account.",
-		Tags:        []string{"Accounts"},
-	}, h.ArchiveAccount)
 
 	// Delete account: DELETE /accounts/{accountId}
 	huma.Register(api, huma.Operation{

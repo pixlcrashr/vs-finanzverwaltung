@@ -13,14 +13,15 @@ import (
 )
 
 var (
-	ErrAccountNotFound    = huma.Error404NotFound("account not found")
-	ErrFailedToList       = huma.Error500InternalServerError("failed to list accounts")
-	ErrFailedToCreate     = huma.Error500InternalServerError("failed to create account")
-	ErrFailedToUpdate     = huma.Error500InternalServerError("failed to update account")
-	ErrFailedToDelete     = huma.Error500InternalServerError("failed to delete account")
-	ErrParentAccountCycle = huma.Error400BadRequest("cannot set parent account: would create a cycle")
-	ErrParentNotFound     = huma.Error400BadRequest("parent account not found")
-	ErrInvalidOrderBy     = huma.Error400BadRequest("invalid orderBy format")
+	ErrAccountNotFound      = huma.Error404NotFound("account not found")
+	ErrFailedToList         = huma.Error500InternalServerError("failed to list accounts")
+	ErrFailedToCreate       = huma.Error500InternalServerError("failed to create account")
+	ErrFailedToUpdate       = huma.Error500InternalServerError("failed to update account")
+	ErrFailedToDelete       = huma.Error500InternalServerError("failed to delete account")
+	ErrFailedToGetHierarchy = huma.Error500InternalServerError("failed to get account hierarchy")
+	ErrParentAccountCycle   = huma.Error400BadRequest("cannot set parent account: would create a cycle")
+	ErrParentNotFound       = huma.Error400BadRequest("parent account not found")
+	ErrInvalidOrderBy       = huma.Error400BadRequest("invalid orderBy format")
 )
 
 type Handler struct {
@@ -79,6 +80,7 @@ func (h *Handler) CreateAccount(ctx context.Context, req *CreateAccountRequest) 
 		ID:          uuid.New(),
 		DisplayName: req.Body.DisplayName,
 		DisplayCode: req.Body.DisplayCode,
+		IsContainer: req.Body.IsContainer,
 		IsArchived:  false,
 		CreatedAt:   now,
 		UpdatedAt:   now,
@@ -181,4 +183,80 @@ func (h *Handler) DeleteAccount(ctx context.Context, req *DeleteAccountRequest) 
 	}
 
 	return &DeleteAccountResponse{}, nil
+}
+
+func (h *Handler) ListNestedAccount(ctx context.Context, req *ListNestedAccountRequest) (*ListNestedAccountResponse, error) {
+	ms, err := h.repo.ListNested(ctx, repository.ListNestedParams{
+		IsArchived: req.IsArchived,
+	})
+	if err != nil {
+		return nil, ErrFailedToGetHierarchy
+	}
+
+	// Build a map for quick lookup
+	accountMap := make(map[uuid.UUID]*NestedAccount)
+	for _, m := range ms {
+		h := &NestedAccount{}
+		h.fromModel(m)
+		accountMap[m.ID] = h
+	}
+
+	// Build the hierarchy
+	var roots []*NestedAccount
+	for _, m := range ms {
+		h := accountMap[m.ID]
+
+		if m.ParentAccountID.Valid {
+			if parent, ok := accountMap[m.ParentAccountID.UUID]; ok {
+				parent.Children = append(parent.Children, h)
+			}
+		} else {
+			roots = append(roots, h)
+		}
+	}
+
+	return &ListNestedAccountResponse{Body: struct {
+		Accounts []*NestedAccount `json:"accounts" doc:"Root-level accounts with their children"`
+	}{Accounts: roots}}, nil
+}
+
+func (h *Handler) GetNestedAccount(ctx context.Context, req *GetNestedAccountRequest) (*GetNestedAccountResponse, error) {
+	// Verify the account exists
+	_, err := h.repo.GetByID(ctx, req.AccountID)
+	if err != nil {
+		return nil, ErrAccountNotFound
+	}
+
+	// Get the subtree starting from this account
+	ms, err := h.repo.GetSubtree(ctx, req.AccountID, req.IsArchived)
+	if err != nil {
+		return nil, ErrFailedToGetHierarchy
+	}
+
+	// Build a map for quick lookup
+	accountMap := make(map[uuid.UUID]*NestedAccount)
+	for _, m := range ms {
+		n := &NestedAccount{}
+		n.fromModel(m)
+		accountMap[m.ID] = n
+	}
+
+	// Build the hierarchy
+	var root *NestedAccount
+	for _, m := range ms {
+		n := accountMap[m.ID]
+		if m.ID == req.AccountID {
+			root = n
+		} else if m.ParentAccountID.Valid {
+			if parent, ok := accountMap[m.ParentAccountID.UUID]; ok {
+				parent.Children = append(parent.Children, n)
+			}
+		}
+	}
+
+	if root == nil {
+		return nil, ErrAccountNotFound
+	}
+
+	return &GetNestedAccountResponse{Body: root}, nil
 }

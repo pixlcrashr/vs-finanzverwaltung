@@ -8,8 +8,8 @@ import (
 )
 
 type Report struct {
-	ID             uuid.UUID `gorm:"type:uuid;primaryKey"`
-	OrganizationID uuid.UUID `gorm:"type:uuid;not null;index:idx_reports_organization_id"`
+	ID             uuid.UUID `gorm:"type:uuid;primaryKey;uniqueIndex:idx_reports_org_id,priority:1"`
+	OrganizationID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_reports_org_id,priority:2"`
 	DisplayName    string    `gorm:"not null;default:''"`
 	Data           []byte    `gorm:"type:bytea;not null"`
 	CreatedAt      time.Time `gorm:"not null;default:now()"`

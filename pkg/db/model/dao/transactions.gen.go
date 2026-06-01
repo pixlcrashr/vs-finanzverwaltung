@@ -36,7 +36,6 @@ func newTransaction_(db *gorm.DB, opts ...gen.DOOption) transaction_ {
 	_transaction_.Reference = field.NewString(tableName, "reference")
 	_transaction_.BookedAt = field.NewTime(tableName, "booked_at")
 	_transaction_.DocumentDate = field.NewTime(tableName, "document_date")
-	_transaction_.AssignedAccountID = field.NewField(tableName, "assigned_account_id")
 	_transaction_.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_transaction_.CreatedAt = field.NewTime(tableName, "created_at")
 	_transaction_.TransactionAccountAssignments = transaction_HasManyTransactionAccountAssignments{
@@ -185,12 +184,6 @@ func newTransaction_(db *gorm.DB, opts ...gen.DOOption) transaction_ {
 			}
 			TransactionAccounts struct {
 				field.RelationField
-			}
-			UserGroups struct {
-				field.RelationField
-				Organization struct {
-					field.RelationField
-				}
 			}
 		}{
 			RelationField: field.NewRelation("TransactionAccountAssignments.Organization", "model.Organization"),
@@ -693,19 +686,6 @@ func newTransaction_(db *gorm.DB, opts ...gen.DOOption) transaction_ {
 			}{
 				RelationField: field.NewRelation("TransactionAccountAssignments.Organization.TransactionAccounts", "model.TransactionAccount"),
 			},
-			UserGroups: struct {
-				field.RelationField
-				Organization struct {
-					field.RelationField
-				}
-			}{
-				RelationField: field.NewRelation("TransactionAccountAssignments.Organization.UserGroups", "model.UserGroup"),
-				Organization: struct {
-					field.RelationField
-				}{
-					RelationField: field.NewRelation("TransactionAccountAssignments.Organization.UserGroups.Organization", "model.Organization"),
-				},
-			},
 		},
 		Transaction: struct {
 			field.RelationField
@@ -755,7 +735,6 @@ type transaction_ struct {
 	Reference                     field.String
 	BookedAt                      field.Time
 	DocumentDate                  field.Time
-	AssignedAccountID             field.Field
 	UpdatedAt                     field.Time
 	CreatedAt                     field.Time
 	TransactionAccountAssignments transaction_HasManyTransactionAccountAssignments
@@ -790,7 +769,6 @@ func (t *transaction_) updateTableName(table string) *transaction_ {
 	t.Reference = field.NewString(table, "reference")
 	t.BookedAt = field.NewTime(table, "booked_at")
 	t.DocumentDate = field.NewTime(table, "document_date")
-	t.AssignedAccountID = field.NewField(table, "assigned_account_id")
 	t.UpdatedAt = field.NewTime(table, "updated_at")
 	t.CreatedAt = field.NewTime(table, "created_at")
 
@@ -821,7 +799,7 @@ func (t *transaction_) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (t *transaction_) fillFieldMap() {
-	t.fieldMap = make(map[string]field.Expr, 16)
+	t.fieldMap = make(map[string]field.Expr, 15)
 	t.fieldMap["id"] = t.ID
 	t.fieldMap["organization_id"] = t.OrganizationID
 	t.fieldMap["credit_transaction_account_id"] = t.CreditTransactionAccountID
@@ -831,7 +809,6 @@ func (t *transaction_) fillFieldMap() {
 	t.fieldMap["reference"] = t.Reference
 	t.fieldMap["booked_at"] = t.BookedAt
 	t.fieldMap["document_date"] = t.DocumentDate
-	t.fieldMap["assigned_account_id"] = t.AssignedAccountID
 	t.fieldMap["updated_at"] = t.UpdatedAt
 	t.fieldMap["created_at"] = t.CreatedAt
 
@@ -1006,12 +983,6 @@ type transaction_HasManyTransactionAccountAssignments struct {
 		}
 		TransactionAccounts struct {
 			field.RelationField
-		}
-		UserGroups struct {
-			field.RelationField
-			Organization struct {
-				field.RelationField
-			}
 		}
 	}
 	Transaction struct {

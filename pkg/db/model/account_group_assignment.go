@@ -8,10 +8,10 @@ import (
 )
 
 type AccountGroupAssignment struct {
-	ID             uuid.UUID `gorm:"type:uuid;primaryKey"`
-	OrganizationID uuid.UUID `gorm:"type:uuid;not null;index:idx_account_group_assignments_organization_id"`
-	AccountGroupID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_account_group_id_account_id"`
-	AccountID      uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_account_group_id_account_id"`
+	ID             uuid.UUID `gorm:"type:uuid;primaryKey;uniqueIndex:idx_account_group_assignments_org_id,priority:1"`
+	OrganizationID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_account_group_assignments_org_id,priority:2;uniqueIndex:idx_account_group_assignments_org_group_account,priority:1"`
+	AccountGroupID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_account_group_assignments_org_group_account,priority:2"`
+	AccountID      uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_account_group_assignments_org_group_account,priority:3"`
 	Negate         bool      `gorm:"not null;default:false;index:idx_account_group_assignments_negate"`
 	UpdatedAt      time.Time `gorm:"not null;default:now()"`
 	CreatedAt      time.Time `gorm:"not null;default:now()"`

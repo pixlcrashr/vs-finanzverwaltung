@@ -9,10 +9,10 @@ import (
 )
 
 type TransactionAccountAssignment struct {
-	ID             uuid.UUID   `gorm:"type:uuid;primaryKey"`
-	OrganizationID uuid.UUID   `gorm:"type:uuid;not null;index:idx_transaction_account_assignments_organization_id"`
-	TransactionID  uuid.UUID   `gorm:"type:uuid;not null;index:idx_transaction_account_assignments_transaction_id"`
-	AccountID      uuid.UUID   `gorm:"type:uuid;not null;index:idx_transaction_account_assignments_account_id"`
+	ID             uuid.UUID   `gorm:"type:uuid;primaryKey;uniqueIndex:idx_transaction_account_assignments_org_id,priority:1"`
+	OrganizationID uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_transaction_account_assignments_org_id,priority:2;uniqueIndex:idx_transaction_account_assignments_org_trans_account,priority:1"`
+	TransactionID  uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_transaction_account_assignments_org_trans_account,priority:2"`
+	AccountID      uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_transaction_account_assignments_org_trans_account,priority:3"`
 	Value          apd.Decimal `gorm:"type:decimal;not null"`
 	CreatedAt      time.Time   `gorm:"not null;default:now()"`
 	UpdatedAt      time.Time   `gorm:"not null;default:now()"`

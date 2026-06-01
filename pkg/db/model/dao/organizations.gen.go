@@ -178,12 +178,6 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 			TransactionAccounts struct {
 				field.RelationField
 			}
-			UserGroups struct {
-				field.RelationField
-				Organization struct {
-					field.RelationField
-				}
-			}
 		}{
 			RelationField: field.NewRelation("AccountGroupAssignments.Organization", "model.Organization"),
 			AccountGroupAssignments: struct {
@@ -703,19 +697,6 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 			}{
 				RelationField: field.NewRelation("AccountGroupAssignments.Organization.TransactionAccounts", "model.TransactionAccount"),
 			},
-			UserGroups: struct {
-				field.RelationField
-				Organization struct {
-					field.RelationField
-				}
-			}{
-				RelationField: field.NewRelation("AccountGroupAssignments.Organization.UserGroups", "model.UserGroup"),
-				Organization: struct {
-					field.RelationField
-				}{
-					RelationField: field.NewRelation("AccountGroupAssignments.Organization.UserGroups.Organization", "model.Organization"),
-				},
-			},
 		},
 		AccountGroup: struct {
 			field.RelationField
@@ -801,12 +782,6 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 		RelationField: field.NewRelation("TransactionAccounts", "model.TransactionAccount"),
 	}
 
-	_organization.UserGroups = organizationHasManyUserGroups{
-		db: db.Session(&gorm.Session{}),
-
-		RelationField: field.NewRelation("UserGroups", "model.UserGroup"),
-	}
-
 	_organization.fillFieldMap()
 
 	return _organization
@@ -845,8 +820,6 @@ type organization struct {
 	TransactionAccountAssignments organizationHasManyTransactionAccountAssignments
 
 	TransactionAccounts organizationHasManyTransactionAccounts
-
-	UserGroups organizationHasManyUserGroups
 
 	fieldMap map[string]field.Expr
 }
@@ -895,7 +868,7 @@ func (o *organization) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (o *organization) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 18)
+	o.fieldMap = make(map[string]field.Expr, 17)
 	o.fieldMap["id"] = o.ID
 	o.fieldMap["display_name"] = o.DisplayName
 	o.fieldMap["updated_at"] = o.UpdatedAt
@@ -931,8 +904,6 @@ func (o organization) clone(db *gorm.DB) organization {
 	o.TransactionAccountAssignments.db.Statement.ConnPool = db.Statement.ConnPool
 	o.TransactionAccounts.db = db.Session(&gorm.Session{Initialized: true})
 	o.TransactionAccounts.db.Statement.ConnPool = db.Statement.ConnPool
-	o.UserGroups.db = db.Session(&gorm.Session{Initialized: true})
-	o.UserGroups.db.Statement.ConnPool = db.Statement.ConnPool
 	return o
 }
 
@@ -951,7 +922,6 @@ func (o organization) replaceDB(db *gorm.DB) organization {
 	o.Transactions.db = db.Session(&gorm.Session{})
 	o.TransactionAccountAssignments.db = db.Session(&gorm.Session{})
 	o.TransactionAccounts.db = db.Session(&gorm.Session{})
-	o.UserGroups.db = db.Session(&gorm.Session{})
 	return o
 }
 
@@ -1102,12 +1072,6 @@ type organizationHasManyAccountGroupAssignments struct {
 		}
 		TransactionAccounts struct {
 			field.RelationField
-		}
-		UserGroups struct {
-			field.RelationField
-			Organization struct {
-				field.RelationField
-			}
 		}
 	}
 	AccountGroup struct {
@@ -2161,87 +2125,6 @@ func (a organizationHasManyTransactionAccountsTx) Count() int64 {
 }
 
 func (a organizationHasManyTransactionAccountsTx) Unscoped() *organizationHasManyTransactionAccountsTx {
-	a.tx = a.tx.Unscoped()
-	return &a
-}
-
-type organizationHasManyUserGroups struct {
-	db *gorm.DB
-
-	field.RelationField
-}
-
-func (a organizationHasManyUserGroups) Where(conds ...field.Expr) *organizationHasManyUserGroups {
-	if len(conds) == 0 {
-		return &a
-	}
-
-	exprs := make([]clause.Expression, 0, len(conds))
-	for _, cond := range conds {
-		exprs = append(exprs, cond.BeCond().(clause.Expression))
-	}
-	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
-	return &a
-}
-
-func (a organizationHasManyUserGroups) WithContext(ctx context.Context) *organizationHasManyUserGroups {
-	a.db = a.db.WithContext(ctx)
-	return &a
-}
-
-func (a organizationHasManyUserGroups) Session(session *gorm.Session) *organizationHasManyUserGroups {
-	a.db = a.db.Session(session)
-	return &a
-}
-
-func (a organizationHasManyUserGroups) Model(m *model.Organization) *organizationHasManyUserGroupsTx {
-	return &organizationHasManyUserGroupsTx{a.db.Model(m).Association(a.Name())}
-}
-
-func (a organizationHasManyUserGroups) Unscoped() *organizationHasManyUserGroups {
-	a.db = a.db.Unscoped()
-	return &a
-}
-
-type organizationHasManyUserGroupsTx struct{ tx *gorm.Association }
-
-func (a organizationHasManyUserGroupsTx) Find() (result []*model.UserGroup, err error) {
-	return result, a.tx.Find(&result)
-}
-
-func (a organizationHasManyUserGroupsTx) Append(values ...*model.UserGroup) (err error) {
-	targetValues := make([]interface{}, len(values))
-	for i, v := range values {
-		targetValues[i] = v
-	}
-	return a.tx.Append(targetValues...)
-}
-
-func (a organizationHasManyUserGroupsTx) Replace(values ...*model.UserGroup) (err error) {
-	targetValues := make([]interface{}, len(values))
-	for i, v := range values {
-		targetValues[i] = v
-	}
-	return a.tx.Replace(targetValues...)
-}
-
-func (a organizationHasManyUserGroupsTx) Delete(values ...*model.UserGroup) (err error) {
-	targetValues := make([]interface{}, len(values))
-	for i, v := range values {
-		targetValues[i] = v
-	}
-	return a.tx.Delete(targetValues...)
-}
-
-func (a organizationHasManyUserGroupsTx) Clear() error {
-	return a.tx.Clear()
-}
-
-func (a organizationHasManyUserGroupsTx) Count() int64 {
-	return a.tx.Count()
-}
-
-func (a organizationHasManyUserGroupsTx) Unscoped() *organizationHasManyUserGroupsTx {
 	a.tx = a.tx.Unscoped()
 	return &a
 }

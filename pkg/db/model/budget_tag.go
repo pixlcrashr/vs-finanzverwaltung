@@ -8,9 +8,9 @@ import (
 )
 
 type BudgetTag struct {
-	ID                 uuid.UUID `gorm:"type:uuid;primaryKey"`
-	OrganizationID     uuid.UUID `gorm:"type:uuid;not null;index:idx_budget_tags_organization_id"`
-	BudgetID           uuid.UUID `gorm:"type:uuid;not null;index:idx_budget_revisions_budget_id"`
+	ID                 uuid.UUID `gorm:"type:uuid;primaryKey;uniqueIndex:idx_budget_tags_org_id,priority:1"`
+	OrganizationID     uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_budget_tags_org_id,priority:2;uniqueIndex:idx_budget_tags_org_budget,priority:1"`
+	BudgetID           uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_budget_tags_org_budget,priority:2"`
 	Date               time.Time `gorm:"not null;index:idx_budget_revisions_date"`
 	DisplayDescription string    `gorm:"not null;default:''"`
 	UpdatedAt          time.Time `gorm:"not null;default:now()"`

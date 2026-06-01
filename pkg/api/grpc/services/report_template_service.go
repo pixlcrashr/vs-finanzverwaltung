@@ -8,6 +8,8 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
+	"github.com/pixlcrashr/vsfv/pkg/query/order"
+	"go.einride.tech/aip/ordering"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -55,10 +57,18 @@ func (s *reportTemplateServiceServer) ListReportTemplates(ctx context.Context, r
 		pageSize = 100
 	}
 
+	// Parse order_by
+	orderBy, err := ordering.ParseOrderBy(req)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid order_by: %v", err)
+	}
+	orderExprs, _ := order.Resolve(orderBy, repository.ReportTemplateOrderFieldMapper)
+
 	params := repository.ListReportTemplatesParams{
 		Page:     int(offset/int64(pageSize)) + 1,
 		PageSize: pageSize,
 		Cond:     c,
+		OrderBy:  orderExprs,
 	}
 
 	ms, total, err := s.repo.List(ctx, params)

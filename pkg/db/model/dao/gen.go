@@ -29,17 +29,12 @@ var (
 	Organization                 *organization
 	Report                       *report
 	ReportTemplate               *reportTemplate
-	Setting                      *setting
 	TransactionAccount           *transactionAccount
 	TransactionAccountAssignment *transactionAccountAssignment
 	Transaction_                 *transaction_
 	User                         *user
 	UserGroup                    *userGroup
 	UserIdentity                 *userIdentity
-	View                         *view
-	ViewAccountAssignment        *viewAccountAssignment
-	ViewAccountGroupAssignment   *viewAccountGroupAssignment
-	ViewBudgetAssignment         *viewBudgetAssignment
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
@@ -56,17 +51,12 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	Organization = &Q.Organization
 	Report = &Q.Report
 	ReportTemplate = &Q.ReportTemplate
-	Setting = &Q.Setting
 	TransactionAccount = &Q.TransactionAccount
 	TransactionAccountAssignment = &Q.TransactionAccountAssignment
 	Transaction_ = &Q.Transaction_
 	User = &Q.User
 	UserGroup = &Q.UserGroup
 	UserIdentity = &Q.UserIdentity
-	View = &Q.View
-	ViewAccountAssignment = &Q.ViewAccountAssignment
-	ViewAccountGroupAssignment = &Q.ViewAccountGroupAssignment
-	ViewBudgetAssignment = &Q.ViewBudgetAssignment
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
@@ -84,17 +74,12 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		Organization:                 newOrganization(db, opts...),
 		Report:                       newReport(db, opts...),
 		ReportTemplate:               newReportTemplate(db, opts...),
-		Setting:                      newSetting(db, opts...),
 		TransactionAccount:           newTransactionAccount(db, opts...),
 		TransactionAccountAssignment: newTransactionAccountAssignment(db, opts...),
 		Transaction_:                 newTransaction_(db, opts...),
 		User:                         newUser(db, opts...),
 		UserGroup:                    newUserGroup(db, opts...),
 		UserIdentity:                 newUserIdentity(db, opts...),
-		View:                         newView(db, opts...),
-		ViewAccountAssignment:        newViewAccountAssignment(db, opts...),
-		ViewAccountGroupAssignment:   newViewAccountGroupAssignment(db, opts...),
-		ViewBudgetAssignment:         newViewBudgetAssignment(db, opts...),
 	}
 }
 
@@ -113,17 +98,12 @@ type Query struct {
 	Organization                 organization
 	Report                       report
 	ReportTemplate               reportTemplate
-	Setting                      setting
 	TransactionAccount           transactionAccount
 	TransactionAccountAssignment transactionAccountAssignment
 	Transaction_                 transaction_
 	User                         user
 	UserGroup                    userGroup
 	UserIdentity                 userIdentity
-	View                         view
-	ViewAccountAssignment        viewAccountAssignment
-	ViewAccountGroupAssignment   viewAccountGroupAssignment
-	ViewBudgetAssignment         viewBudgetAssignment
 }
 
 func (q *Query) Available() bool { return q.db != nil }
@@ -143,17 +123,12 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		Organization:                 q.Organization.clone(db),
 		Report:                       q.Report.clone(db),
 		ReportTemplate:               q.ReportTemplate.clone(db),
-		Setting:                      q.Setting.clone(db),
 		TransactionAccount:           q.TransactionAccount.clone(db),
 		TransactionAccountAssignment: q.TransactionAccountAssignment.clone(db),
 		Transaction_:                 q.Transaction_.clone(db),
 		User:                         q.User.clone(db),
 		UserGroup:                    q.UserGroup.clone(db),
 		UserIdentity:                 q.UserIdentity.clone(db),
-		View:                         q.View.clone(db),
-		ViewAccountAssignment:        q.ViewAccountAssignment.clone(db),
-		ViewAccountGroupAssignment:   q.ViewAccountGroupAssignment.clone(db),
-		ViewBudgetAssignment:         q.ViewBudgetAssignment.clone(db),
 	}
 }
 
@@ -180,17 +155,12 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		Organization:                 q.Organization.replaceDB(db),
 		Report:                       q.Report.replaceDB(db),
 		ReportTemplate:               q.ReportTemplate.replaceDB(db),
-		Setting:                      q.Setting.replaceDB(db),
 		TransactionAccount:           q.TransactionAccount.replaceDB(db),
 		TransactionAccountAssignment: q.TransactionAccountAssignment.replaceDB(db),
 		Transaction_:                 q.Transaction_.replaceDB(db),
 		User:                         q.User.replaceDB(db),
 		UserGroup:                    q.UserGroup.replaceDB(db),
 		UserIdentity:                 q.UserIdentity.replaceDB(db),
-		View:                         q.View.replaceDB(db),
-		ViewAccountAssignment:        q.ViewAccountAssignment.replaceDB(db),
-		ViewAccountGroupAssignment:   q.ViewAccountGroupAssignment.replaceDB(db),
-		ViewBudgetAssignment:         q.ViewBudgetAssignment.replaceDB(db),
 	}
 }
 
@@ -207,17 +177,12 @@ type queryCtx struct {
 	Organization                 IOrganizationDo
 	Report                       IReportDo
 	ReportTemplate               IReportTemplateDo
-	Setting                      ISettingDo
 	TransactionAccount           ITransactionAccountDo
 	TransactionAccountAssignment ITransactionAccountAssignmentDo
 	Transaction_                 ITransaction_Do
 	User                         IUserDo
 	UserGroup                    IUserGroupDo
 	UserIdentity                 IUserIdentityDo
-	View                         IViewDo
-	ViewAccountAssignment        IViewAccountAssignmentDo
-	ViewAccountGroupAssignment   IViewAccountGroupAssignmentDo
-	ViewBudgetAssignment         IViewBudgetAssignmentDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
@@ -234,17 +199,12 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		Organization:                 q.Organization.WithContext(ctx),
 		Report:                       q.Report.WithContext(ctx),
 		ReportTemplate:               q.ReportTemplate.WithContext(ctx),
-		Setting:                      q.Setting.WithContext(ctx),
 		TransactionAccount:           q.TransactionAccount.WithContext(ctx),
 		TransactionAccountAssignment: q.TransactionAccountAssignment.WithContext(ctx),
 		Transaction_:                 q.Transaction_.WithContext(ctx),
 		User:                         q.User.WithContext(ctx),
 		UserGroup:                    q.UserGroup.WithContext(ctx),
 		UserIdentity:                 q.UserIdentity.WithContext(ctx),
-		View:                         q.View.WithContext(ctx),
-		ViewAccountAssignment:        q.ViewAccountAssignment.WithContext(ctx),
-		ViewAccountGroupAssignment:   q.ViewAccountGroupAssignment.WithContext(ctx),
-		ViewBudgetAssignment:         q.ViewBudgetAssignment.WithContext(ctx),
 	}
 }
 

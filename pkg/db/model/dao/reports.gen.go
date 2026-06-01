@@ -673,19 +673,6 @@ func newReport(db *gorm.DB, opts ...gen.DOOption) report {
 		}{
 			RelationField: field.NewRelation("Organization.TransactionAccounts", "model.TransactionAccount"),
 		},
-		UserGroups: struct {
-			field.RelationField
-			Organization struct {
-				field.RelationField
-			}
-		}{
-			RelationField: field.NewRelation("Organization.UserGroups", "model.UserGroup"),
-			Organization: struct {
-				field.RelationField
-			}{
-				RelationField: field.NewRelation("Organization.UserGroups.Organization", "model.Organization"),
-			},
-		},
 	}
 
 	_report.fillFieldMap()
@@ -924,12 +911,6 @@ type reportBelongsToOrganization struct {
 	}
 	TransactionAccounts struct {
 		field.RelationField
-	}
-	UserGroups struct {
-		field.RelationField
-		Organization struct {
-			field.RelationField
-		}
 	}
 }
 

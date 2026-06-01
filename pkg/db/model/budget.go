@@ -8,8 +8,8 @@ import (
 )
 
 type Budget struct {
-	ID                 uuid.UUID `gorm:"type:uuid;primaryKey"`
-	OrganizationID     uuid.UUID `gorm:"type:uuid;not null;index:idx_budgets_organization_id"`
+	ID                 uuid.UUID `gorm:"type:uuid;primaryKey;uniqueIndex:idx_budgets_org_id,priority:1"`
+	OrganizationID     uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_budgets_org_id,priority:2"`
 	DisplayName        string    `gorm:"not null;default:'';index:idx_budgets_display_name"`
 	DisplayDescription string    `gorm:"not null;default:''"`
 	IsClosed           bool      `gorm:"not null;default:false"`

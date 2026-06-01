@@ -186,9 +186,6 @@ func TransactionToProto(m *model.Transaction_) *gen.Transaction {
 		UpdateTime:                 ts(m.UpdatedAt),
 		CreateTime:                 ts(m.CreatedAt),
 	}
-	if m.AssignedAccountID.Valid {
-		p.AssignedAccountId = m.AssignedAccountID.UUID.String()
-	}
 	return p
 }
 

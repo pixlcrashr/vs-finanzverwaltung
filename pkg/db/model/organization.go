@@ -27,7 +27,6 @@ type Organization struct {
 	Transactions                  []Transaction_                 `gorm:"foreignKey:OrganizationID"`
 	TransactionAccountAssignments []TransactionAccountAssignment `gorm:"foreignKey:OrganizationID"`
 	TransactionAccounts           []TransactionAccount           `gorm:"foreignKey:OrganizationID"`
-	UserGroups                    []UserGroup                    `gorm:"foreignKey:OrganizationID"`
 }
 
 func (Organization) TableName() string { return "organizations" }

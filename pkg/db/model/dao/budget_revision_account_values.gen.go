@@ -675,19 +675,6 @@ func newBudgetTagAccountValue(db *gorm.DB, opts ...gen.DOOption) budgetTagAccoun
 		}{
 			RelationField: field.NewRelation("Organization.TransactionAccounts", "model.TransactionAccount"),
 		},
-		UserGroups: struct {
-			field.RelationField
-			Organization struct {
-				field.RelationField
-			}
-		}{
-			RelationField: field.NewRelation("Organization.UserGroups", "model.UserGroup"),
-			Organization: struct {
-				field.RelationField
-			}{
-				RelationField: field.NewRelation("Organization.UserGroups.Organization", "model.Organization"),
-			},
-		},
 	}
 
 	_budgetTagAccountValue.BudgetTag = budgetTagAccountValueBelongsToBudgetTag{
@@ -958,12 +945,6 @@ type budgetTagAccountValueBelongsToOrganization struct {
 	}
 	TransactionAccounts struct {
 		field.RelationField
-	}
-	UserGroups struct {
-		field.RelationField
-		Organization struct {
-			field.RelationField
-		}
 	}
 }
 

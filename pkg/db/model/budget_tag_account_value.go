@@ -9,10 +9,10 @@ import (
 )
 
 type BudgetTagAccountValue struct {
-	ID             uuid.UUID   `gorm:"type:uuid;primaryKey"`
-	OrganizationID uuid.UUID   `gorm:"type:uuid;not null;index:idx_budget_tag_account_values_organization_id"`
-	BudgetTagID    uuid.UUID   `gorm:"type:uuid;not null;index:idx_budget_revision_account_values_budget_id"`
-	AccountID      uuid.UUID   `gorm:"type:uuid;not null;index:idx_budget_revision_account_values_account_id"`
+	ID             uuid.UUID   `gorm:"type:uuid;primaryKey;uniqueIndex:idx_budget_tag_account_values_org_id,priority:1"`
+	OrganizationID uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_budget_tag_account_values_org_id,priority:2;uniqueIndex:idx_budget_tag_account_values_org_tag_account,priority:1"`
+	BudgetTagID    uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_budget_tag_account_values_org_tag_account,priority:2"`
+	AccountID      uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_budget_tag_account_values_org_tag_account,priority:3"`
 	Value          apd.Decimal `gorm:"type:decimal;not null;default:0;index:idx_budget_revision_account_values_value"`
 	UpdatedAt      time.Time   `gorm:"not null;default:now()"`
 	CreatedAt      time.Time   `gorm:"not null;default:now()"`

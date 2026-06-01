@@ -32,17 +32,12 @@ var Models = []any{
 	&model.TransactionAccount{},
 	&model.Transaction_{},
 	&model.TransactionAccountAssignment{},
-	&model.ViewAccountAssignment{},
-	&model.ViewAccountGroupAssignment{},
-	&model.ViewBudgetAssignment{},
-	&model.View{},
 	&model.ReportTemplate{},
 	&model.Report{},
 	&model.User{},
 	&model.UserIdentity{},
 	&model.UserGroup{},
 	&model.CasbinRule{},
-	&model.Setting{},
 }
 
 func AutoMigrate(db *gorm.DB) error {

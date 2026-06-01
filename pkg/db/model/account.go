@@ -8,8 +8,8 @@ import (
 )
 
 type Account struct {
-	ID                 uuid.UUID     `gorm:"type:uuid;primaryKey"`
-	OrganizationID     uuid.UUID     `gorm:"type:uuid;not null;index:idx_accounts_organization_id"`
+	ID                 uuid.UUID     `gorm:"type:uuid;primaryKey;uniqueIndex:idx_accounts_org_id,priority:1"`
+	OrganizationID     uuid.UUID     `gorm:"type:uuid;not null;uniqueIndex:idx_accounts_org_id,priority:2"`
 	ParentAccountID    uuid.NullUUID `gorm:"type:uuid;index:idx_accounts_parent_account_id"`
 	DisplayName        string        `gorm:"not null;default:'';index:idx_accounts_display_name"`
 	DisplayCode        string        `gorm:"not null;default:'';index:idx_accounts_display_code"`

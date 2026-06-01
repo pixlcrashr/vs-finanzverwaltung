@@ -178,12 +178,6 @@ func newImportSource(db *gorm.DB, opts ...gen.DOOption) importSource {
 			TransactionAccounts struct {
 				field.RelationField
 			}
-			UserGroups struct {
-				field.RelationField
-				Organization struct {
-					field.RelationField
-				}
-			}
 		}{
 			RelationField: field.NewRelation("TransactionAccounts.Organization", "model.Organization"),
 			AccountGroupAssignments: struct {
@@ -671,19 +665,6 @@ func newImportSource(db *gorm.DB, opts ...gen.DOOption) importSource {
 			}{
 				RelationField: field.NewRelation("TransactionAccounts.Organization.TransactionAccounts", "model.TransactionAccount"),
 			},
-			UserGroups: struct {
-				field.RelationField
-				Organization struct {
-					field.RelationField
-				}
-			}{
-				RelationField: field.NewRelation("TransactionAccounts.Organization.UserGroups", "model.UserGroup"),
-				Organization: struct {
-					field.RelationField
-				}{
-					RelationField: field.NewRelation("TransactionAccounts.Organization.UserGroups.Organization", "model.Organization"),
-				},
-			},
 		},
 		ImportSource: struct {
 			field.RelationField
@@ -960,12 +941,6 @@ type importSourceHasManyTransactionAccounts struct {
 		}
 		TransactionAccounts struct {
 			field.RelationField
-		}
-		UserGroups struct {
-			field.RelationField
-			Organization struct {
-				field.RelationField
-			}
 		}
 	}
 	ImportSource struct {

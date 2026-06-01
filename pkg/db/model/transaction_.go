@@ -10,18 +10,17 @@ import (
 
 // Transaction_ has suffix due to naming conflicts when using Gorm DAOs.
 type Transaction_ struct {
-	ID                         uuid.UUID     `gorm:"type:uuid;primaryKey"`
-	OrganizationID             uuid.UUID     `gorm:"type:uuid;not null;index:idx_transactions_organization_id"`
-	CreditTransactionAccountID uuid.UUID     `gorm:"type:uuid;not null;uniqueIndex:idx_transactions_unique_entry,priority:1"`
-	DebitTransactionAccountID  uuid.UUID     `gorm:"type:uuid;not null;uniqueIndex:idx_transactions_unique_entry,priority:2"`
-	Amount                     apd.Decimal   `gorm:"type:decimal;not null;uniqueIndex:idx_transactions_unique_entry,priority:3"`
-	Description                string        `gorm:"not null;default:'';uniqueIndex:idx_transactions_unique_entry,priority:4"`
-	Reference                  string        `gorm:"not null;default:'';uniqueIndex:idx_transactions_unique_entry,priority:5"`
-	BookedAt                   time.Time     `gorm:"type:date;not null;default:now();uniqueIndex:idx_transactions_unique_entry,priority:6"`
-	DocumentDate               time.Time     `gorm:"type:date;not null;default:now();uniqueIndex:idx_transactions_unique_entry,priority:7"`
-	AssignedAccountID          uuid.NullUUID `gorm:"type:uuid"`
-	UpdatedAt                  time.Time     `gorm:"not null;default:now()"`
-	CreatedAt                  time.Time     `gorm:"not null;default:now()"`
+	ID                         uuid.UUID   `gorm:"type:uuid;primaryKey;uniqueIndex:idx_transactions_org_id,priority:1"`
+	OrganizationID             uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_transactions_org_id,priority:2"`
+	CreditTransactionAccountID uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_transactions_unique_entry,priority:1"`
+	DebitTransactionAccountID  uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_transactions_unique_entry,priority:2"`
+	Amount                     apd.Decimal `gorm:"type:decimal;not null;uniqueIndex:idx_transactions_unique_entry,priority:3"`
+	Description                string      `gorm:"not null;default:'';uniqueIndex:idx_transactions_unique_entry,priority:4"`
+	Reference                  string      `gorm:"not null;default:'';uniqueIndex:idx_transactions_unique_entry,priority:5"`
+	BookedAt                   time.Time   `gorm:"type:date;not null;default:now();uniqueIndex:idx_transactions_unique_entry,priority:6"`
+	DocumentDate               time.Time   `gorm:"type:date;not null;default:now();uniqueIndex:idx_transactions_unique_entry,priority:7"`
+	UpdatedAt                  time.Time   `gorm:"not null;default:now()"`
+	CreatedAt                  time.Time   `gorm:"not null;default:now()"`
 
 	// Relations
 	Organization                  Organization                   `gorm:"foreignKey:OrganizationID"`

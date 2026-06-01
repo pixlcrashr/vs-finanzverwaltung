@@ -675,19 +675,6 @@ func newTransactionAccountAssignment(db *gorm.DB, opts ...gen.DOOption) transact
 		}{
 			RelationField: field.NewRelation("Organization.TransactionAccounts", "model.TransactionAccount"),
 		},
-		UserGroups: struct {
-			field.RelationField
-			Organization struct {
-				field.RelationField
-			}
-		}{
-			RelationField: field.NewRelation("Organization.UserGroups", "model.UserGroup"),
-			Organization: struct {
-				field.RelationField
-			}{
-				RelationField: field.NewRelation("Organization.UserGroups.Organization", "model.Organization"),
-			},
-		},
 	}
 
 	_transactionAccountAssignment.Transaction = transactionAccountAssignmentBelongsToTransaction{
@@ -960,12 +947,6 @@ type transactionAccountAssignmentBelongsToOrganization struct {
 	}
 	TransactionAccounts struct {
 		field.RelationField
-	}
-	UserGroups struct {
-		field.RelationField
-		Organization struct {
-			field.RelationField
-		}
 	}
 }
 

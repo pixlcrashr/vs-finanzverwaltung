@@ -4,20 +4,27 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/pixlcrashr/go-pagetoken/order"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
+	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"gorm.io/gorm"
 )
+
+// AccountGroupAssignmentOrderFieldMapper maps API order_by field names to database column names.
+var AccountGroupAssignmentOrderFieldMapper = order.FieldMapper{
+	"accountId":  "account_id",
+	"negate":     "negate",
+	"createTime": "created_at",
+}
 
 // ListAccountGroupAssignmentsParams drives the List query.
 type ListAccountGroupAssignmentsParams struct {
 	AccountGroupID uuid.UUID
 	// Cond is an optional abstract condition chain (AND/OR/NOT support).
 	Cond cond.Cond
-	// OrderBy specifies the sort field and direction (e.g. "createTime desc").
-	OrderBy order.Fields
+	// OrderBy specifies the sort field and direction as SQL expressions.
+	OrderBy []order.Expr
 	// Page number (1-indexed).
 	Page int
 	// PageSize caps the number of rows returned.
@@ -65,16 +72,12 @@ func (r *AccountGroupAssignmentRepository) List(ctx context.Context, params List
 		return nil, 0, err
 	}
 
-	if params.Cond != nil && !params.Cond.IsEmpty() {
-		db = db.Order("created_at DESC")
-	} else {
-		if exprs := ResolveOrderBy(&r.q.AccountGroupAssignment, params.OrderBy); len(exprs) > 0 {
-			for _, expr := range exprs {
-				db = db.Order(expr)
-			}
-		} else {
-			db = db.Order("created_at DESC")
+	if len(params.OrderBy) > 0 {
+		for _, expr := range params.OrderBy {
+			db = db.Order(expr.String())
 		}
+	} else {
+		db = db.Order("created_at DESC")
 	}
 
 	offset := (params.Page - 1) * params.PageSize

@@ -4,19 +4,26 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/pixlcrashr/go-pagetoken/order"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
+	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"gorm.io/gorm"
 )
+
+// ReportTemplateOrderFieldMapper maps API order_by field names to database column names.
+var ReportTemplateOrderFieldMapper = order.FieldMapper{
+	"displayName": "display_name",
+	"createTime":  "created_at",
+	"updateTime":  "updated_at",
+}
 
 // ListReportTemplatesParams drives the List query.
 type ListReportTemplatesParams struct {
 	// Cond is an optional abstract condition chain (AND/OR/NOT support).
 	Cond cond.Cond
-	// OrderBy specifies the ordering expression (e.g., "created_at desc").
-	OrderBy order.Fields
+	// OrderBy specifies the sort field and direction as SQL expressions.
+	OrderBy []order.Expr
 	// Page number (1-indexed).
 	Page int
 	// PageSize caps the number of rows returned.
@@ -63,16 +70,12 @@ func (r *ReportTemplateRepository) List(ctx context.Context, params ListReportTe
 		return nil, 0, err
 	}
 
-	if params.Cond != nil && !params.Cond.IsEmpty() {
-		db = db.Order("created_at DESC")
-	} else {
-		if exprs := ResolveOrderBy(&r.q.ReportTemplate, params.OrderBy); len(exprs) > 0 {
-			for _, expr := range exprs {
-				db = db.Order(expr)
-			}
-		} else {
-			db = db.Order("created_at DESC")
+	if len(params.OrderBy) > 0 {
+		for _, expr := range params.OrderBy {
+			db = db.Order(expr.String())
 		}
+	} else {
+		db = db.Order("created_at DESC")
 	}
 
 	offset := (params.Page - 1) * params.PageSize

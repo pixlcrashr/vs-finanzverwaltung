@@ -4,17 +4,25 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/pixlcrashr/go-pagetoken/order"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
+	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"gorm.io/gorm"
 )
+
+// TransactionAccountAssignmentOrderFieldMapper maps API order_by field names to database column names.
+var TransactionAccountAssignmentOrderFieldMapper = order.FieldMapper{
+	"accountId":  "account_id",
+	"value":      "value",
+	"createTime": "created_at",
+	"updateTime": "updated_at",
+}
 
 // ListTransactionAccountAssignmentsParams drives the List query.
 type ListTransactionAccountAssignmentsParams struct {
 	TransactionID uuid.UUID
-	// OrderBy specifies the ordering expression (e.g., "created_at desc").
-	OrderBy order.Fields
+	// OrderBy specifies the sort field and direction as SQL expressions.
+	OrderBy []order.Expr
 	// Page number (1-indexed).
 	Page int
 	// PageSize caps the number of rows returned.
@@ -38,31 +46,31 @@ func (r *TransactionAccountAssignmentRepository) List(ctx context.Context, param
 		params.Page = 1
 	}
 
-	taa := r.q.TransactionAccountAssignment.WithContext(ctx).
-		Where(r.q.TransactionAccountAssignment.TransactionID.Eq(params.TransactionID))
+	db := r.db.WithContext(ctx).Table("transaction_account_assignments").
+		Where("transaction_id = ?", params.TransactionID)
 
-	total, err := taa.Count()
-	if err != nil {
+	var total int64
+	if err := db.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
 	// Apply ordering
-	if exprs := ResolveOrderBy(&r.q.TransactionAccountAssignment, params.OrderBy); len(exprs) > 0 {
-		for _, expr := range exprs {
-			taa = taa.Order(expr)
+	if len(params.OrderBy) > 0 {
+		for _, expr := range params.OrderBy {
+			db = db.Order(expr.String())
 		}
 	} else {
-		taa = taa.Order(r.q.TransactionAccountAssignment.CreatedAt.Desc())
+		db = db.Order("created_at DESC")
 	}
 
 	offset := (params.Page - 1) * params.PageSize
 	if offset > 0 {
-		taa = taa.Offset(offset)
+		db = db.Offset(offset)
 	}
-	taa = taa.Limit(params.PageSize)
+	db = db.Limit(params.PageSize)
 
-	ms, err := taa.Find()
-	if err != nil {
+	var ms []*model.TransactionAccountAssignment
+	if err := db.Find(&ms).Error; err != nil {
 		return nil, 0, err
 	}
 

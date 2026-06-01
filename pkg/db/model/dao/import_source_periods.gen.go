@@ -675,19 +675,6 @@ func newImportSourcePeriod(db *gorm.DB, opts ...gen.DOOption) importSourcePeriod
 		}{
 			RelationField: field.NewRelation("Organization.TransactionAccounts", "model.TransactionAccount"),
 		},
-		UserGroups: struct {
-			field.RelationField
-			Organization struct {
-				field.RelationField
-			}
-		}{
-			RelationField: field.NewRelation("Organization.UserGroups", "model.UserGroup"),
-			Organization: struct {
-				field.RelationField
-			}{
-				RelationField: field.NewRelation("Organization.UserGroups.Organization", "model.Organization"),
-			},
-		},
 	}
 
 	_importSourcePeriod.ImportSource = importSourcePeriodBelongsToImportSource{
@@ -947,12 +934,6 @@ type importSourcePeriodBelongsToOrganization struct {
 	}
 	TransactionAccounts struct {
 		field.RelationField
-	}
-	UserGroups struct {
-		field.RelationField
-		Organization struct {
-			field.RelationField
-		}
 	}
 }
 

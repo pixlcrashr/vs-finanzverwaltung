@@ -8,10 +8,10 @@ import (
 )
 
 type TransactionAccount struct {
-	ID                 uuid.UUID `gorm:"type:uuid;primaryKey"`
-	OrganizationID     uuid.UUID `gorm:"type:uuid;not null;index:idx_transaction_accounts_organization_id"`
-	Code               string    `gorm:"type:varchar(64);not null;uniqueIndex:idx_transaction_accounts_code_source,priority:1;index:idx_transaction_accounts_code"`
-	ImportSourceID     uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_transaction_accounts_code_source,priority:2"`
+	ID                 uuid.UUID `gorm:"type:uuid;primaryKey;uniqueIndex:idx_transaction_accounts_org_id,priority:1"`
+	OrganizationID     uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_transaction_accounts_org_id,priority:2;uniqueIndex:idx_transaction_accounts_org_code_source,priority:1"`
+	Code               string    `gorm:"type:varchar(64);not null;uniqueIndex:idx_transaction_accounts_org_code_source,priority:2;index:idx_transaction_accounts_code"`
+	ImportSourceID     uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_transaction_accounts_org_code_source,priority:3"`
 	DisplayName        string    `gorm:"not null;default:'';index:idx_transaction_accounts_display_name"`
 	DisplayDescription string    `gorm:"not null;default:''"`
 	UpdatedAt          time.Time `gorm:"not null;default:now()"`

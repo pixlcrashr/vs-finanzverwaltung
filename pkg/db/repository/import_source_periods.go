@@ -4,20 +4,28 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/pixlcrashr/go-pagetoken/order"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
+	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"gorm.io/gorm"
 )
+
+// ImportSourcePeriodOrderFieldMapper maps API order_by field names to database column names.
+var ImportSourcePeriodOrderFieldMapper = order.FieldMapper{
+	"year":       "year",
+	"isClosed":   "is_closed",
+	"createTime": "created_at",
+	"updateTime": "updated_at",
+}
 
 // ListImportSourcePeriodsParams drives the List query.
 type ListImportSourcePeriodsParams struct {
 	ImportSourceID uuid.UUID
 	// Cond is an optional abstract condition chain (AND/OR/NOT support).
 	Cond cond.Cond
-	// OrderBy specifies the ordering expression (e.g., "year desc").
-	OrderBy order.Fields
+	// OrderBy specifies the sort field and direction as SQL expressions.
+	OrderBy []order.Expr
 	// Page number (1-indexed).
 	Page int
 	// PageSize caps the number of rows returned.
@@ -64,16 +72,12 @@ func (r *ImportSourcePeriodRepository) List(ctx context.Context, params ListImpo
 		return nil, 0, err
 	}
 
-	if params.Cond != nil && !params.Cond.IsEmpty() {
-		db = db.Order("year DESC")
-	} else {
-		if exprs := ResolveOrderBy(&r.q.ImportSourcePeriod, params.OrderBy); len(exprs) > 0 {
-			for _, expr := range exprs {
-				db = db.Order(expr)
-			}
-		} else {
-			db = db.Order("year DESC")
+	if len(params.OrderBy) > 0 {
+		for _, expr := range params.OrderBy {
+			db = db.Order(expr.String())
 		}
+	} else {
+		db = db.Order("year DESC")
 	}
 
 	offset := (params.Page - 1) * params.PageSize

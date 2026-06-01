@@ -183,12 +183,6 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 			TransactionAccounts struct {
 				field.RelationField
 			}
-			UserGroups struct {
-				field.RelationField
-				Organization struct {
-					field.RelationField
-				}
-			}
 		}{
 			RelationField: field.NewRelation("BudgetTags.Organization", "model.Organization"),
 			AccountGroupAssignments: struct {
@@ -753,19 +747,6 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 			}{
 				RelationField: field.NewRelation("BudgetTags.Organization.TransactionAccounts", "model.TransactionAccount"),
 			},
-			UserGroups: struct {
-				field.RelationField
-				Organization struct {
-					field.RelationField
-				}
-			}{
-				RelationField: field.NewRelation("BudgetTags.Organization.UserGroups", "model.UserGroup"),
-				Organization: struct {
-					field.RelationField
-				}{
-					RelationField: field.NewRelation("BudgetTags.Organization.UserGroups.Organization", "model.Organization"),
-				},
-			},
 		},
 		Budget: struct {
 			field.RelationField
@@ -1031,12 +1012,6 @@ type budgetHasManyBudgetTags struct {
 		}
 		TransactionAccounts struct {
 			field.RelationField
-		}
-		UserGroups struct {
-			field.RelationField
-			Organization struct {
-				field.RelationField
-			}
 		}
 	}
 	Budget struct {

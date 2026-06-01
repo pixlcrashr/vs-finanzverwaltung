@@ -179,12 +179,6 @@ func newTransactionAccount(db *gorm.DB, opts ...gen.DOOption) transactionAccount
 			TransactionAccounts struct {
 				field.RelationField
 			}
-			UserGroups struct {
-				field.RelationField
-				Organization struct {
-					field.RelationField
-				}
-			}
 		}{
 			RelationField: field.NewRelation("CreditTransactions.Organization", "model.Organization"),
 			AccountGroupAssignments: struct {
@@ -660,19 +654,6 @@ func newTransactionAccount(db *gorm.DB, opts ...gen.DOOption) transactionAccount
 			}{
 				RelationField: field.NewRelation("CreditTransactions.Organization.TransactionAccounts", "model.TransactionAccount"),
 			},
-			UserGroups: struct {
-				field.RelationField
-				Organization struct {
-					field.RelationField
-				}
-			}{
-				RelationField: field.NewRelation("CreditTransactions.Organization.UserGroups", "model.UserGroup"),
-				Organization: struct {
-					field.RelationField
-				}{
-					RelationField: field.NewRelation("CreditTransactions.Organization.UserGroups.Organization", "model.Organization"),
-				},
-			},
 		},
 		CreditTransactionAccount: struct {
 			field.RelationField
@@ -963,12 +944,6 @@ type transactionAccountHasManyCreditTransactions struct {
 		}
 		TransactionAccounts struct {
 			field.RelationField
-		}
-		UserGroups struct {
-			field.RelationField
-			Organization struct {
-				field.RelationField
-			}
 		}
 	}
 	CreditTransactionAccount struct {

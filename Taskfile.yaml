@@ -4,11 +4,6 @@ includes:
   docs: ./docs
 
 tasks:
-  setup:
-    cmds:
-      - npm install @redocly/cli -g
-      - cmd: powershell -Command "New-Item -ItemType Directory -Force -Path './bin'; Invoke-WebRequest -Uri 'https://repo1.maven.org/maven2/io/swagger/codegen/v3/swagger-codegen-cli/3.0.68/swagger-codegen-cli-3.0.68.jar' -OutFile './bin/swagger-codegen-cli.jar'"
-        platforms: [windows]
   release:
     cmds:
       - commit-and-tag-version {{.CLI_ARGS}}
@@ -24,7 +19,3 @@ tasks:
     desc: Generate Go gRPC, grpc-gateway, AIP helpers, and OpenAPI docs from proto files
     cmds:
       - buf generate
-  docs:generate:
-    desc: 'test'
-    cmds:
-      - java -jar ./bin/swagger-codegen-cli.jar generate -i ./openapi.swagger.yaml -l html2 -o ./docs/api

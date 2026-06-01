@@ -16,8 +16,8 @@ plugins:
     opt: module=github.com/pixlcrashr/vsfv/pkg/api/grpc/gen
 
   - local: protoc-gen-doc
-    out: ./docs/proto/
-    opt: html,index.html
+    out: ./docs/api/
+    opt: html,proto.html
   
   - local: protoc-gen-grpc-gateway
     out: ./pkg/api/grpc/gen

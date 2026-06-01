@@ -21,11 +21,12 @@ var (
 	AccountGroup                 *accountGroup
 	AccountGroupAssignment       *accountGroupAssignment
 	Budget                       *budget
-	BudgetRevision               *budgetRevision
-	BudgetRevisionAccountValue   *budgetRevisionAccountValue
+	BudgetTag                    *budgetTag
+	BudgetTagAccountValue        *budgetTagAccountValue
 	CasbinRule                   *casbinRule
 	ImportSource                 *importSource
 	ImportSourcePeriod           *importSourcePeriod
+	Organization                 *organization
 	Report                       *report
 	ReportTemplate               *reportTemplate
 	Setting                      *setting
@@ -47,11 +48,12 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	AccountGroup = &Q.AccountGroup
 	AccountGroupAssignment = &Q.AccountGroupAssignment
 	Budget = &Q.Budget
-	BudgetRevision = &Q.BudgetRevision
-	BudgetRevisionAccountValue = &Q.BudgetRevisionAccountValue
+	BudgetTag = &Q.BudgetTag
+	BudgetTagAccountValue = &Q.BudgetTagAccountValue
 	CasbinRule = &Q.CasbinRule
 	ImportSource = &Q.ImportSource
 	ImportSourcePeriod = &Q.ImportSourcePeriod
+	Organization = &Q.Organization
 	Report = &Q.Report
 	ReportTemplate = &Q.ReportTemplate
 	Setting = &Q.Setting
@@ -74,11 +76,12 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		AccountGroup:                 newAccountGroup(db, opts...),
 		AccountGroupAssignment:       newAccountGroupAssignment(db, opts...),
 		Budget:                       newBudget(db, opts...),
-		BudgetRevision:               newBudgetRevision(db, opts...),
-		BudgetRevisionAccountValue:   newBudgetRevisionAccountValue(db, opts...),
+		BudgetTag:                    newBudgetTag(db, opts...),
+		BudgetTagAccountValue:        newBudgetTagAccountValue(db, opts...),
 		CasbinRule:                   newCasbinRule(db, opts...),
 		ImportSource:                 newImportSource(db, opts...),
 		ImportSourcePeriod:           newImportSourcePeriod(db, opts...),
+		Organization:                 newOrganization(db, opts...),
 		Report:                       newReport(db, opts...),
 		ReportTemplate:               newReportTemplate(db, opts...),
 		Setting:                      newSetting(db, opts...),
@@ -102,11 +105,12 @@ type Query struct {
 	AccountGroup                 accountGroup
 	AccountGroupAssignment       accountGroupAssignment
 	Budget                       budget
-	BudgetRevision               budgetRevision
-	BudgetRevisionAccountValue   budgetRevisionAccountValue
+	BudgetTag                    budgetTag
+	BudgetTagAccountValue        budgetTagAccountValue
 	CasbinRule                   casbinRule
 	ImportSource                 importSource
 	ImportSourcePeriod           importSourcePeriod
+	Organization                 organization
 	Report                       report
 	ReportTemplate               reportTemplate
 	Setting                      setting
@@ -131,11 +135,12 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		AccountGroup:                 q.AccountGroup.clone(db),
 		AccountGroupAssignment:       q.AccountGroupAssignment.clone(db),
 		Budget:                       q.Budget.clone(db),
-		BudgetRevision:               q.BudgetRevision.clone(db),
-		BudgetRevisionAccountValue:   q.BudgetRevisionAccountValue.clone(db),
+		BudgetTag:                    q.BudgetTag.clone(db),
+		BudgetTagAccountValue:        q.BudgetTagAccountValue.clone(db),
 		CasbinRule:                   q.CasbinRule.clone(db),
 		ImportSource:                 q.ImportSource.clone(db),
 		ImportSourcePeriod:           q.ImportSourcePeriod.clone(db),
+		Organization:                 q.Organization.clone(db),
 		Report:                       q.Report.clone(db),
 		ReportTemplate:               q.ReportTemplate.clone(db),
 		Setting:                      q.Setting.clone(db),
@@ -167,11 +172,12 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		AccountGroup:                 q.AccountGroup.replaceDB(db),
 		AccountGroupAssignment:       q.AccountGroupAssignment.replaceDB(db),
 		Budget:                       q.Budget.replaceDB(db),
-		BudgetRevision:               q.BudgetRevision.replaceDB(db),
-		BudgetRevisionAccountValue:   q.BudgetRevisionAccountValue.replaceDB(db),
+		BudgetTag:                    q.BudgetTag.replaceDB(db),
+		BudgetTagAccountValue:        q.BudgetTagAccountValue.replaceDB(db),
 		CasbinRule:                   q.CasbinRule.replaceDB(db),
 		ImportSource:                 q.ImportSource.replaceDB(db),
 		ImportSourcePeriod:           q.ImportSourcePeriod.replaceDB(db),
+		Organization:                 q.Organization.replaceDB(db),
 		Report:                       q.Report.replaceDB(db),
 		ReportTemplate:               q.ReportTemplate.replaceDB(db),
 		Setting:                      q.Setting.replaceDB(db),
@@ -193,11 +199,12 @@ type queryCtx struct {
 	AccountGroup                 IAccountGroupDo
 	AccountGroupAssignment       IAccountGroupAssignmentDo
 	Budget                       IBudgetDo
-	BudgetRevision               IBudgetRevisionDo
-	BudgetRevisionAccountValue   IBudgetRevisionAccountValueDo
+	BudgetTag                    IBudgetTagDo
+	BudgetTagAccountValue        IBudgetTagAccountValueDo
 	CasbinRule                   ICasbinRuleDo
 	ImportSource                 IImportSourceDo
 	ImportSourcePeriod           IImportSourcePeriodDo
+	Organization                 IOrganizationDo
 	Report                       IReportDo
 	ReportTemplate               IReportTemplateDo
 	Setting                      ISettingDo
@@ -219,11 +226,12 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		AccountGroup:                 q.AccountGroup.WithContext(ctx),
 		AccountGroupAssignment:       q.AccountGroupAssignment.WithContext(ctx),
 		Budget:                       q.Budget.WithContext(ctx),
-		BudgetRevision:               q.BudgetRevision.WithContext(ctx),
-		BudgetRevisionAccountValue:   q.BudgetRevisionAccountValue.WithContext(ctx),
+		BudgetTag:                    q.BudgetTag.WithContext(ctx),
+		BudgetTagAccountValue:        q.BudgetTagAccountValue.WithContext(ctx),
 		CasbinRule:                   q.CasbinRule.WithContext(ctx),
 		ImportSource:                 q.ImportSource.WithContext(ctx),
 		ImportSourcePeriod:           q.ImportSourcePeriod.WithContext(ctx),
+		Organization:                 q.Organization.WithContext(ctx),
 		Report:                       q.Report.WithContext(ctx),
 		ReportTemplate:               q.ReportTemplate.WithContext(ctx),
 		Setting:                      q.Setting.WithContext(ctx),

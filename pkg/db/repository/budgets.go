@@ -2,27 +2,37 @@ package repository
 
 import (
 	"context"
-	"strings"
 
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/go-pagetoken/order"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
+	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"gorm.io/gorm"
 )
 
 // ListBudgetsParams drives the List query.
 type ListBudgetsParams struct {
-	// NamePrefix filters budgets whose display_name starts with this string (case-insensitive).
-	NamePrefix string
-	// IncludeClosed includes closed budgets when true.
-	IncludeClosed bool
+	// Cond is an optional abstract condition chain (AND/OR/NOT support).
+	Cond cond.Cond
 	// OrderBy specifies the ordering expression (e.g., "period_start desc").
 	OrderBy order.Fields
 	// Page number (1-indexed).
 	Page int
 	// PageSize caps the number of rows returned.
 	PageSize int
+}
+
+// budgetColumnMapper maps filter field names to database column names.
+func budgetColumnMapper(field string) (string, bool) {
+	switch field {
+	case "display_name":
+		return "display_name", true
+	case "is_closed":
+		return "is_closed", true
+	default:
+		return "", false
+	}
 }
 
 // BudgetRepository provides CRUD and specialised queries for the budgets table.
@@ -45,40 +55,51 @@ func (r *BudgetRepository) List(ctx context.Context, params ListBudgetsParams) (
 		params.Page = 1
 	}
 
-	b := r.q.Budget.WithContext(ctx)
+	var db *gorm.DB
 
-	if params.NamePrefix != "" {
-		b = b.Where(r.q.Budget.DisplayName.Lower().Like(strings.ToLower(params.NamePrefix) + "%"))
-	}
+	// When condition chain is present, use raw GORM for flexible SQL
+	if params.Cond != nil && !params.Cond.IsEmpty() {
+		db = r.db.WithContext(ctx).Table("budgets")
 
-	if !params.IncludeClosed {
-		b = b.Where(r.q.Budget.IsClosed.Is(false))
+		// Apply abstract condition chain
+		db = cond.Apply(db, params.Cond, budgetColumnMapper)
+	} else {
+		// Use generated query builder for simple filters
+		b := r.q.Budget.WithContext(ctx)
+
+		db = b.UnderlyingDB()
 	}
 
 	// Get total count before pagination
-	total, err := b.Count()
-	if err != nil {
+	var total int64
+	if err := db.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
 	// Apply ordering
-	if exprs := ResolveOrderBy(&r.q.Budget, params.OrderBy); len(exprs) > 0 {
-		for _, expr := range exprs {
-			b = b.Order(expr)
-		}
+	if params.Cond != nil && !params.Cond.IsEmpty() {
+		// For raw DB path, use default ordering
+		db = db.Order("period_start DESC")
 	} else {
-		b = b.Order(r.q.Budget.PeriodStart.Desc())
+		// For gen query path, use ResolveOrderBy
+		if exprs := ResolveOrderBy(&r.q.Budget, params.OrderBy); len(exprs) > 0 {
+			for _, expr := range exprs {
+				db = db.Order(expr)
+			}
+		} else {
+			db = db.Order("period_start DESC")
+		}
 	}
 
 	// Apply pagination
 	offset := (params.Page - 1) * params.PageSize
 	if offset > 0 {
-		b = b.Offset(offset)
+		db = db.Offset(offset)
 	}
-	b = b.Limit(params.PageSize)
+	db = db.Limit(params.PageSize)
 
-	ms, err := b.Find()
-	if err != nil {
+	var ms []*model.Budget
+	if err := db.Find(&ms).Error; err != nil {
 		return nil, 0, err
 	}
 

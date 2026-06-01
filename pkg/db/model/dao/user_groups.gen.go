@@ -27,13 +27,669 @@ func newUserGroup(db *gorm.DB, opts ...gen.DOOption) userGroup {
 
 	tableName := _userGroup.userGroupDo.TableName()
 	_userGroup.ALL = field.NewAsterisk(tableName)
-	_userGroup.ID = field.NewString(tableName, "id")
+	_userGroup.ID = field.NewField(tableName, "id")
+	_userGroup.OrganizationID = field.NewField(tableName, "organization_id")
 	_userGroup.Name = field.NewString(tableName, "name")
 	_userGroup.Description = field.NewString(tableName, "description")
 	_userGroup.IsSystem = field.NewBool(tableName, "is_system")
 	_userGroup.IsDefault = field.NewBool(tableName, "is_default")
 	_userGroup.CreatedAt = field.NewTime(tableName, "created_at")
 	_userGroup.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_userGroup.Organization = userGroupBelongsToOrganization{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Organization", "model.Organization"),
+		AccountGroupAssignments: struct {
+			field.RelationField
+			Organization struct {
+				field.RelationField
+			}
+			AccountGroup struct {
+				field.RelationField
+				Organization struct {
+					field.RelationField
+				}
+				AccountGroupAssignments struct {
+					field.RelationField
+				}
+			}
+			Account struct {
+				field.RelationField
+				Organization struct {
+					field.RelationField
+				}
+				ParentAccount struct {
+					field.RelationField
+				}
+				ChildAccounts struct {
+					field.RelationField
+				}
+				AccountGroupAssignments struct {
+					field.RelationField
+				}
+				BudgetTagAccountValues struct {
+					field.RelationField
+					Organization struct {
+						field.RelationField
+					}
+					BudgetTag struct {
+						field.RelationField
+						Organization struct {
+							field.RelationField
+						}
+						Budget struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							BudgetTags struct {
+								field.RelationField
+							}
+						}
+						BudgetTagAccountValues struct {
+							field.RelationField
+						}
+					}
+					Account struct {
+						field.RelationField
+					}
+				}
+				TransactionAccountAssignments struct {
+					field.RelationField
+					Organization struct {
+						field.RelationField
+					}
+					Transaction struct {
+						field.RelationField
+						Organization struct {
+							field.RelationField
+						}
+						CreditTransactionAccount struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							ImportSource struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								TransactionAccounts struct {
+									field.RelationField
+								}
+								ImportSourcePeriods struct {
+									field.RelationField
+									Organization struct {
+										field.RelationField
+									}
+									ImportSource struct {
+										field.RelationField
+									}
+								}
+							}
+							CreditTransactions struct {
+								field.RelationField
+							}
+							DebitTransactions struct {
+								field.RelationField
+							}
+						}
+						DebitTransactionAccount struct {
+							field.RelationField
+						}
+						TransactionAccountAssignments struct {
+							field.RelationField
+						}
+					}
+					Account struct {
+						field.RelationField
+					}
+				}
+			}
+		}{
+			RelationField: field.NewRelation("Organization.AccountGroupAssignments", "model.AccountGroupAssignment"),
+			Organization: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Organization.AccountGroupAssignments.Organization", "model.Organization"),
+			},
+			AccountGroup: struct {
+				field.RelationField
+				Organization struct {
+					field.RelationField
+				}
+				AccountGroupAssignments struct {
+					field.RelationField
+				}
+			}{
+				RelationField: field.NewRelation("Organization.AccountGroupAssignments.AccountGroup", "model.AccountGroup"),
+				Organization: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("Organization.AccountGroupAssignments.AccountGroup.Organization", "model.Organization"),
+				},
+				AccountGroupAssignments: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("Organization.AccountGroupAssignments.AccountGroup.AccountGroupAssignments", "model.AccountGroupAssignment"),
+				},
+			},
+			Account: struct {
+				field.RelationField
+				Organization struct {
+					field.RelationField
+				}
+				ParentAccount struct {
+					field.RelationField
+				}
+				ChildAccounts struct {
+					field.RelationField
+				}
+				AccountGroupAssignments struct {
+					field.RelationField
+				}
+				BudgetTagAccountValues struct {
+					field.RelationField
+					Organization struct {
+						field.RelationField
+					}
+					BudgetTag struct {
+						field.RelationField
+						Organization struct {
+							field.RelationField
+						}
+						Budget struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							BudgetTags struct {
+								field.RelationField
+							}
+						}
+						BudgetTagAccountValues struct {
+							field.RelationField
+						}
+					}
+					Account struct {
+						field.RelationField
+					}
+				}
+				TransactionAccountAssignments struct {
+					field.RelationField
+					Organization struct {
+						field.RelationField
+					}
+					Transaction struct {
+						field.RelationField
+						Organization struct {
+							field.RelationField
+						}
+						CreditTransactionAccount struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							ImportSource struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								TransactionAccounts struct {
+									field.RelationField
+								}
+								ImportSourcePeriods struct {
+									field.RelationField
+									Organization struct {
+										field.RelationField
+									}
+									ImportSource struct {
+										field.RelationField
+									}
+								}
+							}
+							CreditTransactions struct {
+								field.RelationField
+							}
+							DebitTransactions struct {
+								field.RelationField
+							}
+						}
+						DebitTransactionAccount struct {
+							field.RelationField
+						}
+						TransactionAccountAssignments struct {
+							field.RelationField
+						}
+					}
+					Account struct {
+						field.RelationField
+					}
+				}
+			}{
+				RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account", "model.Account"),
+				Organization: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.Organization", "model.Organization"),
+				},
+				ParentAccount: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.ParentAccount", "model.Account"),
+				},
+				ChildAccounts: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.ChildAccounts", "model.Account"),
+				},
+				AccountGroupAssignments: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.AccountGroupAssignments", "model.AccountGroupAssignment"),
+				},
+				BudgetTagAccountValues: struct {
+					field.RelationField
+					Organization struct {
+						field.RelationField
+					}
+					BudgetTag struct {
+						field.RelationField
+						Organization struct {
+							field.RelationField
+						}
+						Budget struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							BudgetTags struct {
+								field.RelationField
+							}
+						}
+						BudgetTagAccountValues struct {
+							field.RelationField
+						}
+					}
+					Account struct {
+						field.RelationField
+					}
+				}{
+					RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetTagAccountValues", "model.BudgetTagAccountValue"),
+					Organization: struct {
+						field.RelationField
+					}{
+						RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetTagAccountValues.Organization", "model.Organization"),
+					},
+					BudgetTag: struct {
+						field.RelationField
+						Organization struct {
+							field.RelationField
+						}
+						Budget struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							BudgetTags struct {
+								field.RelationField
+							}
+						}
+						BudgetTagAccountValues struct {
+							field.RelationField
+						}
+					}{
+						RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetTagAccountValues.BudgetTag", "model.BudgetTag"),
+						Organization: struct {
+							field.RelationField
+						}{
+							RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetTagAccountValues.BudgetTag.Organization", "model.Organization"),
+						},
+						Budget: struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							BudgetTags struct {
+								field.RelationField
+							}
+						}{
+							RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetTagAccountValues.BudgetTag.Budget", "model.Budget"),
+							Organization: struct {
+								field.RelationField
+							}{
+								RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetTagAccountValues.BudgetTag.Budget.Organization", "model.Organization"),
+							},
+							BudgetTags: struct {
+								field.RelationField
+							}{
+								RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetTagAccountValues.BudgetTag.Budget.BudgetTags", "model.BudgetTag"),
+							},
+						},
+						BudgetTagAccountValues: struct {
+							field.RelationField
+						}{
+							RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetTagAccountValues.BudgetTag.BudgetTagAccountValues", "model.BudgetTagAccountValue"),
+						},
+					},
+					Account: struct {
+						field.RelationField
+					}{
+						RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetTagAccountValues.Account", "model.Account"),
+					},
+				},
+				TransactionAccountAssignments: struct {
+					field.RelationField
+					Organization struct {
+						field.RelationField
+					}
+					Transaction struct {
+						field.RelationField
+						Organization struct {
+							field.RelationField
+						}
+						CreditTransactionAccount struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							ImportSource struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								TransactionAccounts struct {
+									field.RelationField
+								}
+								ImportSourcePeriods struct {
+									field.RelationField
+									Organization struct {
+										field.RelationField
+									}
+									ImportSource struct {
+										field.RelationField
+									}
+								}
+							}
+							CreditTransactions struct {
+								field.RelationField
+							}
+							DebitTransactions struct {
+								field.RelationField
+							}
+						}
+						DebitTransactionAccount struct {
+							field.RelationField
+						}
+						TransactionAccountAssignments struct {
+							field.RelationField
+						}
+					}
+					Account struct {
+						field.RelationField
+					}
+				}{
+					RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.TransactionAccountAssignments", "model.TransactionAccountAssignment"),
+					Organization: struct {
+						field.RelationField
+					}{
+						RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Organization", "model.Organization"),
+					},
+					Transaction: struct {
+						field.RelationField
+						Organization struct {
+							field.RelationField
+						}
+						CreditTransactionAccount struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							ImportSource struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								TransactionAccounts struct {
+									field.RelationField
+								}
+								ImportSourcePeriods struct {
+									field.RelationField
+									Organization struct {
+										field.RelationField
+									}
+									ImportSource struct {
+										field.RelationField
+									}
+								}
+							}
+							CreditTransactions struct {
+								field.RelationField
+							}
+							DebitTransactions struct {
+								field.RelationField
+							}
+						}
+						DebitTransactionAccount struct {
+							field.RelationField
+						}
+						TransactionAccountAssignments struct {
+							field.RelationField
+						}
+					}{
+						RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction", "model.Transaction_"),
+						Organization: struct {
+							field.RelationField
+						}{
+							RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.Organization", "model.Organization"),
+						},
+						CreditTransactionAccount: struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							ImportSource struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								TransactionAccounts struct {
+									field.RelationField
+								}
+								ImportSourcePeriods struct {
+									field.RelationField
+									Organization struct {
+										field.RelationField
+									}
+									ImportSource struct {
+										field.RelationField
+									}
+								}
+							}
+							CreditTransactions struct {
+								field.RelationField
+							}
+							DebitTransactions struct {
+								field.RelationField
+							}
+						}{
+							RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount", "model.TransactionAccount"),
+							Organization: struct {
+								field.RelationField
+							}{
+								RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.Organization", "model.Organization"),
+							},
+							ImportSource: struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								TransactionAccounts struct {
+									field.RelationField
+								}
+								ImportSourcePeriods struct {
+									field.RelationField
+									Organization struct {
+										field.RelationField
+									}
+									ImportSource struct {
+										field.RelationField
+									}
+								}
+							}{
+								RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource", "model.ImportSource"),
+								Organization: struct {
+									field.RelationField
+								}{
+									RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.Organization", "model.Organization"),
+								},
+								TransactionAccounts: struct {
+									field.RelationField
+								}{
+									RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.TransactionAccounts", "model.TransactionAccount"),
+								},
+								ImportSourcePeriods: struct {
+									field.RelationField
+									Organization struct {
+										field.RelationField
+									}
+									ImportSource struct {
+										field.RelationField
+									}
+								}{
+									RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.ImportSourcePeriods", "model.ImportSourcePeriod"),
+									Organization: struct {
+										field.RelationField
+									}{
+										RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.ImportSourcePeriods.Organization", "model.Organization"),
+									},
+									ImportSource: struct {
+										field.RelationField
+									}{
+										RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.ImportSourcePeriods.ImportSource", "model.ImportSource"),
+									},
+								},
+							},
+							CreditTransactions: struct {
+								field.RelationField
+							}{
+								RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.CreditTransactions", "model.Transaction_"),
+							},
+							DebitTransactions: struct {
+								field.RelationField
+							}{
+								RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.DebitTransactions", "model.Transaction_"),
+							},
+						},
+						DebitTransactionAccount: struct {
+							field.RelationField
+						}{
+							RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.DebitTransactionAccount", "model.TransactionAccount"),
+						},
+						TransactionAccountAssignments: struct {
+							field.RelationField
+						}{
+							RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.TransactionAccountAssignments", "model.TransactionAccountAssignment"),
+						},
+					},
+					Account: struct {
+						field.RelationField
+					}{
+						RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Account", "model.Account"),
+					},
+				},
+			},
+		},
+		AccountGroups: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Organization.AccountGroups", "model.AccountGroup"),
+		},
+		Accounts: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Organization.Accounts", "model.Account"),
+		},
+		BudgetTags: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Organization.BudgetTags", "model.BudgetTag"),
+		},
+		BudgetTagAccountValues: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Organization.BudgetTagAccountValues", "model.BudgetTagAccountValue"),
+		},
+		Budgets: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Organization.Budgets", "model.Budget"),
+		},
+		ImportSourcePeriods: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Organization.ImportSourcePeriods", "model.ImportSourcePeriod"),
+		},
+		ImportSources: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Organization.ImportSources", "model.ImportSource"),
+		},
+		ReportTemplates: struct {
+			field.RelationField
+			Organization struct {
+				field.RelationField
+			}
+		}{
+			RelationField: field.NewRelation("Organization.ReportTemplates", "model.ReportTemplate"),
+			Organization: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Organization.ReportTemplates.Organization", "model.Organization"),
+			},
+		},
+		Reports: struct {
+			field.RelationField
+			Organization struct {
+				field.RelationField
+			}
+		}{
+			RelationField: field.NewRelation("Organization.Reports", "model.Report"),
+			Organization: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Organization.Reports.Organization", "model.Organization"),
+			},
+		},
+		Transactions: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Organization.Transactions", "model.Transaction_"),
+		},
+		TransactionAccountAssignments: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Organization.TransactionAccountAssignments", "model.TransactionAccountAssignment"),
+		},
+		TransactionAccounts: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Organization.TransactionAccounts", "model.TransactionAccount"),
+		},
+		UserGroups: struct {
+			field.RelationField
+			Organization struct {
+				field.RelationField
+			}
+		}{
+			RelationField: field.NewRelation("Organization.UserGroups", "model.UserGroup"),
+			Organization: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Organization.UserGroups.Organization", "model.Organization"),
+			},
+		},
+	}
 
 	_userGroup.fillFieldMap()
 
@@ -43,14 +699,16 @@ func newUserGroup(db *gorm.DB, opts ...gen.DOOption) userGroup {
 type userGroup struct {
 	userGroupDo userGroupDo
 
-	ALL         field.Asterisk
-	ID          field.String
-	Name        field.String
-	Description field.String
-	IsSystem    field.Bool
-	IsDefault   field.Bool
-	CreatedAt   field.Time
-	UpdatedAt   field.Time
+	ALL            field.Asterisk
+	ID             field.Field
+	OrganizationID field.Field
+	Name           field.String
+	Description    field.String
+	IsSystem       field.Bool
+	IsDefault      field.Bool
+	CreatedAt      field.Time
+	UpdatedAt      field.Time
+	Organization   userGroupBelongsToOrganization
 
 	fieldMap map[string]field.Expr
 }
@@ -67,7 +725,8 @@ func (u userGroup) As(alias string) *userGroup {
 
 func (u *userGroup) updateTableName(table string) *userGroup {
 	u.ALL = field.NewAsterisk(table)
-	u.ID = field.NewString(table, "id")
+	u.ID = field.NewField(table, "id")
+	u.OrganizationID = field.NewField(table, "organization_id")
 	u.Name = field.NewString(table, "name")
 	u.Description = field.NewString(table, "description")
 	u.IsSystem = field.NewBool(table, "is_system")
@@ -100,24 +759,267 @@ func (u *userGroup) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *userGroup) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 7)
+	u.fieldMap = make(map[string]field.Expr, 9)
 	u.fieldMap["id"] = u.ID
+	u.fieldMap["organization_id"] = u.OrganizationID
 	u.fieldMap["name"] = u.Name
 	u.fieldMap["description"] = u.Description
 	u.fieldMap["is_system"] = u.IsSystem
 	u.fieldMap["is_default"] = u.IsDefault
 	u.fieldMap["created_at"] = u.CreatedAt
 	u.fieldMap["updated_at"] = u.UpdatedAt
+
 }
 
 func (u userGroup) clone(db *gorm.DB) userGroup {
 	u.userGroupDo.ReplaceConnPool(db.Statement.ConnPool)
+	u.Organization.db = db.Session(&gorm.Session{Initialized: true})
+	u.Organization.db.Statement.ConnPool = db.Statement.ConnPool
 	return u
 }
 
 func (u userGroup) replaceDB(db *gorm.DB) userGroup {
 	u.userGroupDo.ReplaceDB(db)
+	u.Organization.db = db.Session(&gorm.Session{})
 	return u
+}
+
+type userGroupBelongsToOrganization struct {
+	db *gorm.DB
+
+	field.RelationField
+
+	AccountGroupAssignments struct {
+		field.RelationField
+		Organization struct {
+			field.RelationField
+		}
+		AccountGroup struct {
+			field.RelationField
+			Organization struct {
+				field.RelationField
+			}
+			AccountGroupAssignments struct {
+				field.RelationField
+			}
+		}
+		Account struct {
+			field.RelationField
+			Organization struct {
+				field.RelationField
+			}
+			ParentAccount struct {
+				field.RelationField
+			}
+			ChildAccounts struct {
+				field.RelationField
+			}
+			AccountGroupAssignments struct {
+				field.RelationField
+			}
+			BudgetTagAccountValues struct {
+				field.RelationField
+				Organization struct {
+					field.RelationField
+				}
+				BudgetTag struct {
+					field.RelationField
+					Organization struct {
+						field.RelationField
+					}
+					Budget struct {
+						field.RelationField
+						Organization struct {
+							field.RelationField
+						}
+						BudgetTags struct {
+							field.RelationField
+						}
+					}
+					BudgetTagAccountValues struct {
+						field.RelationField
+					}
+				}
+				Account struct {
+					field.RelationField
+				}
+			}
+			TransactionAccountAssignments struct {
+				field.RelationField
+				Organization struct {
+					field.RelationField
+				}
+				Transaction struct {
+					field.RelationField
+					Organization struct {
+						field.RelationField
+					}
+					CreditTransactionAccount struct {
+						field.RelationField
+						Organization struct {
+							field.RelationField
+						}
+						ImportSource struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							TransactionAccounts struct {
+								field.RelationField
+							}
+							ImportSourcePeriods struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								ImportSource struct {
+									field.RelationField
+								}
+							}
+						}
+						CreditTransactions struct {
+							field.RelationField
+						}
+						DebitTransactions struct {
+							field.RelationField
+						}
+					}
+					DebitTransactionAccount struct {
+						field.RelationField
+					}
+					TransactionAccountAssignments struct {
+						field.RelationField
+					}
+				}
+				Account struct {
+					field.RelationField
+				}
+			}
+		}
+	}
+	AccountGroups struct {
+		field.RelationField
+	}
+	Accounts struct {
+		field.RelationField
+	}
+	BudgetTags struct {
+		field.RelationField
+	}
+	BudgetTagAccountValues struct {
+		field.RelationField
+	}
+	Budgets struct {
+		field.RelationField
+	}
+	ImportSourcePeriods struct {
+		field.RelationField
+	}
+	ImportSources struct {
+		field.RelationField
+	}
+	ReportTemplates struct {
+		field.RelationField
+		Organization struct {
+			field.RelationField
+		}
+	}
+	Reports struct {
+		field.RelationField
+		Organization struct {
+			field.RelationField
+		}
+	}
+	Transactions struct {
+		field.RelationField
+	}
+	TransactionAccountAssignments struct {
+		field.RelationField
+	}
+	TransactionAccounts struct {
+		field.RelationField
+	}
+	UserGroups struct {
+		field.RelationField
+		Organization struct {
+			field.RelationField
+		}
+	}
+}
+
+func (a userGroupBelongsToOrganization) Where(conds ...field.Expr) *userGroupBelongsToOrganization {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a userGroupBelongsToOrganization) WithContext(ctx context.Context) *userGroupBelongsToOrganization {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a userGroupBelongsToOrganization) Session(session *gorm.Session) *userGroupBelongsToOrganization {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a userGroupBelongsToOrganization) Model(m *model.UserGroup) *userGroupBelongsToOrganizationTx {
+	return &userGroupBelongsToOrganizationTx{a.db.Model(m).Association(a.Name())}
+}
+
+func (a userGroupBelongsToOrganization) Unscoped() *userGroupBelongsToOrganization {
+	a.db = a.db.Unscoped()
+	return &a
+}
+
+type userGroupBelongsToOrganizationTx struct{ tx *gorm.Association }
+
+func (a userGroupBelongsToOrganizationTx) Find() (result *model.Organization, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a userGroupBelongsToOrganizationTx) Append(values ...*model.Organization) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a userGroupBelongsToOrganizationTx) Replace(values ...*model.Organization) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a userGroupBelongsToOrganizationTx) Delete(values ...*model.Organization) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a userGroupBelongsToOrganizationTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a userGroupBelongsToOrganizationTx) Count() int64 {
+	return a.tx.Count()
+}
+
+func (a userGroupBelongsToOrganizationTx) Unscoped() *userGroupBelongsToOrganizationTx {
+	a.tx = a.tx.Unscoped()
+	return &a
 }
 
 type userGroupDo struct{ gen.DO }

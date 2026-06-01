@@ -1,0 +1,5995 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Protocol Documentation</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700,400italic"/>
+    <style>
+      body {
+        width: 60em;
+        margin: 1em auto;
+        color: #222;
+        font-family: "Ubuntu", sans-serif;
+        padding-bottom: 4em;
+      }
+
+      h1 {
+        font-weight: normal;
+        border-bottom: 1px solid #aaa;
+        padding-bottom: 0.5ex;
+      }
+
+      h2 {
+        border-bottom: 1px solid #aaa;
+        padding-bottom: 0.5ex;
+        margin: 1.5em 0;
+      }
+
+      h3 {
+        font-weight: normal;
+        border-bottom: 1px solid #aaa;
+        padding-bottom: 0.5ex;
+      }
+
+      a {
+        text-decoration: none;
+        color: #567e25;
+      }
+
+      table {
+        width: 100%;
+        font-size: 80%;
+        border-collapse: collapse;
+      }
+
+      thead {
+        font-weight: 700;
+        background-color: #dcdcdc;
+      }
+
+      tbody tr:nth-child(even) {
+        background-color: #fbfbfb;
+      }
+
+      td {
+        border: 1px solid #ccc;
+        padding: 0.5ex 2ex;
+      }
+
+      td p {
+        text-indent: 1em;
+        margin: 0;
+      }
+
+      td p:nth-child(1) {
+        text-indent: 0;  
+      }
+
+       
+      .field-table td:nth-child(1) {  
+        width: 10em;
+      }
+      .field-table td:nth-child(2) {  
+        width: 10em;
+      }
+      .field-table td:nth-child(3) {  
+        width: 6em;
+      }
+      .field-table td:nth-child(4) {  
+        width: auto;
+      }
+
+       
+      .extension-table td:nth-child(1) {  
+        width: 10em;
+      }
+      .extension-table td:nth-child(2) {  
+        width: 10em;
+      }
+      .extension-table td:nth-child(3) {  
+        width: 10em;
+      }
+      .extension-table td:nth-child(4) {  
+        width: 5em;
+      }
+      .extension-table td:nth-child(5) {  
+        width: auto;
+      }
+
+       
+      .enum-table td:nth-child(1) {  
+        width: 10em;
+      }
+      .enum-table td:nth-child(2) {  
+        width: 10em;
+      }
+      .enum-table td:nth-child(3) {  
+        width: auto;
+      }
+
+       
+      .scalar-value-types-table tr {
+        height: 3em;
+      }
+
+       
+      #toc-container ul {
+        list-style-type: none;
+        padding-left: 1em;
+        line-height: 180%;
+        margin: 0;
+      }
+      #toc > li > a {
+        font-weight: bold;
+      }
+
+       
+      .file-heading {
+        width: 100%;
+        display: table;
+        border-bottom: 1px solid #aaa;
+        margin: 4em 0 1.5em 0;
+      }
+      .file-heading h2 {
+        border: none;
+        display: table-cell;
+      }
+      .file-heading a {
+        text-align: right;
+        display: table-cell;
+      }
+
+       
+      .badge {
+        width: 1.6em;
+        height: 1.6em;
+        display: inline-block;
+
+        line-height: 1.6em;
+        text-align: center;
+        font-weight: bold;
+        font-size: 60%;
+
+        color: #89ba48;
+        background-color: #dff0c8;
+
+        margin: 0.5ex 1em 0.5ex -1em;
+        border: 1px solid #fbfbfb;
+        border-radius: 1ex;
+      }
+    </style>
+
+    
+    <link rel="stylesheet" type="text/css" href="stylesheet.css"/>
+  </head>
+
+  <body>
+
+    <h1 id="title">Protocol Documentation</h1>
+
+    <h2>Table of Contents</h2>
+
+    <div id="toc-container">
+      <ul id="toc">
+        
+          
+          <li>
+            <a href="#_openapi.proto">_openapi.proto</a>
+            <ul>
+              
+              
+              
+              
+            </ul>
+          </li>
+        
+          
+          <li>
+            <a href="#account.proto">account.proto</a>
+            <ul>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.Account"><span class="badge">M</span>Account</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ArchiveAccountRequest"><span class="badge">M</span>ArchiveAccountRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.CreateAccountRequest"><span class="badge">M</span>CreateAccountRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.DeleteAccountRequest"><span class="badge">M</span>DeleteAccountRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.GetAccountRequest"><span class="badge">M</span>GetAccountRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.GetNestedAccountRequest"><span class="badge">M</span>GetNestedAccountRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.GetNestedAccountResponse"><span class="badge">M</span>GetNestedAccountResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListAccountsRequest"><span class="badge">M</span>ListAccountsRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListAccountsResponse"><span class="badge">M</span>ListAccountsResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListNestedAccountsRequest"><span class="badge">M</span>ListNestedAccountsRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListNestedAccountsResponse"><span class="badge">M</span>ListNestedAccountsResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.NestedAccount"><span class="badge">M</span>NestedAccount</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.UpdateAccountRequest"><span class="badge">M</span>UpdateAccountRequest</a>
+                </li>
+              
+              
+              
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.AccountService"><span class="badge">S</span>AccountService</a>
+                </li>
+              
+            </ul>
+          </li>
+        
+          
+          <li>
+            <a href="#account_group.proto">account_group.proto</a>
+            <ul>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.AccountGroup"><span class="badge">M</span>AccountGroup</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.CreateAccountGroupRequest"><span class="badge">M</span>CreateAccountGroupRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.DeleteAccountGroupRequest"><span class="badge">M</span>DeleteAccountGroupRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.GetAccountGroupRequest"><span class="badge">M</span>GetAccountGroupRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListAccountGroupsRequest"><span class="badge">M</span>ListAccountGroupsRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListAccountGroupsResponse"><span class="badge">M</span>ListAccountGroupsResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.UpdateAccountGroupRequest"><span class="badge">M</span>UpdateAccountGroupRequest</a>
+                </li>
+              
+              
+              
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.AccountGroupService"><span class="badge">S</span>AccountGroupService</a>
+                </li>
+              
+            </ul>
+          </li>
+        
+          
+          <li>
+            <a href="#account_group_assignment.proto">account_group_assignment.proto</a>
+            <ul>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.AccountGroupAssignment"><span class="badge">M</span>AccountGroupAssignment</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.CreateAccountGroupAssignmentRequest"><span class="badge">M</span>CreateAccountGroupAssignmentRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.DeleteAccountGroupAssignmentRequest"><span class="badge">M</span>DeleteAccountGroupAssignmentRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.GetAccountGroupAssignmentRequest"><span class="badge">M</span>GetAccountGroupAssignmentRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListAccountGroupAssignmentsRequest"><span class="badge">M</span>ListAccountGroupAssignmentsRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListAccountGroupAssignmentsResponse"><span class="badge">M</span>ListAccountGroupAssignmentsResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.UpdateAccountGroupAssignmentRequest"><span class="badge">M</span>UpdateAccountGroupAssignmentRequest</a>
+                </li>
+              
+              
+              
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.AccountGroupAssignmentService"><span class="badge">S</span>AccountGroupAssignmentService</a>
+                </li>
+              
+            </ul>
+          </li>
+        
+          
+          <li>
+            <a href="#budget.proto">budget.proto</a>
+            <ul>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.Budget"><span class="badge">M</span>Budget</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.CloseBudgetRequest"><span class="badge">M</span>CloseBudgetRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.CreateBudgetRequest"><span class="badge">M</span>CreateBudgetRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.DeleteBudgetRequest"><span class="badge">M</span>DeleteBudgetRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.GetBudgetRequest"><span class="badge">M</span>GetBudgetRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListBudgetsRequest"><span class="badge">M</span>ListBudgetsRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListBudgetsResponse"><span class="badge">M</span>ListBudgetsResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.UpdateBudgetRequest"><span class="badge">M</span>UpdateBudgetRequest</a>
+                </li>
+              
+              
+              
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.BudgetService"><span class="badge">S</span>BudgetService</a>
+                </li>
+              
+            </ul>
+          </li>
+        
+          
+          <li>
+            <a href="#budget_tag.proto">budget_tag.proto</a>
+            <ul>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.BudgetTag"><span class="badge">M</span>BudgetTag</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.CreateBudgetTagRequest"><span class="badge">M</span>CreateBudgetTagRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.DeleteBudgetTagRequest"><span class="badge">M</span>DeleteBudgetTagRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.GetBudgetTagRequest"><span class="badge">M</span>GetBudgetTagRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListBudgetTagsRequest"><span class="badge">M</span>ListBudgetTagsRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListBudgetTagsResponse"><span class="badge">M</span>ListBudgetTagsResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.UpdateBudgetTagRequest"><span class="badge">M</span>UpdateBudgetTagRequest</a>
+                </li>
+              
+              
+              
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.BudgetTagService"><span class="badge">S</span>BudgetTagService</a>
+                </li>
+              
+            </ul>
+          </li>
+        
+          
+          <li>
+            <a href="#import_source.proto">import_source.proto</a>
+            <ul>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.CreateImportSourceRequest"><span class="badge">M</span>CreateImportSourceRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.DeleteImportSourceRequest"><span class="badge">M</span>DeleteImportSourceRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.GetImportSourceRequest"><span class="badge">M</span>GetImportSourceRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ImportSource"><span class="badge">M</span>ImportSource</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListImportSourcesRequest"><span class="badge">M</span>ListImportSourcesRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListImportSourcesResponse"><span class="badge">M</span>ListImportSourcesResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.UpdateImportSourceRequest"><span class="badge">M</span>UpdateImportSourceRequest</a>
+                </li>
+              
+              
+              
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ImportSourceService"><span class="badge">S</span>ImportSourceService</a>
+                </li>
+              
+            </ul>
+          </li>
+        
+          
+          <li>
+            <a href="#import_source_period.proto">import_source_period.proto</a>
+            <ul>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.CloseImportSourcePeriodRequest"><span class="badge">M</span>CloseImportSourcePeriodRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.CreateImportSourcePeriodRequest"><span class="badge">M</span>CreateImportSourcePeriodRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.DeleteImportSourcePeriodRequest"><span class="badge">M</span>DeleteImportSourcePeriodRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.GetImportSourcePeriodRequest"><span class="badge">M</span>GetImportSourcePeriodRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ImportSourcePeriod"><span class="badge">M</span>ImportSourcePeriod</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListImportSourcePeriodsRequest"><span class="badge">M</span>ListImportSourcePeriodsRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListImportSourcePeriodsResponse"><span class="badge">M</span>ListImportSourcePeriodsResponse</a>
+                </li>
+              
+              
+              
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ImportSourcePeriodService"><span class="badge">S</span>ImportSourcePeriodService</a>
+                </li>
+              
+            </ul>
+          </li>
+        
+          
+          <li>
+            <a href="#report.proto">report.proto</a>
+            <ul>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.CreateReportRequest"><span class="badge">M</span>CreateReportRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.DeleteReportRequest"><span class="badge">M</span>DeleteReportRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.GetReportRequest"><span class="badge">M</span>GetReportRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListReportsRequest"><span class="badge">M</span>ListReportsRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListReportsResponse"><span class="badge">M</span>ListReportsResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.Report"><span class="badge">M</span>Report</a>
+                </li>
+              
+              
+              
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ReportService"><span class="badge">S</span>ReportService</a>
+                </li>
+              
+            </ul>
+          </li>
+        
+          
+          <li>
+            <a href="#report_template.proto">report_template.proto</a>
+            <ul>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.CreateReportTemplateRequest"><span class="badge">M</span>CreateReportTemplateRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.DeleteReportTemplateRequest"><span class="badge">M</span>DeleteReportTemplateRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.GetReportTemplateRequest"><span class="badge">M</span>GetReportTemplateRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListReportTemplatesRequest"><span class="badge">M</span>ListReportTemplatesRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListReportTemplatesResponse"><span class="badge">M</span>ListReportTemplatesResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ReportTemplate"><span class="badge">M</span>ReportTemplate</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.UpdateReportTemplateRequest"><span class="badge">M</span>UpdateReportTemplateRequest</a>
+                </li>
+              
+              
+              
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ReportTemplateService"><span class="badge">S</span>ReportTemplateService</a>
+                </li>
+              
+            </ul>
+          </li>
+        
+          
+          <li>
+            <a href="#transaction.proto">transaction.proto</a>
+            <ul>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.CreateTransactionRequest"><span class="badge">M</span>CreateTransactionRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.DeleteTransactionRequest"><span class="badge">M</span>DeleteTransactionRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.GetTransactionRequest"><span class="badge">M</span>GetTransactionRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListTransactionsRequest"><span class="badge">M</span>ListTransactionsRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListTransactionsResponse"><span class="badge">M</span>ListTransactionsResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.Transaction"><span class="badge">M</span>Transaction</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.UpdateTransactionRequest"><span class="badge">M</span>UpdateTransactionRequest</a>
+                </li>
+              
+              
+              
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.TransactionService"><span class="badge">S</span>TransactionService</a>
+                </li>
+              
+            </ul>
+          </li>
+        
+          
+          <li>
+            <a href="#transaction_account.proto">transaction_account.proto</a>
+            <ul>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.CreateTransactionAccountRequest"><span class="badge">M</span>CreateTransactionAccountRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.DeleteTransactionAccountRequest"><span class="badge">M</span>DeleteTransactionAccountRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.GetTransactionAccountRequest"><span class="badge">M</span>GetTransactionAccountRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListTransactionAccountsRequest"><span class="badge">M</span>ListTransactionAccountsRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListTransactionAccountsResponse"><span class="badge">M</span>ListTransactionAccountsResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.TransactionAccount"><span class="badge">M</span>TransactionAccount</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.UpdateTransactionAccountRequest"><span class="badge">M</span>UpdateTransactionAccountRequest</a>
+                </li>
+              
+              
+              
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.TransactionAccountService"><span class="badge">S</span>TransactionAccountService</a>
+                </li>
+              
+            </ul>
+          </li>
+        
+          
+          <li>
+            <a href="#transaction_account_assignment.proto">transaction_account_assignment.proto</a>
+            <ul>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.CreateTransactionAccountAssignmentRequest"><span class="badge">M</span>CreateTransactionAccountAssignmentRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.DeleteTransactionAccountAssignmentRequest"><span class="badge">M</span>DeleteTransactionAccountAssignmentRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.GetTransactionAccountAssignmentRequest"><span class="badge">M</span>GetTransactionAccountAssignmentRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListTransactionAccountAssignmentsRequest"><span class="badge">M</span>ListTransactionAccountAssignmentsRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListTransactionAccountAssignmentsResponse"><span class="badge">M</span>ListTransactionAccountAssignmentsResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.TransactionAccountAssignment"><span class="badge">M</span>TransactionAccountAssignment</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.UpdateTransactionAccountAssignmentRequest"><span class="badge">M</span>UpdateTransactionAccountAssignmentRequest</a>
+                </li>
+              
+              
+              
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.TransactionAccountAssignmentService"><span class="badge">S</span>TransactionAccountAssignmentService</a>
+                </li>
+              
+            </ul>
+          </li>
+        
+        <li><a href="#scalar-value-types">Scalar Value Types</a></li>
+      </ul>
+    </div>
+
+    
+      
+      <div class="file-heading">
+        <h2 id="_openapi.proto">_openapi.proto</h2><a href="#title">Top</a>
+      </div>
+      <p></p>
+
+      
+
+      
+
+      
+
+      
+    
+      
+      <div class="file-heading">
+        <h2 id="account.proto">account.proto</h2><a href="#title">Top</a>
+      </div>
+      <p></p>
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.Account">Account</h3>
+        <p>Account represents a budget account in the chart of accounts.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the account.
+Format: accounts/{account} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>uid</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The UUID of the account. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>parent_account</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the parent account, if any.
+Format: accounts/{account} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>display_name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Human-readable account name. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>display_code</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Short account code. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>display_description</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Optional free-text description. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>is_container</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>Whether this account is a container account (cannot hold values directly).
+Immutable after creation. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>is_archived</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>Whether the account is archived (soft-deleted). </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Last modification timestamp. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>create_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Creation timestamp. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ArchiveAccountRequest">ArchiveAccountRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the account.
+Format: accounts/{account} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.CreateAccountRequest">CreateAccountRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>account</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.Account">Account</a></td>
+                  <td></td>
+                  <td><p>The account to create. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.DeleteAccountRequest">DeleteAccountRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the account.
+Format: accounts/{account} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.GetAccountRequest">GetAccountRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the account.
+Format: accounts/{account} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.GetNestedAccountRequest">GetNestedAccountRequest</h3>
+        <p>Request for the GetNestedAccount custom method.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the root account for the subtree.
+Format: accounts/{account} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>filter</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Filter expression applied to all descendants in the subtree.
+Supported fields: is_archived.
+Example: &#34;is_archived=false&#34;. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.GetNestedAccountResponse">GetNestedAccountResponse</h3>
+        <p>Response for the GetNestedAccount custom method.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>account</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.NestedAccount">NestedAccount</a></td>
+                  <td></td>
+                  <td><p>The requested account with its full nested subtree. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListAccountsRequest">ListAccountsRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>page_size</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Maximum number of accounts to return. The service may return fewer.
+If unspecified, at most 20 accounts will be returned. Maximum value is 100;
+values above 100 will be coerced to 100. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A page token from a previous ListAccounts call.
+Provide this to retrieve the next page. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>filter</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Filter expression conforming to AIP-160.
+Supported fields: display_name, display_code, is_archived.
+Example: &#34;is_archived=true&#34; or &#34;display_name:foo&#34;. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>show_deleted</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>If true, soft-deleted (archived) accounts are included in results.
+See AIP-132 for soft-delete guidance. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>order_by</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Order by expression (e.g. &#34;display_name&#34;, &#34;create_time desc&#34;). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListAccountsResponse">ListAccountsResponse</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>accounts</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.Account">Account</a></td>
+                  <td>repeated</td>
+                  <td><p>The accounts returned. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>next_page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A token to retrieve the next page of results.
+Pass this value in ListAccountsRequest.page_token on the next call. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>total_size</td>
+                  <td><a href="#int64">int64</a></td>
+                  <td></td>
+                  <td><p>Total number of accounts matching the filter (may be an estimate). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListNestedAccountsRequest">ListNestedAccountsRequest</h3>
+        <p>Request for the ListNestedAccounts custom method.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>filter</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Filter expression conforming to AIP-160.
+Supported fields: is_archived.
+Example: &#34;is_archived=true&#34;. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListNestedAccountsResponse">ListNestedAccountsResponse</h3>
+        <p>Response for the ListNestedAccounts custom method.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>accounts</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.NestedAccount">NestedAccount</a></td>
+                  <td>repeated</td>
+                  <td><p>Root-level accounts, each carrying their full nested subtree. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.NestedAccount">NestedAccount</h3>
+        <p>NestedAccount is a read-only view of an Account that includes its full</p><p>subtree of child accounts. It shares the same resource name as Account.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the account.
+Format: accounts/{account} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>uid</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The UUID of the account. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>parent_account</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the parent account, if any.
+Format: accounts/{account} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>display_name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Human-readable account name. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>display_code</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Short account code. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>display_description</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Optional free-text description. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>is_container</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>Whether this account is a container account. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>is_archived</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>Whether the account is archived. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>children</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.NestedAccount">NestedAccount</a></td>
+                  <td>repeated</td>
+                  <td><p>Child accounts in the subtree. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Last modification timestamp. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>create_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Creation timestamp. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.UpdateAccountRequest">UpdateAccountRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>account</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.Account">Account</a></td>
+                  <td></td>
+                  <td><p>The account to update. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_mask</td>
+                  <td><a href="#google.protobuf.FieldMask">google.protobuf.FieldMask</a></td>
+                  <td></td>
+                  <td><p>The list of fields to update. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+
+      
+
+      
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.AccountService">AccountService</h3>
+        <p>AccountService manages budget accounts in the chart of accounts.</p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>GetAccount</td>
+                <td><a href="#pixlcrashr.vsfv.v1.GetAccountRequest">GetAccountRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.Account">Account</a></td>
+                <td><p>Gets a single account by resource name.</p></td>
+              </tr>
+            
+              <tr>
+                <td>ListAccounts</td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListAccountsRequest">ListAccountsRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListAccountsResponse">ListAccountsResponse</a></td>
+                <td><p>Lists accounts with pagination.</p></td>
+              </tr>
+            
+              <tr>
+                <td>ListNestedAccounts</td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListNestedAccountsRequest">ListNestedAccountsRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListNestedAccountsResponse">ListNestedAccountsResponse</a></td>
+                <td><p>Lists all root accounts with their full nested subtrees (custom method).</p></td>
+              </tr>
+            
+              <tr>
+                <td>GetNestedAccount</td>
+                <td><a href="#pixlcrashr.vsfv.v1.GetNestedAccountRequest">GetNestedAccountRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.GetNestedAccountResponse">GetNestedAccountResponse</a></td>
+                <td><p>Gets a single account&#39;s full nested subtree (custom method).</p></td>
+              </tr>
+            
+              <tr>
+                <td>CreateAccount</td>
+                <td><a href="#pixlcrashr.vsfv.v1.CreateAccountRequest">CreateAccountRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.Account">Account</a></td>
+                <td><p>Creates a new account.</p></td>
+              </tr>
+            
+              <tr>
+                <td>UpdateAccount</td>
+                <td><a href="#pixlcrashr.vsfv.v1.UpdateAccountRequest">UpdateAccountRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.Account">Account</a></td>
+                <td><p>Updates an existing account.</p></td>
+              </tr>
+            
+              <tr>
+                <td>ArchiveAccount</td>
+                <td><a href="#pixlcrashr.vsfv.v1.ArchiveAccountRequest">ArchiveAccountRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.Account">Account</a></td>
+                <td><p>Archives an account (soft-delete).</p></td>
+              </tr>
+            
+              <tr>
+                <td>DeleteAccount</td>
+                <td><a href="#pixlcrashr.vsfv.v1.DeleteAccountRequest">DeleteAccountRequest</a></td>
+                <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
+                <td><p>Permanently deletes an account.</p></td>
+              </tr>
+            
+          </tbody>
+        </table>
+
+        
+          
+          
+          <h4>Methods with HTTP bindings</h4>
+          <table>
+            <thead>
+              <tr>
+                <td>Method Name</td>
+                <td>Method</td>
+                <td>Pattern</td>
+                <td>Body</td>
+              </tr>
+            </thead>
+            <tbody>
+            
+              
+              
+              <tr>
+                <td>GetAccount</td>
+                <td>GET</td>
+                <td>/v1/{name=accounts/*}</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>ListAccounts</td>
+                <td>GET</td>
+                <td>/v1/accounts</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>ListNestedAccounts</td>
+                <td>GET</td>
+                <td>/v1/accounts:listNested</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>GetNestedAccount</td>
+                <td>GET</td>
+                <td>/v1/{name=accounts/*}:getNested</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>CreateAccount</td>
+                <td>POST</td>
+                <td>/v1/accounts</td>
+                <td>account</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>UpdateAccount</td>
+                <td>PATCH</td>
+                <td>/v1/{account.name=accounts/*}</td>
+                <td>account</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>ArchiveAccount</td>
+                <td>POST</td>
+                <td>/v1/{name=accounts/*}:archive</td>
+                <td>*</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>DeleteAccount</td>
+                <td>DELETE</td>
+                <td>/v1/{name=accounts/*}</td>
+                <td></td>
+              </tr>
+              
+            
+            </tbody>
+          </table>
+          
+        
+    
+      
+      <div class="file-heading">
+        <h2 id="account_group.proto">account_group.proto</h2><a href="#title">Top</a>
+      </div>
+      <p></p>
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.AccountGroup">AccountGroup</h3>
+        <p>AccountGroup is a named grouping of budget accounts.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the account group.
+Format: accountGroups/{account_group} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>uid</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The UUID of the account group. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>display_name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Human-readable account group name. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>display_description</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Optional free-text description. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Last modification timestamp. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>create_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Creation timestamp. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.CreateAccountGroupRequest">CreateAccountGroupRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>account_group</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.AccountGroup">AccountGroup</a></td>
+                  <td></td>
+                  <td><p>The account group to create. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.DeleteAccountGroupRequest">DeleteAccountGroupRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the account group.
+Format: accountGroups/{account_group} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.GetAccountGroupRequest">GetAccountGroupRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the account group.
+Format: accountGroups/{account_group} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListAccountGroupsRequest">ListAccountGroupsRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>page_size</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Maximum number of account groups to return. The service may return fewer.
+If unspecified, at most 20 are returned. Maximum value is 100. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A page token from a previous ListAccountGroups call. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>filter</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Filter expression conforming to AIP-160.
+Supported fields: display_name.
+Example: &#34;display_name=\&#34;Overhead\&#34;&#34;. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>order_by</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Order by expression (e.g. &#34;display_name&#34;, &#34;create_time desc&#34;). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListAccountGroupsResponse">ListAccountGroupsResponse</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>account_groups</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.AccountGroup">AccountGroup</a></td>
+                  <td>repeated</td>
+                  <td><p>The account groups returned. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>next_page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A token to retrieve the next page of results. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>total_size</td>
+                  <td><a href="#int64">int64</a></td>
+                  <td></td>
+                  <td><p>Total number of account groups matching the filter (may be an estimate). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.UpdateAccountGroupRequest">UpdateAccountGroupRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>account_group</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.AccountGroup">AccountGroup</a></td>
+                  <td></td>
+                  <td><p>The account group to update. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_mask</td>
+                  <td><a href="#google.protobuf.FieldMask">google.protobuf.FieldMask</a></td>
+                  <td></td>
+                  <td><p>The list of fields to update. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+
+      
+
+      
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.AccountGroupService">AccountGroupService</h3>
+        <p>AccountGroupService manages named groupings of budget accounts.</p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>GetAccountGroup</td>
+                <td><a href="#pixlcrashr.vsfv.v1.GetAccountGroupRequest">GetAccountGroupRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.AccountGroup">AccountGroup</a></td>
+                <td><p>Gets a single account group by resource name.</p></td>
+              </tr>
+            
+              <tr>
+                <td>ListAccountGroups</td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListAccountGroupsRequest">ListAccountGroupsRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListAccountGroupsResponse">ListAccountGroupsResponse</a></td>
+                <td><p>Lists account groups with pagination.</p></td>
+              </tr>
+            
+              <tr>
+                <td>CreateAccountGroup</td>
+                <td><a href="#pixlcrashr.vsfv.v1.CreateAccountGroupRequest">CreateAccountGroupRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.AccountGroup">AccountGroup</a></td>
+                <td><p>Creates a new account group.</p></td>
+              </tr>
+            
+              <tr>
+                <td>UpdateAccountGroup</td>
+                <td><a href="#pixlcrashr.vsfv.v1.UpdateAccountGroupRequest">UpdateAccountGroupRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.AccountGroup">AccountGroup</a></td>
+                <td><p>Updates an existing account group.</p></td>
+              </tr>
+            
+              <tr>
+                <td>DeleteAccountGroup</td>
+                <td><a href="#pixlcrashr.vsfv.v1.DeleteAccountGroupRequest">DeleteAccountGroupRequest</a></td>
+                <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
+                <td><p>Permanently deletes an account group.</p></td>
+              </tr>
+            
+          </tbody>
+        </table>
+
+        
+          
+          
+          <h4>Methods with HTTP bindings</h4>
+          <table>
+            <thead>
+              <tr>
+                <td>Method Name</td>
+                <td>Method</td>
+                <td>Pattern</td>
+                <td>Body</td>
+              </tr>
+            </thead>
+            <tbody>
+            
+              
+              
+              <tr>
+                <td>GetAccountGroup</td>
+                <td>GET</td>
+                <td>/v1/{name=accountGroups/*}</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>ListAccountGroups</td>
+                <td>GET</td>
+                <td>/v1/accountGroups</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>CreateAccountGroup</td>
+                <td>POST</td>
+                <td>/v1/accountGroups</td>
+                <td>account_group</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>UpdateAccountGroup</td>
+                <td>PATCH</td>
+                <td>/v1/{account_group.name=accountGroups/*}</td>
+                <td>account_group</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>DeleteAccountGroup</td>
+                <td>DELETE</td>
+                <td>/v1/{name=accountGroups/*}</td>
+                <td></td>
+              </tr>
+              
+            
+            </tbody>
+          </table>
+          
+        
+    
+      
+      <div class="file-heading">
+        <h2 id="account_group_assignment.proto">account_group_assignment.proto</h2><a href="#title">Top</a>
+      </div>
+      <p></p>
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.AccountGroupAssignment">AccountGroupAssignment</h3>
+        <p>AccountGroupAssignment associates an account with an account group.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the assignment.
+Format: accountGroups/{account_group}/assignments/{assignment} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>uid</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The UUID of the assignment. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>account_group</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the parent account group.
+Format: accountGroups/{account_group} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>account_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The UUID of the assigned account. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>negate</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>If true, this account is excluded (negated) from the group aggregate. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Last modification timestamp. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>create_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Creation timestamp. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.CreateAccountGroupAssignmentRequest">CreateAccountGroupAssignmentRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>parent</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The parent account group resource name.
+Format: accountGroups/{account_group} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>assignment</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.AccountGroupAssignment">AccountGroupAssignment</a></td>
+                  <td></td>
+                  <td><p>The assignment to create. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.DeleteAccountGroupAssignmentRequest">DeleteAccountGroupAssignmentRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the assignment.
+Format: accountGroups/{account_group}/assignments/{assignment} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.GetAccountGroupAssignmentRequest">GetAccountGroupAssignmentRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the assignment.
+Format: accountGroups/{account_group}/assignments/{assignment} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListAccountGroupAssignmentsRequest">ListAccountGroupAssignmentsRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>parent</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The parent account group resource name.
+Format: accountGroups/{account_group} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>page_size</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Maximum number of assignments to return. The service may return fewer.
+If unspecified, at most 20 are returned. Maximum value is 100. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A page token from a previous ListAccountGroupAssignments call. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>filter</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Filter expression conforming to AIP-160.
+Supported fields: account_id, negate.
+Example: &#34;negate=true&#34; or &#34;account_id=\&#34;&lt;uuid&gt;\&#34;&#34;. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>order_by</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Order by expression (e.g. &#34;create_time desc&#34;). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListAccountGroupAssignmentsResponse">ListAccountGroupAssignmentsResponse</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>assignments</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.AccountGroupAssignment">AccountGroupAssignment</a></td>
+                  <td>repeated</td>
+                  <td><p>The assignments returned. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>next_page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A token to retrieve the next page of results. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>total_size</td>
+                  <td><a href="#int64">int64</a></td>
+                  <td></td>
+                  <td><p>Total number of assignments matching the filter (may be an estimate). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.UpdateAccountGroupAssignmentRequest">UpdateAccountGroupAssignmentRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>assignment</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.AccountGroupAssignment">AccountGroupAssignment</a></td>
+                  <td></td>
+                  <td><p>The assignment to update. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_mask</td>
+                  <td><a href="#google.protobuf.FieldMask">google.protobuf.FieldMask</a></td>
+                  <td></td>
+                  <td><p>The list of fields to update. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+
+      
+
+      
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.AccountGroupAssignmentService">AccountGroupAssignmentService</h3>
+        <p>AccountGroupAssignmentService manages account memberships within account groups.</p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>GetAccountGroupAssignment</td>
+                <td><a href="#pixlcrashr.vsfv.v1.GetAccountGroupAssignmentRequest">GetAccountGroupAssignmentRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.AccountGroupAssignment">AccountGroupAssignment</a></td>
+                <td><p>Gets a single assignment by resource name.</p></td>
+              </tr>
+            
+              <tr>
+                <td>ListAccountGroupAssignments</td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListAccountGroupAssignmentsRequest">ListAccountGroupAssignmentsRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListAccountGroupAssignmentsResponse">ListAccountGroupAssignmentsResponse</a></td>
+                <td><p>Lists assignments for an account group.</p></td>
+              </tr>
+            
+              <tr>
+                <td>CreateAccountGroupAssignment</td>
+                <td><a href="#pixlcrashr.vsfv.v1.CreateAccountGroupAssignmentRequest">CreateAccountGroupAssignmentRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.AccountGroupAssignment">AccountGroupAssignment</a></td>
+                <td><p>Creates a new assignment.</p></td>
+              </tr>
+            
+              <tr>
+                <td>UpdateAccountGroupAssignment</td>
+                <td><a href="#pixlcrashr.vsfv.v1.UpdateAccountGroupAssignmentRequest">UpdateAccountGroupAssignmentRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.AccountGroupAssignment">AccountGroupAssignment</a></td>
+                <td><p>Updates an existing assignment.</p></td>
+              </tr>
+            
+              <tr>
+                <td>DeleteAccountGroupAssignment</td>
+                <td><a href="#pixlcrashr.vsfv.v1.DeleteAccountGroupAssignmentRequest">DeleteAccountGroupAssignmentRequest</a></td>
+                <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
+                <td><p>Permanently deletes an assignment.</p></td>
+              </tr>
+            
+          </tbody>
+        </table>
+
+        
+          
+          
+          <h4>Methods with HTTP bindings</h4>
+          <table>
+            <thead>
+              <tr>
+                <td>Method Name</td>
+                <td>Method</td>
+                <td>Pattern</td>
+                <td>Body</td>
+              </tr>
+            </thead>
+            <tbody>
+            
+              
+              
+              <tr>
+                <td>GetAccountGroupAssignment</td>
+                <td>GET</td>
+                <td>/v1/{name=accountGroups/*/assignments/*}</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>ListAccountGroupAssignments</td>
+                <td>GET</td>
+                <td>/v1/{parent=accountGroups/*}/assignments</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>CreateAccountGroupAssignment</td>
+                <td>POST</td>
+                <td>/v1/{parent=accountGroups/*}/assignments</td>
+                <td>assignment</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>UpdateAccountGroupAssignment</td>
+                <td>PATCH</td>
+                <td>/v1/{assignment.name=accountGroups/*/assignments/*}</td>
+                <td>assignment</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>DeleteAccountGroupAssignment</td>
+                <td>DELETE</td>
+                <td>/v1/{name=accountGroups/*/assignments/*}</td>
+                <td></td>
+              </tr>
+              
+            
+            </tbody>
+          </table>
+          
+        
+    
+      
+      <div class="file-heading">
+        <h2 id="budget.proto">budget.proto</h2><a href="#title">Top</a>
+      </div>
+      <p></p>
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.Budget">Budget</h3>
+        <p>Budget represents a financial budget with a defined period.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the budget.
+Format: budgets/{budget} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>uid</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The UUID of the budget. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>display_name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Human-readable budget name. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>display_description</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Optional free-text description. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>is_closed</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>Whether the budget is closed (no further modifications allowed). </p></td>
+                </tr>
+              
+                <tr>
+                  <td>period_start</td>
+                  <td><a href="#google.type.Date">google.type.Date</a></td>
+                  <td></td>
+                  <td><p>Budget period start date. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>period_end</td>
+                  <td><a href="#google.type.Date">google.type.Date</a></td>
+                  <td></td>
+                  <td><p>Budget period end date. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Last modification timestamp. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>create_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Creation timestamp. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.CloseBudgetRequest">CloseBudgetRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the budget to close.
+Format: budgets/{budget} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.CreateBudgetRequest">CreateBudgetRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>budget</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.Budget">Budget</a></td>
+                  <td></td>
+                  <td><p>The budget to create. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.DeleteBudgetRequest">DeleteBudgetRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the budget.
+Format: budgets/{budget} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.GetBudgetRequest">GetBudgetRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the budget.
+Format: budgets/{budget} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListBudgetsRequest">ListBudgetsRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>page_size</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Maximum number of budgets to return. The service may return fewer.
+If unspecified, at most 20 are returned. Maximum value is 100. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A page token from a previous ListBudgets call. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>filter</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Filter expression conforming to AIP-160.
+Supported fields: display_name, is_closed.
+Example: &#34;is_closed=false&#34; or &#34;display_name=\&#34;FY2025\&#34;&#34;. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>show_deleted</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>If true, closed budgets are included in results. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>order_by</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Order by expression (e.g. &#34;display_name&#34;, &#34;period_start desc&#34;). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListBudgetsResponse">ListBudgetsResponse</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>budgets</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.Budget">Budget</a></td>
+                  <td>repeated</td>
+                  <td><p>The budgets returned. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>next_page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A token to retrieve the next page of results. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>total_size</td>
+                  <td><a href="#int64">int64</a></td>
+                  <td></td>
+                  <td><p>Total number of budgets matching the filter (may be an estimate). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.UpdateBudgetRequest">UpdateBudgetRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>budget</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.Budget">Budget</a></td>
+                  <td></td>
+                  <td><p>The budget to update. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_mask</td>
+                  <td><a href="#google.protobuf.FieldMask">google.protobuf.FieldMask</a></td>
+                  <td></td>
+                  <td><p>The list of fields to update. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+
+      
+
+      
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.BudgetService">BudgetService</h3>
+        <p>BudgetService manages financial budgets.</p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>GetBudget</td>
+                <td><a href="#pixlcrashr.vsfv.v1.GetBudgetRequest">GetBudgetRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.Budget">Budget</a></td>
+                <td><p>Gets a single budget by resource name.</p></td>
+              </tr>
+            
+              <tr>
+                <td>ListBudgets</td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListBudgetsRequest">ListBudgetsRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListBudgetsResponse">ListBudgetsResponse</a></td>
+                <td><p>Lists budgets with pagination.</p></td>
+              </tr>
+            
+              <tr>
+                <td>CreateBudget</td>
+                <td><a href="#pixlcrashr.vsfv.v1.CreateBudgetRequest">CreateBudgetRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.Budget">Budget</a></td>
+                <td><p>Creates a new budget.</p></td>
+              </tr>
+            
+              <tr>
+                <td>UpdateBudget</td>
+                <td><a href="#pixlcrashr.vsfv.v1.UpdateBudgetRequest">UpdateBudgetRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.Budget">Budget</a></td>
+                <td><p>Updates an existing budget.</p></td>
+              </tr>
+            
+              <tr>
+                <td>CloseBudget</td>
+                <td><a href="#pixlcrashr.vsfv.v1.CloseBudgetRequest">CloseBudgetRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.Budget">Budget</a></td>
+                <td><p>Closes a budget, marking it as no longer active.</p></td>
+              </tr>
+            
+              <tr>
+                <td>DeleteBudget</td>
+                <td><a href="#pixlcrashr.vsfv.v1.DeleteBudgetRequest">DeleteBudgetRequest</a></td>
+                <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
+                <td><p>Permanently deletes a budget.</p></td>
+              </tr>
+            
+          </tbody>
+        </table>
+
+        
+          
+          
+          <h4>Methods with HTTP bindings</h4>
+          <table>
+            <thead>
+              <tr>
+                <td>Method Name</td>
+                <td>Method</td>
+                <td>Pattern</td>
+                <td>Body</td>
+              </tr>
+            </thead>
+            <tbody>
+            
+              
+              
+              <tr>
+                <td>GetBudget</td>
+                <td>GET</td>
+                <td>/v1/{name=budgets/*}</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>ListBudgets</td>
+                <td>GET</td>
+                <td>/v1/budgets</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>CreateBudget</td>
+                <td>POST</td>
+                <td>/v1/budgets</td>
+                <td>budget</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>UpdateBudget</td>
+                <td>PATCH</td>
+                <td>/v1/{budget.name=budgets/*}</td>
+                <td>budget</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>CloseBudget</td>
+                <td>POST</td>
+                <td>/v1/{name=budgets/*}:close</td>
+                <td>*</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>DeleteBudget</td>
+                <td>DELETE</td>
+                <td>/v1/{name=budgets/*}</td>
+                <td></td>
+              </tr>
+              
+            
+            </tbody>
+          </table>
+          
+        
+    
+      
+      <div class="file-heading">
+        <h2 id="budget_tag.proto">budget_tag.proto</h2><a href="#title">Top</a>
+      </div>
+      <p></p>
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.BudgetTag">BudgetTag</h3>
+        <p>BudgetTag is a named snapshot/revision tag within a budget, used to</p><p>associate per-account target values with a specific point in time.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the budget tag.
+Format: budgets/{budget}/tags/{tag} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>uid</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The UUID of the budget tag. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>budget</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the parent budget.
+Format: budgets/{budget} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>date</td>
+                  <td><a href="#google.type.Date">google.type.Date</a></td>
+                  <td></td>
+                  <td><p>The date this tag represents. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>display_description</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Optional free-text description. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Last modification timestamp. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>create_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Creation timestamp. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.CreateBudgetTagRequest">CreateBudgetTagRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>parent</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The parent budget resource name.
+Format: budgets/{budget} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>tag</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.BudgetTag">BudgetTag</a></td>
+                  <td></td>
+                  <td><p>The budget tag to create. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.DeleteBudgetTagRequest">DeleteBudgetTagRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the budget tag.
+Format: budgets/{budget}/tags/{tag} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.GetBudgetTagRequest">GetBudgetTagRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the budget tag.
+Format: budgets/{budget}/tags/{tag} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListBudgetTagsRequest">ListBudgetTagsRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>parent</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The parent budget resource name.
+Format: budgets/{budget} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>page_size</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Maximum number of tags to return. The service may return fewer.
+If unspecified, at most 20 are returned. Maximum value is 100. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A page token from a previous ListBudgetTags call. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>filter</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Filter expression conforming to AIP-160.
+Supported fields: date, display_description.
+Example: &#34;date&gt;=\&#34;2025-01-01\&#34;&#34;. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>order_by</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Order by expression (e.g. &#34;date desc&#34;, &#34;create_time&#34;). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListBudgetTagsResponse">ListBudgetTagsResponse</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>tags</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.BudgetTag">BudgetTag</a></td>
+                  <td>repeated</td>
+                  <td><p>The tags returned. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>next_page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A token to retrieve the next page of results. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>total_size</td>
+                  <td><a href="#int64">int64</a></td>
+                  <td></td>
+                  <td><p>Total number of tags matching the filter (may be an estimate). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.UpdateBudgetTagRequest">UpdateBudgetTagRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>tag</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.BudgetTag">BudgetTag</a></td>
+                  <td></td>
+                  <td><p>The budget tag to update. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_mask</td>
+                  <td><a href="#google.protobuf.FieldMask">google.protobuf.FieldMask</a></td>
+                  <td></td>
+                  <td><p>The list of fields to update. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+
+      
+
+      
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.BudgetTagService">BudgetTagService</h3>
+        <p>BudgetTagService manages snapshot tags within a budget.</p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>GetBudgetTag</td>
+                <td><a href="#pixlcrashr.vsfv.v1.GetBudgetTagRequest">GetBudgetTagRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.BudgetTag">BudgetTag</a></td>
+                <td><p>Gets a single budget tag by resource name.</p></td>
+              </tr>
+            
+              <tr>
+                <td>ListBudgetTags</td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListBudgetTagsRequest">ListBudgetTagsRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListBudgetTagsResponse">ListBudgetTagsResponse</a></td>
+                <td><p>Lists budget tags for a budget.</p></td>
+              </tr>
+            
+              <tr>
+                <td>CreateBudgetTag</td>
+                <td><a href="#pixlcrashr.vsfv.v1.CreateBudgetTagRequest">CreateBudgetTagRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.BudgetTag">BudgetTag</a></td>
+                <td><p>Creates a new budget tag.</p></td>
+              </tr>
+            
+              <tr>
+                <td>UpdateBudgetTag</td>
+                <td><a href="#pixlcrashr.vsfv.v1.UpdateBudgetTagRequest">UpdateBudgetTagRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.BudgetTag">BudgetTag</a></td>
+                <td><p>Updates an existing budget tag.</p></td>
+              </tr>
+            
+              <tr>
+                <td>DeleteBudgetTag</td>
+                <td><a href="#pixlcrashr.vsfv.v1.DeleteBudgetTagRequest">DeleteBudgetTagRequest</a></td>
+                <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
+                <td><p>Permanently deletes a budget tag.</p></td>
+              </tr>
+            
+          </tbody>
+        </table>
+
+        
+          
+          
+          <h4>Methods with HTTP bindings</h4>
+          <table>
+            <thead>
+              <tr>
+                <td>Method Name</td>
+                <td>Method</td>
+                <td>Pattern</td>
+                <td>Body</td>
+              </tr>
+            </thead>
+            <tbody>
+            
+              
+              
+              <tr>
+                <td>GetBudgetTag</td>
+                <td>GET</td>
+                <td>/v1/{name=budgets/*/tags/*}</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>ListBudgetTags</td>
+                <td>GET</td>
+                <td>/v1/{parent=budgets/*}/tags</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>CreateBudgetTag</td>
+                <td>POST</td>
+                <td>/v1/{parent=budgets/*}/tags</td>
+                <td>tag</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>UpdateBudgetTag</td>
+                <td>PATCH</td>
+                <td>/v1/{tag.name=budgets/*/tags/*}</td>
+                <td>tag</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>DeleteBudgetTag</td>
+                <td>DELETE</td>
+                <td>/v1/{name=budgets/*/tags/*}</td>
+                <td></td>
+              </tr>
+              
+            
+            </tbody>
+          </table>
+          
+        
+    
+      
+      <div class="file-heading">
+        <h2 id="import_source.proto">import_source.proto</h2><a href="#title">Top</a>
+      </div>
+      <p></p>
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.CreateImportSourceRequest">CreateImportSourceRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>import_source</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.ImportSource">ImportSource</a></td>
+                  <td></td>
+                  <td><p>The import source to create. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.DeleteImportSourceRequest">DeleteImportSourceRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the import source.
+Format: importSources/{import_source} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.GetImportSourceRequest">GetImportSourceRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the import source.
+Format: importSources/{import_source} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ImportSource">ImportSource</h3>
+        <p>ImportSource represents an external data source from which transactions are imported.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the import source.
+Format: importSources/{import_source} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>uid</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The UUID of the import source. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>display_name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Human-readable import source name. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>display_description</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Optional free-text description. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>period_start</td>
+                  <td><a href="#google.type.Date">google.type.Date</a></td>
+                  <td></td>
+                  <td><p>Period start date for this import source. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Last modification timestamp. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>create_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Creation timestamp. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListImportSourcesRequest">ListImportSourcesRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>page_size</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Maximum number of import sources to return. The service may return fewer.
+If unspecified, at most 20 are returned. Maximum value is 100. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A page token from a previous ListImportSources call. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>filter</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Filter expression conforming to AIP-160.
+Supported fields: display_name.
+Example: &#34;display_name=\&#34;BankXY\&#34;&#34;. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>order_by</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Order by expression (e.g. &#34;display_name&#34;, &#34;create_time desc&#34;). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListImportSourcesResponse">ListImportSourcesResponse</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>import_sources</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.ImportSource">ImportSource</a></td>
+                  <td>repeated</td>
+                  <td><p>The import sources returned. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>next_page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A token to retrieve the next page of results. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>total_size</td>
+                  <td><a href="#int64">int64</a></td>
+                  <td></td>
+                  <td><p>Total number of import sources matching the filter (may be an estimate). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.UpdateImportSourceRequest">UpdateImportSourceRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>import_source</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.ImportSource">ImportSource</a></td>
+                  <td></td>
+                  <td><p>The import source to update. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_mask</td>
+                  <td><a href="#google.protobuf.FieldMask">google.protobuf.FieldMask</a></td>
+                  <td></td>
+                  <td><p>The list of fields to update. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+
+      
+
+      
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.ImportSourceService">ImportSourceService</h3>
+        <p>ImportSourceService manages external import sources.</p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>GetImportSource</td>
+                <td><a href="#pixlcrashr.vsfv.v1.GetImportSourceRequest">GetImportSourceRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ImportSource">ImportSource</a></td>
+                <td><p>Gets a single import source by resource name.</p></td>
+              </tr>
+            
+              <tr>
+                <td>ListImportSources</td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListImportSourcesRequest">ListImportSourcesRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListImportSourcesResponse">ListImportSourcesResponse</a></td>
+                <td><p>Lists import sources with pagination.</p></td>
+              </tr>
+            
+              <tr>
+                <td>CreateImportSource</td>
+                <td><a href="#pixlcrashr.vsfv.v1.CreateImportSourceRequest">CreateImportSourceRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ImportSource">ImportSource</a></td>
+                <td><p>Creates a new import source.</p></td>
+              </tr>
+            
+              <tr>
+                <td>UpdateImportSource</td>
+                <td><a href="#pixlcrashr.vsfv.v1.UpdateImportSourceRequest">UpdateImportSourceRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ImportSource">ImportSource</a></td>
+                <td><p>Updates an existing import source.</p></td>
+              </tr>
+            
+              <tr>
+                <td>DeleteImportSource</td>
+                <td><a href="#pixlcrashr.vsfv.v1.DeleteImportSourceRequest">DeleteImportSourceRequest</a></td>
+                <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
+                <td><p>Permanently deletes an import source.</p></td>
+              </tr>
+            
+          </tbody>
+        </table>
+
+        
+          
+          
+          <h4>Methods with HTTP bindings</h4>
+          <table>
+            <thead>
+              <tr>
+                <td>Method Name</td>
+                <td>Method</td>
+                <td>Pattern</td>
+                <td>Body</td>
+              </tr>
+            </thead>
+            <tbody>
+            
+              
+              
+              <tr>
+                <td>GetImportSource</td>
+                <td>GET</td>
+                <td>/v1/{name=importSources/*}</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>ListImportSources</td>
+                <td>GET</td>
+                <td>/v1/importSources</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>CreateImportSource</td>
+                <td>POST</td>
+                <td>/v1/importSources</td>
+                <td>import_source</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>UpdateImportSource</td>
+                <td>PATCH</td>
+                <td>/v1/{import_source.name=importSources/*}</td>
+                <td>import_source</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>DeleteImportSource</td>
+                <td>DELETE</td>
+                <td>/v1/{name=importSources/*}</td>
+                <td></td>
+              </tr>
+              
+            
+            </tbody>
+          </table>
+          
+        
+    
+      
+      <div class="file-heading">
+        <h2 id="import_source_period.proto">import_source_period.proto</h2><a href="#title">Top</a>
+      </div>
+      <p></p>
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.CloseImportSourcePeriodRequest">CloseImportSourcePeriodRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the period to close.
+Format: importSources/{import_source}/periods/{period} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.CreateImportSourcePeriodRequest">CreateImportSourcePeriodRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>parent</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The parent import source resource name.
+Format: importSources/{import_source} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>period</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.ImportSourcePeriod">ImportSourcePeriod</a></td>
+                  <td></td>
+                  <td><p>The period to create. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.DeleteImportSourcePeriodRequest">DeleteImportSourcePeriodRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the period.
+Format: importSources/{import_source}/periods/{period} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.GetImportSourcePeriodRequest">GetImportSourcePeriodRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the period.
+Format: importSources/{import_source}/periods/{period} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ImportSourcePeriod">ImportSourcePeriod</h3>
+        <p>ImportSourcePeriod represents a fiscal year period within an import source.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the period.
+Format: importSources/{import_source}/periods/{period} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>uid</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The UUID of the period. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>import_source</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the parent import source.
+Format: importSources/{import_source} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>year</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>The fiscal year this period covers. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>is_closed</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>Whether this period is closed for new imports. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Last modification timestamp. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>create_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Creation timestamp. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListImportSourcePeriodsRequest">ListImportSourcePeriodsRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>parent</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The parent import source resource name.
+Format: importSources/{import_source} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>page_size</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Maximum number of periods to return. The service may return fewer.
+If unspecified, at most 20 are returned. Maximum value is 100. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A page token from a previous ListImportSourcePeriods call. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>filter</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Filter expression conforming to AIP-160.
+Supported fields: year, is_closed.
+Example: &#34;is_closed=false&#34; or &#34;year=2025&#34;. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>order_by</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Order by expression (e.g. &#34;year desc&#34;, &#34;create_time&#34;). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListImportSourcePeriodsResponse">ListImportSourcePeriodsResponse</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>periods</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.ImportSourcePeriod">ImportSourcePeriod</a></td>
+                  <td>repeated</td>
+                  <td><p>The periods returned. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>next_page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A token to retrieve the next page of results. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>total_size</td>
+                  <td><a href="#int64">int64</a></td>
+                  <td></td>
+                  <td><p>Total number of periods matching the filter (may be an estimate). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+
+      
+
+      
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.ImportSourcePeriodService">ImportSourcePeriodService</h3>
+        <p>ImportSourcePeriodService manages fiscal year periods within an import source.</p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>GetImportSourcePeriod</td>
+                <td><a href="#pixlcrashr.vsfv.v1.GetImportSourcePeriodRequest">GetImportSourcePeriodRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ImportSourcePeriod">ImportSourcePeriod</a></td>
+                <td><p>Gets a single period by resource name.</p></td>
+              </tr>
+            
+              <tr>
+                <td>ListImportSourcePeriods</td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListImportSourcePeriodsRequest">ListImportSourcePeriodsRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListImportSourcePeriodsResponse">ListImportSourcePeriodsResponse</a></td>
+                <td><p>Lists periods for an import source.</p></td>
+              </tr>
+            
+              <tr>
+                <td>CreateImportSourcePeriod</td>
+                <td><a href="#pixlcrashr.vsfv.v1.CreateImportSourcePeriodRequest">CreateImportSourcePeriodRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ImportSourcePeriod">ImportSourcePeriod</a></td>
+                <td><p>Creates a new period.</p></td>
+              </tr>
+            
+              <tr>
+                <td>CloseImportSourcePeriod</td>
+                <td><a href="#pixlcrashr.vsfv.v1.CloseImportSourcePeriodRequest">CloseImportSourcePeriodRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ImportSourcePeriod">ImportSourcePeriod</a></td>
+                <td><p>Closes a period, preventing new imports.</p></td>
+              </tr>
+            
+              <tr>
+                <td>DeleteImportSourcePeriod</td>
+                <td><a href="#pixlcrashr.vsfv.v1.DeleteImportSourcePeriodRequest">DeleteImportSourcePeriodRequest</a></td>
+                <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
+                <td><p>Permanently deletes a period.</p></td>
+              </tr>
+            
+          </tbody>
+        </table>
+
+        
+          
+          
+          <h4>Methods with HTTP bindings</h4>
+          <table>
+            <thead>
+              <tr>
+                <td>Method Name</td>
+                <td>Method</td>
+                <td>Pattern</td>
+                <td>Body</td>
+              </tr>
+            </thead>
+            <tbody>
+            
+              
+              
+              <tr>
+                <td>GetImportSourcePeriod</td>
+                <td>GET</td>
+                <td>/v1/{name=importSources/*/periods/*}</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>ListImportSourcePeriods</td>
+                <td>GET</td>
+                <td>/v1/{parent=importSources/*}/periods</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>CreateImportSourcePeriod</td>
+                <td>POST</td>
+                <td>/v1/{parent=importSources/*}/periods</td>
+                <td>period</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>CloseImportSourcePeriod</td>
+                <td>POST</td>
+                <td>/v1/{name=importSources/*/periods/*}:close</td>
+                <td>*</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>DeleteImportSourcePeriod</td>
+                <td>DELETE</td>
+                <td>/v1/{name=importSources/*/periods/*}</td>
+                <td></td>
+              </tr>
+              
+            
+            </tbody>
+          </table>
+          
+        
+    
+      
+      <div class="file-heading">
+        <h2 id="report.proto">report.proto</h2><a href="#title">Top</a>
+      </div>
+      <p></p>
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.CreateReportRequest">CreateReportRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>report</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.Report">Report</a></td>
+                  <td></td>
+                  <td><p>The report to create. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.DeleteReportRequest">DeleteReportRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the report.
+Format: reports/{report} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.GetReportRequest">GetReportRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the report.
+Format: reports/{report} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListReportsRequest">ListReportsRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>page_size</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Maximum number of reports to return. The service may return fewer.
+If unspecified, at most 20 are returned. Maximum value is 100. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A page token from a previous ListReports call. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>filter</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Filter expression conforming to AIP-160.
+Supported fields: display_name, report_template_id.
+Example: &#34;display_name=\&#34;Q1 Report\&#34;&#34;. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>order_by</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Order by expression (e.g. &#34;display_name&#34;, &#34;create_time desc&#34;). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListReportsResponse">ListReportsResponse</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>reports</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.Report">Report</a></td>
+                  <td>repeated</td>
+                  <td><p>The reports returned. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>next_page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A token to retrieve the next page of results. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>total_size</td>
+                  <td><a href="#int64">int64</a></td>
+                  <td></td>
+                  <td><p>Total number of reports matching the filter (may be an estimate). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.Report">Report</h3>
+        <p>Report is a generated report instance produced from a ReportTemplate.</p><p>The rendered binary content is served exclusively via the Huma HTTP API</p><p>(GET /v1/reports/{reportId}:download) and is intentionally excluded here.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the report.
+Format: reports/{report} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>uid</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The UUID of the report. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>display_name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Human-readable name. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>report_template_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>UUID of the report template used to generate this report. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>create_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Creation timestamp. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+
+      
+
+      
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.ReportService">ReportService</h3>
+        <p>ReportService manages generated report instances.</p><p>Note: report file download is handled exclusively by the Huma HTTP API.</p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>GetReport</td>
+                <td><a href="#pixlcrashr.vsfv.v1.GetReportRequest">GetReportRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.Report">Report</a></td>
+                <td><p>Gets report metadata by resource name.</p></td>
+              </tr>
+            
+              <tr>
+                <td>ListReports</td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListReportsRequest">ListReportsRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListReportsResponse">ListReportsResponse</a></td>
+                <td><p>Lists reports with pagination.</p></td>
+              </tr>
+            
+              <tr>
+                <td>CreateReport</td>
+                <td><a href="#pixlcrashr.vsfv.v1.CreateReportRequest">CreateReportRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.Report">Report</a></td>
+                <td><p>Creates a new report by rendering a template.</p></td>
+              </tr>
+            
+              <tr>
+                <td>DeleteReport</td>
+                <td><a href="#pixlcrashr.vsfv.v1.DeleteReportRequest">DeleteReportRequest</a></td>
+                <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
+                <td><p>Permanently deletes a report.</p></td>
+              </tr>
+            
+          </tbody>
+        </table>
+
+        
+          
+          
+          <h4>Methods with HTTP bindings</h4>
+          <table>
+            <thead>
+              <tr>
+                <td>Method Name</td>
+                <td>Method</td>
+                <td>Pattern</td>
+                <td>Body</td>
+              </tr>
+            </thead>
+            <tbody>
+            
+              
+              
+              <tr>
+                <td>GetReport</td>
+                <td>GET</td>
+                <td>/v1/{name=reports/*}</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>ListReports</td>
+                <td>GET</td>
+                <td>/v1/reports</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>CreateReport</td>
+                <td>POST</td>
+                <td>/v1/reports</td>
+                <td>report</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>DeleteReport</td>
+                <td>DELETE</td>
+                <td>/v1/{name=reports/*}</td>
+                <td></td>
+              </tr>
+              
+            
+            </tbody>
+          </table>
+          
+        
+    
+      
+      <div class="file-heading">
+        <h2 id="report_template.proto">report_template.proto</h2><a href="#title">Top</a>
+      </div>
+      <p></p>
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.CreateReportTemplateRequest">CreateReportTemplateRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>report_template</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.ReportTemplate">ReportTemplate</a></td>
+                  <td></td>
+                  <td><p>The report template to create. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.DeleteReportTemplateRequest">DeleteReportTemplateRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the report template.
+Format: reportTemplates/{report_template} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.GetReportTemplateRequest">GetReportTemplateRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the report template.
+Format: reportTemplates/{report_template} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListReportTemplatesRequest">ListReportTemplatesRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>page_size</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Maximum number of templates to return. The service may return fewer.
+If unspecified, at most 20 are returned. Maximum value is 100. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A page token from a previous ListReportTemplates call. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>filter</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Filter expression conforming to AIP-160.
+Supported fields: display_name.
+Example: &#34;display_name=\&#34;Monthly\&#34;&#34;. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>order_by</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Order by expression (e.g. &#34;display_name&#34;, &#34;create_time desc&#34;). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListReportTemplatesResponse">ListReportTemplatesResponse</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>report_templates</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.ReportTemplate">ReportTemplate</a></td>
+                  <td>repeated</td>
+                  <td><p>The report templates returned. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>next_page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A token to retrieve the next page of results. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>total_size</td>
+                  <td><a href="#int64">int64</a></td>
+                  <td></td>
+                  <td><p>Total number of templates matching the filter (may be an estimate). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ReportTemplate">ReportTemplate</h3>
+        <p>ReportTemplate is a Handlebars template used to render reports.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the report template.
+Format: reportTemplates/{report_template} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>uid</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The UUID of the report template. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>display_name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Human-readable name. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>template</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The Handlebars template content. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Last modification timestamp. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>create_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Creation timestamp. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.UpdateReportTemplateRequest">UpdateReportTemplateRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>report_template</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.ReportTemplate">ReportTemplate</a></td>
+                  <td></td>
+                  <td><p>The report template to update. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_mask</td>
+                  <td><a href="#google.protobuf.FieldMask">google.protobuf.FieldMask</a></td>
+                  <td></td>
+                  <td><p>The list of fields to update. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+
+      
+
+      
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.ReportTemplateService">ReportTemplateService</h3>
+        <p>ReportTemplateService manages Handlebars templates used for report generation.</p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>GetReportTemplate</td>
+                <td><a href="#pixlcrashr.vsfv.v1.GetReportTemplateRequest">GetReportTemplateRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ReportTemplate">ReportTemplate</a></td>
+                <td><p>Gets a single report template by resource name.</p></td>
+              </tr>
+            
+              <tr>
+                <td>ListReportTemplates</td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListReportTemplatesRequest">ListReportTemplatesRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListReportTemplatesResponse">ListReportTemplatesResponse</a></td>
+                <td><p>Lists report templates with pagination.</p></td>
+              </tr>
+            
+              <tr>
+                <td>CreateReportTemplate</td>
+                <td><a href="#pixlcrashr.vsfv.v1.CreateReportTemplateRequest">CreateReportTemplateRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ReportTemplate">ReportTemplate</a></td>
+                <td><p>Creates a new report template.</p></td>
+              </tr>
+            
+              <tr>
+                <td>UpdateReportTemplate</td>
+                <td><a href="#pixlcrashr.vsfv.v1.UpdateReportTemplateRequest">UpdateReportTemplateRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ReportTemplate">ReportTemplate</a></td>
+                <td><p>Updates an existing report template.</p></td>
+              </tr>
+            
+              <tr>
+                <td>DeleteReportTemplate</td>
+                <td><a href="#pixlcrashr.vsfv.v1.DeleteReportTemplateRequest">DeleteReportTemplateRequest</a></td>
+                <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
+                <td><p>Permanently deletes a report template.</p></td>
+              </tr>
+            
+          </tbody>
+        </table>
+
+        
+          
+          
+          <h4>Methods with HTTP bindings</h4>
+          <table>
+            <thead>
+              <tr>
+                <td>Method Name</td>
+                <td>Method</td>
+                <td>Pattern</td>
+                <td>Body</td>
+              </tr>
+            </thead>
+            <tbody>
+            
+              
+              
+              <tr>
+                <td>GetReportTemplate</td>
+                <td>GET</td>
+                <td>/v1/{name=reportTemplates/*}</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>ListReportTemplates</td>
+                <td>GET</td>
+                <td>/v1/reportTemplates</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>CreateReportTemplate</td>
+                <td>POST</td>
+                <td>/v1/reportTemplates</td>
+                <td>report_template</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>UpdateReportTemplate</td>
+                <td>PATCH</td>
+                <td>/v1/{report_template.name=reportTemplates/*}</td>
+                <td>report_template</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>DeleteReportTemplate</td>
+                <td>DELETE</td>
+                <td>/v1/{name=reportTemplates/*}</td>
+                <td></td>
+              </tr>
+              
+            
+            </tbody>
+          </table>
+          
+        
+    
+      
+      <div class="file-heading">
+        <h2 id="transaction.proto">transaction.proto</h2><a href="#title">Top</a>
+      </div>
+      <p></p>
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.CreateTransactionRequest">CreateTransactionRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>transaction</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.Transaction">Transaction</a></td>
+                  <td></td>
+                  <td><p>The transaction to create. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.DeleteTransactionRequest">DeleteTransactionRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the transaction.
+Format: transactions/{transaction} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.GetTransactionRequest">GetTransactionRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the transaction.
+Format: transactions/{transaction} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListTransactionsRequest">ListTransactionsRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>page_size</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Maximum number of transactions to return. The service may return fewer.
+If unspecified, at most 20 are returned. Maximum value is 100. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A page token from a previous ListTransactions call. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>filter</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Filter expression conforming to AIP-160.
+Supported fields: credit_transaction_account_id, debit_transaction_account_id,
+booked_at, document_date, amount.
+Example: &#34;credit_transaction_account_id=\&#34;&lt;uuid&gt;\&#34; AND booked_at&gt;=\&#34;2025-01-01T00:00:00Z\&#34;&#34;. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>order_by</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Order by expression (e.g. &#34;booked_at desc&#34;, &#34;amount&#34;). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListTransactionsResponse">ListTransactionsResponse</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>transactions</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.Transaction">Transaction</a></td>
+                  <td>repeated</td>
+                  <td><p>The transactions returned. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>next_page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A token to retrieve the next page of results. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>total_size</td>
+                  <td><a href="#int64">int64</a></td>
+                  <td></td>
+                  <td><p>Total number of transactions matching the filter (may be an estimate). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.Transaction">Transaction</h3>
+        <p>Transaction represents a financial transaction between two transaction accounts.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the transaction.
+Format: transactions/{transaction} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>uid</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The UUID of the transaction. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>credit_transaction_account_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>UUID of the credit transaction account. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>debit_transaction_account_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>UUID of the debit transaction account. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>amount</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Transaction amount as decimal string (e.g. &#34;123.45&#34;). </p></td>
+                </tr>
+              
+                <tr>
+                  <td>description</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Human-readable transaction description. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>reference</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>External reference identifier. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>assigned_account_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>UUID of the budget account this transaction is assigned to. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>booked_at</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Booking date. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>document_date</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Document date. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>custom_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Optional custom external ID. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Last modification timestamp. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>create_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Creation timestamp. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.UpdateTransactionRequest">UpdateTransactionRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>transaction</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.Transaction">Transaction</a></td>
+                  <td></td>
+                  <td><p>The transaction to update. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_mask</td>
+                  <td><a href="#google.protobuf.FieldMask">google.protobuf.FieldMask</a></td>
+                  <td></td>
+                  <td><p>The list of fields to update. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+
+      
+
+      
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.TransactionService">TransactionService</h3>
+        <p>TransactionService manages financial transactions.</p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>GetTransaction</td>
+                <td><a href="#pixlcrashr.vsfv.v1.GetTransactionRequest">GetTransactionRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.Transaction">Transaction</a></td>
+                <td><p>Gets a single transaction by resource name.</p></td>
+              </tr>
+            
+              <tr>
+                <td>ListTransactions</td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListTransactionsRequest">ListTransactionsRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListTransactionsResponse">ListTransactionsResponse</a></td>
+                <td><p>Lists transactions with keyset pagination and optional filters.</p></td>
+              </tr>
+            
+              <tr>
+                <td>CreateTransaction</td>
+                <td><a href="#pixlcrashr.vsfv.v1.CreateTransactionRequest">CreateTransactionRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.Transaction">Transaction</a></td>
+                <td><p>Creates a new transaction.</p></td>
+              </tr>
+            
+              <tr>
+                <td>UpdateTransaction</td>
+                <td><a href="#pixlcrashr.vsfv.v1.UpdateTransactionRequest">UpdateTransactionRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.Transaction">Transaction</a></td>
+                <td><p>Updates an existing transaction.</p></td>
+              </tr>
+            
+              <tr>
+                <td>DeleteTransaction</td>
+                <td><a href="#pixlcrashr.vsfv.v1.DeleteTransactionRequest">DeleteTransactionRequest</a></td>
+                <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
+                <td><p>Permanently deletes a transaction.</p></td>
+              </tr>
+            
+          </tbody>
+        </table>
+
+        
+          
+          
+          <h4>Methods with HTTP bindings</h4>
+          <table>
+            <thead>
+              <tr>
+                <td>Method Name</td>
+                <td>Method</td>
+                <td>Pattern</td>
+                <td>Body</td>
+              </tr>
+            </thead>
+            <tbody>
+            
+              
+              
+              <tr>
+                <td>GetTransaction</td>
+                <td>GET</td>
+                <td>/v1/{name=transactions/*}</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>ListTransactions</td>
+                <td>GET</td>
+                <td>/v1/transactions</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>CreateTransaction</td>
+                <td>POST</td>
+                <td>/v1/transactions</td>
+                <td>transaction</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>UpdateTransaction</td>
+                <td>PATCH</td>
+                <td>/v1/{transaction.name=transactions/*}</td>
+                <td>transaction</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>DeleteTransaction</td>
+                <td>DELETE</td>
+                <td>/v1/{name=transactions/*}</td>
+                <td></td>
+              </tr>
+              
+            
+            </tbody>
+          </table>
+          
+        
+    
+      
+      <div class="file-heading">
+        <h2 id="transaction_account.proto">transaction_account.proto</h2><a href="#title">Top</a>
+      </div>
+      <p></p>
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.CreateTransactionAccountRequest">CreateTransactionAccountRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>transaction_account</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.TransactionAccount">TransactionAccount</a></td>
+                  <td></td>
+                  <td><p>The transaction account to create. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.DeleteTransactionAccountRequest">DeleteTransactionAccountRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the transaction account.
+Format: transactionAccounts/{transaction_account} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.GetTransactionAccountRequest">GetTransactionAccountRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the transaction account.
+Format: transactionAccounts/{transaction_account} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListTransactionAccountsRequest">ListTransactionAccountsRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>page_size</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Maximum number of accounts to return. The service may return fewer.
+If unspecified, at most 20 are returned. Maximum value is 100. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A page token from a previous ListTransactionAccounts call. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>filter</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Filter expression conforming to AIP-160.
+Supported fields: import_source_id, code, display_name.
+Example: &#34;import_source_id=\&#34;&lt;uuid&gt;\&#34;&#34; or &#34;code:\&#34;IBAN\&#34;&#34;. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>order_by</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Order by expression (e.g. &#34;code&#34;, &#34;display_name&#34;, &#34;create_time desc&#34;). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListTransactionAccountsResponse">ListTransactionAccountsResponse</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>transaction_accounts</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.TransactionAccount">TransactionAccount</a></td>
+                  <td>repeated</td>
+                  <td><p>The transaction accounts returned. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>next_page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A token to retrieve the next page of results. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>total_size</td>
+                  <td><a href="#int64">int64</a></td>
+                  <td></td>
+                  <td><p>Total number of accounts matching the filter (may be an estimate). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.TransactionAccount">TransactionAccount</h3>
+        <p>TransactionAccount is an external account from an import source</p><p>(e.g. a bank account) involved in transactions.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the transaction account.
+Format: transactionAccounts/{transaction_account} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>uid</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The UUID of the transaction account. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>code</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Unique account code (e.g. IBAN or internal code). </p></td>
+                </tr>
+              
+                <tr>
+                  <td>import_source_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>UUID of the import source this account belongs to. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>display_name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Human-readable name. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>display_description</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Optional free-text description. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Last modification timestamp. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>create_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Creation timestamp. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.UpdateTransactionAccountRequest">UpdateTransactionAccountRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>transaction_account</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.TransactionAccount">TransactionAccount</a></td>
+                  <td></td>
+                  <td><p>The transaction account to update. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_mask</td>
+                  <td><a href="#google.protobuf.FieldMask">google.protobuf.FieldMask</a></td>
+                  <td></td>
+                  <td><p>The list of fields to update. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+
+      
+
+      
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.TransactionAccountService">TransactionAccountService</h3>
+        <p>TransactionAccountService manages external transaction accounts from import sources.</p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>GetTransactionAccount</td>
+                <td><a href="#pixlcrashr.vsfv.v1.GetTransactionAccountRequest">GetTransactionAccountRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.TransactionAccount">TransactionAccount</a></td>
+                <td><p>Gets a single transaction account by resource name.</p></td>
+              </tr>
+            
+              <tr>
+                <td>ListTransactionAccounts</td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListTransactionAccountsRequest">ListTransactionAccountsRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListTransactionAccountsResponse">ListTransactionAccountsResponse</a></td>
+                <td><p>Lists transaction accounts with pagination.</p></td>
+              </tr>
+            
+              <tr>
+                <td>CreateTransactionAccount</td>
+                <td><a href="#pixlcrashr.vsfv.v1.CreateTransactionAccountRequest">CreateTransactionAccountRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.TransactionAccount">TransactionAccount</a></td>
+                <td><p>Creates a new transaction account.</p></td>
+              </tr>
+            
+              <tr>
+                <td>UpdateTransactionAccount</td>
+                <td><a href="#pixlcrashr.vsfv.v1.UpdateTransactionAccountRequest">UpdateTransactionAccountRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.TransactionAccount">TransactionAccount</a></td>
+                <td><p>Updates an existing transaction account.</p></td>
+              </tr>
+            
+              <tr>
+                <td>DeleteTransactionAccount</td>
+                <td><a href="#pixlcrashr.vsfv.v1.DeleteTransactionAccountRequest">DeleteTransactionAccountRequest</a></td>
+                <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
+                <td><p>Permanently deletes a transaction account.</p></td>
+              </tr>
+            
+          </tbody>
+        </table>
+
+        
+          
+          
+          <h4>Methods with HTTP bindings</h4>
+          <table>
+            <thead>
+              <tr>
+                <td>Method Name</td>
+                <td>Method</td>
+                <td>Pattern</td>
+                <td>Body</td>
+              </tr>
+            </thead>
+            <tbody>
+            
+              
+              
+              <tr>
+                <td>GetTransactionAccount</td>
+                <td>GET</td>
+                <td>/v1/{name=transactionAccounts/*}</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>ListTransactionAccounts</td>
+                <td>GET</td>
+                <td>/v1/transactionAccounts</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>CreateTransactionAccount</td>
+                <td>POST</td>
+                <td>/v1/transactionAccounts</td>
+                <td>transaction_account</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>UpdateTransactionAccount</td>
+                <td>PATCH</td>
+                <td>/v1/{transaction_account.name=transactionAccounts/*}</td>
+                <td>transaction_account</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>DeleteTransactionAccount</td>
+                <td>DELETE</td>
+                <td>/v1/{name=transactionAccounts/*}</td>
+                <td></td>
+              </tr>
+              
+            
+            </tbody>
+          </table>
+          
+        
+    
+      
+      <div class="file-heading">
+        <h2 id="transaction_account_assignment.proto">transaction_account_assignment.proto</h2><a href="#title">Top</a>
+      </div>
+      <p></p>
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.CreateTransactionAccountAssignmentRequest">CreateTransactionAccountAssignmentRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>parent</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The parent transaction resource name.
+Format: transactions/{transaction} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>assignment</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.TransactionAccountAssignment">TransactionAccountAssignment</a></td>
+                  <td></td>
+                  <td><p>The assignment to create. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.DeleteTransactionAccountAssignmentRequest">DeleteTransactionAccountAssignmentRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the assignment.
+Format: transactions/{transaction}/assignments/{assignment} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.GetTransactionAccountAssignmentRequest">GetTransactionAccountAssignmentRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the assignment.
+Format: transactions/{transaction}/assignments/{assignment} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListTransactionAccountAssignmentsRequest">ListTransactionAccountAssignmentsRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>parent</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The parent transaction resource name.
+Format: transactions/{transaction} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>page_size</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Maximum number of assignments to return. The service may return fewer.
+If unspecified, at most 20 are returned. Maximum value is 100. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A page token from a previous ListTransactionAccountAssignments call. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>filter</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Filter expression conforming to AIP-160.
+Supported fields: account_id, value.
+Example: &#34;account_id=\&#34;&lt;uuid&gt;\&#34;&#34;. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>order_by</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Order by expression (e.g. &#34;create_time desc&#34;). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListTransactionAccountAssignmentsResponse">ListTransactionAccountAssignmentsResponse</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>assignments</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.TransactionAccountAssignment">TransactionAccountAssignment</a></td>
+                  <td>repeated</td>
+                  <td><p>The assignments returned. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>next_page_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A token to retrieve the next page of results. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>total_size</td>
+                  <td><a href="#int64">int64</a></td>
+                  <td></td>
+                  <td><p>Total number of assignments matching the filter (may be an estimate). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.TransactionAccountAssignment">TransactionAccountAssignment</h3>
+        <p>TransactionAccountAssignment maps a transaction to a budget account with a</p><p>partial monetary value (split booking).</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the assignment.
+Format: transactions/{transaction}/assignments/{assignment} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>uid</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The UUID of the assignment. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>transaction</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the parent transaction.
+Format: transactions/{transaction} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>account_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>UUID of the budget account this portion of the transaction is assigned to. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>value</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The decimal value assigned to this account (e.g. &#34;50.00&#34;). </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Last modification timestamp. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>create_time</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td></td>
+                  <td><p>Creation timestamp. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.UpdateTransactionAccountAssignmentRequest">UpdateTransactionAccountAssignmentRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>assignment</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.TransactionAccountAssignment">TransactionAccountAssignment</a></td>
+                  <td></td>
+                  <td><p>The assignment to update. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_mask</td>
+                  <td><a href="#google.protobuf.FieldMask">google.protobuf.FieldMask</a></td>
+                  <td></td>
+                  <td><p>The list of fields to update. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+
+      
+
+      
+
+      
+        <h3 id="pixlcrashr.vsfv.v1.TransactionAccountAssignmentService">TransactionAccountAssignmentService</h3>
+        <p>TransactionAccountAssignmentService manages budget account assignments for transactions.</p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>GetTransactionAccountAssignment</td>
+                <td><a href="#pixlcrashr.vsfv.v1.GetTransactionAccountAssignmentRequest">GetTransactionAccountAssignmentRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.TransactionAccountAssignment">TransactionAccountAssignment</a></td>
+                <td><p>Gets a single assignment by resource name.</p></td>
+              </tr>
+            
+              <tr>
+                <td>ListTransactionAccountAssignments</td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListTransactionAccountAssignmentsRequest">ListTransactionAccountAssignmentsRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListTransactionAccountAssignmentsResponse">ListTransactionAccountAssignmentsResponse</a></td>
+                <td><p>Lists assignments for a transaction.</p></td>
+              </tr>
+            
+              <tr>
+                <td>CreateTransactionAccountAssignment</td>
+                <td><a href="#pixlcrashr.vsfv.v1.CreateTransactionAccountAssignmentRequest">CreateTransactionAccountAssignmentRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.TransactionAccountAssignment">TransactionAccountAssignment</a></td>
+                <td><p>Creates a new assignment.</p></td>
+              </tr>
+            
+              <tr>
+                <td>UpdateTransactionAccountAssignment</td>
+                <td><a href="#pixlcrashr.vsfv.v1.UpdateTransactionAccountAssignmentRequest">UpdateTransactionAccountAssignmentRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.TransactionAccountAssignment">TransactionAccountAssignment</a></td>
+                <td><p>Updates an existing assignment.</p></td>
+              </tr>
+            
+              <tr>
+                <td>DeleteTransactionAccountAssignment</td>
+                <td><a href="#pixlcrashr.vsfv.v1.DeleteTransactionAccountAssignmentRequest">DeleteTransactionAccountAssignmentRequest</a></td>
+                <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
+                <td><p>Permanently deletes an assignment.</p></td>
+              </tr>
+            
+          </tbody>
+        </table>
+
+        
+          
+          
+          <h4>Methods with HTTP bindings</h4>
+          <table>
+            <thead>
+              <tr>
+                <td>Method Name</td>
+                <td>Method</td>
+                <td>Pattern</td>
+                <td>Body</td>
+              </tr>
+            </thead>
+            <tbody>
+            
+              
+              
+              <tr>
+                <td>GetTransactionAccountAssignment</td>
+                <td>GET</td>
+                <td>/v1/{name=transactions/*/assignments/*}</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>ListTransactionAccountAssignments</td>
+                <td>GET</td>
+                <td>/v1/{parent=transactions/*}/assignments</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>CreateTransactionAccountAssignment</td>
+                <td>POST</td>
+                <td>/v1/{parent=transactions/*}/assignments</td>
+                <td>assignment</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>UpdateTransactionAccountAssignment</td>
+                <td>PATCH</td>
+                <td>/v1/{assignment.name=transactions/*/assignments/*}</td>
+                <td>assignment</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>DeleteTransactionAccountAssignment</td>
+                <td>DELETE</td>
+                <td>/v1/{name=transactions/*/assignments/*}</td>
+                <td></td>
+              </tr>
+              
+            
+            </tbody>
+          </table>
+          
+        
+    
+
+    <h2 id="scalar-value-types">Scalar Value Types</h2>
+    <table class="scalar-value-types-table">
+      <thead>
+        <tr><td>.proto Type</td><td>Notes</td><td>C++</td><td>Java</td><td>Python</td><td>Go</td><td>C#</td><td>PHP</td><td>Ruby</td></tr>
+      </thead>
+      <tbody>
+        
+          <tr id="double">
+            <td>double</td>
+            <td></td>
+            <td>double</td>
+            <td>double</td>
+            <td>float</td>
+            <td>float64</td>
+            <td>double</td>
+            <td>float</td>
+            <td>Float</td>
+          </tr>
+        
+          <tr id="float">
+            <td>float</td>
+            <td></td>
+            <td>float</td>
+            <td>float</td>
+            <td>float</td>
+            <td>float32</td>
+            <td>float</td>
+            <td>float</td>
+            <td>Float</td>
+          </tr>
+        
+          <tr id="int32">
+            <td>int32</td>
+            <td>Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint32 instead.</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>int</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>integer</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="int64">
+            <td>int64</td>
+            <td>Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint64 instead.</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>int/long</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>integer/string</td>
+            <td>Bignum</td>
+          </tr>
+        
+          <tr id="uint32">
+            <td>uint32</td>
+            <td>Uses variable-length encoding.</td>
+            <td>uint32</td>
+            <td>int</td>
+            <td>int/long</td>
+            <td>uint32</td>
+            <td>uint</td>
+            <td>integer</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="uint64">
+            <td>uint64</td>
+            <td>Uses variable-length encoding.</td>
+            <td>uint64</td>
+            <td>long</td>
+            <td>int/long</td>
+            <td>uint64</td>
+            <td>ulong</td>
+            <td>integer/string</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="sint32">
+            <td>sint32</td>
+            <td>Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int32s.</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>int</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>integer</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="sint64">
+            <td>sint64</td>
+            <td>Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int64s.</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>int/long</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>integer/string</td>
+            <td>Bignum</td>
+          </tr>
+        
+          <tr id="fixed32">
+            <td>fixed32</td>
+            <td>Always four bytes. More efficient than uint32 if values are often greater than 2^28.</td>
+            <td>uint32</td>
+            <td>int</td>
+            <td>int</td>
+            <td>uint32</td>
+            <td>uint</td>
+            <td>integer</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="fixed64">
+            <td>fixed64</td>
+            <td>Always eight bytes. More efficient than uint64 if values are often greater than 2^56.</td>
+            <td>uint64</td>
+            <td>long</td>
+            <td>int/long</td>
+            <td>uint64</td>
+            <td>ulong</td>
+            <td>integer/string</td>
+            <td>Bignum</td>
+          </tr>
+        
+          <tr id="sfixed32">
+            <td>sfixed32</td>
+            <td>Always four bytes.</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>int</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>integer</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="sfixed64">
+            <td>sfixed64</td>
+            <td>Always eight bytes.</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>int/long</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>integer/string</td>
+            <td>Bignum</td>
+          </tr>
+        
+          <tr id="bool">
+            <td>bool</td>
+            <td></td>
+            <td>bool</td>
+            <td>boolean</td>
+            <td>boolean</td>
+            <td>bool</td>
+            <td>bool</td>
+            <td>boolean</td>
+            <td>TrueClass/FalseClass</td>
+          </tr>
+        
+          <tr id="string">
+            <td>string</td>
+            <td>A string must always contain UTF-8 encoded or 7-bit ASCII text.</td>
+            <td>string</td>
+            <td>String</td>
+            <td>str/unicode</td>
+            <td>string</td>
+            <td>string</td>
+            <td>string</td>
+            <td>String (UTF-8)</td>
+          </tr>
+        
+          <tr id="bytes">
+            <td>bytes</td>
+            <td>May contain any arbitrary sequence of bytes.</td>
+            <td>string</td>
+            <td>ByteString</td>
+            <td>str</td>
+            <td>[]byte</td>
+            <td>ByteString</td>
+            <td>string</td>
+            <td>String (ASCII-8BIT)</td>
+          </tr>
+        
+      </tbody>
+    </table>
+  </body>
+</html>
+

@@ -1,0 +1,168 @@
+syntax = "proto3";
+
+package pixlcrashr.vsfv.v1;
+
+option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+// AccountGroupAssignment associates an account with an account group.
+message AccountGroupAssignment {
+  option (google.api.resource) = {
+    type: "vsfv.pixlcrashr.dev/AccountGroupAssignment"
+    pattern: "accountGroups/{account_group}/assignments/{assignment}"
+  };
+
+  // The resource name of the assignment.
+  // Format: accountGroups/{account_group}/assignments/{assignment}
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The UUID of the assignment.
+  string uid = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The resource name of the parent account group.
+  // Format: accountGroups/{account_group}
+  string account_group = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/AccountGroup"}
+  ];
+
+  // The UUID of the assigned account.
+  string account_id = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // If true, this account is excluded (negated) from the group aggregate.
+  bool negate = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // Last modification timestamp.
+  google.protobuf.Timestamp update_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Creation timestamp.
+  google.protobuf.Timestamp create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message GetAccountGroupAssignmentRequest {
+  // The resource name of the assignment.
+  // Format: accountGroups/{account_group}/assignments/{assignment}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/AccountGroupAssignment"}
+  ];
+}
+
+message ListAccountGroupAssignmentsRequest {
+  // The parent account group resource name.
+  // Format: accountGroups/{account_group}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/AccountGroup"}
+  ];
+
+  // Maximum number of assignments to return. The service may return fewer.
+  // If unspecified, at most 20 are returned. Maximum value is 100.
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // A page token from a previous ListAccountGroupAssignments call.
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter expression conforming to AIP-160.
+  // Supported fields: account_id, negate.
+  // Example: "negate=true" or "account_id=\"<uuid>\"".
+  string filter = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order by expression (e.g. "create_time desc").
+  string order_by = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ListAccountGroupAssignmentsResponse {
+  // The assignments returned.
+  repeated AccountGroupAssignment assignments = 1;
+
+  // A token to retrieve the next page of results.
+  string next_page_token = 2;
+
+  // Total number of assignments matching the filter (may be an estimate).
+  int64 total_size = 3;
+}
+
+message CreateAccountGroupAssignmentRequest {
+  // The parent account group resource name.
+  // Format: accountGroups/{account_group}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/AccountGroup"}
+  ];
+
+  // The assignment to create.
+  AccountGroupAssignment assignment = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message UpdateAccountGroupAssignmentRequest {
+  // The assignment to update.
+  AccountGroupAssignment assignment = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The list of fields to update.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message DeleteAccountGroupAssignmentRequest {
+  // The resource name of the assignment.
+  // Format: accountGroups/{account_group}/assignments/{assignment}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/AccountGroupAssignment"}
+  ];
+}
+
+// AccountGroupAssignmentService manages account memberships within account groups.
+service AccountGroupAssignmentService {
+  option (google.api.default_host) = "vsfv.pixlcrashr.dev";
+
+  // Gets a single assignment by resource name.
+  rpc GetAccountGroupAssignment(GetAccountGroupAssignmentRequest) returns (AccountGroupAssignment) {
+    option (google.api.http) = {
+      get: "/v1/{name=accountGroups/*/assignments/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+
+  // Lists assignments for an account group.
+  rpc ListAccountGroupAssignments(ListAccountGroupAssignmentsRequest) returns (ListAccountGroupAssignmentsResponse) {
+    option (google.api.http) = {
+      get: "/v1/{parent=accountGroups/*}/assignments"
+    };
+    option (google.api.method_signature) = "parent";
+  }
+
+  // Creates a new assignment.
+  rpc CreateAccountGroupAssignment(CreateAccountGroupAssignmentRequest) returns (AccountGroupAssignment) {
+    option (google.api.http) = {
+      post: "/v1/{parent=accountGroups/*}/assignments"
+      body: "assignment"
+    };
+    option (google.api.method_signature) = "parent,assignment";
+  }
+
+  // Updates an existing assignment.
+  rpc UpdateAccountGroupAssignment(UpdateAccountGroupAssignmentRequest) returns (AccountGroupAssignment) {
+    option (google.api.http) = {
+      patch: "/v1/{assignment.name=accountGroups/*/assignments/*}"
+      body: "assignment"
+    };
+    option (google.api.method_signature) = "assignment,update_mask";
+  }
+
+  // Permanently deletes an assignment.
+  rpc DeleteAccountGroupAssignment(DeleteAccountGroupAssignmentRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/{name=accountGroups/*/assignments/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+}

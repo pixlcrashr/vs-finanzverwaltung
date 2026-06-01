@@ -9,6 +9,7 @@ import (
 
 type TransactionAccount struct {
 	ID                 uuid.UUID `gorm:"type:uuid;primaryKey"`
+	OrganizationID     uuid.UUID `gorm:"type:uuid;not null;index:idx_transaction_accounts_organization_id"`
 	Code               string    `gorm:"type:varchar(64);not null;uniqueIndex:idx_transaction_accounts_code_source,priority:1;index:idx_transaction_accounts_code"`
 	ImportSourceID     uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_transaction_accounts_code_source,priority:2"`
 	DisplayName        string    `gorm:"not null;default:'';index:idx_transaction_accounts_display_name"`
@@ -17,6 +18,7 @@ type TransactionAccount struct {
 	CreatedAt          time.Time `gorm:"not null;default:now()"`
 
 	// Relations
+	Organization       Organization   `gorm:"foreignKey:OrganizationID"`
 	ImportSource       *ImportSource  `gorm:"foreignKey:ImportSourceID"`
 	CreditTransactions []Transaction_ `gorm:"foreignKey:CreditTransactionAccountID"`
 	DebitTransactions  []Transaction_ `gorm:"foreignKey:DebitTransactionAccountID"`

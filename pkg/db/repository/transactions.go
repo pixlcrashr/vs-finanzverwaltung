@@ -10,24 +10,33 @@ import (
 	"github.com/pixlcrashr/go-pagetoken/order"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
+	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
 // ListTransactionsParams drives the List query with keyset pagination.
 type ListTransactionsParams struct {
-	// CreditAccountID filters by credit transaction account.
-	CreditAccountID *uuid.UUID
-	// DebitAccountID filters by debit transaction account.
-	DebitAccountID *uuid.UUID
-	// BookedAtStart filters transactions booked on or after this date.
-	BookedAtStart *time.Time
-	// BookedAtEnd filters transactions booked on or before this date.
-	BookedAtEnd *time.Time
+	// Cond is an optional abstract condition chain (AND/OR/NOT support).
+	Cond cond.Cond
 	// KeysetValues for keyset pagination cursor.
 	KeysetValues []pagetoken.KeysetValue
 	// PageSize caps the number of rows returned.
 	PageSize int
+}
+
+// transactionColumnMapper maps filter field names to database column names.
+func transactionColumnMapper(field string) (string, bool) {
+	switch field {
+	case "credit_transaction_account_id":
+		return "credit_transaction_account_id", true
+	case "debit_transaction_account_id":
+		return "debit_transaction_account_id", true
+	case "booked_at":
+		return "booked_at", true
+	default:
+		return "", false
+	}
 }
 
 // TransactionRepository provides CRUD and specialised queries for the transactions table.
@@ -86,23 +95,26 @@ func (r *TransactionRepository) List(ctx context.Context, params ListTransaction
 		params.PageSize = 20
 	}
 
+	// When condition chain is present, use raw GORM
+	if params.Cond != nil && !params.Cond.IsEmpty() {
+		db := r.db.WithContext(ctx).Table("transactions")
+		db = cond.Apply(db, params.Cond, transactionColumnMapper)
+
+		// Apply default ordering if no keyset
+		if len(params.KeysetValues) == 0 {
+			db = db.Order("booked_at DESC, id DESC")
+		}
+
+		db = db.Limit(params.PageSize)
+
+		var ms []*model.Transaction_
+		if err := db.Find(&ms).Error; err != nil {
+			return nil, err
+		}
+		return ms, nil
+	}
+
 	t := r.q.Transaction_.WithContext(ctx)
-
-	if params.CreditAccountID != nil {
-		t = t.Where(r.q.Transaction_.CreditTransactionAccountID.Eq(*params.CreditAccountID))
-	}
-
-	if params.DebitAccountID != nil {
-		t = t.Where(r.q.Transaction_.DebitTransactionAccountID.Eq(*params.DebitAccountID))
-	}
-
-	if params.BookedAtStart != nil {
-		t = t.Where(r.q.Transaction_.BookedAt.Gte(*params.BookedAtStart))
-	}
-
-	if params.BookedAtEnd != nil {
-		t = t.Where(r.q.Transaction_.BookedAt.Lte(*params.BookedAtEnd))
-	}
 
 	// Apply keyset cursor if present
 	if len(params.KeysetValues) > 0 {

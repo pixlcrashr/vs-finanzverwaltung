@@ -9,6 +9,7 @@ import (
 
 type Account struct {
 	ID                 uuid.UUID     `gorm:"type:uuid;primaryKey"`
+	OrganizationID     uuid.UUID     `gorm:"type:uuid;not null;index:idx_accounts_organization_id"`
 	ParentAccountID    uuid.NullUUID `gorm:"type:uuid;index:idx_accounts_parent_account_id"`
 	DisplayName        string        `gorm:"not null;default:'';index:idx_accounts_display_name"`
 	DisplayCode        string        `gorm:"not null;default:'';index:idx_accounts_display_code"`
@@ -19,11 +20,11 @@ type Account struct {
 	CreatedAt          time.Time     `gorm:"not null;default:now()"`
 
 	// Relations
+	Organization                  Organization                   `gorm:"foreignKey:OrganizationID"`
 	ParentAccount                 *Account                       `gorm:"foreignKey:ParentAccountID"`
 	ChildAccounts                 []Account                      `gorm:"foreignKey:ParentAccountID"`
 	AccountGroupAssignments       []AccountGroupAssignment       `gorm:"foreignKey:AccountID"`
-	BudgetRevisionAccountValues   []BudgetRevisionAccountValue   `gorm:"foreignKey:AccountID"`
-	ViewAccountAssignments        []ViewAccountAssignment        `gorm:"foreignKey:AccountID"`
+	BudgetTagAccountValues        []BudgetTagAccountValue        `gorm:"foreignKey:AccountID"`
 	TransactionAccountAssignments []TransactionAccountAssignment `gorm:"foreignKey:AccountID"`
 }
 

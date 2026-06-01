@@ -7,22 +7,33 @@ import (
 	"github.com/pixlcrashr/go-pagetoken/order"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
+	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"gorm.io/gorm"
 )
 
 // ListAccountGroupAssignmentsParams drives the List query.
 type ListAccountGroupAssignmentsParams struct {
 	AccountGroupID uuid.UUID
-	// AccountID optionally filters assignments by account.
-	AccountID *uuid.UUID
-	// Negate optionally filters by negate flag.
-	Negate *bool
+	// Cond is an optional abstract condition chain (AND/OR/NOT support).
+	Cond cond.Cond
 	// OrderBy specifies the sort field and direction (e.g. "createTime desc").
 	OrderBy order.Fields
 	// Page number (1-indexed).
 	Page int
 	// PageSize caps the number of rows returned.
 	PageSize int
+}
+
+// accountGroupAssignmentColumnMapper maps filter field names to database column names.
+func accountGroupAssignmentColumnMapper(field string) (string, bool) {
+	switch field {
+	case "account_id":
+		return "account_id", true
+	case "negate":
+		return "negate", true
+	default:
+		return "", false
+	}
 }
 
 // AccountGroupAssignmentRepository provides CRUD for account_group_assignments table.
@@ -43,37 +54,37 @@ func (r *AccountGroupAssignmentRepository) List(ctx context.Context, params List
 		params.Page = 1
 	}
 
-	aga := r.q.AccountGroupAssignment.WithContext(ctx).
-		Where(r.q.AccountGroupAssignment.AccountGroupID.Eq(params.AccountGroupID))
+	db := r.db.WithContext(ctx).Table("account_group_assignments").
+		Where("account_group_id = ?", params.AccountGroupID)
 
-	if params.AccountID != nil {
-		aga = aga.Where(r.q.AccountGroupAssignment.AccountID.Eq(*params.AccountID))
-	}
-	if params.Negate != nil {
-		aga = aga.Where(r.q.AccountGroupAssignment.Negate.Is(*params.Negate))
-	}
+	// Apply abstract condition chain
+	db = cond.Apply(db, params.Cond, accountGroupAssignmentColumnMapper)
 
-	total, err := aga.Count()
-	if err != nil {
+	var total int64
+	if err := db.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	if exprs := ResolveOrderBy(&r.q.AccountGroupAssignment, params.OrderBy); len(exprs) > 0 {
-		for _, expr := range exprs {
-			aga = aga.Order(expr)
-		}
+	if params.Cond != nil && !params.Cond.IsEmpty() {
+		db = db.Order("created_at DESC")
 	} else {
-		aga = aga.Order(r.q.AccountGroupAssignment.CreatedAt.Desc())
+		if exprs := ResolveOrderBy(&r.q.AccountGroupAssignment, params.OrderBy); len(exprs) > 0 {
+			for _, expr := range exprs {
+				db = db.Order(expr)
+			}
+		} else {
+			db = db.Order("created_at DESC")
+		}
 	}
 
 	offset := (params.Page - 1) * params.PageSize
 	if offset > 0 {
-		aga = aga.Offset(offset)
+		db = db.Offset(offset)
 	}
-	aga = aga.Limit(params.PageSize)
+	db = db.Limit(params.PageSize)
 
-	ms, err := aga.Find()
-	if err != nil {
+	var ms []*model.AccountGroupAssignment
+	if err := db.Find(&ms).Error; err != nil {
 		return nil, 0, err
 	}
 

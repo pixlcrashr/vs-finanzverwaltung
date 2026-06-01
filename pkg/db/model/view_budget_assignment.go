@@ -9,8 +9,8 @@ import (
 
 type ViewBudgetAssignment struct {
 	ID        uuid.UUID `gorm:"type:uuid;primaryKey"`
-	ViewID    uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_view_budget_assignments_unique,priority:1;index:idx_view_budget_assignments_view_id"`
-	BudgetID  uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_view_budget_assignments_unique,priority:2;index:idx_view_budget_assignments_budget_id"`
+	ViewID    uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_view_budget_assignments_view_budget"`
+	BudgetID  uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_view_budget_assignments_view_budget"`
 	CreatedAt time.Time `gorm:"not null;default:now()"`
 
 	// Relations

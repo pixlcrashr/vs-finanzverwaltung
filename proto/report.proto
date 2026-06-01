@@ -1,0 +1,128 @@
+syntax = "proto3";
+
+package pixlcrashr.vsfv.v1;
+
+option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+// Report is a generated report instance produced from a ReportTemplate.
+// The rendered binary content is served exclusively via the Huma HTTP API
+// (GET /v1/reports/{reportId}:download) and is intentionally excluded here.
+message Report {
+  option (google.api.resource) = {
+    type: "vsfv.pixlcrashr.dev/Report"
+    pattern: "reports/{report}"
+  };
+
+  // The resource name of the report.
+  // Format: reports/{report}
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The UUID of the report.
+  string uid = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Human-readable name.
+  string display_name = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // UUID of the report template used to generate this report.
+  string report_template_id = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // Creation timestamp.
+  google.protobuf.Timestamp create_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message GetReportRequest {
+  // The resource name of the report.
+  // Format: reports/{report}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Report"}
+  ];
+}
+
+message ListReportsRequest {
+  // Maximum number of reports to return. The service may return fewer.
+  // If unspecified, at most 20 are returned. Maximum value is 100.
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // A page token from a previous ListReports call.
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter expression conforming to AIP-160.
+  // Supported fields: display_name, report_template_id.
+  // Example: "display_name=\"Q1 Report\"".
+  string filter = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order by expression (e.g. "display_name", "create_time desc").
+  string order_by = 4 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ListReportsResponse {
+  // The reports returned.
+  repeated Report reports = 1;
+
+  // A token to retrieve the next page of results.
+  string next_page_token = 2;
+
+  // Total number of reports matching the filter (may be an estimate).
+  int64 total_size = 3;
+}
+
+message CreateReportRequest {
+  // The report to create.
+  Report report = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message DeleteReportRequest {
+  // The resource name of the report.
+  // Format: reports/{report}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Report"}
+  ];
+}
+
+// ReportService manages generated report instances.
+// Note: report file download is handled exclusively by the Huma HTTP API.
+service ReportService {
+  option (google.api.default_host) = "vsfv.pixlcrashr.dev";
+
+  // Gets report metadata by resource name.
+  rpc GetReport(GetReportRequest) returns (Report) {
+    option (google.api.http) = {
+      get: "/v1/{name=reports/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+
+  // Lists reports with pagination.
+  rpc ListReports(ListReportsRequest) returns (ListReportsResponse) {
+    option (google.api.http) = {
+      get: "/v1/reports"
+    };
+  }
+
+  // Creates a new report by rendering a template.
+  rpc CreateReport(CreateReportRequest) returns (Report) {
+    option (google.api.http) = {
+      post: "/v1/reports"
+      body: "report"
+    };
+    option (google.api.method_signature) = "report";
+  }
+
+  // Permanently deletes a report.
+  rpc DeleteReport(DeleteReportRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/{name=reports/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+}

@@ -2,29 +2,42 @@ package repository
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/go-pagetoken/order"
-	"github.com/pixlcrashr/vsfv/pkg/api/types"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
+	"github.com/pixlcrashr/vsfv/pkg/query/cond"
+	"github.com/theater-improrama/go-utils/optional"
 	"gorm.io/gorm"
 )
 
 // ListAccountsParams drives the List query.
 type ListAccountsParams struct {
-	// NamePrefix filters accounts whose display_name starts with this string (case-insensitive).
-	NamePrefix string
-	// IncludeArchived includes archived accounts when true.
-	IncludeArchived bool
+	// Cond is an optional abstract condition chain (AND/OR/NOT support).
+	// When set, it is applied in addition to individual filter fields.
+	Cond cond.Cond
 	// OrderBy specifies the sort field and direction (e.g. "displayName", "createTime desc").
 	OrderBy order.Fields
 	// Page number (1-indexed).
 	Page int
 	// PageSize caps the number of rows returned.
 	PageSize int
+}
+
+// accountColumnMapper maps filter field names to database column names.
+func accountColumnMapper(field string) (string, bool) {
+	switch field {
+	case "display_name":
+		return "display_name", true
+	case "display_code":
+		return "display_code", true
+	case "is_archived":
+		return "is_archived", true
+	default:
+		return "", false
+	}
 }
 
 // AccountRepository provides CRUD and specialised queries for the accounts table.
@@ -47,40 +60,49 @@ func (r *AccountRepository) List(ctx context.Context, params ListAccountsParams)
 		params.Page = 1
 	}
 
-	a := r.q.Account.WithContext(ctx)
+	var db *gorm.DB
 
-	if params.NamePrefix != "" {
-		a = a.Where(r.q.Account.DisplayName.Lower().Like("%" + strings.ToLower(params.NamePrefix) + "%"))
-	}
+	// When condition chain is present, use raw GORM for flexible SQL
+	if params.Cond != nil && !params.Cond.IsEmpty() {
+		db = r.db.WithContext(ctx).Table("accounts")
 
-	if !params.IncludeArchived {
-		a = a.Where(r.q.Account.IsArchived.Is(false))
+		// Apply abstract condition chain
+		db = cond.Apply(db, params.Cond, accountColumnMapper)
+	} else {
+		// Use generated query builder for simple filters
+		a := r.q.Account.WithContext(ctx)
+
+		db = a.UnderlyingDB()
 	}
 
 	// Get total count before pagination
-	total, err := a.Count()
-	if err != nil {
+	var total int64
+	if err := db.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
 	// Apply ordering
-	if exprs := ResolveOrderBy(&r.q.Account, params.OrderBy); len(exprs) > 0 {
-		for _, expr := range exprs {
-			a = a.Order(expr)
-		}
+	if params.Cond != nil && !params.Cond.IsEmpty() {
+		db = db.Order("created_at DESC")
 	} else {
-		a = a.Order(r.q.Account.CreatedAt.Desc())
+		if exprs := ResolveOrderBy(&r.q.Account, params.OrderBy); len(exprs) > 0 {
+			for _, expr := range exprs {
+				db = db.Order(expr)
+			}
+		} else {
+			db = db.Order("created_at DESC")
+		}
 	}
 
 	// Apply pagination
 	offset := (params.Page - 1) * params.PageSize
 	if offset > 0 {
-		a = a.Offset(offset)
+		db = db.Offset(offset)
 	}
-	a = a.Limit(params.PageSize)
+	db = db.Limit(params.PageSize)
 
-	ms, err := a.Find()
-	if err != nil {
+	var ms []*model.Account
+	if err := db.Find(&ms).Error; err != nil {
 		return nil, 0, err
 	}
 
@@ -142,7 +164,7 @@ func (r *AccountRepository) HasTransactionAssignments(ctx context.Context, accou
 
 // ListNestedParams drives the ListNested query.
 type ListNestedParams struct {
-	IsArchived types.Optional[bool]
+	IsArchived optional.Optional[bool]
 }
 
 // ListNested returns accounts for building a hierarchical view.
@@ -159,7 +181,7 @@ func (r *AccountRepository) ListNested(ctx context.Context, params ListNestedPar
 
 // GetSubtree returns the account and all its descendants starting from rootAccountID.
 // If isArchived is set, filters by that status; otherwise returns all accounts.
-func (r *AccountRepository) GetSubtree(ctx context.Context, rootAccountID uuid.UUID, isArchived types.Optional[bool]) ([]*model.Account, error) {
+func (r *AccountRepository) GetSubtree(ctx context.Context, rootAccountID uuid.UUID, isArchived optional.Optional[bool]) ([]*model.Account, error) {
 	type row struct {
 		ID                 uuid.UUID     `gorm:"column:id"`
 		ParentAccountID    uuid.NullUUID `gorm:"column:parent_account_id"`

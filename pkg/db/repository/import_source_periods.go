@@ -7,18 +7,33 @@ import (
 	"github.com/pixlcrashr/go-pagetoken/order"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
+	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"gorm.io/gorm"
 )
 
 // ListImportSourcePeriodsParams drives the List query.
 type ListImportSourcePeriodsParams struct {
 	ImportSourceID uuid.UUID
+	// Cond is an optional abstract condition chain (AND/OR/NOT support).
+	Cond cond.Cond
 	// OrderBy specifies the ordering expression (e.g., "year desc").
 	OrderBy order.Fields
 	// Page number (1-indexed).
 	Page int
 	// PageSize caps the number of rows returned.
 	PageSize int
+}
+
+// importSourcePeriodColumnMapper maps filter field names to database column names.
+func importSourcePeriodColumnMapper(field string) (string, bool) {
+	switch field {
+	case "year":
+		return "year", true
+	case "is_closed":
+		return "is_closed", true
+	default:
+		return "", false
+	}
 }
 
 type ImportSourcePeriodRepository struct {
@@ -38,31 +53,37 @@ func (r *ImportSourcePeriodRepository) List(ctx context.Context, params ListImpo
 		params.Page = 1
 	}
 
-	isp := r.q.ImportSourcePeriod.WithContext(ctx).
-		Where(r.q.ImportSourcePeriod.ImportSourceID.Eq(params.ImportSourceID))
+	db := r.db.WithContext(ctx).Table("import_source_periods").
+		Where("import_source_id = ?", params.ImportSourceID)
 
-	total, err := isp.Count()
-	if err != nil {
+	// Apply abstract condition chain
+	db = cond.Apply(db, params.Cond, importSourcePeriodColumnMapper)
+
+	var total int64
+	if err := db.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	// Apply ordering
-	if exprs := ResolveOrderBy(&r.q.ImportSourcePeriod, params.OrderBy); len(exprs) > 0 {
-		for _, expr := range exprs {
-			isp = isp.Order(expr)
-		}
+	if params.Cond != nil && !params.Cond.IsEmpty() {
+		db = db.Order("year DESC")
 	} else {
-		isp = isp.Order(r.q.ImportSourcePeriod.Year.Desc())
+		if exprs := ResolveOrderBy(&r.q.ImportSourcePeriod, params.OrderBy); len(exprs) > 0 {
+			for _, expr := range exprs {
+				db = db.Order(expr)
+			}
+		} else {
+			db = db.Order("year DESC")
+		}
 	}
 
 	offset := (params.Page - 1) * params.PageSize
 	if offset > 0 {
-		isp = isp.Offset(offset)
+		db = db.Offset(offset)
 	}
-	isp = isp.Limit(params.PageSize)
+	db = db.Limit(params.PageSize)
 
-	ms, err := isp.Find()
-	if err != nil {
+	var ms []*model.ImportSourcePeriod
+	if err := db.Find(&ms).Error; err != nil {
 		return nil, 0, err
 	}
 

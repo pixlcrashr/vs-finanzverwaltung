@@ -1,0 +1,146 @@
+syntax = "proto3";
+
+package pixlcrashr.vsfv.v1;
+
+option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+// AccountGroup is a named grouping of budget accounts.
+message AccountGroup {
+  option (google.api.resource) = {
+    type: "vsfv.pixlcrashr.dev/AccountGroup"
+    pattern: "accountGroups/{account_group}"
+  };
+
+  // The resource name of the account group.
+  // Format: accountGroups/{account_group}
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The UUID of the account group.
+  string uid = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Human-readable account group name.
+  string display_name = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // Optional free-text description.
+  string display_description = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Last modification timestamp.
+  google.protobuf.Timestamp update_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Creation timestamp.
+  google.protobuf.Timestamp create_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message GetAccountGroupRequest {
+  // The resource name of the account group.
+  // Format: accountGroups/{account_group}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/AccountGroup"}
+  ];
+}
+
+message ListAccountGroupsRequest {
+  // Maximum number of account groups to return. The service may return fewer.
+  // If unspecified, at most 20 are returned. Maximum value is 100.
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // A page token from a previous ListAccountGroups call.
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter expression conforming to AIP-160.
+  // Supported fields: display_name.
+  // Example: "display_name=\"Overhead\"".
+  string filter = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order by expression (e.g. "display_name", "create_time desc").
+  string order_by = 4 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ListAccountGroupsResponse {
+  // The account groups returned.
+  repeated AccountGroup account_groups = 1;
+
+  // A token to retrieve the next page of results.
+  string next_page_token = 2;
+
+  // Total number of account groups matching the filter (may be an estimate).
+  int64 total_size = 3;
+}
+
+message CreateAccountGroupRequest {
+  // The account group to create.
+  AccountGroup account_group = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message UpdateAccountGroupRequest {
+  // The account group to update.
+  AccountGroup account_group = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The list of fields to update.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message DeleteAccountGroupRequest {
+  // The resource name of the account group.
+  // Format: accountGroups/{account_group}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/AccountGroup"}
+  ];
+}
+
+// AccountGroupService manages named groupings of budget accounts.
+service AccountGroupService {
+  option (google.api.default_host) = "vsfv.pixlcrashr.dev";
+
+  // Gets a single account group by resource name.
+  rpc GetAccountGroup(GetAccountGroupRequest) returns (AccountGroup) {
+    option (google.api.http) = {
+      get: "/v1/{name=accountGroups/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+
+  // Lists account groups with pagination.
+  rpc ListAccountGroups(ListAccountGroupsRequest) returns (ListAccountGroupsResponse) {
+    option (google.api.http) = {
+      get: "/v1/accountGroups"
+    };
+  }
+
+  // Creates a new account group.
+  rpc CreateAccountGroup(CreateAccountGroupRequest) returns (AccountGroup) {
+    option (google.api.http) = {
+      post: "/v1/accountGroups"
+      body: "account_group"
+    };
+    option (google.api.method_signature) = "account_group";
+  }
+
+  // Updates an existing account group.
+  rpc UpdateAccountGroup(UpdateAccountGroupRequest) returns (AccountGroup) {
+    option (google.api.http) = {
+      patch: "/v1/{account_group.name=accountGroups/*}"
+      body: "account_group"
+    };
+    option (google.api.method_signature) = "account_group,update_mask";
+  }
+
+  // Permanently deletes an account group.
+  rpc DeleteAccountGroup(DeleteAccountGroupRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/{name=accountGroups/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+}

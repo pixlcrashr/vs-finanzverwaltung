@@ -8,11 +8,11 @@ import (
 )
 
 type View struct {
-	ID                          uuid.UUID `gorm:"type:uuid;primaryKey"`
-	DisplayName                 string    `gorm:"not null;default:'';index:idx_views_display_name"`
-	DisplayDescription          string    `gorm:"not null;default:'';index:idx_views_display_description"`
-	UpdatedAt                   time.Time `gorm:"not null;default:now()"`
-	CreatedAt                   time.Time `gorm:"not null;default:now()"`
+	ID                 uuid.UUID `gorm:"type:uuid;primaryKey"`
+	DisplayName        string    `gorm:"not null;default:''"`
+	DisplayDescription string    `gorm:"not null;default:''"`
+	UpdatedAt          time.Time `gorm:"not null;default:now()"`
+	CreatedAt          time.Time `gorm:"not null;default:now()"`
 
 	// Relations
 	ViewAccountAssignments      []ViewAccountAssignment      `gorm:"foreignKey:ViewID"`

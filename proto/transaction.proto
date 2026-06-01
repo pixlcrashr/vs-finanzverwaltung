@@ -1,0 +1,168 @@
+syntax = "proto3";
+
+package pixlcrashr.vsfv.v1;
+
+option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+// Transaction represents a financial transaction between two transaction accounts.
+message Transaction {
+  option (google.api.resource) = {
+    type: "vsfv.pixlcrashr.dev/Transaction"
+    pattern: "transactions/{transaction}"
+  };
+
+  // The resource name of the transaction.
+  // Format: transactions/{transaction}
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The UUID of the transaction.
+  string uid = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // UUID of the credit transaction account.
+  string credit_transaction_account_id = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // UUID of the debit transaction account.
+  string debit_transaction_account_id = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // Transaction amount as decimal string (e.g. "123.45").
+  string amount = 5 [(google.api.field_behavior) = REQUIRED];
+
+  // Human-readable transaction description.
+  string description = 6 [(google.api.field_behavior) = OPTIONAL];
+
+  // External reference identifier.
+  string reference = 7 [(google.api.field_behavior) = OPTIONAL];
+
+  // UUID of the budget account this transaction is assigned to.
+  string assigned_account_id = 8 [(google.api.field_behavior) = OPTIONAL];
+
+  // Booking date.
+  google.protobuf.Timestamp booked_at = 9 [(google.api.field_behavior) = REQUIRED];
+
+  // Document date.
+  google.protobuf.Timestamp document_date = 10 [(google.api.field_behavior) = REQUIRED];
+
+  // Optional custom external ID.
+  string custom_id = 11 [(google.api.field_behavior) = OPTIONAL];
+
+  // Last modification timestamp.
+  google.protobuf.Timestamp update_time = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Creation timestamp.
+  google.protobuf.Timestamp create_time = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message GetTransactionRequest {
+  // The resource name of the transaction.
+  // Format: transactions/{transaction}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Transaction"}
+  ];
+}
+
+message ListTransactionsRequest {
+  // Maximum number of transactions to return. The service may return fewer.
+  // If unspecified, at most 20 are returned. Maximum value is 100.
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // A page token from a previous ListTransactions call.
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter expression conforming to AIP-160.
+  // Supported fields: credit_transaction_account_id, debit_transaction_account_id,
+  // booked_at, document_date, amount.
+  // Example: "credit_transaction_account_id=\"<uuid>\" AND booked_at>=\"2025-01-01T00:00:00Z\"".
+  string filter = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order by expression (e.g. "booked_at desc", "amount").
+  string order_by = 4 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ListTransactionsResponse {
+  // The transactions returned.
+  repeated Transaction transactions = 1;
+
+  // A token to retrieve the next page of results.
+  string next_page_token = 2;
+
+  // Total number of transactions matching the filter (may be an estimate).
+  int64 total_size = 3;
+}
+
+message CreateTransactionRequest {
+  // The transaction to create.
+  Transaction transaction = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message UpdateTransactionRequest {
+  // The transaction to update.
+  Transaction transaction = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The list of fields to update.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message DeleteTransactionRequest {
+  // The resource name of the transaction.
+  // Format: transactions/{transaction}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Transaction"}
+  ];
+}
+
+// TransactionService manages financial transactions.
+service TransactionService {
+  option (google.api.default_host) = "vsfv.pixlcrashr.dev";
+
+  // Gets a single transaction by resource name.
+  rpc GetTransaction(GetTransactionRequest) returns (Transaction) {
+    option (google.api.http) = {
+      get: "/v1/{name=transactions/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+
+  // Lists transactions with keyset pagination and optional filters.
+  rpc ListTransactions(ListTransactionsRequest) returns (ListTransactionsResponse) {
+    option (google.api.http) = {
+      get: "/v1/transactions"
+    };
+  }
+
+  // Creates a new transaction.
+  rpc CreateTransaction(CreateTransactionRequest) returns (Transaction) {
+    option (google.api.http) = {
+      post: "/v1/transactions"
+      body: "transaction"
+    };
+    option (google.api.method_signature) = "transaction";
+  }
+
+  // Updates an existing transaction.
+  rpc UpdateTransaction(UpdateTransactionRequest) returns (Transaction) {
+    option (google.api.http) = {
+      patch: "/v1/{transaction.name=transactions/*}"
+      body: "transaction"
+    };
+    option (google.api.method_signature) = "transaction,update_mask";
+  }
+
+  // Permanently deletes a transaction.
+  rpc DeleteTransaction(DeleteTransactionRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/{name=transactions/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+}

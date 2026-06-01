@@ -1,0 +1,37 @@
+package model
+
+import (
+	"time"
+
+	"github.com/cockroachdb/apd/v3"
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+)
+
+type BudgetTagAccountValue struct {
+	ID             uuid.UUID   `gorm:"type:uuid;primaryKey"`
+	OrganizationID uuid.UUID   `gorm:"type:uuid;not null;index:idx_budget_tag_account_values_organization_id"`
+	BudgetTagID    uuid.UUID   `gorm:"type:uuid;not null;index:idx_budget_revision_account_values_budget_id"`
+	AccountID      uuid.UUID   `gorm:"type:uuid;not null;index:idx_budget_revision_account_values_account_id"`
+	Value          apd.Decimal `gorm:"type:decimal;not null;default:0;index:idx_budget_revision_account_values_value"`
+	UpdatedAt      time.Time   `gorm:"not null;default:now()"`
+	CreatedAt      time.Time   `gorm:"not null;default:now()"`
+
+	// Relations
+	Organization Organization `gorm:"foreignKey:OrganizationID"`
+	BudgetTag    BudgetTag    `gorm:"foreignKey:BudgetTagID"`
+	Account      Account      `gorm:"foreignKey:AccountID"`
+}
+
+func (BudgetTagAccountValue) TableName() string { return "budget_revision_account_values" }
+
+func (m *BudgetTagAccountValue) BeforeCreate(tx *gorm.DB) error {
+	if m.ID == uuid.Nil {
+		m.ID = uuid.New()
+	}
+	return nil
+}
+
+func (m *BudgetTagAccountValue) Exists() bool {
+	return m != nil && m.ID != uuid.Nil
+}

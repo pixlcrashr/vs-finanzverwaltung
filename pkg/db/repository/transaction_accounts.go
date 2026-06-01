@@ -2,27 +2,39 @@ package repository
 
 import (
 	"context"
-	"strings"
 
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/go-pagetoken/order"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
+	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"gorm.io/gorm"
 )
 
 // ListTransactionAccountsParams drives the List query.
 type ListTransactionAccountsParams struct {
-	// ImportSourceID filters by import source.
-	ImportSourceID *uuid.UUID
-	// CodePrefix filters by code prefix.
-	CodePrefix string
+	// Cond is an optional abstract condition chain (AND/OR/NOT support).
+	Cond cond.Cond
 	// OrderBy specifies the ordering expression (e.g., "code asc").
 	OrderBy order.Fields
 	// Page number (1-indexed).
 	Page int
 	// PageSize caps the number of rows returned.
 	PageSize int
+}
+
+// transactionAccountColumnMapper maps filter field names to database column names.
+func transactionAccountColumnMapper(field string) (string, bool) {
+	switch field {
+	case "import_source_id":
+		return "import_source_id", true
+	case "code":
+		return "code", true
+	case "display_name":
+		return "display_name", true
+	default:
+		return "", false
+	}
 }
 
 // TransactionAccountRepository provides CRUD for transaction_accounts table.
@@ -45,40 +57,36 @@ func (r *TransactionAccountRepository) List(ctx context.Context, params ListTran
 		params.Page = 1
 	}
 
-	ta := r.q.TransactionAccount.WithContext(ctx)
+	db := r.db.WithContext(ctx).Table("transaction_accounts")
 
-	if params.ImportSourceID != nil {
-		ta = ta.Where(r.q.TransactionAccount.ImportSourceID.Eq(*params.ImportSourceID))
-	}
+	// Apply abstract condition chain
+	db = cond.Apply(db, params.Cond, transactionAccountColumnMapper)
 
-	if params.CodePrefix != "" {
-		ta = ta.Where(r.q.TransactionAccount.Code.Lower().Like(strings.ToLower(params.CodePrefix) + "%"))
-	}
-
-	// Get total count before pagination
-	total, err := ta.Count()
-	if err != nil {
+	var total int64
+	if err := db.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	// Apply ordering
-	if exprs := ResolveOrderBy(&r.q.TransactionAccount, params.OrderBy); len(exprs) > 0 {
-		for _, expr := range exprs {
-			ta = ta.Order(expr)
-		}
+	if params.Cond != nil && !params.Cond.IsEmpty() {
+		db = db.Order("code ASC")
 	} else {
-		ta = ta.Order(r.q.TransactionAccount.Code.Asc())
+		if exprs := ResolveOrderBy(&r.q.TransactionAccount, params.OrderBy); len(exprs) > 0 {
+			for _, expr := range exprs {
+				db = db.Order(expr)
+			}
+		} else {
+			db = db.Order("code ASC")
+		}
 	}
 
-	// Apply pagination
 	offset := (params.Page - 1) * params.PageSize
 	if offset > 0 {
-		ta = ta.Offset(offset)
+		db = db.Offset(offset)
 	}
-	ta = ta.Limit(params.PageSize)
+	db = db.Limit(params.PageSize)
 
-	ms, err := ta.Find()
-	if err != nil {
+	var ms []*model.TransactionAccount
+	if err := db.Find(&ms).Error; err != nil {
 		return nil, 0, err
 	}
 

@@ -9,8 +9,8 @@ import (
 
 type ViewAccountAssignment struct {
 	ID        uuid.UUID `gorm:"type:uuid;primaryKey"`
-	ViewID    uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_view_account_assignments_unique,priority:1;index:idx_view_account_assignments_view_id"`
-	AccountID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_view_account_assignments_unique,priority:2;index:idx_view_account_assignments_account_id"`
+	ViewID    uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_view_account_assignments_view_account"`
+	AccountID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_view_account_assignments_view_account"`
 	CreatedAt time.Time `gorm:"not null;default:now()"`
 
 	// Relations

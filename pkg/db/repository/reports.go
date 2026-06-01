@@ -2,25 +2,35 @@ package repository
 
 import (
 	"context"
-	"strings"
 
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/go-pagetoken/order"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
+	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"gorm.io/gorm"
 )
 
 // ListReportsParams drives the List query.
 type ListReportsParams struct {
-	// NamePrefix filters by name prefix.
-	NamePrefix string
+	// Cond is an optional abstract condition chain (AND/OR/NOT support).
+	Cond cond.Cond
 	// OrderBy specifies the ordering expression (e.g., "created_at desc").
 	OrderBy order.Fields
 	// Page number (1-indexed).
 	Page int
 	// PageSize caps the number of rows returned.
 	PageSize int
+}
+
+// reportColumnMapper maps filter field names to database column names.
+func reportColumnMapper(field string) (string, bool) {
+	switch field {
+	case "display_name":
+		return "display_name", true
+	default:
+		return "", false
+	}
 }
 
 // ReportRepository provides CRUD for reports table.
@@ -43,36 +53,36 @@ func (r *ReportRepository) List(ctx context.Context, params ListReportsParams) (
 		params.Page = 1
 	}
 
-	rp := r.q.Report.WithContext(ctx)
+	db := r.db.WithContext(ctx).Table("reports")
 
-	if params.NamePrefix != "" {
-		rp = rp.Where(r.q.Report.DisplayName.Lower().Like(strings.ToLower(params.NamePrefix) + "%"))
-	}
+	// Apply abstract condition chain
+	db = cond.Apply(db, params.Cond, reportColumnMapper)
 
-	// Get total count before pagination
-	total, err := rp.Count()
-	if err != nil {
+	var total int64
+	if err := db.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	// Apply ordering
-	if exprs := ResolveOrderBy(&r.q.Report, params.OrderBy); len(exprs) > 0 {
-		for _, expr := range exprs {
-			rp = rp.Order(expr)
-		}
+	if params.Cond != nil && !params.Cond.IsEmpty() {
+		db = db.Order("created_at DESC")
 	} else {
-		rp = rp.Order(r.q.Report.CreatedAt.Desc())
+		if exprs := ResolveOrderBy(&r.q.Report, params.OrderBy); len(exprs) > 0 {
+			for _, expr := range exprs {
+				db = db.Order(expr)
+			}
+		} else {
+			db = db.Order("created_at DESC")
+		}
 	}
 
-	// Apply pagination
 	offset := (params.Page - 1) * params.PageSize
 	if offset > 0 {
-		rp = rp.Offset(offset)
+		db = db.Offset(offset)
 	}
-	rp = rp.Limit(params.PageSize)
+	db = db.Limit(params.PageSize)
 
-	ms, err := rp.Find()
-	if err != nil {
+	var ms []*model.Report
+	if err := db.Find(&ms).Error; err != nil {
 		return nil, 0, err
 	}
 

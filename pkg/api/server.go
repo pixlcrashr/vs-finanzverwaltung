@@ -7,8 +7,11 @@ import (
 	"github.com/danielgtaylor/huma/v2/adapters/humafiber"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/etag"
 	"gorm.io/gorm"
 
+	apiserv "github.com/pixlcrashr/vsfv/pkg/api/grpc"
+	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services"
 	"github.com/pixlcrashr/vsfv/pkg/cfg"
 )
 
@@ -25,8 +28,8 @@ func New(db *gorm.DB, version string, corsCfg cfg.CORS) *Server {
 		// Disable default startup banner — the serve command prints its own.
 		DisableStartupMessage: true,
 		CaseSensitive:         true,
-		ETag:                  true,
 	})
+	app.Use(etag.New())
 
 	if corsCfg.Enabled {
 		app.Use(cors.New(cors.Config{
@@ -44,6 +47,7 @@ func New(db *gorm.DB, version string, corsCfg cfg.CORS) *Server {
 
 	s := &Server{app: app, API: api}
 	RegisterRoutes(s.API, db)
+	apiserv.RegisterRoutes(app, services.New(db))
 	return s
 }
 

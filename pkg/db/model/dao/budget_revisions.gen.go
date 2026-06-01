@@ -19,918 +19,803 @@ import (
 	"gorm.io/plugin/dbresolver"
 )
 
-func newBudgetRevision(db *gorm.DB, opts ...gen.DOOption) budgetRevision {
-	_budgetRevision := budgetRevision{}
+func newBudgetTag(db *gorm.DB, opts ...gen.DOOption) budgetTag {
+	_budgetTag := budgetTag{}
 
-	_budgetRevision.budgetRevisionDo.UseDB(db, opts...)
-	_budgetRevision.budgetRevisionDo.UseModel(&model.BudgetRevision{})
+	_budgetTag.budgetTagDo.UseDB(db, opts...)
+	_budgetTag.budgetTagDo.UseModel(&model.BudgetTag{})
 
-	tableName := _budgetRevision.budgetRevisionDo.TableName()
-	_budgetRevision.ALL = field.NewAsterisk(tableName)
-	_budgetRevision.ID = field.NewField(tableName, "id")
-	_budgetRevision.BudgetID = field.NewField(tableName, "budget_id")
-	_budgetRevision.Date = field.NewTime(tableName, "date")
-	_budgetRevision.DisplayDescription = field.NewString(tableName, "display_description")
-	_budgetRevision.UpdatedAt = field.NewTime(tableName, "updated_at")
-	_budgetRevision.CreatedAt = field.NewTime(tableName, "created_at")
-	_budgetRevision.BudgetRevisionAccountValues = budgetRevisionHasManyBudgetRevisionAccountValues{
+	tableName := _budgetTag.budgetTagDo.TableName()
+	_budgetTag.ALL = field.NewAsterisk(tableName)
+	_budgetTag.ID = field.NewField(tableName, "id")
+	_budgetTag.OrganizationID = field.NewField(tableName, "organization_id")
+	_budgetTag.BudgetID = field.NewField(tableName, "budget_id")
+	_budgetTag.Date = field.NewTime(tableName, "date")
+	_budgetTag.DisplayDescription = field.NewString(tableName, "display_description")
+	_budgetTag.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_budgetTag.CreatedAt = field.NewTime(tableName, "created_at")
+	_budgetTag.BudgetTagAccountValues = budgetTagHasManyBudgetTagAccountValues{
 		db: db.Session(&gorm.Session{}),
 
-		RelationField: field.NewRelation("BudgetRevisionAccountValues", "model.BudgetRevisionAccountValue"),
-		BudgetRevision: struct {
+		RelationField: field.NewRelation("BudgetTagAccountValues", "model.BudgetTagAccountValue"),
+		Organization: struct {
 			field.RelationField
-			Budget struct {
+			AccountGroupAssignments struct {
 				field.RelationField
-				BudgetRevisions struct {
+				Organization struct {
 					field.RelationField
 				}
-				ViewBudgetAssignments struct {
+				AccountGroup struct {
 					field.RelationField
-					View struct {
+					Organization struct {
 						field.RelationField
-						ViewAccountAssignments struct {
-							field.RelationField
-							View struct {
-								field.RelationField
-							}
-							Account struct {
-								field.RelationField
-								ParentAccount struct {
-									field.RelationField
-								}
-								ChildAccounts struct {
-									field.RelationField
-								}
-								AccountGroupAssignments struct {
-									field.RelationField
-									AccountGroup struct {
-										field.RelationField
-										AccountGroupAssignments struct {
-											field.RelationField
-										}
-										ViewAccountGroupAssignments struct {
-											field.RelationField
-											View struct {
-												field.RelationField
-											}
-											AccountGroup struct {
-												field.RelationField
-											}
-										}
-									}
-									Account struct {
-										field.RelationField
-									}
-								}
-								BudgetRevisionAccountValues struct {
-									field.RelationField
-								}
-								ViewAccountAssignments struct {
-									field.RelationField
-								}
-								TransactionAccountAssignments struct {
-									field.RelationField
-									Transaction struct {
-										field.RelationField
-										AssignedAccount struct {
-											field.RelationField
-										}
-										CreditTransactionAccount struct {
-											field.RelationField
-											ImportSource struct {
-												field.RelationField
-												TransactionAccounts struct {
-													field.RelationField
-												}
-												ImportSourcePeriods struct {
-													field.RelationField
-													ImportSource struct {
-														field.RelationField
-													}
-												}
-											}
-											CreditTransactions struct {
-												field.RelationField
-											}
-											DebitTransactions struct {
-												field.RelationField
-											}
-										}
-										DebitTransactionAccount struct {
-											field.RelationField
-										}
-										TransactionAccountAssignments struct {
-											field.RelationField
-										}
-									}
-									Account struct {
-										field.RelationField
-									}
-								}
-							}
-						}
-						ViewAccountGroupAssignments struct {
-							field.RelationField
-						}
-						ViewBudgetAssignments struct {
-							field.RelationField
-						}
 					}
-					Budget struct {
+					AccountGroupAssignments struct {
 						field.RelationField
+					}
+				}
+				Account struct {
+					field.RelationField
+					Organization struct {
+						field.RelationField
+					}
+					ParentAccount struct {
+						field.RelationField
+					}
+					ChildAccounts struct {
+						field.RelationField
+					}
+					AccountGroupAssignments struct {
+						field.RelationField
+					}
+					BudgetTagAccountValues struct {
+						field.RelationField
+					}
+					TransactionAccountAssignments struct {
+						field.RelationField
+						Organization struct {
+							field.RelationField
+						}
+						Transaction struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							CreditTransactionAccount struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								ImportSource struct {
+									field.RelationField
+									Organization struct {
+										field.RelationField
+									}
+									TransactionAccounts struct {
+										field.RelationField
+									}
+									ImportSourcePeriods struct {
+										field.RelationField
+										Organization struct {
+											field.RelationField
+										}
+										ImportSource struct {
+											field.RelationField
+										}
+									}
+								}
+								CreditTransactions struct {
+									field.RelationField
+								}
+								DebitTransactions struct {
+									field.RelationField
+								}
+							}
+							DebitTransactionAccount struct {
+								field.RelationField
+							}
+							TransactionAccountAssignments struct {
+								field.RelationField
+							}
+						}
+						Account struct {
+							field.RelationField
+						}
 					}
 				}
 			}
-			BudgetRevisionAccountValues struct {
+			AccountGroups struct {
 				field.RelationField
+			}
+			Accounts struct {
+				field.RelationField
+			}
+			BudgetTags struct {
+				field.RelationField
+				Organization struct {
+					field.RelationField
+				}
+				Budget struct {
+					field.RelationField
+					Organization struct {
+						field.RelationField
+					}
+					BudgetTags struct {
+						field.RelationField
+					}
+				}
+				BudgetTagAccountValues struct {
+					field.RelationField
+				}
+			}
+			BudgetTagAccountValues struct {
+				field.RelationField
+			}
+			Budgets struct {
+				field.RelationField
+			}
+			ImportSourcePeriods struct {
+				field.RelationField
+			}
+			ImportSources struct {
+				field.RelationField
+			}
+			ReportTemplates struct {
+				field.RelationField
+				Organization struct {
+					field.RelationField
+				}
+			}
+			Reports struct {
+				field.RelationField
+				Organization struct {
+					field.RelationField
+				}
+			}
+			Transactions struct {
+				field.RelationField
+			}
+			TransactionAccountAssignments struct {
+				field.RelationField
+			}
+			TransactionAccounts struct {
+				field.RelationField
+			}
+			UserGroups struct {
+				field.RelationField
+				Organization struct {
+					field.RelationField
+				}
 			}
 		}{
-			RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision", "model.BudgetRevision"),
-			Budget: struct {
+			RelationField: field.NewRelation("BudgetTagAccountValues.Organization", "model.Organization"),
+			AccountGroupAssignments: struct {
 				field.RelationField
-				BudgetRevisions struct {
+				Organization struct {
 					field.RelationField
 				}
-				ViewBudgetAssignments struct {
+				AccountGroup struct {
 					field.RelationField
-					View struct {
+					Organization struct {
 						field.RelationField
-						ViewAccountAssignments struct {
-							field.RelationField
-							View struct {
-								field.RelationField
-							}
-							Account struct {
-								field.RelationField
-								ParentAccount struct {
-									field.RelationField
-								}
-								ChildAccounts struct {
-									field.RelationField
-								}
-								AccountGroupAssignments struct {
-									field.RelationField
-									AccountGroup struct {
-										field.RelationField
-										AccountGroupAssignments struct {
-											field.RelationField
-										}
-										ViewAccountGroupAssignments struct {
-											field.RelationField
-											View struct {
-												field.RelationField
-											}
-											AccountGroup struct {
-												field.RelationField
-											}
-										}
-									}
-									Account struct {
-										field.RelationField
-									}
-								}
-								BudgetRevisionAccountValues struct {
-									field.RelationField
-								}
-								ViewAccountAssignments struct {
-									field.RelationField
-								}
-								TransactionAccountAssignments struct {
-									field.RelationField
-									Transaction struct {
-										field.RelationField
-										AssignedAccount struct {
-											field.RelationField
-										}
-										CreditTransactionAccount struct {
-											field.RelationField
-											ImportSource struct {
-												field.RelationField
-												TransactionAccounts struct {
-													field.RelationField
-												}
-												ImportSourcePeriods struct {
-													field.RelationField
-													ImportSource struct {
-														field.RelationField
-													}
-												}
-											}
-											CreditTransactions struct {
-												field.RelationField
-											}
-											DebitTransactions struct {
-												field.RelationField
-											}
-										}
-										DebitTransactionAccount struct {
-											field.RelationField
-										}
-										TransactionAccountAssignments struct {
-											field.RelationField
-										}
-									}
-									Account struct {
-										field.RelationField
-									}
-								}
-							}
-						}
-						ViewAccountGroupAssignments struct {
-							field.RelationField
-						}
-						ViewBudgetAssignments struct {
-							field.RelationField
-						}
 					}
-					Budget struct {
+					AccountGroupAssignments struct {
 						field.RelationField
 					}
 				}
+				Account struct {
+					field.RelationField
+					Organization struct {
+						field.RelationField
+					}
+					ParentAccount struct {
+						field.RelationField
+					}
+					ChildAccounts struct {
+						field.RelationField
+					}
+					AccountGroupAssignments struct {
+						field.RelationField
+					}
+					BudgetTagAccountValues struct {
+						field.RelationField
+					}
+					TransactionAccountAssignments struct {
+						field.RelationField
+						Organization struct {
+							field.RelationField
+						}
+						Transaction struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							CreditTransactionAccount struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								ImportSource struct {
+									field.RelationField
+									Organization struct {
+										field.RelationField
+									}
+									TransactionAccounts struct {
+										field.RelationField
+									}
+									ImportSourcePeriods struct {
+										field.RelationField
+										Organization struct {
+											field.RelationField
+										}
+										ImportSource struct {
+											field.RelationField
+										}
+									}
+								}
+								CreditTransactions struct {
+									field.RelationField
+								}
+								DebitTransactions struct {
+									field.RelationField
+								}
+							}
+							DebitTransactionAccount struct {
+								field.RelationField
+							}
+							TransactionAccountAssignments struct {
+								field.RelationField
+							}
+						}
+						Account struct {
+							field.RelationField
+						}
+					}
+				}
 			}{
-				RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget", "model.Budget"),
-				BudgetRevisions: struct {
+				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments", "model.AccountGroupAssignment"),
+				Organization: struct {
 					field.RelationField
 				}{
-					RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.BudgetRevisions", "model.BudgetRevision"),
+					RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Organization", "model.Organization"),
 				},
-				ViewBudgetAssignments: struct {
+				AccountGroup: struct {
 					field.RelationField
-					View struct {
+					Organization struct {
 						field.RelationField
-						ViewAccountAssignments struct {
-							field.RelationField
-							View struct {
-								field.RelationField
-							}
-							Account struct {
-								field.RelationField
-								ParentAccount struct {
-									field.RelationField
-								}
-								ChildAccounts struct {
-									field.RelationField
-								}
-								AccountGroupAssignments struct {
-									field.RelationField
-									AccountGroup struct {
-										field.RelationField
-										AccountGroupAssignments struct {
-											field.RelationField
-										}
-										ViewAccountGroupAssignments struct {
-											field.RelationField
-											View struct {
-												field.RelationField
-											}
-											AccountGroup struct {
-												field.RelationField
-											}
-										}
-									}
-									Account struct {
-										field.RelationField
-									}
-								}
-								BudgetRevisionAccountValues struct {
-									field.RelationField
-								}
-								ViewAccountAssignments struct {
-									field.RelationField
-								}
-								TransactionAccountAssignments struct {
-									field.RelationField
-									Transaction struct {
-										field.RelationField
-										AssignedAccount struct {
-											field.RelationField
-										}
-										CreditTransactionAccount struct {
-											field.RelationField
-											ImportSource struct {
-												field.RelationField
-												TransactionAccounts struct {
-													field.RelationField
-												}
-												ImportSourcePeriods struct {
-													field.RelationField
-													ImportSource struct {
-														field.RelationField
-													}
-												}
-											}
-											CreditTransactions struct {
-												field.RelationField
-											}
-											DebitTransactions struct {
-												field.RelationField
-											}
-										}
-										DebitTransactionAccount struct {
-											field.RelationField
-										}
-										TransactionAccountAssignments struct {
-											field.RelationField
-										}
-									}
-									Account struct {
-										field.RelationField
-									}
-								}
-							}
-						}
-						ViewAccountGroupAssignments struct {
-							field.RelationField
-						}
-						ViewBudgetAssignments struct {
-							field.RelationField
-						}
 					}
-					Budget struct {
+					AccountGroupAssignments struct {
 						field.RelationField
 					}
 				}{
-					RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments", "model.ViewBudgetAssignment"),
-					View: struct {
+					RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.AccountGroup", "model.AccountGroup"),
+					Organization: struct {
 						field.RelationField
-						ViewAccountAssignments struct {
-							field.RelationField
-							View struct {
-								field.RelationField
-							}
-							Account struct {
-								field.RelationField
-								ParentAccount struct {
-									field.RelationField
-								}
-								ChildAccounts struct {
-									field.RelationField
-								}
-								AccountGroupAssignments struct {
-									field.RelationField
-									AccountGroup struct {
-										field.RelationField
-										AccountGroupAssignments struct {
-											field.RelationField
-										}
-										ViewAccountGroupAssignments struct {
-											field.RelationField
-											View struct {
-												field.RelationField
-											}
-											AccountGroup struct {
-												field.RelationField
-											}
-										}
-									}
-									Account struct {
-										field.RelationField
-									}
-								}
-								BudgetRevisionAccountValues struct {
-									field.RelationField
-								}
-								ViewAccountAssignments struct {
-									field.RelationField
-								}
-								TransactionAccountAssignments struct {
-									field.RelationField
-									Transaction struct {
-										field.RelationField
-										AssignedAccount struct {
-											field.RelationField
-										}
-										CreditTransactionAccount struct {
-											field.RelationField
-											ImportSource struct {
-												field.RelationField
-												TransactionAccounts struct {
-													field.RelationField
-												}
-												ImportSourcePeriods struct {
-													field.RelationField
-													ImportSource struct {
-														field.RelationField
-													}
-												}
-											}
-											CreditTransactions struct {
-												field.RelationField
-											}
-											DebitTransactions struct {
-												field.RelationField
-											}
-										}
-										DebitTransactionAccount struct {
-											field.RelationField
-										}
-										TransactionAccountAssignments struct {
-											field.RelationField
-										}
-									}
-									Account struct {
-										field.RelationField
-									}
-								}
-							}
-						}
-						ViewAccountGroupAssignments struct {
-							field.RelationField
-						}
-						ViewBudgetAssignments struct {
-							field.RelationField
-						}
 					}{
-						RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View", "model.View"),
-						ViewAccountAssignments: struct {
-							field.RelationField
-							View struct {
-								field.RelationField
-							}
-							Account struct {
-								field.RelationField
-								ParentAccount struct {
-									field.RelationField
-								}
-								ChildAccounts struct {
-									field.RelationField
-								}
-								AccountGroupAssignments struct {
-									field.RelationField
-									AccountGroup struct {
-										field.RelationField
-										AccountGroupAssignments struct {
-											field.RelationField
-										}
-										ViewAccountGroupAssignments struct {
-											field.RelationField
-											View struct {
-												field.RelationField
-											}
-											AccountGroup struct {
-												field.RelationField
-											}
-										}
-									}
-									Account struct {
-										field.RelationField
-									}
-								}
-								BudgetRevisionAccountValues struct {
-									field.RelationField
-								}
-								ViewAccountAssignments struct {
-									field.RelationField
-								}
-								TransactionAccountAssignments struct {
-									field.RelationField
-									Transaction struct {
-										field.RelationField
-										AssignedAccount struct {
-											field.RelationField
-										}
-										CreditTransactionAccount struct {
-											field.RelationField
-											ImportSource struct {
-												field.RelationField
-												TransactionAccounts struct {
-													field.RelationField
-												}
-												ImportSourcePeriods struct {
-													field.RelationField
-													ImportSource struct {
-														field.RelationField
-													}
-												}
-											}
-											CreditTransactions struct {
-												field.RelationField
-											}
-											DebitTransactions struct {
-												field.RelationField
-											}
-										}
-										DebitTransactionAccount struct {
-											field.RelationField
-										}
-										TransactionAccountAssignments struct {
-											field.RelationField
-										}
-									}
-									Account struct {
-										field.RelationField
-									}
-								}
-							}
-						}{
-							RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments", "model.ViewAccountAssignment"),
-							View: struct {
-								field.RelationField
-							}{
-								RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.View", "model.View"),
-							},
-							Account: struct {
-								field.RelationField
-								ParentAccount struct {
-									field.RelationField
-								}
-								ChildAccounts struct {
-									field.RelationField
-								}
-								AccountGroupAssignments struct {
-									field.RelationField
-									AccountGroup struct {
-										field.RelationField
-										AccountGroupAssignments struct {
-											field.RelationField
-										}
-										ViewAccountGroupAssignments struct {
-											field.RelationField
-											View struct {
-												field.RelationField
-											}
-											AccountGroup struct {
-												field.RelationField
-											}
-										}
-									}
-									Account struct {
-										field.RelationField
-									}
-								}
-								BudgetRevisionAccountValues struct {
-									field.RelationField
-								}
-								ViewAccountAssignments struct {
-									field.RelationField
-								}
-								TransactionAccountAssignments struct {
-									field.RelationField
-									Transaction struct {
-										field.RelationField
-										AssignedAccount struct {
-											field.RelationField
-										}
-										CreditTransactionAccount struct {
-											field.RelationField
-											ImportSource struct {
-												field.RelationField
-												TransactionAccounts struct {
-													field.RelationField
-												}
-												ImportSourcePeriods struct {
-													field.RelationField
-													ImportSource struct {
-														field.RelationField
-													}
-												}
-											}
-											CreditTransactions struct {
-												field.RelationField
-											}
-											DebitTransactions struct {
-												field.RelationField
-											}
-										}
-										DebitTransactionAccount struct {
-											field.RelationField
-										}
-										TransactionAccountAssignments struct {
-											field.RelationField
-										}
-									}
-									Account struct {
-										field.RelationField
-									}
-								}
-							}{
-								RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account", "model.Account"),
-								ParentAccount: struct {
-									field.RelationField
-								}{
-									RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.ParentAccount", "model.Account"),
-								},
-								ChildAccounts: struct {
-									field.RelationField
-								}{
-									RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.ChildAccounts", "model.Account"),
-								},
-								AccountGroupAssignments: struct {
-									field.RelationField
-									AccountGroup struct {
-										field.RelationField
-										AccountGroupAssignments struct {
-											field.RelationField
-										}
-										ViewAccountGroupAssignments struct {
-											field.RelationField
-											View struct {
-												field.RelationField
-											}
-											AccountGroup struct {
-												field.RelationField
-											}
-										}
-									}
-									Account struct {
-										field.RelationField
-									}
-								}{
-									RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.AccountGroupAssignments", "model.AccountGroupAssignment"),
-									AccountGroup: struct {
-										field.RelationField
-										AccountGroupAssignments struct {
-											field.RelationField
-										}
-										ViewAccountGroupAssignments struct {
-											field.RelationField
-											View struct {
-												field.RelationField
-											}
-											AccountGroup struct {
-												field.RelationField
-											}
-										}
-									}{
-										RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.AccountGroupAssignments.AccountGroup", "model.AccountGroup"),
-										AccountGroupAssignments: struct {
-											field.RelationField
-										}{
-											RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.AccountGroupAssignments.AccountGroup.AccountGroupAssignments", "model.AccountGroupAssignment"),
-										},
-										ViewAccountGroupAssignments: struct {
-											field.RelationField
-											View struct {
-												field.RelationField
-											}
-											AccountGroup struct {
-												field.RelationField
-											}
-										}{
-											RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.AccountGroupAssignments.AccountGroup.ViewAccountGroupAssignments", "model.ViewAccountGroupAssignment"),
-											View: struct {
-												field.RelationField
-											}{
-												RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.AccountGroupAssignments.AccountGroup.ViewAccountGroupAssignments.View", "model.View"),
-											},
-											AccountGroup: struct {
-												field.RelationField
-											}{
-												RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.AccountGroupAssignments.AccountGroup.ViewAccountGroupAssignments.AccountGroup", "model.AccountGroup"),
-											},
-										},
-									},
-									Account: struct {
-										field.RelationField
-									}{
-										RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.AccountGroupAssignments.Account", "model.Account"),
-									},
-								},
-								BudgetRevisionAccountValues: struct {
-									field.RelationField
-								}{
-									RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.BudgetRevisionAccountValues", "model.BudgetRevisionAccountValue"),
-								},
-								ViewAccountAssignments: struct {
-									field.RelationField
-								}{
-									RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.ViewAccountAssignments", "model.ViewAccountAssignment"),
-								},
-								TransactionAccountAssignments: struct {
-									field.RelationField
-									Transaction struct {
-										field.RelationField
-										AssignedAccount struct {
-											field.RelationField
-										}
-										CreditTransactionAccount struct {
-											field.RelationField
-											ImportSource struct {
-												field.RelationField
-												TransactionAccounts struct {
-													field.RelationField
-												}
-												ImportSourcePeriods struct {
-													field.RelationField
-													ImportSource struct {
-														field.RelationField
-													}
-												}
-											}
-											CreditTransactions struct {
-												field.RelationField
-											}
-											DebitTransactions struct {
-												field.RelationField
-											}
-										}
-										DebitTransactionAccount struct {
-											field.RelationField
-										}
-										TransactionAccountAssignments struct {
-											field.RelationField
-										}
-									}
-									Account struct {
-										field.RelationField
-									}
-								}{
-									RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.TransactionAccountAssignments", "model.TransactionAccountAssignment"),
-									Transaction: struct {
-										field.RelationField
-										AssignedAccount struct {
-											field.RelationField
-										}
-										CreditTransactionAccount struct {
-											field.RelationField
-											ImportSource struct {
-												field.RelationField
-												TransactionAccounts struct {
-													field.RelationField
-												}
-												ImportSourcePeriods struct {
-													field.RelationField
-													ImportSource struct {
-														field.RelationField
-													}
-												}
-											}
-											CreditTransactions struct {
-												field.RelationField
-											}
-											DebitTransactions struct {
-												field.RelationField
-											}
-										}
-										DebitTransactionAccount struct {
-											field.RelationField
-										}
-										TransactionAccountAssignments struct {
-											field.RelationField
-										}
-									}{
-										RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.TransactionAccountAssignments.Transaction", "model.Transaction_"),
-										AssignedAccount: struct {
-											field.RelationField
-										}{
-											RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.TransactionAccountAssignments.Transaction.AssignedAccount", "model.Account"),
-										},
-										CreditTransactionAccount: struct {
-											field.RelationField
-											ImportSource struct {
-												field.RelationField
-												TransactionAccounts struct {
-													field.RelationField
-												}
-												ImportSourcePeriods struct {
-													field.RelationField
-													ImportSource struct {
-														field.RelationField
-													}
-												}
-											}
-											CreditTransactions struct {
-												field.RelationField
-											}
-											DebitTransactions struct {
-												field.RelationField
-											}
-										}{
-											RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount", "model.TransactionAccount"),
-											ImportSource: struct {
-												field.RelationField
-												TransactionAccounts struct {
-													field.RelationField
-												}
-												ImportSourcePeriods struct {
-													field.RelationField
-													ImportSource struct {
-														field.RelationField
-													}
-												}
-											}{
-												RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource", "model.ImportSource"),
-												TransactionAccounts: struct {
-													field.RelationField
-												}{
-													RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.TransactionAccounts", "model.TransactionAccount"),
-												},
-												ImportSourcePeriods: struct {
-													field.RelationField
-													ImportSource struct {
-														field.RelationField
-													}
-												}{
-													RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.ImportSourcePeriods", "model.ImportSourcePeriod"),
-													ImportSource: struct {
-														field.RelationField
-													}{
-														RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.ImportSourcePeriods.ImportSource", "model.ImportSource"),
-													},
-												},
-											},
-											CreditTransactions: struct {
-												field.RelationField
-											}{
-												RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.CreditTransactions", "model.Transaction_"),
-											},
-											DebitTransactions: struct {
-												field.RelationField
-											}{
-												RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.DebitTransactions", "model.Transaction_"),
-											},
-										},
-										DebitTransactionAccount: struct {
-											field.RelationField
-										}{
-											RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.TransactionAccountAssignments.Transaction.DebitTransactionAccount", "model.TransactionAccount"),
-										},
-										TransactionAccountAssignments: struct {
-											field.RelationField
-										}{
-											RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.TransactionAccountAssignments.Transaction.TransactionAccountAssignments", "model.TransactionAccountAssignment"),
-										},
-									},
-									Account: struct {
-										field.RelationField
-									}{
-										RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountAssignments.Account.TransactionAccountAssignments.Account", "model.Account"),
-									},
-								},
-							},
-						},
-						ViewAccountGroupAssignments: struct {
-							field.RelationField
-						}{
-							RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewAccountGroupAssignments", "model.ViewAccountGroupAssignment"),
-						},
-						ViewBudgetAssignments: struct {
-							field.RelationField
-						}{
-							RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.View.ViewBudgetAssignments", "model.ViewBudgetAssignment"),
-						},
+						RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.AccountGroup.Organization", "model.Organization"),
 					},
-					Budget: struct {
+					AccountGroupAssignments: struct {
 						field.RelationField
 					}{
-						RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.Budget.ViewBudgetAssignments.Budget", "model.Budget"),
+						RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.AccountGroup.AccountGroupAssignments", "model.AccountGroupAssignment"),
+					},
+				},
+				Account: struct {
+					field.RelationField
+					Organization struct {
+						field.RelationField
+					}
+					ParentAccount struct {
+						field.RelationField
+					}
+					ChildAccounts struct {
+						field.RelationField
+					}
+					AccountGroupAssignments struct {
+						field.RelationField
+					}
+					BudgetTagAccountValues struct {
+						field.RelationField
+					}
+					TransactionAccountAssignments struct {
+						field.RelationField
+						Organization struct {
+							field.RelationField
+						}
+						Transaction struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							CreditTransactionAccount struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								ImportSource struct {
+									field.RelationField
+									Organization struct {
+										field.RelationField
+									}
+									TransactionAccounts struct {
+										field.RelationField
+									}
+									ImportSourcePeriods struct {
+										field.RelationField
+										Organization struct {
+											field.RelationField
+										}
+										ImportSource struct {
+											field.RelationField
+										}
+									}
+								}
+								CreditTransactions struct {
+									field.RelationField
+								}
+								DebitTransactions struct {
+									field.RelationField
+								}
+							}
+							DebitTransactionAccount struct {
+								field.RelationField
+							}
+							TransactionAccountAssignments struct {
+								field.RelationField
+							}
+						}
+						Account struct {
+							field.RelationField
+						}
+					}
+				}{
+					RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account", "model.Account"),
+					Organization: struct {
+						field.RelationField
+					}{
+						RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.Organization", "model.Organization"),
+					},
+					ParentAccount: struct {
+						field.RelationField
+					}{
+						RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.ParentAccount", "model.Account"),
+					},
+					ChildAccounts: struct {
+						field.RelationField
+					}{
+						RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.ChildAccounts", "model.Account"),
+					},
+					AccountGroupAssignments: struct {
+						field.RelationField
+					}{
+						RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.AccountGroupAssignments", "model.AccountGroupAssignment"),
+					},
+					BudgetTagAccountValues: struct {
+						field.RelationField
+					}{
+						RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.BudgetTagAccountValues", "model.BudgetTagAccountValue"),
+					},
+					TransactionAccountAssignments: struct {
+						field.RelationField
+						Organization struct {
+							field.RelationField
+						}
+						Transaction struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							CreditTransactionAccount struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								ImportSource struct {
+									field.RelationField
+									Organization struct {
+										field.RelationField
+									}
+									TransactionAccounts struct {
+										field.RelationField
+									}
+									ImportSourcePeriods struct {
+										field.RelationField
+										Organization struct {
+											field.RelationField
+										}
+										ImportSource struct {
+											field.RelationField
+										}
+									}
+								}
+								CreditTransactions struct {
+									field.RelationField
+								}
+								DebitTransactions struct {
+									field.RelationField
+								}
+							}
+							DebitTransactionAccount struct {
+								field.RelationField
+							}
+							TransactionAccountAssignments struct {
+								field.RelationField
+							}
+						}
+						Account struct {
+							field.RelationField
+						}
+					}{
+						RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments", "model.TransactionAccountAssignment"),
+						Organization: struct {
+							field.RelationField
+						}{
+							RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Organization", "model.Organization"),
+						},
+						Transaction: struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							CreditTransactionAccount struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								ImportSource struct {
+									field.RelationField
+									Organization struct {
+										field.RelationField
+									}
+									TransactionAccounts struct {
+										field.RelationField
+									}
+									ImportSourcePeriods struct {
+										field.RelationField
+										Organization struct {
+											field.RelationField
+										}
+										ImportSource struct {
+											field.RelationField
+										}
+									}
+								}
+								CreditTransactions struct {
+									field.RelationField
+								}
+								DebitTransactions struct {
+									field.RelationField
+								}
+							}
+							DebitTransactionAccount struct {
+								field.RelationField
+							}
+							TransactionAccountAssignments struct {
+								field.RelationField
+							}
+						}{
+							RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction", "model.Transaction_"),
+							Organization: struct {
+								field.RelationField
+							}{
+								RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.Organization", "model.Organization"),
+							},
+							CreditTransactionAccount: struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								ImportSource struct {
+									field.RelationField
+									Organization struct {
+										field.RelationField
+									}
+									TransactionAccounts struct {
+										field.RelationField
+									}
+									ImportSourcePeriods struct {
+										field.RelationField
+										Organization struct {
+											field.RelationField
+										}
+										ImportSource struct {
+											field.RelationField
+										}
+									}
+								}
+								CreditTransactions struct {
+									field.RelationField
+								}
+								DebitTransactions struct {
+									field.RelationField
+								}
+							}{
+								RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount", "model.TransactionAccount"),
+								Organization: struct {
+									field.RelationField
+								}{
+									RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.Organization", "model.Organization"),
+								},
+								ImportSource: struct {
+									field.RelationField
+									Organization struct {
+										field.RelationField
+									}
+									TransactionAccounts struct {
+										field.RelationField
+									}
+									ImportSourcePeriods struct {
+										field.RelationField
+										Organization struct {
+											field.RelationField
+										}
+										ImportSource struct {
+											field.RelationField
+										}
+									}
+								}{
+									RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource", "model.ImportSource"),
+									Organization: struct {
+										field.RelationField
+									}{
+										RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.Organization", "model.Organization"),
+									},
+									TransactionAccounts: struct {
+										field.RelationField
+									}{
+										RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.TransactionAccounts", "model.TransactionAccount"),
+									},
+									ImportSourcePeriods: struct {
+										field.RelationField
+										Organization struct {
+											field.RelationField
+										}
+										ImportSource struct {
+											field.RelationField
+										}
+									}{
+										RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.ImportSourcePeriods", "model.ImportSourcePeriod"),
+										Organization: struct {
+											field.RelationField
+										}{
+											RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.ImportSourcePeriods.Organization", "model.Organization"),
+										},
+										ImportSource: struct {
+											field.RelationField
+										}{
+											RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.ImportSourcePeriods.ImportSource", "model.ImportSource"),
+										},
+									},
+								},
+								CreditTransactions: struct {
+									field.RelationField
+								}{
+									RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.CreditTransactions", "model.Transaction_"),
+								},
+								DebitTransactions: struct {
+									field.RelationField
+								}{
+									RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.DebitTransactions", "model.Transaction_"),
+								},
+							},
+							DebitTransactionAccount: struct {
+								field.RelationField
+							}{
+								RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.DebitTransactionAccount", "model.TransactionAccount"),
+							},
+							TransactionAccountAssignments: struct {
+								field.RelationField
+							}{
+								RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.TransactionAccountAssignments", "model.TransactionAccountAssignment"),
+							},
+						},
+						Account: struct {
+							field.RelationField
+						}{
+							RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Account", "model.Account"),
+						},
 					},
 				},
 			},
-			BudgetRevisionAccountValues: struct {
+			AccountGroups: struct {
 				field.RelationField
 			}{
-				RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision.BudgetRevisionAccountValues", "model.BudgetRevisionAccountValue"),
+				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroups", "model.AccountGroup"),
 			},
+			Accounts: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.Accounts", "model.Account"),
+			},
+			BudgetTags: struct {
+				field.RelationField
+				Organization struct {
+					field.RelationField
+				}
+				Budget struct {
+					field.RelationField
+					Organization struct {
+						field.RelationField
+					}
+					BudgetTags struct {
+						field.RelationField
+					}
+				}
+				BudgetTagAccountValues struct {
+					field.RelationField
+				}
+			}{
+				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.BudgetTags", "model.BudgetTag"),
+				Organization: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("BudgetTagAccountValues.Organization.BudgetTags.Organization", "model.Organization"),
+				},
+				Budget: struct {
+					field.RelationField
+					Organization struct {
+						field.RelationField
+					}
+					BudgetTags struct {
+						field.RelationField
+					}
+				}{
+					RelationField: field.NewRelation("BudgetTagAccountValues.Organization.BudgetTags.Budget", "model.Budget"),
+					Organization: struct {
+						field.RelationField
+					}{
+						RelationField: field.NewRelation("BudgetTagAccountValues.Organization.BudgetTags.Budget.Organization", "model.Organization"),
+					},
+					BudgetTags: struct {
+						field.RelationField
+					}{
+						RelationField: field.NewRelation("BudgetTagAccountValues.Organization.BudgetTags.Budget.BudgetTags", "model.BudgetTag"),
+					},
+				},
+				BudgetTagAccountValues: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("BudgetTagAccountValues.Organization.BudgetTags.BudgetTagAccountValues", "model.BudgetTagAccountValue"),
+				},
+			},
+			BudgetTagAccountValues: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.BudgetTagAccountValues", "model.BudgetTagAccountValue"),
+			},
+			Budgets: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.Budgets", "model.Budget"),
+			},
+			ImportSourcePeriods: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.ImportSourcePeriods", "model.ImportSourcePeriod"),
+			},
+			ImportSources: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.ImportSources", "model.ImportSource"),
+			},
+			ReportTemplates: struct {
+				field.RelationField
+				Organization struct {
+					field.RelationField
+				}
+			}{
+				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.ReportTemplates", "model.ReportTemplate"),
+				Organization: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("BudgetTagAccountValues.Organization.ReportTemplates.Organization", "model.Organization"),
+				},
+			},
+			Reports: struct {
+				field.RelationField
+				Organization struct {
+					field.RelationField
+				}
+			}{
+				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.Reports", "model.Report"),
+				Organization: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("BudgetTagAccountValues.Organization.Reports.Organization", "model.Organization"),
+				},
+			},
+			Transactions: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.Transactions", "model.Transaction_"),
+			},
+			TransactionAccountAssignments: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.TransactionAccountAssignments", "model.TransactionAccountAssignment"),
+			},
+			TransactionAccounts: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.TransactionAccounts", "model.TransactionAccount"),
+			},
+			UserGroups: struct {
+				field.RelationField
+				Organization struct {
+					field.RelationField
+				}
+			}{
+				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.UserGroups", "model.UserGroup"),
+				Organization: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("BudgetTagAccountValues.Organization.UserGroups.Organization", "model.Organization"),
+				},
+			},
+		},
+		BudgetTag: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("BudgetTagAccountValues.BudgetTag", "model.BudgetTag"),
 		},
 		Account: struct {
 			field.RelationField
 		}{
-			RelationField: field.NewRelation("BudgetRevisionAccountValues.Account", "model.Account"),
+			RelationField: field.NewRelation("BudgetTagAccountValues.Account", "model.Account"),
 		},
 	}
 
-	_budgetRevision.Budget = budgetRevisionBelongsToBudget{
+	_budgetTag.Organization = budgetTagBelongsToOrganization{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Organization", "model.Organization"),
+	}
+
+	_budgetTag.Budget = budgetTagBelongsToBudget{
 		db: db.Session(&gorm.Session{}),
 
 		RelationField: field.NewRelation("Budget", "model.Budget"),
 	}
 
-	_budgetRevision.fillFieldMap()
+	_budgetTag.fillFieldMap()
 
-	return _budgetRevision
+	return _budgetTag
 }
 
-type budgetRevision struct {
-	budgetRevisionDo budgetRevisionDo
+type budgetTag struct {
+	budgetTagDo budgetTagDo
 
-	ALL                         field.Asterisk
-	ID                          field.Field
-	BudgetID                    field.Field
-	Date                        field.Time
-	DisplayDescription          field.String
-	UpdatedAt                   field.Time
-	CreatedAt                   field.Time
-	BudgetRevisionAccountValues budgetRevisionHasManyBudgetRevisionAccountValues
+	ALL                    field.Asterisk
+	ID                     field.Field
+	OrganizationID         field.Field
+	BudgetID               field.Field
+	Date                   field.Time
+	DisplayDescription     field.String
+	UpdatedAt              field.Time
+	CreatedAt              field.Time
+	BudgetTagAccountValues budgetTagHasManyBudgetTagAccountValues
 
-	Budget budgetRevisionBelongsToBudget
+	Organization budgetTagBelongsToOrganization
+
+	Budget budgetTagBelongsToBudget
 
 	fieldMap map[string]field.Expr
 }
 
-func (b budgetRevision) Table(newTableName string) *budgetRevision {
-	b.budgetRevisionDo.UseTable(newTableName)
+func (b budgetTag) Table(newTableName string) *budgetTag {
+	b.budgetTagDo.UseTable(newTableName)
 	return b.updateTableName(newTableName)
 }
 
-func (b budgetRevision) As(alias string) *budgetRevision {
-	b.budgetRevisionDo.DO = *(b.budgetRevisionDo.As(alias).(*gen.DO))
+func (b budgetTag) As(alias string) *budgetTag {
+	b.budgetTagDo.DO = *(b.budgetTagDo.As(alias).(*gen.DO))
 	return b.updateTableName(alias)
 }
 
-func (b *budgetRevision) updateTableName(table string) *budgetRevision {
+func (b *budgetTag) updateTableName(table string) *budgetTag {
 	b.ALL = field.NewAsterisk(table)
 	b.ID = field.NewField(table, "id")
+	b.OrganizationID = field.NewField(table, "organization_id")
 	b.BudgetID = field.NewField(table, "budget_id")
 	b.Date = field.NewTime(table, "date")
 	b.DisplayDescription = field.NewString(table, "display_description")
@@ -942,19 +827,17 @@ func (b *budgetRevision) updateTableName(table string) *budgetRevision {
 	return b
 }
 
-func (b *budgetRevision) WithContext(ctx context.Context) IBudgetRevisionDo {
-	return b.budgetRevisionDo.WithContext(ctx)
+func (b *budgetTag) WithContext(ctx context.Context) IBudgetTagDo {
+	return b.budgetTagDo.WithContext(ctx)
 }
 
-func (b budgetRevision) TableName() string { return b.budgetRevisionDo.TableName() }
+func (b budgetTag) TableName() string { return b.budgetTagDo.TableName() }
 
-func (b budgetRevision) Alias() string { return b.budgetRevisionDo.Alias() }
+func (b budgetTag) Alias() string { return b.budgetTagDo.Alias() }
 
-func (b budgetRevision) Columns(cols ...field.Expr) gen.Columns {
-	return b.budgetRevisionDo.Columns(cols...)
-}
+func (b budgetTag) Columns(cols ...field.Expr) gen.Columns { return b.budgetTagDo.Columns(cols...) }
 
-func (b *budgetRevision) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
+func (b *budgetTag) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	_f, ok := b.fieldMap[fieldName]
 	if !ok || _f == nil {
 		return nil, false
@@ -963,9 +846,10 @@ func (b *budgetRevision) GetFieldByName(fieldName string) (field.OrderExpr, bool
 	return _oe, ok
 }
 
-func (b *budgetRevision) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 8)
+func (b *budgetTag) fillFieldMap() {
+	b.fieldMap = make(map[string]field.Expr, 10)
 	b.fieldMap["id"] = b.ID
+	b.fieldMap["organization_id"] = b.OrganizationID
 	b.fieldMap["budget_id"] = b.BudgetID
 	b.fieldMap["date"] = b.Date
 	b.fieldMap["display_description"] = b.DisplayDescription
@@ -974,141 +858,189 @@ func (b *budgetRevision) fillFieldMap() {
 
 }
 
-func (b budgetRevision) clone(db *gorm.DB) budgetRevision {
-	b.budgetRevisionDo.ReplaceConnPool(db.Statement.ConnPool)
-	b.BudgetRevisionAccountValues.db = db.Session(&gorm.Session{Initialized: true})
-	b.BudgetRevisionAccountValues.db.Statement.ConnPool = db.Statement.ConnPool
+func (b budgetTag) clone(db *gorm.DB) budgetTag {
+	b.budgetTagDo.ReplaceConnPool(db.Statement.ConnPool)
+	b.BudgetTagAccountValues.db = db.Session(&gorm.Session{Initialized: true})
+	b.BudgetTagAccountValues.db.Statement.ConnPool = db.Statement.ConnPool
+	b.Organization.db = db.Session(&gorm.Session{Initialized: true})
+	b.Organization.db.Statement.ConnPool = db.Statement.ConnPool
 	b.Budget.db = db.Session(&gorm.Session{Initialized: true})
 	b.Budget.db.Statement.ConnPool = db.Statement.ConnPool
 	return b
 }
 
-func (b budgetRevision) replaceDB(db *gorm.DB) budgetRevision {
-	b.budgetRevisionDo.ReplaceDB(db)
-	b.BudgetRevisionAccountValues.db = db.Session(&gorm.Session{})
+func (b budgetTag) replaceDB(db *gorm.DB) budgetTag {
+	b.budgetTagDo.ReplaceDB(db)
+	b.BudgetTagAccountValues.db = db.Session(&gorm.Session{})
+	b.Organization.db = db.Session(&gorm.Session{})
 	b.Budget.db = db.Session(&gorm.Session{})
 	return b
 }
 
-type budgetRevisionHasManyBudgetRevisionAccountValues struct {
+type budgetTagHasManyBudgetTagAccountValues struct {
 	db *gorm.DB
 
 	field.RelationField
 
-	BudgetRevision struct {
+	Organization struct {
 		field.RelationField
-		Budget struct {
+		AccountGroupAssignments struct {
 			field.RelationField
-			BudgetRevisions struct {
+			Organization struct {
 				field.RelationField
 			}
-			ViewBudgetAssignments struct {
+			AccountGroup struct {
 				field.RelationField
-				View struct {
+				Organization struct {
 					field.RelationField
-					ViewAccountAssignments struct {
-						field.RelationField
-						View struct {
-							field.RelationField
-						}
-						Account struct {
-							field.RelationField
-							ParentAccount struct {
-								field.RelationField
-							}
-							ChildAccounts struct {
-								field.RelationField
-							}
-							AccountGroupAssignments struct {
-								field.RelationField
-								AccountGroup struct {
-									field.RelationField
-									AccountGroupAssignments struct {
-										field.RelationField
-									}
-									ViewAccountGroupAssignments struct {
-										field.RelationField
-										View struct {
-											field.RelationField
-										}
-										AccountGroup struct {
-											field.RelationField
-										}
-									}
-								}
-								Account struct {
-									field.RelationField
-								}
-							}
-							BudgetRevisionAccountValues struct {
-								field.RelationField
-							}
-							ViewAccountAssignments struct {
-								field.RelationField
-							}
-							TransactionAccountAssignments struct {
-								field.RelationField
-								Transaction struct {
-									field.RelationField
-									AssignedAccount struct {
-										field.RelationField
-									}
-									CreditTransactionAccount struct {
-										field.RelationField
-										ImportSource struct {
-											field.RelationField
-											TransactionAccounts struct {
-												field.RelationField
-											}
-											ImportSourcePeriods struct {
-												field.RelationField
-												ImportSource struct {
-													field.RelationField
-												}
-											}
-										}
-										CreditTransactions struct {
-											field.RelationField
-										}
-										DebitTransactions struct {
-											field.RelationField
-										}
-									}
-									DebitTransactionAccount struct {
-										field.RelationField
-									}
-									TransactionAccountAssignments struct {
-										field.RelationField
-									}
-								}
-								Account struct {
-									field.RelationField
-								}
-							}
-						}
-					}
-					ViewAccountGroupAssignments struct {
-						field.RelationField
-					}
-					ViewBudgetAssignments struct {
-						field.RelationField
-					}
 				}
-				Budget struct {
+				AccountGroupAssignments struct {
 					field.RelationField
 				}
 			}
+			Account struct {
+				field.RelationField
+				Organization struct {
+					field.RelationField
+				}
+				ParentAccount struct {
+					field.RelationField
+				}
+				ChildAccounts struct {
+					field.RelationField
+				}
+				AccountGroupAssignments struct {
+					field.RelationField
+				}
+				BudgetTagAccountValues struct {
+					field.RelationField
+				}
+				TransactionAccountAssignments struct {
+					field.RelationField
+					Organization struct {
+						field.RelationField
+					}
+					Transaction struct {
+						field.RelationField
+						Organization struct {
+							field.RelationField
+						}
+						CreditTransactionAccount struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							ImportSource struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								TransactionAccounts struct {
+									field.RelationField
+								}
+								ImportSourcePeriods struct {
+									field.RelationField
+									Organization struct {
+										field.RelationField
+									}
+									ImportSource struct {
+										field.RelationField
+									}
+								}
+							}
+							CreditTransactions struct {
+								field.RelationField
+							}
+							DebitTransactions struct {
+								field.RelationField
+							}
+						}
+						DebitTransactionAccount struct {
+							field.RelationField
+						}
+						TransactionAccountAssignments struct {
+							field.RelationField
+						}
+					}
+					Account struct {
+						field.RelationField
+					}
+				}
+			}
 		}
-		BudgetRevisionAccountValues struct {
+		AccountGroups struct {
 			field.RelationField
 		}
+		Accounts struct {
+			field.RelationField
+		}
+		BudgetTags struct {
+			field.RelationField
+			Organization struct {
+				field.RelationField
+			}
+			Budget struct {
+				field.RelationField
+				Organization struct {
+					field.RelationField
+				}
+				BudgetTags struct {
+					field.RelationField
+				}
+			}
+			BudgetTagAccountValues struct {
+				field.RelationField
+			}
+		}
+		BudgetTagAccountValues struct {
+			field.RelationField
+		}
+		Budgets struct {
+			field.RelationField
+		}
+		ImportSourcePeriods struct {
+			field.RelationField
+		}
+		ImportSources struct {
+			field.RelationField
+		}
+		ReportTemplates struct {
+			field.RelationField
+			Organization struct {
+				field.RelationField
+			}
+		}
+		Reports struct {
+			field.RelationField
+			Organization struct {
+				field.RelationField
+			}
+		}
+		Transactions struct {
+			field.RelationField
+		}
+		TransactionAccountAssignments struct {
+			field.RelationField
+		}
+		TransactionAccounts struct {
+			field.RelationField
+		}
+		UserGroups struct {
+			field.RelationField
+			Organization struct {
+				field.RelationField
+			}
+		}
+	}
+	BudgetTag struct {
+		field.RelationField
 	}
 	Account struct {
 		field.RelationField
 	}
 }
 
-func (a budgetRevisionHasManyBudgetRevisionAccountValues) Where(conds ...field.Expr) *budgetRevisionHasManyBudgetRevisionAccountValues {
+func (a budgetTagHasManyBudgetTagAccountValues) Where(conds ...field.Expr) *budgetTagHasManyBudgetTagAccountValues {
 	if len(conds) == 0 {
 		return &a
 	}
@@ -1121,32 +1053,32 @@ func (a budgetRevisionHasManyBudgetRevisionAccountValues) Where(conds ...field.E
 	return &a
 }
 
-func (a budgetRevisionHasManyBudgetRevisionAccountValues) WithContext(ctx context.Context) *budgetRevisionHasManyBudgetRevisionAccountValues {
+func (a budgetTagHasManyBudgetTagAccountValues) WithContext(ctx context.Context) *budgetTagHasManyBudgetTagAccountValues {
 	a.db = a.db.WithContext(ctx)
 	return &a
 }
 
-func (a budgetRevisionHasManyBudgetRevisionAccountValues) Session(session *gorm.Session) *budgetRevisionHasManyBudgetRevisionAccountValues {
+func (a budgetTagHasManyBudgetTagAccountValues) Session(session *gorm.Session) *budgetTagHasManyBudgetTagAccountValues {
 	a.db = a.db.Session(session)
 	return &a
 }
 
-func (a budgetRevisionHasManyBudgetRevisionAccountValues) Model(m *model.BudgetRevision) *budgetRevisionHasManyBudgetRevisionAccountValuesTx {
-	return &budgetRevisionHasManyBudgetRevisionAccountValuesTx{a.db.Model(m).Association(a.Name())}
+func (a budgetTagHasManyBudgetTagAccountValues) Model(m *model.BudgetTag) *budgetTagHasManyBudgetTagAccountValuesTx {
+	return &budgetTagHasManyBudgetTagAccountValuesTx{a.db.Model(m).Association(a.Name())}
 }
 
-func (a budgetRevisionHasManyBudgetRevisionAccountValues) Unscoped() *budgetRevisionHasManyBudgetRevisionAccountValues {
+func (a budgetTagHasManyBudgetTagAccountValues) Unscoped() *budgetTagHasManyBudgetTagAccountValues {
 	a.db = a.db.Unscoped()
 	return &a
 }
 
-type budgetRevisionHasManyBudgetRevisionAccountValuesTx struct{ tx *gorm.Association }
+type budgetTagHasManyBudgetTagAccountValuesTx struct{ tx *gorm.Association }
 
-func (a budgetRevisionHasManyBudgetRevisionAccountValuesTx) Find() (result []*model.BudgetRevisionAccountValue, err error) {
+func (a budgetTagHasManyBudgetTagAccountValuesTx) Find() (result []*model.BudgetTagAccountValue, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a budgetRevisionHasManyBudgetRevisionAccountValuesTx) Append(values ...*model.BudgetRevisionAccountValue) (err error) {
+func (a budgetTagHasManyBudgetTagAccountValuesTx) Append(values ...*model.BudgetTagAccountValue) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1154,7 +1086,7 @@ func (a budgetRevisionHasManyBudgetRevisionAccountValuesTx) Append(values ...*mo
 	return a.tx.Append(targetValues...)
 }
 
-func (a budgetRevisionHasManyBudgetRevisionAccountValuesTx) Replace(values ...*model.BudgetRevisionAccountValue) (err error) {
+func (a budgetTagHasManyBudgetTagAccountValuesTx) Replace(values ...*model.BudgetTagAccountValue) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1162,7 +1094,7 @@ func (a budgetRevisionHasManyBudgetRevisionAccountValuesTx) Replace(values ...*m
 	return a.tx.Replace(targetValues...)
 }
 
-func (a budgetRevisionHasManyBudgetRevisionAccountValuesTx) Delete(values ...*model.BudgetRevisionAccountValue) (err error) {
+func (a budgetTagHasManyBudgetTagAccountValuesTx) Delete(values ...*model.BudgetTagAccountValue) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1170,26 +1102,26 @@ func (a budgetRevisionHasManyBudgetRevisionAccountValuesTx) Delete(values ...*mo
 	return a.tx.Delete(targetValues...)
 }
 
-func (a budgetRevisionHasManyBudgetRevisionAccountValuesTx) Clear() error {
+func (a budgetTagHasManyBudgetTagAccountValuesTx) Clear() error {
 	return a.tx.Clear()
 }
 
-func (a budgetRevisionHasManyBudgetRevisionAccountValuesTx) Count() int64 {
+func (a budgetTagHasManyBudgetTagAccountValuesTx) Count() int64 {
 	return a.tx.Count()
 }
 
-func (a budgetRevisionHasManyBudgetRevisionAccountValuesTx) Unscoped() *budgetRevisionHasManyBudgetRevisionAccountValuesTx {
+func (a budgetTagHasManyBudgetTagAccountValuesTx) Unscoped() *budgetTagHasManyBudgetTagAccountValuesTx {
 	a.tx = a.tx.Unscoped()
 	return &a
 }
 
-type budgetRevisionBelongsToBudget struct {
+type budgetTagBelongsToOrganization struct {
 	db *gorm.DB
 
 	field.RelationField
 }
 
-func (a budgetRevisionBelongsToBudget) Where(conds ...field.Expr) *budgetRevisionBelongsToBudget {
+func (a budgetTagBelongsToOrganization) Where(conds ...field.Expr) *budgetTagBelongsToOrganization {
 	if len(conds) == 0 {
 		return &a
 	}
@@ -1202,32 +1134,32 @@ func (a budgetRevisionBelongsToBudget) Where(conds ...field.Expr) *budgetRevisio
 	return &a
 }
 
-func (a budgetRevisionBelongsToBudget) WithContext(ctx context.Context) *budgetRevisionBelongsToBudget {
+func (a budgetTagBelongsToOrganization) WithContext(ctx context.Context) *budgetTagBelongsToOrganization {
 	a.db = a.db.WithContext(ctx)
 	return &a
 }
 
-func (a budgetRevisionBelongsToBudget) Session(session *gorm.Session) *budgetRevisionBelongsToBudget {
+func (a budgetTagBelongsToOrganization) Session(session *gorm.Session) *budgetTagBelongsToOrganization {
 	a.db = a.db.Session(session)
 	return &a
 }
 
-func (a budgetRevisionBelongsToBudget) Model(m *model.BudgetRevision) *budgetRevisionBelongsToBudgetTx {
-	return &budgetRevisionBelongsToBudgetTx{a.db.Model(m).Association(a.Name())}
+func (a budgetTagBelongsToOrganization) Model(m *model.BudgetTag) *budgetTagBelongsToOrganizationTx {
+	return &budgetTagBelongsToOrganizationTx{a.db.Model(m).Association(a.Name())}
 }
 
-func (a budgetRevisionBelongsToBudget) Unscoped() *budgetRevisionBelongsToBudget {
+func (a budgetTagBelongsToOrganization) Unscoped() *budgetTagBelongsToOrganization {
 	a.db = a.db.Unscoped()
 	return &a
 }
 
-type budgetRevisionBelongsToBudgetTx struct{ tx *gorm.Association }
+type budgetTagBelongsToOrganizationTx struct{ tx *gorm.Association }
 
-func (a budgetRevisionBelongsToBudgetTx) Find() (result *model.Budget, err error) {
+func (a budgetTagBelongsToOrganizationTx) Find() (result *model.Organization, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a budgetRevisionBelongsToBudgetTx) Append(values ...*model.Budget) (err error) {
+func (a budgetTagBelongsToOrganizationTx) Append(values ...*model.Organization) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1235,7 +1167,7 @@ func (a budgetRevisionBelongsToBudgetTx) Append(values ...*model.Budget) (err er
 	return a.tx.Append(targetValues...)
 }
 
-func (a budgetRevisionBelongsToBudgetTx) Replace(values ...*model.Budget) (err error) {
+func (a budgetTagBelongsToOrganizationTx) Replace(values ...*model.Organization) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1243,7 +1175,7 @@ func (a budgetRevisionBelongsToBudgetTx) Replace(values ...*model.Budget) (err e
 	return a.tx.Replace(targetValues...)
 }
 
-func (a budgetRevisionBelongsToBudgetTx) Delete(values ...*model.Budget) (err error) {
+func (a budgetTagBelongsToOrganizationTx) Delete(values ...*model.Organization) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1251,61 +1183,142 @@ func (a budgetRevisionBelongsToBudgetTx) Delete(values ...*model.Budget) (err er
 	return a.tx.Delete(targetValues...)
 }
 
-func (a budgetRevisionBelongsToBudgetTx) Clear() error {
+func (a budgetTagBelongsToOrganizationTx) Clear() error {
 	return a.tx.Clear()
 }
 
-func (a budgetRevisionBelongsToBudgetTx) Count() int64 {
+func (a budgetTagBelongsToOrganizationTx) Count() int64 {
 	return a.tx.Count()
 }
 
-func (a budgetRevisionBelongsToBudgetTx) Unscoped() *budgetRevisionBelongsToBudgetTx {
+func (a budgetTagBelongsToOrganizationTx) Unscoped() *budgetTagBelongsToOrganizationTx {
 	a.tx = a.tx.Unscoped()
 	return &a
 }
 
-type budgetRevisionDo struct{ gen.DO }
+type budgetTagBelongsToBudget struct {
+	db *gorm.DB
 
-type IBudgetRevisionDo interface {
+	field.RelationField
+}
+
+func (a budgetTagBelongsToBudget) Where(conds ...field.Expr) *budgetTagBelongsToBudget {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a budgetTagBelongsToBudget) WithContext(ctx context.Context) *budgetTagBelongsToBudget {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a budgetTagBelongsToBudget) Session(session *gorm.Session) *budgetTagBelongsToBudget {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a budgetTagBelongsToBudget) Model(m *model.BudgetTag) *budgetTagBelongsToBudgetTx {
+	return &budgetTagBelongsToBudgetTx{a.db.Model(m).Association(a.Name())}
+}
+
+func (a budgetTagBelongsToBudget) Unscoped() *budgetTagBelongsToBudget {
+	a.db = a.db.Unscoped()
+	return &a
+}
+
+type budgetTagBelongsToBudgetTx struct{ tx *gorm.Association }
+
+func (a budgetTagBelongsToBudgetTx) Find() (result *model.Budget, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a budgetTagBelongsToBudgetTx) Append(values ...*model.Budget) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a budgetTagBelongsToBudgetTx) Replace(values ...*model.Budget) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a budgetTagBelongsToBudgetTx) Delete(values ...*model.Budget) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a budgetTagBelongsToBudgetTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a budgetTagBelongsToBudgetTx) Count() int64 {
+	return a.tx.Count()
+}
+
+func (a budgetTagBelongsToBudgetTx) Unscoped() *budgetTagBelongsToBudgetTx {
+	a.tx = a.tx.Unscoped()
+	return &a
+}
+
+type budgetTagDo struct{ gen.DO }
+
+type IBudgetTagDo interface {
 	gen.SubQuery
-	Debug() IBudgetRevisionDo
-	WithContext(ctx context.Context) IBudgetRevisionDo
+	Debug() IBudgetTagDo
+	WithContext(ctx context.Context) IBudgetTagDo
 	WithResult(fc func(tx gen.Dao)) gen.ResultInfo
 	ReplaceDB(db *gorm.DB)
-	ReadDB() IBudgetRevisionDo
-	WriteDB() IBudgetRevisionDo
+	ReadDB() IBudgetTagDo
+	WriteDB() IBudgetTagDo
 	As(alias string) gen.Dao
-	Session(config *gorm.Session) IBudgetRevisionDo
+	Session(config *gorm.Session) IBudgetTagDo
 	Columns(cols ...field.Expr) gen.Columns
-	Clauses(conds ...clause.Expression) IBudgetRevisionDo
-	Not(conds ...gen.Condition) IBudgetRevisionDo
-	Or(conds ...gen.Condition) IBudgetRevisionDo
-	Select(conds ...field.Expr) IBudgetRevisionDo
-	Where(conds ...gen.Condition) IBudgetRevisionDo
-	Order(conds ...field.Expr) IBudgetRevisionDo
-	Distinct(cols ...field.Expr) IBudgetRevisionDo
-	Omit(cols ...field.Expr) IBudgetRevisionDo
-	Join(table schema.Tabler, on ...field.Expr) IBudgetRevisionDo
-	LeftJoin(table schema.Tabler, on ...field.Expr) IBudgetRevisionDo
-	RightJoin(table schema.Tabler, on ...field.Expr) IBudgetRevisionDo
-	Group(cols ...field.Expr) IBudgetRevisionDo
-	Having(conds ...gen.Condition) IBudgetRevisionDo
-	Limit(limit int) IBudgetRevisionDo
-	Offset(offset int) IBudgetRevisionDo
+	Clauses(conds ...clause.Expression) IBudgetTagDo
+	Not(conds ...gen.Condition) IBudgetTagDo
+	Or(conds ...gen.Condition) IBudgetTagDo
+	Select(conds ...field.Expr) IBudgetTagDo
+	Where(conds ...gen.Condition) IBudgetTagDo
+	Order(conds ...field.Expr) IBudgetTagDo
+	Distinct(cols ...field.Expr) IBudgetTagDo
+	Omit(cols ...field.Expr) IBudgetTagDo
+	Join(table schema.Tabler, on ...field.Expr) IBudgetTagDo
+	LeftJoin(table schema.Tabler, on ...field.Expr) IBudgetTagDo
+	RightJoin(table schema.Tabler, on ...field.Expr) IBudgetTagDo
+	Group(cols ...field.Expr) IBudgetTagDo
+	Having(conds ...gen.Condition) IBudgetTagDo
+	Limit(limit int) IBudgetTagDo
+	Offset(offset int) IBudgetTagDo
 	Count() (count int64, err error)
-	Scopes(funcs ...func(gen.Dao) gen.Dao) IBudgetRevisionDo
-	Unscoped() IBudgetRevisionDo
-	Create(values ...*model.BudgetRevision) error
-	CreateInBatches(values []*model.BudgetRevision, batchSize int) error
-	Save(values ...*model.BudgetRevision) error
-	First() (*model.BudgetRevision, error)
-	Take() (*model.BudgetRevision, error)
-	Last() (*model.BudgetRevision, error)
-	Find() ([]*model.BudgetRevision, error)
-	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.BudgetRevision, err error)
-	FindInBatches(result *[]*model.BudgetRevision, batchSize int, fc func(tx gen.Dao, batch int) error) error
+	Scopes(funcs ...func(gen.Dao) gen.Dao) IBudgetTagDo
+	Unscoped() IBudgetTagDo
+	Create(values ...*model.BudgetTag) error
+	CreateInBatches(values []*model.BudgetTag, batchSize int) error
+	Save(values ...*model.BudgetTag) error
+	First() (*model.BudgetTag, error)
+	Take() (*model.BudgetTag, error)
+	Last() (*model.BudgetTag, error)
+	Find() ([]*model.BudgetTag, error)
+	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.BudgetTag, err error)
+	FindInBatches(result *[]*model.BudgetTag, batchSize int, fc func(tx gen.Dao, batch int) error) error
 	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*model.BudgetRevision) (info gen.ResultInfo, err error)
+	Delete(...*model.BudgetTag) (info gen.ResultInfo, err error)
 	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
 	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
 	Updates(value interface{}) (info gen.ResultInfo, err error)
@@ -1313,165 +1326,165 @@ type IBudgetRevisionDo interface {
 	UpdateColumnSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
 	UpdateColumns(value interface{}) (info gen.ResultInfo, err error)
 	UpdateFrom(q gen.SubQuery) gen.Dao
-	Attrs(attrs ...field.AssignExpr) IBudgetRevisionDo
-	Assign(attrs ...field.AssignExpr) IBudgetRevisionDo
-	Joins(fields ...field.RelationField) IBudgetRevisionDo
-	Preload(fields ...field.RelationField) IBudgetRevisionDo
-	FirstOrInit() (*model.BudgetRevision, error)
-	FirstOrCreate() (*model.BudgetRevision, error)
-	FindByPage(offset int, limit int) (result []*model.BudgetRevision, count int64, err error)
+	Attrs(attrs ...field.AssignExpr) IBudgetTagDo
+	Assign(attrs ...field.AssignExpr) IBudgetTagDo
+	Joins(fields ...field.RelationField) IBudgetTagDo
+	Preload(fields ...field.RelationField) IBudgetTagDo
+	FirstOrInit() (*model.BudgetTag, error)
+	FirstOrCreate() (*model.BudgetTag, error)
+	FindByPage(offset int, limit int) (result []*model.BudgetTag, count int64, err error)
 	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
 	Rows() (*sql.Rows, error)
 	Row() *sql.Row
 	Scan(result interface{}) (err error)
-	Returning(value interface{}, columns ...string) IBudgetRevisionDo
+	Returning(value interface{}, columns ...string) IBudgetTagDo
 	UnderlyingDB() *gorm.DB
 	schema.Tabler
 }
 
-func (b budgetRevisionDo) Debug() IBudgetRevisionDo {
+func (b budgetTagDo) Debug() IBudgetTagDo {
 	return b.withDO(b.DO.Debug())
 }
 
-func (b budgetRevisionDo) WithContext(ctx context.Context) IBudgetRevisionDo {
+func (b budgetTagDo) WithContext(ctx context.Context) IBudgetTagDo {
 	return b.withDO(b.DO.WithContext(ctx))
 }
 
-func (b budgetRevisionDo) ReadDB() IBudgetRevisionDo {
+func (b budgetTagDo) ReadDB() IBudgetTagDo {
 	return b.Clauses(dbresolver.Read)
 }
 
-func (b budgetRevisionDo) WriteDB() IBudgetRevisionDo {
+func (b budgetTagDo) WriteDB() IBudgetTagDo {
 	return b.Clauses(dbresolver.Write)
 }
 
-func (b budgetRevisionDo) Session(config *gorm.Session) IBudgetRevisionDo {
+func (b budgetTagDo) Session(config *gorm.Session) IBudgetTagDo {
 	return b.withDO(b.DO.Session(config))
 }
 
-func (b budgetRevisionDo) Clauses(conds ...clause.Expression) IBudgetRevisionDo {
+func (b budgetTagDo) Clauses(conds ...clause.Expression) IBudgetTagDo {
 	return b.withDO(b.DO.Clauses(conds...))
 }
 
-func (b budgetRevisionDo) Returning(value interface{}, columns ...string) IBudgetRevisionDo {
+func (b budgetTagDo) Returning(value interface{}, columns ...string) IBudgetTagDo {
 	return b.withDO(b.DO.Returning(value, columns...))
 }
 
-func (b budgetRevisionDo) Not(conds ...gen.Condition) IBudgetRevisionDo {
+func (b budgetTagDo) Not(conds ...gen.Condition) IBudgetTagDo {
 	return b.withDO(b.DO.Not(conds...))
 }
 
-func (b budgetRevisionDo) Or(conds ...gen.Condition) IBudgetRevisionDo {
+func (b budgetTagDo) Or(conds ...gen.Condition) IBudgetTagDo {
 	return b.withDO(b.DO.Or(conds...))
 }
 
-func (b budgetRevisionDo) Select(conds ...field.Expr) IBudgetRevisionDo {
+func (b budgetTagDo) Select(conds ...field.Expr) IBudgetTagDo {
 	return b.withDO(b.DO.Select(conds...))
 }
 
-func (b budgetRevisionDo) Where(conds ...gen.Condition) IBudgetRevisionDo {
+func (b budgetTagDo) Where(conds ...gen.Condition) IBudgetTagDo {
 	return b.withDO(b.DO.Where(conds...))
 }
 
-func (b budgetRevisionDo) Order(conds ...field.Expr) IBudgetRevisionDo {
+func (b budgetTagDo) Order(conds ...field.Expr) IBudgetTagDo {
 	return b.withDO(b.DO.Order(conds...))
 }
 
-func (b budgetRevisionDo) Distinct(cols ...field.Expr) IBudgetRevisionDo {
+func (b budgetTagDo) Distinct(cols ...field.Expr) IBudgetTagDo {
 	return b.withDO(b.DO.Distinct(cols...))
 }
 
-func (b budgetRevisionDo) Omit(cols ...field.Expr) IBudgetRevisionDo {
+func (b budgetTagDo) Omit(cols ...field.Expr) IBudgetTagDo {
 	return b.withDO(b.DO.Omit(cols...))
 }
 
-func (b budgetRevisionDo) Join(table schema.Tabler, on ...field.Expr) IBudgetRevisionDo {
+func (b budgetTagDo) Join(table schema.Tabler, on ...field.Expr) IBudgetTagDo {
 	return b.withDO(b.DO.Join(table, on...))
 }
 
-func (b budgetRevisionDo) LeftJoin(table schema.Tabler, on ...field.Expr) IBudgetRevisionDo {
+func (b budgetTagDo) LeftJoin(table schema.Tabler, on ...field.Expr) IBudgetTagDo {
 	return b.withDO(b.DO.LeftJoin(table, on...))
 }
 
-func (b budgetRevisionDo) RightJoin(table schema.Tabler, on ...field.Expr) IBudgetRevisionDo {
+func (b budgetTagDo) RightJoin(table schema.Tabler, on ...field.Expr) IBudgetTagDo {
 	return b.withDO(b.DO.RightJoin(table, on...))
 }
 
-func (b budgetRevisionDo) Group(cols ...field.Expr) IBudgetRevisionDo {
+func (b budgetTagDo) Group(cols ...field.Expr) IBudgetTagDo {
 	return b.withDO(b.DO.Group(cols...))
 }
 
-func (b budgetRevisionDo) Having(conds ...gen.Condition) IBudgetRevisionDo {
+func (b budgetTagDo) Having(conds ...gen.Condition) IBudgetTagDo {
 	return b.withDO(b.DO.Having(conds...))
 }
 
-func (b budgetRevisionDo) Limit(limit int) IBudgetRevisionDo {
+func (b budgetTagDo) Limit(limit int) IBudgetTagDo {
 	return b.withDO(b.DO.Limit(limit))
 }
 
-func (b budgetRevisionDo) Offset(offset int) IBudgetRevisionDo {
+func (b budgetTagDo) Offset(offset int) IBudgetTagDo {
 	return b.withDO(b.DO.Offset(offset))
 }
 
-func (b budgetRevisionDo) Scopes(funcs ...func(gen.Dao) gen.Dao) IBudgetRevisionDo {
+func (b budgetTagDo) Scopes(funcs ...func(gen.Dao) gen.Dao) IBudgetTagDo {
 	return b.withDO(b.DO.Scopes(funcs...))
 }
 
-func (b budgetRevisionDo) Unscoped() IBudgetRevisionDo {
+func (b budgetTagDo) Unscoped() IBudgetTagDo {
 	return b.withDO(b.DO.Unscoped())
 }
 
-func (b budgetRevisionDo) Create(values ...*model.BudgetRevision) error {
+func (b budgetTagDo) Create(values ...*model.BudgetTag) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return b.DO.Create(values)
 }
 
-func (b budgetRevisionDo) CreateInBatches(values []*model.BudgetRevision, batchSize int) error {
+func (b budgetTagDo) CreateInBatches(values []*model.BudgetTag, batchSize int) error {
 	return b.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (b budgetRevisionDo) Save(values ...*model.BudgetRevision) error {
+func (b budgetTagDo) Save(values ...*model.BudgetTag) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return b.DO.Save(values)
 }
 
-func (b budgetRevisionDo) First() (*model.BudgetRevision, error) {
+func (b budgetTagDo) First() (*model.BudgetTag, error) {
 	if result, err := b.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.BudgetRevision), nil
+		return result.(*model.BudgetTag), nil
 	}
 }
 
-func (b budgetRevisionDo) Take() (*model.BudgetRevision, error) {
+func (b budgetTagDo) Take() (*model.BudgetTag, error) {
 	if result, err := b.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.BudgetRevision), nil
+		return result.(*model.BudgetTag), nil
 	}
 }
 
-func (b budgetRevisionDo) Last() (*model.BudgetRevision, error) {
+func (b budgetTagDo) Last() (*model.BudgetTag, error) {
 	if result, err := b.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.BudgetRevision), nil
+		return result.(*model.BudgetTag), nil
 	}
 }
 
-func (b budgetRevisionDo) Find() ([]*model.BudgetRevision, error) {
+func (b budgetTagDo) Find() ([]*model.BudgetTag, error) {
 	result, err := b.DO.Find()
-	return result.([]*model.BudgetRevision), err
+	return result.([]*model.BudgetTag), err
 }
 
-func (b budgetRevisionDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.BudgetRevision, err error) {
-	buf := make([]*model.BudgetRevision, 0, batchSize)
+func (b budgetTagDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.BudgetTag, err error) {
+	buf := make([]*model.BudgetTag, 0, batchSize)
 	err = b.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -1479,49 +1492,49 @@ func (b budgetRevisionDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch i
 	return results, err
 }
 
-func (b budgetRevisionDo) FindInBatches(result *[]*model.BudgetRevision, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (b budgetTagDo) FindInBatches(result *[]*model.BudgetTag, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return b.DO.FindInBatches(result, batchSize, fc)
 }
 
-func (b budgetRevisionDo) Attrs(attrs ...field.AssignExpr) IBudgetRevisionDo {
+func (b budgetTagDo) Attrs(attrs ...field.AssignExpr) IBudgetTagDo {
 	return b.withDO(b.DO.Attrs(attrs...))
 }
 
-func (b budgetRevisionDo) Assign(attrs ...field.AssignExpr) IBudgetRevisionDo {
+func (b budgetTagDo) Assign(attrs ...field.AssignExpr) IBudgetTagDo {
 	return b.withDO(b.DO.Assign(attrs...))
 }
 
-func (b budgetRevisionDo) Joins(fields ...field.RelationField) IBudgetRevisionDo {
+func (b budgetTagDo) Joins(fields ...field.RelationField) IBudgetTagDo {
 	for _, _f := range fields {
 		b = *b.withDO(b.DO.Joins(_f))
 	}
 	return &b
 }
 
-func (b budgetRevisionDo) Preload(fields ...field.RelationField) IBudgetRevisionDo {
+func (b budgetTagDo) Preload(fields ...field.RelationField) IBudgetTagDo {
 	for _, _f := range fields {
 		b = *b.withDO(b.DO.Preload(_f))
 	}
 	return &b
 }
 
-func (b budgetRevisionDo) FirstOrInit() (*model.BudgetRevision, error) {
+func (b budgetTagDo) FirstOrInit() (*model.BudgetTag, error) {
 	if result, err := b.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.BudgetRevision), nil
+		return result.(*model.BudgetTag), nil
 	}
 }
 
-func (b budgetRevisionDo) FirstOrCreate() (*model.BudgetRevision, error) {
+func (b budgetTagDo) FirstOrCreate() (*model.BudgetTag, error) {
 	if result, err := b.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.BudgetRevision), nil
+		return result.(*model.BudgetTag), nil
 	}
 }
 
-func (b budgetRevisionDo) FindByPage(offset int, limit int) (result []*model.BudgetRevision, count int64, err error) {
+func (b budgetTagDo) FindByPage(offset int, limit int) (result []*model.BudgetTag, count int64, err error) {
 	result, err = b.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -1536,7 +1549,7 @@ func (b budgetRevisionDo) FindByPage(offset int, limit int) (result []*model.Bud
 	return
 }
 
-func (b budgetRevisionDo) ScanByPage(result interface{}, offset int, limit int) (count int64, err error) {
+func (b budgetTagDo) ScanByPage(result interface{}, offset int, limit int) (count int64, err error) {
 	count, err = b.Count()
 	if err != nil {
 		return
@@ -1546,15 +1559,15 @@ func (b budgetRevisionDo) ScanByPage(result interface{}, offset int, limit int) 
 	return
 }
 
-func (b budgetRevisionDo) Scan(result interface{}) (err error) {
+func (b budgetTagDo) Scan(result interface{}) (err error) {
 	return b.DO.Scan(result)
 }
 
-func (b budgetRevisionDo) Delete(models ...*model.BudgetRevision) (result gen.ResultInfo, err error) {
+func (b budgetTagDo) Delete(models ...*model.BudgetTag) (result gen.ResultInfo, err error) {
 	return b.DO.Delete(models)
 }
 
-func (b *budgetRevisionDo) withDO(do gen.Dao) *budgetRevisionDo {
+func (b *budgetTagDo) withDO(do gen.Dao) *budgetTagDo {
 	b.DO = *do.(*gen.DO)
 	return b
 }

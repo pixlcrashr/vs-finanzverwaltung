@@ -1,0 +1,544 @@
+// Package filter provides AIP-160-compliant filter parsing for each gRPC
+// service entity. Each entity exposes:
+//   - A ParseXxxFilter(raw string) function that validates the filter string
+//     against a schema of declared identifiers and returns an abstract cond.Cond.
+//
+// The returned cond.Cond supports nested boolean logic (AND, OR, NOT) with
+// a maximum nesting depth of 3 levels.
+//
+// Supported AIP-160 operators:
+//   - =   equality              (e.g. is_archived=true)
+//   - !=  inequality            (e.g. is_closed!=false)
+//   - <, <=, >, >=  comparison  (e.g. year>=2024)
+//   - :   has / substring       (e.g. display_name:"foo")
+//   - AND / OR / NOT            boolean combinators
+package filter
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/pixlcrashr/vsfv/pkg/query/cond"
+	"go.einride.tech/aip/filtering"
+	expr "google.golang.org/genproto/googleapis/api/expr/v1alpha1"
+)
+
+// ── shared helpers ────────────────────────────────────────────────────────────
+
+// parseWith parses a raw AIP-160 filter string against the provided
+// declarations. Returns nil when raw is empty (no filter applied).
+func parseWith(raw string, decls *filtering.Declarations) (*filtering.Filter, error) {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return nil, nil
+	}
+	f, err := filtering.ParseFilterString(raw, decls)
+	if err != nil {
+		return nil, fmt.Errorf("invalid filter: %w", err)
+	}
+	return &f, nil
+}
+
+// mustDecls builds a Declarations instance, panicking on error (programming bug).
+func mustDecls(opts ...filtering.DeclarationOption) *filtering.Declarations {
+	all := make([]filtering.DeclarationOption, 0, len(opts)+1)
+	all = append(all, filtering.DeclareStandardFunctions())
+	all = append(all, opts...)
+	d, err := filtering.NewDeclarations(all...)
+	if err != nil {
+		panic("filter: declarations error: " + err.Error())
+	}
+	return d
+}
+
+// ── constant extractors ───────────────────────────────────────────────────────
+
+func stringVal(c *expr.Constant) (string, bool) {
+	if s, ok := c.ConstantKind.(*expr.Constant_StringValue); ok {
+		return s.StringValue, true
+	}
+	return "", false
+}
+
+func boolVal(c *expr.Constant) (bool, bool) {
+	if b, ok := c.ConstantKind.(*expr.Constant_BoolValue); ok {
+		return b.BoolValue, true
+	}
+	return false, false
+}
+
+func int64Val(c *expr.Constant) (int64, bool) {
+	if i, ok := c.ConstantKind.(*expr.Constant_Int64Value); ok {
+		return i.Int64Value, true
+	}
+	return 0, false
+}
+
+// ── per-entity declarations (package-level singletons) ─────────────────────
+
+var (
+	acctDecls = mustDecls(
+		filtering.DeclareIdent("display_name", filtering.TypeString),
+		filtering.DeclareIdent("display_code", filtering.TypeString),
+		filtering.DeclareIdent("is_archived", filtering.TypeBool),
+	)
+	acctGroupDecls = mustDecls(
+		filtering.DeclareIdent("display_name", filtering.TypeString),
+	)
+	acctGroupAssignmentDecls = mustDecls(
+		filtering.DeclareIdent("account_id", filtering.TypeString),
+		filtering.DeclareIdent("negate", filtering.TypeBool),
+	)
+	budgetDecls = mustDecls(
+		filtering.DeclareIdent("display_name", filtering.TypeString),
+		filtering.DeclareIdent("is_closed", filtering.TypeBool),
+	)
+	budgetTagDecls = mustDecls(
+		filtering.DeclareIdent("date", filtering.TypeString),
+		filtering.DeclareIdent("display_description", filtering.TypeString),
+	)
+	importSourceDecls = mustDecls(
+		filtering.DeclareIdent("display_name", filtering.TypeString),
+	)
+	importSourcePeriodDecls = mustDecls(
+		filtering.DeclareIdent("year", filtering.TypeInt),
+		filtering.DeclareIdent("is_closed", filtering.TypeBool),
+	)
+	transactionDecls = mustDecls(
+		filtering.DeclareIdent("credit_transaction_account_id", filtering.TypeString),
+		filtering.DeclareIdent("debit_transaction_account_id", filtering.TypeString),
+		filtering.DeclareIdent("booked_at", filtering.TypeString),
+	)
+	transactionAccountDecls = mustDecls(
+		filtering.DeclareIdent("import_source_id", filtering.TypeString),
+		filtering.DeclareIdent("code", filtering.TypeString),
+		filtering.DeclareIdent("display_name", filtering.TypeString),
+	)
+	transactionAccountAssignmentDecls = mustDecls(
+		filtering.DeclareIdent("account_id", filtering.TypeString),
+	)
+	reportTemplateDecls = mustDecls(
+		filtering.DeclareIdent("display_name", filtering.TypeString),
+	)
+	reportDecls = mustDecls(
+		filtering.DeclareIdent("display_name", filtering.TypeString),
+	)
+)
+
+// maxFilterDepth is the maximum nesting level for filter conditions (AND/OR/NOT).
+const maxFilterDepth = 3
+
+// ── Account ──────────────────────────────────────────────────────────────────
+
+// ParseAccountFilter parses an AIP-160 filter string into an abstract condition chain.
+// The returned cond.Cond preserves AND, OR, NOT logical operators and uses filter
+// field names (not DB columns). Returns nil for empty filter.
+func ParseAccountFilter(raw string) (cond.Cond, error) {
+	f, err := parseWith(raw, acctDecls)
+	if err != nil || f == nil {
+		return nil, err
+	}
+	return buildCond(f.CheckedExpr.GetExpr(), 0)
+}
+
+// buildCond recursively builds a cond.Cond from a CEL expression.
+// depth tracks the current nesting level; returns error if maxFilterDepth is exceeded.
+func buildCond(e *expr.Expr, depth int) (cond.Cond, error) {
+	if depth > maxFilterDepth {
+		return nil, fmt.Errorf("filter nesting exceeds maximum depth of %d", maxFilterDepth)
+	}
+	if e == nil {
+		return nil, nil
+	}
+
+	// Handle call expressions (operators and functions)
+	if call := e.GetCallExpr(); call != nil {
+		return buildCallCond(call, depth)
+	}
+
+	// Handle identifiers (bare boolean field like "is_archived")
+	if ident := e.GetIdentExpr(); ident != nil {
+		return cond.Eq(ident.GetName(), true), nil
+	}
+
+	return nil, nil
+}
+
+// buildCallCond builds a cond.Cond from a CEL call expression.
+func buildCallCond(call *expr.Expr_Call, depth int) (cond.Cond, error) {
+	fn := call.GetFunction()
+	args := call.GetArgs()
+
+	nextDepth := depth + 1
+	switch fn {
+	case filtering.FunctionAnd, filtering.FunctionFuzzyAnd:
+		return buildAndCond(args, nextDepth)
+	case filtering.FunctionOr:
+		return buildOrCond(args, nextDepth)
+	case filtering.FunctionNot:
+		if len(args) == 1 {
+			inner, err := buildCond(args[0], nextDepth)
+			if err != nil {
+				return nil, err
+			}
+			return cond.Not(inner), nil
+		}
+		return nil, fmt.Errorf("NOT requires exactly 1 argument, got %d", len(args))
+
+	case filtering.FunctionEquals, filtering.FunctionNotEquals,
+		filtering.FunctionLessThan, filtering.FunctionLessEquals,
+		filtering.FunctionGreaterThan, filtering.FunctionGreaterEquals:
+		return buildComparisonCond(fn, args)
+
+	case filtering.FunctionHas:
+		return buildHasCond(args)
+
+	default:
+		return nil, fmt.Errorf("unsupported filter function: %s", fn)
+	}
+}
+
+// buildAndCond builds an AND condition.
+func buildAndCond(args []*expr.Expr, depth int) (cond.Cond, error) {
+	var conds []cond.Cond
+	for _, arg := range args {
+		c, err := buildCond(arg, depth)
+		if err != nil {
+			return nil, err
+		}
+		if c != nil && !c.IsEmpty() {
+			conds = append(conds, c)
+		}
+	}
+	if len(conds) == 0 {
+		return nil, nil
+	}
+	return cond.And(conds...), nil
+}
+
+// buildOrCond builds an OR condition.
+func buildOrCond(args []*expr.Expr, depth int) (cond.Cond, error) {
+	var conds []cond.Cond
+	for _, arg := range args {
+		c, err := buildCond(arg, depth)
+		if err != nil {
+			return nil, err
+		}
+		if c != nil && !c.IsEmpty() {
+			conds = append(conds, c)
+		}
+	}
+	if len(conds) == 0 {
+		return nil, nil
+	}
+	return cond.Or(conds...), nil
+}
+
+// buildComparisonCond builds a field comparison condition.
+func buildComparisonCond(fn string, args []*expr.Expr) (cond.Cond, error) {
+	if len(args) != 2 {
+		return nil, fmt.Errorf("comparison requires exactly 2 arguments, got %d", len(args))
+	}
+
+	field, value, err := extractFieldAndConst(args[0], args[1])
+	if err != nil {
+		return nil, err
+	}
+
+	switch fn {
+	case filtering.FunctionEquals:
+		return cond.Eq(field, constantToInterface(value)), nil
+	case filtering.FunctionNotEquals:
+		return cond.Ne(field, constantToInterface(value)), nil
+	case filtering.FunctionLessThan:
+		return cond.Lt(field, constantToInterface(value)), nil
+	case filtering.FunctionLessEquals:
+		return cond.Lte(field, constantToInterface(value)), nil
+	case filtering.FunctionGreaterThan:
+		return cond.Gt(field, constantToInterface(value)), nil
+	case filtering.FunctionGreaterEquals:
+		return cond.Gte(field, constantToInterface(value)), nil
+	}
+	return nil, fmt.Errorf("unknown comparison operator: %s", fn)
+}
+
+// buildHasCond builds a substring match condition.
+func buildHasCond(args []*expr.Expr) (cond.Cond, error) {
+	if len(args) != 2 {
+		return nil, fmt.Errorf("HAS requires exactly 2 arguments, got %d", len(args))
+	}
+
+	field, value, err := extractFieldAndConst(args[0], args[1])
+	if err != nil {
+		return nil, err
+	}
+
+	s, ok := constantToInterface(value).(string)
+	if !ok {
+		return nil, fmt.Errorf("HAS operator requires string value")
+	}
+	return cond.Has(field, s), nil
+}
+
+// constantToInterface converts a CEL constant to a Go interface{} value.
+func constantToInterface(c *expr.Constant) interface{} {
+	switch v := c.ConstantKind.(type) {
+	case *expr.Constant_StringValue:
+		return v.StringValue
+	case *expr.Constant_Int64Value:
+		return v.Int64Value
+	case *expr.Constant_Uint64Value:
+		return v.Uint64Value
+	case *expr.Constant_DoubleValue:
+		return v.DoubleValue
+	case *expr.Constant_BoolValue:
+		return v.BoolValue
+	}
+	return nil
+}
+
+// ── AccountGroup ─────────────────────────────────────────────────────────────
+
+// ParseAccountGroupFilter parses an AIP-160 filter string into an abstract condition chain.
+func ParseAccountGroupFilter(raw string) (cond.Cond, error) {
+	f, err := parseWith(raw, acctGroupDecls)
+	if err != nil || f == nil {
+		return nil, err
+	}
+	return buildCond(f.CheckedExpr.GetExpr(), 0)
+}
+
+// ── AccountGroupAssignment ───────────────────────────────────────────────────
+
+// ParseAccountGroupAssignmentFilter parses an AIP-160 filter string into an abstract condition chain.
+func ParseAccountGroupAssignmentFilter(raw string) (cond.Cond, error) {
+	f, err := parseWith(raw, acctGroupAssignmentDecls)
+	if err != nil || f == nil {
+		return nil, err
+	}
+	return buildCond(f.CheckedExpr.GetExpr(), 0)
+}
+
+// ── Budget ───────────────────────────────────────────────────────────────────
+
+// ParseBudgetFilter parses an AIP-160 filter string into an abstract condition chain.
+func ParseBudgetFilter(raw string) (cond.Cond, error) {
+	f, err := parseWith(raw, budgetDecls)
+	if err != nil || f == nil {
+		return nil, err
+	}
+	return buildCond(f.CheckedExpr.GetExpr(), 0)
+}
+
+// ── BudgetTag ────────────────────────────────────────────────────────────────
+
+// ParseBudgetTagFilter parses an AIP-160 filter string into an abstract condition chain.
+func ParseBudgetTagFilter(raw string) (cond.Cond, error) {
+	f, err := parseWith(raw, budgetTagDecls)
+	if err != nil || f == nil {
+		return nil, err
+	}
+	return buildCond(f.CheckedExpr.GetExpr(), 0)
+}
+
+// ── ImportSource ─────────────────────────────────────────────────────────────
+
+// ParseImportSourceFilter parses an AIP-160 filter string into an abstract condition chain.
+func ParseImportSourceFilter(raw string) (cond.Cond, error) {
+	f, err := parseWith(raw, importSourceDecls)
+	if err != nil || f == nil {
+		return nil, err
+	}
+	return buildCond(f.CheckedExpr.GetExpr(), 0)
+}
+
+// ── ImportSourcePeriod ───────────────────────────────────────────────────────
+
+// ParseImportSourcePeriodFilter parses an AIP-160 filter string into an abstract condition chain.
+func ParseImportSourcePeriodFilter(raw string) (cond.Cond, error) {
+	f, err := parseWith(raw, importSourcePeriodDecls)
+	if err != nil || f == nil {
+		return nil, err
+	}
+	return buildCond(f.CheckedExpr.GetExpr(), 0)
+}
+
+// ── Transaction ──────────────────────────────────────────────────────────────
+
+// ParseTransactionFilter parses an AIP-160 filter string into an abstract condition chain.
+func ParseTransactionFilter(raw string) (cond.Cond, error) {
+	f, err := parseWith(raw, transactionDecls)
+	if err != nil || f == nil {
+		return nil, err
+	}
+	return buildCond(f.CheckedExpr.GetExpr(), 0)
+}
+
+// ── TransactionAccount ───────────────────────────────────────────────────────
+
+// ParseTransactionAccountFilter parses an AIP-160 filter string into an abstract condition chain.
+func ParseTransactionAccountFilter(raw string) (cond.Cond, error) {
+	f, err := parseWith(raw, transactionAccountDecls)
+	if err != nil || f == nil {
+		return nil, err
+	}
+	return buildCond(f.CheckedExpr.GetExpr(), 0)
+}
+
+// ── TransactionAccountAssignment ─────────────────────────────────────────────
+
+// ParseTransactionAccountAssignmentFilter parses an AIP-160 filter string into an abstract condition chain.
+func ParseTransactionAccountAssignmentFilter(raw string) (cond.Cond, error) {
+	f, err := parseWith(raw, transactionAccountAssignmentDecls)
+	if err != nil || f == nil {
+		return nil, err
+	}
+	return buildCond(f.CheckedExpr.GetExpr(), 0)
+}
+
+// ── ReportTemplate ───────────────────────────────────────────────────────────
+
+// ParseReportTemplateFilter parses an AIP-160 filter string into an abstract condition chain.
+func ParseReportTemplateFilter(raw string) (cond.Cond, error) {
+	f, err := parseWith(raw, reportTemplateDecls)
+	if err != nil || f == nil {
+		return nil, err
+	}
+	return buildCond(f.CheckedExpr.GetExpr(), 0)
+}
+
+// ── Report ───────────────────────────────────────────────────────────────────
+
+// ParseReportFilter parses an AIP-160 filter string into an abstract condition chain.
+func ParseReportFilter(raw string) (cond.Cond, error) {
+	f, err := parseWith(raw, reportDecls)
+	if err != nil || f == nil {
+		return nil, err
+	}
+	return buildCond(f.CheckedExpr.GetExpr(), 0)
+}
+
+// ── AST walker ───────────────────────────────────────────────────────────────
+
+// fieldVisitor is called for each simple field comparison found in the AST.
+// op is one of: =, !=, <, <=, >, >=, : (has).
+type fieldVisitor func(field, op string, val *expr.Constant) error
+
+// walkSimple traverses a CEL expression tree and calls visitor for each
+// leaf comparison. AND/OR/NOT combinators are recursed into transparently.
+// Only simple <ident> <op> <literal> and <literal> <op> <ident> forms are
+// supported; anything else returns an error.
+func walkSimple(e *expr.Expr, visit fieldVisitor) error {
+	if e == nil {
+		return nil
+	}
+	if call := e.GetCallExpr(); call != nil {
+		fn := call.GetFunction()
+		args := call.GetArgs()
+		switch fn {
+		case filtering.FunctionAnd, filtering.FunctionOr, filtering.FunctionFuzzyAnd:
+			for _, a := range args {
+				if err := walkSimple(a, visit); err != nil {
+					return err
+				}
+			}
+		case filtering.FunctionNot:
+			if len(args) == 1 {
+				return walkSimple(args[0], visit)
+			}
+		case filtering.FunctionEquals, filtering.FunctionNotEquals,
+			filtering.FunctionLessThan, filtering.FunctionLessEquals,
+			filtering.FunctionGreaterThan, filtering.FunctionGreaterEquals:
+			if len(args) != 2 {
+				return fmt.Errorf("expected 2 args for %s", fn)
+			}
+			field, val, err := extractFieldAndConst(args[0], args[1])
+			if err != nil {
+				return err
+			}
+			return visit(field, fn, val)
+		case filtering.FunctionHas:
+			if len(args) != 2 {
+				return fmt.Errorf("expected 2 args for :")
+			}
+			field, val, err := extractFieldAndConst(args[0], args[1])
+			if err != nil {
+				return err
+			}
+			return visit(field, filtering.FunctionHas, val)
+		default:
+			return fmt.Errorf("unsupported filter function %q", fn)
+		}
+		return nil
+	}
+	if ident := e.GetIdentExpr(); ident != nil {
+		// bare identifier — treat as boolean field = true
+		return visit(ident.GetName(), filtering.FunctionEquals, &expr.Constant{
+			ConstantKind: &expr.Constant_BoolValue{BoolValue: true},
+		})
+	}
+	return nil
+}
+
+// extractFieldAndConst returns (fieldName, constant) from a pair of args
+// in either order (field op const OR const op field).
+func extractFieldAndConst(a, b *expr.Expr) (string, *expr.Constant, error) {
+	fieldName, constVal, err := tryFieldConst(a, b)
+	if err == nil {
+		return fieldName, constVal, nil
+	}
+	// reversed
+	fieldName, constVal, err = tryFieldConst(b, a)
+	if err == nil {
+		return fieldName, constVal, nil
+	}
+	return "", nil, fmt.Errorf("filter: expected (field op literal) expression")
+}
+
+func tryFieldConst(maybeField, maybeConst *expr.Expr) (string, *expr.Constant, error) {
+	name := identName(maybeField)
+	if name == "" {
+		return "", nil, fmt.Errorf("not an ident")
+	}
+	name = toSnakeCase(name)
+
+	if c := maybeConst.GetConstExpr(); c != nil {
+		return name, c, nil
+	}
+
+	// RHS may itself be an ident for bool fields (e.g. bare "true"/"false" idents).
+	if rName := identName(maybeConst); rName == "true" || rName == "false" {
+		return name, &expr.Constant{ConstantKind: &expr.Constant_BoolValue{BoolValue: rName == "true"}}, nil
+	}
+
+	return "", nil, fmt.Errorf("not a const")
+}
+
+func identName(e *expr.Expr) string {
+	if ident := e.GetIdentExpr(); ident != nil {
+		return ident.GetName()
+	}
+	if sel := e.GetSelectExpr(); sel != nil {
+		parent := identName(sel.GetOperand())
+		if parent != "" {
+			return parent + "." + sel.GetField()
+		}
+	}
+	return ""
+}
+
+// toSnakeCase converts camelCase to snake_case for field name normalization.
+func toSnakeCase(s string) string {
+	var b strings.Builder
+	for i, r := range s {
+		if r >= 'A' && r <= 'Z' {
+			if i > 0 {
+				b.WriteByte('_')
+			}
+			b.WriteRune(r + 32)
+		} else {
+			b.WriteRune(r)
+		}
+	}
+	return b.String()
+}

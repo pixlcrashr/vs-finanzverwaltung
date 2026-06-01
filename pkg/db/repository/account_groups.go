@@ -2,25 +2,35 @@ package repository
 
 import (
 	"context"
-	"strings"
 
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/go-pagetoken/order"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
+	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"gorm.io/gorm"
 )
 
 // ListAccountGroupsParams drives the List query.
 type ListAccountGroupsParams struct {
-	// NamePrefix filters account groups whose display_name starts with this string (case-insensitive).
-	NamePrefix string
+	// Cond is an optional abstract condition chain (AND/OR/NOT support).
+	Cond cond.Cond
 	// OrderBy specifies the sort field and direction (e.g. "displayName", "createTime desc").
 	OrderBy order.Fields
 	// Page number (1-indexed).
 	Page int
 	// PageSize caps the number of rows returned.
 	PageSize int
+}
+
+// accountGroupColumnMapper maps filter field names to database column names.
+func accountGroupColumnMapper(field string) (string, bool) {
+	switch field {
+	case "display_name":
+		return "display_name", true
+	default:
+		return "", false
+	}
 }
 
 // AccountGroupRepository provides CRUD and specialised queries for the account_groups table.
@@ -43,36 +53,39 @@ func (r *AccountGroupRepository) List(ctx context.Context, params ListAccountGro
 		params.Page = 1
 	}
 
-	ag := r.q.AccountGroup.WithContext(ctx)
+	db := r.db.WithContext(ctx).Table("account_groups")
 
-	if params.NamePrefix != "" {
-		ag = ag.Where(r.q.AccountGroup.DisplayName.Lower().Like(strings.ToLower(params.NamePrefix) + "%"))
-	}
+	// Apply abstract condition chain
+	db = cond.Apply(db, params.Cond, accountGroupColumnMapper)
 
 	// Get total count before pagination
-	total, err := ag.Count()
-	if err != nil {
+	var total int64
+	if err := db.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
 	// Apply ordering
-	if exprs := ResolveOrderBy(&r.q.AccountGroup, params.OrderBy); len(exprs) > 0 {
-		for _, expr := range exprs {
-			ag = ag.Order(expr)
-		}
+	if params.Cond != nil && !params.Cond.IsEmpty() {
+		db = db.Order("created_at DESC")
 	} else {
-		ag = ag.Order(r.q.AccountGroup.CreatedAt.Desc())
+		if exprs := ResolveOrderBy(&r.q.AccountGroup, params.OrderBy); len(exprs) > 0 {
+			for _, expr := range exprs {
+				db = db.Order(expr)
+			}
+		} else {
+			db = db.Order("created_at DESC")
+		}
 	}
 
 	// Apply pagination
 	offset := (params.Page - 1) * params.PageSize
 	if offset > 0 {
-		ag = ag.Offset(offset)
+		db = db.Offset(offset)
 	}
-	ag = ag.Limit(params.PageSize)
+	db = db.Limit(params.PageSize)
 
-	ms, err := ag.Find()
-	if err != nil {
+	var ms []*model.AccountGroup
+	if err := db.Find(&ms).Error; err != nil {
 		return nil, 0, err
 	}
 

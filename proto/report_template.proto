@@ -1,0 +1,146 @@
+syntax = "proto3";
+
+package pixlcrashr.vsfv.v1;
+
+option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+// ReportTemplate is a Handlebars template used to render reports.
+message ReportTemplate {
+  option (google.api.resource) = {
+    type: "vsfv.pixlcrashr.dev/ReportTemplate"
+    pattern: "reportTemplates/{report_template}"
+  };
+
+  // The resource name of the report template.
+  // Format: reportTemplates/{report_template}
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The UUID of the report template.
+  string uid = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Human-readable name.
+  string display_name = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // The Handlebars template content.
+  string template = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // Last modification timestamp.
+  google.protobuf.Timestamp update_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Creation timestamp.
+  google.protobuf.Timestamp create_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message GetReportTemplateRequest {
+  // The resource name of the report template.
+  // Format: reportTemplates/{report_template}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/ReportTemplate"}
+  ];
+}
+
+message ListReportTemplatesRequest {
+  // Maximum number of templates to return. The service may return fewer.
+  // If unspecified, at most 20 are returned. Maximum value is 100.
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // A page token from a previous ListReportTemplates call.
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter expression conforming to AIP-160.
+  // Supported fields: display_name.
+  // Example: "display_name=\"Monthly\"".
+  string filter = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order by expression (e.g. "display_name", "create_time desc").
+  string order_by = 4 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ListReportTemplatesResponse {
+  // The report templates returned.
+  repeated ReportTemplate report_templates = 1;
+
+  // A token to retrieve the next page of results.
+  string next_page_token = 2;
+
+  // Total number of templates matching the filter (may be an estimate).
+  int64 total_size = 3;
+}
+
+message CreateReportTemplateRequest {
+  // The report template to create.
+  ReportTemplate report_template = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message UpdateReportTemplateRequest {
+  // The report template to update.
+  ReportTemplate report_template = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The list of fields to update.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message DeleteReportTemplateRequest {
+  // The resource name of the report template.
+  // Format: reportTemplates/{report_template}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/ReportTemplate"}
+  ];
+}
+
+// ReportTemplateService manages Handlebars templates used for report generation.
+service ReportTemplateService {
+  option (google.api.default_host) = "vsfv.pixlcrashr.dev";
+
+  // Gets a single report template by resource name.
+  rpc GetReportTemplate(GetReportTemplateRequest) returns (ReportTemplate) {
+    option (google.api.http) = {
+      get: "/v1/{name=reportTemplates/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+
+  // Lists report templates with pagination.
+  rpc ListReportTemplates(ListReportTemplatesRequest) returns (ListReportTemplatesResponse) {
+    option (google.api.http) = {
+      get: "/v1/reportTemplates"
+    };
+  }
+
+  // Creates a new report template.
+  rpc CreateReportTemplate(CreateReportTemplateRequest) returns (ReportTemplate) {
+    option (google.api.http) = {
+      post: "/v1/reportTemplates"
+      body: "report_template"
+    };
+    option (google.api.method_signature) = "report_template";
+  }
+
+  // Updates an existing report template.
+  rpc UpdateReportTemplate(UpdateReportTemplateRequest) returns (ReportTemplate) {
+    option (google.api.http) = {
+      patch: "/v1/{report_template.name=reportTemplates/*}"
+      body: "report_template"
+    };
+    option (google.api.method_signature) = "report_template,update_mask";
+  }
+
+  // Permanently deletes a report template.
+  rpc DeleteReportTemplate(DeleteReportTemplateRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/{name=reportTemplates/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+}

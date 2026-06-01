@@ -8,14 +8,16 @@ import (
 )
 
 type ImportSourcePeriod struct {
-	ID             uuid.UUID  `gorm:"type:uuid;primaryKey"`
-	ImportSourceID uuid.UUID  `gorm:"type:uuid;not null;uniqueIndex:idx_import_source_periods_source_year"`
-	Year           int        `gorm:"not null;default:0;uniqueIndex:idx_import_source_periods_source_year"`
-	IsClosed       bool       `gorm:"not null;default:false"`
-	UpdatedAt      time.Time  `gorm:"not null;default:now()"`
-	CreatedAt      time.Time  `gorm:"not null;default:now()"`
+	ID             uuid.UUID `gorm:"type:uuid;primaryKey"`
+	OrganizationID uuid.UUID `gorm:"type:uuid;not null;index:idx_import_source_periods_organization_id"`
+	ImportSourceID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_import_source_periods_source_year"`
+	Year           int       `gorm:"not null;default:0;uniqueIndex:idx_import_source_periods_source_year"`
+	IsClosed       bool      `gorm:"not null;default:false"`
+	UpdatedAt      time.Time `gorm:"not null;default:now()"`
+	CreatedAt      time.Time `gorm:"not null;default:now()"`
 
 	// Relations
+	Organization Organization  `gorm:"foreignKey:OrganizationID"`
 	ImportSource *ImportSource `gorm:"foreignKey:ImportSourceID"`
 }
 

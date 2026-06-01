@@ -1,0 +1,169 @@
+syntax = "proto3";
+
+package pixlcrashr.vsfv.v1;
+
+option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+// TransactionAccountAssignment maps a transaction to a budget account with a
+// partial monetary value (split booking).
+message TransactionAccountAssignment {
+  option (google.api.resource) = {
+    type: "vsfv.pixlcrashr.dev/TransactionAccountAssignment"
+    pattern: "transactions/{transaction}/assignments/{assignment}"
+  };
+
+  // The resource name of the assignment.
+  // Format: transactions/{transaction}/assignments/{assignment}
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The UUID of the assignment.
+  string uid = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The resource name of the parent transaction.
+  // Format: transactions/{transaction}
+  string transaction = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Transaction"}
+  ];
+
+  // UUID of the budget account this portion of the transaction is assigned to.
+  string account_id = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // The decimal value assigned to this account (e.g. "50.00").
+  string value = 5 [(google.api.field_behavior) = REQUIRED];
+
+  // Last modification timestamp.
+  google.protobuf.Timestamp update_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Creation timestamp.
+  google.protobuf.Timestamp create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message GetTransactionAccountAssignmentRequest {
+  // The resource name of the assignment.
+  // Format: transactions/{transaction}/assignments/{assignment}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/TransactionAccountAssignment"}
+  ];
+}
+
+message ListTransactionAccountAssignmentsRequest {
+  // The parent transaction resource name.
+  // Format: transactions/{transaction}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Transaction"}
+  ];
+
+  // Maximum number of assignments to return. The service may return fewer.
+  // If unspecified, at most 20 are returned. Maximum value is 100.
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // A page token from a previous ListTransactionAccountAssignments call.
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter expression conforming to AIP-160.
+  // Supported fields: account_id, value.
+  // Example: "account_id=\"<uuid>\"".
+  string filter = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order by expression (e.g. "create_time desc").
+  string order_by = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ListTransactionAccountAssignmentsResponse {
+  // The assignments returned.
+  repeated TransactionAccountAssignment assignments = 1;
+
+  // A token to retrieve the next page of results.
+  string next_page_token = 2;
+
+  // Total number of assignments matching the filter (may be an estimate).
+  int64 total_size = 3;
+}
+
+message CreateTransactionAccountAssignmentRequest {
+  // The parent transaction resource name.
+  // Format: transactions/{transaction}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Transaction"}
+  ];
+
+  // The assignment to create.
+  TransactionAccountAssignment assignment = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message UpdateTransactionAccountAssignmentRequest {
+  // The assignment to update.
+  TransactionAccountAssignment assignment = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The list of fields to update.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message DeleteTransactionAccountAssignmentRequest {
+  // The resource name of the assignment.
+  // Format: transactions/{transaction}/assignments/{assignment}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/TransactionAccountAssignment"}
+  ];
+}
+
+// TransactionAccountAssignmentService manages budget account assignments for transactions.
+service TransactionAccountAssignmentService {
+  option (google.api.default_host) = "vsfv.pixlcrashr.dev";
+
+  // Gets a single assignment by resource name.
+  rpc GetTransactionAccountAssignment(GetTransactionAccountAssignmentRequest) returns (TransactionAccountAssignment) {
+    option (google.api.http) = {
+      get: "/v1/{name=transactions/*/assignments/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+
+  // Lists assignments for a transaction.
+  rpc ListTransactionAccountAssignments(ListTransactionAccountAssignmentsRequest) returns (ListTransactionAccountAssignmentsResponse) {
+    option (google.api.http) = {
+      get: "/v1/{parent=transactions/*}/assignments"
+    };
+    option (google.api.method_signature) = "parent";
+  }
+
+  // Creates a new assignment.
+  rpc CreateTransactionAccountAssignment(CreateTransactionAccountAssignmentRequest) returns (TransactionAccountAssignment) {
+    option (google.api.http) = {
+      post: "/v1/{parent=transactions/*}/assignments"
+      body: "assignment"
+    };
+    option (google.api.method_signature) = "parent,assignment";
+  }
+
+  // Updates an existing assignment.
+  rpc UpdateTransactionAccountAssignment(UpdateTransactionAccountAssignmentRequest) returns (TransactionAccountAssignment) {
+    option (google.api.http) = {
+      patch: "/v1/{assignment.name=transactions/*/assignments/*}"
+      body: "assignment"
+    };
+    option (google.api.method_signature) = "assignment,update_mask";
+  }
+
+  // Permanently deletes an assignment.
+  rpc DeleteTransactionAccountAssignment(DeleteTransactionAccountAssignmentRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/{name=transactions/*/assignments/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+}

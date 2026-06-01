@@ -2,25 +2,35 @@ package repository
 
 import (
 	"context"
-	"strings"
 
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/go-pagetoken/order"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
+	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"gorm.io/gorm"
 )
 
 // ListReportTemplatesParams drives the List query.
 type ListReportTemplatesParams struct {
-	// NamePrefix filters by name prefix.
-	NamePrefix string
+	// Cond is an optional abstract condition chain (AND/OR/NOT support).
+	Cond cond.Cond
 	// OrderBy specifies the ordering expression (e.g., "created_at desc").
 	OrderBy order.Fields
 	// Page number (1-indexed).
 	Page int
 	// PageSize caps the number of rows returned.
 	PageSize int
+}
+
+// reportTemplateColumnMapper maps filter field names to database column names.
+func reportTemplateColumnMapper(field string) (string, bool) {
+	switch field {
+	case "display_name":
+		return "display_name", true
+	default:
+		return "", false
+	}
 }
 
 // ReportTemplateRepository provides CRUD for report_templates table.
@@ -43,36 +53,36 @@ func (r *ReportTemplateRepository) List(ctx context.Context, params ListReportTe
 		params.Page = 1
 	}
 
-	rt := r.q.ReportTemplate.WithContext(ctx)
+	db := r.db.WithContext(ctx).Table("report_templates")
 
-	if params.NamePrefix != "" {
-		rt = rt.Where(r.q.ReportTemplate.DisplayName.Lower().Like(strings.ToLower(params.NamePrefix) + "%"))
-	}
+	// Apply abstract condition chain
+	db = cond.Apply(db, params.Cond, reportTemplateColumnMapper)
 
-	// Get total count before pagination
-	total, err := rt.Count()
-	if err != nil {
+	var total int64
+	if err := db.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	// Apply ordering
-	if exprs := ResolveOrderBy(&r.q.ReportTemplate, params.OrderBy); len(exprs) > 0 {
-		for _, expr := range exprs {
-			rt = rt.Order(expr)
-		}
+	if params.Cond != nil && !params.Cond.IsEmpty() {
+		db = db.Order("created_at DESC")
 	} else {
-		rt = rt.Order(r.q.ReportTemplate.CreatedAt.Desc())
+		if exprs := ResolveOrderBy(&r.q.ReportTemplate, params.OrderBy); len(exprs) > 0 {
+			for _, expr := range exprs {
+				db = db.Order(expr)
+			}
+		} else {
+			db = db.Order("created_at DESC")
+		}
 	}
 
-	// Apply pagination
 	offset := (params.Page - 1) * params.PageSize
 	if offset > 0 {
-		rt = rt.Offset(offset)
+		db = db.Offset(offset)
 	}
-	rt = rt.Limit(params.PageSize)
+	db = db.Limit(params.PageSize)
 
-	ms, err := rt.Find()
-	if err != nil {
+	var ms []*model.ReportTemplate
+	if err := db.Find(&ms).Error; err != nil {
 		return nil, 0, err
 	}
 

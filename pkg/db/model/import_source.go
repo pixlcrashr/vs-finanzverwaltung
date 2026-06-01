@@ -9,6 +9,7 @@ import (
 
 type ImportSource struct {
 	ID                 uuid.UUID `gorm:"type:uuid;primaryKey"`
+	OrganizationID     uuid.UUID `gorm:"type:uuid;not null;index:idx_import_sources_organization_id"`
 	DisplayName        string    `gorm:"not null;default:''"`
 	DisplayDescription string    `gorm:"not null;default:''"`
 	PeriodStart        time.Time `gorm:"type:date;not null;default:now()"`
@@ -16,8 +17,9 @@ type ImportSource struct {
 	CreatedAt          time.Time `gorm:"not null;default:now()"`
 
 	// Relations
-	TransactionAccounts []TransactionAccount  `gorm:"foreignKey:ImportSourceID"`
-	ImportSourcePeriods []ImportSourcePeriod  `gorm:"foreignKey:ImportSourceID"`
+	Organization        Organization         `gorm:"foreignKey:OrganizationID"`
+	TransactionAccounts []TransactionAccount `gorm:"foreignKey:ImportSourceID"`
+	ImportSourcePeriods []ImportSourcePeriod `gorm:"foreignKey:ImportSourceID"`
 }
 
 func (ImportSource) TableName() string { return "import_sources" }

@@ -8,18 +8,19 @@ import (
 )
 
 type Budget struct {
-	ID                    uuid.UUID `gorm:"type:uuid;primaryKey"`
-	DisplayName           string    `gorm:"not null;default:'';index:idx_budgets_display_name"`
-	DisplayDescription    string    `gorm:"not null;default:''"`
-	IsClosed              bool      `gorm:"not null;default:false"`
-	PeriodStart           time.Time `gorm:"not null"`
-	PeriodEnd             time.Time `gorm:"not null"`
-	UpdatedAt             time.Time `gorm:"not null;default:now()"`
-	CreatedAt             time.Time `gorm:"not null;default:now()"`
+	ID                 uuid.UUID `gorm:"type:uuid;primaryKey"`
+	OrganizationID     uuid.UUID `gorm:"type:uuid;not null;index:idx_budgets_organization_id"`
+	DisplayName        string    `gorm:"not null;default:'';index:idx_budgets_display_name"`
+	DisplayDescription string    `gorm:"not null;default:''"`
+	IsClosed           bool      `gorm:"not null;default:false"`
+	PeriodStart        time.Time `gorm:"not null"`
+	PeriodEnd          time.Time `gorm:"not null"`
+	UpdatedAt          time.Time `gorm:"not null;default:now()"`
+	CreatedAt          time.Time `gorm:"not null;default:now()"`
 
 	// Relations
-	BudgetRevisions       []BudgetRevision       `gorm:"foreignKey:BudgetID"`
-	ViewBudgetAssignments []ViewBudgetAssignment `gorm:"foreignKey:BudgetID"`
+	Organization Organization `gorm:"foreignKey:OrganizationID"`
+	BudgetTags   []BudgetTag  `gorm:"foreignKey:BudgetID"`
 }
 
 func (Budget) TableName() string { return "budgets" }

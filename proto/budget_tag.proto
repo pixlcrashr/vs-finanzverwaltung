@@ -1,0 +1,170 @@
+syntax = "proto3";
+
+package pixlcrashr.vsfv.v1;
+
+option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+import "google/type/date.proto";
+
+// BudgetTag is a named snapshot/revision tag within a budget, used to
+// associate per-account target values with a specific point in time.
+message BudgetTag {
+  option (google.api.resource) = {
+    type: "vsfv.pixlcrashr.dev/BudgetTag"
+    pattern: "budgets/{budget}/tags/{tag}"
+  };
+
+  // The resource name of the budget tag.
+  // Format: budgets/{budget}/tags/{tag}
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The UUID of the budget tag.
+  string uid = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The resource name of the parent budget.
+  // Format: budgets/{budget}
+  string budget = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Budget"}
+  ];
+
+  // The date this tag represents.
+  google.type.Date date = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // Optional free-text description.
+  string display_description = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // Last modification timestamp.
+  google.protobuf.Timestamp update_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Creation timestamp.
+  google.protobuf.Timestamp create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message GetBudgetTagRequest {
+  // The resource name of the budget tag.
+  // Format: budgets/{budget}/tags/{tag}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/BudgetTag"}
+  ];
+}
+
+message ListBudgetTagsRequest {
+  // The parent budget resource name.
+  // Format: budgets/{budget}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Budget"}
+  ];
+
+  // Maximum number of tags to return. The service may return fewer.
+  // If unspecified, at most 20 are returned. Maximum value is 100.
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // A page token from a previous ListBudgetTags call.
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter expression conforming to AIP-160.
+  // Supported fields: date, display_description.
+  // Example: "date>=\"2025-01-01\"".
+  string filter = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order by expression (e.g. "date desc", "create_time").
+  string order_by = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ListBudgetTagsResponse {
+  // The tags returned.
+  repeated BudgetTag tags = 1;
+
+  // A token to retrieve the next page of results.
+  string next_page_token = 2;
+
+  // Total number of tags matching the filter (may be an estimate).
+  int64 total_size = 3;
+}
+
+message CreateBudgetTagRequest {
+  // The parent budget resource name.
+  // Format: budgets/{budget}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Budget"}
+  ];
+
+  // The budget tag to create.
+  BudgetTag tag = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message UpdateBudgetTagRequest {
+  // The budget tag to update.
+  BudgetTag tag = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The list of fields to update.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message DeleteBudgetTagRequest {
+  // The resource name of the budget tag.
+  // Format: budgets/{budget}/tags/{tag}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/BudgetTag"}
+  ];
+}
+
+// BudgetTagService manages snapshot tags within a budget.
+service BudgetTagService {
+  option (google.api.default_host) = "vsfv.pixlcrashr.dev";
+
+  // Gets a single budget tag by resource name.
+  rpc GetBudgetTag(GetBudgetTagRequest) returns (BudgetTag) {
+    option (google.api.http) = {
+      get: "/v1/{name=budgets/*/tags/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+
+  // Lists budget tags for a budget.
+  rpc ListBudgetTags(ListBudgetTagsRequest) returns (ListBudgetTagsResponse) {
+    option (google.api.http) = {
+      get: "/v1/{parent=budgets/*}/tags"
+    };
+    option (google.api.method_signature) = "parent";
+  }
+
+  // Creates a new budget tag.
+  rpc CreateBudgetTag(CreateBudgetTagRequest) returns (BudgetTag) {
+    option (google.api.http) = {
+      post: "/v1/{parent=budgets/*}/tags"
+      body: "tag"
+    };
+    option (google.api.method_signature) = "parent,tag";
+  }
+
+  // Updates an existing budget tag.
+  rpc UpdateBudgetTag(UpdateBudgetTagRequest) returns (BudgetTag) {
+    option (google.api.http) = {
+      patch: "/v1/{tag.name=budgets/*/tags/*}"
+      body: "tag"
+    };
+    option (google.api.method_signature) = "tag,update_mask";
+  }
+
+  // Permanently deletes a budget tag.
+  rpc DeleteBudgetTag(DeleteBudgetTagRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/{name=budgets/*/tags/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+}

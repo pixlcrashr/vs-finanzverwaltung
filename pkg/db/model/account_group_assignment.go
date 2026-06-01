@@ -9,6 +9,7 @@ import (
 
 type AccountGroupAssignment struct {
 	ID             uuid.UUID `gorm:"type:uuid;primaryKey"`
+	OrganizationID uuid.UUID `gorm:"type:uuid;not null;index:idx_account_group_assignments_organization_id"`
 	AccountGroupID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_account_group_id_account_id"`
 	AccountID      uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_account_group_id_account_id"`
 	Negate         bool      `gorm:"not null;default:false;index:idx_account_group_assignments_negate"`
@@ -16,6 +17,7 @@ type AccountGroupAssignment struct {
 	CreatedAt      time.Time `gorm:"not null;default:now()"`
 
 	// Relations
+	Organization Organization `gorm:"foreignKey:OrganizationID"`
 	AccountGroup AccountGroup `gorm:"foreignKey:AccountGroupID"`
 	Account      Account      `gorm:"foreignKey:AccountID"`
 }

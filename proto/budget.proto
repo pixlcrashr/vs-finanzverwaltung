@@ -1,0 +1,177 @@
+syntax = "proto3";
+
+package pixlcrashr.vsfv.v1;
+
+option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+import "google/type/date.proto";
+
+// Budget represents a financial budget with a defined period.
+message Budget {
+  option (google.api.resource) = {
+    type: "vsfv.pixlcrashr.dev/Budget"
+    pattern: "budgets/{budget}"
+  };
+
+  // The resource name of the budget.
+  // Format: budgets/{budget}
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The UUID of the budget.
+  string uid = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Human-readable budget name.
+  string display_name = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // Optional free-text description.
+  string display_description = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Whether the budget is closed (no further modifications allowed).
+  bool is_closed = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Budget period start date.
+  google.type.Date period_start = 6 [(google.api.field_behavior) = REQUIRED];
+
+  // Budget period end date.
+  google.type.Date period_end = 7 [(google.api.field_behavior) = REQUIRED];
+
+  // Last modification timestamp.
+  google.protobuf.Timestamp update_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Creation timestamp.
+  google.protobuf.Timestamp create_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message GetBudgetRequest {
+  // The resource name of the budget.
+  // Format: budgets/{budget}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Budget"}
+  ];
+}
+
+message ListBudgetsRequest {
+  // Maximum number of budgets to return. The service may return fewer.
+  // If unspecified, at most 20 are returned. Maximum value is 100.
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // A page token from a previous ListBudgets call.
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter expression conforming to AIP-160.
+  // Supported fields: display_name, is_closed.
+  // Example: "is_closed=false" or "display_name=\"FY2025\"".
+  string filter = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // If true, closed budgets are included in results.
+  bool show_deleted = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order by expression (e.g. "display_name", "period_start desc").
+  string order_by = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ListBudgetsResponse {
+  // The budgets returned.
+  repeated Budget budgets = 1;
+
+  // A token to retrieve the next page of results.
+  string next_page_token = 2;
+
+  // Total number of budgets matching the filter (may be an estimate).
+  int64 total_size = 3;
+}
+
+message CreateBudgetRequest {
+  // The budget to create.
+  Budget budget = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message UpdateBudgetRequest {
+  // The budget to update.
+  Budget budget = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The list of fields to update.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message DeleteBudgetRequest {
+  // The resource name of the budget.
+  // Format: budgets/{budget}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Budget"}
+  ];
+}
+
+message CloseBudgetRequest {
+  // The resource name of the budget to close.
+  // Format: budgets/{budget}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Budget"}
+  ];
+}
+
+// BudgetService manages financial budgets.
+service BudgetService {
+  option (google.api.default_host) = "vsfv.pixlcrashr.dev";
+
+  // Gets a single budget by resource name.
+  rpc GetBudget(GetBudgetRequest) returns (Budget) {
+    option (google.api.http) = {
+      get: "/v1/{name=budgets/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+
+  // Lists budgets with pagination.
+  rpc ListBudgets(ListBudgetsRequest) returns (ListBudgetsResponse) {
+    option (google.api.http) = {
+      get: "/v1/budgets"
+    };
+  }
+
+  // Creates a new budget.
+  rpc CreateBudget(CreateBudgetRequest) returns (Budget) {
+    option (google.api.http) = {
+      post: "/v1/budgets"
+      body: "budget"
+    };
+    option (google.api.method_signature) = "budget";
+  }
+
+  // Updates an existing budget.
+  rpc UpdateBudget(UpdateBudgetRequest) returns (Budget) {
+    option (google.api.http) = {
+      patch: "/v1/{budget.name=budgets/*}"
+      body: "budget"
+    };
+    option (google.api.method_signature) = "budget,update_mask";
+  }
+
+  // Closes a budget, marking it as no longer active.
+  rpc CloseBudget(CloseBudgetRequest) returns (Budget) {
+    option (google.api.http) = {
+      post: "/v1/{name=budgets/*}:close"
+      body: "*"
+    };
+    option (google.api.method_signature) = "name";
+  }
+
+  // Permanently deletes a budget.
+  rpc DeleteBudget(DeleteBudgetRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/{name=budgets/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+}

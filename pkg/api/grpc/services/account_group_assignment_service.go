@@ -26,7 +26,11 @@ func newAccountGroupAssignmentServiceServer(repo *repository.AccountGroupAssignm
 }
 
 func (s *accountGroupAssignmentServiceServer) GetAccountGroupAssignment(ctx context.Context, req *gen.GetAccountGroupAssignmentRequest) (*gen.AccountGroupAssignment, error) {
-	assignID, err := lastSegment(req.Name)
+	var n gen.AccountGroupAssignmentResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid assignment name")
+	}
+	assignID, err := uuid.Parse(n.Assignment)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid assignment name")
 	}
@@ -41,7 +45,11 @@ func (s *accountGroupAssignmentServiceServer) GetAccountGroupAssignment(ctx cont
 }
 
 func (s *accountGroupAssignmentServiceServer) ListAccountGroupAssignments(ctx context.Context, req *gen.ListAccountGroupAssignmentsRequest) (*gen.ListAccountGroupAssignmentsResponse, error) {
-	groupID, err := idFromName(req.Parent, "accountGroups/")
+	var pn gen.AccountGroupResourceName
+	if err := pn.UnmarshalString(req.Parent); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid parent account_group name")
+	}
+	groupID, err := uuid.Parse(pn.AccountGroup)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid parent account_group name")
 	}
@@ -95,7 +103,11 @@ func (s *accountGroupAssignmentServiceServer) ListAccountGroupAssignments(ctx co
 }
 
 func (s *accountGroupAssignmentServiceServer) CreateAccountGroupAssignment(ctx context.Context, req *gen.CreateAccountGroupAssignmentRequest) (*gen.AccountGroupAssignment, error) {
-	groupID, err := idFromName(req.Parent, "accountGroups/")
+	var pn gen.AccountGroupResourceName
+	if err := pn.UnmarshalString(req.Parent); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid parent account_group name")
+	}
+	groupID, err := uuid.Parse(pn.AccountGroup)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid parent account_group name")
 	}
@@ -121,7 +133,11 @@ func (s *accountGroupAssignmentServiceServer) UpdateAccountGroupAssignment(ctx c
 	if req.Assignment == nil {
 		return nil, status.Error(codes.InvalidArgument, "assignment is required")
 	}
-	assignID, err := lastSegment(req.Assignment.Name)
+	var n gen.AccountGroupAssignmentResourceName
+	if err := n.UnmarshalString(req.Assignment.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid assignment name")
+	}
+	assignID, err := uuid.Parse(n.Assignment)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid assignment name")
 	}
@@ -140,7 +156,11 @@ func (s *accountGroupAssignmentServiceServer) UpdateAccountGroupAssignment(ctx c
 }
 
 func (s *accountGroupAssignmentServiceServer) DeleteAccountGroupAssignment(ctx context.Context, req *gen.DeleteAccountGroupAssignmentRequest) (*emptypb.Empty, error) {
-	assignID, err := lastSegment(req.Name)
+	var n gen.AccountGroupAssignmentResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid assignment name")
+	}
+	assignID, err := uuid.Parse(n.Assignment)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid assignment name")
 	}

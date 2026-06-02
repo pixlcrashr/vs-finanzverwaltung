@@ -304,7 +304,7 @@ func RegisterTransactionAccountAssignmentServiceHandlerServer(ctx context.Contex
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.TransactionAccountAssignmentService/GetTransactionAccountAssignment", runtime.WithHTTPPathPattern("/v1/{name=transactions/*/assignments/*}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.TransactionAccountAssignmentService/GetTransactionAccountAssignment", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/transactions/*/assignments/*}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -324,7 +324,7 @@ func RegisterTransactionAccountAssignmentServiceHandlerServer(ctx context.Contex
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.TransactionAccountAssignmentService/ListTransactionAccountAssignments", runtime.WithHTTPPathPattern("/v1/{parent=transactions/*}/assignments"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.TransactionAccountAssignmentService/ListTransactionAccountAssignments", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*/transactions/*}/assignments"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -344,7 +344,7 @@ func RegisterTransactionAccountAssignmentServiceHandlerServer(ctx context.Contex
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.TransactionAccountAssignmentService/CreateTransactionAccountAssignment", runtime.WithHTTPPathPattern("/v1/{parent=transactions/*}/assignments"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.TransactionAccountAssignmentService/CreateTransactionAccountAssignment", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*/transactions/*}/assignments"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -364,7 +364,7 @@ func RegisterTransactionAccountAssignmentServiceHandlerServer(ctx context.Contex
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.TransactionAccountAssignmentService/UpdateTransactionAccountAssignment", runtime.WithHTTPPathPattern("/v1/{assignment.name=transactions/*/assignments/*}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.TransactionAccountAssignmentService/UpdateTransactionAccountAssignment", runtime.WithHTTPPathPattern("/v1/{assignment.name=organizations/*/transactions/*/assignments/*}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -384,7 +384,7 @@ func RegisterTransactionAccountAssignmentServiceHandlerServer(ctx context.Contex
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.TransactionAccountAssignmentService/DeleteTransactionAccountAssignment", runtime.WithHTTPPathPattern("/v1/{name=transactions/*/assignments/*}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.TransactionAccountAssignmentService/DeleteTransactionAccountAssignment", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/transactions/*/assignments/*}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -442,7 +442,7 @@ func RegisterTransactionAccountAssignmentServiceHandlerClient(ctx context.Contex
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.TransactionAccountAssignmentService/GetTransactionAccountAssignment", runtime.WithHTTPPathPattern("/v1/{name=transactions/*/assignments/*}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.TransactionAccountAssignmentService/GetTransactionAccountAssignment", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/transactions/*/assignments/*}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -459,7 +459,7 @@ func RegisterTransactionAccountAssignmentServiceHandlerClient(ctx context.Contex
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.TransactionAccountAssignmentService/ListTransactionAccountAssignments", runtime.WithHTTPPathPattern("/v1/{parent=transactions/*}/assignments"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.TransactionAccountAssignmentService/ListTransactionAccountAssignments", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*/transactions/*}/assignments"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -476,7 +476,7 @@ func RegisterTransactionAccountAssignmentServiceHandlerClient(ctx context.Contex
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.TransactionAccountAssignmentService/CreateTransactionAccountAssignment", runtime.WithHTTPPathPattern("/v1/{parent=transactions/*}/assignments"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.TransactionAccountAssignmentService/CreateTransactionAccountAssignment", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*/transactions/*}/assignments"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -493,7 +493,7 @@ func RegisterTransactionAccountAssignmentServiceHandlerClient(ctx context.Contex
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.TransactionAccountAssignmentService/UpdateTransactionAccountAssignment", runtime.WithHTTPPathPattern("/v1/{assignment.name=transactions/*/assignments/*}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.TransactionAccountAssignmentService/UpdateTransactionAccountAssignment", runtime.WithHTTPPathPattern("/v1/{assignment.name=organizations/*/transactions/*/assignments/*}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -510,7 +510,7 @@ func RegisterTransactionAccountAssignmentServiceHandlerClient(ctx context.Contex
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.TransactionAccountAssignmentService/DeleteTransactionAccountAssignment", runtime.WithHTTPPathPattern("/v1/{name=transactions/*/assignments/*}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.TransactionAccountAssignmentService/DeleteTransactionAccountAssignment", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/transactions/*/assignments/*}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -527,11 +527,11 @@ func RegisterTransactionAccountAssignmentServiceHandlerClient(ctx context.Contex
 }
 
 var (
-	pattern_TransactionAccountAssignmentService_GetTransactionAccountAssignment_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3}, []string{"v1", "transactions", "assignments", "name"}, ""))
-	pattern_TransactionAccountAssignmentService_ListTransactionAccountAssignments_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 2, 5, 2, 2, 3}, []string{"v1", "transactions", "parent", "assignments"}, ""))
-	pattern_TransactionAccountAssignmentService_CreateTransactionAccountAssignment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 2, 5, 2, 2, 3}, []string{"v1", "transactions", "parent", "assignments"}, ""))
-	pattern_TransactionAccountAssignmentService_UpdateTransactionAccountAssignment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3}, []string{"v1", "transactions", "assignments", "assignment.name"}, ""))
-	pattern_TransactionAccountAssignmentService_DeleteTransactionAccountAssignment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3}, []string{"v1", "transactions", "assignments", "name"}, ""))
+	pattern_TransactionAccountAssignmentService_GetTransactionAccountAssignment_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 2, 3, 1, 0, 4, 6, 5, 4}, []string{"v1", "organizations", "transactions", "assignments", "name"}, ""))
+	pattern_TransactionAccountAssignmentService_ListTransactionAccountAssignments_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3, 2, 4}, []string{"v1", "organizations", "transactions", "parent", "assignments"}, ""))
+	pattern_TransactionAccountAssignmentService_CreateTransactionAccountAssignment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3, 2, 4}, []string{"v1", "organizations", "transactions", "parent", "assignments"}, ""))
+	pattern_TransactionAccountAssignmentService_UpdateTransactionAccountAssignment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 2, 3, 1, 0, 4, 6, 5, 4}, []string{"v1", "organizations", "transactions", "assignments", "assignment.name"}, ""))
+	pattern_TransactionAccountAssignmentService_DeleteTransactionAccountAssignment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 2, 3, 1, 0, 4, 6, 5, 4}, []string{"v1", "organizations", "transactions", "assignments", "name"}, ""))
 )
 
 var (

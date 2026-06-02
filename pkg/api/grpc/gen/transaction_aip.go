@@ -14,10 +14,26 @@ import (
 )
 
 type TransactionResourceName struct {
-	Transaction string
+	Organization string
+	Transaction  string
+}
+
+func (n OrganizationResourceName) TransactionResourceName(
+	transaction string,
+) TransactionResourceName {
+	return TransactionResourceName{
+		Organization: n.Organization,
+		Transaction:  transaction,
+	}
 }
 
 func (n TransactionResourceName) Validate() error {
+	if n.Organization == "" {
+		return fmt.Errorf("organization: empty")
+	}
+	if strings.IndexByte(n.Organization, '/') != -1 {
+		return fmt.Errorf("organization: contains illegal character '/'")
+	}
 	if n.Transaction == "" {
 		return fmt.Errorf("transaction: empty")
 	}
@@ -28,12 +44,13 @@ func (n TransactionResourceName) Validate() error {
 }
 
 func (n TransactionResourceName) ContainsWildcard() bool {
-	return false || n.Transaction == "-"
+	return false || n.Organization == "-" || n.Transaction == "-"
 }
 
 func (n TransactionResourceName) String() string {
 	return resourcename.Sprint(
-		"transactions/{transaction}",
+		"organizations/{organization}/transactions/{transaction}",
+		n.Organization,
 		n.Transaction,
 	)
 }
@@ -56,7 +73,8 @@ func (n TransactionResourceName) MarshalText() ([]byte, error) {
 func (n *TransactionResourceName) UnmarshalString(name string) error {
 	err := resourcename.Sscan(
 		name,
-		"transactions/{transaction}",
+		"organizations/{organization}/transactions/{transaction}",
+		&n.Organization,
 		&n.Transaction,
 	)
 	if err != nil {
@@ -72,4 +90,10 @@ func (n *TransactionResourceName) UnmarshalText(text []byte) error {
 
 func (n TransactionResourceName) Type() string {
 	return "vsfv.pixlcrashr.dev/Transaction"
+}
+
+func (n TransactionResourceName) OrganizationResourceName() OrganizationResourceName {
+	return OrganizationResourceName{
+		Organization: n.Organization,
+	}
 }

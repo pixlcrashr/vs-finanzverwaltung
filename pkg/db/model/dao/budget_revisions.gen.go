@@ -19,25 +19,26 @@ import (
 	"gorm.io/plugin/dbresolver"
 )
 
-func newBudgetTag(db *gorm.DB, opts ...gen.DOOption) budgetTag {
-	_budgetTag := budgetTag{}
+func newBudgetRevision(db *gorm.DB, opts ...gen.DOOption) budgetRevision {
+	_budgetRevision := budgetRevision{}
 
-	_budgetTag.budgetTagDo.UseDB(db, opts...)
-	_budgetTag.budgetTagDo.UseModel(&model.BudgetTag{})
+	_budgetRevision.budgetRevisionDo.UseDB(db, opts...)
+	_budgetRevision.budgetRevisionDo.UseModel(&model.BudgetRevision{})
 
-	tableName := _budgetTag.budgetTagDo.TableName()
-	_budgetTag.ALL = field.NewAsterisk(tableName)
-	_budgetTag.ID = field.NewField(tableName, "id")
-	_budgetTag.OrganizationID = field.NewField(tableName, "organization_id")
-	_budgetTag.BudgetID = field.NewField(tableName, "budget_id")
-	_budgetTag.Date = field.NewTime(tableName, "date")
-	_budgetTag.DisplayDescription = field.NewString(tableName, "display_description")
-	_budgetTag.UpdatedAt = field.NewTime(tableName, "updated_at")
-	_budgetTag.CreatedAt = field.NewTime(tableName, "created_at")
-	_budgetTag.BudgetTagAccountValues = budgetTagHasManyBudgetTagAccountValues{
+	tableName := _budgetRevision.budgetRevisionDo.TableName()
+	_budgetRevision.ALL = field.NewAsterisk(tableName)
+	_budgetRevision.ID = field.NewField(tableName, "id")
+	_budgetRevision.OrganizationID = field.NewField(tableName, "organization_id")
+	_budgetRevision.BudgetID = field.NewField(tableName, "budget_id")
+	_budgetRevision.DisplayName = field.NewString(tableName, "display_name")
+	_budgetRevision.DisplayDescription = field.NewString(tableName, "display_description")
+	_budgetRevision.Date = field.NewTime(tableName, "date")
+	_budgetRevision.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_budgetRevision.CreatedAt = field.NewTime(tableName, "created_at")
+	_budgetRevision.BudgetRevisionAccountValues = budgetRevisionHasManyBudgetRevisionAccountValues{
 		db: db.Session(&gorm.Session{}),
 
-		RelationField: field.NewRelation("BudgetTagAccountValues", "model.BudgetTagAccountValue"),
+		RelationField: field.NewRelation("BudgetRevisionAccountValues", "model.BudgetRevisionAccountValue"),
 		Organization: struct {
 			field.RelationField
 			AccountGroupAssignments struct {
@@ -68,8 +69,38 @@ func newBudgetTag(db *gorm.DB, opts ...gen.DOOption) budgetTag {
 					AccountGroupAssignments struct {
 						field.RelationField
 					}
-					BudgetTagAccountValues struct {
+					BudgetRevisionAccountValues struct {
 						field.RelationField
+					}
+					BudgetAccountValues struct {
+						field.RelationField
+						Organization struct {
+							field.RelationField
+						}
+						Budget struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							BudgetRevisions struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								Budget struct {
+									field.RelationField
+								}
+								BudgetRevisionAccountValues struct {
+									field.RelationField
+								}
+							}
+							BudgetAccountValues struct {
+								field.RelationField
+							}
+						}
+						Account struct {
+							field.RelationField
+						}
 					}
 					TransactionAccountAssignments struct {
 						field.RelationField
@@ -130,25 +161,13 @@ func newBudgetTag(db *gorm.DB, opts ...gen.DOOption) budgetTag {
 			Accounts struct {
 				field.RelationField
 			}
-			BudgetTags struct {
+			BudgetRevisions struct {
 				field.RelationField
-				Organization struct {
-					field.RelationField
-				}
-				Budget struct {
-					field.RelationField
-					Organization struct {
-						field.RelationField
-					}
-					BudgetTags struct {
-						field.RelationField
-					}
-				}
-				BudgetTagAccountValues struct {
-					field.RelationField
-				}
 			}
-			BudgetTagAccountValues struct {
+			BudgetRevisionAccountValues struct {
+				field.RelationField
+			}
+			BudgetAccountValues struct {
 				field.RelationField
 			}
 			Budgets struct {
@@ -182,7 +201,7 @@ func newBudgetTag(db *gorm.DB, opts ...gen.DOOption) budgetTag {
 				field.RelationField
 			}
 		}{
-			RelationField: field.NewRelation("BudgetTagAccountValues.Organization", "model.Organization"),
+			RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization", "model.Organization"),
 			AccountGroupAssignments: struct {
 				field.RelationField
 				Organization struct {
@@ -211,8 +230,38 @@ func newBudgetTag(db *gorm.DB, opts ...gen.DOOption) budgetTag {
 					AccountGroupAssignments struct {
 						field.RelationField
 					}
-					BudgetTagAccountValues struct {
+					BudgetRevisionAccountValues struct {
 						field.RelationField
+					}
+					BudgetAccountValues struct {
+						field.RelationField
+						Organization struct {
+							field.RelationField
+						}
+						Budget struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							BudgetRevisions struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								Budget struct {
+									field.RelationField
+								}
+								BudgetRevisionAccountValues struct {
+									field.RelationField
+								}
+							}
+							BudgetAccountValues struct {
+								field.RelationField
+							}
+						}
+						Account struct {
+							field.RelationField
+						}
 					}
 					TransactionAccountAssignments struct {
 						field.RelationField
@@ -267,11 +316,11 @@ func newBudgetTag(db *gorm.DB, opts ...gen.DOOption) budgetTag {
 					}
 				}
 			}{
-				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments", "model.AccountGroupAssignment"),
+				RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments", "model.AccountGroupAssignment"),
 				Organization: struct {
 					field.RelationField
 				}{
-					RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Organization", "model.Organization"),
+					RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Organization", "model.Organization"),
 				},
 				AccountGroup: struct {
 					field.RelationField
@@ -282,16 +331,16 @@ func newBudgetTag(db *gorm.DB, opts ...gen.DOOption) budgetTag {
 						field.RelationField
 					}
 				}{
-					RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.AccountGroup", "model.AccountGroup"),
+					RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.AccountGroup", "model.AccountGroup"),
 					Organization: struct {
 						field.RelationField
 					}{
-						RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.AccountGroup.Organization", "model.Organization"),
+						RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.AccountGroup.Organization", "model.Organization"),
 					},
 					AccountGroupAssignments: struct {
 						field.RelationField
 					}{
-						RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.AccountGroup.AccountGroupAssignments", "model.AccountGroupAssignment"),
+						RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.AccountGroup.AccountGroupAssignments", "model.AccountGroupAssignment"),
 					},
 				},
 				Account: struct {
@@ -308,8 +357,38 @@ func newBudgetTag(db *gorm.DB, opts ...gen.DOOption) budgetTag {
 					AccountGroupAssignments struct {
 						field.RelationField
 					}
-					BudgetTagAccountValues struct {
+					BudgetRevisionAccountValues struct {
 						field.RelationField
+					}
+					BudgetAccountValues struct {
+						field.RelationField
+						Organization struct {
+							field.RelationField
+						}
+						Budget struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							BudgetRevisions struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								Budget struct {
+									field.RelationField
+								}
+								BudgetRevisionAccountValues struct {
+									field.RelationField
+								}
+							}
+							BudgetAccountValues struct {
+								field.RelationField
+							}
+						}
+						Account struct {
+							field.RelationField
+						}
 					}
 					TransactionAccountAssignments struct {
 						field.RelationField
@@ -363,31 +442,135 @@ func newBudgetTag(db *gorm.DB, opts ...gen.DOOption) budgetTag {
 						}
 					}
 				}{
-					RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account", "model.Account"),
+					RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account", "model.Account"),
 					Organization: struct {
 						field.RelationField
 					}{
-						RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.Organization", "model.Organization"),
+						RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.Organization", "model.Organization"),
 					},
 					ParentAccount: struct {
 						field.RelationField
 					}{
-						RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.ParentAccount", "model.Account"),
+						RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.ParentAccount", "model.Account"),
 					},
 					ChildAccounts: struct {
 						field.RelationField
 					}{
-						RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.ChildAccounts", "model.Account"),
+						RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.ChildAccounts", "model.Account"),
 					},
 					AccountGroupAssignments: struct {
 						field.RelationField
 					}{
-						RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.AccountGroupAssignments", "model.AccountGroupAssignment"),
+						RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.AccountGroupAssignments", "model.AccountGroupAssignment"),
 					},
-					BudgetTagAccountValues: struct {
+					BudgetRevisionAccountValues: struct {
 						field.RelationField
 					}{
-						RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.BudgetTagAccountValues", "model.BudgetTagAccountValue"),
+						RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues", "model.BudgetRevisionAccountValue"),
+					},
+					BudgetAccountValues: struct {
+						field.RelationField
+						Organization struct {
+							field.RelationField
+						}
+						Budget struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							BudgetRevisions struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								Budget struct {
+									field.RelationField
+								}
+								BudgetRevisionAccountValues struct {
+									field.RelationField
+								}
+							}
+							BudgetAccountValues struct {
+								field.RelationField
+							}
+						}
+						Account struct {
+							field.RelationField
+						}
+					}{
+						RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.BudgetAccountValues", "model.BudgetAccountValue"),
+						Organization: struct {
+							field.RelationField
+						}{
+							RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.BudgetAccountValues.Organization", "model.Organization"),
+						},
+						Budget: struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							BudgetRevisions struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								Budget struct {
+									field.RelationField
+								}
+								BudgetRevisionAccountValues struct {
+									field.RelationField
+								}
+							}
+							BudgetAccountValues struct {
+								field.RelationField
+							}
+						}{
+							RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.BudgetAccountValues.Budget", "model.Budget"),
+							Organization: struct {
+								field.RelationField
+							}{
+								RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.BudgetAccountValues.Budget.Organization", "model.Organization"),
+							},
+							BudgetRevisions: struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								Budget struct {
+									field.RelationField
+								}
+								BudgetRevisionAccountValues struct {
+									field.RelationField
+								}
+							}{
+								RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.BudgetAccountValues.Budget.BudgetRevisions", "model.BudgetRevision"),
+								Organization: struct {
+									field.RelationField
+								}{
+									RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.BudgetAccountValues.Budget.BudgetRevisions.Organization", "model.Organization"),
+								},
+								Budget: struct {
+									field.RelationField
+								}{
+									RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.BudgetAccountValues.Budget.BudgetRevisions.Budget", "model.Budget"),
+								},
+								BudgetRevisionAccountValues: struct {
+									field.RelationField
+								}{
+									RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.BudgetAccountValues.Budget.BudgetRevisions.BudgetRevisionAccountValues", "model.BudgetRevisionAccountValue"),
+								},
+							},
+							BudgetAccountValues: struct {
+								field.RelationField
+							}{
+								RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.BudgetAccountValues.Budget.BudgetAccountValues", "model.BudgetAccountValue"),
+							},
+						},
+						Account: struct {
+							field.RelationField
+						}{
+							RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.BudgetAccountValues.Account", "model.Account"),
+						},
 					},
 					TransactionAccountAssignments: struct {
 						field.RelationField
@@ -440,11 +623,11 @@ func newBudgetTag(db *gorm.DB, opts ...gen.DOOption) budgetTag {
 							field.RelationField
 						}
 					}{
-						RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments", "model.TransactionAccountAssignment"),
+						RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments", "model.TransactionAccountAssignment"),
 						Organization: struct {
 							field.RelationField
 						}{
-							RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Organization", "model.Organization"),
+							RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Organization", "model.Organization"),
 						},
 						Transaction: struct {
 							field.RelationField
@@ -488,11 +671,11 @@ func newBudgetTag(db *gorm.DB, opts ...gen.DOOption) budgetTag {
 								field.RelationField
 							}
 						}{
-							RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction", "model.Transaction_"),
+							RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction", "model.Transaction_"),
 							Organization: struct {
 								field.RelationField
 							}{
-								RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.Organization", "model.Organization"),
+								RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.Organization", "model.Organization"),
 							},
 							CreditTransactionAccount: struct {
 								field.RelationField
@@ -524,11 +707,11 @@ func newBudgetTag(db *gorm.DB, opts ...gen.DOOption) budgetTag {
 									field.RelationField
 								}
 							}{
-								RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount", "model.TransactionAccount"),
+								RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount", "model.TransactionAccount"),
 								Organization: struct {
 									field.RelationField
 								}{
-									RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.Organization", "model.Organization"),
+									RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.Organization", "model.Organization"),
 								},
 								ImportSource: struct {
 									field.RelationField
@@ -548,16 +731,16 @@ func newBudgetTag(db *gorm.DB, opts ...gen.DOOption) budgetTag {
 										}
 									}
 								}{
-									RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource", "model.ImportSource"),
+									RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource", "model.ImportSource"),
 									Organization: struct {
 										field.RelationField
 									}{
-										RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.Organization", "model.Organization"),
+										RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.Organization", "model.Organization"),
 									},
 									TransactionAccounts: struct {
 										field.RelationField
 									}{
-										RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.TransactionAccounts", "model.TransactionAccount"),
+										RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.TransactionAccounts", "model.TransactionAccount"),
 									},
 									ImportSourcePeriods: struct {
 										field.RelationField
@@ -568,45 +751,45 @@ func newBudgetTag(db *gorm.DB, opts ...gen.DOOption) budgetTag {
 											field.RelationField
 										}
 									}{
-										RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.ImportSourcePeriods", "model.ImportSourcePeriod"),
+										RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.ImportSourcePeriods", "model.ImportSourcePeriod"),
 										Organization: struct {
 											field.RelationField
 										}{
-											RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.ImportSourcePeriods.Organization", "model.Organization"),
+											RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.ImportSourcePeriods.Organization", "model.Organization"),
 										},
 										ImportSource: struct {
 											field.RelationField
 										}{
-											RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.ImportSourcePeriods.ImportSource", "model.ImportSource"),
+											RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.ImportSourcePeriods.ImportSource", "model.ImportSource"),
 										},
 									},
 								},
 								CreditTransactions: struct {
 									field.RelationField
 								}{
-									RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.CreditTransactions", "model.Transaction_"),
+									RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.CreditTransactions", "model.Transaction_"),
 								},
 								DebitTransactions: struct {
 									field.RelationField
 								}{
-									RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.DebitTransactions", "model.Transaction_"),
+									RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.DebitTransactions", "model.Transaction_"),
 								},
 							},
 							DebitTransactionAccount: struct {
 								field.RelationField
 							}{
-								RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.DebitTransactionAccount", "model.TransactionAccount"),
+								RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.DebitTransactionAccount", "model.TransactionAccount"),
 							},
 							TransactionAccountAssignments: struct {
 								field.RelationField
 							}{
-								RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.TransactionAccountAssignments", "model.TransactionAccountAssignment"),
+								RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.TransactionAccountAssignments", "model.TransactionAccountAssignment"),
 							},
 						},
 						Account: struct {
 							field.RelationField
 						}{
-							RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Account", "model.Account"),
+							RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Account", "model.Account"),
 						},
 					},
 				},
@@ -614,83 +797,42 @@ func newBudgetTag(db *gorm.DB, opts ...gen.DOOption) budgetTag {
 			AccountGroups: struct {
 				field.RelationField
 			}{
-				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.AccountGroups", "model.AccountGroup"),
+				RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.AccountGroups", "model.AccountGroup"),
 			},
 			Accounts: struct {
 				field.RelationField
 			}{
-				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.Accounts", "model.Account"),
+				RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.Accounts", "model.Account"),
 			},
-			BudgetTags: struct {
-				field.RelationField
-				Organization struct {
-					field.RelationField
-				}
-				Budget struct {
-					field.RelationField
-					Organization struct {
-						field.RelationField
-					}
-					BudgetTags struct {
-						field.RelationField
-					}
-				}
-				BudgetTagAccountValues struct {
-					field.RelationField
-				}
-			}{
-				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.BudgetTags", "model.BudgetTag"),
-				Organization: struct {
-					field.RelationField
-				}{
-					RelationField: field.NewRelation("BudgetTagAccountValues.Organization.BudgetTags.Organization", "model.Organization"),
-				},
-				Budget: struct {
-					field.RelationField
-					Organization struct {
-						field.RelationField
-					}
-					BudgetTags struct {
-						field.RelationField
-					}
-				}{
-					RelationField: field.NewRelation("BudgetTagAccountValues.Organization.BudgetTags.Budget", "model.Budget"),
-					Organization: struct {
-						field.RelationField
-					}{
-						RelationField: field.NewRelation("BudgetTagAccountValues.Organization.BudgetTags.Budget.Organization", "model.Organization"),
-					},
-					BudgetTags: struct {
-						field.RelationField
-					}{
-						RelationField: field.NewRelation("BudgetTagAccountValues.Organization.BudgetTags.Budget.BudgetTags", "model.BudgetTag"),
-					},
-				},
-				BudgetTagAccountValues: struct {
-					field.RelationField
-				}{
-					RelationField: field.NewRelation("BudgetTagAccountValues.Organization.BudgetTags.BudgetTagAccountValues", "model.BudgetTagAccountValue"),
-				},
-			},
-			BudgetTagAccountValues: struct {
+			BudgetRevisions: struct {
 				field.RelationField
 			}{
-				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.BudgetTagAccountValues", "model.BudgetTagAccountValue"),
+				RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.BudgetRevisions", "model.BudgetRevision"),
+			},
+			BudgetRevisionAccountValues: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.BudgetRevisionAccountValues", "model.BudgetRevisionAccountValue"),
+			},
+			BudgetAccountValues: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.BudgetAccountValues", "model.BudgetAccountValue"),
 			},
 			Budgets: struct {
 				field.RelationField
 			}{
-				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.Budgets", "model.Budget"),
+				RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.Budgets", "model.Budget"),
 			},
 			ImportSourcePeriods: struct {
 				field.RelationField
 			}{
-				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.ImportSourcePeriods", "model.ImportSourcePeriod"),
+				RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.ImportSourcePeriods", "model.ImportSourcePeriod"),
 			},
 			ImportSources: struct {
 				field.RelationField
 			}{
-				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.ImportSources", "model.ImportSource"),
+				RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.ImportSources", "model.ImportSource"),
 			},
 			ReportTemplates: struct {
 				field.RelationField
@@ -698,11 +840,11 @@ func newBudgetTag(db *gorm.DB, opts ...gen.DOOption) budgetTag {
 					field.RelationField
 				}
 			}{
-				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.ReportTemplates", "model.ReportTemplate"),
+				RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.ReportTemplates", "model.ReportTemplate"),
 				Organization: struct {
 					field.RelationField
 				}{
-					RelationField: field.NewRelation("BudgetTagAccountValues.Organization.ReportTemplates.Organization", "model.Organization"),
+					RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.ReportTemplates.Organization", "model.Organization"),
 				},
 			},
 			Reports: struct {
@@ -711,95 +853,97 @@ func newBudgetTag(db *gorm.DB, opts ...gen.DOOption) budgetTag {
 					field.RelationField
 				}
 			}{
-				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.Reports", "model.Report"),
+				RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.Reports", "model.Report"),
 				Organization: struct {
 					field.RelationField
 				}{
-					RelationField: field.NewRelation("BudgetTagAccountValues.Organization.Reports.Organization", "model.Organization"),
+					RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.Reports.Organization", "model.Organization"),
 				},
 			},
 			Transactions: struct {
 				field.RelationField
 			}{
-				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.Transactions", "model.Transaction_"),
+				RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.Transactions", "model.Transaction_"),
 			},
 			TransactionAccountAssignments: struct {
 				field.RelationField
 			}{
-				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.TransactionAccountAssignments", "model.TransactionAccountAssignment"),
+				RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.TransactionAccountAssignments", "model.TransactionAccountAssignment"),
 			},
 			TransactionAccounts: struct {
 				field.RelationField
 			}{
-				RelationField: field.NewRelation("BudgetTagAccountValues.Organization.TransactionAccounts", "model.TransactionAccount"),
+				RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.TransactionAccounts", "model.TransactionAccount"),
 			},
 		},
-		BudgetTag: struct {
+		BudgetRevision: struct {
 			field.RelationField
 		}{
-			RelationField: field.NewRelation("BudgetTagAccountValues.BudgetTag", "model.BudgetTag"),
+			RelationField: field.NewRelation("BudgetRevisionAccountValues.BudgetRevision", "model.BudgetRevision"),
 		},
 		Account: struct {
 			field.RelationField
 		}{
-			RelationField: field.NewRelation("BudgetTagAccountValues.Account", "model.Account"),
+			RelationField: field.NewRelation("BudgetRevisionAccountValues.Account", "model.Account"),
 		},
 	}
 
-	_budgetTag.Organization = budgetTagBelongsToOrganization{
+	_budgetRevision.Organization = budgetRevisionBelongsToOrganization{
 		db: db.Session(&gorm.Session{}),
 
 		RelationField: field.NewRelation("Organization", "model.Organization"),
 	}
 
-	_budgetTag.Budget = budgetTagBelongsToBudget{
+	_budgetRevision.Budget = budgetRevisionBelongsToBudget{
 		db: db.Session(&gorm.Session{}),
 
 		RelationField: field.NewRelation("Budget", "model.Budget"),
 	}
 
-	_budgetTag.fillFieldMap()
+	_budgetRevision.fillFieldMap()
 
-	return _budgetTag
+	return _budgetRevision
 }
 
-type budgetTag struct {
-	budgetTagDo budgetTagDo
+type budgetRevision struct {
+	budgetRevisionDo budgetRevisionDo
 
-	ALL                    field.Asterisk
-	ID                     field.Field
-	OrganizationID         field.Field
-	BudgetID               field.Field
-	Date                   field.Time
-	DisplayDescription     field.String
-	UpdatedAt              field.Time
-	CreatedAt              field.Time
-	BudgetTagAccountValues budgetTagHasManyBudgetTagAccountValues
+	ALL                         field.Asterisk
+	ID                          field.Field
+	OrganizationID              field.Field
+	BudgetID                    field.Field
+	DisplayName                 field.String
+	DisplayDescription          field.String
+	Date                        field.Time
+	UpdatedAt                   field.Time
+	CreatedAt                   field.Time
+	BudgetRevisionAccountValues budgetRevisionHasManyBudgetRevisionAccountValues
 
-	Organization budgetTagBelongsToOrganization
+	Organization budgetRevisionBelongsToOrganization
 
-	Budget budgetTagBelongsToBudget
+	Budget budgetRevisionBelongsToBudget
 
 	fieldMap map[string]field.Expr
 }
 
-func (b budgetTag) Table(newTableName string) *budgetTag {
-	b.budgetTagDo.UseTable(newTableName)
+func (b budgetRevision) Table(newTableName string) *budgetRevision {
+	b.budgetRevisionDo.UseTable(newTableName)
 	return b.updateTableName(newTableName)
 }
 
-func (b budgetTag) As(alias string) *budgetTag {
-	b.budgetTagDo.DO = *(b.budgetTagDo.As(alias).(*gen.DO))
+func (b budgetRevision) As(alias string) *budgetRevision {
+	b.budgetRevisionDo.DO = *(b.budgetRevisionDo.As(alias).(*gen.DO))
 	return b.updateTableName(alias)
 }
 
-func (b *budgetTag) updateTableName(table string) *budgetTag {
+func (b *budgetRevision) updateTableName(table string) *budgetRevision {
 	b.ALL = field.NewAsterisk(table)
 	b.ID = field.NewField(table, "id")
 	b.OrganizationID = field.NewField(table, "organization_id")
 	b.BudgetID = field.NewField(table, "budget_id")
-	b.Date = field.NewTime(table, "date")
+	b.DisplayName = field.NewString(table, "display_name")
 	b.DisplayDescription = field.NewString(table, "display_description")
+	b.Date = field.NewTime(table, "date")
 	b.UpdatedAt = field.NewTime(table, "updated_at")
 	b.CreatedAt = field.NewTime(table, "created_at")
 
@@ -808,17 +952,19 @@ func (b *budgetTag) updateTableName(table string) *budgetTag {
 	return b
 }
 
-func (b *budgetTag) WithContext(ctx context.Context) IBudgetTagDo {
-	return b.budgetTagDo.WithContext(ctx)
+func (b *budgetRevision) WithContext(ctx context.Context) IBudgetRevisionDo {
+	return b.budgetRevisionDo.WithContext(ctx)
 }
 
-func (b budgetTag) TableName() string { return b.budgetTagDo.TableName() }
+func (b budgetRevision) TableName() string { return b.budgetRevisionDo.TableName() }
 
-func (b budgetTag) Alias() string { return b.budgetTagDo.Alias() }
+func (b budgetRevision) Alias() string { return b.budgetRevisionDo.Alias() }
 
-func (b budgetTag) Columns(cols ...field.Expr) gen.Columns { return b.budgetTagDo.Columns(cols...) }
+func (b budgetRevision) Columns(cols ...field.Expr) gen.Columns {
+	return b.budgetRevisionDo.Columns(cols...)
+}
 
-func (b *budgetTag) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
+func (b *budgetRevision) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	_f, ok := b.fieldMap[fieldName]
 	if !ok || _f == nil {
 		return nil, false
@@ -827,22 +973,23 @@ func (b *budgetTag) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	return _oe, ok
 }
 
-func (b *budgetTag) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 10)
+func (b *budgetRevision) fillFieldMap() {
+	b.fieldMap = make(map[string]field.Expr, 11)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["organization_id"] = b.OrganizationID
 	b.fieldMap["budget_id"] = b.BudgetID
-	b.fieldMap["date"] = b.Date
+	b.fieldMap["display_name"] = b.DisplayName
 	b.fieldMap["display_description"] = b.DisplayDescription
+	b.fieldMap["date"] = b.Date
 	b.fieldMap["updated_at"] = b.UpdatedAt
 	b.fieldMap["created_at"] = b.CreatedAt
 
 }
 
-func (b budgetTag) clone(db *gorm.DB) budgetTag {
-	b.budgetTagDo.ReplaceConnPool(db.Statement.ConnPool)
-	b.BudgetTagAccountValues.db = db.Session(&gorm.Session{Initialized: true})
-	b.BudgetTagAccountValues.db.Statement.ConnPool = db.Statement.ConnPool
+func (b budgetRevision) clone(db *gorm.DB) budgetRevision {
+	b.budgetRevisionDo.ReplaceConnPool(db.Statement.ConnPool)
+	b.BudgetRevisionAccountValues.db = db.Session(&gorm.Session{Initialized: true})
+	b.BudgetRevisionAccountValues.db.Statement.ConnPool = db.Statement.ConnPool
 	b.Organization.db = db.Session(&gorm.Session{Initialized: true})
 	b.Organization.db.Statement.ConnPool = db.Statement.ConnPool
 	b.Budget.db = db.Session(&gorm.Session{Initialized: true})
@@ -850,15 +997,15 @@ func (b budgetTag) clone(db *gorm.DB) budgetTag {
 	return b
 }
 
-func (b budgetTag) replaceDB(db *gorm.DB) budgetTag {
-	b.budgetTagDo.ReplaceDB(db)
-	b.BudgetTagAccountValues.db = db.Session(&gorm.Session{})
+func (b budgetRevision) replaceDB(db *gorm.DB) budgetRevision {
+	b.budgetRevisionDo.ReplaceDB(db)
+	b.BudgetRevisionAccountValues.db = db.Session(&gorm.Session{})
 	b.Organization.db = db.Session(&gorm.Session{})
 	b.Budget.db = db.Session(&gorm.Session{})
 	return b
 }
 
-type budgetTagHasManyBudgetTagAccountValues struct {
+type budgetRevisionHasManyBudgetRevisionAccountValues struct {
 	db *gorm.DB
 
 	field.RelationField
@@ -893,8 +1040,38 @@ type budgetTagHasManyBudgetTagAccountValues struct {
 				AccountGroupAssignments struct {
 					field.RelationField
 				}
-				BudgetTagAccountValues struct {
+				BudgetRevisionAccountValues struct {
 					field.RelationField
+				}
+				BudgetAccountValues struct {
+					field.RelationField
+					Organization struct {
+						field.RelationField
+					}
+					Budget struct {
+						field.RelationField
+						Organization struct {
+							field.RelationField
+						}
+						BudgetRevisions struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							Budget struct {
+								field.RelationField
+							}
+							BudgetRevisionAccountValues struct {
+								field.RelationField
+							}
+						}
+						BudgetAccountValues struct {
+							field.RelationField
+						}
+					}
+					Account struct {
+						field.RelationField
+					}
 				}
 				TransactionAccountAssignments struct {
 					field.RelationField
@@ -955,25 +1132,13 @@ type budgetTagHasManyBudgetTagAccountValues struct {
 		Accounts struct {
 			field.RelationField
 		}
-		BudgetTags struct {
+		BudgetRevisions struct {
 			field.RelationField
-			Organization struct {
-				field.RelationField
-			}
-			Budget struct {
-				field.RelationField
-				Organization struct {
-					field.RelationField
-				}
-				BudgetTags struct {
-					field.RelationField
-				}
-			}
-			BudgetTagAccountValues struct {
-				field.RelationField
-			}
 		}
-		BudgetTagAccountValues struct {
+		BudgetRevisionAccountValues struct {
+			field.RelationField
+		}
+		BudgetAccountValues struct {
 			field.RelationField
 		}
 		Budgets struct {
@@ -1007,7 +1172,7 @@ type budgetTagHasManyBudgetTagAccountValues struct {
 			field.RelationField
 		}
 	}
-	BudgetTag struct {
+	BudgetRevision struct {
 		field.RelationField
 	}
 	Account struct {
@@ -1015,7 +1180,7 @@ type budgetTagHasManyBudgetTagAccountValues struct {
 	}
 }
 
-func (a budgetTagHasManyBudgetTagAccountValues) Where(conds ...field.Expr) *budgetTagHasManyBudgetTagAccountValues {
+func (a budgetRevisionHasManyBudgetRevisionAccountValues) Where(conds ...field.Expr) *budgetRevisionHasManyBudgetRevisionAccountValues {
 	if len(conds) == 0 {
 		return &a
 	}
@@ -1028,32 +1193,32 @@ func (a budgetTagHasManyBudgetTagAccountValues) Where(conds ...field.Expr) *budg
 	return &a
 }
 
-func (a budgetTagHasManyBudgetTagAccountValues) WithContext(ctx context.Context) *budgetTagHasManyBudgetTagAccountValues {
+func (a budgetRevisionHasManyBudgetRevisionAccountValues) WithContext(ctx context.Context) *budgetRevisionHasManyBudgetRevisionAccountValues {
 	a.db = a.db.WithContext(ctx)
 	return &a
 }
 
-func (a budgetTagHasManyBudgetTagAccountValues) Session(session *gorm.Session) *budgetTagHasManyBudgetTagAccountValues {
+func (a budgetRevisionHasManyBudgetRevisionAccountValues) Session(session *gorm.Session) *budgetRevisionHasManyBudgetRevisionAccountValues {
 	a.db = a.db.Session(session)
 	return &a
 }
 
-func (a budgetTagHasManyBudgetTagAccountValues) Model(m *model.BudgetTag) *budgetTagHasManyBudgetTagAccountValuesTx {
-	return &budgetTagHasManyBudgetTagAccountValuesTx{a.db.Model(m).Association(a.Name())}
+func (a budgetRevisionHasManyBudgetRevisionAccountValues) Model(m *model.BudgetRevision) *budgetRevisionHasManyBudgetRevisionAccountValuesTx {
+	return &budgetRevisionHasManyBudgetRevisionAccountValuesTx{a.db.Model(m).Association(a.Name())}
 }
 
-func (a budgetTagHasManyBudgetTagAccountValues) Unscoped() *budgetTagHasManyBudgetTagAccountValues {
+func (a budgetRevisionHasManyBudgetRevisionAccountValues) Unscoped() *budgetRevisionHasManyBudgetRevisionAccountValues {
 	a.db = a.db.Unscoped()
 	return &a
 }
 
-type budgetTagHasManyBudgetTagAccountValuesTx struct{ tx *gorm.Association }
+type budgetRevisionHasManyBudgetRevisionAccountValuesTx struct{ tx *gorm.Association }
 
-func (a budgetTagHasManyBudgetTagAccountValuesTx) Find() (result []*model.BudgetTagAccountValue, err error) {
+func (a budgetRevisionHasManyBudgetRevisionAccountValuesTx) Find() (result []*model.BudgetRevisionAccountValue, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a budgetTagHasManyBudgetTagAccountValuesTx) Append(values ...*model.BudgetTagAccountValue) (err error) {
+func (a budgetRevisionHasManyBudgetRevisionAccountValuesTx) Append(values ...*model.BudgetRevisionAccountValue) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1061,7 +1226,7 @@ func (a budgetTagHasManyBudgetTagAccountValuesTx) Append(values ...*model.Budget
 	return a.tx.Append(targetValues...)
 }
 
-func (a budgetTagHasManyBudgetTagAccountValuesTx) Replace(values ...*model.BudgetTagAccountValue) (err error) {
+func (a budgetRevisionHasManyBudgetRevisionAccountValuesTx) Replace(values ...*model.BudgetRevisionAccountValue) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1069,7 +1234,7 @@ func (a budgetTagHasManyBudgetTagAccountValuesTx) Replace(values ...*model.Budge
 	return a.tx.Replace(targetValues...)
 }
 
-func (a budgetTagHasManyBudgetTagAccountValuesTx) Delete(values ...*model.BudgetTagAccountValue) (err error) {
+func (a budgetRevisionHasManyBudgetRevisionAccountValuesTx) Delete(values ...*model.BudgetRevisionAccountValue) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1077,26 +1242,26 @@ func (a budgetTagHasManyBudgetTagAccountValuesTx) Delete(values ...*model.Budget
 	return a.tx.Delete(targetValues...)
 }
 
-func (a budgetTagHasManyBudgetTagAccountValuesTx) Clear() error {
+func (a budgetRevisionHasManyBudgetRevisionAccountValuesTx) Clear() error {
 	return a.tx.Clear()
 }
 
-func (a budgetTagHasManyBudgetTagAccountValuesTx) Count() int64 {
+func (a budgetRevisionHasManyBudgetRevisionAccountValuesTx) Count() int64 {
 	return a.tx.Count()
 }
 
-func (a budgetTagHasManyBudgetTagAccountValuesTx) Unscoped() *budgetTagHasManyBudgetTagAccountValuesTx {
+func (a budgetRevisionHasManyBudgetRevisionAccountValuesTx) Unscoped() *budgetRevisionHasManyBudgetRevisionAccountValuesTx {
 	a.tx = a.tx.Unscoped()
 	return &a
 }
 
-type budgetTagBelongsToOrganization struct {
+type budgetRevisionBelongsToOrganization struct {
 	db *gorm.DB
 
 	field.RelationField
 }
 
-func (a budgetTagBelongsToOrganization) Where(conds ...field.Expr) *budgetTagBelongsToOrganization {
+func (a budgetRevisionBelongsToOrganization) Where(conds ...field.Expr) *budgetRevisionBelongsToOrganization {
 	if len(conds) == 0 {
 		return &a
 	}
@@ -1109,32 +1274,32 @@ func (a budgetTagBelongsToOrganization) Where(conds ...field.Expr) *budgetTagBel
 	return &a
 }
 
-func (a budgetTagBelongsToOrganization) WithContext(ctx context.Context) *budgetTagBelongsToOrganization {
+func (a budgetRevisionBelongsToOrganization) WithContext(ctx context.Context) *budgetRevisionBelongsToOrganization {
 	a.db = a.db.WithContext(ctx)
 	return &a
 }
 
-func (a budgetTagBelongsToOrganization) Session(session *gorm.Session) *budgetTagBelongsToOrganization {
+func (a budgetRevisionBelongsToOrganization) Session(session *gorm.Session) *budgetRevisionBelongsToOrganization {
 	a.db = a.db.Session(session)
 	return &a
 }
 
-func (a budgetTagBelongsToOrganization) Model(m *model.BudgetTag) *budgetTagBelongsToOrganizationTx {
-	return &budgetTagBelongsToOrganizationTx{a.db.Model(m).Association(a.Name())}
+func (a budgetRevisionBelongsToOrganization) Model(m *model.BudgetRevision) *budgetRevisionBelongsToOrganizationTx {
+	return &budgetRevisionBelongsToOrganizationTx{a.db.Model(m).Association(a.Name())}
 }
 
-func (a budgetTagBelongsToOrganization) Unscoped() *budgetTagBelongsToOrganization {
+func (a budgetRevisionBelongsToOrganization) Unscoped() *budgetRevisionBelongsToOrganization {
 	a.db = a.db.Unscoped()
 	return &a
 }
 
-type budgetTagBelongsToOrganizationTx struct{ tx *gorm.Association }
+type budgetRevisionBelongsToOrganizationTx struct{ tx *gorm.Association }
 
-func (a budgetTagBelongsToOrganizationTx) Find() (result *model.Organization, err error) {
+func (a budgetRevisionBelongsToOrganizationTx) Find() (result *model.Organization, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a budgetTagBelongsToOrganizationTx) Append(values ...*model.Organization) (err error) {
+func (a budgetRevisionBelongsToOrganizationTx) Append(values ...*model.Organization) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1142,7 +1307,7 @@ func (a budgetTagBelongsToOrganizationTx) Append(values ...*model.Organization) 
 	return a.tx.Append(targetValues...)
 }
 
-func (a budgetTagBelongsToOrganizationTx) Replace(values ...*model.Organization) (err error) {
+func (a budgetRevisionBelongsToOrganizationTx) Replace(values ...*model.Organization) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1150,7 +1315,7 @@ func (a budgetTagBelongsToOrganizationTx) Replace(values ...*model.Organization)
 	return a.tx.Replace(targetValues...)
 }
 
-func (a budgetTagBelongsToOrganizationTx) Delete(values ...*model.Organization) (err error) {
+func (a budgetRevisionBelongsToOrganizationTx) Delete(values ...*model.Organization) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1158,26 +1323,26 @@ func (a budgetTagBelongsToOrganizationTx) Delete(values ...*model.Organization) 
 	return a.tx.Delete(targetValues...)
 }
 
-func (a budgetTagBelongsToOrganizationTx) Clear() error {
+func (a budgetRevisionBelongsToOrganizationTx) Clear() error {
 	return a.tx.Clear()
 }
 
-func (a budgetTagBelongsToOrganizationTx) Count() int64 {
+func (a budgetRevisionBelongsToOrganizationTx) Count() int64 {
 	return a.tx.Count()
 }
 
-func (a budgetTagBelongsToOrganizationTx) Unscoped() *budgetTagBelongsToOrganizationTx {
+func (a budgetRevisionBelongsToOrganizationTx) Unscoped() *budgetRevisionBelongsToOrganizationTx {
 	a.tx = a.tx.Unscoped()
 	return &a
 }
 
-type budgetTagBelongsToBudget struct {
+type budgetRevisionBelongsToBudget struct {
 	db *gorm.DB
 
 	field.RelationField
 }
 
-func (a budgetTagBelongsToBudget) Where(conds ...field.Expr) *budgetTagBelongsToBudget {
+func (a budgetRevisionBelongsToBudget) Where(conds ...field.Expr) *budgetRevisionBelongsToBudget {
 	if len(conds) == 0 {
 		return &a
 	}
@@ -1190,32 +1355,32 @@ func (a budgetTagBelongsToBudget) Where(conds ...field.Expr) *budgetTagBelongsTo
 	return &a
 }
 
-func (a budgetTagBelongsToBudget) WithContext(ctx context.Context) *budgetTagBelongsToBudget {
+func (a budgetRevisionBelongsToBudget) WithContext(ctx context.Context) *budgetRevisionBelongsToBudget {
 	a.db = a.db.WithContext(ctx)
 	return &a
 }
 
-func (a budgetTagBelongsToBudget) Session(session *gorm.Session) *budgetTagBelongsToBudget {
+func (a budgetRevisionBelongsToBudget) Session(session *gorm.Session) *budgetRevisionBelongsToBudget {
 	a.db = a.db.Session(session)
 	return &a
 }
 
-func (a budgetTagBelongsToBudget) Model(m *model.BudgetTag) *budgetTagBelongsToBudgetTx {
-	return &budgetTagBelongsToBudgetTx{a.db.Model(m).Association(a.Name())}
+func (a budgetRevisionBelongsToBudget) Model(m *model.BudgetRevision) *budgetRevisionBelongsToBudgetTx {
+	return &budgetRevisionBelongsToBudgetTx{a.db.Model(m).Association(a.Name())}
 }
 
-func (a budgetTagBelongsToBudget) Unscoped() *budgetTagBelongsToBudget {
+func (a budgetRevisionBelongsToBudget) Unscoped() *budgetRevisionBelongsToBudget {
 	a.db = a.db.Unscoped()
 	return &a
 }
 
-type budgetTagBelongsToBudgetTx struct{ tx *gorm.Association }
+type budgetRevisionBelongsToBudgetTx struct{ tx *gorm.Association }
 
-func (a budgetTagBelongsToBudgetTx) Find() (result *model.Budget, err error) {
+func (a budgetRevisionBelongsToBudgetTx) Find() (result *model.Budget, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a budgetTagBelongsToBudgetTx) Append(values ...*model.Budget) (err error) {
+func (a budgetRevisionBelongsToBudgetTx) Append(values ...*model.Budget) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1223,7 +1388,7 @@ func (a budgetTagBelongsToBudgetTx) Append(values ...*model.Budget) (err error) 
 	return a.tx.Append(targetValues...)
 }
 
-func (a budgetTagBelongsToBudgetTx) Replace(values ...*model.Budget) (err error) {
+func (a budgetRevisionBelongsToBudgetTx) Replace(values ...*model.Budget) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1231,7 +1396,7 @@ func (a budgetTagBelongsToBudgetTx) Replace(values ...*model.Budget) (err error)
 	return a.tx.Replace(targetValues...)
 }
 
-func (a budgetTagBelongsToBudgetTx) Delete(values ...*model.Budget) (err error) {
+func (a budgetRevisionBelongsToBudgetTx) Delete(values ...*model.Budget) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1239,61 +1404,61 @@ func (a budgetTagBelongsToBudgetTx) Delete(values ...*model.Budget) (err error) 
 	return a.tx.Delete(targetValues...)
 }
 
-func (a budgetTagBelongsToBudgetTx) Clear() error {
+func (a budgetRevisionBelongsToBudgetTx) Clear() error {
 	return a.tx.Clear()
 }
 
-func (a budgetTagBelongsToBudgetTx) Count() int64 {
+func (a budgetRevisionBelongsToBudgetTx) Count() int64 {
 	return a.tx.Count()
 }
 
-func (a budgetTagBelongsToBudgetTx) Unscoped() *budgetTagBelongsToBudgetTx {
+func (a budgetRevisionBelongsToBudgetTx) Unscoped() *budgetRevisionBelongsToBudgetTx {
 	a.tx = a.tx.Unscoped()
 	return &a
 }
 
-type budgetTagDo struct{ gen.DO }
+type budgetRevisionDo struct{ gen.DO }
 
-type IBudgetTagDo interface {
+type IBudgetRevisionDo interface {
 	gen.SubQuery
-	Debug() IBudgetTagDo
-	WithContext(ctx context.Context) IBudgetTagDo
+	Debug() IBudgetRevisionDo
+	WithContext(ctx context.Context) IBudgetRevisionDo
 	WithResult(fc func(tx gen.Dao)) gen.ResultInfo
 	ReplaceDB(db *gorm.DB)
-	ReadDB() IBudgetTagDo
-	WriteDB() IBudgetTagDo
+	ReadDB() IBudgetRevisionDo
+	WriteDB() IBudgetRevisionDo
 	As(alias string) gen.Dao
-	Session(config *gorm.Session) IBudgetTagDo
+	Session(config *gorm.Session) IBudgetRevisionDo
 	Columns(cols ...field.Expr) gen.Columns
-	Clauses(conds ...clause.Expression) IBudgetTagDo
-	Not(conds ...gen.Condition) IBudgetTagDo
-	Or(conds ...gen.Condition) IBudgetTagDo
-	Select(conds ...field.Expr) IBudgetTagDo
-	Where(conds ...gen.Condition) IBudgetTagDo
-	Order(conds ...field.Expr) IBudgetTagDo
-	Distinct(cols ...field.Expr) IBudgetTagDo
-	Omit(cols ...field.Expr) IBudgetTagDo
-	Join(table schema.Tabler, on ...field.Expr) IBudgetTagDo
-	LeftJoin(table schema.Tabler, on ...field.Expr) IBudgetTagDo
-	RightJoin(table schema.Tabler, on ...field.Expr) IBudgetTagDo
-	Group(cols ...field.Expr) IBudgetTagDo
-	Having(conds ...gen.Condition) IBudgetTagDo
-	Limit(limit int) IBudgetTagDo
-	Offset(offset int) IBudgetTagDo
+	Clauses(conds ...clause.Expression) IBudgetRevisionDo
+	Not(conds ...gen.Condition) IBudgetRevisionDo
+	Or(conds ...gen.Condition) IBudgetRevisionDo
+	Select(conds ...field.Expr) IBudgetRevisionDo
+	Where(conds ...gen.Condition) IBudgetRevisionDo
+	Order(conds ...field.Expr) IBudgetRevisionDo
+	Distinct(cols ...field.Expr) IBudgetRevisionDo
+	Omit(cols ...field.Expr) IBudgetRevisionDo
+	Join(table schema.Tabler, on ...field.Expr) IBudgetRevisionDo
+	LeftJoin(table schema.Tabler, on ...field.Expr) IBudgetRevisionDo
+	RightJoin(table schema.Tabler, on ...field.Expr) IBudgetRevisionDo
+	Group(cols ...field.Expr) IBudgetRevisionDo
+	Having(conds ...gen.Condition) IBudgetRevisionDo
+	Limit(limit int) IBudgetRevisionDo
+	Offset(offset int) IBudgetRevisionDo
 	Count() (count int64, err error)
-	Scopes(funcs ...func(gen.Dao) gen.Dao) IBudgetTagDo
-	Unscoped() IBudgetTagDo
-	Create(values ...*model.BudgetTag) error
-	CreateInBatches(values []*model.BudgetTag, batchSize int) error
-	Save(values ...*model.BudgetTag) error
-	First() (*model.BudgetTag, error)
-	Take() (*model.BudgetTag, error)
-	Last() (*model.BudgetTag, error)
-	Find() ([]*model.BudgetTag, error)
-	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.BudgetTag, err error)
-	FindInBatches(result *[]*model.BudgetTag, batchSize int, fc func(tx gen.Dao, batch int) error) error
+	Scopes(funcs ...func(gen.Dao) gen.Dao) IBudgetRevisionDo
+	Unscoped() IBudgetRevisionDo
+	Create(values ...*model.BudgetRevision) error
+	CreateInBatches(values []*model.BudgetRevision, batchSize int) error
+	Save(values ...*model.BudgetRevision) error
+	First() (*model.BudgetRevision, error)
+	Take() (*model.BudgetRevision, error)
+	Last() (*model.BudgetRevision, error)
+	Find() ([]*model.BudgetRevision, error)
+	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.BudgetRevision, err error)
+	FindInBatches(result *[]*model.BudgetRevision, batchSize int, fc func(tx gen.Dao, batch int) error) error
 	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*model.BudgetTag) (info gen.ResultInfo, err error)
+	Delete(...*model.BudgetRevision) (info gen.ResultInfo, err error)
 	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
 	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
 	Updates(value interface{}) (info gen.ResultInfo, err error)
@@ -1301,165 +1466,165 @@ type IBudgetTagDo interface {
 	UpdateColumnSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
 	UpdateColumns(value interface{}) (info gen.ResultInfo, err error)
 	UpdateFrom(q gen.SubQuery) gen.Dao
-	Attrs(attrs ...field.AssignExpr) IBudgetTagDo
-	Assign(attrs ...field.AssignExpr) IBudgetTagDo
-	Joins(fields ...field.RelationField) IBudgetTagDo
-	Preload(fields ...field.RelationField) IBudgetTagDo
-	FirstOrInit() (*model.BudgetTag, error)
-	FirstOrCreate() (*model.BudgetTag, error)
-	FindByPage(offset int, limit int) (result []*model.BudgetTag, count int64, err error)
+	Attrs(attrs ...field.AssignExpr) IBudgetRevisionDo
+	Assign(attrs ...field.AssignExpr) IBudgetRevisionDo
+	Joins(fields ...field.RelationField) IBudgetRevisionDo
+	Preload(fields ...field.RelationField) IBudgetRevisionDo
+	FirstOrInit() (*model.BudgetRevision, error)
+	FirstOrCreate() (*model.BudgetRevision, error)
+	FindByPage(offset int, limit int) (result []*model.BudgetRevision, count int64, err error)
 	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
 	Rows() (*sql.Rows, error)
 	Row() *sql.Row
 	Scan(result interface{}) (err error)
-	Returning(value interface{}, columns ...string) IBudgetTagDo
+	Returning(value interface{}, columns ...string) IBudgetRevisionDo
 	UnderlyingDB() *gorm.DB
 	schema.Tabler
 }
 
-func (b budgetTagDo) Debug() IBudgetTagDo {
+func (b budgetRevisionDo) Debug() IBudgetRevisionDo {
 	return b.withDO(b.DO.Debug())
 }
 
-func (b budgetTagDo) WithContext(ctx context.Context) IBudgetTagDo {
+func (b budgetRevisionDo) WithContext(ctx context.Context) IBudgetRevisionDo {
 	return b.withDO(b.DO.WithContext(ctx))
 }
 
-func (b budgetTagDo) ReadDB() IBudgetTagDo {
+func (b budgetRevisionDo) ReadDB() IBudgetRevisionDo {
 	return b.Clauses(dbresolver.Read)
 }
 
-func (b budgetTagDo) WriteDB() IBudgetTagDo {
+func (b budgetRevisionDo) WriteDB() IBudgetRevisionDo {
 	return b.Clauses(dbresolver.Write)
 }
 
-func (b budgetTagDo) Session(config *gorm.Session) IBudgetTagDo {
+func (b budgetRevisionDo) Session(config *gorm.Session) IBudgetRevisionDo {
 	return b.withDO(b.DO.Session(config))
 }
 
-func (b budgetTagDo) Clauses(conds ...clause.Expression) IBudgetTagDo {
+func (b budgetRevisionDo) Clauses(conds ...clause.Expression) IBudgetRevisionDo {
 	return b.withDO(b.DO.Clauses(conds...))
 }
 
-func (b budgetTagDo) Returning(value interface{}, columns ...string) IBudgetTagDo {
+func (b budgetRevisionDo) Returning(value interface{}, columns ...string) IBudgetRevisionDo {
 	return b.withDO(b.DO.Returning(value, columns...))
 }
 
-func (b budgetTagDo) Not(conds ...gen.Condition) IBudgetTagDo {
+func (b budgetRevisionDo) Not(conds ...gen.Condition) IBudgetRevisionDo {
 	return b.withDO(b.DO.Not(conds...))
 }
 
-func (b budgetTagDo) Or(conds ...gen.Condition) IBudgetTagDo {
+func (b budgetRevisionDo) Or(conds ...gen.Condition) IBudgetRevisionDo {
 	return b.withDO(b.DO.Or(conds...))
 }
 
-func (b budgetTagDo) Select(conds ...field.Expr) IBudgetTagDo {
+func (b budgetRevisionDo) Select(conds ...field.Expr) IBudgetRevisionDo {
 	return b.withDO(b.DO.Select(conds...))
 }
 
-func (b budgetTagDo) Where(conds ...gen.Condition) IBudgetTagDo {
+func (b budgetRevisionDo) Where(conds ...gen.Condition) IBudgetRevisionDo {
 	return b.withDO(b.DO.Where(conds...))
 }
 
-func (b budgetTagDo) Order(conds ...field.Expr) IBudgetTagDo {
+func (b budgetRevisionDo) Order(conds ...field.Expr) IBudgetRevisionDo {
 	return b.withDO(b.DO.Order(conds...))
 }
 
-func (b budgetTagDo) Distinct(cols ...field.Expr) IBudgetTagDo {
+func (b budgetRevisionDo) Distinct(cols ...field.Expr) IBudgetRevisionDo {
 	return b.withDO(b.DO.Distinct(cols...))
 }
 
-func (b budgetTagDo) Omit(cols ...field.Expr) IBudgetTagDo {
+func (b budgetRevisionDo) Omit(cols ...field.Expr) IBudgetRevisionDo {
 	return b.withDO(b.DO.Omit(cols...))
 }
 
-func (b budgetTagDo) Join(table schema.Tabler, on ...field.Expr) IBudgetTagDo {
+func (b budgetRevisionDo) Join(table schema.Tabler, on ...field.Expr) IBudgetRevisionDo {
 	return b.withDO(b.DO.Join(table, on...))
 }
 
-func (b budgetTagDo) LeftJoin(table schema.Tabler, on ...field.Expr) IBudgetTagDo {
+func (b budgetRevisionDo) LeftJoin(table schema.Tabler, on ...field.Expr) IBudgetRevisionDo {
 	return b.withDO(b.DO.LeftJoin(table, on...))
 }
 
-func (b budgetTagDo) RightJoin(table schema.Tabler, on ...field.Expr) IBudgetTagDo {
+func (b budgetRevisionDo) RightJoin(table schema.Tabler, on ...field.Expr) IBudgetRevisionDo {
 	return b.withDO(b.DO.RightJoin(table, on...))
 }
 
-func (b budgetTagDo) Group(cols ...field.Expr) IBudgetTagDo {
+func (b budgetRevisionDo) Group(cols ...field.Expr) IBudgetRevisionDo {
 	return b.withDO(b.DO.Group(cols...))
 }
 
-func (b budgetTagDo) Having(conds ...gen.Condition) IBudgetTagDo {
+func (b budgetRevisionDo) Having(conds ...gen.Condition) IBudgetRevisionDo {
 	return b.withDO(b.DO.Having(conds...))
 }
 
-func (b budgetTagDo) Limit(limit int) IBudgetTagDo {
+func (b budgetRevisionDo) Limit(limit int) IBudgetRevisionDo {
 	return b.withDO(b.DO.Limit(limit))
 }
 
-func (b budgetTagDo) Offset(offset int) IBudgetTagDo {
+func (b budgetRevisionDo) Offset(offset int) IBudgetRevisionDo {
 	return b.withDO(b.DO.Offset(offset))
 }
 
-func (b budgetTagDo) Scopes(funcs ...func(gen.Dao) gen.Dao) IBudgetTagDo {
+func (b budgetRevisionDo) Scopes(funcs ...func(gen.Dao) gen.Dao) IBudgetRevisionDo {
 	return b.withDO(b.DO.Scopes(funcs...))
 }
 
-func (b budgetTagDo) Unscoped() IBudgetTagDo {
+func (b budgetRevisionDo) Unscoped() IBudgetRevisionDo {
 	return b.withDO(b.DO.Unscoped())
 }
 
-func (b budgetTagDo) Create(values ...*model.BudgetTag) error {
+func (b budgetRevisionDo) Create(values ...*model.BudgetRevision) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return b.DO.Create(values)
 }
 
-func (b budgetTagDo) CreateInBatches(values []*model.BudgetTag, batchSize int) error {
+func (b budgetRevisionDo) CreateInBatches(values []*model.BudgetRevision, batchSize int) error {
 	return b.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (b budgetTagDo) Save(values ...*model.BudgetTag) error {
+func (b budgetRevisionDo) Save(values ...*model.BudgetRevision) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return b.DO.Save(values)
 }
 
-func (b budgetTagDo) First() (*model.BudgetTag, error) {
+func (b budgetRevisionDo) First() (*model.BudgetRevision, error) {
 	if result, err := b.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.BudgetTag), nil
+		return result.(*model.BudgetRevision), nil
 	}
 }
 
-func (b budgetTagDo) Take() (*model.BudgetTag, error) {
+func (b budgetRevisionDo) Take() (*model.BudgetRevision, error) {
 	if result, err := b.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.BudgetTag), nil
+		return result.(*model.BudgetRevision), nil
 	}
 }
 
-func (b budgetTagDo) Last() (*model.BudgetTag, error) {
+func (b budgetRevisionDo) Last() (*model.BudgetRevision, error) {
 	if result, err := b.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.BudgetTag), nil
+		return result.(*model.BudgetRevision), nil
 	}
 }
 
-func (b budgetTagDo) Find() ([]*model.BudgetTag, error) {
+func (b budgetRevisionDo) Find() ([]*model.BudgetRevision, error) {
 	result, err := b.DO.Find()
-	return result.([]*model.BudgetTag), err
+	return result.([]*model.BudgetRevision), err
 }
 
-func (b budgetTagDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.BudgetTag, err error) {
-	buf := make([]*model.BudgetTag, 0, batchSize)
+func (b budgetRevisionDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.BudgetRevision, err error) {
+	buf := make([]*model.BudgetRevision, 0, batchSize)
 	err = b.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -1467,49 +1632,49 @@ func (b budgetTagDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) e
 	return results, err
 }
 
-func (b budgetTagDo) FindInBatches(result *[]*model.BudgetTag, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (b budgetRevisionDo) FindInBatches(result *[]*model.BudgetRevision, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return b.DO.FindInBatches(result, batchSize, fc)
 }
 
-func (b budgetTagDo) Attrs(attrs ...field.AssignExpr) IBudgetTagDo {
+func (b budgetRevisionDo) Attrs(attrs ...field.AssignExpr) IBudgetRevisionDo {
 	return b.withDO(b.DO.Attrs(attrs...))
 }
 
-func (b budgetTagDo) Assign(attrs ...field.AssignExpr) IBudgetTagDo {
+func (b budgetRevisionDo) Assign(attrs ...field.AssignExpr) IBudgetRevisionDo {
 	return b.withDO(b.DO.Assign(attrs...))
 }
 
-func (b budgetTagDo) Joins(fields ...field.RelationField) IBudgetTagDo {
+func (b budgetRevisionDo) Joins(fields ...field.RelationField) IBudgetRevisionDo {
 	for _, _f := range fields {
 		b = *b.withDO(b.DO.Joins(_f))
 	}
 	return &b
 }
 
-func (b budgetTagDo) Preload(fields ...field.RelationField) IBudgetTagDo {
+func (b budgetRevisionDo) Preload(fields ...field.RelationField) IBudgetRevisionDo {
 	for _, _f := range fields {
 		b = *b.withDO(b.DO.Preload(_f))
 	}
 	return &b
 }
 
-func (b budgetTagDo) FirstOrInit() (*model.BudgetTag, error) {
+func (b budgetRevisionDo) FirstOrInit() (*model.BudgetRevision, error) {
 	if result, err := b.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.BudgetTag), nil
+		return result.(*model.BudgetRevision), nil
 	}
 }
 
-func (b budgetTagDo) FirstOrCreate() (*model.BudgetTag, error) {
+func (b budgetRevisionDo) FirstOrCreate() (*model.BudgetRevision, error) {
 	if result, err := b.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.BudgetTag), nil
+		return result.(*model.BudgetRevision), nil
 	}
 }
 
-func (b budgetTagDo) FindByPage(offset int, limit int) (result []*model.BudgetTag, count int64, err error) {
+func (b budgetRevisionDo) FindByPage(offset int, limit int) (result []*model.BudgetRevision, count int64, err error) {
 	result, err = b.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -1524,7 +1689,7 @@ func (b budgetTagDo) FindByPage(offset int, limit int) (result []*model.BudgetTa
 	return
 }
 
-func (b budgetTagDo) ScanByPage(result interface{}, offset int, limit int) (count int64, err error) {
+func (b budgetRevisionDo) ScanByPage(result interface{}, offset int, limit int) (count int64, err error) {
 	count, err = b.Count()
 	if err != nil {
 		return
@@ -1534,15 +1699,15 @@ func (b budgetTagDo) ScanByPage(result interface{}, offset int, limit int) (coun
 	return
 }
 
-func (b budgetTagDo) Scan(result interface{}) (err error) {
+func (b budgetRevisionDo) Scan(result interface{}) (err error) {
 	return b.DO.Scan(result)
 }
 
-func (b budgetTagDo) Delete(models ...*model.BudgetTag) (result gen.ResultInfo, err error) {
+func (b budgetRevisionDo) Delete(models ...*model.BudgetRevision) (result gen.ResultInfo, err error) {
 	return b.DO.Delete(models)
 }
 
-func (b *budgetTagDo) withDO(do gen.Dao) *budgetTagDo {
+func (b *budgetRevisionDo) withDO(do gen.Dao) *budgetRevisionDo {
 	b.DO = *do.(*gen.DO)
 	return b
 }

@@ -74,15 +74,24 @@ func local_request_BudgetService_GetBudget_0(ctx context.Context, marshaler runt
 	return msg, metadata, err
 }
 
-var filter_BudgetService_ListBudgets_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var filter_BudgetService_ListBudgets_0 = &utilities.DoubleArray{Encoding: map[string]int{"parent": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_BudgetService_ListBudgets_0(ctx context.Context, marshaler runtime.Marshaler, client BudgetServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ListBudgetsRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["parent"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
+	}
+	protoReq.Parent, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
 	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -98,7 +107,16 @@ func local_request_BudgetService_ListBudgets_0(ctx context.Context, marshaler ru
 	var (
 		protoReq ListBudgetsRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
+	val, ok := pathParams["parent"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
+	}
+	protoReq.Parent, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
+	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
@@ -113,12 +131,21 @@ func request_BudgetService_CreateBudget_0(ctx context.Context, marshaler runtime
 	var (
 		protoReq CreateBudgetRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.Budget); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["parent"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
+	}
+	protoReq.Parent, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
 	}
 	msg, err := client.CreateBudget(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -128,9 +155,18 @@ func local_request_BudgetService_CreateBudget_0(ctx context.Context, marshaler r
 	var (
 		protoReq CreateBudgetRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.Budget); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	val, ok := pathParams["parent"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
+	}
+	protoReq.Parent, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
 	}
 	msg, err := server.CreateBudget(ctx, &protoReq)
 	return msg, metadata, err
@@ -313,7 +349,7 @@ func RegisterBudgetServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/GetBudget", runtime.WithHTTPPathPattern("/v1/{name=budgets/*}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/GetBudget", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/budgets/*}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -333,7 +369,7 @@ func RegisterBudgetServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/ListBudgets", runtime.WithHTTPPathPattern("/v1/budgets"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/ListBudgets", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*}/budgets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -353,7 +389,7 @@ func RegisterBudgetServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/CreateBudget", runtime.WithHTTPPathPattern("/v1/budgets"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/CreateBudget", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*}/budgets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -373,7 +409,7 @@ func RegisterBudgetServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/UpdateBudget", runtime.WithHTTPPathPattern("/v1/{budget.name=budgets/*}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/UpdateBudget", runtime.WithHTTPPathPattern("/v1/{budget.name=organizations/*/budgets/*}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -393,7 +429,7 @@ func RegisterBudgetServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/CloseBudget", runtime.WithHTTPPathPattern("/v1/{name=budgets/*}:close"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/CloseBudget", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/budgets/*}:close"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -413,7 +449,7 @@ func RegisterBudgetServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/DeleteBudget", runtime.WithHTTPPathPattern("/v1/{name=budgets/*}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/DeleteBudget", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/budgets/*}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -471,7 +507,7 @@ func RegisterBudgetServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/GetBudget", runtime.WithHTTPPathPattern("/v1/{name=budgets/*}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/GetBudget", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/budgets/*}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -488,7 +524,7 @@ func RegisterBudgetServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/ListBudgets", runtime.WithHTTPPathPattern("/v1/budgets"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/ListBudgets", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*}/budgets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -505,7 +541,7 @@ func RegisterBudgetServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/CreateBudget", runtime.WithHTTPPathPattern("/v1/budgets"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/CreateBudget", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*}/budgets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -522,7 +558,7 @@ func RegisterBudgetServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/UpdateBudget", runtime.WithHTTPPathPattern("/v1/{budget.name=budgets/*}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/UpdateBudget", runtime.WithHTTPPathPattern("/v1/{budget.name=organizations/*/budgets/*}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -539,7 +575,7 @@ func RegisterBudgetServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/CloseBudget", runtime.WithHTTPPathPattern("/v1/{name=budgets/*}:close"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/CloseBudget", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/budgets/*}:close"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -556,7 +592,7 @@ func RegisterBudgetServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/DeleteBudget", runtime.WithHTTPPathPattern("/v1/{name=budgets/*}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetService/DeleteBudget", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/budgets/*}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -573,12 +609,12 @@ func RegisterBudgetServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 }
 
 var (
-	pattern_BudgetService_GetBudget_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 2, 5, 2}, []string{"v1", "budgets", "name"}, ""))
-	pattern_BudgetService_ListBudgets_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "budgets"}, ""))
-	pattern_BudgetService_CreateBudget_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "budgets"}, ""))
-	pattern_BudgetService_UpdateBudget_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 2, 5, 2}, []string{"v1", "budgets", "budget.name"}, ""))
-	pattern_BudgetService_CloseBudget_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 2, 5, 2}, []string{"v1", "budgets", "name"}, "close"))
-	pattern_BudgetService_DeleteBudget_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 2, 5, 2}, []string{"v1", "budgets", "name"}, ""))
+	pattern_BudgetService_GetBudget_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3}, []string{"v1", "organizations", "budgets", "name"}, ""))
+	pattern_BudgetService_ListBudgets_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 2, 5, 2, 2, 3}, []string{"v1", "organizations", "parent", "budgets"}, ""))
+	pattern_BudgetService_CreateBudget_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 2, 5, 2, 2, 3}, []string{"v1", "organizations", "parent", "budgets"}, ""))
+	pattern_BudgetService_UpdateBudget_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3}, []string{"v1", "organizations", "budgets", "budget.name"}, ""))
+	pattern_BudgetService_CloseBudget_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3}, []string{"v1", "organizations", "budgets", "name"}, "close"))
+	pattern_BudgetService_DeleteBudget_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3}, []string{"v1", "organizations", "budgets", "name"}, ""))
 )
 
 var (

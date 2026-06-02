@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"strings"
 
 	"github.com/google/uuid"
 	gen "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen"
@@ -15,7 +14,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"gorm.io/gorm"
 )
 
 type accountServiceServer struct {
@@ -28,7 +26,11 @@ func newAccountServiceServer(repo *repository.AccountRepository) gen.AccountServ
 }
 
 func (s *accountServiceServer) GetAccount(ctx context.Context, req *gen.GetAccountRequest) (*gen.Account, error) {
-	id, err := idFromName(req.Name, "accounts/")
+	var n gen.AccountResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid account name")
+	}
+	id, err := uuid.Parse(n.Account)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid account name")
 	}
@@ -113,7 +115,11 @@ func (s *accountServiceServer) ListNestedAccounts(ctx context.Context, req *gen.
 }
 
 func (s *accountServiceServer) GetNestedAccount(ctx context.Context, req *gen.GetNestedAccountRequest) (*gen.GetNestedAccountResponse, error) {
-	id, err := idFromName(req.Name, "accounts/")
+	var n gen.AccountResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid account name")
+	}
+	id, err := uuid.Parse(n.Account)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid account name")
 	}
@@ -152,7 +158,11 @@ func (s *accountServiceServer) CreateAccount(ctx context.Context, req *gen.Creat
 		IsContainer:        req.Account.IsContainer,
 	}
 	if req.Account.ParentAccount != "" {
-		pid, err := idFromName(req.Account.ParentAccount, "accounts/")
+		var pn gen.AccountResourceName
+		if err := pn.UnmarshalString(req.Account.ParentAccount); err != nil {
+			return nil, status.Error(codes.InvalidArgument, "invalid parent_account")
+		}
+		pid, err := uuid.Parse(pn.Account)
 		if err != nil {
 			return nil, status.Error(codes.InvalidArgument, "invalid parent_account")
 		}
@@ -168,7 +178,11 @@ func (s *accountServiceServer) UpdateAccount(ctx context.Context, req *gen.Updat
 	if req.Account == nil {
 		return nil, status.Error(codes.InvalidArgument, "account is required")
 	}
-	id, err := idFromName(req.Account.Name, "accounts/")
+	var n gen.AccountResourceName
+	if err := n.UnmarshalString(req.Account.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid account name")
+	}
+	id, err := uuid.Parse(n.Account)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid account name")
 	}
@@ -190,7 +204,11 @@ func (s *accountServiceServer) UpdateAccount(ctx context.Context, req *gen.Updat
 }
 
 func (s *accountServiceServer) ArchiveAccount(ctx context.Context, req *gen.ArchiveAccountRequest) (*gen.Account, error) {
-	id, err := idFromName(req.Name, "accounts/")
+	var n gen.AccountResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid account name")
+	}
+	id, err := uuid.Parse(n.Account)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid account name")
 	}
@@ -209,7 +227,11 @@ func (s *accountServiceServer) ArchiveAccount(ctx context.Context, req *gen.Arch
 }
 
 func (s *accountServiceServer) DeleteAccount(ctx context.Context, req *gen.DeleteAccountRequest) (*emptypb.Empty, error) {
-	id, err := idFromName(req.Name, "accounts/")
+	var n gen.AccountResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid account name")
+	}
+	id, err := uuid.Parse(n.Account)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid account name")
 	}
@@ -220,32 +242,6 @@ func (s *accountServiceServer) DeleteAccount(ctx context.Context, req *gen.Delet
 		return nil, status.Error(codes.Internal, "failed to delete account")
 	}
 	return &emptypb.Empty{}, nil
-}
-
-// ── helpers ───────────────────────────────────────────────────────────────────
-
-// idFromName extracts a UUID from a resource name like "accounts/<uuid>".
-func idFromName(name, prefix string) (uuid.UUID, error) {
-	after, ok := strings.CutPrefix(name, prefix)
-	if !ok {
-		return uuid.Nil, status.Error(codes.InvalidArgument, "invalid resource name")
-	}
-	return uuid.Parse(after)
-}
-
-// lastSegment extracts the last path segment of a resource name as a UUID.
-// e.g. "accountGroups/abc/assignments/xyz" → uuid("xyz")
-func lastSegment(name string) (uuid.UUID, error) {
-	idx := strings.LastIndex(name, "/")
-	if idx < 0 || idx == len(name)-1 {
-		return uuid.Nil, status.Error(codes.InvalidArgument, "invalid resource name")
-	}
-	return uuid.Parse(name[idx+1:])
-}
-
-// isNotFound returns true when err is a GORM not-found error.
-func isNotFound(err error) bool {
-	return err != nil && (err == gorm.ErrRecordNotFound || strings.Contains(err.Error(), "record not found"))
 }
 
 // buildNestedTree recursively assembles NestedAccount trees.

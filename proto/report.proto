@@ -14,15 +14,15 @@ import "google/protobuf/timestamp.proto";
 
 // Report is a generated report instance produced from a ReportTemplate.
 // The rendered binary content is served exclusively via the Huma HTTP API
-// (GET /v1/reports/{reportId}:download) and is intentionally excluded here.
+// (GET /v1/organizations/{organization}/reports/{reportId}:download) and is intentionally excluded here.
 message Report {
   option (google.api.resource) = {
     type: "vsfv.pixlcrashr.dev/Report"
-    pattern: "reports/{report}"
+    pattern: "organizations/{organization}/reports/{report}"
   };
 
   // The resource name of the report.
-  // Format: reports/{report}
+  // Format: organizations/{organization}/reports/{report}
   string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The UUID of the report.
@@ -40,7 +40,7 @@ message Report {
 
 message GetReportRequest {
   // The resource name of the report.
-  // Format: reports/{report}
+  // Format: organizations/{organization}/reports/{report}
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Report"}
@@ -48,20 +48,27 @@ message GetReportRequest {
 }
 
 message ListReportsRequest {
+  // The parent organization resource name.
+  // Format: organizations/{organization}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Organization"}
+  ];
+
   // Maximum number of reports to return. The service may return fewer.
   // If unspecified, at most 20 are returned. Maximum value is 100.
-  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
 
   // A page token from a previous ListReports call.
-  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
 
   // Filter expression conforming to AIP-160.
   // Supported fields: display_name, report_template_id.
   // Example: "display_name=\"Q1 Report\"".
-  string filter = 3 [(google.api.field_behavior) = OPTIONAL];
+  string filter = 4 [(google.api.field_behavior) = OPTIONAL];
 
   // Order by expression (e.g. "display_name", "create_time desc").
-  string order_by = 4 [(google.api.field_behavior) = OPTIONAL];
+  string order_by = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message ListReportsResponse {
@@ -76,13 +83,20 @@ message ListReportsResponse {
 }
 
 message CreateReportRequest {
+  // The parent organization resource name.
+  // Format: organizations/{organization}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Organization"}
+  ];
+
   // The report to create.
-  Report report = 1 [(google.api.field_behavior) = REQUIRED];
+  Report report = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
 message DeleteReportRequest {
   // The resource name of the report.
-  // Format: reports/{report}
+  // Format: organizations/{organization}/reports/{report}
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Report"}
@@ -97,7 +111,7 @@ service ReportService {
   // Gets report metadata by resource name.
   rpc GetReport(GetReportRequest) returns (Report) {
     option (google.api.http) = {
-      get: "/v1/{name=reports/*}"
+      get: "/v1/{name=organizations/*/reports/*}"
     };
     option (google.api.method_signature) = "name";
   }
@@ -105,23 +119,24 @@ service ReportService {
   // Lists reports with pagination.
   rpc ListReports(ListReportsRequest) returns (ListReportsResponse) {
     option (google.api.http) = {
-      get: "/v1/reports"
+      get: "/v1/{parent=organizations/*}/reports"
     };
+    option (google.api.method_signature) = "parent";
   }
 
   // Creates a new report by rendering a template.
   rpc CreateReport(CreateReportRequest) returns (Report) {
     option (google.api.http) = {
-      post: "/v1/reports"
+      post: "/v1/{parent=organizations/*}/reports"
       body: "report"
     };
-    option (google.api.method_signature) = "report";
+    option (google.api.method_signature) = "parent,report";
   }
 
   // Permanently deletes a report.
   rpc DeleteReport(DeleteReportRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/v1/{name=reports/*}"
+      delete: "/v1/{name=organizations/*/reports/*}"
     };
     option (google.api.method_signature) = "name";
   }

@@ -14,20 +14,39 @@ import (
 )
 
 type ImportSourcePeriodResourceName struct {
+	Organization string
 	ImportSource string
 	Period       string
+}
+
+func (n OrganizationResourceName) ImportSourcePeriodResourceName(
+	importSource string,
+	period string,
+) ImportSourcePeriodResourceName {
+	return ImportSourcePeriodResourceName{
+		Organization: n.Organization,
+		ImportSource: importSource,
+		Period:       period,
+	}
 }
 
 func (n ImportSourceResourceName) ImportSourcePeriodResourceName(
 	period string,
 ) ImportSourcePeriodResourceName {
 	return ImportSourcePeriodResourceName{
+		Organization: n.Organization,
 		ImportSource: n.ImportSource,
 		Period:       period,
 	}
 }
 
 func (n ImportSourcePeriodResourceName) Validate() error {
+	if n.Organization == "" {
+		return fmt.Errorf("organization: empty")
+	}
+	if strings.IndexByte(n.Organization, '/') != -1 {
+		return fmt.Errorf("organization: contains illegal character '/'")
+	}
 	if n.ImportSource == "" {
 		return fmt.Errorf("import_source: empty")
 	}
@@ -44,12 +63,13 @@ func (n ImportSourcePeriodResourceName) Validate() error {
 }
 
 func (n ImportSourcePeriodResourceName) ContainsWildcard() bool {
-	return false || n.ImportSource == "-" || n.Period == "-"
+	return false || n.Organization == "-" || n.ImportSource == "-" || n.Period == "-"
 }
 
 func (n ImportSourcePeriodResourceName) String() string {
 	return resourcename.Sprint(
-		"importSources/{import_source}/periods/{period}",
+		"organizations/{organization}/importSources/{import_source}/periods/{period}",
+		n.Organization,
 		n.ImportSource,
 		n.Period,
 	)
@@ -73,7 +93,8 @@ func (n ImportSourcePeriodResourceName) MarshalText() ([]byte, error) {
 func (n *ImportSourcePeriodResourceName) UnmarshalString(name string) error {
 	err := resourcename.Sscan(
 		name,
-		"importSources/{import_source}/periods/{period}",
+		"organizations/{organization}/importSources/{import_source}/periods/{period}",
+		&n.Organization,
 		&n.ImportSource,
 		&n.Period,
 	)
@@ -92,8 +113,15 @@ func (n ImportSourcePeriodResourceName) Type() string {
 	return "vsfv.pixlcrashr.dev/ImportSourcePeriod"
 }
 
+func (n ImportSourcePeriodResourceName) OrganizationResourceName() OrganizationResourceName {
+	return OrganizationResourceName{
+		Organization: n.Organization,
+	}
+}
+
 func (n ImportSourcePeriodResourceName) ImportSourceResourceName() ImportSourceResourceName {
 	return ImportSourceResourceName{
+		Organization: n.Organization,
 		ImportSource: n.ImportSource,
 	}
 }

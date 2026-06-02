@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package pixlcrashr.vsfv.v1;
+
+option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+
+// Decimal represents an arbitrary-precision decimal number, suitable for
+// monetary and other values where floating-point rounding is unacceptable.
+//
+// The value is a formatted decimal string, e.g. "1234.56", "-42", "0.001".
+message Decimal {
+  // The decimal number as a formatted string (e.g. "1234.56", "-42", "0.001").
+  string value = 1;
+}

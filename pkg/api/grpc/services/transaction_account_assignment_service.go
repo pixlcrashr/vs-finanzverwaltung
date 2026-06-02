@@ -25,7 +25,11 @@ func newTransactionAccountAssignmentServiceServer(repo *repository.TransactionAc
 }
 
 func (s *transactionAccountAssignmentServiceServer) GetTransactionAccountAssignment(ctx context.Context, req *gen.GetTransactionAccountAssignmentRequest) (*gen.TransactionAccountAssignment, error) {
-	assignID, err := lastSegment(req.Name)
+	var n gen.TransactionAccountAssignmentResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid assignment name")
+	}
+	assignID, err := uuid.Parse(n.Assignment)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid assignment name")
 	}
@@ -40,7 +44,11 @@ func (s *transactionAccountAssignmentServiceServer) GetTransactionAccountAssignm
 }
 
 func (s *transactionAccountAssignmentServiceServer) ListTransactionAccountAssignments(ctx context.Context, req *gen.ListTransactionAccountAssignmentsRequest) (*gen.ListTransactionAccountAssignmentsResponse, error) {
-	txID, err := idFromName(req.Parent, "transactions/")
+	var pn gen.TransactionResourceName
+	if err := pn.UnmarshalString(req.Parent); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid parent transaction name")
+	}
+	txID, err := uuid.Parse(pn.Transaction)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid parent transaction name")
 	}
@@ -88,7 +96,11 @@ func (s *transactionAccountAssignmentServiceServer) ListTransactionAccountAssign
 }
 
 func (s *transactionAccountAssignmentServiceServer) CreateTransactionAccountAssignment(ctx context.Context, req *gen.CreateTransactionAccountAssignmentRequest) (*gen.TransactionAccountAssignment, error) {
-	txID, err := idFromName(req.Parent, "transactions/")
+	var pn gen.TransactionResourceName
+	if err := pn.UnmarshalString(req.Parent); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid parent transaction name")
+	}
+	txID, err := uuid.Parse(pn.Transaction)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid parent transaction name")
 	}
@@ -113,7 +125,11 @@ func (s *transactionAccountAssignmentServiceServer) UpdateTransactionAccountAssi
 	if req.Assignment == nil {
 		return nil, status.Error(codes.InvalidArgument, "assignment is required")
 	}
-	assignID, err := lastSegment(req.Assignment.Name)
+	var n gen.TransactionAccountAssignmentResourceName
+	if err := n.UnmarshalString(req.Assignment.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid assignment name")
+	}
+	assignID, err := uuid.Parse(n.Assignment)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid assignment name")
 	}
@@ -136,7 +152,11 @@ func (s *transactionAccountAssignmentServiceServer) UpdateTransactionAccountAssi
 }
 
 func (s *transactionAccountAssignmentServiceServer) DeleteTransactionAccountAssignment(ctx context.Context, req *gen.DeleteTransactionAccountAssignmentRequest) (*emptypb.Empty, error) {
-	assignID, err := lastSegment(req.Name)
+	var n gen.TransactionAccountAssignmentResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid assignment name")
+	}
+	assignID, err := uuid.Parse(n.Assignment)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid assignment name")
 	}

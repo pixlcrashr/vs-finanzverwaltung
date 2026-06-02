@@ -1,0 +1,174 @@
+syntax = "proto3";
+
+package pixlcrashr.vsfv.v1;
+
+option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+import "decimal.proto";
+
+// BudgetAccountValue associates an account with a numeric target value within
+// a budget. Accounts may optionally be assigned a value; not all accounts in
+// the system need to be present.
+message BudgetAccountValue {
+  option (google.api.resource) = {
+    type: "vsfv.pixlcrashr.dev/BudgetAccountValue"
+    pattern: "organizations/{organization}/budgets/{budget}/accountValues/{account_value}"
+  };
+
+  // The resource name of the budget account value.
+  // Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The UUID of the budget account value.
+  string uid = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The resource name of the parent budget.
+  // Format: organizations/{organization}/budgets/{budget}
+  string budget = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Budget"}
+  ];
+
+  // The UUID of the account this value is assigned to.
+  string account_id = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Account"}
+  ];
+
+  // The target monetary value assigned to the account for this budget.
+  Decimal value = 5 [(google.api.field_behavior) = REQUIRED];
+
+  // Last modification timestamp.
+  google.protobuf.Timestamp update_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Creation timestamp.
+  google.protobuf.Timestamp create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message GetBudgetAccountValueRequest {
+  // The resource name of the budget account value.
+  // Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/BudgetAccountValue"}
+  ];
+}
+
+message ListBudgetAccountValuesRequest {
+  // The parent budget resource name.
+  // Format: organizations/{organization}/budgets/{budget}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Budget"}
+  ];
+
+  // Maximum number of values to return. The service may return fewer.
+  // If unspecified, at most 20 are returned. Maximum value is 100.
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // A page token from a previous ListBudgetAccountValues call.
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter expression conforming to AIP-160.
+  // Supported fields: account_id.
+  // Example: "account_id=\"<uuid>\"".
+  string filter = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order by expression (e.g. "create_time desc").
+  string order_by = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ListBudgetAccountValuesResponse {
+  // The budget account values returned.
+  repeated BudgetAccountValue account_values = 1;
+
+  // A token to retrieve the next page of results.
+  string next_page_token = 2;
+
+  // Total number of account values matching the filter (may be an estimate).
+  int64 total_size = 3;
+}
+
+message CreateBudgetAccountValueRequest {
+  // The parent budget resource name.
+  // Format: organizations/{organization}/budgets/{budget}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Budget"}
+  ];
+
+  // The budget account value to create.
+  BudgetAccountValue account_value = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message UpdateBudgetAccountValueRequest {
+  // The budget account value to update.
+  BudgetAccountValue account_value = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The list of fields to update.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message DeleteBudgetAccountValueRequest {
+  // The resource name of the budget account value.
+  // Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/BudgetAccountValue"}
+  ];
+}
+
+// BudgetAccountValueService manages per-account value assignments within a budget.
+service BudgetAccountValueService {
+  option (google.api.default_host) = "vsfv.pixlcrashr.dev";
+
+  // Gets a single budget account value by resource name.
+  rpc GetBudgetAccountValue(GetBudgetAccountValueRequest) returns (BudgetAccountValue) {
+    option (google.api.http) = {
+      get: "/v1/{name=organizations/*/budgets/*/accountValues/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+
+  // Lists account values for a budget.
+  rpc ListBudgetAccountValues(ListBudgetAccountValuesRequest) returns (ListBudgetAccountValuesResponse) {
+    option (google.api.http) = {
+      get: "/v1/{parent=organizations/*/budgets/*}/accountValues"
+    };
+    option (google.api.method_signature) = "parent";
+  }
+
+  // Creates a new budget account value.
+  rpc CreateBudgetAccountValue(CreateBudgetAccountValueRequest) returns (BudgetAccountValue) {
+    option (google.api.http) = {
+      post: "/v1/{parent=organizations/*/budgets/*}/accountValues"
+      body: "account_value"
+    };
+    option (google.api.method_signature) = "parent,account_value";
+  }
+
+  // Updates an existing budget account value.
+  rpc UpdateBudgetAccountValue(UpdateBudgetAccountValueRequest) returns (BudgetAccountValue) {
+    option (google.api.http) = {
+      patch: "/v1/{account_value.name=organizations/*/budgets/*/accountValues/*}"
+      body: "account_value"
+    };
+    option (google.api.method_signature) = "account_value,update_mask";
+  }
+
+  // Permanently deletes a budget account value.
+  rpc DeleteBudgetAccountValue(DeleteBudgetAccountValueRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/{name=organizations/*/budgets/*/accountValues/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+}

@@ -13,6 +13,7 @@ import (
 
 // resourceName helpers
 
+func organizationName(id uuid.UUID) string { return fmt.Sprintf("organizations/%s", id) }
 func accountName(id uuid.UUID) string      { return fmt.Sprintf("accounts/%s", id) }
 func accountGroupName(id uuid.UUID) string { return fmt.Sprintf("accountGroups/%s", id) }
 func assignmentName(groupID, id uuid.UUID) string {
@@ -51,6 +52,17 @@ func protoDateToTime(d *gdate.Date) time.Time {
 		return time.Time{}
 	}
 	return time.Date(int(d.Year), time.Month(d.Month), int(d.Day), 0, 0, 0, 0, time.UTC)
+}
+
+// OrganizationToProto maps a model.Organization to its proto representation.
+func OrganizationToProto(m *model.Organization) *gen.Organization {
+	return &gen.Organization{
+		Name:        organizationName(m.ID),
+		Uid:         m.ID.String(),
+		DisplayName: m.DisplayName,
+		UpdateTime:  ts(m.UpdatedAt),
+		CreateTime:  ts(m.CreatedAt),
+	}
 }
 
 // AccountToProto maps a model.Account to its proto representation.
@@ -131,17 +143,36 @@ func BudgetToProto(m *model.Budget) *gen.Budget {
 	}
 }
 
-// BudgetRevisionToTagProto maps model.BudgetRevision to the gen.BudgetTag proto.
-// The proto resource name is budgets/{budget}/tags/{revision}.
-func BudgetTagToProto(m *model.BudgetTag) *gen.BudgetTag {
-	return &gen.BudgetTag{
-		Name:               fmt.Sprintf("budgets/%s/tags/%s", m.BudgetID, m.ID),
+func budgetRevisionName(budgetID, revisionID uuid.UUID) string {
+	return fmt.Sprintf("budgets/%s/revisions/%s", budgetID, revisionID)
+}
+
+func budgetRevisionAccountValueName(budgetID, revisionID, id uuid.UUID) string {
+	return fmt.Sprintf("budgets/%s/revisions/%s/accountValues/%s", budgetID, revisionID, id)
+}
+
+// BudgetRevisionToProto maps model.BudgetRevision to gen.BudgetRevision.
+func BudgetRevisionToProto(m *model.BudgetRevision) *gen.BudgetRevision {
+	return &gen.BudgetRevision{
+		Name:               budgetRevisionName(m.BudgetID, m.ID),
 		Uid:                m.ID.String(),
 		Budget:             budgetName(m.BudgetID),
-		Date:               dateProto(m.Date),
+		DisplayName:        m.DisplayName,
 		DisplayDescription: m.DisplayDescription,
-		UpdateTime:         ts(m.UpdatedAt),
+		Date:               dateProto(m.Date),
 		CreateTime:         ts(m.CreatedAt),
+	}
+}
+
+// BudgetRevisionAccountValueToProto maps model.BudgetRevisionAccountValue to gen.BudgetRevisionAccountValue.
+func BudgetRevisionAccountValueToProto(m *model.BudgetRevisionAccountValue) *gen.BudgetRevisionAccountValue {
+	return &gen.BudgetRevisionAccountValue{
+		Name:       budgetRevisionAccountValueName(m.BudgetRevision.BudgetID, m.BudgetTagID, m.ID),
+		Uid:        m.ID.String(),
+		Revision:   budgetRevisionName(m.BudgetRevision.BudgetID, m.BudgetTagID),
+		AccountId:  m.AccountID.String(),
+		Value:      &gen.Decimal{Value: m.Value.String()},
+		CreateTime: ts(m.CreatedAt),
 	}
 }
 
@@ -178,7 +209,7 @@ func TransactionToProto(m *model.Transaction_) *gen.Transaction {
 		Uid:                        m.ID.String(),
 		CreditTransactionAccountId: m.CreditTransactionAccountID.String(),
 		DebitTransactionAccountId:  m.DebitTransactionAccountID.String(),
-		Amount:                     m.Amount.String(),
+		Amount:                     &gen.Decimal{Value: m.Amount.String()},
 		Description:                m.Description,
 		Reference:                  m.Reference,
 		BookedAt:                   ts(m.BookedAt),
@@ -210,7 +241,7 @@ func TransactionAccountAssignmentToProto(m *model.TransactionAccountAssignment) 
 		Uid:         m.ID.String(),
 		Transaction: transactionName(m.TransactionID),
 		AccountId:   m.AccountID.String(),
-		Value:       m.Value.String(),
+		Value:       &gen.Decimal{Value: m.Value.String()},
 		UpdateTime:  ts(m.UpdatedAt),
 		CreateTime:  ts(m.CreatedAt),
 	}

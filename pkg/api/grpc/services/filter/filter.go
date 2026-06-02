@@ -93,11 +93,21 @@ var (
 		filtering.DeclareIdent("display_name", filtering.TypeString),
 		filtering.DeclareIdent("is_closed", filtering.TypeBool),
 	)
-	budgetTagDecls = mustDecls(
-		filtering.DeclareIdent("date", filtering.TypeString),
+	budgetRevisionDecls = mustDecls(
+		filtering.DeclareIdent("display_name", filtering.TypeString),
 		filtering.DeclareIdent("display_description", filtering.TypeString),
+		filtering.DeclareIdent("date", filtering.TypeString),
+	)
+	budgetRevisionAccountValueDecls = mustDecls(
+		filtering.DeclareIdent("account_id", filtering.TypeString),
+	)
+	budgetAccountValueDecls = mustDecls(
+		filtering.DeclareIdent("account_id", filtering.TypeString),
 	)
 	importSourceDecls = mustDecls(
+		filtering.DeclareIdent("display_name", filtering.TypeString),
+	)
+	organizationDecls = mustDecls(
 		filtering.DeclareIdent("display_name", filtering.TypeString),
 	)
 	importSourcePeriodDecls = mustDecls(
@@ -330,11 +340,44 @@ func ParseBudgetFilter(raw string) (cond.Cond, error) {
 	return buildCond(f.CheckedExpr.GetExpr(), 0)
 }
 
-// ── BudgetTag ────────────────────────────────────────────────────────────────
+// ── BudgetRevision ───────────────────────────────────────────────────────────
 
-// ParseBudgetTagFilter parses an AIP-160 filter string into an abstract condition chain.
-func ParseBudgetTagFilter(raw string) (cond.Cond, error) {
-	f, err := parseWith(raw, budgetTagDecls)
+// ParseBudgetRevisionFilter parses an AIP-160 filter string into an abstract condition chain.
+func ParseBudgetRevisionFilter(raw string) (cond.Cond, error) {
+	f, err := parseWith(raw, budgetRevisionDecls)
+	if err != nil || f == nil {
+		return nil, err
+	}
+	return buildCond(f.CheckedExpr.GetExpr(), 0)
+}
+
+// ── BudgetRevisionAccountValue ───────────────────────────────────────────────
+
+// ParseBudgetRevisionAccountValueFilter parses an AIP-160 filter string into an abstract condition chain.
+func ParseBudgetRevisionAccountValueFilter(raw string) (cond.Cond, error) {
+	f, err := parseWith(raw, budgetRevisionAccountValueDecls)
+	if err != nil || f == nil {
+		return nil, err
+	}
+	return buildCond(f.CheckedExpr.GetExpr(), 0)
+}
+
+// ── BudgetAccountValue ───────────────────────────────────────────────────────
+
+// ParseBudgetAccountValueFilter parses an AIP-160 filter string into an abstract condition chain.
+func ParseBudgetAccountValueFilter(raw string) (cond.Cond, error) {
+	f, err := parseWith(raw, budgetAccountValueDecls)
+	if err != nil || f == nil {
+		return nil, err
+	}
+	return buildCond(f.CheckedExpr.GetExpr(), 0)
+}
+
+// ── Organization ─────────────────────────────────────────────────────────────
+
+// ParseOrganizationFilter parses an AIP-160 filter string into an abstract condition chain.
+func ParseOrganizationFilter(raw string) (cond.Cond, error) {
+	f, err := parseWith(raw, organizationDecls)
 	if err != nil || f == nil {
 		return nil, err
 	}

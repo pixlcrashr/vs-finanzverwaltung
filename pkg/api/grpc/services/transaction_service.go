@@ -24,7 +24,11 @@ func newTransactionServiceServer(repo *repository.TransactionRepository) gen.Tra
 }
 
 func (s *transactionServiceServer) GetTransaction(ctx context.Context, req *gen.GetTransactionRequest) (*gen.Transaction, error) {
-	id, err := idFromName(req.Name, "transactions/")
+	var n gen.TransactionResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid transaction name")
+	}
+	id, err := uuid.Parse(n.Transaction)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid transaction name")
 	}
@@ -112,7 +116,11 @@ func (s *transactionServiceServer) UpdateTransaction(ctx context.Context, req *g
 	if req.Transaction == nil {
 		return nil, status.Error(codes.InvalidArgument, "transaction is required")
 	}
-	id, err := idFromName(req.Transaction.Name, "transactions/")
+	var n gen.TransactionResourceName
+	if err := n.UnmarshalString(req.Transaction.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid transaction name")
+	}
+	id, err := uuid.Parse(n.Transaction)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid transaction name")
 	}
@@ -139,7 +147,11 @@ func (s *transactionServiceServer) UpdateTransaction(ctx context.Context, req *g
 }
 
 func (s *transactionServiceServer) DeleteTransaction(ctx context.Context, req *gen.DeleteTransactionRequest) (*emptypb.Empty, error) {
-	id, err := idFromName(req.Name, "transactions/")
+	var n gen.TransactionResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid transaction name")
+	}
+	id, err := uuid.Parse(n.Transaction)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid transaction name")
 	}

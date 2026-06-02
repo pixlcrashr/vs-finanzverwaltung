@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 
+	"github.com/google/uuid"
 	gen "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
@@ -25,7 +26,11 @@ func newImportSourcePeriodServiceServer(repo *repository.ImportSourcePeriodRepos
 }
 
 func (s *importSourcePeriodServiceServer) GetImportSourcePeriod(ctx context.Context, req *gen.GetImportSourcePeriodRequest) (*gen.ImportSourcePeriod, error) {
-	periodID, err := lastSegment(req.Name)
+	var n gen.ImportSourcePeriodResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid period name")
+	}
+	periodID, err := uuid.Parse(n.Period)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid period name")
 	}
@@ -40,7 +45,11 @@ func (s *importSourcePeriodServiceServer) GetImportSourcePeriod(ctx context.Cont
 }
 
 func (s *importSourcePeriodServiceServer) ListImportSourcePeriods(ctx context.Context, req *gen.ListImportSourcePeriodsRequest) (*gen.ListImportSourcePeriodsResponse, error) {
-	srcID, err := idFromName(req.Parent, "importSources/")
+	var pn gen.ImportSourceResourceName
+	if err := pn.UnmarshalString(req.Parent); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid parent import_source name")
+	}
+	srcID, err := uuid.Parse(pn.ImportSource)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid parent import_source name")
 	}
@@ -94,7 +103,11 @@ func (s *importSourcePeriodServiceServer) ListImportSourcePeriods(ctx context.Co
 }
 
 func (s *importSourcePeriodServiceServer) CreateImportSourcePeriod(ctx context.Context, req *gen.CreateImportSourcePeriodRequest) (*gen.ImportSourcePeriod, error) {
-	srcID, err := idFromName(req.Parent, "importSources/")
+	var pn gen.ImportSourceResourceName
+	if err := pn.UnmarshalString(req.Parent); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid parent import_source name")
+	}
+	srcID, err := uuid.Parse(pn.ImportSource)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid parent import_source name")
 	}
@@ -113,7 +126,11 @@ func (s *importSourcePeriodServiceServer) CreateImportSourcePeriod(ctx context.C
 }
 
 func (s *importSourcePeriodServiceServer) CloseImportSourcePeriod(ctx context.Context, req *gen.CloseImportSourcePeriodRequest) (*gen.ImportSourcePeriod, error) {
-	periodID, err := lastSegment(req.Name)
+	var n gen.ImportSourcePeriodResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid period name")
+	}
+	periodID, err := uuid.Parse(n.Period)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid period name")
 	}
@@ -132,7 +149,11 @@ func (s *importSourcePeriodServiceServer) CloseImportSourcePeriod(ctx context.Co
 }
 
 func (s *importSourcePeriodServiceServer) DeleteImportSourcePeriod(ctx context.Context, req *gen.DeleteImportSourcePeriodRequest) (*emptypb.Empty, error) {
-	periodID, err := lastSegment(req.Name)
+	var n gen.ImportSourcePeriodResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid period name")
+	}
+	periodID, err := uuid.Parse(n.Period)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid period name")
 	}

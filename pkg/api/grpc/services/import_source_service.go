@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 
+	"github.com/google/uuid"
 	gen "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
@@ -25,7 +26,11 @@ func newImportSourceServiceServer(repo *repository.ImportSourceRepository) gen.I
 }
 
 func (s *importSourceServiceServer) GetImportSource(ctx context.Context, req *gen.GetImportSourceRequest) (*gen.ImportSource, error) {
-	id, err := idFromName(req.Name, "importSources/")
+	var n gen.ImportSourceResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid import source name")
+	}
+	id, err := uuid.Parse(n.ImportSource)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid import source name")
 	}
@@ -108,7 +113,11 @@ func (s *importSourceServiceServer) UpdateImportSource(ctx context.Context, req 
 	if req.ImportSource == nil {
 		return nil, status.Error(codes.InvalidArgument, "import_source is required")
 	}
-	id, err := idFromName(req.ImportSource.Name, "importSources/")
+	var n gen.ImportSourceResourceName
+	if err := n.UnmarshalString(req.ImportSource.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid import source name")
+	}
+	id, err := uuid.Parse(n.ImportSource)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid import source name")
 	}
@@ -131,7 +140,11 @@ func (s *importSourceServiceServer) UpdateImportSource(ctx context.Context, req 
 }
 
 func (s *importSourceServiceServer) DeleteImportSource(ctx context.Context, req *gen.DeleteImportSourceRequest) (*emptypb.Empty, error) {
-	id, err := idFromName(req.Name, "importSources/")
+	var n gen.ImportSourceResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid import source name")
+	}
+	id, err := uuid.Parse(n.ImportSource)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid import source name")
 	}

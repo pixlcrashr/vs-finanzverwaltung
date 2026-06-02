@@ -18,11 +18,11 @@ import "google/type/date.proto";
 message ImportSource {
   option (google.api.resource) = {
     type: "vsfv.pixlcrashr.dev/ImportSource"
-    pattern: "importSources/{import_source}"
+    pattern: "organizations/{organization}/importSources/{import_source}"
   };
 
   // The resource name of the import source.
-  // Format: importSources/{import_source}
+  // Format: organizations/{organization}/importSources/{import_source}
   string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The UUID of the import source.
@@ -46,7 +46,7 @@ message ImportSource {
 
 message GetImportSourceRequest {
   // The resource name of the import source.
-  // Format: importSources/{import_source}
+  // Format: organizations/{organization}/importSources/{import_source}
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/ImportSource"}
@@ -54,20 +54,27 @@ message GetImportSourceRequest {
 }
 
 message ListImportSourcesRequest {
+  // The parent organization resource name.
+  // Format: organizations/{organization}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Organization"}
+  ];
+
   // Maximum number of import sources to return. The service may return fewer.
   // If unspecified, at most 20 are returned. Maximum value is 100.
-  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
 
   // A page token from a previous ListImportSources call.
-  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
 
   // Filter expression conforming to AIP-160.
   // Supported fields: display_name.
   // Example: "display_name=\"BankXY\"".
-  string filter = 3 [(google.api.field_behavior) = OPTIONAL];
+  string filter = 4 [(google.api.field_behavior) = OPTIONAL];
 
   // Order by expression (e.g. "display_name", "create_time desc").
-  string order_by = 4 [(google.api.field_behavior) = OPTIONAL];
+  string order_by = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message ListImportSourcesResponse {
@@ -82,8 +89,15 @@ message ListImportSourcesResponse {
 }
 
 message CreateImportSourceRequest {
+  // The parent organization resource name.
+  // Format: organizations/{organization}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Organization"}
+  ];
+
   // The import source to create.
-  ImportSource import_source = 1 [(google.api.field_behavior) = REQUIRED];
+  ImportSource import_source = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
 message UpdateImportSourceRequest {
@@ -96,7 +110,7 @@ message UpdateImportSourceRequest {
 
 message DeleteImportSourceRequest {
   // The resource name of the import source.
-  // Format: importSources/{import_source}
+  // Format: organizations/{organization}/importSources/{import_source}
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/ImportSource"}
@@ -110,7 +124,7 @@ service ImportSourceService {
   // Gets a single import source by resource name.
   rpc GetImportSource(GetImportSourceRequest) returns (ImportSource) {
     option (google.api.http) = {
-      get: "/v1/{name=importSources/*}"
+      get: "/v1/{name=organizations/*/importSources/*}"
     };
     option (google.api.method_signature) = "name";
   }
@@ -118,23 +132,24 @@ service ImportSourceService {
   // Lists import sources with pagination.
   rpc ListImportSources(ListImportSourcesRequest) returns (ListImportSourcesResponse) {
     option (google.api.http) = {
-      get: "/v1/importSources"
+      get: "/v1/{parent=organizations/*}/importSources"
     };
+    option (google.api.method_signature) = "parent";
   }
 
   // Creates a new import source.
   rpc CreateImportSource(CreateImportSourceRequest) returns (ImportSource) {
     option (google.api.http) = {
-      post: "/v1/importSources"
+      post: "/v1/{parent=organizations/*}/importSources"
       body: "import_source"
     };
-    option (google.api.method_signature) = "import_source";
+    option (google.api.method_signature) = "parent,import_source";
   }
 
   // Updates an existing import source.
   rpc UpdateImportSource(UpdateImportSourceRequest) returns (ImportSource) {
     option (google.api.http) = {
-      patch: "/v1/{import_source.name=importSources/*}"
+      patch: "/v1/{import_source.name=organizations/*/importSources/*}"
       body: "import_source"
     };
     option (google.api.method_signature) = "import_source,update_mask";
@@ -143,7 +158,7 @@ service ImportSourceService {
   // Permanently deletes an import source.
   rpc DeleteImportSource(DeleteImportSourceRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/v1/{name=importSources/*}"
+      delete: "/v1/{name=organizations/*/importSources/*}"
     };
     option (google.api.method_signature) = "name";
   }

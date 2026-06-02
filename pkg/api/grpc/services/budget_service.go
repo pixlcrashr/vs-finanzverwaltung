@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 
+	"github.com/google/uuid"
 	gen "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
@@ -25,7 +26,11 @@ func newBudgetServiceServer(repo *repository.BudgetRepository) gen.BudgetService
 }
 
 func (s *budgetServiceServer) GetBudget(ctx context.Context, req *gen.GetBudgetRequest) (*gen.Budget, error) {
-	id, err := idFromName(req.Name, "budgets/")
+	var n gen.BudgetResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid budget name")
+	}
+	id, err := uuid.Parse(n.Budget)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid budget name")
 	}
@@ -112,7 +117,11 @@ func (s *budgetServiceServer) UpdateBudget(ctx context.Context, req *gen.UpdateB
 	if req.Budget == nil {
 		return nil, status.Error(codes.InvalidArgument, "budget is required")
 	}
-	id, err := idFromName(req.Budget.Name, "budgets/")
+	var n gen.BudgetResourceName
+	if err := n.UnmarshalString(req.Budget.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid budget name")
+	}
+	id, err := uuid.Parse(n.Budget)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid budget name")
 	}
@@ -138,7 +147,11 @@ func (s *budgetServiceServer) UpdateBudget(ctx context.Context, req *gen.UpdateB
 }
 
 func (s *budgetServiceServer) CloseBudget(ctx context.Context, req *gen.CloseBudgetRequest) (*gen.Budget, error) {
-	id, err := idFromName(req.Name, "budgets/")
+	var n gen.BudgetResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid budget name")
+	}
+	id, err := uuid.Parse(n.Budget)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid budget name")
 	}
@@ -157,7 +170,11 @@ func (s *budgetServiceServer) CloseBudget(ctx context.Context, req *gen.CloseBud
 }
 
 func (s *budgetServiceServer) DeleteBudget(ctx context.Context, req *gen.DeleteBudgetRequest) (*emptypb.Empty, error) {
-	id, err := idFromName(req.Name, "budgets/")
+	var n gen.BudgetResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid budget name")
+	}
+	id, err := uuid.Parse(n.Budget)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid budget name")
 	}

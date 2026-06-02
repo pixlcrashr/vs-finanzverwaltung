@@ -14,20 +14,39 @@ import (
 )
 
 type TransactionAccountAssignmentResourceName struct {
-	Transaction string
-	Assignment  string
+	Organization string
+	Transaction  string
+	Assignment   string
+}
+
+func (n OrganizationResourceName) TransactionAccountAssignmentResourceName(
+	transaction string,
+	assignment string,
+) TransactionAccountAssignmentResourceName {
+	return TransactionAccountAssignmentResourceName{
+		Organization: n.Organization,
+		Transaction:  transaction,
+		Assignment:   assignment,
+	}
 }
 
 func (n TransactionResourceName) TransactionAccountAssignmentResourceName(
 	assignment string,
 ) TransactionAccountAssignmentResourceName {
 	return TransactionAccountAssignmentResourceName{
-		Transaction: n.Transaction,
-		Assignment:  assignment,
+		Organization: n.Organization,
+		Transaction:  n.Transaction,
+		Assignment:   assignment,
 	}
 }
 
 func (n TransactionAccountAssignmentResourceName) Validate() error {
+	if n.Organization == "" {
+		return fmt.Errorf("organization: empty")
+	}
+	if strings.IndexByte(n.Organization, '/') != -1 {
+		return fmt.Errorf("organization: contains illegal character '/'")
+	}
 	if n.Transaction == "" {
 		return fmt.Errorf("transaction: empty")
 	}
@@ -44,12 +63,13 @@ func (n TransactionAccountAssignmentResourceName) Validate() error {
 }
 
 func (n TransactionAccountAssignmentResourceName) ContainsWildcard() bool {
-	return false || n.Transaction == "-" || n.Assignment == "-"
+	return false || n.Organization == "-" || n.Transaction == "-" || n.Assignment == "-"
 }
 
 func (n TransactionAccountAssignmentResourceName) String() string {
 	return resourcename.Sprint(
-		"transactions/{transaction}/assignments/{assignment}",
+		"organizations/{organization}/transactions/{transaction}/assignments/{assignment}",
+		n.Organization,
 		n.Transaction,
 		n.Assignment,
 	)
@@ -73,7 +93,8 @@ func (n TransactionAccountAssignmentResourceName) MarshalText() ([]byte, error) 
 func (n *TransactionAccountAssignmentResourceName) UnmarshalString(name string) error {
 	err := resourcename.Sscan(
 		name,
-		"transactions/{transaction}/assignments/{assignment}",
+		"organizations/{organization}/transactions/{transaction}/assignments/{assignment}",
+		&n.Organization,
 		&n.Transaction,
 		&n.Assignment,
 	)
@@ -92,8 +113,15 @@ func (n TransactionAccountAssignmentResourceName) Type() string {
 	return "vsfv.pixlcrashr.dev/TransactionAccountAssignment"
 }
 
+func (n TransactionAccountAssignmentResourceName) OrganizationResourceName() OrganizationResourceName {
+	return OrganizationResourceName{
+		Organization: n.Organization,
+	}
+}
+
 func (n TransactionAccountAssignmentResourceName) TransactionResourceName() TransactionResourceName {
 	return TransactionResourceName{
-		Transaction: n.Transaction,
+		Organization: n.Organization,
+		Transaction:  n.Transaction,
 	}
 }

@@ -28,7 +28,21 @@ Generated output directories:
 - `docs/proto/` — protoc-gen-doc HTML output
 - `openapi.yaml` — merged OpenAPI v2 spec (protoc-gen-openapiv2 output)
 
-**Never manually edit files in `pkg/api/grpc/gen/`.** They are fully regenerated on every `task proto:generate` run.
+**`pkg/api/grpc/gen/` is read-only at all times. Never manually edit any file in this directory.** All files are fully regenerated on every `task proto:generate` run (equivalent to `buf generate`). Treat any file in this directory as a build artifact.
+
+## DAO Code Generation
+
+All GORM DAO query files live in `pkg/db/model/dao/`. After changing any model in `pkg/db/model/` you **must** regenerate the DAO code.
+
+Use the `go:generate` directive in `pkg/db/model/dao.go`:
+
+```sh
+go generate ./pkg/db/model/
+# or equivalently:
+go run ./tools/gen-dao/main.go -o ./pkg/db/model/dao
+```
+
+**`pkg/db/model/dao/` is read-only at all times. Never manually edit any file in this directory.** All files are fully regenerated on every `go generate` run. Treat any file in this directory as a build artifact.
 
 ## Proto Style Rules
 
@@ -71,9 +85,10 @@ All `pkg/api/` models and routes follow these conventions:
 | Path | Purpose |
 |---|---|
 | `proto/` | Protobuf service definitions (source of truth for gRPC API) |
-| `pkg/api/grpc/gen/` | Generated Go code — do not edit |
+| `pkg/api/grpc/gen/` | Generated Go code — **read-only**, regenerate with `buf generate` |
 | `pkg/api/grpc/services/` | Service container; wire real implementations here |
 | `pkg/api/grpc/server.go` | Registers grpc-gateway routes onto the Fiber app |
 | `pkg/api/` | Huma REST API (one package per entity) — keep intact |
 | `pkg/db/model/` | GORM database models |
+| `pkg/db/model/dao/` | Generated DAO query code — **read-only**, regenerate with `go generate ./pkg/db/model/` |
 | `pkg/db/repository/` | Database repository layer |

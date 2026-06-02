@@ -1,0 +1,143 @@
+syntax = "proto3";
+
+package pixlcrashr.vsfv.v1;
+
+option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+// Organization is the top-level resource that owns all other resources.
+message Organization {
+  option (google.api.resource) = {
+    type: "vsfv.pixlcrashr.dev/Organization"
+    pattern: "organizations/{organization}"
+  };
+
+  // The resource name of the organization.
+  // Format: organizations/{organization}
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The UUID of the organization.
+  string uid = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Human-readable organization name.
+  string display_name = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // Last modification timestamp.
+  google.protobuf.Timestamp update_time = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Creation timestamp.
+  google.protobuf.Timestamp create_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message GetOrganizationRequest {
+  // The resource name of the organization.
+  // Format: organizations/{organization}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Organization"}
+  ];
+}
+
+message ListOrganizationsRequest {
+  // Maximum number of organizations to return. The service may return fewer.
+  // If unspecified, at most 20 are returned. Maximum value is 100.
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // A page token from a previous ListOrganizations call.
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter expression conforming to AIP-160.
+  // Supported fields: display_name.
+  // Example: "display_name=\"Acme\"".
+  string filter = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order by expression (e.g. "display_name", "create_time desc").
+  string order_by = 4 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ListOrganizationsResponse {
+  // The organizations returned.
+  repeated Organization organizations = 1;
+
+  // A token to retrieve the next page of results.
+  string next_page_token = 2;
+
+  // Total number of organizations matching the filter (may be an estimate).
+  int64 total_size = 3;
+}
+
+message CreateOrganizationRequest {
+  // The organization to create.
+  Organization organization = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message UpdateOrganizationRequest {
+  // The organization to update.
+  Organization organization = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The list of fields to update.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message DeleteOrganizationRequest {
+  // The resource name of the organization.
+  // Format: organizations/{organization}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Organization"}
+  ];
+}
+
+// OrganizationService manages organizations.
+service OrganizationService {
+  option (google.api.default_host) = "vsfv.pixlcrashr.dev";
+
+  // Gets a single organization by resource name.
+  rpc GetOrganization(GetOrganizationRequest) returns (Organization) {
+    option (google.api.http) = {
+      get: "/v1/{name=organizations/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+
+  // Lists organizations with pagination.
+  rpc ListOrganizations(ListOrganizationsRequest) returns (ListOrganizationsResponse) {
+    option (google.api.http) = {
+      get: "/v1/organizations"
+    };
+  }
+
+  // Creates a new organization.
+  rpc CreateOrganization(CreateOrganizationRequest) returns (Organization) {
+    option (google.api.http) = {
+      post: "/v1/organizations"
+      body: "organization"
+    };
+    option (google.api.method_signature) = "organization";
+  }
+
+  // Updates an existing organization.
+  rpc UpdateOrganization(UpdateOrganizationRequest) returns (Organization) {
+    option (google.api.http) = {
+      patch: "/v1/{organization.name=organizations/*}"
+      body: "organization"
+    };
+    option (google.api.method_signature) = "organization,update_mask";
+  }
+
+  // Permanently deletes an organization.
+  rpc DeleteOrganization(DeleteOrganizationRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/{name=organizations/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+}

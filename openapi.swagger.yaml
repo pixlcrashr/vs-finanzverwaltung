@@ -11,9 +11,12 @@ tags:
   - name: AccountGroupService
   - name: AccountGroupAssignmentService
   - name: BudgetService
-  - name: BudgetTagService
+  - name: BudgetAccountValueService
+  - name: BudgetRevisionService
+  - name: BudgetRevisionAccountValueService
   - name: ImportSourceService
   - name: ImportSourcePeriodService
+  - name: OrganizationService
   - name: ReportService
   - name: ReportTemplateService
   - name: TransactionService
@@ -28,7 +31,1481 @@ consumes:
 produces:
   - application/json
 paths:
-  /v1/accountGroups:
+  /v1/organizations:
+    get:
+      summary: Lists organizations with pagination.
+      operationId: OrganizationService_ListOrganizations
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListOrganizationsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: pageSize
+          description: |-
+            Maximum number of organizations to return. The service may return fewer.
+            If unspecified, at most 20 are returned. Maximum value is 100.
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: pageToken
+          description: A page token from a previous ListOrganizations call.
+          in: query
+          required: false
+          type: string
+        - name: filter
+          description: |-
+            Filter expression conforming to AIP-160.
+            Supported fields: display_name.
+            Example: "display_name=\"Acme\"".
+          in: query
+          required: false
+          type: string
+        - name: orderBy
+          description: Order by expression (e.g. "display_name", "create_time desc").
+          in: query
+          required: false
+          type: string
+      tags:
+        - OrganizationService
+    post:
+      summary: Creates a new organization.
+      operationId: OrganizationService_CreateOrganization
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1Organization'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: organization
+          description: The organization to create.
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1Organization'
+      tags:
+        - OrganizationService
+  /v1/{account.name}:
+    patch:
+      summary: Updates an existing account.
+      operationId: AccountService_UpdateAccount
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1Account'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: account.name
+          description: |-
+            The resource name of the account.
+            Format: organizations/{organization}/accounts/{account}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/accounts/[^/]+
+        - name: account
+          description: The account to update.
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              uid:
+                type: string
+                description: The UUID of the account.
+                readOnly: true
+              parentAccount:
+                type: string
+                title: |-
+                  The resource name of the parent account, if any.
+                  Format: organizations/{organization}/accounts/{account}
+              displayName:
+                type: string
+                description: Human-readable account name.
+              displayCode:
+                type: string
+                description: Short account code.
+              displayDescription:
+                type: string
+                description: Optional free-text description.
+              isContainer:
+                type: boolean
+                description: |-
+                  Whether this account is a container account (cannot hold values directly).
+                  Immutable after creation.
+              isArchived:
+                type: boolean
+                description: Whether the account is archived (soft-deleted).
+                readOnly: true
+              updateTime:
+                type: string
+                format: date-time
+                description: Last modification timestamp.
+                readOnly: true
+              createTime:
+                type: string
+                format: date-time
+                description: Creation timestamp.
+                readOnly: true
+            title: The account to update.
+            required:
+              - displayName
+              - displayCode
+              - account
+      tags:
+        - AccountService
+  /v1/{accountGroup.name}:
+    patch:
+      summary: Updates an existing account group.
+      operationId: AccountGroupService_UpdateAccountGroup
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1AccountGroup'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: accountGroup.name
+          description: |-
+            The resource name of the account group.
+            Format: organizations/{organization}/accountGroups/{account_group}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/accountGroups/[^/]+
+        - name: accountGroup
+          description: The account group to update.
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              uid:
+                type: string
+                description: The UUID of the account group.
+                readOnly: true
+              displayName:
+                type: string
+                description: Human-readable account group name.
+              displayDescription:
+                type: string
+                description: Optional free-text description.
+              updateTime:
+                type: string
+                format: date-time
+                description: Last modification timestamp.
+                readOnly: true
+              createTime:
+                type: string
+                format: date-time
+                description: Creation timestamp.
+                readOnly: true
+            title: The account group to update.
+            required:
+              - displayName
+              - accountGroup
+      tags:
+        - AccountGroupService
+  /v1/{accountValue.name}:
+    patch:
+      summary: Updates an existing budget account value.
+      operationId: BudgetAccountValueService_UpdateBudgetAccountValue
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1BudgetAccountValue'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: accountValue.name
+          description: |-
+            The resource name of the budget account value.
+            Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/budgets/[^/]+/accountValues/[^/]+
+        - name: accountValue
+          description: The budget account value to update.
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              uid:
+                type: string
+                description: The UUID of the budget account value.
+                readOnly: true
+              budget:
+                type: string
+                title: |-
+                  The resource name of the parent budget.
+                  Format: organizations/{organization}/budgets/{budget}
+                readOnly: true
+              accountId:
+                type: string
+                description: The UUID of the account this value is assigned to.
+              value:
+                $ref: '#/definitions/v1Decimal'
+                description: The target monetary value assigned to the account for this budget.
+              updateTime:
+                type: string
+                format: date-time
+                description: Last modification timestamp.
+                readOnly: true
+              createTime:
+                type: string
+                format: date-time
+                description: Creation timestamp.
+                readOnly: true
+            title: The budget account value to update.
+            required:
+              - accountId
+              - value
+              - accountValue
+      tags:
+        - BudgetAccountValueService
+  /v1/{assignment.name_1}:
+    patch:
+      summary: Updates an existing assignment.
+      operationId: TransactionAccountAssignmentService_UpdateTransactionAccountAssignment
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1TransactionAccountAssignment'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: assignment.name_1
+          description: |-
+            The resource name of the assignment.
+            Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/transactions/[^/]+/assignments/[^/]+
+        - name: assignment
+          description: The assignment to update.
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              uid:
+                type: string
+                description: The UUID of the assignment.
+                readOnly: true
+              transaction:
+                type: string
+                title: |-
+                  The resource name of the parent transaction.
+                  Format: organizations/{organization}/transactions/{transaction}
+                readOnly: true
+              accountId:
+                type: string
+                description: UUID of the budget account this portion of the transaction is assigned to.
+              value:
+                $ref: '#/definitions/v1Decimal'
+                description: The decimal value assigned to this account.
+              updateTime:
+                type: string
+                format: date-time
+                description: Last modification timestamp.
+                readOnly: true
+              createTime:
+                type: string
+                format: date-time
+                description: Creation timestamp.
+                readOnly: true
+            title: The assignment to update.
+            required:
+              - accountId
+              - value
+              - assignment
+      tags:
+        - TransactionAccountAssignmentService
+  /v1/{assignment.name}:
+    patch:
+      summary: Updates an existing assignment.
+      operationId: AccountGroupAssignmentService_UpdateAccountGroupAssignment
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1AccountGroupAssignment'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: assignment.name
+          description: |-
+            The resource name of the assignment.
+            Format: organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/accountGroups/[^/]+/assignments/[^/]+
+        - name: assignment
+          description: The assignment to update.
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              uid:
+                type: string
+                description: The UUID of the assignment.
+                readOnly: true
+              accountGroup:
+                type: string
+                title: |-
+                  The resource name of the parent account group.
+                  Format: organizations/{organization}/accountGroups/{account_group}
+                readOnly: true
+              accountId:
+                type: string
+                description: The UUID of the assigned account.
+              negate:
+                type: boolean
+                description: If true, this account is excluded (negated) from the group aggregate.
+              updateTime:
+                type: string
+                format: date-time
+                description: Last modification timestamp.
+                readOnly: true
+              createTime:
+                type: string
+                format: date-time
+                description: Creation timestamp.
+                readOnly: true
+            title: The assignment to update.
+            required:
+              - accountId
+              - assignment
+      tags:
+        - AccountGroupAssignmentService
+  /v1/{budget.name}:
+    patch:
+      summary: Updates an existing budget.
+      operationId: BudgetService_UpdateBudget
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1Budget'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: budget.name
+          description: |-
+            The resource name of the budget.
+            Format: organizations/{organization}/budgets/{budget}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/budgets/[^/]+
+        - name: budget
+          description: The budget to update.
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              uid:
+                type: string
+                description: The UUID of the budget.
+                readOnly: true
+              displayName:
+                type: string
+                description: Human-readable budget name.
+              displayDescription:
+                type: string
+                description: Optional free-text description.
+              isClosed:
+                type: boolean
+                description: Whether the budget is closed (no further modifications allowed).
+                readOnly: true
+              periodStart:
+                $ref: '#/definitions/typeDate'
+                description: Budget period start date.
+              periodEnd:
+                $ref: '#/definitions/typeDate'
+                description: Budget period end date.
+              updateTime:
+                type: string
+                format: date-time
+                description: Last modification timestamp.
+                readOnly: true
+              createTime:
+                type: string
+                format: date-time
+                description: Creation timestamp.
+                readOnly: true
+            title: The budget to update.
+            required:
+              - displayName
+              - periodStart
+              - periodEnd
+              - budget
+      tags:
+        - BudgetService
+  /v1/{importSource.name}:
+    patch:
+      summary: Updates an existing import source.
+      operationId: ImportSourceService_UpdateImportSource
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ImportSource'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: importSource.name
+          description: |-
+            The resource name of the import source.
+            Format: organizations/{organization}/importSources/{import_source}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/importSources/[^/]+
+        - name: importSource
+          description: The import source to update.
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              uid:
+                type: string
+                description: The UUID of the import source.
+                readOnly: true
+              displayName:
+                type: string
+                description: Human-readable import source name.
+              displayDescription:
+                type: string
+                description: Optional free-text description.
+              periodStart:
+                $ref: '#/definitions/typeDate'
+                description: Period start date for this import source.
+              updateTime:
+                type: string
+                format: date-time
+                description: Last modification timestamp.
+                readOnly: true
+              createTime:
+                type: string
+                format: date-time
+                description: Creation timestamp.
+                readOnly: true
+            title: The import source to update.
+            required:
+              - displayName
+              - periodStart
+              - importSource
+      tags:
+        - ImportSourceService
+  /v1/{name_10}:
+    get:
+      summary: Gets report metadata by resource name.
+      operationId: ReportService_GetReport
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1Report'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_10
+          description: |-
+            The resource name of the report.
+            Format: organizations/{organization}/reports/{report}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/reports/[^/]+
+      tags:
+        - ReportService
+    delete:
+      summary: Permanently deletes a transaction.
+      operationId: TransactionService_DeleteTransaction
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            type: object
+            properties: {}
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_10
+          description: |-
+            The resource name of the transaction.
+            Format: organizations/{organization}/transactions/{transaction}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/transactions/[^/]+
+      tags:
+        - TransactionService
+  /v1/{name_11}:
+    get:
+      summary: Gets a single report template by resource name.
+      operationId: ReportTemplateService_GetReportTemplate
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ReportTemplate'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_11
+          description: |-
+            The resource name of the report template.
+            Format: organizations/{organization}/reportTemplates/{report_template}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/reportTemplates/[^/]+
+      tags:
+        - ReportTemplateService
+    delete:
+      summary: Permanently deletes a transaction account.
+      operationId: TransactionAccountService_DeleteTransactionAccount
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            type: object
+            properties: {}
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_11
+          description: |-
+            The resource name of the transaction account.
+            Format: organizations/{organization}/transactionAccounts/{transaction_account}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/transactionAccounts/[^/]+
+      tags:
+        - TransactionAccountService
+  /v1/{name_12}:
+    get:
+      summary: Gets a single transaction by resource name.
+      operationId: TransactionService_GetTransaction
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1Transaction'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_12
+          description: |-
+            The resource name of the transaction.
+            Format: organizations/{organization}/transactions/{transaction}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/transactions/[^/]+
+      tags:
+        - TransactionService
+    delete:
+      summary: Permanently deletes an assignment.
+      operationId: TransactionAccountAssignmentService_DeleteTransactionAccountAssignment
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            type: object
+            properties: {}
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_12
+          description: |-
+            The resource name of the assignment.
+            Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/transactions/[^/]+/assignments/[^/]+
+      tags:
+        - TransactionAccountAssignmentService
+  /v1/{name_13}:
+    get:
+      summary: Gets a single transaction account by resource name.
+      operationId: TransactionAccountService_GetTransactionAccount
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1TransactionAccount'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_13
+          description: |-
+            The resource name of the transaction account.
+            Format: organizations/{organization}/transactionAccounts/{transaction_account}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/transactionAccounts/[^/]+
+      tags:
+        - TransactionAccountService
+  /v1/{name_14}:
+    get:
+      summary: Gets a single assignment by resource name.
+      operationId: TransactionAccountAssignmentService_GetTransactionAccountAssignment
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1TransactionAccountAssignment'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_14
+          description: |-
+            The resource name of the assignment.
+            Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/transactions/[^/]+/assignments/[^/]+
+      tags:
+        - TransactionAccountAssignmentService
+  /v1/{name_1}:
+    get:
+      summary: Gets a single account group by resource name.
+      operationId: AccountGroupService_GetAccountGroup
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1AccountGroup'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_1
+          description: |-
+            The resource name of the account group.
+            Format: organizations/{organization}/accountGroups/{account_group}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/accountGroups/[^/]+
+      tags:
+        - AccountGroupService
+    delete:
+      summary: Permanently deletes an account group.
+      operationId: AccountGroupService_DeleteAccountGroup
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            type: object
+            properties: {}
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_1
+          description: |-
+            The resource name of the account group.
+            Format: organizations/{organization}/accountGroups/{account_group}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/accountGroups/[^/]+
+      tags:
+        - AccountGroupService
+  /v1/{name_1}:close:
+    post:
+      summary: Closes a period, preventing new imports.
+      operationId: ImportSourcePeriodService_CloseImportSourcePeriod
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ImportSourcePeriod'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_1
+          description: |-
+            The resource name of the period to close.
+            Format: organizations/{organization}/importSources/{import_source}/periods/{period}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/importSources/[^/]+/periods/[^/]+
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ImportSourcePeriodServiceCloseImportSourcePeriodBody'
+      tags:
+        - ImportSourcePeriodService
+  /v1/{name_2}:
+    get:
+      summary: Gets a single assignment by resource name.
+      operationId: AccountGroupAssignmentService_GetAccountGroupAssignment
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1AccountGroupAssignment'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_2
+          description: |-
+            The resource name of the assignment.
+            Format: organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/accountGroups/[^/]+/assignments/[^/]+
+      tags:
+        - AccountGroupAssignmentService
+    delete:
+      summary: Permanently deletes an assignment.
+      operationId: AccountGroupAssignmentService_DeleteAccountGroupAssignment
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            type: object
+            properties: {}
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_2
+          description: |-
+            The resource name of the assignment.
+            Format: organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/accountGroups/[^/]+/assignments/[^/]+
+      tags:
+        - AccountGroupAssignmentService
+  /v1/{name_3}:
+    get:
+      summary: Gets a single budget by resource name.
+      operationId: BudgetService_GetBudget
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1Budget'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_3
+          description: |-
+            The resource name of the budget.
+            Format: organizations/{organization}/budgets/{budget}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/budgets/[^/]+
+      tags:
+        - BudgetService
+    delete:
+      summary: Permanently deletes a budget.
+      operationId: BudgetService_DeleteBudget
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            type: object
+            properties: {}
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_3
+          description: |-
+            The resource name of the budget.
+            Format: organizations/{organization}/budgets/{budget}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/budgets/[^/]+
+      tags:
+        - BudgetService
+  /v1/{name_4}:
+    get:
+      summary: Gets a single budget account value by resource name.
+      operationId: BudgetAccountValueService_GetBudgetAccountValue
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1BudgetAccountValue'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_4
+          description: |-
+            The resource name of the budget account value.
+            Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/budgets/[^/]+/accountValues/[^/]+
+      tags:
+        - BudgetAccountValueService
+    delete:
+      summary: Permanently deletes a budget account value.
+      operationId: BudgetAccountValueService_DeleteBudgetAccountValue
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            type: object
+            properties: {}
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_4
+          description: |-
+            The resource name of the budget account value.
+            Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/budgets/[^/]+/accountValues/[^/]+
+      tags:
+        - BudgetAccountValueService
+  /v1/{name_5}:
+    get:
+      summary: Gets a single budget revision by resource name.
+      operationId: BudgetRevisionService_GetBudgetRevision
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1BudgetRevision'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_5
+          description: |-
+            The resource name of the budget revision.
+            Format: organizations/{organization}/budgets/{budget}/revisions/{revision}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/budgets/[^/]+/revisions/[^/]+
+      tags:
+        - BudgetRevisionService
+    delete:
+      summary: Permanently deletes an import source.
+      operationId: ImportSourceService_DeleteImportSource
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            type: object
+            properties: {}
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_5
+          description: |-
+            The resource name of the import source.
+            Format: organizations/{organization}/importSources/{import_source}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/importSources/[^/]+
+      tags:
+        - ImportSourceService
+  /v1/{name_6}:
+    get:
+      summary: Gets a single budget revision account value by resource name.
+      operationId: BudgetRevisionAccountValueService_GetBudgetRevisionAccountValue
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1BudgetRevisionAccountValue'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_6
+          description: |-
+            The resource name of the budget revision account value.
+            Format: organizations/{organization}/budgets/{budget}/revisions/{revision}/accountValues/{account_value}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/budgets/[^/]+/revisions/[^/]+/accountValues/[^/]+
+      tags:
+        - BudgetRevisionAccountValueService
+    delete:
+      summary: Permanently deletes a period.
+      operationId: ImportSourcePeriodService_DeleteImportSourcePeriod
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            type: object
+            properties: {}
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_6
+          description: |-
+            The resource name of the period.
+            Format: organizations/{organization}/importSources/{import_source}/periods/{period}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/importSources/[^/]+/periods/[^/]+
+      tags:
+        - ImportSourcePeriodService
+  /v1/{name_7}:
+    get:
+      summary: Gets a single import source by resource name.
+      operationId: ImportSourceService_GetImportSource
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ImportSource'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_7
+          description: |-
+            The resource name of the import source.
+            Format: organizations/{organization}/importSources/{import_source}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/importSources/[^/]+
+      tags:
+        - ImportSourceService
+    delete:
+      summary: Permanently deletes an organization.
+      operationId: OrganizationService_DeleteOrganization
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            type: object
+            properties: {}
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_7
+          description: |-
+            The resource name of the organization.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
+      tags:
+        - OrganizationService
+  /v1/{name_8}:
+    get:
+      summary: Gets a single period by resource name.
+      operationId: ImportSourcePeriodService_GetImportSourcePeriod
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ImportSourcePeriod'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_8
+          description: |-
+            The resource name of the period.
+            Format: organizations/{organization}/importSources/{import_source}/periods/{period}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/importSources/[^/]+/periods/[^/]+
+      tags:
+        - ImportSourcePeriodService
+    delete:
+      summary: Permanently deletes a report.
+      operationId: ReportService_DeleteReport
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            type: object
+            properties: {}
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_8
+          description: |-
+            The resource name of the report.
+            Format: organizations/{organization}/reports/{report}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/reports/[^/]+
+      tags:
+        - ReportService
+  /v1/{name_9}:
+    get:
+      summary: Gets a single organization by resource name.
+      operationId: OrganizationService_GetOrganization
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1Organization'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_9
+          description: |-
+            The resource name of the organization.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
+      tags:
+        - OrganizationService
+    delete:
+      summary: Permanently deletes a report template.
+      operationId: ReportTemplateService_DeleteReportTemplate
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            type: object
+            properties: {}
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_9
+          description: |-
+            The resource name of the report template.
+            Format: organizations/{organization}/reportTemplates/{report_template}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/reportTemplates/[^/]+
+      tags:
+        - ReportTemplateService
+  /v1/{name}:
+    get:
+      summary: Gets a single account by resource name.
+      operationId: AccountService_GetAccount
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1Account'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name
+          description: |-
+            The resource name of the account.
+            Format: organizations/{organization}/accounts/{account}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/accounts/[^/]+
+      tags:
+        - AccountService
+    delete:
+      summary: Permanently deletes an account.
+      operationId: AccountService_DeleteAccount
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            type: object
+            properties: {}
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name
+          description: |-
+            The resource name of the account.
+            Format: organizations/{organization}/accounts/{account}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/accounts/[^/]+
+      tags:
+        - AccountService
+  /v1/{name}:archive:
+    post:
+      summary: Archives an account (soft-delete).
+      operationId: AccountService_ArchiveAccount
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1Account'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name
+          description: |-
+            The resource name of the account.
+            Format: organizations/{organization}/accounts/{account}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/accounts/[^/]+
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/AccountServiceArchiveAccountBody'
+      tags:
+        - AccountService
+  /v1/{name}:close:
+    post:
+      summary: Closes a budget, marking it as no longer active.
+      operationId: BudgetService_CloseBudget
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1Budget'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name
+          description: |-
+            The resource name of the budget to close.
+            Format: organizations/{organization}/budgets/{budget}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/budgets/[^/]+
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/BudgetServiceCloseBudgetBody'
+      tags:
+        - BudgetService
+  /v1/{name}:getNested:
+    get:
+      summary: Gets a single account's full nested subtree (custom method).
+      operationId: AccountService_GetNestedAccount
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GetNestedAccountResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name
+          description: |-
+            The resource name of the root account for the subtree.
+            Format: organizations/{organization}/accounts/{account}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/accounts/[^/]+
+        - name: filter
+          description: |-
+            Filter expression applied to all descendants in the subtree.
+            Supported fields: is_archived.
+            Example: "is_archived=false".
+          in: query
+          required: false
+          type: string
+      tags:
+        - AccountService
+  /v1/{organization.name}:
+    patch:
+      summary: Updates an existing organization.
+      operationId: OrganizationService_UpdateOrganization
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1Organization'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: organization.name
+          description: |-
+            The resource name of the organization.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
+        - name: organization
+          description: The organization to update.
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              uid:
+                type: string
+                description: The UUID of the organization.
+                readOnly: true
+              displayName:
+                type: string
+                description: Human-readable organization name.
+              updateTime:
+                type: string
+                format: date-time
+                description: Last modification timestamp.
+                readOnly: true
+              createTime:
+                type: string
+                format: date-time
+                description: Creation timestamp.
+                readOnly: true
+            title: The organization to update.
+            required:
+              - displayName
+              - organization
+      tags:
+        - OrganizationService
+  /v1/{parent_1}/accountValues:
+    get:
+      summary: Lists the account values captured in a revision, with pagination.
+      operationId: BudgetRevisionAccountValueService_ListBudgetRevisionAccountValues
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListBudgetRevisionAccountValuesResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: parent_1
+          description: |-
+            The parent revision resource name.
+            Format: organizations/{organization}/budgets/{budget}/revisions/{revision}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/budgets/[^/]+/revisions/[^/]+
+        - name: pageSize
+          description: |-
+            Maximum number of account values to return. The service may return fewer.
+            If unspecified, at most 50 are returned. Maximum value is 200.
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: pageToken
+          description: A page token from a previous ListBudgetRevisionAccountValues call.
+          in: query
+          required: false
+          type: string
+        - name: filter
+          description: |-
+            Filter expression conforming to AIP-160.
+            Supported fields: account_id.
+            Example: "account_id=\"<uuid>\"".
+          in: query
+          required: false
+          type: string
+        - name: orderBy
+          description: Order by expression (e.g. "account_id", "value desc").
+          in: query
+          required: false
+          type: string
+      tags:
+        - BudgetRevisionAccountValueService
+  /v1/{parent_1}/assignments:
+    get:
+      summary: Lists assignments for a transaction.
+      operationId: TransactionAccountAssignmentService_ListTransactionAccountAssignments
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListTransactionAccountAssignmentsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: parent_1
+          description: |-
+            The parent transaction resource name.
+            Format: organizations/{organization}/transactions/{transaction}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/transactions/[^/]+
+        - name: pageSize
+          description: |-
+            Maximum number of assignments to return. The service may return fewer.
+            If unspecified, at most 20 are returned. Maximum value is 100.
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: pageToken
+          description: A page token from a previous ListTransactionAccountAssignments call.
+          in: query
+          required: false
+          type: string
+        - name: filter
+          description: |-
+            Filter expression conforming to AIP-160.
+            Supported fields: account_id, value.
+            Example: "account_id=\"<uuid>\"".
+          in: query
+          required: false
+          type: string
+        - name: orderBy
+          description: Order by expression (e.g. "create_time desc").
+          in: query
+          required: false
+          type: string
+      tags:
+        - TransactionAccountAssignmentService
+    post:
+      summary: Creates a new assignment.
+      operationId: TransactionAccountAssignmentService_CreateTransactionAccountAssignment
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1TransactionAccountAssignment'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: parent_1
+          description: |-
+            The parent transaction resource name.
+            Format: organizations/{organization}/transactions/{transaction}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/transactions/[^/]+
+        - name: assignment
+          description: The assignment to create.
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1TransactionAccountAssignment'
+      tags:
+        - TransactionAccountAssignmentService
+  /v1/{parent}/accountGroups:
     get:
       summary: Lists account groups with pagination.
       operationId: AccountGroupService_ListAccountGroups
@@ -42,6 +1519,14 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
+        - name: parent
+          description: |-
+            The parent organization resource name.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
         - name: pageSize
           description: |-
             Maximum number of account groups to return. The service may return fewer.
@@ -83,6 +1568,14 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
+        - name: parent
+          description: |-
+            The parent organization resource name.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
         - name: accountGroup
           description: The account group to create.
           in: body
@@ -91,7 +1584,86 @@ paths:
             $ref: '#/definitions/v1AccountGroup'
       tags:
         - AccountGroupService
-  /v1/accounts:
+  /v1/{parent}/accountValues:
+    get:
+      summary: Lists account values for a budget.
+      operationId: BudgetAccountValueService_ListBudgetAccountValues
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListBudgetAccountValuesResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: parent
+          description: |-
+            The parent budget resource name.
+            Format: organizations/{organization}/budgets/{budget}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/budgets/[^/]+
+        - name: pageSize
+          description: |-
+            Maximum number of values to return. The service may return fewer.
+            If unspecified, at most 20 are returned. Maximum value is 100.
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: pageToken
+          description: A page token from a previous ListBudgetAccountValues call.
+          in: query
+          required: false
+          type: string
+        - name: filter
+          description: |-
+            Filter expression conforming to AIP-160.
+            Supported fields: account_id.
+            Example: "account_id=\"<uuid>\"".
+          in: query
+          required: false
+          type: string
+        - name: orderBy
+          description: Order by expression (e.g. "create_time desc").
+          in: query
+          required: false
+          type: string
+      tags:
+        - BudgetAccountValueService
+    post:
+      summary: Creates a new budget account value.
+      operationId: BudgetAccountValueService_CreateBudgetAccountValue
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1BudgetAccountValue'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: parent
+          description: |-
+            The parent budget resource name.
+            Format: organizations/{organization}/budgets/{budget}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/budgets/[^/]+
+        - name: accountValue
+          description: The budget account value to create.
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1BudgetAccountValue'
+      tags:
+        - BudgetAccountValueService
+  /v1/{parent}/accounts:
     get:
       summary: Lists accounts with pagination.
       operationId: AccountService_ListAccounts
@@ -105,6 +1677,14 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
+        - name: parent
+          description: |-
+            The parent organization resource name.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
         - name: pageSize
           description: |-
             Maximum number of accounts to return. The service may return fewer.
@@ -156,6 +1736,14 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
+        - name: parent
+          description: |-
+            The parent organization resource name.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
         - name: account
           description: The account to create.
           in: body
@@ -164,7 +1752,7 @@ paths:
             $ref: '#/definitions/v1Account'
       tags:
         - AccountService
-  /v1/accounts:listNested:
+  /v1/{parent}/accounts:listNested:
     get:
       summary: Lists all root accounts with their full nested subtrees (custom method).
       operationId: AccountService_ListNestedAccounts
@@ -178,6 +1766,14 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
+        - name: parent
+          description: |-
+            The parent organization resource name.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
         - name: filter
           description: |-
             Filter expression conforming to AIP-160.
@@ -188,7 +1784,86 @@ paths:
           type: string
       tags:
         - AccountService
-  /v1/budgets:
+  /v1/{parent}/assignments:
+    get:
+      summary: Lists assignments for an account group.
+      operationId: AccountGroupAssignmentService_ListAccountGroupAssignments
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListAccountGroupAssignmentsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: parent
+          description: |-
+            The parent account group resource name.
+            Format: organizations/{organization}/accountGroups/{account_group}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/accountGroups/[^/]+
+        - name: pageSize
+          description: |-
+            Maximum number of assignments to return. The service may return fewer.
+            If unspecified, at most 20 are returned. Maximum value is 100.
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: pageToken
+          description: A page token from a previous ListAccountGroupAssignments call.
+          in: query
+          required: false
+          type: string
+        - name: filter
+          description: |-
+            Filter expression conforming to AIP-160.
+            Supported fields: account_id, negate.
+            Example: "negate=true" or "account_id=\"<uuid>\"".
+          in: query
+          required: false
+          type: string
+        - name: orderBy
+          description: Order by expression (e.g. "create_time desc").
+          in: query
+          required: false
+          type: string
+      tags:
+        - AccountGroupAssignmentService
+    post:
+      summary: Creates a new assignment.
+      operationId: AccountGroupAssignmentService_CreateAccountGroupAssignment
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1AccountGroupAssignment'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: parent
+          description: |-
+            The parent account group resource name.
+            Format: organizations/{organization}/accountGroups/{account_group}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/accountGroups/[^/]+
+        - name: assignment
+          description: The assignment to create.
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1AccountGroupAssignment'
+      tags:
+        - AccountGroupAssignmentService
+  /v1/{parent}/budgets:
     get:
       summary: Lists budgets with pagination.
       operationId: BudgetService_ListBudgets
@@ -202,6 +1877,14 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
+        - name: parent
+          description: |-
+            The parent organization resource name.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
         - name: pageSize
           description: |-
             Maximum number of budgets to return. The service may return fewer.
@@ -248,6 +1931,14 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
+        - name: parent
+          description: |-
+            The parent organization resource name.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
         - name: budget
           description: The budget to create.
           in: body
@@ -256,7 +1947,7 @@ paths:
             $ref: '#/definitions/v1Budget'
       tags:
         - BudgetService
-  /v1/importSources:
+  /v1/{parent}/importSources:
     get:
       summary: Lists import sources with pagination.
       operationId: ImportSourceService_ListImportSources
@@ -270,6 +1961,14 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
+        - name: parent
+          description: |-
+            The parent organization resource name.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
         - name: pageSize
           description: |-
             Maximum number of import sources to return. The service may return fewer.
@@ -311,6 +2010,14 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
+        - name: parent
+          description: |-
+            The parent organization resource name.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
         - name: importSource
           description: The import source to create.
           in: body
@@ -319,1483 +2026,6 @@ paths:
             $ref: '#/definitions/v1ImportSource'
       tags:
         - ImportSourceService
-  /v1/reportTemplates:
-    get:
-      summary: Lists report templates with pagination.
-      operationId: ReportTemplateService_ListReportTemplates
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1ListReportTemplatesResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: pageSize
-          description: |-
-            Maximum number of templates to return. The service may return fewer.
-            If unspecified, at most 20 are returned. Maximum value is 100.
-          in: query
-          required: false
-          type: integer
-          format: int32
-        - name: pageToken
-          description: A page token from a previous ListReportTemplates call.
-          in: query
-          required: false
-          type: string
-        - name: filter
-          description: |-
-            Filter expression conforming to AIP-160.
-            Supported fields: display_name.
-            Example: "display_name=\"Monthly\"".
-          in: query
-          required: false
-          type: string
-        - name: orderBy
-          description: Order by expression (e.g. "display_name", "create_time desc").
-          in: query
-          required: false
-          type: string
-      tags:
-        - ReportTemplateService
-    post:
-      summary: Creates a new report template.
-      operationId: ReportTemplateService_CreateReportTemplate
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1ReportTemplate'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: reportTemplate
-          description: The report template to create.
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/v1ReportTemplate'
-      tags:
-        - ReportTemplateService
-  /v1/reports:
-    get:
-      summary: Lists reports with pagination.
-      operationId: ReportService_ListReports
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1ListReportsResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: pageSize
-          description: |-
-            Maximum number of reports to return. The service may return fewer.
-            If unspecified, at most 20 are returned. Maximum value is 100.
-          in: query
-          required: false
-          type: integer
-          format: int32
-        - name: pageToken
-          description: A page token from a previous ListReports call.
-          in: query
-          required: false
-          type: string
-        - name: filter
-          description: |-
-            Filter expression conforming to AIP-160.
-            Supported fields: display_name, report_template_id.
-            Example: "display_name=\"Q1 Report\"".
-          in: query
-          required: false
-          type: string
-        - name: orderBy
-          description: Order by expression (e.g. "display_name", "create_time desc").
-          in: query
-          required: false
-          type: string
-      tags:
-        - ReportService
-    post:
-      summary: Creates a new report by rendering a template.
-      operationId: ReportService_CreateReport
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1Report'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: report
-          description: The report to create.
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/v1Report'
-      tags:
-        - ReportService
-  /v1/transactionAccounts:
-    get:
-      summary: Lists transaction accounts with pagination.
-      operationId: TransactionAccountService_ListTransactionAccounts
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1ListTransactionAccountsResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: pageSize
-          description: |-
-            Maximum number of accounts to return. The service may return fewer.
-            If unspecified, at most 20 are returned. Maximum value is 100.
-          in: query
-          required: false
-          type: integer
-          format: int32
-        - name: pageToken
-          description: A page token from a previous ListTransactionAccounts call.
-          in: query
-          required: false
-          type: string
-        - name: filter
-          description: |-
-            Filter expression conforming to AIP-160.
-            Supported fields: import_source_id, code, display_name.
-            Example: "import_source_id=\"<uuid>\"" or "code:\"IBAN\"".
-          in: query
-          required: false
-          type: string
-        - name: orderBy
-          description: Order by expression (e.g. "code", "display_name", "create_time desc").
-          in: query
-          required: false
-          type: string
-      tags:
-        - TransactionAccountService
-    post:
-      summary: Creates a new transaction account.
-      operationId: TransactionAccountService_CreateTransactionAccount
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1TransactionAccount'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: transactionAccount
-          description: The transaction account to create.
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/v1TransactionAccount'
-      tags:
-        - TransactionAccountService
-  /v1/transactions:
-    get:
-      summary: Lists transactions with keyset pagination and optional filters.
-      operationId: TransactionService_ListTransactions
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1ListTransactionsResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: pageSize
-          description: |-
-            Maximum number of transactions to return. The service may return fewer.
-            If unspecified, at most 20 are returned. Maximum value is 100.
-          in: query
-          required: false
-          type: integer
-          format: int32
-        - name: pageToken
-          description: A page token from a previous ListTransactions call.
-          in: query
-          required: false
-          type: string
-        - name: filter
-          description: |-
-            Filter expression conforming to AIP-160.
-            Supported fields: credit_transaction_account_id, debit_transaction_account_id,
-            booked_at, document_date, amount.
-            Example: "credit_transaction_account_id=\"<uuid>\" AND booked_at>=\"2025-01-01T00:00:00Z\"".
-          in: query
-          required: false
-          type: string
-        - name: orderBy
-          description: Order by expression (e.g. "booked_at desc", "amount").
-          in: query
-          required: false
-          type: string
-      tags:
-        - TransactionService
-    post:
-      summary: Creates a new transaction.
-      operationId: TransactionService_CreateTransaction
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1Transaction'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: transaction
-          description: The transaction to create.
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/v1Transaction'
-      tags:
-        - TransactionService
-  /v1/{account.name}:
-    patch:
-      summary: Updates an existing account.
-      operationId: AccountService_UpdateAccount
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1Account'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: account.name
-          description: |-
-            The resource name of the account.
-            Format: accounts/{account}
-          in: path
-          required: true
-          type: string
-          pattern: accounts/[^/]+
-        - name: account
-          description: The account to update.
-          in: body
-          required: true
-          schema:
-            type: object
-            properties:
-              uid:
-                type: string
-                description: The UUID of the account.
-                readOnly: true
-              parentAccount:
-                type: string
-                title: |-
-                  The resource name of the parent account, if any.
-                  Format: accounts/{account}
-              displayName:
-                type: string
-                description: Human-readable account name.
-              displayCode:
-                type: string
-                description: Short account code.
-              displayDescription:
-                type: string
-                description: Optional free-text description.
-              isContainer:
-                type: boolean
-                description: |-
-                  Whether this account is a container account (cannot hold values directly).
-                  Immutable after creation.
-              isArchived:
-                type: boolean
-                description: Whether the account is archived (soft-deleted).
-                readOnly: true
-              updateTime:
-                type: string
-                format: date-time
-                description: Last modification timestamp.
-                readOnly: true
-              createTime:
-                type: string
-                format: date-time
-                description: Creation timestamp.
-                readOnly: true
-            title: The account to update.
-            required:
-              - displayName
-              - displayCode
-      tags:
-        - AccountService
-  /v1/{accountGroup.name}:
-    patch:
-      summary: Updates an existing account group.
-      operationId: AccountGroupService_UpdateAccountGroup
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1AccountGroup'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: accountGroup.name
-          description: |-
-            The resource name of the account group.
-            Format: accountGroups/{account_group}
-          in: path
-          required: true
-          type: string
-          pattern: accountGroups/[^/]+
-        - name: accountGroup
-          description: The account group to update.
-          in: body
-          required: true
-          schema:
-            type: object
-            properties:
-              uid:
-                type: string
-                description: The UUID of the account group.
-                readOnly: true
-              displayName:
-                type: string
-                description: Human-readable account group name.
-              displayDescription:
-                type: string
-                description: Optional free-text description.
-              updateTime:
-                type: string
-                format: date-time
-                description: Last modification timestamp.
-                readOnly: true
-              createTime:
-                type: string
-                format: date-time
-                description: Creation timestamp.
-                readOnly: true
-            title: The account group to update.
-            required:
-              - displayName
-      tags:
-        - AccountGroupService
-  /v1/{assignment.name_1}:
-    patch:
-      summary: Updates an existing assignment.
-      operationId: TransactionAccountAssignmentService_UpdateTransactionAccountAssignment
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1TransactionAccountAssignment'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: assignment.name_1
-          description: |-
-            The resource name of the assignment.
-            Format: transactions/{transaction}/assignments/{assignment}
-          in: path
-          required: true
-          type: string
-          pattern: transactions/[^/]+/assignments/[^/]+
-        - name: assignment
-          description: The assignment to update.
-          in: body
-          required: true
-          schema:
-            type: object
-            properties:
-              uid:
-                type: string
-                description: The UUID of the assignment.
-                readOnly: true
-              transaction:
-                type: string
-                title: |-
-                  The resource name of the parent transaction.
-                  Format: transactions/{transaction}
-                readOnly: true
-              accountId:
-                type: string
-                description: UUID of the budget account this portion of the transaction is assigned to.
-              value:
-                type: string
-                description: The decimal value assigned to this account (e.g. "50.00").
-              updateTime:
-                type: string
-                format: date-time
-                description: Last modification timestamp.
-                readOnly: true
-              createTime:
-                type: string
-                format: date-time
-                description: Creation timestamp.
-                readOnly: true
-            title: The assignment to update.
-            required:
-              - accountId
-              - value
-      tags:
-        - TransactionAccountAssignmentService
-  /v1/{assignment.name}:
-    patch:
-      summary: Updates an existing assignment.
-      operationId: AccountGroupAssignmentService_UpdateAccountGroupAssignment
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1AccountGroupAssignment'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: assignment.name
-          description: |-
-            The resource name of the assignment.
-            Format: accountGroups/{account_group}/assignments/{assignment}
-          in: path
-          required: true
-          type: string
-          pattern: accountGroups/[^/]+/assignments/[^/]+
-        - name: assignment
-          description: The assignment to update.
-          in: body
-          required: true
-          schema:
-            type: object
-            properties:
-              uid:
-                type: string
-                description: The UUID of the assignment.
-                readOnly: true
-              accountGroup:
-                type: string
-                title: |-
-                  The resource name of the parent account group.
-                  Format: accountGroups/{account_group}
-                readOnly: true
-              accountId:
-                type: string
-                description: The UUID of the assigned account.
-              negate:
-                type: boolean
-                description: If true, this account is excluded (negated) from the group aggregate.
-              updateTime:
-                type: string
-                format: date-time
-                description: Last modification timestamp.
-                readOnly: true
-              createTime:
-                type: string
-                format: date-time
-                description: Creation timestamp.
-                readOnly: true
-            title: The assignment to update.
-            required:
-              - accountId
-      tags:
-        - AccountGroupAssignmentService
-  /v1/{budget.name}:
-    patch:
-      summary: Updates an existing budget.
-      operationId: BudgetService_UpdateBudget
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1Budget'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: budget.name
-          description: |-
-            The resource name of the budget.
-            Format: budgets/{budget}
-          in: path
-          required: true
-          type: string
-          pattern: budgets/[^/]+
-        - name: budget
-          description: The budget to update.
-          in: body
-          required: true
-          schema:
-            type: object
-            properties:
-              uid:
-                type: string
-                description: The UUID of the budget.
-                readOnly: true
-              displayName:
-                type: string
-                description: Human-readable budget name.
-              displayDescription:
-                type: string
-                description: Optional free-text description.
-              isClosed:
-                type: boolean
-                description: Whether the budget is closed (no further modifications allowed).
-                readOnly: true
-              periodStart:
-                $ref: '#/definitions/typeDate'
-                description: Budget period start date.
-              periodEnd:
-                $ref: '#/definitions/typeDate'
-                description: Budget period end date.
-              updateTime:
-                type: string
-                format: date-time
-                description: Last modification timestamp.
-                readOnly: true
-              createTime:
-                type: string
-                format: date-time
-                description: Creation timestamp.
-                readOnly: true
-            title: The budget to update.
-            required:
-              - displayName
-              - periodStart
-              - periodEnd
-      tags:
-        - BudgetService
-  /v1/{importSource.name}:
-    patch:
-      summary: Updates an existing import source.
-      operationId: ImportSourceService_UpdateImportSource
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1ImportSource'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: importSource.name
-          description: |-
-            The resource name of the import source.
-            Format: importSources/{import_source}
-          in: path
-          required: true
-          type: string
-          pattern: importSources/[^/]+
-        - name: importSource
-          description: The import source to update.
-          in: body
-          required: true
-          schema:
-            type: object
-            properties:
-              uid:
-                type: string
-                description: The UUID of the import source.
-                readOnly: true
-              displayName:
-                type: string
-                description: Human-readable import source name.
-              displayDescription:
-                type: string
-                description: Optional free-text description.
-              periodStart:
-                $ref: '#/definitions/typeDate'
-                description: Period start date for this import source.
-              updateTime:
-                type: string
-                format: date-time
-                description: Last modification timestamp.
-                readOnly: true
-              createTime:
-                type: string
-                format: date-time
-                description: Creation timestamp.
-                readOnly: true
-            title: The import source to update.
-            required:
-              - displayName
-              - periodStart
-      tags:
-        - ImportSourceService
-  /v1/{name_10}:
-    get:
-      summary: Gets a single transaction account by resource name.
-      operationId: TransactionAccountService_GetTransactionAccount
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1TransactionAccount'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_10
-          description: |-
-            The resource name of the transaction account.
-            Format: transactionAccounts/{transaction_account}
-          in: path
-          required: true
-          type: string
-          pattern: transactionAccounts/[^/]+
-      tags:
-        - TransactionAccountService
-    delete:
-      summary: Permanently deletes a transaction account.
-      operationId: TransactionAccountService_DeleteTransactionAccount
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            type: object
-            properties: {}
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_10
-          description: |-
-            The resource name of the transaction account.
-            Format: transactionAccounts/{transaction_account}
-          in: path
-          required: true
-          type: string
-          pattern: transactionAccounts/[^/]+
-      tags:
-        - TransactionAccountService
-  /v1/{name_11}:
-    get:
-      summary: Gets a single assignment by resource name.
-      operationId: TransactionAccountAssignmentService_GetTransactionAccountAssignment
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1TransactionAccountAssignment'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_11
-          description: |-
-            The resource name of the assignment.
-            Format: transactions/{transaction}/assignments/{assignment}
-          in: path
-          required: true
-          type: string
-          pattern: transactions/[^/]+/assignments/[^/]+
-      tags:
-        - TransactionAccountAssignmentService
-    delete:
-      summary: Permanently deletes an assignment.
-      operationId: TransactionAccountAssignmentService_DeleteTransactionAccountAssignment
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            type: object
-            properties: {}
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_11
-          description: |-
-            The resource name of the assignment.
-            Format: transactions/{transaction}/assignments/{assignment}
-          in: path
-          required: true
-          type: string
-          pattern: transactions/[^/]+/assignments/[^/]+
-      tags:
-        - TransactionAccountAssignmentService
-  /v1/{name_1}:
-    get:
-      summary: Gets a single account group by resource name.
-      operationId: AccountGroupService_GetAccountGroup
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1AccountGroup'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_1
-          description: |-
-            The resource name of the account group.
-            Format: accountGroups/{account_group}
-          in: path
-          required: true
-          type: string
-          pattern: accountGroups/[^/]+
-      tags:
-        - AccountGroupService
-    delete:
-      summary: Permanently deletes an account group.
-      operationId: AccountGroupService_DeleteAccountGroup
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            type: object
-            properties: {}
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_1
-          description: |-
-            The resource name of the account group.
-            Format: accountGroups/{account_group}
-          in: path
-          required: true
-          type: string
-          pattern: accountGroups/[^/]+
-      tags:
-        - AccountGroupService
-  /v1/{name_1}:close:
-    post:
-      summary: Closes a period, preventing new imports.
-      operationId: ImportSourcePeriodService_CloseImportSourcePeriod
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1ImportSourcePeriod'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_1
-          description: |-
-            The resource name of the period to close.
-            Format: importSources/{import_source}/periods/{period}
-          in: path
-          required: true
-          type: string
-          pattern: importSources/[^/]+/periods/[^/]+
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/ImportSourcePeriodServiceCloseImportSourcePeriodBody'
-      tags:
-        - ImportSourcePeriodService
-  /v1/{name_2}:
-    get:
-      summary: Gets a single assignment by resource name.
-      operationId: AccountGroupAssignmentService_GetAccountGroupAssignment
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1AccountGroupAssignment'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_2
-          description: |-
-            The resource name of the assignment.
-            Format: accountGroups/{account_group}/assignments/{assignment}
-          in: path
-          required: true
-          type: string
-          pattern: accountGroups/[^/]+/assignments/[^/]+
-      tags:
-        - AccountGroupAssignmentService
-    delete:
-      summary: Permanently deletes an assignment.
-      operationId: AccountGroupAssignmentService_DeleteAccountGroupAssignment
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            type: object
-            properties: {}
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_2
-          description: |-
-            The resource name of the assignment.
-            Format: accountGroups/{account_group}/assignments/{assignment}
-          in: path
-          required: true
-          type: string
-          pattern: accountGroups/[^/]+/assignments/[^/]+
-      tags:
-        - AccountGroupAssignmentService
-  /v1/{name_3}:
-    get:
-      summary: Gets a single budget by resource name.
-      operationId: BudgetService_GetBudget
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1Budget'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_3
-          description: |-
-            The resource name of the budget.
-            Format: budgets/{budget}
-          in: path
-          required: true
-          type: string
-          pattern: budgets/[^/]+
-      tags:
-        - BudgetService
-    delete:
-      summary: Permanently deletes a budget.
-      operationId: BudgetService_DeleteBudget
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            type: object
-            properties: {}
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_3
-          description: |-
-            The resource name of the budget.
-            Format: budgets/{budget}
-          in: path
-          required: true
-          type: string
-          pattern: budgets/[^/]+
-      tags:
-        - BudgetService
-  /v1/{name_4}:
-    get:
-      summary: Gets a single budget tag by resource name.
-      operationId: BudgetTagService_GetBudgetTag
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1BudgetTag'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_4
-          description: |-
-            The resource name of the budget tag.
-            Format: budgets/{budget}/tags/{tag}
-          in: path
-          required: true
-          type: string
-          pattern: budgets/[^/]+/tags/[^/]+
-      tags:
-        - BudgetTagService
-    delete:
-      summary: Permanently deletes a budget tag.
-      operationId: BudgetTagService_DeleteBudgetTag
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            type: object
-            properties: {}
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_4
-          description: |-
-            The resource name of the budget tag.
-            Format: budgets/{budget}/tags/{tag}
-          in: path
-          required: true
-          type: string
-          pattern: budgets/[^/]+/tags/[^/]+
-      tags:
-        - BudgetTagService
-  /v1/{name_5}:
-    get:
-      summary: Gets a single import source by resource name.
-      operationId: ImportSourceService_GetImportSource
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1ImportSource'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_5
-          description: |-
-            The resource name of the import source.
-            Format: importSources/{import_source}
-          in: path
-          required: true
-          type: string
-          pattern: importSources/[^/]+
-      tags:
-        - ImportSourceService
-    delete:
-      summary: Permanently deletes an import source.
-      operationId: ImportSourceService_DeleteImportSource
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            type: object
-            properties: {}
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_5
-          description: |-
-            The resource name of the import source.
-            Format: importSources/{import_source}
-          in: path
-          required: true
-          type: string
-          pattern: importSources/[^/]+
-      tags:
-        - ImportSourceService
-  /v1/{name_6}:
-    get:
-      summary: Gets a single period by resource name.
-      operationId: ImportSourcePeriodService_GetImportSourcePeriod
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1ImportSourcePeriod'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_6
-          description: |-
-            The resource name of the period.
-            Format: importSources/{import_source}/periods/{period}
-          in: path
-          required: true
-          type: string
-          pattern: importSources/[^/]+/periods/[^/]+
-      tags:
-        - ImportSourcePeriodService
-    delete:
-      summary: Permanently deletes a period.
-      operationId: ImportSourcePeriodService_DeleteImportSourcePeriod
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            type: object
-            properties: {}
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_6
-          description: |-
-            The resource name of the period.
-            Format: importSources/{import_source}/periods/{period}
-          in: path
-          required: true
-          type: string
-          pattern: importSources/[^/]+/periods/[^/]+
-      tags:
-        - ImportSourcePeriodService
-  /v1/{name_7}:
-    get:
-      summary: Gets report metadata by resource name.
-      operationId: ReportService_GetReport
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1Report'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_7
-          description: |-
-            The resource name of the report.
-            Format: reports/{report}
-          in: path
-          required: true
-          type: string
-          pattern: reports/[^/]+
-      tags:
-        - ReportService
-    delete:
-      summary: Permanently deletes a report.
-      operationId: ReportService_DeleteReport
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            type: object
-            properties: {}
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_7
-          description: |-
-            The resource name of the report.
-            Format: reports/{report}
-          in: path
-          required: true
-          type: string
-          pattern: reports/[^/]+
-      tags:
-        - ReportService
-  /v1/{name_8}:
-    get:
-      summary: Gets a single report template by resource name.
-      operationId: ReportTemplateService_GetReportTemplate
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1ReportTemplate'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_8
-          description: |-
-            The resource name of the report template.
-            Format: reportTemplates/{report_template}
-          in: path
-          required: true
-          type: string
-          pattern: reportTemplates/[^/]+
-      tags:
-        - ReportTemplateService
-    delete:
-      summary: Permanently deletes a report template.
-      operationId: ReportTemplateService_DeleteReportTemplate
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            type: object
-            properties: {}
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_8
-          description: |-
-            The resource name of the report template.
-            Format: reportTemplates/{report_template}
-          in: path
-          required: true
-          type: string
-          pattern: reportTemplates/[^/]+
-      tags:
-        - ReportTemplateService
-  /v1/{name_9}:
-    get:
-      summary: Gets a single transaction by resource name.
-      operationId: TransactionService_GetTransaction
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1Transaction'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_9
-          description: |-
-            The resource name of the transaction.
-            Format: transactions/{transaction}
-          in: path
-          required: true
-          type: string
-          pattern: transactions/[^/]+
-      tags:
-        - TransactionService
-    delete:
-      summary: Permanently deletes a transaction.
-      operationId: TransactionService_DeleteTransaction
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            type: object
-            properties: {}
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_9
-          description: |-
-            The resource name of the transaction.
-            Format: transactions/{transaction}
-          in: path
-          required: true
-          type: string
-          pattern: transactions/[^/]+
-      tags:
-        - TransactionService
-  /v1/{name}:
-    get:
-      summary: Gets a single account by resource name.
-      operationId: AccountService_GetAccount
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1Account'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name
-          description: |-
-            The resource name of the account.
-            Format: accounts/{account}
-          in: path
-          required: true
-          type: string
-          pattern: accounts/[^/]+
-      tags:
-        - AccountService
-    delete:
-      summary: Permanently deletes an account.
-      operationId: AccountService_DeleteAccount
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            type: object
-            properties: {}
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name
-          description: |-
-            The resource name of the account.
-            Format: accounts/{account}
-          in: path
-          required: true
-          type: string
-          pattern: accounts/[^/]+
-      tags:
-        - AccountService
-  /v1/{name}:archive:
-    post:
-      summary: Archives an account (soft-delete).
-      operationId: AccountService_ArchiveAccount
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1Account'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name
-          description: |-
-            The resource name of the account.
-            Format: accounts/{account}
-          in: path
-          required: true
-          type: string
-          pattern: accounts/[^/]+
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/AccountServiceArchiveAccountBody'
-      tags:
-        - AccountService
-  /v1/{name}:close:
-    post:
-      summary: Closes a budget, marking it as no longer active.
-      operationId: BudgetService_CloseBudget
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1Budget'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name
-          description: |-
-            The resource name of the budget to close.
-            Format: budgets/{budget}
-          in: path
-          required: true
-          type: string
-          pattern: budgets/[^/]+
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/BudgetServiceCloseBudgetBody'
-      tags:
-        - BudgetService
-  /v1/{name}:getNested:
-    get:
-      summary: Gets a single account's full nested subtree (custom method).
-      operationId: AccountService_GetNestedAccount
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1GetNestedAccountResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name
-          description: |-
-            The resource name of the root account for the subtree.
-            Format: accounts/{account}
-          in: path
-          required: true
-          type: string
-          pattern: accounts/[^/]+
-        - name: filter
-          description: |-
-            Filter expression applied to all descendants in the subtree.
-            Supported fields: is_archived.
-            Example: "is_archived=false".
-          in: query
-          required: false
-          type: string
-      tags:
-        - AccountService
-  /v1/{parent_1}/assignments:
-    get:
-      summary: Lists assignments for a transaction.
-      operationId: TransactionAccountAssignmentService_ListTransactionAccountAssignments
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1ListTransactionAccountAssignmentsResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: parent_1
-          description: |-
-            The parent transaction resource name.
-            Format: transactions/{transaction}
-          in: path
-          required: true
-          type: string
-          pattern: transactions/[^/]+
-        - name: pageSize
-          description: |-
-            Maximum number of assignments to return. The service may return fewer.
-            If unspecified, at most 20 are returned. Maximum value is 100.
-          in: query
-          required: false
-          type: integer
-          format: int32
-        - name: pageToken
-          description: A page token from a previous ListTransactionAccountAssignments call.
-          in: query
-          required: false
-          type: string
-        - name: filter
-          description: |-
-            Filter expression conforming to AIP-160.
-            Supported fields: account_id, value.
-            Example: "account_id=\"<uuid>\"".
-          in: query
-          required: false
-          type: string
-        - name: orderBy
-          description: Order by expression (e.g. "create_time desc").
-          in: query
-          required: false
-          type: string
-      tags:
-        - TransactionAccountAssignmentService
-    post:
-      summary: Creates a new assignment.
-      operationId: TransactionAccountAssignmentService_CreateTransactionAccountAssignment
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1TransactionAccountAssignment'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: parent_1
-          description: |-
-            The parent transaction resource name.
-            Format: transactions/{transaction}
-          in: path
-          required: true
-          type: string
-          pattern: transactions/[^/]+
-        - name: assignment
-          description: The assignment to create.
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/v1TransactionAccountAssignment'
-      tags:
-        - TransactionAccountAssignmentService
-  /v1/{parent}/assignments:
-    get:
-      summary: Lists assignments for an account group.
-      operationId: AccountGroupAssignmentService_ListAccountGroupAssignments
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1ListAccountGroupAssignmentsResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: parent
-          description: |-
-            The parent account group resource name.
-            Format: accountGroups/{account_group}
-          in: path
-          required: true
-          type: string
-          pattern: accountGroups/[^/]+
-        - name: pageSize
-          description: |-
-            Maximum number of assignments to return. The service may return fewer.
-            If unspecified, at most 20 are returned. Maximum value is 100.
-          in: query
-          required: false
-          type: integer
-          format: int32
-        - name: pageToken
-          description: A page token from a previous ListAccountGroupAssignments call.
-          in: query
-          required: false
-          type: string
-        - name: filter
-          description: |-
-            Filter expression conforming to AIP-160.
-            Supported fields: account_id, negate.
-            Example: "negate=true" or "account_id=\"<uuid>\"".
-          in: query
-          required: false
-          type: string
-        - name: orderBy
-          description: Order by expression (e.g. "create_time desc").
-          in: query
-          required: false
-          type: string
-      tags:
-        - AccountGroupAssignmentService
-    post:
-      summary: Creates a new assignment.
-      operationId: AccountGroupAssignmentService_CreateAccountGroupAssignment
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1AccountGroupAssignment'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: parent
-          description: |-
-            The parent account group resource name.
-            Format: accountGroups/{account_group}
-          in: path
-          required: true
-          type: string
-          pattern: accountGroups/[^/]+
-        - name: assignment
-          description: The assignment to create.
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/v1AccountGroupAssignment'
-      tags:
-        - AccountGroupAssignmentService
   /v1/{parent}/periods:
     get:
       summary: Lists periods for an import source.
@@ -1813,11 +2043,11 @@ paths:
         - name: parent
           description: |-
             The parent import source resource name.
-            Format: importSources/{import_source}
+            Format: organizations/{organization}/importSources/{import_source}
           in: path
           required: true
           type: string
-          pattern: importSources/[^/]+
+          pattern: organizations/[^/]+/importSources/[^/]+
         - name: pageSize
           description: |-
             Maximum number of periods to return. The service may return fewer.
@@ -1862,11 +2092,11 @@ paths:
         - name: parent
           description: |-
             The parent import source resource name.
-            Format: importSources/{import_source}
+            Format: organizations/{organization}/importSources/{import_source}
           in: path
           required: true
           type: string
-          pattern: importSources/[^/]+
+          pattern: organizations/[^/]+/importSources/[^/]+
         - name: period
           description: The period to create.
           in: body
@@ -1875,15 +2105,15 @@ paths:
             $ref: '#/definitions/v1ImportSourcePeriod'
       tags:
         - ImportSourcePeriodService
-  /v1/{parent}/tags:
+  /v1/{parent}/reportTemplates:
     get:
-      summary: Lists budget tags for a budget.
-      operationId: BudgetTagService_ListBudgetTags
+      summary: Lists report templates with pagination.
+      operationId: ReportTemplateService_ListReportTemplates
       responses:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/v1ListBudgetTagsResponse'
+            $ref: '#/definitions/v1ListReportTemplatesResponse'
         default:
           description: An unexpected error response.
           schema:
@@ -1891,48 +2121,157 @@ paths:
       parameters:
         - name: parent
           description: |-
-            The parent budget resource name.
-            Format: budgets/{budget}
+            The parent organization resource name.
+            Format: organizations/{organization}
           in: path
           required: true
           type: string
-          pattern: budgets/[^/]+
+          pattern: organizations/[^/]+
         - name: pageSize
           description: |-
-            Maximum number of tags to return. The service may return fewer.
+            Maximum number of templates to return. The service may return fewer.
             If unspecified, at most 20 are returned. Maximum value is 100.
           in: query
           required: false
           type: integer
           format: int32
         - name: pageToken
-          description: A page token from a previous ListBudgetTags call.
+          description: A page token from a previous ListReportTemplates call.
           in: query
           required: false
           type: string
         - name: filter
           description: |-
             Filter expression conforming to AIP-160.
-            Supported fields: date, display_description.
-            Example: "date>=\"2025-01-01\"".
+            Supported fields: display_name.
+            Example: "display_name=\"Monthly\"".
           in: query
           required: false
           type: string
         - name: orderBy
-          description: Order by expression (e.g. "date desc", "create_time").
+          description: Order by expression (e.g. "display_name", "create_time desc").
           in: query
           required: false
           type: string
       tags:
-        - BudgetTagService
+        - ReportTemplateService
     post:
-      summary: Creates a new budget tag.
-      operationId: BudgetTagService_CreateBudgetTag
+      summary: Creates a new report template.
+      operationId: ReportTemplateService_CreateReportTemplate
       responses:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/v1BudgetTag'
+            $ref: '#/definitions/v1ReportTemplate'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: parent
+          description: |-
+            The parent organization resource name.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
+        - name: reportTemplate
+          description: The report template to create.
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1ReportTemplate'
+      tags:
+        - ReportTemplateService
+  /v1/{parent}/reports:
+    get:
+      summary: Lists reports with pagination.
+      operationId: ReportService_ListReports
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListReportsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: parent
+          description: |-
+            The parent organization resource name.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
+        - name: pageSize
+          description: |-
+            Maximum number of reports to return. The service may return fewer.
+            If unspecified, at most 20 are returned. Maximum value is 100.
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: pageToken
+          description: A page token from a previous ListReports call.
+          in: query
+          required: false
+          type: string
+        - name: filter
+          description: |-
+            Filter expression conforming to AIP-160.
+            Supported fields: display_name, report_template_id.
+            Example: "display_name=\"Q1 Report\"".
+          in: query
+          required: false
+          type: string
+        - name: orderBy
+          description: Order by expression (e.g. "display_name", "create_time desc").
+          in: query
+          required: false
+          type: string
+      tags:
+        - ReportService
+    post:
+      summary: Creates a new report by rendering a template.
+      operationId: ReportService_CreateReport
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1Report'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: parent
+          description: |-
+            The parent organization resource name.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
+        - name: report
+          description: The report to create.
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1Report'
+      tags:
+        - ReportService
+  /v1/{parent}/revisions:
+    get:
+      summary: Lists revisions for a budget in reverse chronological order.
+      operationId: BudgetRevisionService_ListBudgetRevisions
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListBudgetRevisionsResponse'
         default:
           description: An unexpected error response.
           schema:
@@ -1941,19 +2280,225 @@ paths:
         - name: parent
           description: |-
             The parent budget resource name.
-            Format: budgets/{budget}
+            Format: organizations/{organization}/budgets/{budget}
           in: path
           required: true
           type: string
-          pattern: budgets/[^/]+
-        - name: tag
-          description: The budget tag to create.
+          pattern: organizations/[^/]+/budgets/[^/]+
+        - name: pageSize
+          description: |-
+            Maximum number of revisions to return. The service may return fewer.
+            If unspecified, at most 20 are returned. Maximum value is 100.
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: pageToken
+          description: A page token from a previous ListBudgetRevisions call.
+          in: query
+          required: false
+          type: string
+        - name: orderBy
+          description: |-
+            Order by expression. Defaults to reverse chronological order (create_time desc).
+            Example: "create_time desc", "display_name".
+          in: query
+          required: false
+          type: string
+      tags:
+        - BudgetRevisionService
+    post:
+      summary: |-
+        Creates a new revision by capturing the current state of all
+        BudgetAccountValues for the given budget.
+      operationId: BudgetRevisionService_CreateBudgetRevision
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1BudgetRevision'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: parent
+          description: |-
+            The parent budget resource name.
+            Format: organizations/{organization}/budgets/{budget}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/budgets/[^/]+
+        - name: revision
+          description: |-
+            The revision to create. Only display_name and display_description are
+            user-supplied; all other fields are populated by the server.
           in: body
           required: true
           schema:
-            $ref: '#/definitions/v1BudgetTag'
+            $ref: '#/definitions/v1BudgetRevision'
       tags:
-        - BudgetTagService
+        - BudgetRevisionService
+  /v1/{parent}/transactionAccounts:
+    get:
+      summary: Lists transaction accounts with pagination.
+      operationId: TransactionAccountService_ListTransactionAccounts
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListTransactionAccountsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: parent
+          description: |-
+            The parent organization resource name.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
+        - name: pageSize
+          description: |-
+            Maximum number of accounts to return. The service may return fewer.
+            If unspecified, at most 20 are returned. Maximum value is 100.
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: pageToken
+          description: A page token from a previous ListTransactionAccounts call.
+          in: query
+          required: false
+          type: string
+        - name: filter
+          description: |-
+            Filter expression conforming to AIP-160.
+            Supported fields: import_source_id, code, display_name.
+            Example: "import_source_id=\"<uuid>\"" or "code:\"IBAN\"".
+          in: query
+          required: false
+          type: string
+        - name: orderBy
+          description: Order by expression (e.g. "code", "display_name", "create_time desc").
+          in: query
+          required: false
+          type: string
+      tags:
+        - TransactionAccountService
+    post:
+      summary: Creates a new transaction account.
+      operationId: TransactionAccountService_CreateTransactionAccount
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1TransactionAccount'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: parent
+          description: |-
+            The parent organization resource name.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
+        - name: transactionAccount
+          description: The transaction account to create.
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1TransactionAccount'
+      tags:
+        - TransactionAccountService
+  /v1/{parent}/transactions:
+    get:
+      summary: Lists transactions with keyset pagination and optional filters.
+      operationId: TransactionService_ListTransactions
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListTransactionsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: parent
+          description: |-
+            The parent organization resource name.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
+        - name: pageSize
+          description: |-
+            Maximum number of transactions to return. The service may return fewer.
+            If unspecified, at most 20 are returned. Maximum value is 100.
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: pageToken
+          description: A page token from a previous ListTransactions call.
+          in: query
+          required: false
+          type: string
+        - name: filter
+          description: |-
+            Filter expression conforming to AIP-160.
+            Supported fields: credit_transaction_account_id, debit_transaction_account_id,
+            booked_at, document_date, amount.
+            Example: "credit_transaction_account_id=\"<uuid>\" AND booked_at>=\"2025-01-01T00:00:00Z\"".
+          in: query
+          required: false
+          type: string
+        - name: orderBy
+          description: Order by expression (e.g. "booked_at desc", "amount").
+          in: query
+          required: false
+          type: string
+      tags:
+        - TransactionService
+    post:
+      summary: Creates a new transaction.
+      operationId: TransactionService_CreateTransaction
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1Transaction'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: parent
+          description: |-
+            The parent organization resource name.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
+        - name: transaction
+          description: The transaction to create.
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1Transaction'
+      tags:
+        - TransactionService
   /v1/{reportTemplate.name}:
     patch:
       summary: Updates an existing report template.
@@ -1971,11 +2516,11 @@ paths:
         - name: reportTemplate.name
           description: |-
             The resource name of the report template.
-            Format: reportTemplates/{report_template}
+            Format: organizations/{organization}/reportTemplates/{report_template}
           in: path
           required: true
           type: string
-          pattern: reportTemplates/[^/]+
+          pattern: organizations/[^/]+/reportTemplates/[^/]+
         - name: reportTemplate
           description: The report template to update.
           in: body
@@ -2007,68 +2552,9 @@ paths:
             required:
               - displayName
               - template
+              - reportTemplate
       tags:
         - ReportTemplateService
-  /v1/{tag.name}:
-    patch:
-      summary: Updates an existing budget tag.
-      operationId: BudgetTagService_UpdateBudgetTag
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1BudgetTag'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: tag.name
-          description: |-
-            The resource name of the budget tag.
-            Format: budgets/{budget}/tags/{tag}
-          in: path
-          required: true
-          type: string
-          pattern: budgets/[^/]+/tags/[^/]+
-        - name: tag
-          description: The budget tag to update.
-          in: body
-          required: true
-          schema:
-            type: object
-            properties:
-              uid:
-                type: string
-                description: The UUID of the budget tag.
-                readOnly: true
-              budget:
-                type: string
-                title: |-
-                  The resource name of the parent budget.
-                  Format: budgets/{budget}
-                readOnly: true
-              date:
-                $ref: '#/definitions/typeDate'
-                description: The date this tag represents.
-              displayDescription:
-                type: string
-                description: Optional free-text description.
-              updateTime:
-                type: string
-                format: date-time
-                description: Last modification timestamp.
-                readOnly: true
-              createTime:
-                type: string
-                format: date-time
-                description: Creation timestamp.
-                readOnly: true
-            title: The budget tag to update.
-            required:
-              - date
-      tags:
-        - BudgetTagService
   /v1/{transaction.name}:
     patch:
       summary: Updates an existing transaction.
@@ -2086,11 +2572,11 @@ paths:
         - name: transaction.name
           description: |-
             The resource name of the transaction.
-            Format: transactions/{transaction}
+            Format: organizations/{organization}/transactions/{transaction}
           in: path
           required: true
           type: string
-          pattern: transactions/[^/]+
+          pattern: organizations/[^/]+/transactions/[^/]+
         - name: transaction
           description: The transaction to update.
           in: body
@@ -2109,8 +2595,8 @@ paths:
                 type: string
                 description: UUID of the debit transaction account.
               amount:
-                type: string
-                description: Transaction amount as decimal string (e.g. "123.45").
+                $ref: '#/definitions/v1Decimal'
+                description: Transaction amount.
               description:
                 type: string
                 description: Human-readable transaction description.
@@ -2148,6 +2634,7 @@ paths:
               - amount
               - bookedAt
               - documentDate
+              - transaction
       tags:
         - TransactionService
   /v1/{transactionAccount.name}:
@@ -2167,11 +2654,11 @@ paths:
         - name: transactionAccount.name
           description: |-
             The resource name of the transaction account.
-            Format: transactionAccounts/{transaction_account}
+            Format: organizations/{organization}/transactionAccounts/{transaction_account}
           in: path
           required: true
           type: string
-          pattern: transactionAccounts/[^/]+
+          pattern: organizations/[^/]+/transactionAccounts/[^/]+
         - name: transactionAccount
           description: The transaction account to update.
           in: body
@@ -2209,6 +2696,7 @@ paths:
             required:
               - code
               - importSourceId
+              - transactionAccount
       tags:
         - TransactionAccountService
 definitions:
@@ -2283,7 +2771,7 @@ definitions:
         type: string
         title: |-
           The resource name of the account.
-          Format: accounts/{account}
+          Format: organizations/{organization}/accounts/{account}
         readOnly: true
       uid:
         type: string
@@ -2293,7 +2781,7 @@ definitions:
         type: string
         title: |-
           The resource name of the parent account, if any.
-          Format: accounts/{account}
+          Format: organizations/{organization}/accounts/{account}
       displayName:
         type: string
         description: Human-readable account name.
@@ -2333,7 +2821,7 @@ definitions:
         type: string
         title: |-
           The resource name of the account group.
-          Format: accountGroups/{account_group}
+          Format: organizations/{organization}/accountGroups/{account_group}
         readOnly: true
       uid:
         type: string
@@ -2365,7 +2853,7 @@ definitions:
         type: string
         title: |-
           The resource name of the assignment.
-          Format: accountGroups/{account_group}/assignments/{assignment}
+          Format: organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}
         readOnly: true
       uid:
         type: string
@@ -2375,7 +2863,7 @@ definitions:
         type: string
         title: |-
           The resource name of the parent account group.
-          Format: accountGroups/{account_group}
+          Format: organizations/{organization}/accountGroups/{account_group}
         readOnly: true
       accountId:
         type: string
@@ -2403,7 +2891,7 @@ definitions:
         type: string
         title: |-
           The resource name of the budget.
-          Format: budgets/{budget}
+          Format: organizations/{organization}/budgets/{budget}
         readOnly: true
       uid:
         type: string
@@ -2440,31 +2928,31 @@ definitions:
       - displayName
       - periodStart
       - periodEnd
-  v1BudgetTag:
+  v1BudgetAccountValue:
     type: object
     properties:
       name:
         type: string
         title: |-
-          The resource name of the budget tag.
-          Format: budgets/{budget}/tags/{tag}
+          The resource name of the budget account value.
+          Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
         readOnly: true
       uid:
         type: string
-        description: The UUID of the budget tag.
+        description: The UUID of the budget account value.
         readOnly: true
       budget:
         type: string
         title: |-
           The resource name of the parent budget.
-          Format: budgets/{budget}
+          Format: organizations/{organization}/budgets/{budget}
         readOnly: true
-      date:
-        $ref: '#/definitions/typeDate'
-        description: The date this tag represents.
-      displayDescription:
+      accountId:
         type: string
-        description: Optional free-text description.
+        description: The UUID of the account this value is assigned to.
+      value:
+        $ref: '#/definitions/v1Decimal'
+        description: The target monetary value assigned to the account for this budget.
       updateTime:
         type: string
         format: date-time
@@ -2476,10 +2964,103 @@ definitions:
         description: Creation timestamp.
         readOnly: true
     description: |-
-      BudgetTag is a named snapshot/revision tag within a budget, used to
-      associate per-account target values with a specific point in time.
+      BudgetAccountValue associates an account with a numeric target value within
+      a budget. Accounts may optionally be assigned a value; not all accounts in
+      the system need to be present.
     required:
-      - date
+      - accountId
+      - value
+  v1BudgetRevision:
+    type: object
+    properties:
+      name:
+        type: string
+        title: |-
+          The resource name of the revision.
+          Format: organizations/{organization}/budgets/{budget}/revisions/{revision}
+        readOnly: true
+      uid:
+        type: string
+        description: The UUID of the revision.
+        readOnly: true
+      budget:
+        type: string
+        title: |-
+          The resource name of the parent budget.
+          Format: organizations/{organization}/budgets/{budget}
+        readOnly: true
+      displayName:
+        type: string
+        description: Human-readable name for this revision.
+      displayDescription:
+        type: string
+        description: Optional free-text description for this revision.
+      date:
+        $ref: '#/definitions/typeDate'
+        description: The date this revision represents.
+      createTime:
+        type: string
+        format: date-time
+        description: Timestamp when this revision was created.
+        readOnly: true
+    description: |-
+      BudgetRevision is a read-only, point-in-time capture of a Budget's full set
+      of BudgetAccountValues. Revisions are immutable after creation and cannot be
+      rolled back to. The captured account values are accessible as a paginated
+      sub-collection via BudgetRevisionAccountValueService. See AIP-162.
+    required:
+      - displayName
+  v1BudgetRevisionAccountValue:
+    type: object
+    properties:
+      name:
+        type: string
+        title: |-
+          The resource name of the budget revision account value.
+          Format: organizations/{organization}/budgets/{budget}/revisions/{revision}/accountValues/{account_value}
+        readOnly: true
+      uid:
+        type: string
+        description: The UUID of this record.
+        readOnly: true
+      revision:
+        type: string
+        title: |-
+          The resource name of the parent revision.
+          Format: organizations/{organization}/budgets/{budget}/revisions/{revision}
+        readOnly: true
+      accountId:
+        type: string
+        description: The UUID of the account whose value is recorded here.
+        readOnly: true
+      value:
+        $ref: '#/definitions/v1Decimal'
+        description: |-
+          The target monetary value for the account at the time the revision was
+          created.
+        readOnly: true
+      createTime:
+        type: string
+        format: date-time
+        description: Timestamp when this record was created (equals the revision create_time).
+        readOnly: true
+    description: |-
+      BudgetRevisionAccountValue is an immutable record of a single account's
+      target value as captured at the time its parent BudgetRevision was created.
+      This resource is read-only; it cannot be created, updated, or deleted
+      directly — it is populated by the server when the parent BudgetRevision is
+      created.
+  v1Decimal:
+    type: object
+    properties:
+      value:
+        type: string
+        description: The decimal number as a formatted string (e.g. "1234.56", "-42", "0.001").
+    description: |-
+      Decimal represents an arbitrary-precision decimal number, suitable for
+      monetary and other values where floating-point rounding is unacceptable.
+
+      The value is a formatted decimal string, e.g. "1234.56", "-42", "0.001".
   v1GetNestedAccountResponse:
     type: object
     properties:
@@ -2494,7 +3075,7 @@ definitions:
         type: string
         title: |-
           The resource name of the import source.
-          Format: importSources/{import_source}
+          Format: organizations/{organization}/importSources/{import_source}
         readOnly: true
       uid:
         type: string
@@ -2530,7 +3111,7 @@ definitions:
         type: string
         title: |-
           The resource name of the period.
-          Format: importSources/{import_source}/periods/{period}
+          Format: organizations/{organization}/importSources/{import_source}/periods/{period}
         readOnly: true
       uid:
         type: string
@@ -2540,7 +3121,7 @@ definitions:
         type: string
         title: |-
           The resource name of the parent import source.
-          Format: importSources/{import_source}
+          Format: organizations/{organization}/importSources/{import_source}
         readOnly: true
       year:
         type: integer
@@ -2613,22 +3194,54 @@ definitions:
         type: string
         format: int64
         description: Total number of accounts matching the filter (may be an estimate).
-  v1ListBudgetTagsResponse:
+  v1ListBudgetAccountValuesResponse:
     type: object
     properties:
-      tags:
+      accountValues:
         type: array
         items:
           type: object
-          $ref: '#/definitions/v1BudgetTag'
-        description: The tags returned.
+          $ref: '#/definitions/v1BudgetAccountValue'
+        description: The budget account values returned.
       nextPageToken:
         type: string
         description: A token to retrieve the next page of results.
       totalSize:
         type: string
         format: int64
-        description: Total number of tags matching the filter (may be an estimate).
+        description: Total number of account values matching the filter (may be an estimate).
+  v1ListBudgetRevisionAccountValuesResponse:
+    type: object
+    properties:
+      accountValues:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1BudgetRevisionAccountValue'
+        description: The account values returned.
+      nextPageToken:
+        type: string
+        description: A token to retrieve the next page of results.
+      totalSize:
+        type: string
+        format: int64
+        description: Total number of account values in this revision.
+  v1ListBudgetRevisionsResponse:
+    type: object
+    properties:
+      revisions:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1BudgetRevision'
+        description: The revisions returned, ordered reverse-chronologically by default.
+      nextPageToken:
+        type: string
+        description: A token to retrieve the next page of results.
+      totalSize:
+        type: string
+        format: int64
+        description: Total number of revisions for this budget.
   v1ListBudgetsResponse:
     type: object
     properties:
@@ -2687,6 +3300,22 @@ definitions:
           $ref: '#/definitions/v1NestedAccount'
         description: Root-level accounts, each carrying their full nested subtree.
     description: Response for the ListNestedAccounts custom method.
+  v1ListOrganizationsResponse:
+    type: object
+    properties:
+      organizations:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1Organization'
+        description: The organizations returned.
+      nextPageToken:
+        type: string
+        description: A token to retrieve the next page of results.
+      totalSize:
+        type: string
+        format: int64
+        description: Total number of organizations matching the filter (may be an estimate).
   v1ListReportTemplatesResponse:
     type: object
     properties:
@@ -2774,7 +3403,7 @@ definitions:
         type: string
         title: |-
           The resource name of the account.
-          Format: accounts/{account}
+          Format: organizations/{organization}/accounts/{account}
         readOnly: true
       uid:
         type: string
@@ -2784,7 +3413,7 @@ definitions:
         type: string
         title: |-
           The resource name of the parent account, if any.
-          Format: accounts/{account}
+          Format: organizations/{organization}/accounts/{account}
       displayName:
         type: string
         description: Human-readable account name.
@@ -2825,6 +3454,35 @@ definitions:
     description: |-
       NestedAccount is a read-only view of an Account that includes its full
       subtree of child accounts. It shares the same resource name as Account.
+  v1Organization:
+    type: object
+    properties:
+      name:
+        type: string
+        title: |-
+          The resource name of the organization.
+          Format: organizations/{organization}
+        readOnly: true
+      uid:
+        type: string
+        description: The UUID of the organization.
+        readOnly: true
+      displayName:
+        type: string
+        description: Human-readable organization name.
+      updateTime:
+        type: string
+        format: date-time
+        description: Last modification timestamp.
+        readOnly: true
+      createTime:
+        type: string
+        format: date-time
+        description: Creation timestamp.
+        readOnly: true
+    description: Organization is the top-level resource that owns all other resources.
+    required:
+      - displayName
   v1Report:
     type: object
     properties:
@@ -2832,7 +3490,7 @@ definitions:
         type: string
         title: |-
           The resource name of the report.
-          Format: reports/{report}
+          Format: organizations/{organization}/reports/{report}
         readOnly: true
       uid:
         type: string
@@ -2852,7 +3510,7 @@ definitions:
     description: |-
       Report is a generated report instance produced from a ReportTemplate.
       The rendered binary content is served exclusively via the Huma HTTP API
-      (GET /v1/reports/{reportId}:download) and is intentionally excluded here.
+      (GET /v1/organizations/{organization}/reports/{reportId}:download) and is intentionally excluded here.
     required:
       - displayName
       - reportTemplateId
@@ -2863,7 +3521,7 @@ definitions:
         type: string
         title: |-
           The resource name of the report template.
-          Format: reportTemplates/{report_template}
+          Format: organizations/{organization}/reportTemplates/{report_template}
         readOnly: true
       uid:
         type: string
@@ -2896,7 +3554,7 @@ definitions:
         type: string
         title: |-
           The resource name of the transaction.
-          Format: transactions/{transaction}
+          Format: organizations/{organization}/transactions/{transaction}
         readOnly: true
       uid:
         type: string
@@ -2909,8 +3567,8 @@ definitions:
         type: string
         description: UUID of the debit transaction account.
       amount:
-        type: string
-        description: Transaction amount as decimal string (e.g. "123.45").
+        $ref: '#/definitions/v1Decimal'
+        description: Transaction amount.
       description:
         type: string
         description: Human-readable transaction description.
@@ -2955,7 +3613,7 @@ definitions:
         type: string
         title: |-
           The resource name of the transaction account.
-          Format: transactionAccounts/{transaction_account}
+          Format: organizations/{organization}/transactionAccounts/{transaction_account}
         readOnly: true
       uid:
         type: string
@@ -2996,7 +3654,7 @@ definitions:
         type: string
         title: |-
           The resource name of the assignment.
-          Format: transactions/{transaction}/assignments/{assignment}
+          Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
         readOnly: true
       uid:
         type: string
@@ -3006,14 +3664,14 @@ definitions:
         type: string
         title: |-
           The resource name of the parent transaction.
-          Format: transactions/{transaction}
+          Format: organizations/{organization}/transactions/{transaction}
         readOnly: true
       accountId:
         type: string
         description: UUID of the budget account this portion of the transaction is assigned to.
       value:
-        type: string
-        description: The decimal value assigned to this account (e.g. "50.00").
+        $ref: '#/definitions/v1Decimal'
+        description: The decimal value assigned to this account.
       updateTime:
         type: string
         format: date-time

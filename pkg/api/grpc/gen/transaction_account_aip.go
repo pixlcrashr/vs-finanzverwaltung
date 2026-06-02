@@ -14,10 +14,26 @@ import (
 )
 
 type TransactionAccountResourceName struct {
+	Organization       string
 	TransactionAccount string
 }
 
+func (n OrganizationResourceName) TransactionAccountResourceName(
+	transactionAccount string,
+) TransactionAccountResourceName {
+	return TransactionAccountResourceName{
+		Organization:       n.Organization,
+		TransactionAccount: transactionAccount,
+	}
+}
+
 func (n TransactionAccountResourceName) Validate() error {
+	if n.Organization == "" {
+		return fmt.Errorf("organization: empty")
+	}
+	if strings.IndexByte(n.Organization, '/') != -1 {
+		return fmt.Errorf("organization: contains illegal character '/'")
+	}
 	if n.TransactionAccount == "" {
 		return fmt.Errorf("transaction_account: empty")
 	}
@@ -28,12 +44,13 @@ func (n TransactionAccountResourceName) Validate() error {
 }
 
 func (n TransactionAccountResourceName) ContainsWildcard() bool {
-	return false || n.TransactionAccount == "-"
+	return false || n.Organization == "-" || n.TransactionAccount == "-"
 }
 
 func (n TransactionAccountResourceName) String() string {
 	return resourcename.Sprint(
-		"transactionAccounts/{transaction_account}",
+		"organizations/{organization}/transactionAccounts/{transaction_account}",
+		n.Organization,
 		n.TransactionAccount,
 	)
 }
@@ -56,7 +73,8 @@ func (n TransactionAccountResourceName) MarshalText() ([]byte, error) {
 func (n *TransactionAccountResourceName) UnmarshalString(name string) error {
 	err := resourcename.Sscan(
 		name,
-		"transactionAccounts/{transaction_account}",
+		"organizations/{organization}/transactionAccounts/{transaction_account}",
+		&n.Organization,
 		&n.TransactionAccount,
 	)
 	if err != nil {
@@ -72,4 +90,10 @@ func (n *TransactionAccountResourceName) UnmarshalText(text []byte) error {
 
 func (n TransactionAccountResourceName) Type() string {
 	return "vsfv.pixlcrashr.dev/TransactionAccount"
+}
+
+func (n TransactionAccountResourceName) OrganizationResourceName() OrganizationResourceName {
+	return OrganizationResourceName{
+		Organization: n.Organization,
+	}
 }

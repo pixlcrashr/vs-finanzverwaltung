@@ -14,10 +14,26 @@ import (
 )
 
 type ReportTemplateResourceName struct {
+	Organization   string
 	ReportTemplate string
 }
 
+func (n OrganizationResourceName) ReportTemplateResourceName(
+	reportTemplate string,
+) ReportTemplateResourceName {
+	return ReportTemplateResourceName{
+		Organization:   n.Organization,
+		ReportTemplate: reportTemplate,
+	}
+}
+
 func (n ReportTemplateResourceName) Validate() error {
+	if n.Organization == "" {
+		return fmt.Errorf("organization: empty")
+	}
+	if strings.IndexByte(n.Organization, '/') != -1 {
+		return fmt.Errorf("organization: contains illegal character '/'")
+	}
 	if n.ReportTemplate == "" {
 		return fmt.Errorf("report_template: empty")
 	}
@@ -28,12 +44,13 @@ func (n ReportTemplateResourceName) Validate() error {
 }
 
 func (n ReportTemplateResourceName) ContainsWildcard() bool {
-	return false || n.ReportTemplate == "-"
+	return false || n.Organization == "-" || n.ReportTemplate == "-"
 }
 
 func (n ReportTemplateResourceName) String() string {
 	return resourcename.Sprint(
-		"reportTemplates/{report_template}",
+		"organizations/{organization}/reportTemplates/{report_template}",
+		n.Organization,
 		n.ReportTemplate,
 	)
 }
@@ -56,7 +73,8 @@ func (n ReportTemplateResourceName) MarshalText() ([]byte, error) {
 func (n *ReportTemplateResourceName) UnmarshalString(name string) error {
 	err := resourcename.Sscan(
 		name,
-		"reportTemplates/{report_template}",
+		"organizations/{organization}/reportTemplates/{report_template}",
+		&n.Organization,
 		&n.ReportTemplate,
 	)
 	if err != nil {
@@ -72,4 +90,10 @@ func (n *ReportTemplateResourceName) UnmarshalText(text []byte) error {
 
 func (n ReportTemplateResourceName) Type() string {
 	return "vsfv.pixlcrashr.dev/ReportTemplate"
+}
+
+func (n ReportTemplateResourceName) OrganizationResourceName() OrganizationResourceName {
+	return OrganizationResourceName{
+		Organization: n.Organization,
+	}
 }

@@ -14,10 +14,26 @@ import (
 )
 
 type BudgetResourceName struct {
-	Budget string
+	Organization string
+	Budget       string
+}
+
+func (n OrganizationResourceName) BudgetResourceName(
+	budget string,
+) BudgetResourceName {
+	return BudgetResourceName{
+		Organization: n.Organization,
+		Budget:       budget,
+	}
 }
 
 func (n BudgetResourceName) Validate() error {
+	if n.Organization == "" {
+		return fmt.Errorf("organization: empty")
+	}
+	if strings.IndexByte(n.Organization, '/') != -1 {
+		return fmt.Errorf("organization: contains illegal character '/'")
+	}
 	if n.Budget == "" {
 		return fmt.Errorf("budget: empty")
 	}
@@ -28,12 +44,13 @@ func (n BudgetResourceName) Validate() error {
 }
 
 func (n BudgetResourceName) ContainsWildcard() bool {
-	return false || n.Budget == "-"
+	return false || n.Organization == "-" || n.Budget == "-"
 }
 
 func (n BudgetResourceName) String() string {
 	return resourcename.Sprint(
-		"budgets/{budget}",
+		"organizations/{organization}/budgets/{budget}",
+		n.Organization,
 		n.Budget,
 	)
 }
@@ -56,7 +73,8 @@ func (n BudgetResourceName) MarshalText() ([]byte, error) {
 func (n *BudgetResourceName) UnmarshalString(name string) error {
 	err := resourcename.Sscan(
 		name,
-		"budgets/{budget}",
+		"organizations/{organization}/budgets/{budget}",
+		&n.Organization,
 		&n.Budget,
 	)
 	if err != nil {
@@ -72,4 +90,10 @@ func (n *BudgetResourceName) UnmarshalText(text []byte) error {
 
 func (n BudgetResourceName) Type() string {
 	return "vsfv.pixlcrashr.dev/Budget"
+}
+
+func (n BudgetResourceName) OrganizationResourceName() OrganizationResourceName {
+	return OrganizationResourceName{
+		Organization: n.Organization,
+	}
 }

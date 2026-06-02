@@ -16,18 +16,18 @@ import "google/protobuf/timestamp.proto";
 message ImportSourcePeriod {
   option (google.api.resource) = {
     type: "vsfv.pixlcrashr.dev/ImportSourcePeriod"
-    pattern: "importSources/{import_source}/periods/{period}"
+    pattern: "organizations/{organization}/importSources/{import_source}/periods/{period}"
   };
 
   // The resource name of the period.
-  // Format: importSources/{import_source}/periods/{period}
+  // Format: organizations/{organization}/importSources/{import_source}/periods/{period}
   string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The UUID of the period.
   string uid = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The resource name of the parent import source.
-  // Format: importSources/{import_source}
+  // Format: organizations/{organization}/importSources/{import_source}
   string import_source = 3 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/ImportSource"}
@@ -48,7 +48,7 @@ message ImportSourcePeriod {
 
 message GetImportSourcePeriodRequest {
   // The resource name of the period.
-  // Format: importSources/{import_source}/periods/{period}
+  // Format: organizations/{organization}/importSources/{import_source}/periods/{period}
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/ImportSourcePeriod"}
@@ -57,7 +57,7 @@ message GetImportSourcePeriodRequest {
 
 message ListImportSourcePeriodsRequest {
   // The parent import source resource name.
-  // Format: importSources/{import_source}
+  // Format: organizations/{organization}/importSources/{import_source}
   string parent = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/ImportSource"}
@@ -92,7 +92,7 @@ message ListImportSourcePeriodsResponse {
 
 message CreateImportSourcePeriodRequest {
   // The parent import source resource name.
-  // Format: importSources/{import_source}
+  // Format: organizations/{organization}/importSources/{import_source}
   string parent = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/ImportSource"}
@@ -104,7 +104,7 @@ message CreateImportSourcePeriodRequest {
 
 message CloseImportSourcePeriodRequest {
   // The resource name of the period to close.
-  // Format: importSources/{import_source}/periods/{period}
+  // Format: organizations/{organization}/importSources/{import_source}/periods/{period}
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/ImportSourcePeriod"}
@@ -113,7 +113,7 @@ message CloseImportSourcePeriodRequest {
 
 message DeleteImportSourcePeriodRequest {
   // The resource name of the period.
-  // Format: importSources/{import_source}/periods/{period}
+  // Format: organizations/{organization}/importSources/{import_source}/periods/{period}
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/ImportSourcePeriod"}
@@ -127,7 +127,7 @@ service ImportSourcePeriodService {
   // Gets a single period by resource name.
   rpc GetImportSourcePeriod(GetImportSourcePeriodRequest) returns (ImportSourcePeriod) {
     option (google.api.http) = {
-      get: "/v1/{name=importSources/*/periods/*}"
+      get: "/v1/{name=organizations/*/importSources/*/periods/*}"
     };
     option (google.api.method_signature) = "name";
   }
@@ -135,7 +135,7 @@ service ImportSourcePeriodService {
   // Lists periods for an import source.
   rpc ListImportSourcePeriods(ListImportSourcePeriodsRequest) returns (ListImportSourcePeriodsResponse) {
     option (google.api.http) = {
-      get: "/v1/{parent=importSources/*}/periods"
+      get: "/v1/{parent=organizations/*/importSources/*}/periods"
     };
     option (google.api.method_signature) = "parent";
   }
@@ -143,7 +143,7 @@ service ImportSourcePeriodService {
   // Creates a new period.
   rpc CreateImportSourcePeriod(CreateImportSourcePeriodRequest) returns (ImportSourcePeriod) {
     option (google.api.http) = {
-      post: "/v1/{parent=importSources/*}/periods"
+      post: "/v1/{parent=organizations/*/importSources/*}/periods"
       body: "period"
     };
     option (google.api.method_signature) = "parent,period";
@@ -152,7 +152,7 @@ service ImportSourcePeriodService {
   // Closes a period, preventing new imports.
   rpc CloseImportSourcePeriod(CloseImportSourcePeriodRequest) returns (ImportSourcePeriod) {
     option (google.api.http) = {
-      post: "/v1/{name=importSources/*/periods/*}:close"
+      post: "/v1/{name=organizations/*/importSources/*/periods/*}:close"
       body: "*"
     };
     option (google.api.method_signature) = "name";
@@ -161,7 +161,7 @@ service ImportSourcePeriodService {
   // Permanently deletes a period.
   rpc DeleteImportSourcePeriod(DeleteImportSourcePeriodRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/v1/{name=importSources/*/periods/*}"
+      delete: "/v1/{name=organizations/*/importSources/*/periods/*}"
     };
     option (google.api.method_signature) = "name";
   }

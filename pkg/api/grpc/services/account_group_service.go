@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 
+	"github.com/google/uuid"
 	gen "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
@@ -25,7 +26,11 @@ func newAccountGroupServiceServer(repo *repository.AccountGroupRepository) gen.A
 }
 
 func (s *accountGroupServiceServer) GetAccountGroup(ctx context.Context, req *gen.GetAccountGroupRequest) (*gen.AccountGroup, error) {
-	id, err := idFromName(req.Name, "accountGroups/")
+	var n gen.AccountGroupResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid account_group name")
+	}
+	id, err := uuid.Parse(n.AccountGroup)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid account_group name")
 	}
@@ -105,7 +110,11 @@ func (s *accountGroupServiceServer) UpdateAccountGroup(ctx context.Context, req 
 	if req.AccountGroup == nil {
 		return nil, status.Error(codes.InvalidArgument, "account_group is required")
 	}
-	id, err := idFromName(req.AccountGroup.Name, "accountGroups/")
+	var n gen.AccountGroupResourceName
+	if err := n.UnmarshalString(req.AccountGroup.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid account_group name")
+	}
+	id, err := uuid.Parse(n.AccountGroup)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid account_group name")
 	}
@@ -125,7 +134,11 @@ func (s *accountGroupServiceServer) UpdateAccountGroup(ctx context.Context, req 
 }
 
 func (s *accountGroupServiceServer) DeleteAccountGroup(ctx context.Context, req *gen.DeleteAccountGroupRequest) (*emptypb.Empty, error) {
-	id, err := idFromName(req.Name, "accountGroups/")
+	var n gen.AccountGroupResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid account_group name")
+	}
+	id, err := uuid.Parse(n.AccountGroup)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid account_group name")
 	}

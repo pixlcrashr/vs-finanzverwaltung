@@ -17,18 +17,18 @@ import "google/protobuf/timestamp.proto";
 message AccountGroupAssignment {
   option (google.api.resource) = {
     type: "vsfv.pixlcrashr.dev/AccountGroupAssignment"
-    pattern: "accountGroups/{account_group}/assignments/{assignment}"
+    pattern: "organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}"
   };
 
   // The resource name of the assignment.
-  // Format: accountGroups/{account_group}/assignments/{assignment}
+  // Format: organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}
   string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The UUID of the assignment.
   string uid = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The resource name of the parent account group.
-  // Format: accountGroups/{account_group}
+  // Format: organizations/{organization}/accountGroups/{account_group}
   string account_group = 3 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/AccountGroup"}
@@ -49,7 +49,7 @@ message AccountGroupAssignment {
 
 message GetAccountGroupAssignmentRequest {
   // The resource name of the assignment.
-  // Format: accountGroups/{account_group}/assignments/{assignment}
+  // Format: organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/AccountGroupAssignment"}
@@ -58,7 +58,7 @@ message GetAccountGroupAssignmentRequest {
 
 message ListAccountGroupAssignmentsRequest {
   // The parent account group resource name.
-  // Format: accountGroups/{account_group}
+  // Format: organizations/{organization}/accountGroups/{account_group}
   string parent = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/AccountGroup"}
@@ -93,7 +93,7 @@ message ListAccountGroupAssignmentsResponse {
 
 message CreateAccountGroupAssignmentRequest {
   // The parent account group resource name.
-  // Format: accountGroups/{account_group}
+  // Format: organizations/{organization}/accountGroups/{account_group}
   string parent = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/AccountGroup"}
@@ -113,7 +113,7 @@ message UpdateAccountGroupAssignmentRequest {
 
 message DeleteAccountGroupAssignmentRequest {
   // The resource name of the assignment.
-  // Format: accountGroups/{account_group}/assignments/{assignment}
+  // Format: organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/AccountGroupAssignment"}
@@ -127,7 +127,7 @@ service AccountGroupAssignmentService {
   // Gets a single assignment by resource name.
   rpc GetAccountGroupAssignment(GetAccountGroupAssignmentRequest) returns (AccountGroupAssignment) {
     option (google.api.http) = {
-      get: "/v1/{name=accountGroups/*/assignments/*}"
+      get: "/v1/{name=organizations/*/accountGroups/*/assignments/*}"
     };
     option (google.api.method_signature) = "name";
   }
@@ -135,7 +135,7 @@ service AccountGroupAssignmentService {
   // Lists assignments for an account group.
   rpc ListAccountGroupAssignments(ListAccountGroupAssignmentsRequest) returns (ListAccountGroupAssignmentsResponse) {
     option (google.api.http) = {
-      get: "/v1/{parent=accountGroups/*}/assignments"
+      get: "/v1/{parent=organizations/*/accountGroups/*}/assignments"
     };
     option (google.api.method_signature) = "parent";
   }
@@ -143,7 +143,7 @@ service AccountGroupAssignmentService {
   // Creates a new assignment.
   rpc CreateAccountGroupAssignment(CreateAccountGroupAssignmentRequest) returns (AccountGroupAssignment) {
     option (google.api.http) = {
-      post: "/v1/{parent=accountGroups/*}/assignments"
+      post: "/v1/{parent=organizations/*/accountGroups/*}/assignments"
       body: "assignment"
     };
     option (google.api.method_signature) = "parent,assignment";
@@ -152,7 +152,7 @@ service AccountGroupAssignmentService {
   // Updates an existing assignment.
   rpc UpdateAccountGroupAssignment(UpdateAccountGroupAssignmentRequest) returns (AccountGroupAssignment) {
     option (google.api.http) = {
-      patch: "/v1/{assignment.name=accountGroups/*/assignments/*}"
+      patch: "/v1/{assignment.name=organizations/*/accountGroups/*/assignments/*}"
       body: "assignment"
     };
     option (google.api.method_signature) = "assignment,update_mask";
@@ -161,7 +161,7 @@ service AccountGroupAssignmentService {
   // Permanently deletes an assignment.
   rpc DeleteAccountGroupAssignment(DeleteAccountGroupAssignmentRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/v1/{name=accountGroups/*/assignments/*}"
+      delete: "/v1/{name=organizations/*/accountGroups/*/assignments/*}"
     };
     option (google.api.method_signature) = "name";
   }

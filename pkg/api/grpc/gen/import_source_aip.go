@@ -14,10 +14,26 @@ import (
 )
 
 type ImportSourceResourceName struct {
+	Organization string
 	ImportSource string
 }
 
+func (n OrganizationResourceName) ImportSourceResourceName(
+	importSource string,
+) ImportSourceResourceName {
+	return ImportSourceResourceName{
+		Organization: n.Organization,
+		ImportSource: importSource,
+	}
+}
+
 func (n ImportSourceResourceName) Validate() error {
+	if n.Organization == "" {
+		return fmt.Errorf("organization: empty")
+	}
+	if strings.IndexByte(n.Organization, '/') != -1 {
+		return fmt.Errorf("organization: contains illegal character '/'")
+	}
 	if n.ImportSource == "" {
 		return fmt.Errorf("import_source: empty")
 	}
@@ -28,12 +44,13 @@ func (n ImportSourceResourceName) Validate() error {
 }
 
 func (n ImportSourceResourceName) ContainsWildcard() bool {
-	return false || n.ImportSource == "-"
+	return false || n.Organization == "-" || n.ImportSource == "-"
 }
 
 func (n ImportSourceResourceName) String() string {
 	return resourcename.Sprint(
-		"importSources/{import_source}",
+		"organizations/{organization}/importSources/{import_source}",
+		n.Organization,
 		n.ImportSource,
 	)
 }
@@ -56,7 +73,8 @@ func (n ImportSourceResourceName) MarshalText() ([]byte, error) {
 func (n *ImportSourceResourceName) UnmarshalString(name string) error {
 	err := resourcename.Sscan(
 		name,
-		"importSources/{import_source}",
+		"organizations/{organization}/importSources/{import_source}",
+		&n.Organization,
 		&n.ImportSource,
 	)
 	if err != nil {
@@ -72,4 +90,10 @@ func (n *ImportSourceResourceName) UnmarshalText(text []byte) error {
 
 func (n ImportSourceResourceName) Type() string {
 	return "vsfv.pixlcrashr.dev/ImportSource"
+}
+
+func (n ImportSourceResourceName) OrganizationResourceName() OrganizationResourceName {
+	return OrganizationResourceName{
+		Organization: n.Organization,
+	}
 }

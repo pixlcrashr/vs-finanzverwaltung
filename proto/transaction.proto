@@ -12,16 +12,17 @@ import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
+import "decimal.proto";
 
 // Transaction represents a financial transaction between two transaction accounts.
 message Transaction {
   option (google.api.resource) = {
     type: "vsfv.pixlcrashr.dev/Transaction"
-    pattern: "transactions/{transaction}"
+    pattern: "organizations/{organization}/transactions/{transaction}"
   };
 
   // The resource name of the transaction.
-  // Format: transactions/{transaction}
+  // Format: organizations/{organization}/transactions/{transaction}
   string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The UUID of the transaction.
@@ -33,8 +34,8 @@ message Transaction {
   // UUID of the debit transaction account.
   string debit_transaction_account_id = 4 [(google.api.field_behavior) = REQUIRED];
 
-  // Transaction amount as decimal string (e.g. "123.45").
-  string amount = 5 [(google.api.field_behavior) = REQUIRED];
+  // Transaction amount.
+  Decimal amount = 5 [(google.api.field_behavior) = REQUIRED];
 
   // Human-readable transaction description.
   string description = 6 [(google.api.field_behavior) = OPTIONAL];
@@ -63,7 +64,7 @@ message Transaction {
 
 message GetTransactionRequest {
   // The resource name of the transaction.
-  // Format: transactions/{transaction}
+  // Format: organizations/{organization}/transactions/{transaction}
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Transaction"}
@@ -71,21 +72,28 @@ message GetTransactionRequest {
 }
 
 message ListTransactionsRequest {
+  // The parent organization resource name.
+  // Format: organizations/{organization}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Organization"}
+  ];
+
   // Maximum number of transactions to return. The service may return fewer.
   // If unspecified, at most 20 are returned. Maximum value is 100.
-  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
 
   // A page token from a previous ListTransactions call.
-  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
 
   // Filter expression conforming to AIP-160.
   // Supported fields: credit_transaction_account_id, debit_transaction_account_id,
   // booked_at, document_date, amount.
   // Example: "credit_transaction_account_id=\"<uuid>\" AND booked_at>=\"2025-01-01T00:00:00Z\"".
-  string filter = 3 [(google.api.field_behavior) = OPTIONAL];
+  string filter = 4 [(google.api.field_behavior) = OPTIONAL];
 
   // Order by expression (e.g. "booked_at desc", "amount").
-  string order_by = 4 [(google.api.field_behavior) = OPTIONAL];
+  string order_by = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message ListTransactionsResponse {
@@ -100,8 +108,15 @@ message ListTransactionsResponse {
 }
 
 message CreateTransactionRequest {
+  // The parent organization resource name.
+  // Format: organizations/{organization}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Organization"}
+  ];
+
   // The transaction to create.
-  Transaction transaction = 1 [(google.api.field_behavior) = REQUIRED];
+  Transaction transaction = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
 message UpdateTransactionRequest {
@@ -114,7 +129,7 @@ message UpdateTransactionRequest {
 
 message DeleteTransactionRequest {
   // The resource name of the transaction.
-  // Format: transactions/{transaction}
+  // Format: organizations/{organization}/transactions/{transaction}
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Transaction"}
@@ -128,7 +143,7 @@ service TransactionService {
   // Gets a single transaction by resource name.
   rpc GetTransaction(GetTransactionRequest) returns (Transaction) {
     option (google.api.http) = {
-      get: "/v1/{name=transactions/*}"
+      get: "/v1/{name=organizations/*/transactions/*}"
     };
     option (google.api.method_signature) = "name";
   }
@@ -136,23 +151,24 @@ service TransactionService {
   // Lists transactions with keyset pagination and optional filters.
   rpc ListTransactions(ListTransactionsRequest) returns (ListTransactionsResponse) {
     option (google.api.http) = {
-      get: "/v1/transactions"
+      get: "/v1/{parent=organizations/*}/transactions"
     };
+    option (google.api.method_signature) = "parent";
   }
 
   // Creates a new transaction.
   rpc CreateTransaction(CreateTransactionRequest) returns (Transaction) {
     option (google.api.http) = {
-      post: "/v1/transactions"
+      post: "/v1/{parent=organizations/*}/transactions"
       body: "transaction"
     };
-    option (google.api.method_signature) = "transaction";
+    option (google.api.method_signature) = "parent,transaction";
   }
 
   // Updates an existing transaction.
   rpc UpdateTransaction(UpdateTransactionRequest) returns (Transaction) {
     option (google.api.http) = {
-      patch: "/v1/{transaction.name=transactions/*}"
+      patch: "/v1/{transaction.name=organizations/*/transactions/*}"
       body: "transaction"
     };
     option (google.api.method_signature) = "transaction,update_mask";
@@ -161,7 +177,7 @@ service TransactionService {
   // Permanently deletes a transaction.
   rpc DeleteTransaction(DeleteTransactionRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/v1/{name=transactions/*}"
+      delete: "/v1/{name=organizations/*/transactions/*}"
     };
     option (google.api.method_signature) = "name";
   }

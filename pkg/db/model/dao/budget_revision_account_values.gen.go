@@ -19,22 +19,22 @@ import (
 	"gorm.io/plugin/dbresolver"
 )
 
-func newBudgetTagAccountValue(db *gorm.DB, opts ...gen.DOOption) budgetTagAccountValue {
-	_budgetTagAccountValue := budgetTagAccountValue{}
+func newBudgetRevisionAccountValue(db *gorm.DB, opts ...gen.DOOption) budgetRevisionAccountValue {
+	_budgetRevisionAccountValue := budgetRevisionAccountValue{}
 
-	_budgetTagAccountValue.budgetTagAccountValueDo.UseDB(db, opts...)
-	_budgetTagAccountValue.budgetTagAccountValueDo.UseModel(&model.BudgetTagAccountValue{})
+	_budgetRevisionAccountValue.budgetRevisionAccountValueDo.UseDB(db, opts...)
+	_budgetRevisionAccountValue.budgetRevisionAccountValueDo.UseModel(&model.BudgetRevisionAccountValue{})
 
-	tableName := _budgetTagAccountValue.budgetTagAccountValueDo.TableName()
-	_budgetTagAccountValue.ALL = field.NewAsterisk(tableName)
-	_budgetTagAccountValue.ID = field.NewField(tableName, "id")
-	_budgetTagAccountValue.OrganizationID = field.NewField(tableName, "organization_id")
-	_budgetTagAccountValue.BudgetTagID = field.NewField(tableName, "budget_tag_id")
-	_budgetTagAccountValue.AccountID = field.NewField(tableName, "account_id")
-	_budgetTagAccountValue.Value = field.NewField(tableName, "value")
-	_budgetTagAccountValue.UpdatedAt = field.NewTime(tableName, "updated_at")
-	_budgetTagAccountValue.CreatedAt = field.NewTime(tableName, "created_at")
-	_budgetTagAccountValue.Organization = budgetTagAccountValueBelongsToOrganization{
+	tableName := _budgetRevisionAccountValue.budgetRevisionAccountValueDo.TableName()
+	_budgetRevisionAccountValue.ALL = field.NewAsterisk(tableName)
+	_budgetRevisionAccountValue.ID = field.NewField(tableName, "id")
+	_budgetRevisionAccountValue.OrganizationID = field.NewField(tableName, "organization_id")
+	_budgetRevisionAccountValue.BudgetTagID = field.NewField(tableName, "budget_tag_id")
+	_budgetRevisionAccountValue.AccountID = field.NewField(tableName, "account_id")
+	_budgetRevisionAccountValue.Value = field.NewField(tableName, "value")
+	_budgetRevisionAccountValue.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_budgetRevisionAccountValue.CreatedAt = field.NewTime(tableName, "created_at")
+	_budgetRevisionAccountValue.Organization = budgetRevisionAccountValueBelongsToOrganization{
 		db: db.Session(&gorm.Session{}),
 
 		RelationField: field.NewRelation("Organization", "model.Organization"),
@@ -66,12 +66,12 @@ func newBudgetTagAccountValue(db *gorm.DB, opts ...gen.DOOption) budgetTagAccoun
 				AccountGroupAssignments struct {
 					field.RelationField
 				}
-				BudgetTagAccountValues struct {
+				BudgetRevisionAccountValues struct {
 					field.RelationField
 					Organization struct {
 						field.RelationField
 					}
-					BudgetTag struct {
+					BudgetRevision struct {
 						field.RelationField
 						Organization struct {
 							field.RelationField
@@ -81,17 +81,32 @@ func newBudgetTagAccountValue(db *gorm.DB, opts ...gen.DOOption) budgetTagAccoun
 							Organization struct {
 								field.RelationField
 							}
-							BudgetTags struct {
+							BudgetRevisions struct {
 								field.RelationField
 							}
+							BudgetAccountValues struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								Budget struct {
+									field.RelationField
+								}
+								Account struct {
+									field.RelationField
+								}
+							}
 						}
-						BudgetTagAccountValues struct {
+						BudgetRevisionAccountValues struct {
 							field.RelationField
 						}
 					}
 					Account struct {
 						field.RelationField
 					}
+				}
+				BudgetAccountValues struct {
+					field.RelationField
 				}
 				TransactionAccountAssignments struct {
 					field.RelationField
@@ -187,12 +202,12 @@ func newBudgetTagAccountValue(db *gorm.DB, opts ...gen.DOOption) budgetTagAccoun
 				AccountGroupAssignments struct {
 					field.RelationField
 				}
-				BudgetTagAccountValues struct {
+				BudgetRevisionAccountValues struct {
 					field.RelationField
 					Organization struct {
 						field.RelationField
 					}
-					BudgetTag struct {
+					BudgetRevision struct {
 						field.RelationField
 						Organization struct {
 							field.RelationField
@@ -202,17 +217,32 @@ func newBudgetTagAccountValue(db *gorm.DB, opts ...gen.DOOption) budgetTagAccoun
 							Organization struct {
 								field.RelationField
 							}
-							BudgetTags struct {
+							BudgetRevisions struct {
 								field.RelationField
 							}
+							BudgetAccountValues struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								Budget struct {
+									field.RelationField
+								}
+								Account struct {
+									field.RelationField
+								}
+							}
 						}
-						BudgetTagAccountValues struct {
+						BudgetRevisionAccountValues struct {
 							field.RelationField
 						}
 					}
 					Account struct {
 						field.RelationField
 					}
+				}
+				BudgetAccountValues struct {
+					field.RelationField
 				}
 				TransactionAccountAssignments struct {
 					field.RelationField
@@ -287,12 +317,12 @@ func newBudgetTagAccountValue(db *gorm.DB, opts ...gen.DOOption) budgetTagAccoun
 				}{
 					RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.AccountGroupAssignments", "model.AccountGroupAssignment"),
 				},
-				BudgetTagAccountValues: struct {
+				BudgetRevisionAccountValues: struct {
 					field.RelationField
 					Organization struct {
 						field.RelationField
 					}
-					BudgetTag struct {
+					BudgetRevision struct {
 						field.RelationField
 						Organization struct {
 							field.RelationField
@@ -302,11 +332,23 @@ func newBudgetTagAccountValue(db *gorm.DB, opts ...gen.DOOption) budgetTagAccoun
 							Organization struct {
 								field.RelationField
 							}
-							BudgetTags struct {
+							BudgetRevisions struct {
 								field.RelationField
 							}
+							BudgetAccountValues struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								Budget struct {
+									field.RelationField
+								}
+								Account struct {
+									field.RelationField
+								}
+							}
 						}
-						BudgetTagAccountValues struct {
+						BudgetRevisionAccountValues struct {
 							field.RelationField
 						}
 					}
@@ -314,13 +356,13 @@ func newBudgetTagAccountValue(db *gorm.DB, opts ...gen.DOOption) budgetTagAccoun
 						field.RelationField
 					}
 				}{
-					RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetTagAccountValues", "model.BudgetTagAccountValue"),
+					RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues", "model.BudgetRevisionAccountValue"),
 					Organization: struct {
 						field.RelationField
 					}{
-						RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetTagAccountValues.Organization", "model.Organization"),
+						RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.Organization", "model.Organization"),
 					},
-					BudgetTag: struct {
+					BudgetRevision: struct {
 						field.RelationField
 						Organization struct {
 							field.RelationField
@@ -330,52 +372,110 @@ func newBudgetTagAccountValue(db *gorm.DB, opts ...gen.DOOption) budgetTagAccoun
 							Organization struct {
 								field.RelationField
 							}
-							BudgetTags struct {
+							BudgetRevisions struct {
 								field.RelationField
 							}
+							BudgetAccountValues struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								Budget struct {
+									field.RelationField
+								}
+								Account struct {
+									field.RelationField
+								}
+							}
 						}
-						BudgetTagAccountValues struct {
+						BudgetRevisionAccountValues struct {
 							field.RelationField
 						}
 					}{
-						RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetTagAccountValues.BudgetTag", "model.BudgetTag"),
+						RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.BudgetRevision", "model.BudgetRevision"),
 						Organization: struct {
 							field.RelationField
 						}{
-							RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetTagAccountValues.BudgetTag.Organization", "model.Organization"),
+							RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.BudgetRevision.Organization", "model.Organization"),
 						},
 						Budget: struct {
 							field.RelationField
 							Organization struct {
 								field.RelationField
 							}
-							BudgetTags struct {
+							BudgetRevisions struct {
 								field.RelationField
 							}
+							BudgetAccountValues struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								Budget struct {
+									field.RelationField
+								}
+								Account struct {
+									field.RelationField
+								}
+							}
 						}{
-							RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetTagAccountValues.BudgetTag.Budget", "model.Budget"),
+							RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.BudgetRevision.Budget", "model.Budget"),
 							Organization: struct {
 								field.RelationField
 							}{
-								RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetTagAccountValues.BudgetTag.Budget.Organization", "model.Organization"),
+								RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.BudgetRevision.Budget.Organization", "model.Organization"),
 							},
-							BudgetTags: struct {
+							BudgetRevisions: struct {
 								field.RelationField
 							}{
-								RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetTagAccountValues.BudgetTag.Budget.BudgetTags", "model.BudgetTag"),
+								RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.BudgetRevision.Budget.BudgetRevisions", "model.BudgetRevision"),
+							},
+							BudgetAccountValues: struct {
+								field.RelationField
+								Organization struct {
+									field.RelationField
+								}
+								Budget struct {
+									field.RelationField
+								}
+								Account struct {
+									field.RelationField
+								}
+							}{
+								RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.BudgetRevision.Budget.BudgetAccountValues", "model.BudgetAccountValue"),
+								Organization: struct {
+									field.RelationField
+								}{
+									RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.BudgetRevision.Budget.BudgetAccountValues.Organization", "model.Organization"),
+								},
+								Budget: struct {
+									field.RelationField
+								}{
+									RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.BudgetRevision.Budget.BudgetAccountValues.Budget", "model.Budget"),
+								},
+								Account: struct {
+									field.RelationField
+								}{
+									RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.BudgetRevision.Budget.BudgetAccountValues.Account", "model.Account"),
+								},
 							},
 						},
-						BudgetTagAccountValues: struct {
+						BudgetRevisionAccountValues: struct {
 							field.RelationField
 						}{
-							RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetTagAccountValues.BudgetTag.BudgetTagAccountValues", "model.BudgetTagAccountValue"),
+							RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.BudgetRevision.BudgetRevisionAccountValues", "model.BudgetRevisionAccountValue"),
 						},
 					},
 					Account: struct {
 						field.RelationField
 					}{
-						RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetTagAccountValues.Account", "model.Account"),
+						RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.Account", "model.Account"),
 					},
+				},
+				BudgetAccountValues: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetAccountValues", "model.BudgetAccountValue"),
 				},
 				TransactionAccountAssignments: struct {
 					field.RelationField
@@ -609,15 +709,20 @@ func newBudgetTagAccountValue(db *gorm.DB, opts ...gen.DOOption) budgetTagAccoun
 		}{
 			RelationField: field.NewRelation("Organization.Accounts", "model.Account"),
 		},
-		BudgetTags: struct {
+		BudgetRevisions: struct {
 			field.RelationField
 		}{
-			RelationField: field.NewRelation("Organization.BudgetTags", "model.BudgetTag"),
+			RelationField: field.NewRelation("Organization.BudgetRevisions", "model.BudgetRevision"),
 		},
-		BudgetTagAccountValues: struct {
+		BudgetRevisionAccountValues: struct {
 			field.RelationField
 		}{
-			RelationField: field.NewRelation("Organization.BudgetTagAccountValues", "model.BudgetTagAccountValue"),
+			RelationField: field.NewRelation("Organization.BudgetRevisionAccountValues", "model.BudgetRevisionAccountValue"),
+		},
+		BudgetAccountValues: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Organization.BudgetAccountValues", "model.BudgetAccountValue"),
 		},
 		Budgets: struct {
 			field.RelationField
@@ -677,25 +782,25 @@ func newBudgetTagAccountValue(db *gorm.DB, opts ...gen.DOOption) budgetTagAccoun
 		},
 	}
 
-	_budgetTagAccountValue.BudgetTag = budgetTagAccountValueBelongsToBudgetTag{
+	_budgetRevisionAccountValue.BudgetRevision = budgetRevisionAccountValueBelongsToBudgetRevision{
 		db: db.Session(&gorm.Session{}),
 
-		RelationField: field.NewRelation("BudgetTag", "model.BudgetTag"),
+		RelationField: field.NewRelation("BudgetRevision", "model.BudgetRevision"),
 	}
 
-	_budgetTagAccountValue.Account = budgetTagAccountValueBelongsToAccount{
+	_budgetRevisionAccountValue.Account = budgetRevisionAccountValueBelongsToAccount{
 		db: db.Session(&gorm.Session{}),
 
 		RelationField: field.NewRelation("Account", "model.Account"),
 	}
 
-	_budgetTagAccountValue.fillFieldMap()
+	_budgetRevisionAccountValue.fillFieldMap()
 
-	return _budgetTagAccountValue
+	return _budgetRevisionAccountValue
 }
 
-type budgetTagAccountValue struct {
-	budgetTagAccountValueDo budgetTagAccountValueDo
+type budgetRevisionAccountValue struct {
+	budgetRevisionAccountValueDo budgetRevisionAccountValueDo
 
 	ALL            field.Asterisk
 	ID             field.Field
@@ -705,26 +810,26 @@ type budgetTagAccountValue struct {
 	Value          field.Field
 	UpdatedAt      field.Time
 	CreatedAt      field.Time
-	Organization   budgetTagAccountValueBelongsToOrganization
+	Organization   budgetRevisionAccountValueBelongsToOrganization
 
-	BudgetTag budgetTagAccountValueBelongsToBudgetTag
+	BudgetRevision budgetRevisionAccountValueBelongsToBudgetRevision
 
-	Account budgetTagAccountValueBelongsToAccount
+	Account budgetRevisionAccountValueBelongsToAccount
 
 	fieldMap map[string]field.Expr
 }
 
-func (b budgetTagAccountValue) Table(newTableName string) *budgetTagAccountValue {
-	b.budgetTagAccountValueDo.UseTable(newTableName)
+func (b budgetRevisionAccountValue) Table(newTableName string) *budgetRevisionAccountValue {
+	b.budgetRevisionAccountValueDo.UseTable(newTableName)
 	return b.updateTableName(newTableName)
 }
 
-func (b budgetTagAccountValue) As(alias string) *budgetTagAccountValue {
-	b.budgetTagAccountValueDo.DO = *(b.budgetTagAccountValueDo.As(alias).(*gen.DO))
+func (b budgetRevisionAccountValue) As(alias string) *budgetRevisionAccountValue {
+	b.budgetRevisionAccountValueDo.DO = *(b.budgetRevisionAccountValueDo.As(alias).(*gen.DO))
 	return b.updateTableName(alias)
 }
 
-func (b *budgetTagAccountValue) updateTableName(table string) *budgetTagAccountValue {
+func (b *budgetRevisionAccountValue) updateTableName(table string) *budgetRevisionAccountValue {
 	b.ALL = field.NewAsterisk(table)
 	b.ID = field.NewField(table, "id")
 	b.OrganizationID = field.NewField(table, "organization_id")
@@ -739,19 +844,21 @@ func (b *budgetTagAccountValue) updateTableName(table string) *budgetTagAccountV
 	return b
 }
 
-func (b *budgetTagAccountValue) WithContext(ctx context.Context) IBudgetTagAccountValueDo {
-	return b.budgetTagAccountValueDo.WithContext(ctx)
+func (b *budgetRevisionAccountValue) WithContext(ctx context.Context) IBudgetRevisionAccountValueDo {
+	return b.budgetRevisionAccountValueDo.WithContext(ctx)
 }
 
-func (b budgetTagAccountValue) TableName() string { return b.budgetTagAccountValueDo.TableName() }
-
-func (b budgetTagAccountValue) Alias() string { return b.budgetTagAccountValueDo.Alias() }
-
-func (b budgetTagAccountValue) Columns(cols ...field.Expr) gen.Columns {
-	return b.budgetTagAccountValueDo.Columns(cols...)
+func (b budgetRevisionAccountValue) TableName() string {
+	return b.budgetRevisionAccountValueDo.TableName()
 }
 
-func (b *budgetTagAccountValue) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
+func (b budgetRevisionAccountValue) Alias() string { return b.budgetRevisionAccountValueDo.Alias() }
+
+func (b budgetRevisionAccountValue) Columns(cols ...field.Expr) gen.Columns {
+	return b.budgetRevisionAccountValueDo.Columns(cols...)
+}
+
+func (b *budgetRevisionAccountValue) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	_f, ok := b.fieldMap[fieldName]
 	if !ok || _f == nil {
 		return nil, false
@@ -760,7 +867,7 @@ func (b *budgetTagAccountValue) GetFieldByName(fieldName string) (field.OrderExp
 	return _oe, ok
 }
 
-func (b *budgetTagAccountValue) fillFieldMap() {
+func (b *budgetRevisionAccountValue) fillFieldMap() {
 	b.fieldMap = make(map[string]field.Expr, 10)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["organization_id"] = b.OrganizationID
@@ -772,26 +879,26 @@ func (b *budgetTagAccountValue) fillFieldMap() {
 
 }
 
-func (b budgetTagAccountValue) clone(db *gorm.DB) budgetTagAccountValue {
-	b.budgetTagAccountValueDo.ReplaceConnPool(db.Statement.ConnPool)
+func (b budgetRevisionAccountValue) clone(db *gorm.DB) budgetRevisionAccountValue {
+	b.budgetRevisionAccountValueDo.ReplaceConnPool(db.Statement.ConnPool)
 	b.Organization.db = db.Session(&gorm.Session{Initialized: true})
 	b.Organization.db.Statement.ConnPool = db.Statement.ConnPool
-	b.BudgetTag.db = db.Session(&gorm.Session{Initialized: true})
-	b.BudgetTag.db.Statement.ConnPool = db.Statement.ConnPool
+	b.BudgetRevision.db = db.Session(&gorm.Session{Initialized: true})
+	b.BudgetRevision.db.Statement.ConnPool = db.Statement.ConnPool
 	b.Account.db = db.Session(&gorm.Session{Initialized: true})
 	b.Account.db.Statement.ConnPool = db.Statement.ConnPool
 	return b
 }
 
-func (b budgetTagAccountValue) replaceDB(db *gorm.DB) budgetTagAccountValue {
-	b.budgetTagAccountValueDo.ReplaceDB(db)
+func (b budgetRevisionAccountValue) replaceDB(db *gorm.DB) budgetRevisionAccountValue {
+	b.budgetRevisionAccountValueDo.ReplaceDB(db)
 	b.Organization.db = db.Session(&gorm.Session{})
-	b.BudgetTag.db = db.Session(&gorm.Session{})
+	b.BudgetRevision.db = db.Session(&gorm.Session{})
 	b.Account.db = db.Session(&gorm.Session{})
 	return b
 }
 
-type budgetTagAccountValueBelongsToOrganization struct {
+type budgetRevisionAccountValueBelongsToOrganization struct {
 	db *gorm.DB
 
 	field.RelationField
@@ -824,12 +931,12 @@ type budgetTagAccountValueBelongsToOrganization struct {
 			AccountGroupAssignments struct {
 				field.RelationField
 			}
-			BudgetTagAccountValues struct {
+			BudgetRevisionAccountValues struct {
 				field.RelationField
 				Organization struct {
 					field.RelationField
 				}
-				BudgetTag struct {
+				BudgetRevision struct {
 					field.RelationField
 					Organization struct {
 						field.RelationField
@@ -839,17 +946,32 @@ type budgetTagAccountValueBelongsToOrganization struct {
 						Organization struct {
 							field.RelationField
 						}
-						BudgetTags struct {
+						BudgetRevisions struct {
 							field.RelationField
 						}
+						BudgetAccountValues struct {
+							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							Budget struct {
+								field.RelationField
+							}
+							Account struct {
+								field.RelationField
+							}
+						}
 					}
-					BudgetTagAccountValues struct {
+					BudgetRevisionAccountValues struct {
 						field.RelationField
 					}
 				}
 				Account struct {
 					field.RelationField
 				}
+			}
+			BudgetAccountValues struct {
+				field.RelationField
 			}
 			TransactionAccountAssignments struct {
 				field.RelationField
@@ -910,10 +1032,13 @@ type budgetTagAccountValueBelongsToOrganization struct {
 	Accounts struct {
 		field.RelationField
 	}
-	BudgetTags struct {
+	BudgetRevisions struct {
 		field.RelationField
 	}
-	BudgetTagAccountValues struct {
+	BudgetRevisionAccountValues struct {
+		field.RelationField
+	}
+	BudgetAccountValues struct {
 		field.RelationField
 	}
 	Budgets struct {
@@ -948,7 +1073,7 @@ type budgetTagAccountValueBelongsToOrganization struct {
 	}
 }
 
-func (a budgetTagAccountValueBelongsToOrganization) Where(conds ...field.Expr) *budgetTagAccountValueBelongsToOrganization {
+func (a budgetRevisionAccountValueBelongsToOrganization) Where(conds ...field.Expr) *budgetRevisionAccountValueBelongsToOrganization {
 	if len(conds) == 0 {
 		return &a
 	}
@@ -961,32 +1086,32 @@ func (a budgetTagAccountValueBelongsToOrganization) Where(conds ...field.Expr) *
 	return &a
 }
 
-func (a budgetTagAccountValueBelongsToOrganization) WithContext(ctx context.Context) *budgetTagAccountValueBelongsToOrganization {
+func (a budgetRevisionAccountValueBelongsToOrganization) WithContext(ctx context.Context) *budgetRevisionAccountValueBelongsToOrganization {
 	a.db = a.db.WithContext(ctx)
 	return &a
 }
 
-func (a budgetTagAccountValueBelongsToOrganization) Session(session *gorm.Session) *budgetTagAccountValueBelongsToOrganization {
+func (a budgetRevisionAccountValueBelongsToOrganization) Session(session *gorm.Session) *budgetRevisionAccountValueBelongsToOrganization {
 	a.db = a.db.Session(session)
 	return &a
 }
 
-func (a budgetTagAccountValueBelongsToOrganization) Model(m *model.BudgetTagAccountValue) *budgetTagAccountValueBelongsToOrganizationTx {
-	return &budgetTagAccountValueBelongsToOrganizationTx{a.db.Model(m).Association(a.Name())}
+func (a budgetRevisionAccountValueBelongsToOrganization) Model(m *model.BudgetRevisionAccountValue) *budgetRevisionAccountValueBelongsToOrganizationTx {
+	return &budgetRevisionAccountValueBelongsToOrganizationTx{a.db.Model(m).Association(a.Name())}
 }
 
-func (a budgetTagAccountValueBelongsToOrganization) Unscoped() *budgetTagAccountValueBelongsToOrganization {
+func (a budgetRevisionAccountValueBelongsToOrganization) Unscoped() *budgetRevisionAccountValueBelongsToOrganization {
 	a.db = a.db.Unscoped()
 	return &a
 }
 
-type budgetTagAccountValueBelongsToOrganizationTx struct{ tx *gorm.Association }
+type budgetRevisionAccountValueBelongsToOrganizationTx struct{ tx *gorm.Association }
 
-func (a budgetTagAccountValueBelongsToOrganizationTx) Find() (result *model.Organization, err error) {
+func (a budgetRevisionAccountValueBelongsToOrganizationTx) Find() (result *model.Organization, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a budgetTagAccountValueBelongsToOrganizationTx) Append(values ...*model.Organization) (err error) {
+func (a budgetRevisionAccountValueBelongsToOrganizationTx) Append(values ...*model.Organization) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -994,7 +1119,7 @@ func (a budgetTagAccountValueBelongsToOrganizationTx) Append(values ...*model.Or
 	return a.tx.Append(targetValues...)
 }
 
-func (a budgetTagAccountValueBelongsToOrganizationTx) Replace(values ...*model.Organization) (err error) {
+func (a budgetRevisionAccountValueBelongsToOrganizationTx) Replace(values ...*model.Organization) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1002,7 +1127,7 @@ func (a budgetTagAccountValueBelongsToOrganizationTx) Replace(values ...*model.O
 	return a.tx.Replace(targetValues...)
 }
 
-func (a budgetTagAccountValueBelongsToOrganizationTx) Delete(values ...*model.Organization) (err error) {
+func (a budgetRevisionAccountValueBelongsToOrganizationTx) Delete(values ...*model.Organization) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1010,26 +1135,26 @@ func (a budgetTagAccountValueBelongsToOrganizationTx) Delete(values ...*model.Or
 	return a.tx.Delete(targetValues...)
 }
 
-func (a budgetTagAccountValueBelongsToOrganizationTx) Clear() error {
+func (a budgetRevisionAccountValueBelongsToOrganizationTx) Clear() error {
 	return a.tx.Clear()
 }
 
-func (a budgetTagAccountValueBelongsToOrganizationTx) Count() int64 {
+func (a budgetRevisionAccountValueBelongsToOrganizationTx) Count() int64 {
 	return a.tx.Count()
 }
 
-func (a budgetTagAccountValueBelongsToOrganizationTx) Unscoped() *budgetTagAccountValueBelongsToOrganizationTx {
+func (a budgetRevisionAccountValueBelongsToOrganizationTx) Unscoped() *budgetRevisionAccountValueBelongsToOrganizationTx {
 	a.tx = a.tx.Unscoped()
 	return &a
 }
 
-type budgetTagAccountValueBelongsToBudgetTag struct {
+type budgetRevisionAccountValueBelongsToBudgetRevision struct {
 	db *gorm.DB
 
 	field.RelationField
 }
 
-func (a budgetTagAccountValueBelongsToBudgetTag) Where(conds ...field.Expr) *budgetTagAccountValueBelongsToBudgetTag {
+func (a budgetRevisionAccountValueBelongsToBudgetRevision) Where(conds ...field.Expr) *budgetRevisionAccountValueBelongsToBudgetRevision {
 	if len(conds) == 0 {
 		return &a
 	}
@@ -1042,32 +1167,32 @@ func (a budgetTagAccountValueBelongsToBudgetTag) Where(conds ...field.Expr) *bud
 	return &a
 }
 
-func (a budgetTagAccountValueBelongsToBudgetTag) WithContext(ctx context.Context) *budgetTagAccountValueBelongsToBudgetTag {
+func (a budgetRevisionAccountValueBelongsToBudgetRevision) WithContext(ctx context.Context) *budgetRevisionAccountValueBelongsToBudgetRevision {
 	a.db = a.db.WithContext(ctx)
 	return &a
 }
 
-func (a budgetTagAccountValueBelongsToBudgetTag) Session(session *gorm.Session) *budgetTagAccountValueBelongsToBudgetTag {
+func (a budgetRevisionAccountValueBelongsToBudgetRevision) Session(session *gorm.Session) *budgetRevisionAccountValueBelongsToBudgetRevision {
 	a.db = a.db.Session(session)
 	return &a
 }
 
-func (a budgetTagAccountValueBelongsToBudgetTag) Model(m *model.BudgetTagAccountValue) *budgetTagAccountValueBelongsToBudgetTagTx {
-	return &budgetTagAccountValueBelongsToBudgetTagTx{a.db.Model(m).Association(a.Name())}
+func (a budgetRevisionAccountValueBelongsToBudgetRevision) Model(m *model.BudgetRevisionAccountValue) *budgetRevisionAccountValueBelongsToBudgetRevisionTx {
+	return &budgetRevisionAccountValueBelongsToBudgetRevisionTx{a.db.Model(m).Association(a.Name())}
 }
 
-func (a budgetTagAccountValueBelongsToBudgetTag) Unscoped() *budgetTagAccountValueBelongsToBudgetTag {
+func (a budgetRevisionAccountValueBelongsToBudgetRevision) Unscoped() *budgetRevisionAccountValueBelongsToBudgetRevision {
 	a.db = a.db.Unscoped()
 	return &a
 }
 
-type budgetTagAccountValueBelongsToBudgetTagTx struct{ tx *gorm.Association }
+type budgetRevisionAccountValueBelongsToBudgetRevisionTx struct{ tx *gorm.Association }
 
-func (a budgetTagAccountValueBelongsToBudgetTagTx) Find() (result *model.BudgetTag, err error) {
+func (a budgetRevisionAccountValueBelongsToBudgetRevisionTx) Find() (result *model.BudgetRevision, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a budgetTagAccountValueBelongsToBudgetTagTx) Append(values ...*model.BudgetTag) (err error) {
+func (a budgetRevisionAccountValueBelongsToBudgetRevisionTx) Append(values ...*model.BudgetRevision) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1075,7 +1200,7 @@ func (a budgetTagAccountValueBelongsToBudgetTagTx) Append(values ...*model.Budge
 	return a.tx.Append(targetValues...)
 }
 
-func (a budgetTagAccountValueBelongsToBudgetTagTx) Replace(values ...*model.BudgetTag) (err error) {
+func (a budgetRevisionAccountValueBelongsToBudgetRevisionTx) Replace(values ...*model.BudgetRevision) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1083,7 +1208,7 @@ func (a budgetTagAccountValueBelongsToBudgetTagTx) Replace(values ...*model.Budg
 	return a.tx.Replace(targetValues...)
 }
 
-func (a budgetTagAccountValueBelongsToBudgetTagTx) Delete(values ...*model.BudgetTag) (err error) {
+func (a budgetRevisionAccountValueBelongsToBudgetRevisionTx) Delete(values ...*model.BudgetRevision) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1091,26 +1216,26 @@ func (a budgetTagAccountValueBelongsToBudgetTagTx) Delete(values ...*model.Budge
 	return a.tx.Delete(targetValues...)
 }
 
-func (a budgetTagAccountValueBelongsToBudgetTagTx) Clear() error {
+func (a budgetRevisionAccountValueBelongsToBudgetRevisionTx) Clear() error {
 	return a.tx.Clear()
 }
 
-func (a budgetTagAccountValueBelongsToBudgetTagTx) Count() int64 {
+func (a budgetRevisionAccountValueBelongsToBudgetRevisionTx) Count() int64 {
 	return a.tx.Count()
 }
 
-func (a budgetTagAccountValueBelongsToBudgetTagTx) Unscoped() *budgetTagAccountValueBelongsToBudgetTagTx {
+func (a budgetRevisionAccountValueBelongsToBudgetRevisionTx) Unscoped() *budgetRevisionAccountValueBelongsToBudgetRevisionTx {
 	a.tx = a.tx.Unscoped()
 	return &a
 }
 
-type budgetTagAccountValueBelongsToAccount struct {
+type budgetRevisionAccountValueBelongsToAccount struct {
 	db *gorm.DB
 
 	field.RelationField
 }
 
-func (a budgetTagAccountValueBelongsToAccount) Where(conds ...field.Expr) *budgetTagAccountValueBelongsToAccount {
+func (a budgetRevisionAccountValueBelongsToAccount) Where(conds ...field.Expr) *budgetRevisionAccountValueBelongsToAccount {
 	if len(conds) == 0 {
 		return &a
 	}
@@ -1123,32 +1248,32 @@ func (a budgetTagAccountValueBelongsToAccount) Where(conds ...field.Expr) *budge
 	return &a
 }
 
-func (a budgetTagAccountValueBelongsToAccount) WithContext(ctx context.Context) *budgetTagAccountValueBelongsToAccount {
+func (a budgetRevisionAccountValueBelongsToAccount) WithContext(ctx context.Context) *budgetRevisionAccountValueBelongsToAccount {
 	a.db = a.db.WithContext(ctx)
 	return &a
 }
 
-func (a budgetTagAccountValueBelongsToAccount) Session(session *gorm.Session) *budgetTagAccountValueBelongsToAccount {
+func (a budgetRevisionAccountValueBelongsToAccount) Session(session *gorm.Session) *budgetRevisionAccountValueBelongsToAccount {
 	a.db = a.db.Session(session)
 	return &a
 }
 
-func (a budgetTagAccountValueBelongsToAccount) Model(m *model.BudgetTagAccountValue) *budgetTagAccountValueBelongsToAccountTx {
-	return &budgetTagAccountValueBelongsToAccountTx{a.db.Model(m).Association(a.Name())}
+func (a budgetRevisionAccountValueBelongsToAccount) Model(m *model.BudgetRevisionAccountValue) *budgetRevisionAccountValueBelongsToAccountTx {
+	return &budgetRevisionAccountValueBelongsToAccountTx{a.db.Model(m).Association(a.Name())}
 }
 
-func (a budgetTagAccountValueBelongsToAccount) Unscoped() *budgetTagAccountValueBelongsToAccount {
+func (a budgetRevisionAccountValueBelongsToAccount) Unscoped() *budgetRevisionAccountValueBelongsToAccount {
 	a.db = a.db.Unscoped()
 	return &a
 }
 
-type budgetTagAccountValueBelongsToAccountTx struct{ tx *gorm.Association }
+type budgetRevisionAccountValueBelongsToAccountTx struct{ tx *gorm.Association }
 
-func (a budgetTagAccountValueBelongsToAccountTx) Find() (result *model.Account, err error) {
+func (a budgetRevisionAccountValueBelongsToAccountTx) Find() (result *model.Account, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a budgetTagAccountValueBelongsToAccountTx) Append(values ...*model.Account) (err error) {
+func (a budgetRevisionAccountValueBelongsToAccountTx) Append(values ...*model.Account) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1156,7 +1281,7 @@ func (a budgetTagAccountValueBelongsToAccountTx) Append(values ...*model.Account
 	return a.tx.Append(targetValues...)
 }
 
-func (a budgetTagAccountValueBelongsToAccountTx) Replace(values ...*model.Account) (err error) {
+func (a budgetRevisionAccountValueBelongsToAccountTx) Replace(values ...*model.Account) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1164,7 +1289,7 @@ func (a budgetTagAccountValueBelongsToAccountTx) Replace(values ...*model.Accoun
 	return a.tx.Replace(targetValues...)
 }
 
-func (a budgetTagAccountValueBelongsToAccountTx) Delete(values ...*model.Account) (err error) {
+func (a budgetRevisionAccountValueBelongsToAccountTx) Delete(values ...*model.Account) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1172,61 +1297,61 @@ func (a budgetTagAccountValueBelongsToAccountTx) Delete(values ...*model.Account
 	return a.tx.Delete(targetValues...)
 }
 
-func (a budgetTagAccountValueBelongsToAccountTx) Clear() error {
+func (a budgetRevisionAccountValueBelongsToAccountTx) Clear() error {
 	return a.tx.Clear()
 }
 
-func (a budgetTagAccountValueBelongsToAccountTx) Count() int64 {
+func (a budgetRevisionAccountValueBelongsToAccountTx) Count() int64 {
 	return a.tx.Count()
 }
 
-func (a budgetTagAccountValueBelongsToAccountTx) Unscoped() *budgetTagAccountValueBelongsToAccountTx {
+func (a budgetRevisionAccountValueBelongsToAccountTx) Unscoped() *budgetRevisionAccountValueBelongsToAccountTx {
 	a.tx = a.tx.Unscoped()
 	return &a
 }
 
-type budgetTagAccountValueDo struct{ gen.DO }
+type budgetRevisionAccountValueDo struct{ gen.DO }
 
-type IBudgetTagAccountValueDo interface {
+type IBudgetRevisionAccountValueDo interface {
 	gen.SubQuery
-	Debug() IBudgetTagAccountValueDo
-	WithContext(ctx context.Context) IBudgetTagAccountValueDo
+	Debug() IBudgetRevisionAccountValueDo
+	WithContext(ctx context.Context) IBudgetRevisionAccountValueDo
 	WithResult(fc func(tx gen.Dao)) gen.ResultInfo
 	ReplaceDB(db *gorm.DB)
-	ReadDB() IBudgetTagAccountValueDo
-	WriteDB() IBudgetTagAccountValueDo
+	ReadDB() IBudgetRevisionAccountValueDo
+	WriteDB() IBudgetRevisionAccountValueDo
 	As(alias string) gen.Dao
-	Session(config *gorm.Session) IBudgetTagAccountValueDo
+	Session(config *gorm.Session) IBudgetRevisionAccountValueDo
 	Columns(cols ...field.Expr) gen.Columns
-	Clauses(conds ...clause.Expression) IBudgetTagAccountValueDo
-	Not(conds ...gen.Condition) IBudgetTagAccountValueDo
-	Or(conds ...gen.Condition) IBudgetTagAccountValueDo
-	Select(conds ...field.Expr) IBudgetTagAccountValueDo
-	Where(conds ...gen.Condition) IBudgetTagAccountValueDo
-	Order(conds ...field.Expr) IBudgetTagAccountValueDo
-	Distinct(cols ...field.Expr) IBudgetTagAccountValueDo
-	Omit(cols ...field.Expr) IBudgetTagAccountValueDo
-	Join(table schema.Tabler, on ...field.Expr) IBudgetTagAccountValueDo
-	LeftJoin(table schema.Tabler, on ...field.Expr) IBudgetTagAccountValueDo
-	RightJoin(table schema.Tabler, on ...field.Expr) IBudgetTagAccountValueDo
-	Group(cols ...field.Expr) IBudgetTagAccountValueDo
-	Having(conds ...gen.Condition) IBudgetTagAccountValueDo
-	Limit(limit int) IBudgetTagAccountValueDo
-	Offset(offset int) IBudgetTagAccountValueDo
+	Clauses(conds ...clause.Expression) IBudgetRevisionAccountValueDo
+	Not(conds ...gen.Condition) IBudgetRevisionAccountValueDo
+	Or(conds ...gen.Condition) IBudgetRevisionAccountValueDo
+	Select(conds ...field.Expr) IBudgetRevisionAccountValueDo
+	Where(conds ...gen.Condition) IBudgetRevisionAccountValueDo
+	Order(conds ...field.Expr) IBudgetRevisionAccountValueDo
+	Distinct(cols ...field.Expr) IBudgetRevisionAccountValueDo
+	Omit(cols ...field.Expr) IBudgetRevisionAccountValueDo
+	Join(table schema.Tabler, on ...field.Expr) IBudgetRevisionAccountValueDo
+	LeftJoin(table schema.Tabler, on ...field.Expr) IBudgetRevisionAccountValueDo
+	RightJoin(table schema.Tabler, on ...field.Expr) IBudgetRevisionAccountValueDo
+	Group(cols ...field.Expr) IBudgetRevisionAccountValueDo
+	Having(conds ...gen.Condition) IBudgetRevisionAccountValueDo
+	Limit(limit int) IBudgetRevisionAccountValueDo
+	Offset(offset int) IBudgetRevisionAccountValueDo
 	Count() (count int64, err error)
-	Scopes(funcs ...func(gen.Dao) gen.Dao) IBudgetTagAccountValueDo
-	Unscoped() IBudgetTagAccountValueDo
-	Create(values ...*model.BudgetTagAccountValue) error
-	CreateInBatches(values []*model.BudgetTagAccountValue, batchSize int) error
-	Save(values ...*model.BudgetTagAccountValue) error
-	First() (*model.BudgetTagAccountValue, error)
-	Take() (*model.BudgetTagAccountValue, error)
-	Last() (*model.BudgetTagAccountValue, error)
-	Find() ([]*model.BudgetTagAccountValue, error)
-	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.BudgetTagAccountValue, err error)
-	FindInBatches(result *[]*model.BudgetTagAccountValue, batchSize int, fc func(tx gen.Dao, batch int) error) error
+	Scopes(funcs ...func(gen.Dao) gen.Dao) IBudgetRevisionAccountValueDo
+	Unscoped() IBudgetRevisionAccountValueDo
+	Create(values ...*model.BudgetRevisionAccountValue) error
+	CreateInBatches(values []*model.BudgetRevisionAccountValue, batchSize int) error
+	Save(values ...*model.BudgetRevisionAccountValue) error
+	First() (*model.BudgetRevisionAccountValue, error)
+	Take() (*model.BudgetRevisionAccountValue, error)
+	Last() (*model.BudgetRevisionAccountValue, error)
+	Find() ([]*model.BudgetRevisionAccountValue, error)
+	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.BudgetRevisionAccountValue, err error)
+	FindInBatches(result *[]*model.BudgetRevisionAccountValue, batchSize int, fc func(tx gen.Dao, batch int) error) error
 	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*model.BudgetTagAccountValue) (info gen.ResultInfo, err error)
+	Delete(...*model.BudgetRevisionAccountValue) (info gen.ResultInfo, err error)
 	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
 	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
 	Updates(value interface{}) (info gen.ResultInfo, err error)
@@ -1234,165 +1359,165 @@ type IBudgetTagAccountValueDo interface {
 	UpdateColumnSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
 	UpdateColumns(value interface{}) (info gen.ResultInfo, err error)
 	UpdateFrom(q gen.SubQuery) gen.Dao
-	Attrs(attrs ...field.AssignExpr) IBudgetTagAccountValueDo
-	Assign(attrs ...field.AssignExpr) IBudgetTagAccountValueDo
-	Joins(fields ...field.RelationField) IBudgetTagAccountValueDo
-	Preload(fields ...field.RelationField) IBudgetTagAccountValueDo
-	FirstOrInit() (*model.BudgetTagAccountValue, error)
-	FirstOrCreate() (*model.BudgetTagAccountValue, error)
-	FindByPage(offset int, limit int) (result []*model.BudgetTagAccountValue, count int64, err error)
+	Attrs(attrs ...field.AssignExpr) IBudgetRevisionAccountValueDo
+	Assign(attrs ...field.AssignExpr) IBudgetRevisionAccountValueDo
+	Joins(fields ...field.RelationField) IBudgetRevisionAccountValueDo
+	Preload(fields ...field.RelationField) IBudgetRevisionAccountValueDo
+	FirstOrInit() (*model.BudgetRevisionAccountValue, error)
+	FirstOrCreate() (*model.BudgetRevisionAccountValue, error)
+	FindByPage(offset int, limit int) (result []*model.BudgetRevisionAccountValue, count int64, err error)
 	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
 	Rows() (*sql.Rows, error)
 	Row() *sql.Row
 	Scan(result interface{}) (err error)
-	Returning(value interface{}, columns ...string) IBudgetTagAccountValueDo
+	Returning(value interface{}, columns ...string) IBudgetRevisionAccountValueDo
 	UnderlyingDB() *gorm.DB
 	schema.Tabler
 }
 
-func (b budgetTagAccountValueDo) Debug() IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) Debug() IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.Debug())
 }
 
-func (b budgetTagAccountValueDo) WithContext(ctx context.Context) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) WithContext(ctx context.Context) IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.WithContext(ctx))
 }
 
-func (b budgetTagAccountValueDo) ReadDB() IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) ReadDB() IBudgetRevisionAccountValueDo {
 	return b.Clauses(dbresolver.Read)
 }
 
-func (b budgetTagAccountValueDo) WriteDB() IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) WriteDB() IBudgetRevisionAccountValueDo {
 	return b.Clauses(dbresolver.Write)
 }
 
-func (b budgetTagAccountValueDo) Session(config *gorm.Session) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) Session(config *gorm.Session) IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.Session(config))
 }
 
-func (b budgetTagAccountValueDo) Clauses(conds ...clause.Expression) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) Clauses(conds ...clause.Expression) IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.Clauses(conds...))
 }
 
-func (b budgetTagAccountValueDo) Returning(value interface{}, columns ...string) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) Returning(value interface{}, columns ...string) IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.Returning(value, columns...))
 }
 
-func (b budgetTagAccountValueDo) Not(conds ...gen.Condition) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) Not(conds ...gen.Condition) IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.Not(conds...))
 }
 
-func (b budgetTagAccountValueDo) Or(conds ...gen.Condition) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) Or(conds ...gen.Condition) IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.Or(conds...))
 }
 
-func (b budgetTagAccountValueDo) Select(conds ...field.Expr) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) Select(conds ...field.Expr) IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.Select(conds...))
 }
 
-func (b budgetTagAccountValueDo) Where(conds ...gen.Condition) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) Where(conds ...gen.Condition) IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.Where(conds...))
 }
 
-func (b budgetTagAccountValueDo) Order(conds ...field.Expr) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) Order(conds ...field.Expr) IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.Order(conds...))
 }
 
-func (b budgetTagAccountValueDo) Distinct(cols ...field.Expr) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) Distinct(cols ...field.Expr) IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.Distinct(cols...))
 }
 
-func (b budgetTagAccountValueDo) Omit(cols ...field.Expr) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) Omit(cols ...field.Expr) IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.Omit(cols...))
 }
 
-func (b budgetTagAccountValueDo) Join(table schema.Tabler, on ...field.Expr) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) Join(table schema.Tabler, on ...field.Expr) IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.Join(table, on...))
 }
 
-func (b budgetTagAccountValueDo) LeftJoin(table schema.Tabler, on ...field.Expr) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) LeftJoin(table schema.Tabler, on ...field.Expr) IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.LeftJoin(table, on...))
 }
 
-func (b budgetTagAccountValueDo) RightJoin(table schema.Tabler, on ...field.Expr) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) RightJoin(table schema.Tabler, on ...field.Expr) IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.RightJoin(table, on...))
 }
 
-func (b budgetTagAccountValueDo) Group(cols ...field.Expr) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) Group(cols ...field.Expr) IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.Group(cols...))
 }
 
-func (b budgetTagAccountValueDo) Having(conds ...gen.Condition) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) Having(conds ...gen.Condition) IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.Having(conds...))
 }
 
-func (b budgetTagAccountValueDo) Limit(limit int) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) Limit(limit int) IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.Limit(limit))
 }
 
-func (b budgetTagAccountValueDo) Offset(offset int) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) Offset(offset int) IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.Offset(offset))
 }
 
-func (b budgetTagAccountValueDo) Scopes(funcs ...func(gen.Dao) gen.Dao) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) Scopes(funcs ...func(gen.Dao) gen.Dao) IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.Scopes(funcs...))
 }
 
-func (b budgetTagAccountValueDo) Unscoped() IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) Unscoped() IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.Unscoped())
 }
 
-func (b budgetTagAccountValueDo) Create(values ...*model.BudgetTagAccountValue) error {
+func (b budgetRevisionAccountValueDo) Create(values ...*model.BudgetRevisionAccountValue) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return b.DO.Create(values)
 }
 
-func (b budgetTagAccountValueDo) CreateInBatches(values []*model.BudgetTagAccountValue, batchSize int) error {
+func (b budgetRevisionAccountValueDo) CreateInBatches(values []*model.BudgetRevisionAccountValue, batchSize int) error {
 	return b.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (b budgetTagAccountValueDo) Save(values ...*model.BudgetTagAccountValue) error {
+func (b budgetRevisionAccountValueDo) Save(values ...*model.BudgetRevisionAccountValue) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return b.DO.Save(values)
 }
 
-func (b budgetTagAccountValueDo) First() (*model.BudgetTagAccountValue, error) {
+func (b budgetRevisionAccountValueDo) First() (*model.BudgetRevisionAccountValue, error) {
 	if result, err := b.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.BudgetTagAccountValue), nil
+		return result.(*model.BudgetRevisionAccountValue), nil
 	}
 }
 
-func (b budgetTagAccountValueDo) Take() (*model.BudgetTagAccountValue, error) {
+func (b budgetRevisionAccountValueDo) Take() (*model.BudgetRevisionAccountValue, error) {
 	if result, err := b.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.BudgetTagAccountValue), nil
+		return result.(*model.BudgetRevisionAccountValue), nil
 	}
 }
 
-func (b budgetTagAccountValueDo) Last() (*model.BudgetTagAccountValue, error) {
+func (b budgetRevisionAccountValueDo) Last() (*model.BudgetRevisionAccountValue, error) {
 	if result, err := b.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.BudgetTagAccountValue), nil
+		return result.(*model.BudgetRevisionAccountValue), nil
 	}
 }
 
-func (b budgetTagAccountValueDo) Find() ([]*model.BudgetTagAccountValue, error) {
+func (b budgetRevisionAccountValueDo) Find() ([]*model.BudgetRevisionAccountValue, error) {
 	result, err := b.DO.Find()
-	return result.([]*model.BudgetTagAccountValue), err
+	return result.([]*model.BudgetRevisionAccountValue), err
 }
 
-func (b budgetTagAccountValueDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.BudgetTagAccountValue, err error) {
-	buf := make([]*model.BudgetTagAccountValue, 0, batchSize)
+func (b budgetRevisionAccountValueDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.BudgetRevisionAccountValue, err error) {
+	buf := make([]*model.BudgetRevisionAccountValue, 0, batchSize)
 	err = b.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -1400,49 +1525,49 @@ func (b budgetTagAccountValueDo) FindInBatch(batchSize int, fc func(tx gen.Dao, 
 	return results, err
 }
 
-func (b budgetTagAccountValueDo) FindInBatches(result *[]*model.BudgetTagAccountValue, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (b budgetRevisionAccountValueDo) FindInBatches(result *[]*model.BudgetRevisionAccountValue, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return b.DO.FindInBatches(result, batchSize, fc)
 }
 
-func (b budgetTagAccountValueDo) Attrs(attrs ...field.AssignExpr) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) Attrs(attrs ...field.AssignExpr) IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.Attrs(attrs...))
 }
 
-func (b budgetTagAccountValueDo) Assign(attrs ...field.AssignExpr) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) Assign(attrs ...field.AssignExpr) IBudgetRevisionAccountValueDo {
 	return b.withDO(b.DO.Assign(attrs...))
 }
 
-func (b budgetTagAccountValueDo) Joins(fields ...field.RelationField) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) Joins(fields ...field.RelationField) IBudgetRevisionAccountValueDo {
 	for _, _f := range fields {
 		b = *b.withDO(b.DO.Joins(_f))
 	}
 	return &b
 }
 
-func (b budgetTagAccountValueDo) Preload(fields ...field.RelationField) IBudgetTagAccountValueDo {
+func (b budgetRevisionAccountValueDo) Preload(fields ...field.RelationField) IBudgetRevisionAccountValueDo {
 	for _, _f := range fields {
 		b = *b.withDO(b.DO.Preload(_f))
 	}
 	return &b
 }
 
-func (b budgetTagAccountValueDo) FirstOrInit() (*model.BudgetTagAccountValue, error) {
+func (b budgetRevisionAccountValueDo) FirstOrInit() (*model.BudgetRevisionAccountValue, error) {
 	if result, err := b.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.BudgetTagAccountValue), nil
+		return result.(*model.BudgetRevisionAccountValue), nil
 	}
 }
 
-func (b budgetTagAccountValueDo) FirstOrCreate() (*model.BudgetTagAccountValue, error) {
+func (b budgetRevisionAccountValueDo) FirstOrCreate() (*model.BudgetRevisionAccountValue, error) {
 	if result, err := b.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.BudgetTagAccountValue), nil
+		return result.(*model.BudgetRevisionAccountValue), nil
 	}
 }
 
-func (b budgetTagAccountValueDo) FindByPage(offset int, limit int) (result []*model.BudgetTagAccountValue, count int64, err error) {
+func (b budgetRevisionAccountValueDo) FindByPage(offset int, limit int) (result []*model.BudgetRevisionAccountValue, count int64, err error) {
 	result, err = b.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -1457,7 +1582,7 @@ func (b budgetTagAccountValueDo) FindByPage(offset int, limit int) (result []*mo
 	return
 }
 
-func (b budgetTagAccountValueDo) ScanByPage(result interface{}, offset int, limit int) (count int64, err error) {
+func (b budgetRevisionAccountValueDo) ScanByPage(result interface{}, offset int, limit int) (count int64, err error) {
 	count, err = b.Count()
 	if err != nil {
 		return
@@ -1467,15 +1592,15 @@ func (b budgetTagAccountValueDo) ScanByPage(result interface{}, offset int, limi
 	return
 }
 
-func (b budgetTagAccountValueDo) Scan(result interface{}) (err error) {
+func (b budgetRevisionAccountValueDo) Scan(result interface{}) (err error) {
 	return b.DO.Scan(result)
 }
 
-func (b budgetTagAccountValueDo) Delete(models ...*model.BudgetTagAccountValue) (result gen.ResultInfo, err error) {
+func (b budgetRevisionAccountValueDo) Delete(models ...*model.BudgetRevisionAccountValue) (result gen.ResultInfo, err error) {
 	return b.DO.Delete(models)
 }
 
-func (b *budgetTagAccountValueDo) withDO(do gen.Dao) *budgetTagAccountValueDo {
+func (b *budgetRevisionAccountValueDo) withDO(do gen.Dao) *budgetRevisionAccountValueDo {
 	b.DO = *do.(*gen.DO)
 	return b
 }

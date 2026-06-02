@@ -19,8 +19,9 @@ type Budget struct {
 	CreatedAt          time.Time `gorm:"not null;default:now()"`
 
 	// Relations
-	Organization Organization `gorm:"foreignKey:OrganizationID"`
-	BudgetTags   []BudgetTag  `gorm:"foreignKey:BudgetID"`
+	Organization        Organization         `gorm:"foreignKey:OrganizationID"`
+	BudgetRevisions     []BudgetRevision     `gorm:"foreignKey:BudgetID"`
+	BudgetAccountValues []BudgetAccountValue `gorm:"foreignKey:BudgetID"`
 }
 
 func (Budget) TableName() string { return "budgets" }

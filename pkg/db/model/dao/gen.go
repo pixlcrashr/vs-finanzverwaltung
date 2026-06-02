@@ -21,8 +21,9 @@ var (
 	AccountGroup                 *accountGroup
 	AccountGroupAssignment       *accountGroupAssignment
 	Budget                       *budget
-	BudgetTag                    *budgetTag
-	BudgetTagAccountValue        *budgetTagAccountValue
+	BudgetAccountValue           *budgetAccountValue
+	BudgetRevision               *budgetRevision
+	BudgetRevisionAccountValue   *budgetRevisionAccountValue
 	CasbinRule                   *casbinRule
 	ImportSource                 *importSource
 	ImportSourcePeriod           *importSourcePeriod
@@ -43,8 +44,9 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	AccountGroup = &Q.AccountGroup
 	AccountGroupAssignment = &Q.AccountGroupAssignment
 	Budget = &Q.Budget
-	BudgetTag = &Q.BudgetTag
-	BudgetTagAccountValue = &Q.BudgetTagAccountValue
+	BudgetAccountValue = &Q.BudgetAccountValue
+	BudgetRevision = &Q.BudgetRevision
+	BudgetRevisionAccountValue = &Q.BudgetRevisionAccountValue
 	CasbinRule = &Q.CasbinRule
 	ImportSource = &Q.ImportSource
 	ImportSourcePeriod = &Q.ImportSourcePeriod
@@ -66,8 +68,9 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		AccountGroup:                 newAccountGroup(db, opts...),
 		AccountGroupAssignment:       newAccountGroupAssignment(db, opts...),
 		Budget:                       newBudget(db, opts...),
-		BudgetTag:                    newBudgetTag(db, opts...),
-		BudgetTagAccountValue:        newBudgetTagAccountValue(db, opts...),
+		BudgetAccountValue:           newBudgetAccountValue(db, opts...),
+		BudgetRevision:               newBudgetRevision(db, opts...),
+		BudgetRevisionAccountValue:   newBudgetRevisionAccountValue(db, opts...),
 		CasbinRule:                   newCasbinRule(db, opts...),
 		ImportSource:                 newImportSource(db, opts...),
 		ImportSourcePeriod:           newImportSourcePeriod(db, opts...),
@@ -90,8 +93,9 @@ type Query struct {
 	AccountGroup                 accountGroup
 	AccountGroupAssignment       accountGroupAssignment
 	Budget                       budget
-	BudgetTag                    budgetTag
-	BudgetTagAccountValue        budgetTagAccountValue
+	BudgetAccountValue           budgetAccountValue
+	BudgetRevision               budgetRevision
+	BudgetRevisionAccountValue   budgetRevisionAccountValue
 	CasbinRule                   casbinRule
 	ImportSource                 importSource
 	ImportSourcePeriod           importSourcePeriod
@@ -115,8 +119,9 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		AccountGroup:                 q.AccountGroup.clone(db),
 		AccountGroupAssignment:       q.AccountGroupAssignment.clone(db),
 		Budget:                       q.Budget.clone(db),
-		BudgetTag:                    q.BudgetTag.clone(db),
-		BudgetTagAccountValue:        q.BudgetTagAccountValue.clone(db),
+		BudgetAccountValue:           q.BudgetAccountValue.clone(db),
+		BudgetRevision:               q.BudgetRevision.clone(db),
+		BudgetRevisionAccountValue:   q.BudgetRevisionAccountValue.clone(db),
 		CasbinRule:                   q.CasbinRule.clone(db),
 		ImportSource:                 q.ImportSource.clone(db),
 		ImportSourcePeriod:           q.ImportSourcePeriod.clone(db),
@@ -147,8 +152,9 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		AccountGroup:                 q.AccountGroup.replaceDB(db),
 		AccountGroupAssignment:       q.AccountGroupAssignment.replaceDB(db),
 		Budget:                       q.Budget.replaceDB(db),
-		BudgetTag:                    q.BudgetTag.replaceDB(db),
-		BudgetTagAccountValue:        q.BudgetTagAccountValue.replaceDB(db),
+		BudgetAccountValue:           q.BudgetAccountValue.replaceDB(db),
+		BudgetRevision:               q.BudgetRevision.replaceDB(db),
+		BudgetRevisionAccountValue:   q.BudgetRevisionAccountValue.replaceDB(db),
 		CasbinRule:                   q.CasbinRule.replaceDB(db),
 		ImportSource:                 q.ImportSource.replaceDB(db),
 		ImportSourcePeriod:           q.ImportSourcePeriod.replaceDB(db),
@@ -169,8 +175,9 @@ type queryCtx struct {
 	AccountGroup                 IAccountGroupDo
 	AccountGroupAssignment       IAccountGroupAssignmentDo
 	Budget                       IBudgetDo
-	BudgetTag                    IBudgetTagDo
-	BudgetTagAccountValue        IBudgetTagAccountValueDo
+	BudgetAccountValue           IBudgetAccountValueDo
+	BudgetRevision               IBudgetRevisionDo
+	BudgetRevisionAccountValue   IBudgetRevisionAccountValueDo
 	CasbinRule                   ICasbinRuleDo
 	ImportSource                 IImportSourceDo
 	ImportSourcePeriod           IImportSourcePeriodDo
@@ -191,8 +198,9 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		AccountGroup:                 q.AccountGroup.WithContext(ctx),
 		AccountGroupAssignment:       q.AccountGroupAssignment.WithContext(ctx),
 		Budget:                       q.Budget.WithContext(ctx),
-		BudgetTag:                    q.BudgetTag.WithContext(ctx),
-		BudgetTagAccountValue:        q.BudgetTagAccountValue.WithContext(ctx),
+		BudgetAccountValue:           q.BudgetAccountValue.WithContext(ctx),
+		BudgetRevision:               q.BudgetRevision.WithContext(ctx),
+		BudgetRevisionAccountValue:   q.BudgetRevisionAccountValue.WithContext(ctx),
 		CasbinRule:                   q.CasbinRule.WithContext(ctx),
 		ImportSource:                 q.ImportSource.WithContext(ctx),
 		ImportSourcePeriod:           q.ImportSourcePeriod.WithContext(ctx),

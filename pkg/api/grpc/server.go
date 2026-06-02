@@ -31,11 +31,14 @@ func RegisterRoutes(app *fiber.App, svc *services.Services) {
 
 	ctx := context.Background()
 
+	mustRegister(gen.RegisterOrganizationServiceHandlerServer(ctx, mux, svc.Organization))
 	mustRegister(gen.RegisterAccountServiceHandlerServer(ctx, mux, svc.Account))
 	mustRegister(gen.RegisterAccountGroupServiceHandlerServer(ctx, mux, svc.AccountGroup))
 	mustRegister(gen.RegisterAccountGroupAssignmentServiceHandlerServer(ctx, mux, svc.AccountGroupAssignment))
 	mustRegister(gen.RegisterBudgetServiceHandlerServer(ctx, mux, svc.Budget))
-	mustRegister(gen.RegisterBudgetTagServiceHandlerServer(ctx, mux, svc.BudgetTag))
+	mustRegister(gen.RegisterBudgetRevisionServiceHandlerServer(ctx, mux, svc.BudgetRevision))
+	mustRegister(gen.RegisterBudgetRevisionAccountValueServiceHandlerServer(ctx, mux, svc.BudgetRevisionAccountValue))
+	mustRegister(gen.RegisterBudgetAccountValueServiceHandlerServer(ctx, mux, svc.BudgetAccountValue))
 	mustRegister(gen.RegisterImportSourceServiceHandlerServer(ctx, mux, svc.ImportSource))
 	mustRegister(gen.RegisterImportSourcePeriodServiceHandlerServer(ctx, mux, svc.ImportSourcePeriod))
 	mustRegister(gen.RegisterTransactionServiceHandlerServer(ctx, mux, svc.Transaction))

@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 
+	"github.com/google/uuid"
 	gen "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
@@ -25,7 +26,11 @@ func newReportServiceServer(repo *repository.ReportRepository) gen.ReportService
 }
 
 func (s *reportServiceServer) GetReport(ctx context.Context, req *gen.GetReportRequest) (*gen.Report, error) {
-	id, err := idFromName(req.Name, "reports/")
+	var n gen.ReportResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid report name")
+	}
+	id, err := uuid.Parse(n.Report)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid report name")
 	}
@@ -101,7 +106,11 @@ func (s *reportServiceServer) CreateReport(ctx context.Context, req *gen.CreateR
 }
 
 func (s *reportServiceServer) DeleteReport(ctx context.Context, req *gen.DeleteReportRequest) (*emptypb.Empty, error) {
-	id, err := idFromName(req.Name, "reports/")
+	var n gen.ReportResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid report name")
+	}
+	id, err := uuid.Parse(n.Report)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid report name")
 	}

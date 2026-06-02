@@ -304,7 +304,7 @@ func RegisterAccountGroupAssignmentServiceHandlerServer(ctx context.Context, mux
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.AccountGroupAssignmentService/GetAccountGroupAssignment", runtime.WithHTTPPathPattern("/v1/{name=accountGroups/*/assignments/*}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.AccountGroupAssignmentService/GetAccountGroupAssignment", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/accountGroups/*/assignments/*}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -324,7 +324,7 @@ func RegisterAccountGroupAssignmentServiceHandlerServer(ctx context.Context, mux
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.AccountGroupAssignmentService/ListAccountGroupAssignments", runtime.WithHTTPPathPattern("/v1/{parent=accountGroups/*}/assignments"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.AccountGroupAssignmentService/ListAccountGroupAssignments", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*/accountGroups/*}/assignments"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -344,7 +344,7 @@ func RegisterAccountGroupAssignmentServiceHandlerServer(ctx context.Context, mux
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.AccountGroupAssignmentService/CreateAccountGroupAssignment", runtime.WithHTTPPathPattern("/v1/{parent=accountGroups/*}/assignments"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.AccountGroupAssignmentService/CreateAccountGroupAssignment", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*/accountGroups/*}/assignments"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -364,7 +364,7 @@ func RegisterAccountGroupAssignmentServiceHandlerServer(ctx context.Context, mux
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.AccountGroupAssignmentService/UpdateAccountGroupAssignment", runtime.WithHTTPPathPattern("/v1/{assignment.name=accountGroups/*/assignments/*}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.AccountGroupAssignmentService/UpdateAccountGroupAssignment", runtime.WithHTTPPathPattern("/v1/{assignment.name=organizations/*/accountGroups/*/assignments/*}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -384,7 +384,7 @@ func RegisterAccountGroupAssignmentServiceHandlerServer(ctx context.Context, mux
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.AccountGroupAssignmentService/DeleteAccountGroupAssignment", runtime.WithHTTPPathPattern("/v1/{name=accountGroups/*/assignments/*}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.AccountGroupAssignmentService/DeleteAccountGroupAssignment", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/accountGroups/*/assignments/*}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -442,7 +442,7 @@ func RegisterAccountGroupAssignmentServiceHandlerClient(ctx context.Context, mux
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.AccountGroupAssignmentService/GetAccountGroupAssignment", runtime.WithHTTPPathPattern("/v1/{name=accountGroups/*/assignments/*}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.AccountGroupAssignmentService/GetAccountGroupAssignment", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/accountGroups/*/assignments/*}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -459,7 +459,7 @@ func RegisterAccountGroupAssignmentServiceHandlerClient(ctx context.Context, mux
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.AccountGroupAssignmentService/ListAccountGroupAssignments", runtime.WithHTTPPathPattern("/v1/{parent=accountGroups/*}/assignments"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.AccountGroupAssignmentService/ListAccountGroupAssignments", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*/accountGroups/*}/assignments"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -476,7 +476,7 @@ func RegisterAccountGroupAssignmentServiceHandlerClient(ctx context.Context, mux
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.AccountGroupAssignmentService/CreateAccountGroupAssignment", runtime.WithHTTPPathPattern("/v1/{parent=accountGroups/*}/assignments"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.AccountGroupAssignmentService/CreateAccountGroupAssignment", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*/accountGroups/*}/assignments"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -493,7 +493,7 @@ func RegisterAccountGroupAssignmentServiceHandlerClient(ctx context.Context, mux
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.AccountGroupAssignmentService/UpdateAccountGroupAssignment", runtime.WithHTTPPathPattern("/v1/{assignment.name=accountGroups/*/assignments/*}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.AccountGroupAssignmentService/UpdateAccountGroupAssignment", runtime.WithHTTPPathPattern("/v1/{assignment.name=organizations/*/accountGroups/*/assignments/*}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -510,7 +510,7 @@ func RegisterAccountGroupAssignmentServiceHandlerClient(ctx context.Context, mux
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.AccountGroupAssignmentService/DeleteAccountGroupAssignment", runtime.WithHTTPPathPattern("/v1/{name=accountGroups/*/assignments/*}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.AccountGroupAssignmentService/DeleteAccountGroupAssignment", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/accountGroups/*/assignments/*}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -527,11 +527,11 @@ func RegisterAccountGroupAssignmentServiceHandlerClient(ctx context.Context, mux
 }
 
 var (
-	pattern_AccountGroupAssignmentService_GetAccountGroupAssignment_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3}, []string{"v1", "accountGroups", "assignments", "name"}, ""))
-	pattern_AccountGroupAssignmentService_ListAccountGroupAssignments_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 2, 5, 2, 2, 3}, []string{"v1", "accountGroups", "parent", "assignments"}, ""))
-	pattern_AccountGroupAssignmentService_CreateAccountGroupAssignment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 2, 5, 2, 2, 3}, []string{"v1", "accountGroups", "parent", "assignments"}, ""))
-	pattern_AccountGroupAssignmentService_UpdateAccountGroupAssignment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3}, []string{"v1", "accountGroups", "assignments", "assignment.name"}, ""))
-	pattern_AccountGroupAssignmentService_DeleteAccountGroupAssignment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3}, []string{"v1", "accountGroups", "assignments", "name"}, ""))
+	pattern_AccountGroupAssignmentService_GetAccountGroupAssignment_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 2, 3, 1, 0, 4, 6, 5, 4}, []string{"v1", "organizations", "accountGroups", "assignments", "name"}, ""))
+	pattern_AccountGroupAssignmentService_ListAccountGroupAssignments_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3, 2, 4}, []string{"v1", "organizations", "accountGroups", "parent", "assignments"}, ""))
+	pattern_AccountGroupAssignmentService_CreateAccountGroupAssignment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3, 2, 4}, []string{"v1", "organizations", "accountGroups", "parent", "assignments"}, ""))
+	pattern_AccountGroupAssignmentService_UpdateAccountGroupAssignment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 2, 3, 1, 0, 4, 6, 5, 4}, []string{"v1", "organizations", "accountGroups", "assignments", "assignment.name"}, ""))
+	pattern_AccountGroupAssignmentService_DeleteAccountGroupAssignment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 2, 3, 1, 0, 4, 6, 5, 4}, []string{"v1", "organizations", "accountGroups", "assignments", "name"}, ""))
 )
 
 var (

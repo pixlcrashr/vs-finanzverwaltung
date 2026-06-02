@@ -17,8 +17,9 @@ type Organization struct {
 	AccountGroupAssignments       []AccountGroupAssignment       `gorm:"foreignKey:OrganizationID"`
 	AccountGroups                 []AccountGroup                 `gorm:"foreignKey:OrganizationID"`
 	Accounts                      []Account                      `gorm:"foreignKey:OrganizationID"`
-	BudgetTags                    []BudgetTag                    `gorm:"foreignKey:OrganizationID"`
-	BudgetTagAccountValues        []BudgetTagAccountValue        `gorm:"foreignKey:OrganizationID"`
+	BudgetRevisions               []BudgetRevision               `gorm:"foreignKey:OrganizationID"`
+	BudgetRevisionAccountValues   []BudgetRevisionAccountValue   `gorm:"foreignKey:OrganizationID"`
+	BudgetAccountValues           []BudgetAccountValue           `gorm:"foreignKey:OrganizationID"`
 	Budgets                       []Budget                       `gorm:"foreignKey:OrganizationID"`
 	ImportSourcePeriods           []ImportSourcePeriod           `gorm:"foreignKey:OrganizationID"`
 	ImportSources                 []ImportSource                 `gorm:"foreignKey:OrganizationID"`

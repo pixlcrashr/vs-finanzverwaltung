@@ -14,10 +14,26 @@ import (
 )
 
 type AccountGroupResourceName struct {
+	Organization string
 	AccountGroup string
 }
 
+func (n OrganizationResourceName) AccountGroupResourceName(
+	accountGroup string,
+) AccountGroupResourceName {
+	return AccountGroupResourceName{
+		Organization: n.Organization,
+		AccountGroup: accountGroup,
+	}
+}
+
 func (n AccountGroupResourceName) Validate() error {
+	if n.Organization == "" {
+		return fmt.Errorf("organization: empty")
+	}
+	if strings.IndexByte(n.Organization, '/') != -1 {
+		return fmt.Errorf("organization: contains illegal character '/'")
+	}
 	if n.AccountGroup == "" {
 		return fmt.Errorf("account_group: empty")
 	}
@@ -28,12 +44,13 @@ func (n AccountGroupResourceName) Validate() error {
 }
 
 func (n AccountGroupResourceName) ContainsWildcard() bool {
-	return false || n.AccountGroup == "-"
+	return false || n.Organization == "-" || n.AccountGroup == "-"
 }
 
 func (n AccountGroupResourceName) String() string {
 	return resourcename.Sprint(
-		"accountGroups/{account_group}",
+		"organizations/{organization}/accountGroups/{account_group}",
+		n.Organization,
 		n.AccountGroup,
 	)
 }
@@ -56,7 +73,8 @@ func (n AccountGroupResourceName) MarshalText() ([]byte, error) {
 func (n *AccountGroupResourceName) UnmarshalString(name string) error {
 	err := resourcename.Sscan(
 		name,
-		"accountGroups/{account_group}",
+		"organizations/{organization}/accountGroups/{account_group}",
+		&n.Organization,
 		&n.AccountGroup,
 	)
 	if err != nil {
@@ -72,4 +90,10 @@ func (n *AccountGroupResourceName) UnmarshalText(text []byte) error {
 
 func (n AccountGroupResourceName) Type() string {
 	return "vsfv.pixlcrashr.dev/AccountGroup"
+}
+
+func (n AccountGroupResourceName) OrganizationResourceName() OrganizationResourceName {
+	return OrganizationResourceName{
+		Organization: n.Organization,
+	}
 }

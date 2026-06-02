@@ -1,0 +1,119 @@
+syntax = "proto3";
+
+package pixlcrashr.vsfv.v1;
+
+option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/timestamp.proto";
+import "decimal.proto";
+
+// BudgetRevisionAccountValue is an immutable record of a single account's
+// target value as captured at the time its parent BudgetRevision was created.
+// This resource is read-only; it cannot be created, updated, or deleted
+// directly — it is populated by the server when the parent BudgetRevision is
+// created.
+message BudgetRevisionAccountValue {
+  option (google.api.resource) = {
+    type: "vsfv.pixlcrashr.dev/BudgetRevisionAccountValue"
+    pattern: "organizations/{organization}/budgets/{budget}/revisions/{revision}/accountValues/{account_value}"
+  };
+
+  // The resource name of the budget revision account value.
+  // Format: organizations/{organization}/budgets/{budget}/revisions/{revision}/accountValues/{account_value}
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The UUID of this record.
+  string uid = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The resource name of the parent revision.
+  // Format: organizations/{organization}/budgets/{budget}/revisions/{revision}
+  string revision = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/BudgetRevision"}
+  ];
+
+  // The UUID of the account whose value is recorded here.
+  string account_id = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Account"}
+  ];
+
+  // The target monetary value for the account at the time the revision was
+  // created.
+  Decimal value = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Timestamp when this record was created (equals the revision create_time).
+  google.protobuf.Timestamp create_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message GetBudgetRevisionAccountValueRequest {
+  // The resource name of the budget revision account value.
+  // Format: organizations/{organization}/budgets/{budget}/revisions/{revision}/accountValues/{account_value}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/BudgetRevisionAccountValue"}
+  ];
+}
+
+message ListBudgetRevisionAccountValuesRequest {
+  // The parent revision resource name.
+  // Format: organizations/{organization}/budgets/{budget}/revisions/{revision}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/BudgetRevision"}
+  ];
+
+  // Maximum number of account values to return. The service may return fewer.
+  // If unspecified, at most 50 are returned. Maximum value is 200.
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // A page token from a previous ListBudgetRevisionAccountValues call.
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter expression conforming to AIP-160.
+  // Supported fields: account_id.
+  // Example: "account_id=\"<uuid>\"".
+  string filter = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order by expression (e.g. "account_id", "value desc").
+  string order_by = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ListBudgetRevisionAccountValuesResponse {
+  // The account values returned.
+  repeated BudgetRevisionAccountValue account_values = 1;
+
+  // A token to retrieve the next page of results.
+  string next_page_token = 2;
+
+  // Total number of account values in this revision.
+  int64 total_size = 3;
+}
+
+// BudgetRevisionAccountValueService provides read-only access to the
+// per-account values captured within a BudgetRevision. All resources in this
+// service are immutable and server-managed.
+service BudgetRevisionAccountValueService {
+  option (google.api.default_host) = "vsfv.pixlcrashr.dev";
+
+  // Gets a single budget revision account value by resource name.
+  rpc GetBudgetRevisionAccountValue(GetBudgetRevisionAccountValueRequest) returns (BudgetRevisionAccountValue) {
+    option (google.api.http) = {
+      get: "/v1/{name=organizations/*/budgets/*/revisions/*/accountValues/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+
+  // Lists the account values captured in a revision, with pagination.
+  rpc ListBudgetRevisionAccountValues(ListBudgetRevisionAccountValuesRequest) returns (ListBudgetRevisionAccountValuesResponse) {
+    option (google.api.http) = {
+      get: "/v1/{parent=organizations/*/budgets/*/revisions/*}/accountValues"
+    };
+    option (google.api.method_signature) = "parent";
+  }
+}

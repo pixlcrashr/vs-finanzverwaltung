@@ -8,11 +8,14 @@ import (
 
 // Services holds all gRPC service server implementations.
 type Services struct {
+	Organization                 gen.OrganizationServiceServer
 	Account                      gen.AccountServiceServer
 	AccountGroup                 gen.AccountGroupServiceServer
 	AccountGroupAssignment       gen.AccountGroupAssignmentServiceServer
 	Budget                       gen.BudgetServiceServer
-	BudgetTag                    gen.BudgetTagServiceServer
+	BudgetRevision               gen.BudgetRevisionServiceServer
+	BudgetRevisionAccountValue   gen.BudgetRevisionAccountValueServiceServer
+	BudgetAccountValue           gen.BudgetAccountValueServiceServer
 	ImportSource                 gen.ImportSourceServiceServer
 	ImportSourcePeriod           gen.ImportSourcePeriodServiceServer
 	Transaction                  gen.TransactionServiceServer
@@ -26,11 +29,14 @@ type Services struct {
 // backed by repositories constructed from db.
 func New(db *gorm.DB) *Services {
 	return &Services{
+		Organization:                 newOrganizationServiceServer(repository.NewOrganizationRepository(db)),
 		Account:                      newAccountServiceServer(repository.NewAccountRepository(db)),
 		AccountGroup:                 newAccountGroupServiceServer(repository.NewAccountGroupRepository(db)),
 		AccountGroupAssignment:       newAccountGroupAssignmentServiceServer(repository.NewAccountGroupAssignmentRepository(db)),
 		Budget:                       newBudgetServiceServer(repository.NewBudgetRepository(db)),
-		BudgetTag:                    newBudgetTagServiceServer(repository.NewBudgetTagRepository(db)),
+		BudgetRevision:               newBudgetRevisionServiceServer(repository.NewBudgetRevisionRepository(db)),
+		BudgetRevisionAccountValue:   newBudgetRevisionAccountValueServiceServer(repository.NewBudgetRevisionAccountValueRepository(db)),
+		BudgetAccountValue:           newBudgetAccountValueServiceServer(),
 		ImportSource:                 newImportSourceServiceServer(repository.NewImportSourceRepository(db)),
 		ImportSourcePeriod:           newImportSourcePeriodServiceServer(repository.NewImportSourcePeriodRepository(db)),
 		Transaction:                  newTransactionServiceServer(repository.NewTransactionRepository(db)),

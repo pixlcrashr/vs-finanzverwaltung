@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 
+	"github.com/google/uuid"
 	gen "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
@@ -25,7 +26,11 @@ func newReportTemplateServiceServer(repo *repository.ReportTemplateRepository) g
 }
 
 func (s *reportTemplateServiceServer) GetReportTemplate(ctx context.Context, req *gen.GetReportTemplateRequest) (*gen.ReportTemplate, error) {
-	id, err := idFromName(req.Name, "reportTemplates/")
+	var n gen.ReportTemplateResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid report template name")
+	}
+	id, err := uuid.Parse(n.ReportTemplate)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid report template name")
 	}
@@ -105,7 +110,11 @@ func (s *reportTemplateServiceServer) UpdateReportTemplate(ctx context.Context, 
 	if req.ReportTemplate == nil {
 		return nil, status.Error(codes.InvalidArgument, "report_template is required")
 	}
-	id, err := idFromName(req.ReportTemplate.Name, "reportTemplates/")
+	var n gen.ReportTemplateResourceName
+	if err := n.UnmarshalString(req.ReportTemplate.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid report template name")
+	}
+	id, err := uuid.Parse(n.ReportTemplate)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid report template name")
 	}
@@ -125,7 +134,11 @@ func (s *reportTemplateServiceServer) UpdateReportTemplate(ctx context.Context, 
 }
 
 func (s *reportTemplateServiceServer) DeleteReportTemplate(ctx context.Context, req *gen.DeleteReportTemplateRequest) (*emptypb.Empty, error) {
-	id, err := idFromName(req.Name, "reportTemplates/")
+	var n gen.ReportTemplateResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid report template name")
+	}
+	id, err := uuid.Parse(n.ReportTemplate)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid report template name")
 	}

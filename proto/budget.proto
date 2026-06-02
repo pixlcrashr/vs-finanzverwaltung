@@ -18,11 +18,11 @@ import "google/type/date.proto";
 message Budget {
   option (google.api.resource) = {
     type: "vsfv.pixlcrashr.dev/Budget"
-    pattern: "budgets/{budget}"
+    pattern: "organizations/{organization}/budgets/{budget}"
   };
 
   // The resource name of the budget.
-  // Format: budgets/{budget}
+  // Format: organizations/{organization}/budgets/{budget}
   string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The UUID of the budget.
@@ -52,7 +52,7 @@ message Budget {
 
 message GetBudgetRequest {
   // The resource name of the budget.
-  // Format: budgets/{budget}
+  // Format: organizations/{organization}/budgets/{budget}
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Budget"}
@@ -60,23 +60,30 @@ message GetBudgetRequest {
 }
 
 message ListBudgetsRequest {
+  // The parent organization resource name.
+  // Format: organizations/{organization}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Organization"}
+  ];
+
   // Maximum number of budgets to return. The service may return fewer.
   // If unspecified, at most 20 are returned. Maximum value is 100.
-  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
 
   // A page token from a previous ListBudgets call.
-  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
 
   // Filter expression conforming to AIP-160.
   // Supported fields: display_name, is_closed.
   // Example: "is_closed=false" or "display_name=\"FY2025\"".
-  string filter = 3 [(google.api.field_behavior) = OPTIONAL];
+  string filter = 4 [(google.api.field_behavior) = OPTIONAL];
 
   // If true, closed budgets are included in results.
-  bool show_deleted = 4 [(google.api.field_behavior) = OPTIONAL];
+  bool show_deleted = 5 [(google.api.field_behavior) = OPTIONAL];
 
   // Order by expression (e.g. "display_name", "period_start desc").
-  string order_by = 5 [(google.api.field_behavior) = OPTIONAL];
+  string order_by = 6 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message ListBudgetsResponse {
@@ -91,8 +98,15 @@ message ListBudgetsResponse {
 }
 
 message CreateBudgetRequest {
+  // The parent organization resource name.
+  // Format: organizations/{organization}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Organization"}
+  ];
+
   // The budget to create.
-  Budget budget = 1 [(google.api.field_behavior) = REQUIRED];
+  Budget budget = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
 message UpdateBudgetRequest {
@@ -105,7 +119,7 @@ message UpdateBudgetRequest {
 
 message DeleteBudgetRequest {
   // The resource name of the budget.
-  // Format: budgets/{budget}
+  // Format: organizations/{organization}/budgets/{budget}
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Budget"}
@@ -114,7 +128,7 @@ message DeleteBudgetRequest {
 
 message CloseBudgetRequest {
   // The resource name of the budget to close.
-  // Format: budgets/{budget}
+  // Format: organizations/{organization}/budgets/{budget}
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Budget"}
@@ -128,7 +142,7 @@ service BudgetService {
   // Gets a single budget by resource name.
   rpc GetBudget(GetBudgetRequest) returns (Budget) {
     option (google.api.http) = {
-      get: "/v1/{name=budgets/*}"
+      get: "/v1/{name=organizations/*/budgets/*}"
     };
     option (google.api.method_signature) = "name";
   }
@@ -136,23 +150,24 @@ service BudgetService {
   // Lists budgets with pagination.
   rpc ListBudgets(ListBudgetsRequest) returns (ListBudgetsResponse) {
     option (google.api.http) = {
-      get: "/v1/budgets"
+      get: "/v1/{parent=organizations/*}/budgets"
     };
+    option (google.api.method_signature) = "parent";
   }
 
   // Creates a new budget.
   rpc CreateBudget(CreateBudgetRequest) returns (Budget) {
     option (google.api.http) = {
-      post: "/v1/budgets"
+      post: "/v1/{parent=organizations/*}/budgets"
       body: "budget"
     };
-    option (google.api.method_signature) = "budget";
+    option (google.api.method_signature) = "parent,budget";
   }
 
   // Updates an existing budget.
   rpc UpdateBudget(UpdateBudgetRequest) returns (Budget) {
     option (google.api.http) = {
-      patch: "/v1/{budget.name=budgets/*}"
+      patch: "/v1/{budget.name=organizations/*/budgets/*}"
       body: "budget"
     };
     option (google.api.method_signature) = "budget,update_mask";
@@ -161,7 +176,7 @@ service BudgetService {
   // Closes a budget, marking it as no longer active.
   rpc CloseBudget(CloseBudgetRequest) returns (Budget) {
     option (google.api.http) = {
-      post: "/v1/{name=budgets/*}:close"
+      post: "/v1/{name=organizations/*/budgets/*}:close"
       body: "*"
     };
     option (google.api.method_signature) = "name";
@@ -170,7 +185,7 @@ service BudgetService {
   // Permanently deletes a budget.
   rpc DeleteBudget(DeleteBudgetRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/v1/{name=budgets/*}"
+      delete: "/v1/{name=organizations/*/budgets/*}"
     };
     option (google.api.method_signature) = "name";
   }

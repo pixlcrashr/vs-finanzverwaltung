@@ -1,0 +1,86 @@
+package repository
+
+import (
+	"context"
+
+	"github.com/google/uuid"
+	"github.com/pixlcrashr/vsfv/pkg/db/model"
+	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
+	"github.com/pixlcrashr/vsfv/pkg/query/cond"
+	"github.com/pixlcrashr/vsfv/pkg/query/order"
+	"gorm.io/gorm"
+)
+
+// ListBudgetRevisionAccountValuesParams drives the List query.
+type ListBudgetRevisionAccountValuesParams struct {
+	BudgetRevisionID uuid.UUID
+	Cond             cond.Cond
+	OrderBy          []order.Expr
+	Page             int
+	PageSize         int
+}
+
+func budgetRevisionAccountValueColumnMapper(field string) (string, bool) {
+	switch field {
+	case "account_id":
+		return "account_id", true
+	default:
+		return "", false
+	}
+}
+
+// BudgetRevisionAccountValueRepository provides read-only access to budget_revision_account_values.
+type BudgetRevisionAccountValueRepository struct {
+	db *gorm.DB
+	q  *dao.Query
+}
+
+// NewBudgetRevisionAccountValueRepository creates a repository backed by db.
+func NewBudgetRevisionAccountValueRepository(db *gorm.DB) *BudgetRevisionAccountValueRepository {
+	return &BudgetRevisionAccountValueRepository{db: db, q: dao.Use(db)}
+}
+
+// List returns account values for the given revision.
+func (r *BudgetRevisionAccountValueRepository) List(ctx context.Context, params ListBudgetRevisionAccountValuesParams) ([]*model.BudgetRevisionAccountValue, int64, error) {
+	if params.PageSize <= 0 {
+		params.PageSize = 20
+	}
+	if params.Page <= 0 {
+		params.Page = 1
+	}
+
+	db := r.db.WithContext(ctx).Table("budget_revision_account_values").
+		Where("budget_tag_id = ?", params.BudgetRevisionID)
+
+	db = cond.Apply(db, params.Cond, budgetRevisionAccountValueColumnMapper)
+
+	var total int64
+	if err := db.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	if len(params.OrderBy) > 0 {
+		for _, expr := range params.OrderBy {
+			db = db.Order(expr.String())
+		}
+	} else {
+		db = db.Order("created_at ASC")
+	}
+
+	offset := (params.Page - 1) * params.PageSize
+	if offset > 0 {
+		db = db.Offset(offset)
+	}
+	db = db.Limit(params.PageSize)
+
+	var ms []*model.BudgetRevisionAccountValue
+	if err := db.Find(&ms).Error; err != nil {
+		return nil, 0, err
+	}
+	return ms, total, nil
+}
+
+// GetByID returns the account value with the given ID.
+func (r *BudgetRevisionAccountValueRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.BudgetRevisionAccountValue, error) {
+	return r.q.BudgetRevisionAccountValue.WithContext(ctx).Where(r.q.BudgetRevisionAccountValue.ID.Eq(id)).First()
+}

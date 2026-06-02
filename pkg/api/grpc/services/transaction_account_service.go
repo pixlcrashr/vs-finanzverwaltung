@@ -26,7 +26,11 @@ func newTransactionAccountServiceServer(repo *repository.TransactionAccountRepos
 }
 
 func (s *transactionAccountServiceServer) GetTransactionAccount(ctx context.Context, req *gen.GetTransactionAccountRequest) (*gen.TransactionAccount, error) {
-	id, err := idFromName(req.Name, "transactionAccounts/")
+	var n gen.TransactionAccountResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid transaction account name")
+	}
+	id, err := uuid.Parse(n.TransactionAccount)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid transaction account name")
 	}
@@ -112,7 +116,11 @@ func (s *transactionAccountServiceServer) UpdateTransactionAccount(ctx context.C
 	if req.TransactionAccount == nil {
 		return nil, status.Error(codes.InvalidArgument, "transaction_account is required")
 	}
-	id, err := idFromName(req.TransactionAccount.Name, "transactionAccounts/")
+	var n gen.TransactionAccountResourceName
+	if err := n.UnmarshalString(req.TransactionAccount.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid transaction account name")
+	}
+	id, err := uuid.Parse(n.TransactionAccount)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid transaction account name")
 	}
@@ -133,7 +141,11 @@ func (s *transactionAccountServiceServer) UpdateTransactionAccount(ctx context.C
 }
 
 func (s *transactionAccountServiceServer) DeleteTransactionAccount(ctx context.Context, req *gen.DeleteTransactionAccountRequest) (*emptypb.Empty, error) {
-	id, err := idFromName(req.Name, "transactionAccounts/")
+	var n gen.TransactionAccountResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid transaction account name")
+	}
+	id, err := uuid.Parse(n.TransactionAccount)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid transaction account name")
 	}

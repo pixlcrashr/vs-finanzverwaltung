@@ -12,24 +12,25 @@ import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
+import "decimal.proto";
 
 // TransactionAccountAssignment maps a transaction to a budget account with a
 // partial monetary value (split booking).
 message TransactionAccountAssignment {
   option (google.api.resource) = {
     type: "vsfv.pixlcrashr.dev/TransactionAccountAssignment"
-    pattern: "transactions/{transaction}/assignments/{assignment}"
+    pattern: "organizations/{organization}/transactions/{transaction}/assignments/{assignment}"
   };
 
   // The resource name of the assignment.
-  // Format: transactions/{transaction}/assignments/{assignment}
+  // Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
   string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The UUID of the assignment.
   string uid = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The resource name of the parent transaction.
-  // Format: transactions/{transaction}
+  // Format: organizations/{organization}/transactions/{transaction}
   string transaction = 3 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Transaction"}
@@ -38,8 +39,8 @@ message TransactionAccountAssignment {
   // UUID of the budget account this portion of the transaction is assigned to.
   string account_id = 4 [(google.api.field_behavior) = REQUIRED];
 
-  // The decimal value assigned to this account (e.g. "50.00").
-  string value = 5 [(google.api.field_behavior) = REQUIRED];
+  // The decimal value assigned to this account.
+  Decimal value = 5 [(google.api.field_behavior) = REQUIRED];
 
   // Last modification timestamp.
   google.protobuf.Timestamp update_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -50,7 +51,7 @@ message TransactionAccountAssignment {
 
 message GetTransactionAccountAssignmentRequest {
   // The resource name of the assignment.
-  // Format: transactions/{transaction}/assignments/{assignment}
+  // Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/TransactionAccountAssignment"}
@@ -59,7 +60,7 @@ message GetTransactionAccountAssignmentRequest {
 
 message ListTransactionAccountAssignmentsRequest {
   // The parent transaction resource name.
-  // Format: transactions/{transaction}
+  // Format: organizations/{organization}/transactions/{transaction}
   string parent = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Transaction"}
@@ -94,7 +95,7 @@ message ListTransactionAccountAssignmentsResponse {
 
 message CreateTransactionAccountAssignmentRequest {
   // The parent transaction resource name.
-  // Format: transactions/{transaction}
+  // Format: organizations/{organization}/transactions/{transaction}
   string parent = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Transaction"}
@@ -114,7 +115,7 @@ message UpdateTransactionAccountAssignmentRequest {
 
 message DeleteTransactionAccountAssignmentRequest {
   // The resource name of the assignment.
-  // Format: transactions/{transaction}/assignments/{assignment}
+  // Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/TransactionAccountAssignment"}
@@ -128,7 +129,7 @@ service TransactionAccountAssignmentService {
   // Gets a single assignment by resource name.
   rpc GetTransactionAccountAssignment(GetTransactionAccountAssignmentRequest) returns (TransactionAccountAssignment) {
     option (google.api.http) = {
-      get: "/v1/{name=transactions/*/assignments/*}"
+      get: "/v1/{name=organizations/*/transactions/*/assignments/*}"
     };
     option (google.api.method_signature) = "name";
   }
@@ -136,7 +137,7 @@ service TransactionAccountAssignmentService {
   // Lists assignments for a transaction.
   rpc ListTransactionAccountAssignments(ListTransactionAccountAssignmentsRequest) returns (ListTransactionAccountAssignmentsResponse) {
     option (google.api.http) = {
-      get: "/v1/{parent=transactions/*}/assignments"
+      get: "/v1/{parent=organizations/*/transactions/*}/assignments"
     };
     option (google.api.method_signature) = "parent";
   }
@@ -144,7 +145,7 @@ service TransactionAccountAssignmentService {
   // Creates a new assignment.
   rpc CreateTransactionAccountAssignment(CreateTransactionAccountAssignmentRequest) returns (TransactionAccountAssignment) {
     option (google.api.http) = {
-      post: "/v1/{parent=transactions/*}/assignments"
+      post: "/v1/{parent=organizations/*/transactions/*}/assignments"
       body: "assignment"
     };
     option (google.api.method_signature) = "parent,assignment";
@@ -153,7 +154,7 @@ service TransactionAccountAssignmentService {
   // Updates an existing assignment.
   rpc UpdateTransactionAccountAssignment(UpdateTransactionAccountAssignmentRequest) returns (TransactionAccountAssignment) {
     option (google.api.http) = {
-      patch: "/v1/{assignment.name=transactions/*/assignments/*}"
+      patch: "/v1/{assignment.name=organizations/*/transactions/*/assignments/*}"
       body: "assignment"
     };
     option (google.api.method_signature) = "assignment,update_mask";
@@ -162,7 +163,7 @@ service TransactionAccountAssignmentService {
   // Permanently deletes an assignment.
   rpc DeleteTransactionAccountAssignment(DeleteTransactionAccountAssignmentRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/v1/{name=transactions/*/assignments/*}"
+      delete: "/v1/{name=organizations/*/transactions/*/assignments/*}"
     };
     option (google.api.method_signature) = "name";
   }

@@ -14,20 +14,39 @@ import (
 )
 
 type AccountGroupAssignmentResourceName struct {
+	Organization string
 	AccountGroup string
 	Assignment   string
+}
+
+func (n OrganizationResourceName) AccountGroupAssignmentResourceName(
+	accountGroup string,
+	assignment string,
+) AccountGroupAssignmentResourceName {
+	return AccountGroupAssignmentResourceName{
+		Organization: n.Organization,
+		AccountGroup: accountGroup,
+		Assignment:   assignment,
+	}
 }
 
 func (n AccountGroupResourceName) AccountGroupAssignmentResourceName(
 	assignment string,
 ) AccountGroupAssignmentResourceName {
 	return AccountGroupAssignmentResourceName{
+		Organization: n.Organization,
 		AccountGroup: n.AccountGroup,
 		Assignment:   assignment,
 	}
 }
 
 func (n AccountGroupAssignmentResourceName) Validate() error {
+	if n.Organization == "" {
+		return fmt.Errorf("organization: empty")
+	}
+	if strings.IndexByte(n.Organization, '/') != -1 {
+		return fmt.Errorf("organization: contains illegal character '/'")
+	}
 	if n.AccountGroup == "" {
 		return fmt.Errorf("account_group: empty")
 	}
@@ -44,12 +63,13 @@ func (n AccountGroupAssignmentResourceName) Validate() error {
 }
 
 func (n AccountGroupAssignmentResourceName) ContainsWildcard() bool {
-	return false || n.AccountGroup == "-" || n.Assignment == "-"
+	return false || n.Organization == "-" || n.AccountGroup == "-" || n.Assignment == "-"
 }
 
 func (n AccountGroupAssignmentResourceName) String() string {
 	return resourcename.Sprint(
-		"accountGroups/{account_group}/assignments/{assignment}",
+		"organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}",
+		n.Organization,
 		n.AccountGroup,
 		n.Assignment,
 	)
@@ -73,7 +93,8 @@ func (n AccountGroupAssignmentResourceName) MarshalText() ([]byte, error) {
 func (n *AccountGroupAssignmentResourceName) UnmarshalString(name string) error {
 	err := resourcename.Sscan(
 		name,
-		"accountGroups/{account_group}/assignments/{assignment}",
+		"organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}",
+		&n.Organization,
 		&n.AccountGroup,
 		&n.Assignment,
 	)
@@ -92,8 +113,15 @@ func (n AccountGroupAssignmentResourceName) Type() string {
 	return "vsfv.pixlcrashr.dev/AccountGroupAssignment"
 }
 
+func (n AccountGroupAssignmentResourceName) OrganizationResourceName() OrganizationResourceName {
+	return OrganizationResourceName{
+		Organization: n.Organization,
+	}
+}
+
 func (n AccountGroupAssignmentResourceName) AccountGroupResourceName() AccountGroupResourceName {
 	return AccountGroupResourceName{
+		Organization: n.Organization,
 		AccountGroup: n.AccountGroup,
 	}
 }

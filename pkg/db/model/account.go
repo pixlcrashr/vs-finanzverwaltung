@@ -24,7 +24,8 @@ type Account struct {
 	ParentAccount                 *Account                       `gorm:"foreignKey:ParentAccountID"`
 	ChildAccounts                 []Account                      `gorm:"foreignKey:ParentAccountID"`
 	AccountGroupAssignments       []AccountGroupAssignment       `gorm:"foreignKey:AccountID"`
-	BudgetTagAccountValues        []BudgetTagAccountValue        `gorm:"foreignKey:AccountID"`
+	BudgetRevisionAccountValues   []BudgetRevisionAccountValue   `gorm:"foreignKey:AccountID"`
+	BudgetAccountValues           []BudgetAccountValue           `gorm:"foreignKey:AccountID"`
 	TransactionAccountAssignments []TransactionAccountAssignment `gorm:"foreignKey:AccountID"`
 }
 

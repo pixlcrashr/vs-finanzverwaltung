@@ -14,10 +14,26 @@ import (
 )
 
 type AccountResourceName struct {
-	Account string
+	Organization string
+	Account      string
+}
+
+func (n OrganizationResourceName) AccountResourceName(
+	account string,
+) AccountResourceName {
+	return AccountResourceName{
+		Organization: n.Organization,
+		Account:      account,
+	}
 }
 
 func (n AccountResourceName) Validate() error {
+	if n.Organization == "" {
+		return fmt.Errorf("organization: empty")
+	}
+	if strings.IndexByte(n.Organization, '/') != -1 {
+		return fmt.Errorf("organization: contains illegal character '/'")
+	}
 	if n.Account == "" {
 		return fmt.Errorf("account: empty")
 	}
@@ -28,12 +44,13 @@ func (n AccountResourceName) Validate() error {
 }
 
 func (n AccountResourceName) ContainsWildcard() bool {
-	return false || n.Account == "-"
+	return false || n.Organization == "-" || n.Account == "-"
 }
 
 func (n AccountResourceName) String() string {
 	return resourcename.Sprint(
-		"accounts/{account}",
+		"organizations/{organization}/accounts/{account}",
+		n.Organization,
 		n.Account,
 	)
 }
@@ -56,7 +73,8 @@ func (n AccountResourceName) MarshalText() ([]byte, error) {
 func (n *AccountResourceName) UnmarshalString(name string) error {
 	err := resourcename.Sscan(
 		name,
-		"accounts/{account}",
+		"organizations/{organization}/accounts/{account}",
+		&n.Organization,
 		&n.Account,
 	)
 	if err != nil {
@@ -72,4 +90,10 @@ func (n *AccountResourceName) UnmarshalText(text []byte) error {
 
 func (n AccountResourceName) Type() string {
 	return "vsfv.pixlcrashr.dev/Account"
+}
+
+func (n AccountResourceName) OrganizationResourceName() OrganizationResourceName {
+	return OrganizationResourceName{
+		Organization: n.Organization,
+	}
 }

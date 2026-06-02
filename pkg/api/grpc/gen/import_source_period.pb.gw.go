@@ -268,7 +268,7 @@ func RegisterImportSourcePeriodServiceHandlerServer(ctx context.Context, mux *ru
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.ImportSourcePeriodService/GetImportSourcePeriod", runtime.WithHTTPPathPattern("/v1/{name=importSources/*/periods/*}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.ImportSourcePeriodService/GetImportSourcePeriod", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/importSources/*/periods/*}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -288,7 +288,7 @@ func RegisterImportSourcePeriodServiceHandlerServer(ctx context.Context, mux *ru
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.ImportSourcePeriodService/ListImportSourcePeriods", runtime.WithHTTPPathPattern("/v1/{parent=importSources/*}/periods"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.ImportSourcePeriodService/ListImportSourcePeriods", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*/importSources/*}/periods"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -308,7 +308,7 @@ func RegisterImportSourcePeriodServiceHandlerServer(ctx context.Context, mux *ru
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.ImportSourcePeriodService/CreateImportSourcePeriod", runtime.WithHTTPPathPattern("/v1/{parent=importSources/*}/periods"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.ImportSourcePeriodService/CreateImportSourcePeriod", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*/importSources/*}/periods"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -328,7 +328,7 @@ func RegisterImportSourcePeriodServiceHandlerServer(ctx context.Context, mux *ru
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.ImportSourcePeriodService/CloseImportSourcePeriod", runtime.WithHTTPPathPattern("/v1/{name=importSources/*/periods/*}:close"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.ImportSourcePeriodService/CloseImportSourcePeriod", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/importSources/*/periods/*}:close"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -348,7 +348,7 @@ func RegisterImportSourcePeriodServiceHandlerServer(ctx context.Context, mux *ru
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.ImportSourcePeriodService/DeleteImportSourcePeriod", runtime.WithHTTPPathPattern("/v1/{name=importSources/*/periods/*}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.ImportSourcePeriodService/DeleteImportSourcePeriod", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/importSources/*/periods/*}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -406,7 +406,7 @@ func RegisterImportSourcePeriodServiceHandlerClient(ctx context.Context, mux *ru
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.ImportSourcePeriodService/GetImportSourcePeriod", runtime.WithHTTPPathPattern("/v1/{name=importSources/*/periods/*}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.ImportSourcePeriodService/GetImportSourcePeriod", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/importSources/*/periods/*}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -423,7 +423,7 @@ func RegisterImportSourcePeriodServiceHandlerClient(ctx context.Context, mux *ru
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.ImportSourcePeriodService/ListImportSourcePeriods", runtime.WithHTTPPathPattern("/v1/{parent=importSources/*}/periods"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.ImportSourcePeriodService/ListImportSourcePeriods", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*/importSources/*}/periods"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -440,7 +440,7 @@ func RegisterImportSourcePeriodServiceHandlerClient(ctx context.Context, mux *ru
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.ImportSourcePeriodService/CreateImportSourcePeriod", runtime.WithHTTPPathPattern("/v1/{parent=importSources/*}/periods"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.ImportSourcePeriodService/CreateImportSourcePeriod", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*/importSources/*}/periods"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -457,7 +457,7 @@ func RegisterImportSourcePeriodServiceHandlerClient(ctx context.Context, mux *ru
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.ImportSourcePeriodService/CloseImportSourcePeriod", runtime.WithHTTPPathPattern("/v1/{name=importSources/*/periods/*}:close"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.ImportSourcePeriodService/CloseImportSourcePeriod", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/importSources/*/periods/*}:close"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -474,7 +474,7 @@ func RegisterImportSourcePeriodServiceHandlerClient(ctx context.Context, mux *ru
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.ImportSourcePeriodService/DeleteImportSourcePeriod", runtime.WithHTTPPathPattern("/v1/{name=importSources/*/periods/*}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.ImportSourcePeriodService/DeleteImportSourcePeriod", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/importSources/*/periods/*}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -491,11 +491,11 @@ func RegisterImportSourcePeriodServiceHandlerClient(ctx context.Context, mux *ru
 }
 
 var (
-	pattern_ImportSourcePeriodService_GetImportSourcePeriod_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3}, []string{"v1", "importSources", "periods", "name"}, ""))
-	pattern_ImportSourcePeriodService_ListImportSourcePeriods_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 2, 5, 2, 2, 3}, []string{"v1", "importSources", "parent", "periods"}, ""))
-	pattern_ImportSourcePeriodService_CreateImportSourcePeriod_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 2, 5, 2, 2, 3}, []string{"v1", "importSources", "parent", "periods"}, ""))
-	pattern_ImportSourcePeriodService_CloseImportSourcePeriod_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3}, []string{"v1", "importSources", "periods", "name"}, "close"))
-	pattern_ImportSourcePeriodService_DeleteImportSourcePeriod_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3}, []string{"v1", "importSources", "periods", "name"}, ""))
+	pattern_ImportSourcePeriodService_GetImportSourcePeriod_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 2, 3, 1, 0, 4, 6, 5, 4}, []string{"v1", "organizations", "importSources", "periods", "name"}, ""))
+	pattern_ImportSourcePeriodService_ListImportSourcePeriods_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3, 2, 4}, []string{"v1", "organizations", "importSources", "parent", "periods"}, ""))
+	pattern_ImportSourcePeriodService_CreateImportSourcePeriod_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3, 2, 4}, []string{"v1", "organizations", "importSources", "parent", "periods"}, ""))
+	pattern_ImportSourcePeriodService_CloseImportSourcePeriod_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 2, 3, 1, 0, 4, 6, 5, 4}, []string{"v1", "organizations", "importSources", "periods", "name"}, "close"))
+	pattern_ImportSourcePeriodService_DeleteImportSourcePeriod_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 2, 3, 1, 0, 4, 6, 5, 4}, []string{"v1", "organizations", "importSources", "periods", "name"}, ""))
 )
 
 var (

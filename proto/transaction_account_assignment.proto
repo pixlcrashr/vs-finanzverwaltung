@@ -2,9 +2,7 @@ syntax = "proto3";
 
 package pixlcrashr.vsfv.v1;
 
-option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
-option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
-
+import "decimal.proto";
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
@@ -12,7 +10,9 @@ import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
-import "decimal.proto";
+
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
 
 // TransactionAccountAssignment maps a transaction to a budget account with a
 // partial monetary value (split booking).
@@ -128,17 +128,13 @@ service TransactionAccountAssignmentService {
 
   // Gets a single assignment by resource name.
   rpc GetTransactionAccountAssignment(GetTransactionAccountAssignmentRequest) returns (TransactionAccountAssignment) {
-    option (google.api.http) = {
-      get: "/v1/{name=organizations/*/transactions/*/assignments/*}"
-    };
+    option (google.api.http) = {get: "/v1/{name=organizations/*/transactions/*/assignments/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists assignments for a transaction.
   rpc ListTransactionAccountAssignments(ListTransactionAccountAssignmentsRequest) returns (ListTransactionAccountAssignmentsResponse) {
-    option (google.api.http) = {
-      get: "/v1/{parent=organizations/*/transactions/*}/assignments"
-    };
+    option (google.api.http) = {get: "/v1/{parent=organizations/*/transactions/*}/assignments"};
     option (google.api.method_signature) = "parent";
   }
 
@@ -162,9 +158,7 @@ service TransactionAccountAssignmentService {
 
   // Permanently deletes an assignment.
   rpc DeleteTransactionAccountAssignment(DeleteTransactionAccountAssignmentRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/v1/{name=organizations/*/transactions/*/assignments/*}"
-    };
+    option (google.api.http) = {delete: "/v1/{name=organizations/*/transactions/*/assignments/*}"};
     option (google.api.method_signature) = "name";
   }
 }

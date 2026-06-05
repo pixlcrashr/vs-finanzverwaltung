@@ -2,9 +2,6 @@ syntax = "proto3";
 
 package pixlcrashr.vsfv.v1;
 
-option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
-option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
-
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
@@ -12,6 +9,9 @@ import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
 
 // AccountGroup is a named grouping of budget accounts.
 message AccountGroup {
@@ -119,17 +119,13 @@ service AccountGroupService {
 
   // Gets a single account group by resource name.
   rpc GetAccountGroup(GetAccountGroupRequest) returns (AccountGroup) {
-    option (google.api.http) = {
-      get: "/v1/{name=organizations/*/accountGroups/*}"
-    };
+    option (google.api.http) = {get: "/v1/{name=organizations/*/accountGroups/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists account groups with pagination.
   rpc ListAccountGroups(ListAccountGroupsRequest) returns (ListAccountGroupsResponse) {
-    option (google.api.http) = {
-      get: "/v1/{parent=organizations/*}/accountGroups"
-    };
+    option (google.api.http) = {get: "/v1/{parent=organizations/*}/accountGroups"};
     option (google.api.method_signature) = "parent";
   }
 
@@ -153,9 +149,7 @@ service AccountGroupService {
 
   // Permanently deletes an account group.
   rpc DeleteAccountGroup(DeleteAccountGroupRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/v1/{name=organizations/*/accountGroups/*}"
-    };
+    option (google.api.http) = {delete: "/v1/{name=organizations/*/accountGroups/*}"};
     option (google.api.method_signature) = "name";
   }
 }

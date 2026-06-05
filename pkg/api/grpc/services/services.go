@@ -1,8 +1,8 @@
 package services
 
 import (
-	gen "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
+	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"gorm.io/gorm"
 )
 

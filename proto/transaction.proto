@@ -2,9 +2,7 @@ syntax = "proto3";
 
 package pixlcrashr.vsfv.v1;
 
-option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
-option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
-
+import "decimal.proto";
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
@@ -12,7 +10,9 @@ import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
-import "decimal.proto";
+
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
 
 // Transaction represents a financial transaction between two transaction accounts.
 message Transaction {
@@ -142,17 +142,13 @@ service TransactionService {
 
   // Gets a single transaction by resource name.
   rpc GetTransaction(GetTransactionRequest) returns (Transaction) {
-    option (google.api.http) = {
-      get: "/v1/{name=organizations/*/transactions/*}"
-    };
+    option (google.api.http) = {get: "/v1/{name=organizations/*/transactions/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists transactions with keyset pagination and optional filters.
   rpc ListTransactions(ListTransactionsRequest) returns (ListTransactionsResponse) {
-    option (google.api.http) = {
-      get: "/v1/{parent=organizations/*}/transactions"
-    };
+    option (google.api.http) = {get: "/v1/{parent=organizations/*}/transactions"};
     option (google.api.method_signature) = "parent";
   }
 
@@ -176,9 +172,7 @@ service TransactionService {
 
   // Permanently deletes a transaction.
   rpc DeleteTransaction(DeleteTransactionRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/v1/{name=organizations/*/transactions/*}"
-    };
+    option (google.api.http) = {delete: "/v1/{name=organizations/*/transactions/*}"};
     option (google.api.method_signature) = "name";
   }
 }

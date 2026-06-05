@@ -4,11 +4,11 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	gen "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
+	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"go.einride.tech/aip/ordering"
 	"google.golang.org/grpc/codes"
@@ -151,7 +151,16 @@ func (s *accountServiceServer) CreateAccount(ctx context.Context, req *gen.Creat
 	if req.Account == nil {
 		return nil, status.Error(codes.InvalidArgument, "account is required")
 	}
+	var n gen.OrganizationResourceName
+	if err := n.UnmarshalString(req.Parent); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid parent")
+	}
+	orgID, err := uuid.Parse(n.Organization)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid parent")
+	}
 	m := &model.Account{
+		OrganizationID:     orgID,
 		DisplayName:        req.Account.DisplayName,
 		DisplayCode:        req.Account.DisplayCode,
 		DisplayDescription: req.Account.DisplayDescription,

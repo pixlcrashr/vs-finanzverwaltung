@@ -4,11 +4,11 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	gen "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
+	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"go.einride.tech/aip/ordering"
 	"google.golang.org/grpc/codes"
@@ -96,11 +96,20 @@ func (s *transactionAccountServiceServer) CreateTransactionAccount(ctx context.C
 	if req.TransactionAccount == nil {
 		return nil, status.Error(codes.InvalidArgument, "transaction_account is required")
 	}
+	var n gen.OrganizationResourceName
+	if err := n.UnmarshalString(req.Parent); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid parent")
+	}
+	orgID, err := uuid.Parse(n.Organization)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid parent")
+	}
 	srcID, err := uuid.Parse(req.TransactionAccount.ImportSourceId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid import_source_id")
 	}
 	m := &model.TransactionAccount{
+		OrganizationID:     orgID,
 		Code:               req.TransactionAccount.Code,
 		ImportSourceID:     srcID,
 		DisplayName:        req.TransactionAccount.DisplayName,

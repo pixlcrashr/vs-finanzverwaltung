@@ -120,6 +120,12 @@ func (r *TransactionAccountRepository) Update(ctx context.Context, m *model.Tran
 
 // Delete removes the transaction account with the given ID.
 func (r *TransactionAccountRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	_, err := r.q.TransactionAccount.WithContext(ctx).Where(r.q.TransactionAccount.ID.Eq(id)).Delete()
-	return err
+	result, err := r.q.TransactionAccount.WithContext(ctx).Where(r.q.TransactionAccount.ID.Eq(id)).Delete()
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }

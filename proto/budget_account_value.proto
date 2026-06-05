@@ -2,9 +2,7 @@ syntax = "proto3";
 
 package pixlcrashr.vsfv.v1;
 
-option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
-option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
-
+import "decimal.proto";
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
@@ -12,7 +10,9 @@ import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
-import "decimal.proto";
+
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
 
 // BudgetAccountValue associates an account with a numeric target value within
 // a budget. Accounts may optionally be assigned a value; not all accounts in
@@ -132,17 +132,13 @@ service BudgetAccountValueService {
 
   // Gets a single budget account value by resource name.
   rpc GetBudgetAccountValue(GetBudgetAccountValueRequest) returns (BudgetAccountValue) {
-    option (google.api.http) = {
-      get: "/v1/{name=organizations/*/budgets/*/accountValues/*}"
-    };
+    option (google.api.http) = {get: "/v1/{name=organizations/*/budgets/*/accountValues/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists account values for a budget.
   rpc ListBudgetAccountValues(ListBudgetAccountValuesRequest) returns (ListBudgetAccountValuesResponse) {
-    option (google.api.http) = {
-      get: "/v1/{parent=organizations/*/budgets/*}/accountValues"
-    };
+    option (google.api.http) = {get: "/v1/{parent=organizations/*/budgets/*}/accountValues"};
     option (google.api.method_signature) = "parent";
   }
 
@@ -166,9 +162,7 @@ service BudgetAccountValueService {
 
   // Permanently deletes a budget account value.
   rpc DeleteBudgetAccountValue(DeleteBudgetAccountValueRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/v1/{name=organizations/*/budgets/*/accountValues/*}"
-    };
+    option (google.api.http) = {delete: "/v1/{name=organizations/*/budgets/*/accountValues/*}"};
     option (google.api.method_signature) = "name";
   }
 }

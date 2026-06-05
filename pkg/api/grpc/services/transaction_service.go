@@ -4,11 +4,11 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	gen "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
+	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -85,6 +85,14 @@ func (s *transactionServiceServer) CreateTransaction(ctx context.Context, req *g
 	if req.Transaction == nil {
 		return nil, status.Error(codes.InvalidArgument, "transaction is required")
 	}
+	var n gen.OrganizationResourceName
+	if err := n.UnmarshalString(req.Parent); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid parent")
+	}
+	orgID, err := uuid.Parse(n.Organization)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid parent")
+	}
 	t := req.Transaction
 	creditID, err := uuid.Parse(t.CreditTransactionAccountId)
 	if err != nil {
@@ -95,6 +103,7 @@ func (s *transactionServiceServer) CreateTransaction(ctx context.Context, req *g
 		return nil, status.Error(codes.InvalidArgument, "invalid debit_transaction_account_id")
 	}
 	m := &model.Transaction_{
+		OrganizationID:             orgID,
 		CreditTransactionAccountID: creditID,
 		DebitTransactionAccountID:  debitID,
 		Description:                t.Description,

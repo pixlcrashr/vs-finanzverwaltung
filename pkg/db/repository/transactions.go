@@ -209,6 +209,12 @@ func (r *TransactionRepository) Update(ctx context.Context, m *model.Transaction
 
 // Delete removes the transaction with the given ID.
 func (r *TransactionRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	_, err := r.q.Transaction_.WithContext(ctx).Where(r.q.Transaction_.ID.Eq(id)).Delete()
-	return err
+	result, err := r.q.Transaction_.WithContext(ctx).Where(r.q.Transaction_.ID.Eq(id)).Delete()
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }

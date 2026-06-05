@@ -2,9 +2,6 @@ syntax = "proto3";
 
 package pixlcrashr.vsfv.v1;
 
-option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
-option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
-
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
@@ -12,6 +9,9 @@ import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
 
 // AccountGroupAssignment associates an account with an account group.
 message AccountGroupAssignment {
@@ -126,17 +126,13 @@ service AccountGroupAssignmentService {
 
   // Gets a single assignment by resource name.
   rpc GetAccountGroupAssignment(GetAccountGroupAssignmentRequest) returns (AccountGroupAssignment) {
-    option (google.api.http) = {
-      get: "/v1/{name=organizations/*/accountGroups/*/assignments/*}"
-    };
+    option (google.api.http) = {get: "/v1/{name=organizations/*/accountGroups/*/assignments/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists assignments for an account group.
   rpc ListAccountGroupAssignments(ListAccountGroupAssignmentsRequest) returns (ListAccountGroupAssignmentsResponse) {
-    option (google.api.http) = {
-      get: "/v1/{parent=organizations/*/accountGroups/*}/assignments"
-    };
+    option (google.api.http) = {get: "/v1/{parent=organizations/*/accountGroups/*}/assignments"};
     option (google.api.method_signature) = "parent";
   }
 
@@ -160,9 +156,7 @@ service AccountGroupAssignmentService {
 
   // Permanently deletes an assignment.
   rpc DeleteAccountGroupAssignment(DeleteAccountGroupAssignmentRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/v1/{name=organizations/*/accountGroups/*/assignments/*}"
-    };
+    option (google.api.http) = {delete: "/v1/{name=organizations/*/accountGroups/*/assignments/*}"};
     option (google.api.method_signature) = "name";
   }
 }

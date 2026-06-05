@@ -4,10 +4,10 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	gen "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
+	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"go.einride.tech/aip/ordering"
 	"google.golang.org/grpc/codes"

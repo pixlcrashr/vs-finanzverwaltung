@@ -17,7 +17,8 @@ type Config struct {
 }
 
 type Server struct {
-	Address string `mapstructure:"addr"`
+	Address     string `mapstructure:"addr"`
+	GRPCAddress string `mapstructure:"grpc-addr"`
 }
 
 type Database struct {
@@ -70,6 +71,7 @@ func Load(cfgFile string) (*Config, error) {
 	viper.AutomaticEnv()
 
 	viper.SetDefault("server.addr", "127.0.0.1:8080")
+	viper.SetDefault("server.grpc-addr", "127.0.0.1:9090")
 	viper.SetDefault("html2pdf.url", "http://127.0.0.1:8082")
 	viper.SetDefault("app.version", "dev")
 	viper.SetDefault("cors.enabled", false)

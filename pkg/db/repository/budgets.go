@@ -130,6 +130,12 @@ func (r *BudgetRepository) Update(ctx context.Context, m *model.Budget) error {
 
 // Delete removes the budget with the given ID.
 func (r *BudgetRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	_, err := r.q.Budget.WithContext(ctx).Where(r.q.Budget.ID.Eq(id)).Delete()
-	return err
+	result, err := r.q.Budget.WithContext(ctx).Where(r.q.Budget.ID.Eq(id)).Delete()
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }

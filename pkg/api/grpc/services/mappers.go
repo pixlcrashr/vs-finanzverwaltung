@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	gen "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
+	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	gdate "google.golang.org/genproto/googleapis/type/date"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -14,25 +14,39 @@ import (
 // resourceName helpers
 
 func organizationName(id uuid.UUID) string { return fmt.Sprintf("organizations/%s", id) }
-func accountName(id uuid.UUID) string      { return fmt.Sprintf("accounts/%s", id) }
-func accountGroupName(id uuid.UUID) string { return fmt.Sprintf("accountGroups/%s", id) }
-func assignmentName(groupID, id uuid.UUID) string {
-	return fmt.Sprintf("accountGroups/%s/assignments/%s", groupID, id)
+func accountName(orgID, id uuid.UUID) string {
+	return fmt.Sprintf("organizations/%s/accounts/%s", orgID, id)
 }
-func budgetName(id uuid.UUID) string       { return fmt.Sprintf("budgets/%s", id) }
-func importSourceName(id uuid.UUID) string { return fmt.Sprintf("importSources/%s", id) }
-func importSourcePeriodName(srcID, id uuid.UUID) string {
-	return fmt.Sprintf("importSources/%s/periods/%s", srcID, id)
+func accountGroupName(orgID, id uuid.UUID) string {
+	return fmt.Sprintf("organizations/%s/accountGroups/%s", orgID, id)
 }
-func transactionName(id uuid.UUID) string { return fmt.Sprintf("transactions/%s", id) }
-func transactionAccountName(id uuid.UUID) string {
-	return fmt.Sprintf("transactionAccounts/%s", id)
+func assignmentName(orgID, groupID, id uuid.UUID) string {
+	return fmt.Sprintf("organizations/%s/accountGroups/%s/assignments/%s", orgID, groupID, id)
 }
-func txAssignmentName(txID, id uuid.UUID) string {
-	return fmt.Sprintf("transactions/%s/assignments/%s", txID, id)
+func budgetName(orgID, id uuid.UUID) string {
+	return fmt.Sprintf("organizations/%s/budgets/%s", orgID, id)
 }
-func reportTemplateName(id uuid.UUID) string { return fmt.Sprintf("reportTemplates/%s", id) }
-func reportName(id uuid.UUID) string         { return fmt.Sprintf("reports/%s", id) }
+func importSourceName(orgID, id uuid.UUID) string {
+	return fmt.Sprintf("organizations/%s/importSources/%s", orgID, id)
+}
+func importSourcePeriodName(orgID, srcID, id uuid.UUID) string {
+	return fmt.Sprintf("organizations/%s/importSources/%s/periods/%s", orgID, srcID, id)
+}
+func transactionName(orgID, id uuid.UUID) string {
+	return fmt.Sprintf("organizations/%s/transactions/%s", orgID, id)
+}
+func transactionAccountName(orgID, id uuid.UUID) string {
+	return fmt.Sprintf("organizations/%s/transactionAccounts/%s", orgID, id)
+}
+func txAssignmentName(orgID, txID, id uuid.UUID) string {
+	return fmt.Sprintf("organizations/%s/transactions/%s/assignments/%s", orgID, txID, id)
+}
+func reportTemplateName(orgID, id uuid.UUID) string {
+	return fmt.Sprintf("organizations/%s/reportTemplates/%s", orgID, id)
+}
+func reportName(orgID, id uuid.UUID) string {
+	return fmt.Sprintf("organizations/%s/reports/%s", orgID, id)
+}
 
 // ts converts time.Time → *timestamppb.Timestamp.
 func ts(t time.Time) *timestamppb.Timestamp { return timestamppb.New(t) }
@@ -68,7 +82,7 @@ func OrganizationToProto(m *model.Organization) *gen.Organization {
 // AccountToProto maps a model.Account to its proto representation.
 func AccountToProto(m *model.Account) *gen.Account {
 	p := &gen.Account{
-		Name:               accountName(m.ID),
+		Name:               accountName(m.OrganizationID, m.ID),
 		Uid:                m.ID.String(),
 		DisplayName:        m.DisplayName,
 		DisplayCode:        m.DisplayCode,
@@ -79,7 +93,7 @@ func AccountToProto(m *model.Account) *gen.Account {
 		CreateTime:         ts(m.CreatedAt),
 	}
 	if m.ParentAccountID.Valid {
-		p.ParentAccount = accountName(m.ParentAccountID.UUID)
+		p.ParentAccount = accountName(m.OrganizationID, m.ParentAccountID.UUID)
 	}
 	return p
 }
@@ -87,7 +101,7 @@ func AccountToProto(m *model.Account) *gen.Account {
 // NestedAccountToProto maps model.Account to gen.NestedAccount (without children; caller fills them).
 func NestedAccountToProto(m *model.Account) *gen.NestedAccount {
 	p := &gen.NestedAccount{
-		Name:               accountName(m.ID),
+		Name:               accountName(m.OrganizationID, m.ID),
 		Uid:                m.ID.String(),
 		DisplayName:        m.DisplayName,
 		DisplayCode:        m.DisplayCode,
@@ -98,7 +112,7 @@ func NestedAccountToProto(m *model.Account) *gen.NestedAccount {
 		CreateTime:         ts(m.CreatedAt),
 	}
 	if m.ParentAccountID.Valid {
-		p.ParentAccount = accountName(m.ParentAccountID.UUID)
+		p.ParentAccount = accountName(m.OrganizationID, m.ParentAccountID.UUID)
 	}
 	return p
 }
@@ -106,7 +120,7 @@ func NestedAccountToProto(m *model.Account) *gen.NestedAccount {
 // AccountGroupToProto maps a model.AccountGroup to its proto representation.
 func AccountGroupToProto(m *model.AccountGroup) *gen.AccountGroup {
 	return &gen.AccountGroup{
-		Name:               accountGroupName(m.ID),
+		Name:               accountGroupName(m.OrganizationID, m.ID),
 		Uid:                m.ID.String(),
 		DisplayName:        m.DisplayName,
 		DisplayDescription: m.DisplayDescription,
@@ -118,9 +132,9 @@ func AccountGroupToProto(m *model.AccountGroup) *gen.AccountGroup {
 // AccountGroupAssignmentToProto maps a model.AccountGroupAssignment to its proto representation.
 func AccountGroupAssignmentToProto(m *model.AccountGroupAssignment) *gen.AccountGroupAssignment {
 	return &gen.AccountGroupAssignment{
-		Name:         assignmentName(m.AccountGroupID, m.ID),
+		Name:         assignmentName(m.OrganizationID, m.AccountGroupID, m.ID),
 		Uid:          m.ID.String(),
-		AccountGroup: accountGroupName(m.AccountGroupID),
+		AccountGroup: accountGroupName(m.OrganizationID, m.AccountGroupID),
 		AccountId:    m.AccountID.String(),
 		Negate:       m.Negate,
 		UpdateTime:   ts(m.UpdatedAt),
@@ -131,7 +145,7 @@ func AccountGroupAssignmentToProto(m *model.AccountGroupAssignment) *gen.Account
 // BudgetToProto maps a model.Budget to its proto representation.
 func BudgetToProto(m *model.Budget) *gen.Budget {
 	return &gen.Budget{
-		Name:               budgetName(m.ID),
+		Name:               budgetName(m.OrganizationID, m.ID),
 		Uid:                m.ID.String(),
 		DisplayName:        m.DisplayName,
 		DisplayDescription: m.DisplayDescription,
@@ -143,20 +157,20 @@ func BudgetToProto(m *model.Budget) *gen.Budget {
 	}
 }
 
-func budgetRevisionName(budgetID, revisionID uuid.UUID) string {
-	return fmt.Sprintf("budgets/%s/revisions/%s", budgetID, revisionID)
+func budgetRevisionName(orgID, budgetID, revisionID uuid.UUID) string {
+	return fmt.Sprintf("organizations/%s/budgets/%s/revisions/%s", orgID, budgetID, revisionID)
 }
 
-func budgetRevisionAccountValueName(budgetID, revisionID, id uuid.UUID) string {
-	return fmt.Sprintf("budgets/%s/revisions/%s/accountValues/%s", budgetID, revisionID, id)
+func budgetRevisionAccountValueName(orgID, budgetID, revisionID, id uuid.UUID) string {
+	return fmt.Sprintf("organizations/%s/budgets/%s/revisions/%s/accountValues/%s", orgID, budgetID, revisionID, id)
 }
 
 // BudgetRevisionToProto maps model.BudgetRevision to gen.BudgetRevision.
 func BudgetRevisionToProto(m *model.BudgetRevision) *gen.BudgetRevision {
 	return &gen.BudgetRevision{
-		Name:               budgetRevisionName(m.BudgetID, m.ID),
+		Name:               budgetRevisionName(m.OrganizationID, m.BudgetID, m.ID),
 		Uid:                m.ID.String(),
-		Budget:             budgetName(m.BudgetID),
+		Budget:             budgetName(m.OrganizationID, m.BudgetID),
 		DisplayName:        m.DisplayName,
 		DisplayDescription: m.DisplayDescription,
 		Date:               dateProto(m.Date),
@@ -167,9 +181,9 @@ func BudgetRevisionToProto(m *model.BudgetRevision) *gen.BudgetRevision {
 // BudgetRevisionAccountValueToProto maps model.BudgetRevisionAccountValue to gen.BudgetRevisionAccountValue.
 func BudgetRevisionAccountValueToProto(m *model.BudgetRevisionAccountValue) *gen.BudgetRevisionAccountValue {
 	return &gen.BudgetRevisionAccountValue{
-		Name:       budgetRevisionAccountValueName(m.BudgetRevision.BudgetID, m.BudgetTagID, m.ID),
+		Name:       budgetRevisionAccountValueName(m.OrganizationID, m.BudgetRevision.BudgetID, m.BudgetTagID, m.ID),
 		Uid:        m.ID.String(),
-		Revision:   budgetRevisionName(m.BudgetRevision.BudgetID, m.BudgetTagID),
+		Revision:   budgetRevisionName(m.OrganizationID, m.BudgetRevision.BudgetID, m.BudgetTagID),
 		AccountId:  m.AccountID.String(),
 		Value:      &gen.Decimal{Value: m.Value.String()},
 		CreateTime: ts(m.CreatedAt),
@@ -179,7 +193,7 @@ func BudgetRevisionAccountValueToProto(m *model.BudgetRevisionAccountValue) *gen
 // ImportSourceToProto maps a model.ImportSource to its proto representation.
 func ImportSourceToProto(m *model.ImportSource) *gen.ImportSource {
 	return &gen.ImportSource{
-		Name:               importSourceName(m.ID),
+		Name:               importSourceName(m.OrganizationID, m.ID),
 		Uid:                m.ID.String(),
 		DisplayName:        m.DisplayName,
 		DisplayDescription: m.DisplayDescription,
@@ -192,9 +206,9 @@ func ImportSourceToProto(m *model.ImportSource) *gen.ImportSource {
 // ImportSourcePeriodToProto maps a model.ImportSourcePeriod to its proto representation.
 func ImportSourcePeriodToProto(m *model.ImportSourcePeriod) *gen.ImportSourcePeriod {
 	return &gen.ImportSourcePeriod{
-		Name:         importSourcePeriodName(m.ImportSourceID, m.ID),
+		Name:         importSourcePeriodName(m.OrganizationID, m.ImportSourceID, m.ID),
 		Uid:          m.ID.String(),
-		ImportSource: importSourceName(m.ImportSourceID),
+		ImportSource: importSourceName(m.OrganizationID, m.ImportSourceID),
 		Year:         int32(m.Year),
 		IsClosed:     m.IsClosed,
 		UpdateTime:   ts(m.UpdatedAt),
@@ -205,7 +219,7 @@ func ImportSourcePeriodToProto(m *model.ImportSourcePeriod) *gen.ImportSourcePer
 // TransactionToProto maps a model.Transaction_ to its proto representation.
 func TransactionToProto(m *model.Transaction_) *gen.Transaction {
 	p := &gen.Transaction{
-		Name:                       transactionName(m.ID),
+		Name:                       transactionName(m.OrganizationID, m.ID),
 		Uid:                        m.ID.String(),
 		CreditTransactionAccountId: m.CreditTransactionAccountID.String(),
 		DebitTransactionAccountId:  m.DebitTransactionAccountID.String(),
@@ -223,7 +237,7 @@ func TransactionToProto(m *model.Transaction_) *gen.Transaction {
 // TransactionAccountToProto maps a model.TransactionAccount to its proto representation.
 func TransactionAccountToProto(m *model.TransactionAccount) *gen.TransactionAccount {
 	return &gen.TransactionAccount{
-		Name:               transactionAccountName(m.ID),
+		Name:               transactionAccountName(m.OrganizationID, m.ID),
 		Uid:                m.ID.String(),
 		Code:               m.Code,
 		ImportSourceId:     m.ImportSourceID.String(),
@@ -237,9 +251,9 @@ func TransactionAccountToProto(m *model.TransactionAccount) *gen.TransactionAcco
 // TransactionAccountAssignmentToProto maps a model.TransactionAccountAssignment to its proto representation.
 func TransactionAccountAssignmentToProto(m *model.TransactionAccountAssignment) *gen.TransactionAccountAssignment {
 	return &gen.TransactionAccountAssignment{
-		Name:        txAssignmentName(m.TransactionID, m.ID),
+		Name:        txAssignmentName(m.OrganizationID, m.TransactionID, m.ID),
 		Uid:         m.ID.String(),
-		Transaction: transactionName(m.TransactionID),
+		Transaction: transactionName(m.OrganizationID, m.TransactionID),
 		AccountId:   m.AccountID.String(),
 		Value:       &gen.Decimal{Value: m.Value.String()},
 		UpdateTime:  ts(m.UpdatedAt),
@@ -250,7 +264,7 @@ func TransactionAccountAssignmentToProto(m *model.TransactionAccountAssignment) 
 // ReportTemplateToProto maps a model.ReportTemplate to its proto representation.
 func ReportTemplateToProto(m *model.ReportTemplate) *gen.ReportTemplate {
 	return &gen.ReportTemplate{
-		Name:        reportTemplateName(m.ID),
+		Name:        reportTemplateName(m.OrganizationID, m.ID),
 		Uid:         m.ID.String(),
 		DisplayName: m.DisplayName,
 		Template:    m.Template,
@@ -264,7 +278,7 @@ func ReportTemplateToProto(m *model.ReportTemplate) *gen.ReportTemplate {
 // report_template_id is intentionally left empty here.
 func ReportToProto(m *model.Report) *gen.Report {
 	return &gen.Report{
-		Name:        reportName(m.ID),
+		Name:        reportName(m.OrganizationID, m.ID),
 		Uid:         m.ID.String(),
 		DisplayName: m.DisplayName,
 		CreateTime:  ts(m.CreatedAt),

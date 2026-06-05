@@ -2,15 +2,15 @@ syntax = "proto3";
 
 package pixlcrashr.vsfv.v1;
 
-option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
-option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
-
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
 
 // ImportSourcePeriod represents a fiscal year period within an import source.
 message ImportSourcePeriod {
@@ -126,17 +126,13 @@ service ImportSourcePeriodService {
 
   // Gets a single period by resource name.
   rpc GetImportSourcePeriod(GetImportSourcePeriodRequest) returns (ImportSourcePeriod) {
-    option (google.api.http) = {
-      get: "/v1/{name=organizations/*/importSources/*/periods/*}"
-    };
+    option (google.api.http) = {get: "/v1/{name=organizations/*/importSources/*/periods/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists periods for an import source.
   rpc ListImportSourcePeriods(ListImportSourcePeriodsRequest) returns (ListImportSourcePeriodsResponse) {
-    option (google.api.http) = {
-      get: "/v1/{parent=organizations/*/importSources/*}/periods"
-    };
+    option (google.api.http) = {get: "/v1/{parent=organizations/*/importSources/*}/periods"};
     option (google.api.method_signature) = "parent";
   }
 
@@ -160,9 +156,7 @@ service ImportSourcePeriodService {
 
   // Permanently deletes a period.
   rpc DeleteImportSourcePeriod(DeleteImportSourcePeriodRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/v1/{name=organizations/*/importSources/*/periods/*}"
-    };
+    option (google.api.http) = {delete: "/v1/{name=organizations/*/importSources/*/periods/*}"};
     option (google.api.method_signature) = "name";
   }
 }

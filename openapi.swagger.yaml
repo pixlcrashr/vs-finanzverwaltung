@@ -164,7 +164,6 @@ paths:
             required:
               - displayName
               - displayCode
-              - account
       tags:
         - AccountService
   /v1/{accountGroup.name}:
@@ -219,7 +218,6 @@ paths:
             title: The account group to update.
             required:
               - displayName
-              - accountGroup
       tags:
         - AccountGroupService
   /v1/{accountValue.name}:
@@ -281,7 +279,6 @@ paths:
             required:
               - accountId
               - value
-              - accountValue
       tags:
         - BudgetAccountValueService
   /v1/{assignment.name_1}:
@@ -343,7 +340,6 @@ paths:
             required:
               - accountId
               - value
-              - assignment
       tags:
         - TransactionAccountAssignmentService
   /v1/{assignment.name}:
@@ -404,7 +400,6 @@ paths:
             title: The assignment to update.
             required:
               - accountId
-              - assignment
       tags:
         - AccountGroupAssignmentService
   /v1/{budget.name}:
@@ -471,7 +466,6 @@ paths:
               - displayName
               - periodStart
               - periodEnd
-              - budget
       tags:
         - BudgetService
   /v1/{importSource.name}:
@@ -530,7 +524,6 @@ paths:
             required:
               - displayName
               - periodStart
-              - importSource
       tags:
         - ImportSourceService
   /v1/{name_10}:
@@ -1373,7 +1366,6 @@ paths:
             title: The organization to update.
             required:
               - displayName
-              - organization
       tags:
         - OrganizationService
   /v1/{parent_1}/accountValues:
@@ -2552,7 +2544,6 @@ paths:
             required:
               - displayName
               - template
-              - reportTemplate
       tags:
         - ReportTemplateService
   /v1/{transaction.name}:
@@ -2634,7 +2625,6 @@ paths:
               - amount
               - bookedAt
               - documentDate
-              - transaction
       tags:
         - TransactionService
   /v1/{transactionAccount.name}:
@@ -2696,7 +2686,6 @@ paths:
             required:
               - code
               - importSourceId
-              - transactionAccount
       tags:
         - TransactionAccountService
 definitions:

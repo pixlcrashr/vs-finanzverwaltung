@@ -2,15 +2,15 @@ syntax = "proto3";
 
 package pixlcrashr.vsfv.v1;
 
-option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
-option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
-
+import "decimal.proto";
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
 import "google/protobuf/timestamp.proto";
-import "decimal.proto";
+
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
 
 // BudgetRevisionAccountValue is an immutable record of a single account's
 // target value as captured at the time its parent BudgetRevision was created.
@@ -103,17 +103,13 @@ service BudgetRevisionAccountValueService {
 
   // Gets a single budget revision account value by resource name.
   rpc GetBudgetRevisionAccountValue(GetBudgetRevisionAccountValueRequest) returns (BudgetRevisionAccountValue) {
-    option (google.api.http) = {
-      get: "/v1/{name=organizations/*/budgets/*/revisions/*/accountValues/*}"
-    };
+    option (google.api.http) = {get: "/v1/{name=organizations/*/budgets/*/revisions/*/accountValues/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists the account values captured in a revision, with pagination.
   rpc ListBudgetRevisionAccountValues(ListBudgetRevisionAccountValuesRequest) returns (ListBudgetRevisionAccountValuesResponse) {
-    option (google.api.http) = {
-      get: "/v1/{parent=organizations/*/budgets/*/revisions/*}/accountValues"
-    };
+    option (google.api.http) = {get: "/v1/{parent=organizations/*/budgets/*/revisions/*}/accountValues"};
     option (google.api.method_signature) = "parent";
   }
 }

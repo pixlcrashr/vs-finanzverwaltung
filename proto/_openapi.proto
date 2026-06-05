@@ -2,26 +2,24 @@ syntax = "proto3";
 
 package pixlcrashr.vsfv.v1;
 
-option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
-
-option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
-
 import "protoc-gen-openapiv2/options/annotations.proto";
 
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
-    swagger: "2.0",
-    info: {
-        title: "VSFV API",
-        contact: {
-            name: "pixlcrashr",
-            url: "https://pixlcrashr.dev",
-            email: "info@pixlcrashr.dev"
-        },
-        version: "v1"
-    },
-    schemes: [HTTPS],
-    host: "test.pixlcrashr.dev",
-    base_path: "/api",
-    consumes: ['application/json'],
-    produces: ['application/json']
+  swagger: "2.0"
+  info: {
+    title: "VSFV API"
+    contact: {
+      name: "pixlcrashr"
+      url: "https://pixlcrashr.dev"
+      email: "info@pixlcrashr.dev"
+    }
+    version: "v1"
+  }
+  schemes: [HTTPS]
+  host: "test.pixlcrashr.dev"
+  base_path: "/api"
+  consumes: ['application/json']
+  produces: ['application/json']
 };

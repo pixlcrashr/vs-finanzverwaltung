@@ -110,6 +110,12 @@ func (r *OrganizationRepository) Update(ctx context.Context, m *model.Organizati
 
 // Delete removes the organization with the given ID.
 func (r *OrganizationRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	_, err := r.q.Organization.WithContext(ctx).Where(r.q.Organization.ID.Eq(id)).Delete()
-	return err
+	result, err := r.q.Organization.WithContext(ctx).Where(r.q.Organization.ID.Eq(id)).Delete()
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }

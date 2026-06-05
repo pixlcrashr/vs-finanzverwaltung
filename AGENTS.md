@@ -5,7 +5,7 @@
 This is a Go API server (`github.com/pixlcrashr/vsfv`) that exposes two parallel HTTP APIs on the same Fiber server:
 
 1. **Huma REST API** — defined under `pkg/api/` (one sub-package per entity). Do not remove or break this API.
-2. **gRPC-Gateway REST/JSON API** — defined via Protocol Buffers in `proto/`, generated into `pkg/api/grpc/gen/`, and served in-process via `pkg/api/grpc/server.go`. This is a pure HTTP/JSON transcoding (no TCP gRPC port); service implementations live in `pkg/api/grpc/services/`.
+2. **gRPC-Gateway REST/JSON API** — defined via Protocol Buffers in `proto/`, generated into `pkg/grpc/gen/`, and served in-process via `pkg/api/grpc/server.go`. This is a pure HTTP/JSON transcoding (no TCP gRPC port); service implementations live in `pkg/api/grpc/services/`.
 
 ## Proto Code Generation
 
@@ -24,11 +24,11 @@ task proto:generate
 These are equivalent to running `buf build` and `buf generate` directly from the repo root.
 
 Generated output directories:
-- `pkg/api/grpc/gen/` — protoc-gen-go, protoc-gen-go-grpc, protoc-gen-go-aip, protoc-gen-grpc-gateway output
+- `pkg/grpc/gen/` — protoc-gen-go, protoc-gen-go-grpc, protoc-gen-go-aip, protoc-gen-grpc-gateway output
 - `docs/proto/` — protoc-gen-doc HTML output
 - `openapi.yaml` — merged OpenAPI v2 spec (protoc-gen-openapiv2 output)
 
-**`pkg/api/grpc/gen/` is read-only at all times. Never manually edit any file in this directory.** All files are fully regenerated on every `task proto:generate` run (equivalent to `buf generate`). Treat any file in this directory as a build artifact.
+**`pkg/grpc/gen/` is read-only at all times. Never manually edit any file in this directory.** All files are fully regenerated on every `task proto:generate` run (equivalent to `buf generate`). Treat any file in this directory as a build artifact.
 
 ## DAO Code Generation
 
@@ -85,7 +85,7 @@ All `pkg/api/` models and routes follow these conventions:
 | Path | Purpose |
 |---|---|
 | `proto/` | Protobuf service definitions (source of truth for gRPC API) |
-| `pkg/api/grpc/gen/` | Generated Go code — **read-only**, regenerate with `buf generate` |
+| `pkg/grpc/gen/` | Generated Go code — **read-only**, regenerate with `buf generate` |
 | `pkg/api/grpc/services/` | Service container; wire real implementations here |
 | `pkg/api/grpc/server.go` | Registers grpc-gateway routes onto the Fiber app |
 | `pkg/api/` | Huma REST API (one package per entity) — keep intact |

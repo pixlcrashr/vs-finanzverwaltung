@@ -2,9 +2,6 @@ syntax = "proto3";
 
 package pixlcrashr.vsfv.v1;
 
-option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
-option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
-
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
@@ -12,6 +9,9 @@ import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
 
 // Organization is the top-level resource that owns all other resources.
 message Organization {
@@ -102,17 +102,13 @@ service OrganizationService {
 
   // Gets a single organization by resource name.
   rpc GetOrganization(GetOrganizationRequest) returns (Organization) {
-    option (google.api.http) = {
-      get: "/v1/{name=organizations/*}"
-    };
+    option (google.api.http) = {get: "/v1/{name=organizations/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists organizations with pagination.
   rpc ListOrganizations(ListOrganizationsRequest) returns (ListOrganizationsResponse) {
-    option (google.api.http) = {
-      get: "/v1/organizations"
-    };
+    option (google.api.http) = {get: "/v1/organizations"};
   }
 
   // Creates a new organization.
@@ -135,9 +131,7 @@ service OrganizationService {
 
   // Permanently deletes an organization.
   rpc DeleteOrganization(DeleteOrganizationRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/v1/{name=organizations/*}"
-    };
+    option (google.api.http) = {delete: "/v1/{name=organizations/*}"};
     option (google.api.method_signature) = "name";
   }
 }

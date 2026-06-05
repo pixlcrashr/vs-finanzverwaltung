@@ -2,9 +2,6 @@ syntax = "proto3";
 
 package pixlcrashr.vsfv.v1;
 
-option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
-option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
-
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
@@ -13,6 +10,9 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 import "google/type/date.proto";
+
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
 
 // ImportSource represents an external data source from which transactions are imported.
 message ImportSource {
@@ -123,17 +123,13 @@ service ImportSourceService {
 
   // Gets a single import source by resource name.
   rpc GetImportSource(GetImportSourceRequest) returns (ImportSource) {
-    option (google.api.http) = {
-      get: "/v1/{name=organizations/*/importSources/*}"
-    };
+    option (google.api.http) = {get: "/v1/{name=organizations/*/importSources/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists import sources with pagination.
   rpc ListImportSources(ListImportSourcesRequest) returns (ListImportSourcesResponse) {
-    option (google.api.http) = {
-      get: "/v1/{parent=organizations/*}/importSources"
-    };
+    option (google.api.http) = {get: "/v1/{parent=organizations/*}/importSources"};
     option (google.api.method_signature) = "parent";
   }
 
@@ -157,9 +153,7 @@ service ImportSourceService {
 
   // Permanently deletes an import source.
   rpc DeleteImportSource(DeleteImportSourceRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/v1/{name=organizations/*/importSources/*}"
-    };
+    option (google.api.http) = {delete: "/v1/{name=organizations/*/importSources/*}"};
     option (google.api.method_signature) = "name";
   }
 }

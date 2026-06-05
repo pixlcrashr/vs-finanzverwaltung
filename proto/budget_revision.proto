@@ -2,15 +2,15 @@ syntax = "proto3";
 
 package pixlcrashr.vsfv.v1;
 
-option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
-option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
-
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
 import "google/protobuf/timestamp.proto";
 import "google/type/date.proto";
+
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
 
 // BudgetRevision is a read-only, point-in-time capture of a Budget's full set
 // of BudgetAccountValues. Revisions are immutable after creation and cannot be
@@ -110,17 +110,13 @@ service BudgetRevisionService {
 
   // Gets a single budget revision by resource name.
   rpc GetBudgetRevision(GetBudgetRevisionRequest) returns (BudgetRevision) {
-    option (google.api.http) = {
-      get: "/v1/{name=organizations/*/budgets/*/revisions/*}"
-    };
+    option (google.api.http) = {get: "/v1/{name=organizations/*/budgets/*/revisions/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists revisions for a budget in reverse chronological order.
   rpc ListBudgetRevisions(ListBudgetRevisionsRequest) returns (ListBudgetRevisionsResponse) {
-    option (google.api.http) = {
-      get: "/v1/{parent=organizations/*/budgets/*}/revisions"
-    };
+    option (google.api.http) = {get: "/v1/{parent=organizations/*/budgets/*}/revisions"};
     option (google.api.method_signature) = "parent";
   }
 

@@ -2,15 +2,15 @@ syntax = "proto3";
 
 package pixlcrashr.vsfv.v1;
 
-option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
-option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
-
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
 
 // Report is a generated report instance produced from a ReportTemplate.
 // The rendered binary content is served exclusively via the Huma HTTP API
@@ -110,17 +110,13 @@ service ReportService {
 
   // Gets report metadata by resource name.
   rpc GetReport(GetReportRequest) returns (Report) {
-    option (google.api.http) = {
-      get: "/v1/{name=organizations/*/reports/*}"
-    };
+    option (google.api.http) = {get: "/v1/{name=organizations/*/reports/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists reports with pagination.
   rpc ListReports(ListReportsRequest) returns (ListReportsResponse) {
-    option (google.api.http) = {
-      get: "/v1/{parent=organizations/*}/reports"
-    };
+    option (google.api.http) = {get: "/v1/{parent=organizations/*}/reports"};
     option (google.api.method_signature) = "parent";
   }
 
@@ -135,9 +131,7 @@ service ReportService {
 
   // Permanently deletes a report.
   rpc DeleteReport(DeleteReportRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/v1/{name=organizations/*/reports/*}"
-    };
+    option (google.api.http) = {delete: "/v1/{name=organizations/*/reports/*}"};
     option (google.api.method_signature) = "name";
   }
 }

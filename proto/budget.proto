@@ -2,9 +2,6 @@ syntax = "proto3";
 
 package pixlcrashr.vsfv.v1;
 
-option go_package = "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen";
-option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
-
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
@@ -13,6 +10,9 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 import "google/type/date.proto";
+
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
 
 // Budget represents a financial budget with a defined period.
 message Budget {
@@ -141,17 +141,13 @@ service BudgetService {
 
   // Gets a single budget by resource name.
   rpc GetBudget(GetBudgetRequest) returns (Budget) {
-    option (google.api.http) = {
-      get: "/v1/{name=organizations/*/budgets/*}"
-    };
+    option (google.api.http) = {get: "/v1/{name=organizations/*/budgets/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists budgets with pagination.
   rpc ListBudgets(ListBudgetsRequest) returns (ListBudgetsResponse) {
-    option (google.api.http) = {
-      get: "/v1/{parent=organizations/*}/budgets"
-    };
+    option (google.api.http) = {get: "/v1/{parent=organizations/*}/budgets"};
     option (google.api.method_signature) = "parent";
   }
 
@@ -184,9 +180,7 @@ service BudgetService {
 
   // Permanently deletes a budget.
   rpc DeleteBudget(DeleteBudgetRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/v1/{name=organizations/*/budgets/*}"
-    };
+    option (google.api.http) = {delete: "/v1/{name=organizations/*/budgets/*}"};
     option (google.api.method_signature) = "name";
   }
 }

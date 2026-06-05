@@ -1,7 +1,7 @@
 package services
 
 import (
-	gen "github.com/pixlcrashr/vsfv/pkg/api/grpc/gen"
+	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 )
 
 type budgetAccountValueServiceServer struct {

@@ -22,8 +22,10 @@ type Server struct {
 }
 
 // New creates a Server, registers all routes, and returns it ready to listen.
-// db is threaded through so domain services can be injected as the API grows.
-func New(db *gorm.DB, version string, corsCfg cfg.CORS) *Server {
+// svc is the shared service set used by both the grpc-gateway JSON API and the
+// Huma REST API.  db is still required for the Huma routes that have not yet
+// been migrated to the service layer.
+func New(db *gorm.DB, svc *services.Services, version string, corsCfg cfg.CORS) *Server {
 	app := fiber.New(fiber.Config{
 		// Disable default startup banner — the serve command prints its own.
 		DisableStartupMessage: true,
@@ -47,7 +49,7 @@ func New(db *gorm.DB, version string, corsCfg cfg.CORS) *Server {
 
 	s := &Server{app: app, API: api}
 	RegisterRoutes(s.API, db)
-	apiserv.RegisterRoutes(app, services.New(db))
+	apiserv.RegisterRoutes(app, svc)
 	return s
 }
 

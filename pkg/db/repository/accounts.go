@@ -135,8 +135,14 @@ func (r *AccountRepository) Update(ctx context.Context, m *model.Account) error 
 
 // Delete removes the account with the given ID.
 func (r *AccountRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	_, err := r.q.Account.WithContext(ctx).Where(r.q.Account.ID.Eq(id)).Delete()
-	return err
+	result, err := r.q.Account.WithContext(ctx).Where(r.q.Account.ID.Eq(id)).Delete()
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }
 
 // HasAncestor reports whether candidateAncestorID appears anywhere in the ancestor

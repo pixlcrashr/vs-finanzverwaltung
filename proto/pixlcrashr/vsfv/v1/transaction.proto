@@ -2,14 +2,15 @@ syntax = "proto3";
 
 package pixlcrashr.vsfv.v1;
 
-import "decimal.proto";
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
+import "google/api/field_info.proto";
 import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
+import "pixlcrashr/vsfv/v1/decimal.proto";
 
 option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
 option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
@@ -26,7 +27,10 @@ message Transaction {
   string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The UUID of the transaction.
-  string uid = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string uid = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_info) = {format: UUID4}
+  ];
 
   // UUID of the credit transaction account.
   string credit_transaction_account_id = 3 [(google.api.field_behavior) = REQUIRED];
@@ -43,23 +47,23 @@ message Transaction {
   // External reference identifier.
   string reference = 7 [(google.api.field_behavior) = OPTIONAL];
 
-  // UUID of the budget account this transaction is assigned to.
-  string assigned_account_id = 8 [(google.api.field_behavior) = OPTIONAL];
-
   // Booking date.
   google.protobuf.Timestamp booked_at = 9 [(google.api.field_behavior) = REQUIRED];
 
   // Document date.
   google.protobuf.Timestamp document_date = 10 [(google.api.field_behavior) = REQUIRED];
 
-  // Optional custom external ID.
-  string custom_id = 11 [(google.api.field_behavior) = OPTIONAL];
+  // Optional document ID.
+  string document_id = 11 [(google.api.field_behavior) = OPTIONAL];
 
   // Last modification timestamp.
   google.protobuf.Timestamp update_time = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Creation timestamp.
   google.protobuf.Timestamp create_time = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Entity tag for optimistic concurrency control.
+  string etag = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message GetTransactionRequest {

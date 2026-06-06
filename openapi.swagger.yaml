@@ -160,10 +160,15 @@ paths:
                 format: date-time
                 description: Creation timestamp.
                 readOnly: true
+              etag:
+                type: string
+                description: Entity tag for optimistic concurrency control.
+                readOnly: true
             title: The account to update.
             required:
               - displayName
               - displayCode
+              - account
       tags:
         - AccountService
   /v1/{accountGroup.name}:
@@ -215,9 +220,14 @@ paths:
                 format: date-time
                 description: Creation timestamp.
                 readOnly: true
+              etag:
+                type: string
+                description: Entity tag for optimistic concurrency control.
+                readOnly: true
             title: The account group to update.
             required:
               - displayName
+              - accountGroup
       tags:
         - AccountGroupService
   /v1/{accountValue.name}:
@@ -275,10 +285,15 @@ paths:
                 format: date-time
                 description: Creation timestamp.
                 readOnly: true
+              etag:
+                type: string
+                description: Entity tag for optimistic concurrency control.
+                readOnly: true
             title: The budget account value to update.
             required:
               - accountId
               - value
+              - accountValue
       tags:
         - BudgetAccountValueService
   /v1/{assignment.name_1}:
@@ -336,10 +351,15 @@ paths:
                 format: date-time
                 description: Creation timestamp.
                 readOnly: true
+              etag:
+                type: string
+                description: Entity tag for optimistic concurrency control.
+                readOnly: true
             title: The assignment to update.
             required:
               - accountId
               - value
+              - assignment
       tags:
         - TransactionAccountAssignmentService
   /v1/{assignment.name}:
@@ -397,9 +417,14 @@ paths:
                 format: date-time
                 description: Creation timestamp.
                 readOnly: true
+              etag:
+                type: string
+                description: Entity tag for optimistic concurrency control.
+                readOnly: true
             title: The assignment to update.
             required:
               - accountId
+              - assignment
       tags:
         - AccountGroupAssignmentService
   /v1/{budget.name}:
@@ -461,11 +486,16 @@ paths:
                 format: date-time
                 description: Creation timestamp.
                 readOnly: true
+              etag:
+                type: string
+                description: Entity tag for optimistic concurrency control.
+                readOnly: true
             title: The budget to update.
             required:
               - displayName
               - periodStart
               - periodEnd
+              - budget
       tags:
         - BudgetService
   /v1/{importSource.name}:
@@ -520,10 +550,15 @@ paths:
                 format: date-time
                 description: Creation timestamp.
                 readOnly: true
+              etag:
+                type: string
+                description: Entity tag for optimistic concurrency control.
+                readOnly: true
             title: The import source to update.
             required:
               - displayName
               - periodStart
+              - importSource
       tags:
         - ImportSourceService
   /v1/{name_10}:
@@ -1363,9 +1398,14 @@ paths:
                 format: date-time
                 description: Creation timestamp.
                 readOnly: true
+              etag:
+                type: string
+                description: Entity tag for optimistic concurrency control.
+                readOnly: true
             title: The organization to update.
             required:
               - displayName
+              - organization
       tags:
         - OrganizationService
   /v1/{parent_1}/accountValues:
@@ -2540,10 +2580,15 @@ paths:
                 format: date-time
                 description: Creation timestamp.
                 readOnly: true
+              etag:
+                type: string
+                description: Entity tag for optimistic concurrency control.
+                readOnly: true
             title: The report template to update.
             required:
               - displayName
               - template
+              - reportTemplate
       tags:
         - ReportTemplateService
   /v1/{transaction.name}:
@@ -2594,9 +2639,6 @@ paths:
               reference:
                 type: string
                 description: External reference identifier.
-              assignedAccountId:
-                type: string
-                description: UUID of the budget account this transaction is assigned to.
               bookedAt:
                 type: string
                 format: date-time
@@ -2605,9 +2647,9 @@ paths:
                 type: string
                 format: date-time
                 description: Document date.
-              customId:
+              documentId:
                 type: string
-                description: Optional custom external ID.
+                description: Optional document ID.
               updateTime:
                 type: string
                 format: date-time
@@ -2618,6 +2660,10 @@ paths:
                 format: date-time
                 description: Creation timestamp.
                 readOnly: true
+              etag:
+                type: string
+                description: Entity tag for optimistic concurrency control.
+                readOnly: true
             title: The transaction to update.
             required:
               - creditTransactionAccountId
@@ -2625,6 +2671,7 @@ paths:
               - amount
               - bookedAt
               - documentDate
+              - transaction
       tags:
         - TransactionService
   /v1/{transactionAccount.name}:
@@ -2682,10 +2729,15 @@ paths:
                 format: date-time
                 description: Creation timestamp.
                 readOnly: true
+              etag:
+                type: string
+                description: Entity tag for optimistic concurrency control.
+                readOnly: true
             title: The transaction account to update.
             required:
               - code
               - importSourceId
+              - transactionAccount
       tags:
         - TransactionAccountService
 definitions:
@@ -2799,6 +2851,10 @@ definitions:
         format: date-time
         description: Creation timestamp.
         readOnly: true
+      etag:
+        type: string
+        description: Entity tag for optimistic concurrency control.
+        readOnly: true
     description: Account represents a budget account in the chart of accounts.
     required:
       - displayName
@@ -2831,6 +2887,10 @@ definitions:
         type: string
         format: date-time
         description: Creation timestamp.
+        readOnly: true
+      etag:
+        type: string
+        description: Entity tag for optimistic concurrency control.
         readOnly: true
     description: AccountGroup is a named grouping of budget accounts.
     required:
@@ -2869,6 +2929,10 @@ definitions:
         type: string
         format: date-time
         description: Creation timestamp.
+        readOnly: true
+      etag:
+        type: string
+        description: Entity tag for optimistic concurrency control.
         readOnly: true
     description: AccountGroupAssignment associates an account with an account group.
     required:
@@ -2912,6 +2976,10 @@ definitions:
         format: date-time
         description: Creation timestamp.
         readOnly: true
+      etag:
+        type: string
+        description: Entity tag for optimistic concurrency control.
+        readOnly: true
     description: Budget represents a financial budget with a defined period.
     required:
       - displayName
@@ -2951,6 +3019,10 @@ definitions:
         type: string
         format: date-time
         description: Creation timestamp.
+        readOnly: true
+      etag:
+        type: string
+        description: Entity tag for optimistic concurrency control.
         readOnly: true
     description: |-
       BudgetAccountValue associates an account with a numeric target value within
@@ -2992,6 +3064,10 @@ definitions:
         format: date-time
         description: Timestamp when this revision was created.
         readOnly: true
+      etag:
+        type: string
+        description: Entity tag for optimistic concurrency control.
+        readOnly: true
     description: |-
       BudgetRevision is a read-only, point-in-time capture of a Budget's full set
       of BudgetAccountValues. Revisions are immutable after creation and cannot be
@@ -3032,6 +3108,10 @@ definitions:
         type: string
         format: date-time
         description: Timestamp when this record was created (equals the revision create_time).
+        readOnly: true
+      etag:
+        type: string
+        description: Entity tag for optimistic concurrency control.
         readOnly: true
     description: |-
       BudgetRevisionAccountValue is an immutable record of a single account's
@@ -3089,6 +3169,10 @@ definitions:
         format: date-time
         description: Creation timestamp.
         readOnly: true
+      etag:
+        type: string
+        description: Entity tag for optimistic concurrency control.
+        readOnly: true
     description: ImportSource represents an external data source from which transactions are imported.
     required:
       - displayName
@@ -3129,6 +3213,10 @@ definitions:
         type: string
         format: date-time
         description: Creation timestamp.
+        readOnly: true
+      etag:
+        type: string
+        description: Entity tag for optimistic concurrency control.
         readOnly: true
     description: ImportSourcePeriod represents a fiscal year period within an import source.
     required:
@@ -3440,6 +3528,10 @@ definitions:
         format: date-time
         description: Creation timestamp.
         readOnly: true
+      etag:
+        type: string
+        description: Entity tag for optimistic concurrency control.
+        readOnly: true
     description: |-
       NestedAccount is a read-only view of an Account that includes its full
       subtree of child accounts. It shares the same resource name as Account.
@@ -3469,6 +3561,10 @@ definitions:
         format: date-time
         description: Creation timestamp.
         readOnly: true
+      etag:
+        type: string
+        description: Entity tag for optimistic concurrency control.
+        readOnly: true
     description: Organization is the top-level resource that owns all other resources.
     required:
       - displayName
@@ -3495,6 +3591,10 @@ definitions:
         type: string
         format: date-time
         description: Creation timestamp.
+        readOnly: true
+      etag:
+        type: string
+        description: Entity tag for optimistic concurrency control.
         readOnly: true
     description: |-
       Report is a generated report instance produced from a ReportTemplate.
@@ -3532,6 +3632,10 @@ definitions:
         format: date-time
         description: Creation timestamp.
         readOnly: true
+      etag:
+        type: string
+        description: Entity tag for optimistic concurrency control.
+        readOnly: true
     description: ReportTemplate is a Handlebars template used to render reports.
     required:
       - displayName
@@ -3564,9 +3668,6 @@ definitions:
       reference:
         type: string
         description: External reference identifier.
-      assignedAccountId:
-        type: string
-        description: UUID of the budget account this transaction is assigned to.
       bookedAt:
         type: string
         format: date-time
@@ -3575,9 +3676,9 @@ definitions:
         type: string
         format: date-time
         description: Document date.
-      customId:
+      documentId:
         type: string
-        description: Optional custom external ID.
+        description: Optional document ID.
       updateTime:
         type: string
         format: date-time
@@ -3587,6 +3688,10 @@ definitions:
         type: string
         format: date-time
         description: Creation timestamp.
+        readOnly: true
+      etag:
+        type: string
+        description: Entity tag for optimistic concurrency control.
         readOnly: true
     description: Transaction represents a financial transaction between two transaction accounts.
     required:
@@ -3630,6 +3735,10 @@ definitions:
         format: date-time
         description: Creation timestamp.
         readOnly: true
+      etag:
+        type: string
+        description: Entity tag for optimistic concurrency control.
+        readOnly: true
     description: |-
       TransactionAccount is an external account from an import source
       (e.g. a bank account) involved in transactions.
@@ -3670,6 +3779,10 @@ definitions:
         type: string
         format: date-time
         description: Creation timestamp.
+        readOnly: true
+      etag:
+        type: string
+        description: Entity tag for optimistic concurrency control.
         readOnly: true
     description: |-
       TransactionAccountAssignment maps a transaction to a budget account with a

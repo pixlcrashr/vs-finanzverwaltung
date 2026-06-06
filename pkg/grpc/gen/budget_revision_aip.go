@@ -3,7 +3,7 @@
 // versions:
 // 	protoc-gen-go-aip development
 // 	protoc (unknown)
-// source: budget_revision.proto
+// source: pixlcrashr/vsfv/v1/budget_revision.proto
 
 package gen
 

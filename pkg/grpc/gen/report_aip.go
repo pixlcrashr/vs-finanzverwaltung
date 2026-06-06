@@ -3,7 +3,7 @@
 // versions:
 // 	protoc-gen-go-aip development
 // 	protoc (unknown)
-// source: report.proto
+// source: pixlcrashr/vsfv/v1/report.proto
 
 package gen
 

@@ -3,7 +3,7 @@
 // versions:
 // 	protoc-gen-go-aip development
 // 	protoc (unknown)
-// source: import_source_period.proto
+// source: pixlcrashr/vsfv/v1/import_source_period.proto
 
 package gen
 

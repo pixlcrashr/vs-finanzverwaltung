@@ -19,3 +19,26 @@ tasks:
     desc: Generate Go gRPC, grpc-gateway, AIP helpers, and OpenAPI docs from proto files
     cmds:
       - buf generate
+
+  web:install:
+    desc: Install Angular dependencies
+    dir: web
+    cmds:
+      - npm ci
+
+  web:build:
+    desc: Build Angular application for production
+    dir: web
+    cmds:
+      - npm run build
+
+  build:
+    desc: Full production build (web + Go with embedded assets)
+    cmds:
+      - task: web:build
+      - go build -tags web -o vsfv{{exeExt}} .
+
+  build:dev:
+    desc: Build Go without web assets
+    cmds:
+      - go build -o vsfv{{exeExt}} .

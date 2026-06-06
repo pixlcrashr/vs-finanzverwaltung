@@ -5,6 +5,7 @@ package pixlcrashr.vsfv.v1;
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
+import "google/api/field_info.proto";
 import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
@@ -25,7 +26,10 @@ message Organization {
   string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The UUID of the organization.
-  string uid = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string uid = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_info) = {format: UUID4}
+  ];
 
   // Human-readable organization name.
   string display_name = 3 [(google.api.field_behavior) = REQUIRED];
@@ -35,6 +39,9 @@ message Organization {
 
   // Creation timestamp.
   google.protobuf.Timestamp create_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Entity tag for optimistic concurrency control.
+  string etag = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message GetOrganizationRequest {

@@ -5,6 +5,7 @@ package pixlcrashr.vsfv.v1;
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
+import "google/api/field_info.proto";
 import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
@@ -25,7 +26,10 @@ message Account {
   string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The UUID of the account.
-  string uid = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string uid = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_info) = {format: UUID4}
+  ];
 
   // The resource name of the parent account, if any.
   // Format: organizations/{organization}/accounts/{account}
@@ -55,6 +59,9 @@ message Account {
 
   // Creation timestamp.
   google.protobuf.Timestamp create_time = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Entity tag for optimistic concurrency control.
+  string etag = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // NestedAccount is a read-only view of an Account that includes its full
@@ -65,7 +72,10 @@ message NestedAccount {
   string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The UUID of the account.
-  string uid = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string uid = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_info) = {format: UUID4}
+  ];
 
   // The resource name of the parent account, if any.
   // Format: organizations/{organization}/accounts/{account}
@@ -97,6 +107,9 @@ message NestedAccount {
 
   // Creation timestamp.
   google.protobuf.Timestamp create_time = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Entity tag for optimistic concurrency control.
+  string etag = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message GetAccountRequest {

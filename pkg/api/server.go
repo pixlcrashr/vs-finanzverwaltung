@@ -1,6 +1,8 @@
 package api
 
 import (
+	"io/fs"
+	"net/http"
 	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -8,11 +10,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/etag"
+	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"gorm.io/gorm"
 
 	apiserv "github.com/pixlcrashr/vsfv/pkg/api/grpc"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services"
 	"github.com/pixlcrashr/vsfv/pkg/cfg"
+	"github.com/pixlcrashr/vsfv/web"
 )
 
 // Server wraps the Fiber app and the Huma API instance.
@@ -50,6 +54,20 @@ func New(db *gorm.DB, svc *services.Services, version string, corsCfg cfg.CORS) 
 	s := &Server{app: app, API: api}
 	RegisterRoutes(s.API, db)
 	apiserv.RegisterRoutes(app, svc)
+
+	// Serve embedded Angular app (non-API routes only)
+	if webFS := web.FS(); webFS != nil {
+		staticFS, err := fs.Sub(webFS, ".")
+		if err == nil {
+			// Serve static files from embedded filesystem
+			app.Use("/", filesystem.New(filesystem.Config{
+				Root:         http.FS(staticFS),
+				Browse:       false,
+				NotFoundFile: "index.html",
+			}))
+		}
+	}
+
 	return s
 }
 

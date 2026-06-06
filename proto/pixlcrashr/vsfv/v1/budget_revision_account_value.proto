@@ -2,12 +2,13 @@ syntax = "proto3";
 
 package pixlcrashr.vsfv.v1;
 
-import "decimal.proto";
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
+import "google/api/field_info.proto";
 import "google/api/resource.proto";
 import "google/protobuf/timestamp.proto";
+import "pixlcrashr/vsfv/v1/decimal.proto";
 
 option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
 option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
@@ -28,7 +29,10 @@ message BudgetRevisionAccountValue {
   string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The UUID of this record.
-  string uid = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string uid = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_info) = {format: UUID4}
+  ];
 
   // The resource name of the parent revision.
   // Format: organizations/{organization}/budgets/{budget}/revisions/{revision}
@@ -49,6 +53,9 @@ message BudgetRevisionAccountValue {
 
   // Timestamp when this record was created (equals the revision create_time).
   google.protobuf.Timestamp create_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Entity tag for optimistic concurrency control.
+  string etag = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message GetBudgetRevisionAccountValueRequest {

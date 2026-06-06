@@ -3,7 +3,7 @@
 // versions:
 // 	protoc-gen-go-aip development
 // 	protoc (unknown)
-// source: account_group_assignment.proto
+// source: pixlcrashr/vsfv/v1/account_group_assignment.proto
 
 package gen
 

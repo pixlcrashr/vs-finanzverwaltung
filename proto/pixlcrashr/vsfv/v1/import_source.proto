@@ -5,6 +5,7 @@ package pixlcrashr.vsfv.v1;
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
+import "google/api/field_info.proto";
 import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
@@ -26,7 +27,10 @@ message ImportSource {
   string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The UUID of the import source.
-  string uid = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string uid = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_info) = {format: UUID4}
+  ];
 
   // Human-readable import source name.
   string display_name = 3 [(google.api.field_behavior) = REQUIRED];
@@ -42,6 +46,9 @@ message ImportSource {
 
   // Creation timestamp.
   google.protobuf.Timestamp create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Entity tag for optimistic concurrency control.
+  string etag = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message GetImportSourceRequest {

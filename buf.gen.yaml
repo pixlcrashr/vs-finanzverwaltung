@@ -1,5 +1,8 @@
 version: v2
 
+managed:
+  enabled: true
+
 plugins:
   - local: protoc-gen-go
     out: ./pkg/grpc/gen
@@ -22,7 +25,7 @@ plugins:
   - local: protoc-gen-grpc-gateway
     out: ./pkg/grpc/gen
     opt:
-      - paths=source_relative
+      - module=github.com/pixlcrashr/vsfv/pkg/grpc/gen
       - generate_unbound_methods=true
 
   - local: protoc-gen-openapiv2

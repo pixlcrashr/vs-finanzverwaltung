@@ -3,7 +3,7 @@
 // versions:
 // 	protoc-gen-go-aip development
 // 	protoc (unknown)
-// source: transaction_account.proto
+// source: pixlcrashr/vsfv/v1/transaction_account.proto
 
 package gen
 

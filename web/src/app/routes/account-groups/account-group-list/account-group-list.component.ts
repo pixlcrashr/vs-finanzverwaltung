@@ -5,7 +5,7 @@ import {
   signal,
   OnInit,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
 import {
   PageContentLayoutComponent,
@@ -96,13 +96,13 @@ import { AccountGroupListDataService } from './account-group-list.data-service';
                       <td class="px-3 py-2 text-right text-xs">
                         <div class="flex items-center justify-center gap-2">
                           <a
-                            [routerLink]="['/accountGroups', group.id]"
+                            [routerLink]="['/organizations', orgId, 'accountGroups', group.id]"
                             class="text-xs text-blue-600 hover:underline"
                           >
                             <ng-container i18n>Bearbeiten</ng-container>
                           </a>
                           <a
-                            [routerLink]="['/accountGroups', group.id, 'stats']"
+                            [routerLink]="['/organizations', orgId, 'accountGroups', group.id, 'stats']"
                             class="text-xs text-blue-600 hover:underline"
                           >
                             <ng-container i18n>Statistik</ng-container>
@@ -130,9 +130,22 @@ import { AccountGroupListDataService } from './account-group-list.data-service';
   `,
 })
 export class AccountGroupListComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
   private readonly dataService = inject(AccountGroupListDataService);
   private readonly dialog = inject(Dialog);
   private readonly notifications = inject(NotificationService);
+
+  private getOrgId(): string {
+    let snapshot = this.route.snapshot;
+    while (snapshot) {
+      const id = snapshot.paramMap.get('orgId');
+      if (id) return id;
+      snapshot = snapshot.parent!;
+    }
+    return '';
+  }
+
+  orgId = '';
 
   readonly loading = signal(true);
   readonly groups = signal<AccountGroup[]>([]);
@@ -140,6 +153,7 @@ export class AccountGroupListComponent implements OnInit {
   readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Kontengruppen` }];
 
   ngOnInit(): void {
+    this.orgId = this.getOrgId();
     this.loadGroups();
   }
 

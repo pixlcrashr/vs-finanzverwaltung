@@ -35,6 +35,9 @@ import { MockCreateAccountDialogDataService } from '../lib/data/mock/create-acco
 import { MockCreateReportDialogDataService } from '../lib/data/mock/create-report-dialog.data-service.mock';
 import { MockClosePeriodDialogDataService } from '../lib/data/mock/close-period-dialog.data-service.mock';
 import { MockAddReceiptDialogDataService } from '../lib/data/mock/add-receipt-dialog.data-service.mock';
+import { MockOrganizationDataService } from '../lib/data/mock/organization.data-service.mock';
+import { MockOrganizationListDataService } from '../lib/data/mock/organization-list.data-service.mock';
+import { MockOrganizationEditDataService } from '../lib/data/mock/organization-edit.data-service.mock';
 
 
 
@@ -80,5 +83,8 @@ export const environment = {
     createReportDialog: MockCreateReportDialogDataService,
     closePeriodDialog: MockClosePeriodDialogDataService,
     addReceiptDialog: MockAddReceiptDialogDataService,
+    organization: MockOrganizationDataService,
+    organizationList: MockOrganizationListDataService,
+    organizationEdit: MockOrganizationEditDataService,
   },
 };

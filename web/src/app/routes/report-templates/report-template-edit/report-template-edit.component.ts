@@ -150,13 +150,26 @@ export class ReportTemplateEditComponent implements OnInit {
   ];
 
   readonly breadcrumbs: BreadcrumbItem[] = [
-    { label: $localize`Berichtsvorlagen`, path: '/reportTemplates' },
+    { label: $localize`Berichtsvorlagen`, path: '' },
     { label: $localize`Bearbeiten` },
   ];
 
   private templateId = '';
+  private orgId = '';
+
+  private getOrgId(): string {
+    let snapshot = this.route.snapshot;
+    while (snapshot) {
+      const id = snapshot.paramMap.get('orgId');
+      if (id) return id;
+      snapshot = snapshot.parent!;
+    }
+    return '';
+  }
 
   ngOnInit(): void {
+    this.orgId = this.getOrgId();
+    this.breadcrumbs[0].path = `/organizations/${this.orgId}/reportTemplates`;
     this.templateId = this.route.snapshot.paramMap.get('id') || '';
     if (this.templateId) {
       this.loadTemplate();
@@ -204,7 +217,7 @@ export class ReportTemplateEditComponent implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigate(['/reportTemplates']);
+    this.router.navigate(['/organizations', this.orgId, 'reportTemplates']);
   }
 
   formatDate(date: Date): string {

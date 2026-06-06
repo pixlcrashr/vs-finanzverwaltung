@@ -5,7 +5,7 @@ import {
   signal,
   OnInit,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
 import {
   PageContentLayoutComponent,
@@ -36,7 +36,7 @@ import { ReportTemplateListDataService } from './report-template-list.data-servi
     <app-page-content-layout [breadcrumbs]="breadcrumbs">
       <a
         layout-header-actions
-        routerLink="/reportTemplates/new"
+        [routerLink]="['/organizations', orgId, 'reportTemplates', 'new']"
         class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
       >
         <ng-container i18n>Neue Vorlage</ng-container>
@@ -51,7 +51,7 @@ import { ReportTemplateListDataService } from './report-template-list.data-servi
             i18n-description description="Erstelle deine erste Berichtsvorlage."
           >
             <a
-              routerLink="/reportTemplates/new"
+              [routerLink]="['/organizations', orgId, 'reportTemplates', 'new']"
               class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
             >
               <ng-container i18n>Erste Vorlage erstellen</ng-container>
@@ -100,7 +100,7 @@ import { ReportTemplateListDataService } from './report-template-list.data-servi
                         <td class="px-3 py-2 text-right text-xs">
                           <div class="flex items-center justify-end gap-2">
                             <a
-                              [routerLink]="['/reportTemplates', template.id, 'edit']"
+                              [routerLink]="['/organizations', orgId, 'reportTemplates', template.id, 'edit']"
                               class="text-xs text-blue-600 hover:underline"
                             >
                               <ng-container i18n>Bearbeiten</ng-container>
@@ -127,9 +127,22 @@ import { ReportTemplateListDataService } from './report-template-list.data-servi
   `,
 })
 export class ReportTemplateListComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
   private readonly dataService = inject(ReportTemplateListDataService);
   private readonly dialog = inject(Dialog);
   private readonly notifications = inject(NotificationService);
+
+  private getOrgId(): string {
+    let snapshot = this.route.snapshot;
+    while (snapshot) {
+      const id = snapshot.paramMap.get('orgId');
+      if (id) return id;
+      snapshot = snapshot.parent!;
+    }
+    return '';
+  }
+
+  orgId = '';
 
   readonly loading = signal(true);
   readonly templates = signal<ReportTemplate[]>([]);
@@ -137,6 +150,7 @@ export class ReportTemplateListComponent implements OnInit {
   readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Berichtsvorlagen` }];
 
   ngOnInit(): void {
+    this.orgId = this.getOrgId();
     this.loadTemplates();
   }
 

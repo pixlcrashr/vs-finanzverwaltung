@@ -6,6 +6,7 @@ import {
   OnInit,
   computed,
 } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
   PageContentLayoutComponent,
@@ -225,8 +226,19 @@ import {
   `,
 })
 export class AccountCompareComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
   private readonly dataService = inject(AccountCompareDataService);
   private readonly notifications = inject(NotificationService);
+
+  private getOrgId(): string {
+    let snapshot = this.route.snapshot;
+    while (snapshot) {
+      const id = snapshot.paramMap.get('orgId');
+      if (id) return id;
+      snapshot = snapshot.parent!;
+    }
+    return '';
+  }
 
   readonly loading = signal(true);
   readonly leftLoading = signal(false);
@@ -241,7 +253,7 @@ export class AccountCompareComponent implements OnInit {
   rightAccountId = '';
 
   readonly breadcrumbs: BreadcrumbItem[] = [
-    { label: $localize`Haushaltskonten`, path: '/accounts' },
+    { label: $localize`Haushaltskonten`, path: '' },
     { label: $localize`Kontenvergleich` },
   ];
 
@@ -258,6 +270,7 @@ export class AccountCompareComponent implements OnInit {
   );
 
   ngOnInit(): void {
+    this.breadcrumbs[0].path = `/organizations/${this.getOrgId()}/accounts`;
     this.loadBudgets();
   }
 

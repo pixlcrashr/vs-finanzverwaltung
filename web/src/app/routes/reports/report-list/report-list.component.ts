@@ -5,7 +5,7 @@ import {
   signal,
   OnInit,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
 import {
   PageContentLayoutComponent,
@@ -98,7 +98,7 @@ import { ReportListDataService } from './report-list.data-service';
                           <td class="px-3 py-2 text-right text-xs">
                             <div class="flex items-center justify-end gap-2">
                               <a
-                                [routerLink]="['/reports', report.id, 'view']"
+                                [routerLink]="['/organizations', orgId, 'reports', report.id, 'view']"
                                 class="text-xs text-blue-600 hover:underline"
                               >
                                 <ng-container i18n>Ansehen</ng-container>
@@ -126,9 +126,22 @@ import { ReportListDataService } from './report-list.data-service';
   `,
 })
 export class ReportListComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
   private readonly dataService = inject(ReportListDataService);
   private readonly dialog = inject(Dialog);
   private readonly notifications = inject(NotificationService);
+
+  private getOrgId(): string {
+    let snapshot = this.route.snapshot;
+    while (snapshot) {
+      const id = snapshot.paramMap.get('orgId');
+      if (id) return id;
+      snapshot = snapshot.parent!;
+    }
+    return '';
+  }
+
+  orgId = '';
 
   readonly loading = signal(true);
   readonly reports = signal<Report[]>([]);
@@ -136,6 +149,7 @@ export class ReportListComponent implements OnInit {
   readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Berichte` }];
 
   ngOnInit(): void {
+    this.orgId = this.getOrgId();
     this.loadData();
   }
 

@@ -7,6 +7,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import {
   PageContentLayoutComponent,
   BreadcrumbItem,
@@ -300,8 +301,19 @@ interface TransactionRow {
   `,
 })
 export class JournalImportComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
   private readonly dataService = inject(JournalImportDataService);
   private readonly notifications = inject(NotificationService);
+
+  private getOrgId(): string {
+    let snapshot = this.route.snapshot;
+    while (snapshot) {
+      const id = snapshot.paramMap.get('orgId');
+      if (id) return id;
+      snapshot = snapshot.parent!;
+    }
+    return '';
+  }
 
   readonly loading = signal(true);
   readonly uploading = signal(false);
@@ -324,11 +336,15 @@ export class JournalImportComponent implements OnInit {
   selectedSourceId = '';
 
   readonly breadcrumbs: BreadcrumbItem[] = [
-    { label: $localize`Journal`, path: '/journal' },
+    { label: $localize`Journal`, path: '' },
     { label: $localize`Import` },
   ];
 
+  private orgId = '';
+
   ngOnInit(): void {
+    this.orgId = this.getOrgId();
+    this.breadcrumbs[0].path = `/organizations/${this.orgId}/journal`;
     this.loadSources();
     this.loadAccounts();
   }

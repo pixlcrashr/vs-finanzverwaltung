@@ -1,11 +1,15 @@
-import { Component, ChangeDetectionStrategy, signal, inject } from '@angular/core';
-import { RouterOutlet, RouterLink, Router } from '@angular/router';
-import { MenuItem } from '../../models';
+import { Component, ChangeDetectionStrategy, signal, inject, OnInit, computed, OnDestroy } from '@angular/core';
+import { RouterOutlet, RouterLink, Router, ActivatedRoute } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { Subject, debounceTime, takeUntil } from 'rxjs';
+import { MenuItem, Organization } from '../../models';
+import { CurrentOrganizationService } from '../../services/current-organization.service';
+import { OrganizationDataService } from '../../services/organization.data-service';
 
 @Component({
   selector: 'app-main-layout',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink],
+  imports: [RouterOutlet, RouterLink, FormsModule],
   styles: `
     :host {
       display: block;
@@ -32,10 +36,38 @@ import { MenuItem } from '../../models';
           <h1 class="text-xs font-medium text-white">VS-Finanzverwaltung</h1>
         </div>
 
-        <!-- Navigation -->
+        <!-- Organization Selector -->
+        <div class="px-2 py-2">
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-[10px] font-semibold uppercase tracking-wider text-gray-500" i18n>Organisation</label>
+            @if (loading()) {
+              <svg class="w-3 h-3 animate-spin text-gray-500" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            }
+          </div>
+          <select
+            [ngModel]="currentOrganizationId()"
+            (ngModelChange)="onOrganizationChange($event)"
+            [disabled]="loading() || organizations().length === 0"
+            class="w-full px-2 py-1.5 text-xs bg-gray-800 text-white border border-gray-700 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            @if (organizations().length === 0) {
+              <option value="" i18n>Keine Organisationen</option>
+            } @else {
+              @for (org of organizations(); track org.id) {
+                <option [value]="org.id">{{ org.name }}</option>
+              }
+            }
+          </select>
+        </div>
+
+        <!-- Navigation (always show when organizations exist) -->
+        @if (organizations().length > 0) {
         <nav class="min-h-0 flex-1 overflow-y-auto px-2 py-2">
           <ul class="space-y-0.5">
-            @for (item of generalMenuItems(); track item.path) {
+            @for (item of generalMenuItems(); track item.name) {
               <li>
                 <a
                   [routerLink]="item.path"
@@ -52,7 +84,7 @@ import { MenuItem } from '../../models';
               Rechnungswesen
             </p>
             <ul class="space-y-0.5">
-              @for (item of applicationMenuItems(); track item.path) {
+              @for (item of applicationMenuItems(); track item.name) {
                 <li>
                   <a [routerLink]="item.path" [class]="menuItemClasses(item)">
                     {{ item.name }}
@@ -67,7 +99,7 @@ import { MenuItem } from '../../models';
               Haushalt
             </p>
             <ul class="space-y-0.5">
-              @for (item of householdMenuItems(); track item.path) {
+              @for (item of householdMenuItems(); track item.name) {
                 <li>
                   <a [routerLink]="item.path" [class]="menuItemClasses(item)">
                     {{ item.name }}
@@ -76,24 +108,26 @@ import { MenuItem } from '../../models';
               }
             </ul>
           </div>
-
-          @if (adminMenuItems().length > 0) {
-            <div class="mt-4">
-              <p i18n class="px-2 mb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-500">
-                Administration
-              </p>
-              <ul class="space-y-0.5">
-                @for (item of adminMenuItems(); track item.path) {
-                  <li>
-                    <a [routerLink]="item.path" [class]="menuItemClasses(item)">
-                      {{ item.name }}
-                    </a>
-                  </li>
-                }
-              </ul>
-            </div>
-          }
         </nav>
+        }
+
+        <!-- Admin Navigation (separate from normal routes) -->
+        @if (adminMenuItems().length > 0) {
+        <nav class="border-t border-gray-800 px-2 py-2">
+          <p i18n class="px-2 mb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+            Administration
+          </p>
+          <ul class="space-y-0.5">
+            @for (item of adminMenuItems(); track item.name) {
+              <li>
+                <a [routerLink]="item.path" [class]="menuItemClasses(item)">
+                  {{ item.name }}
+                </a>
+              </li>
+            }
+          </ul>
+        </nav>
+        }
 
         <!-- Theme Toggle -->
         <div class="px-2 py-2 border-t border-gray-800">
@@ -141,50 +175,235 @@ import { MenuItem } from '../../models';
     </div>
   `,
 })
-export class MainLayoutComponent {
+export class MainLayoutComponent implements OnInit {
   protected readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly currentOrganizationService = inject(CurrentOrganizationService);
+  private readonly organizationDataService = inject(OrganizationDataService);
 
   readonly isDarkMode = signal(false);
+  readonly organizations = signal<Organization[]>([]);
+  readonly loading = signal(true);
 
-  constructor() {
-    this.initializeTheme();
-  }
+  readonly currentOrganizationId = signal<string>('');
 
-  readonly generalMenuItems = signal<MenuItem[]>([
-    { name: $localize`Dashboard`, path: '/dashboard' },
-  ]);
+  // Computed menu items that include the organization ID
+  // Prioritizes the currently selected organization, falls back to route orgId
+  readonly orgIdFromRoute = computed(() => {
+    // First check if we have a selected organization in the service
+    const selectedOrgId = this.currentOrganizationService.currentOrganization()?.id;
+    if (selectedOrgId) return selectedOrgId;
 
-  readonly applicationMenuItems = signal<MenuItem[]>([
-    { name: $localize`Kostenerstattungen`, path: '/reimbursements' },
-  ]);
+    // Fall back to route params - check parent routes too
+    let route = this.route;
+    while (route) {
+      const orgId = route.snapshot.paramMap.get('orgId') ?? route.snapshot.paramMap.get('id');
+      if (orgId) return orgId;
+      route = route.parent!;
+    }
+    return '';
+  });
 
-  readonly householdMenuItems = signal<MenuItem[]>([
-    { name: $localize`Matrix`, path: '/matrix' },
-    { name: $localize`Pläne`, path: '/budgets' },
-    { name: $localize`Konten`, path: '/accounts', excludePaths: ['/accounts/compare'] },
-    { name: $localize`Kontenvergleich`, path: '/accounts/compare' },
-    { name: $localize`Kontengruppen`, path: '/accountGroups' },
-    { name: $localize`Journal`, path: '/journal' },
-    { name: $localize`Berichte`, path: '/reports' },
-    { name: $localize`Berichtsvorlagen`, path: '/reportTemplates' },
-  ]);
+  // Check if we have an organization selected or are on an org-prefixed route
+  readonly hasOrganization = computed(() => {
+    return this.currentOrganizationService.hasOrganization() || this.orgIdFromRoute() !== '';
+  });
 
-  readonly adminMenuItems = signal<MenuItem[]>([
+  readonly generalMenuItems = computed<MenuItem[]>(() => {
+    const orgId = this.orgIdFromRoute();
+    if (!orgId) return [];
+    return [{ name: $localize`Dashboard`, path: `/organizations/${orgId}/dashboard` }];
+  });
+
+  readonly applicationMenuItems = computed<MenuItem[]>(() => {
+    const orgId = this.orgIdFromRoute();
+    if (!orgId) return [];
+    return [{ name: $localize`Kostenerstattungen`, path: `/organizations/${orgId}/reimbursements` }];
+  });
+
+  readonly householdMenuItems = computed<MenuItem[]>(() => {
+    const orgId = this.orgIdFromRoute();
+    if (!orgId) return [];
+    return [
+      { name: $localize`Matrix`, path: `/organizations/${orgId}/matrix` },
+      { name: $localize`Pläne`, path: `/organizations/${orgId}/budgets` },
+      { name: $localize`Konten`, path: `/organizations/${orgId}/accounts`, excludePaths: [`/organizations/${orgId}/accounts/compare`] },
+      { name: $localize`Kontenvergleich`, path: `/organizations/${orgId}/accounts/compare` },
+      { name: $localize`Kontengruppen`, path: `/organizations/${orgId}/accountGroups` },
+      { name: $localize`Journal`, path: `/organizations/${orgId}/journal` },
+      { name: $localize`Berichte`, path: `/organizations/${orgId}/reports` },
+      { name: $localize`Berichtsvorlagen`, path: `/organizations/${orgId}/reportTemplates` },
+    ];
+  });
+
+  readonly adminMenuItems = computed<MenuItem[]>(() => [
     { name: $localize`Einstellungen`, path: '/admin/settings' },
+    { name: $localize`Organisationen`, path: '/admin/organizations' },
     { name: $localize`Benutzer`, path: '/admin/users' },
     { name: $localize`Gruppen`, path: '/admin/groups' },
     { name: $localize`Importquellen`, path: '/admin/importSources' },
   ]);
 
+  constructor() {
+    this.initializeTheme();
+    // Setup debounced organization change handler
+    this.orgChangeSubject.pipe(
+      debounceTime(500),
+      takeUntil(this.destroy$)
+    ).subscribe((organizationId) => {
+      this.selectOrganization(organizationId);
+      // Navigate to the new organization's dashboard
+      this.router.navigate(['/organizations', organizationId, 'dashboard']);
+    });
+  }
+
+  ngOnInit(): void {
+    // Initialize currentOrganizationId from service if available
+    const selectedOrgId = this.currentOrganizationService.currentOrganization()?.id;
+    if (selectedOrgId) {
+      this.currentOrganizationId.set(selectedOrgId);
+    }
+    this.loadOrganizations();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private loadOrganizations(): void {
+    this.loading.set(true);
+    this.organizationDataService.getOrganizations().subscribe({
+      next: (orgs) => {
+        this.organizations.set(orgs);
+        this.loading.set(false);
+
+        // Get current selected org from service
+        const currentOrg = this.currentOrganizationService.currentOrganization();
+
+        // Try to get orgId from route params - check parent routes too
+        let routeOrgId: string | null = null;
+        let route = this.route;
+        while (route) {
+          routeOrgId = route.snapshot.paramMap.get('orgId') ?? route.snapshot.paramMap.get('id');
+          if (routeOrgId) break;
+          route = route.parent!;
+        }
+
+        if (routeOrgId) {
+          // On org-prefixed route - use the route's orgId if it exists
+          const org = orgs.find((o) => o.id === routeOrgId);
+          if (org) {
+            // Only update if different from current (prevents unnecessary switches on internal nav)
+            if (!currentOrg || currentOrg.id !== org.id) {
+              this.selectOrganization(org.id);
+            } else {
+              // Just update the local signal without triggering service change
+              this.currentOrganizationId.set(org.id);
+            }
+          } else if (!currentOrg && orgs.length > 0) {
+            // Route orgId not found, and no org selected - fallback to first
+            this.selectOrganization(orgs[0].id);
+          }
+        } else if (currentOrg) {
+          // On admin route but have an org selected - just sync the local signal
+          this.currentOrganizationId.set(currentOrg.id);
+        } else if (orgs.length > 0) {
+          // No orgId in route (admin routes) and no org selected - auto-select first
+          this.selectOrganization(orgs[0].id);
+        }
+      },
+      error: () => {
+        this.loading.set(false);
+      },
+    });
+  }
+
+  onOrganizationChange(organizationId: string): void {
+    if (!organizationId) return;
+    this.orgChangeSubject.next(organizationId);
+  }
+
+  private selectOrganization(organizationId: string): void {
+    if (!organizationId) {
+      this.currentOrganizationId.set('');
+      this.currentOrganizationService.setOrganization(null);
+      return;
+    }
+
+    const org = this.organizations().find((o) => o.id === organizationId);
+    if (org) {
+      this.currentOrganizationId.set(organizationId);
+      this.currentOrganizationService.setOrganization(org);
+    }
+  }
+
+  createOrganization(name: string, description: string): void {
+    this.organizationDataService.createOrganization(name, description).subscribe({
+      next: (org) => {
+        this.organizations.update((orgs) => [org, ...orgs]);
+        this.selectOrganization(org.id);
+        // Navigate to the newly created organization's dashboard
+        this.router.navigate(['/organizations', org.id, 'dashboard']);
+      },
+    });
+  }
+
+  onCreateOrganization(): void {
+    const name = this.newOrgName().trim();
+    const description = this.newOrgDescription().trim();
+    if (name) {
+      this.createOrganization(name, description);
+      this.newOrgName.set('');
+      this.newOrgDescription.set('');
+    }
+  }
+
+  readonly isCreateOrgFormVisible = signal(false);
+  readonly newOrgName = signal('');
+  readonly newOrgDescription = signal('');
+
+  private readonly orgChangeSubject = new Subject<string>();
+  private readonly destroy$ = new Subject<void>();
+
   isMenuItemActive(item: MenuItem): boolean {
+    // Check if this is an admin route - admin routes don't have org prefix
+    const isAdminRoute = item.path.startsWith('/admin/');
+    if (isAdminRoute) {
+      const currentUrl = this.router.url;
+      const matchesPath = currentUrl === item.path || currentUrl.startsWith(`${item.path}/`);
+
+      if (!matchesPath) {
+        return false;
+      }
+
+      return !(item.excludePaths ?? []).some(
+        (excludedPath) =>
+          currentUrl === excludedPath || currentUrl.startsWith(`${excludedPath}/`),
+      );
+    }
+
+    // For org routes, extract the org path prefix and compare route segments
     const currentUrl = this.router.url;
-    const matchesPath = currentUrl === item.path || currentUrl.startsWith(`${item.path}/`);
+    const orgId = this.orgIdFromRoute();
+
+    if (!orgId) return false;
+
+    // Build the full path with current org ID
+    const fullPath = item.path.replace(/\/organizations\/[^/]+/, `/organizations/${orgId}`);
+
+    const matchesPath = currentUrl === fullPath || currentUrl.startsWith(`${fullPath}/`);
 
     if (!matchesPath) {
       return false;
     }
 
-    return !(item.excludePaths ?? []).some(
+    // Check excluded paths with current org ID
+    const excludedPaths = item.excludePaths?.map(ep =>
+      ep.replace(/\/organizations\/[^/]+/, `/organizations/${orgId}`)
+    ) ?? [];
+
+    return !excludedPaths.some(
       (excludedPath) =>
         currentUrl === excludedPath || currentUrl.startsWith(`${excludedPath}/`),
     );

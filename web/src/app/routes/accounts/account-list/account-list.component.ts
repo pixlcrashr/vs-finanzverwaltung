@@ -5,7 +5,7 @@ import {
   signal,
   OnInit,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NgTemplateOutlet } from '@angular/common';
 import { Dialog } from '@angular/cdk/dialog';
 import { concat, forkJoin, timer } from 'rxjs';
@@ -131,7 +131,7 @@ import { AccountListDataService } from './account-list.data-service';
               </button>
             }
             <a
-              [routerLink]="['/accounts', account.id]"
+              [routerLink]="['/organizations', orgId, 'accounts', account.id]"
               class="text-xs text-blue-600 hover:underline"
             >
               <ng-container i18n>Bearbeiten</ng-container>
@@ -146,9 +146,22 @@ import { AccountListDataService } from './account-list.data-service';
   `,
 })
 export class AccountListComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
   private readonly dataService = inject(AccountListDataService);
   private readonly dialog = inject(Dialog);
   private readonly notifications = inject(NotificationService);
+
+  private getOrgId(): string {
+    let snapshot = this.route.snapshot;
+    while (snapshot) {
+      const id = snapshot.paramMap.get('orgId');
+      if (id) return id;
+      snapshot = snapshot.parent!;
+    }
+    return '';
+  }
+
+  orgId = '';
 
   readonly loading = signal(true);
   readonly archivingAccountId = signal<string | null>(null);
@@ -159,6 +172,7 @@ export class AccountListComponent implements OnInit {
   readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Haushaltskonten` }];
 
   ngOnInit(): void {
+    this.orgId = this.getOrgId();
     this.loadAccounts();
   }
 

@@ -319,13 +319,14 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
   readonly budget = signal<BudgetDetails | null>(null);
 
   readonly breadcrumbs = signal<BreadcrumbItem[]>([
-    { label: $localize`Haushaltspläne`, path: '/budgets' },
+    { label: $localize`Haushaltspläne`, path: '' },
     { label: $localize`Laden...` },
   ]);
 
   readonly budgetForm: FormGroup;
 
   private budgetId = '';
+  private orgId = '';
 
   constructor() {
     this.budgetForm = this.fb.group({
@@ -338,7 +339,18 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
     });
   }
 
+  private getOrgId(): string {
+    let snapshot = this.route.snapshot;
+    while (snapshot) {
+      const id = snapshot.paramMap.get('orgId');
+      if (id) return id;
+      snapshot = snapshot.parent!;
+    }
+    return '';
+  }
+
   ngOnInit(): void {
+    this.orgId = this.getOrgId();
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.budgetId = id;
@@ -377,7 +389,7 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
         }, { emitEvent: false });
         this.budgetForm.markAsPristine();
         this.breadcrumbs.set([
-          { label: $localize`Haushaltspläne`, path: '/budgets' },
+          { label: $localize`Haushaltspläne`, path: `/organizations/${this.orgId}/budgets` },
           { label: budget.displayName },
         ]);
         this.loading.set(false);
@@ -385,7 +397,7 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
       error: () => {
         this.notifications.error($localize`Fehler beim Laden des Haushaltsplans`);
         this.loading.set(false);
-        this.router.navigate(['/budgets']);
+        this.router.navigate(['/organizations', this.orgId, 'budgets']);
       },
     });
   }
@@ -420,7 +432,7 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
           this.budgetForm.markAsPristine();
           // Update breadcrumbs with new name
           this.breadcrumbs.set([
-            { label: $localize`Haushaltspläne`, path: '/budgets' },
+            { label: $localize`Haushaltspläne`, path: `/organizations/${this.orgId}/budgets` },
             { label: name },
           ]);
         },

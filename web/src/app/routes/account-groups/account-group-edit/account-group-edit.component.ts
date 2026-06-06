@@ -246,13 +246,24 @@ export class AccountGroupEditComponent implements OnInit, OnDestroy {
   readonly group = signal<AccountGroupDetails | null>(null);
 
   readonly breadcrumbs = signal<BreadcrumbItem[]>([
-    { label: $localize`Kontengruppen`, path: '/accountGroups' },
+    { label: $localize`Kontengruppen`, path: '' },
     { label: $localize`Laden...` },
   ]);
 
   readonly groupForm: FormGroup;
 
   groupId = '';
+  private orgId = '';
+
+  private getOrgId(): string {
+    let snapshot = this.route.snapshot;
+    while (snapshot) {
+      const id = snapshot.paramMap.get('orgId');
+      if (id) return id;
+      snapshot = snapshot.parent!;
+    }
+    return '';
+  }
 
   constructor() {
     this.groupForm = this.fb.group({
@@ -262,6 +273,7 @@ export class AccountGroupEditComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.orgId = this.getOrgId();
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.groupId = id;
@@ -297,7 +309,7 @@ export class AccountGroupEditComponent implements OnInit, OnDestroy {
         }, { emitEvent: false });
         this.groupForm.markAsPristine();
         this.breadcrumbs.set([
-          { label: $localize`Kontengruppen`, path: '/accountGroups' },
+          { label: $localize`Kontengruppen`, path: `/organizations/${this.orgId}/accountGroups` },
           { label: group.name },
         ]);
         this.loading.set(false);
@@ -305,7 +317,7 @@ export class AccountGroupEditComponent implements OnInit, OnDestroy {
       error: () => {
         this.loading.set(false);
         this.notifications.error($localize`Fehler beim Laden der Kontengruppe`);
-        this.router.navigate(['/accountGroups']);
+        this.router.navigate(['/organizations', this.orgId, 'accountGroups']);
       },
     });
   }
@@ -348,7 +360,7 @@ export class AccountGroupEditComponent implements OnInit, OnDestroy {
         this.groupForm.markAsPristine();
         // Update breadcrumbs with new name
         this.breadcrumbs.set([
-          { label: $localize`Kontengruppen`, path: '/accountGroups' },
+          { label: $localize`Kontengruppen`, path: `/organizations/${this.orgId}/accountGroups` },
           { label: name },
         ]);
       },
@@ -386,7 +398,7 @@ export class AccountGroupEditComponent implements OnInit, OnDestroy {
     dialogRef.closed.subscribe((result) => {
       if (result?.deleted) {
         this.notifications.success($localize`Kontengruppe wurde erfolgreich gelöscht`);
-        this.router.navigate(['/accountGroups']);
+        this.router.navigate(['/organizations', this.orgId, 'accountGroups']);
       }
     });
   }

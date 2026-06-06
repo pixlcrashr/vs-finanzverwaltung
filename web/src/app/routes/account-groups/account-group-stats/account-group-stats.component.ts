@@ -181,13 +181,25 @@ export class AccountGroupStatsComponent implements OnInit {
   readonly selectedTagId = signal('');
 
   readonly breadcrumbs = signal<BreadcrumbItem[]>([
-    { label: $localize`Kontengruppen`, path: '/accountGroups' },
+    { label: $localize`Kontengruppen`, path: '' },
     { label: $localize`Laden...` },
   ]);
 
   private groupId = '';
+  private orgId = '';
+
+  private getOrgId(): string {
+    let snapshot = this.route.snapshot;
+    while (snapshot) {
+      const id = snapshot.paramMap.get('orgId');
+      if (id) return id;
+      snapshot = snapshot.parent!;
+    }
+    return '';
+  }
 
   ngOnInit(): void {
+    this.orgId = this.getOrgId();
     this.groupId = this.route.snapshot.paramMap.get('id') || '';
     if (this.groupId) {
       this.loadBudgets();
@@ -209,7 +221,7 @@ export class AccountGroupStatsComponent implements OnInit {
       error: () => {
         this.loading.set(false);
         this.notifications.error($localize`Fehler beim Laden der Haushaltspläne`);
-        this.router.navigate(['/accountGroups']);
+        this.router.navigate(['/organizations', this.orgId, 'accountGroups']);
       },
     });
   }
@@ -234,8 +246,8 @@ export class AccountGroupStatsComponent implements OnInit {
       next: (stats) => {
         this.group.set(stats);
         this.breadcrumbs.set([
-          { label: $localize`Kontengruppen`, path: '/accountGroups' },
-          { label: stats.name, path: `/accountGroups/${stats.id}` },
+          { label: $localize`Kontengruppen`, path: `/organizations/${this.orgId}/accountGroups` },
+          { label: stats.name, path: `/organizations/${this.orgId}/accountGroups/${stats.id}` },
           { label: $localize`Statistik` },
         ]);
         this.loading.set(false);

@@ -5,6 +5,7 @@ export * from './application.model';
 export * from './budget.model';
 export * from './committee.model';
 export * from './menu.model';
+export * from './organization.model';
 export * from './reimbursement.model';
 export * from './report.model';
 export * from './transaction.model';

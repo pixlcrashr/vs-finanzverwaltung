@@ -491,15 +491,28 @@ export class ReimbursementEditComponent implements OnInit {
     return feed.slice(0, 10);
   });
 
+  private orgId = '';
+
+  private getOrgId(): string {
+    let snapshot = this.route.snapshot;
+    while (snapshot) {
+      const id = snapshot.paramMap.get('orgId');
+      if (id) return id;
+      snapshot = snapshot.parent!;
+    }
+    return '';
+  }
+
   readonly breadcrumbs = computed<BreadcrumbItem[]>(() => {
     const r = this.reimbursement();
     return [
-      { label: $localize`Kostenerstattungen`, path: '/reimbursements' },
+      { label: $localize`Kostenerstattungen`, path: `/organizations/${this.orgId}/reimbursements` },
       { label: r ? r.publicId : '...' },
     ];
   });
 
   ngOnInit(): void {
+    this.orgId = this.getOrgId();
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.loadReimbursement(id);

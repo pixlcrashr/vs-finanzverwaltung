@@ -8,6 +8,8 @@ import { GroupEditDataService } from './groups/group-edit.data-service';
 import { ImportSourceListDataService } from './import-sources/import-source-list.data-service';
 import { ImportSourceEditDataService } from './import-sources/import-source-edit.data-service';
 import { ClosePeriodDialogDataService } from '../../shared/dialogs/close-period-dialog/close-period-dialog.data-service';
+import { OrganizationListDataService } from './organizations/organization-list.data-service';
+import { OrganizationEditDataService } from './organizations/organization-edit.data-service';
 import { environment } from '../../../environments/environment';
 
 export const ADMIN_ROUTES: Routes = [
@@ -73,6 +75,26 @@ export const ADMIN_ROUTES: Routes = [
     providers: [
       { provide: ImportSourceEditDataService, useClass: environment.dataServices.importSourceEdit },
       { provide: ClosePeriodDialogDataService, useClass: environment.dataServices.closePeriodDialog },
+    ],
+  },
+  {
+    path: 'organizations',
+    loadComponent: () =>
+      import('./organizations/organization-list.component').then(
+        (m) => m.OrganizationListComponent
+      ),
+    providers: [
+      { provide: OrganizationListDataService, useClass: environment.dataServices.organizationList },
+    ],
+  },
+  {
+    path: 'organizations/:id/edit',
+    loadComponent: () =>
+      import('./organizations/organization-edit.component').then(
+        (m) => m.OrganizationEditComponent
+      ),
+    providers: [
+      { provide: OrganizationEditDataService, useClass: environment.dataServices.organizationEdit },
     ],
   },
 ];

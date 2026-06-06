@@ -4,7 +4,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
   PageContentLayoutComponent,
@@ -82,10 +82,10 @@ import { ReportTemplateNewDataService } from './report-template-new.data-service
           <div class="bg-white rounded-lg border border-gray-200 p-4">
             <div class="flex items-center justify-between mb-4">
               <h2 i18n class="text-sm font-semibold text-gray-900">
-                Vorlage (Handlebars HTML)
+                Vorlage (Go HTML Template)
               </h2>
               <span i18n class="text-xs text-gray-500">
-                Verwenden Sie Handlebars-Syntax für dynamische Inhalte
+                Verwenden Sie Go-Template-Syntax für dynamische Inhalte
               </span>
             </div>
             <textarea
@@ -113,42 +113,53 @@ import { ReportTemplateNewDataService } from './report-template-new.data-service
   `,
 })
 export class ReportTemplateNewComponent {
+  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dataService = inject(ReportTemplateNewDataService);
   private readonly notifications = inject(NotificationService);
 
   readonly saving = signal(false);
 
+  private getOrgId(): string {
+    let snapshot = this.route.snapshot;
+    while (snapshot) {
+      const id = snapshot.paramMap.get('orgId');
+      if (id) return id;
+      snapshot = snapshot.parent!;
+    }
+    return '';
+  }
+
   name = '';
   description = '';
   templateContent = '';
 
   readonly placeholderText = `<div>
-  <h1>{{budget.name}}</h1>
+  <h1>{{ .Budget.Name }}</h1>
   <table>
-    {{#each accounts}}
+    {{ range .Accounts }}
     <tr>
-      <td>{{code}}</td>
-      <td>{{name}}</td>
-      <td>{{balance}}</td>
+      <td>{{ .Code }}</td>
+      <td>{{ .Name }}</td>
+      <td>{{ .Balance }}</td>
     </tr>
-    {{/each}}
+    {{ end }}
   </table>
 </div>`;
 
   readonly variables = [
-    { code: '{{budget.name}}', label: $localize`Budgetname` },
-    { code: '{{budget.startDate}}', label: $localize`Startdatum` },
-    { code: '{{budget.endDate}}', label: $localize`Enddatum` },
-    { code: '{{#each accounts}}', label: $localize`Kontenliste` },
-    { code: '{{code}}', label: $localize`Kontonummer` },
-    { code: '{{name}}', label: $localize`Kontoname` },
-    { code: '{{balance}}', label: $localize`Kontosaldo` },
-    { code: '{{formatDate date}}', label: $localize`Datum formatieren` },
+    { code: '{{ .Budget.Name }}', label: $localize`Budgetname` },
+    { code: '{{ .Budget.StartDate }}', label: $localize`Startdatum` },
+    { code: '{{ .Budget.EndDate }}', label: $localize`Enddatum` },
+    { code: '{{ range .Accounts }}...{{ end }}', label: $localize`Kontenliste` },
+    { code: '{{ .Code }}', label: $localize`Kontonummer` },
+    { code: '{{ .Name }}', label: $localize`Kontoname` },
+    { code: '{{ .Balance }}', label: $localize`Kontosaldo` },
+    { code: '{{ .Date | formatDate }}', label: $localize`Datum formatieren` },
   ];
 
   readonly breadcrumbs: BreadcrumbItem[] = [
-    { label: $localize`Berichtsvorlagen`, path: '/reportTemplates' },
+    { label: $localize`Berichtsvorlagen`, path: '' },
     { label: $localize`Neu` },
   ];
 
@@ -166,7 +177,7 @@ export class ReportTemplateNewComponent {
       template: this.templateContent,
     }).subscribe({
       next: () => {
-        this.router.navigate(['/reportTemplates']);
+        this.router.navigate(['/organizations', this.getOrgId(), 'reportTemplates']);
       },
       error: () => {
         this.notifications.error($localize`Fehler beim Erstellen der Berichtsvorlage`);
@@ -176,6 +187,6 @@ export class ReportTemplateNewComponent {
   }
 
   cancel(): void {
-    this.router.navigate(['/reportTemplates']);
+    this.router.navigate(['/organizations', this.getOrgId(), 'reportTemplates']);
   }
 }

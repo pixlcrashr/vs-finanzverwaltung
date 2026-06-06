@@ -1,78 +1,82 @@
 import { Routes } from '@angular/router';
+import { OrganizationDataService } from './shared/services/organization.data-service';
+import { environment } from '../environments/environment';
 
 export const routes: Routes = [
+  // Main layout with left sidebar - single instance for all routes
   {
     path: '',
     loadComponent: () =>
       import('./shared/layout/main-layout/main-layout.component').then(
         (m) => m.MainLayoutComponent,
       ),
+    providers: [
+      { provide: OrganizationDataService, useClass: environment.dataServices.organization },
+    ],
     children: [
+      // Admin routes
       {
-        path: '',
-        redirectTo: 'dashboard',
+        path: 'admin',
+        loadChildren: () => import('./routes/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
+      },
+      // Organization-prefixed routes with full path
+      {
+        path: 'organizations/:orgId',
+        redirectTo: 'organizations/:orgId/dashboard',
         pathMatch: 'full',
       },
       {
-        path: 'dashboard',
+        path: 'organizations/:orgId/dashboard',
         loadChildren: () =>
           import('./routes/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
       },
       {
-        path: 'reimbursements',
+        path: 'organizations/:orgId/reimbursements',
         loadChildren: () =>
           import('./routes/reimbursements/reimbursements.routes').then(
             (m) => m.REIMBURSEMENTS_ROUTES,
           ),
       },
       {
-        path: 'budgets',
+        path: 'organizations/:orgId/budgets',
         loadChildren: () => import('./routes/budgets/budgets.routes').then((m) => m.BUDGETS_ROUTES),
       },
       {
-        path: 'accounts',
+        path: 'organizations/:orgId/accounts',
         loadChildren: () =>
           import('./routes/accounts/accounts.routes').then((m) => m.ACCOUNTS_ROUTES),
       },
       {
-        path: 'accountGroups',
+        path: 'organizations/:orgId/accountGroups',
         loadChildren: () =>
           import('./routes/account-groups/account-groups.routes').then(
             (m) => m.ACCOUNT_GROUPS_ROUTES,
           ),
       },
       {
-        path: 'journal',
+        path: 'organizations/:orgId/journal',
         loadChildren: () => import('./routes/journal/journal.routes').then((m) => m.JOURNAL_ROUTES),
       },
       {
-        path: 'transactions',
+        path: 'organizations/:orgId/transactions',
         loadChildren: () =>
           import('./routes/transactions/transactions.routes').then((m) => m.TRANSACTIONS_ROUTES),
       },
       {
-        path: 'reports',
+        path: 'organizations/:orgId/reports',
         loadChildren: () => import('./routes/reports/reports.routes').then((m) => m.REPORTS_ROUTES),
       },
       {
-        path: 'reportTemplates',
+        path: 'organizations/:orgId/reportTemplates',
         loadChildren: () =>
           import('./routes/report-templates/report-templates.routes').then(
             (m) => m.REPORT_TEMPLATES_ROUTES,
           ),
       },
       {
-        path: 'admin',
-        loadChildren: () => import('./routes/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
-      },
-      {
-        path: 'matrix',
+        path: 'organizations/:orgId/matrix',
         loadChildren: () => import('./routes/matrix/matrix.routes').then((m) => m.MATRIX_ROUTES),
       },
     ],
-  },
-  {
-    path: '**',
-    redirectTo: 'dashboard',
   },
 ];

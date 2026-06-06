@@ -6,7 +6,7 @@ import {
   OnInit,
   computed,
 } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
 import {
   PageContentLayoutComponent,
@@ -533,10 +533,21 @@ type ReimbursementScope = 'hoheitlich' | 'gewerblich';
   `,
 })
 export class ReimbursementNewComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dataService = inject(ReimbursementNewDataService);
   private readonly fb = inject(FormBuilder);
   private readonly notifications = inject(NotificationService);
+
+  private getOrgId(): string {
+    let snapshot = this.route.snapshot;
+    while (snapshot) {
+      const id = snapshot.paramMap.get('orgId');
+      if (id) return id;
+      snapshot = snapshot.parent!;
+    }
+    return '';
+  }
 
   readonly loading = signal(true);
   readonly saving = signal(false);
@@ -579,7 +590,7 @@ export class ReimbursementNewComponent implements OnInit {
   });
 
   readonly breadcrumbs: BreadcrumbItem[] = [
-    { label: $localize`Kostenerstattungen`, path: '/reimbursements' },
+    { label: $localize`Kostenerstattungen`, path: '' },
     { label: $localize`Kostenerstattung / Rechnungseinreichung` },
   ];
 
@@ -595,6 +606,7 @@ export class ReimbursementNewComponent implements OnInit {
   readonly totalAmount = signal(0);
 
   ngOnInit(): void {
+    this.breadcrumbs[0].path = `/organizations/${this.getOrgId()}/reimbursements`;
     this.loadData();
     this.setupBankValidation();
     this.setupReimbursementScopeWatcher();
@@ -813,7 +825,7 @@ export class ReimbursementNewComponent implements OnInit {
       .subscribe({
         next: (reimbursement) => {
           this.saving.set(false);
-          this.router.navigate(['/reimbursements', reimbursement.id]);
+          this.router.navigate(['/organizations', this.getOrgId(), 'reimbursements', reimbursement.id]);
         },
         error: () => {
           this.saving.set(false);

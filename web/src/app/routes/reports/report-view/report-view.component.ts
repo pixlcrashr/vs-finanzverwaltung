@@ -85,13 +85,26 @@ export class ReportViewComponent implements OnInit {
   readonly htmlContent = signal<SafeHtml>('');
 
   readonly breadcrumbs: BreadcrumbItem[] = [
-    { label: $localize`Berichte`, path: '/reports' },
+    { label: $localize`Berichte`, path: '' },
     { label: $localize`Ansehen` },
   ];
 
   private reportId = '';
+  private orgId = '';
+
+  private getOrgId(): string {
+    let snapshot = this.route.snapshot;
+    while (snapshot) {
+      const id = snapshot.paramMap.get('orgId');
+      if (id) return id;
+      snapshot = snapshot.parent!;
+    }
+    return '';
+  }
 
   ngOnInit(): void {
+    this.orgId = this.getOrgId();
+    this.breadcrumbs[0].path = `/organizations/${this.orgId}/reports`;
     this.reportId = this.route.snapshot.paramMap.get('id') || '';
     if (this.reportId) {
       this.loadReport();
@@ -113,7 +126,7 @@ export class ReportViewComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/reports']);
+    this.router.navigate(['/organizations', this.orgId, 'reports']);
   }
 
   downloadPdf(): void {

@@ -277,11 +277,21 @@ export class TransactionEditComponent implements OnInit {
   assignmentValue: number | null = null;
 
   readonly breadcrumbs: BreadcrumbItem[] = [
-    { label: $localize`Journal`, path: '/journal' },
+    { label: $localize`Journal`, path: '' },
     { label: $localize`Transaktion bearbeiten` },
   ];
 
   readonly Math = Math;
+
+  private getOrgId(): string {
+    let snapshot = this.route.snapshot;
+    while (snapshot) {
+      const id = snapshot.paramMap.get('orgId');
+      if (id) return id;
+      snapshot = snapshot.parent!;
+    }
+    return '';
+  }
 
   readonly assignedTotal = computed(() => {
     const tx = this.transaction();
@@ -314,6 +324,7 @@ export class TransactionEditComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.breadcrumbs[0].path = `/organizations/${this.getOrgId()}/journal`;
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.loadTransaction(id);

@@ -37,6 +37,10 @@ import { HttpCreateReportDialogDataService } from '../lib/data/http/create-repor
 import { HttpClosePeriodDialogDataService } from '../lib/data/http/close-period-dialog.data-service.http';
 // Add Receipt Dialog - using mock until HTTP implementation exists
 import { MockAddReceiptDialogDataService } from '../lib/data/mock/add-receipt-dialog.data-service.mock';
+// Organization - using mock until HTTP implementation exists
+import { MockOrganizationDataService } from '../lib/data/mock/organization.data-service.mock';
+import { MockOrganizationListDataService } from '../lib/data/mock/organization-list.data-service.mock';
+import { MockOrganizationEditDataService } from '../lib/data/mock/organization-edit.data-service.mock';
 
 export const environment = {
   production: false,
@@ -80,5 +84,8 @@ export const environment = {
     createReportDialog: HttpCreateReportDialogDataService,
     closePeriodDialog: HttpClosePeriodDialogDataService,
     addReceiptDialog: MockAddReceiptDialogDataService,
+    organization: MockOrganizationDataService,
+    organizationList: MockOrganizationListDataService,
+    organizationEdit: MockOrganizationEditDataService,
   },
 };

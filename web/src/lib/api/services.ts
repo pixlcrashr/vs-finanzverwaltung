@@ -1,4 +1,6 @@
+export { GroupServiceService } from './services/group-service.service';
 export { OrganizationServiceService } from './services/organization-service.service';
+export { UserServiceService } from './services/user-service.service';
 export { AccountServiceService } from './services/account-service.service';
 export { AccountGroupServiceService } from './services/account-group-service.service';
 export { BudgetAccountValueServiceService } from './services/budget-account-value-service.service';
@@ -6,10 +8,12 @@ export { TransactionAccountAssignmentServiceService } from './services/transacti
 export { AccountGroupAssignmentServiceService } from './services/account-group-assignment-service.service';
 export { BudgetServiceService } from './services/budget-service.service';
 export { ImportSourceServiceService } from './services/import-source-service.service';
+export { ReportTemplateServiceService } from './services/report-template-service.service';
 export { ReportServiceService } from './services/report-service.service';
 export { TransactionServiceService } from './services/transaction-service.service';
-export { ReportTemplateServiceService } from './services/report-template-service.service';
 export { TransactionAccountServiceService } from './services/transaction-account-service.service';
+export { UserIdentityServiceService } from './services/user-identity-service.service';
+export { UserSettingsServiceService } from './services/user-settings-service.service';
 export { ImportSourcePeriodServiceService } from './services/import-source-period-service.service';
 export { BudgetRevisionServiceService } from './services/budget-revision-service.service';
 export { BudgetRevisionAccountValueServiceService } from './services/budget-revision-account-value-service.service';

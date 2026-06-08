@@ -1,16 +1,16 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable, from, map } from 'rxjs';
-import { Api } from '../../api/api';
-import { closeImportSourcePeriod } from '../../api/functions';
+import { Observable, map } from 'rxjs';
+import { ImportSourcePeriodServiceService } from '../../api/services/import-source-period-service.service';
+import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import { ClosePeriodDialogDataService } from '../../../app/shared/dialogs/close-period-dialog/close-period-dialog.data-service';
 
 @Injectable()
 export class HttpClosePeriodDialogDataService extends ClosePeriodDialogDataService {
-  private readonly api = inject(Api);
+  private readonly svc = inject(ImportSourcePeriodServiceService);
+  private readonly orgSvc = inject(CurrentOrganizationService);
 
   closePeriod(importSourceId: string, periodId: string): Observable<void> {
-    return from(
-      this.api.invoke(closeImportSourcePeriod, { importSourceId, periodId })
-    ).pipe(map(() => undefined));
+    const name1 = `organizations/${this.orgSvc.currentOrganization()!.id}/importSources/${importSourceId}/periods/${periodId}`;
+    return this.svc.ImportSourcePeriodServiceCloseImportSourcePeriod({ name1, body: {} }).pipe(map(() => undefined));
   }
 }

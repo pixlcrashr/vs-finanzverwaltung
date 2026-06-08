@@ -13,7 +13,7 @@ export interface V1BudgetRevision {
   /**
    * Timestamp when this revision was created.
    */
-  createTime?: string;
+  create_time?: string;
 
   /**
    * The date this revision represents.
@@ -23,12 +23,12 @@ export interface V1BudgetRevision {
   /**
    * Optional free-text description for this revision.
    */
-  displayDescription?: string;
+  display_description?: string;
 
   /**
    * Human-readable name for this revision.
    */
-  displayName: string;
+  display_name: string;
 
   /**
    * Entity tag for optimistic concurrency control.

@@ -14,8 +14,8 @@ import { V1Decimal } from '../models/v1decimal';
   providedIn: 'root',
 })
 class TransactionServiceService extends __BaseService {
-  static readonly TransactionServiceDeleteTransactionPath = '/v1/{name_10}';
-  static readonly TransactionServiceGetTransactionPath = '/v1/{name_12}';
+  static readonly TransactionServiceDeleteTransactionPath = '/v1/{name_11}';
+  static readonly TransactionServiceGetTransactionPath = '/v1/{name_13}';
   static readonly TransactionServiceListTransactionsPath = '/v1/{parent}/transactions';
   static readonly TransactionServiceCreateTransactionPath = '/v1/{parent}/transactions';
   static readonly TransactionServiceUpdateTransactionPath = '/v1/{transaction.name}';
@@ -29,18 +29,18 @@ class TransactionServiceService extends __BaseService {
 
   /**
    * Permanently deletes a transaction.
-   * @param name_10 The resource name of the transaction.
+   * @param name_11 The resource name of the transaction.
    * Format: organizations/{organization}/transactions/{transaction}
    * @return A successful response.
    */
-  TransactionServiceDeleteTransactionResponse(name10: string): __Observable<__StrictHttpResponse<{}>> {
+  TransactionServiceDeleteTransactionResponse(name11: string): __Observable<__StrictHttpResponse<{}>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
 
     let req = new HttpRequest<any>(
       'DELETE',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name10))}`,
+      this.rootUrl + `/v1/${encodeURIComponent(String(name11))}`,
       __body,
       {
         headers: __headers,
@@ -57,30 +57,30 @@ class TransactionServiceService extends __BaseService {
   }
   /**
    * Permanently deletes a transaction.
-   * @param name_10 The resource name of the transaction.
+   * @param name_11 The resource name of the transaction.
    * Format: organizations/{organization}/transactions/{transaction}
    * @return A successful response.
    */
-  TransactionServiceDeleteTransaction(name10: string): __Observable<{}> {
-    return this.TransactionServiceDeleteTransactionResponse(name10).pipe(
+  TransactionServiceDeleteTransaction(name11: string): __Observable<{}> {
+    return this.TransactionServiceDeleteTransactionResponse(name11).pipe(
       __map(_r => _r.body as {})
     );
   }
 
   /**
    * Gets a single transaction by resource name.
-   * @param name_12 The resource name of the transaction.
+   * @param name_13 The resource name of the transaction.
    * Format: organizations/{organization}/transactions/{transaction}
    * @return A successful response.
    */
-  TransactionServiceGetTransactionResponse(name12: string): __Observable<__StrictHttpResponse<V1Transaction>> {
+  TransactionServiceGetTransactionResponse(name13: string): __Observable<__StrictHttpResponse<V1Transaction>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
 
     let req = new HttpRequest<any>(
       'GET',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name12))}`,
+      this.rootUrl + `/v1/${encodeURIComponent(String(name13))}`,
       __body,
       {
         headers: __headers,
@@ -97,12 +97,12 @@ class TransactionServiceService extends __BaseService {
   }
   /**
    * Gets a single transaction by resource name.
-   * @param name_12 The resource name of the transaction.
+   * @param name_13 The resource name of the transaction.
    * Format: organizations/{organization}/transactions/{transaction}
    * @return A successful response.
    */
-  TransactionServiceGetTransaction(name12: string): __Observable<V1Transaction> {
-    return this.TransactionServiceGetTransactionResponse(name12).pipe(
+  TransactionServiceGetTransaction(name13: string): __Observable<V1Transaction> {
+    return this.TransactionServiceGetTransactionResponse(name13).pipe(
       __map(_r => _r.body as V1Transaction)
     );
   }
@@ -114,12 +114,12 @@ class TransactionServiceService extends __BaseService {
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
    *
-   * - `pageToken`: A page token from a previous ListTransactions call.
+   * - `page_token`: A page token from a previous ListTransactions call.
    *
-   * - `pageSize`: Maximum number of transactions to return. The service may return fewer.
+   * - `page_size`: Maximum number of transactions to return. The service may return fewer.
    *   If unspecified, at most 20 are returned. Maximum value is 100.
    *
-   * - `orderBy`: Order by expression (e.g. "booked_at desc", "amount").
+   * - `order_by`: Order by expression (e.g. "booked_at desc", "amount").
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: credit_transaction_account_id, debit_transaction_account_id,
@@ -133,9 +133,9 @@ class TransactionServiceService extends __BaseService {
     let __headers = new HttpHeaders();
     let __body: any = null;
 
-    if (params.pageToken != null) __params = __params.set('pageToken', params.pageToken.toString());
-    if (params.pageSize != null) __params = __params.set('pageSize', params.pageSize.toString());
-    if (params.orderBy != null) __params = __params.set('orderBy', params.orderBy.toString());
+    if (params.pageToken != null) __params = __params.set('page_token', params.pageToken.toString());
+    if (params.pageSize != null) __params = __params.set('page_size', params.pageSize.toString());
+    if (params.orderBy != null) __params = __params.set('order_by', params.orderBy.toString());
     if (params.filter != null) __params = __params.set('filter', params.filter.toString());
     let req = new HttpRequest<any>(
       'GET',
@@ -161,12 +161,12 @@ class TransactionServiceService extends __BaseService {
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
    *
-   * - `pageToken`: A page token from a previous ListTransactions call.
+   * - `page_token`: A page token from a previous ListTransactions call.
    *
-   * - `pageSize`: Maximum number of transactions to return. The service may return fewer.
+   * - `page_size`: Maximum number of transactions to return. The service may return fewer.
    *   If unspecified, at most 20 are returned. Maximum value is 100.
    *
-   * - `orderBy`: Order by expression (e.g. "booked_at desc", "amount").
+   * - `order_by`: Order by expression (e.g. "booked_at desc", "amount").
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: credit_transaction_account_id, debit_transaction_account_id,
@@ -353,7 +353,7 @@ module TransactionServiceService {
     /**
      * The transaction to update.
      */
-    transaction: {uid?: string, creditTransactionAccountId: string, debitTransactionAccountId: string, amount: V1Decimal, description?: string, reference?: string, bookedAt: string, documentDate: string, documentId?: string, updateTime?: string, createTime?: string, etag?: string};
+    transaction: {uid?: string, credit_transaction_account_id: string, debit_transaction_account_id: string, amount: V1Decimal, description?: string, reference?: string, booked_at: string, document_date: string, document_id?: string, update_time?: string, create_time?: string, etag?: string};
   }
 }
 

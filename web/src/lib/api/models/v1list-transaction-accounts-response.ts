@@ -5,15 +5,15 @@ export interface V1ListTransactionAccountsResponse {
   /**
    * A token to retrieve the next page of results.
    */
-  nextPageToken?: string;
+  next_page_token?: string;
 
   /**
    * Total number of accounts matching the filter (may be an estimate).
    */
-  totalSize?: string;
+  total_size?: string;
 
   /**
    * The transaction accounts returned.
    */
-  transactionAccounts?: Array<V1TransactionAccount>;
+  transaction_accounts?: Array<V1TransactionAccount>;
 }

@@ -1,15 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, from, map, switchMap } from 'rxjs';
-import { Api } from '../../api/api';
-import {
-  getAccountGroup,
-  updateAccountGroup,
-  listAccountGroupAssignments,
-  createAccountGroupAssignment,
-  deleteAccountGroupAssignment,
-  deleteAccountGroup,
-  listAccounts,
-} from '../../api/functions';
+import { Observable, combineLatest, map, of, switchMap } from 'rxjs';
+import { AccountGroupServiceService } from '../../api/services/account-group-service.service';
+import { AccountGroupAssignmentServiceService } from '../../api/services/account-group-assignment-service.service';
+import { AccountServiceService } from '../../api/services/account-service.service';
+import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import { Account, AccountGroupOperation } from '../../../app/shared/models';
 import {
   AccountGroupEditDataService,
@@ -20,32 +14,46 @@ import { mapApiAccount, mapApiAccountGroupAssignment } from './_mappers';
 
 @Injectable()
 export class HttpAccountGroupEditDataService extends AccountGroupEditDataService {
-  private readonly api = inject(Api);
+  private readonly groupSvc = inject(AccountGroupServiceService);
+  private readonly assignmentSvc = inject(AccountGroupAssignmentServiceService);
+  private readonly accountSvc = inject(AccountServiceService);
+  private readonly orgSvc = inject(CurrentOrganizationService);
+
+  private get parent(): string {
+    return `organizations/${this.orgSvc.currentOrganization()!.id}`;
+  }
+
+  private groupName(uid: string): string {
+    return `${this.parent}/accountGroups/${uid}`;
+  }
+
+  private assignmentName(groupId: string, assignmentId: string): string {
+    return `${this.groupName(groupId)}/assignments/${assignmentId}`;
+  }
 
   getGroup(id: string): Observable<AccountGroupDetails> {
-    return from(
-      Promise.all([
-        this.api.invoke(getAccountGroup, { accountGroupId: id }),
-        this.api.invoke(listAccountGroupAssignments, { accountGroupId: id, pageSize: 100 }),
-        this.api.invoke(listAccounts, { pageSize: 100, showDeleted: false }),
-      ]),
-    ).pipe(
+    const groupName = this.groupName(id);
+    return combineLatest([
+      this.groupSvc.AccountGroupServiceGetAccountGroup(groupName),
+      this.assignmentSvc.AccountGroupAssignmentServiceListAccountGroupAssignments({ parent: groupName, pageSize: 100 }),
+      this.accountSvc.AccountServiceListAccounts({ parent: this.parent, pageSize: 100, showDeleted: false }),
+    ]).pipe(
       map(([group, assignmentsResp, accountsResp]) => {
         const accountsMap = new Map(
-          (accountsResp.accounts ?? []).map((a) => [a.id, a]),
+          (accountsResp.accounts ?? []).map((a) => [a.uid ?? '', a]),
         );
         const assignments = (assignmentsResp.assignments ?? []).map((a) => {
-          const acct = accountsMap.get(a.accountId);
+          const acct = accountsMap.get(a.account_id);
           return mapApiAccountGroupAssignment(
             a,
-            acct?.displayName ?? '',
-            acct?.displayCode ?? '',
+            acct?.display_name ?? '',
+            acct?.display_code ?? '',
           );
         });
         return {
-          id: group.id,
-          name: group.displayName,
-          description: group.displayDescription,
+          id: group.uid ?? '',
+          name: group.display_name,
+          description: group.display_description ?? '',
           assignmentCount: assignments.length,
           assignments,
         };
@@ -54,57 +62,49 @@ export class HttpAccountGroupEditDataService extends AccountGroupEditDataService
   }
 
   updateGroup(id: string, name: string, description: string): Observable<AccountGroupDetails> {
-    return from(
-      this.api.invoke(updateAccountGroup, {
-        accountGroupId: id,
-        body: { displayName: name, displayDescription: description },
-      }),
-    ).pipe(switchMap(() => this.getGroup(id)));
+    return this.groupSvc.AccountGroupServiceUpdateAccountGroup({
+      accountGroupName: this.groupName(id),
+      accountGroup: { display_name: name, display_description: description },
+    }).pipe(switchMap(() => this.getGroup(id)));
   }
 
   getAvailableAccounts(): Observable<Account[]> {
-    return from(
-      this.api.invoke(listAccounts, { pageSize: 100, showDeleted: false }),
-    ).pipe(map((resp) => (resp.accounts ?? []).map(mapApiAccount)));
+    return this.accountSvc.AccountServiceListAccounts({ parent: this.parent, pageSize: 100, showDeleted: false }).pipe(
+      map((resp) => (resp.accounts ?? []).map(mapApiAccount)),
+    );
   }
 
   addAssignment(groupId: string, accountId: string): Observable<void> {
-    return from(
-      this.api.invoke(createAccountGroupAssignment, {
-        accountGroupId: groupId,
-        body: { accountId, negate: false },
-      }),
-    ).pipe(map(() => undefined));
+    return this.assignmentSvc.AccountGroupAssignmentServiceCreateAccountGroupAssignment({
+      parent: this.groupName(groupId),
+      assignment: { account_id: accountId, negate: false },
+    }).pipe(map(() => undefined));
   }
 
   removeAssignment(groupId: string, assignmentId: string): Observable<void> {
-    return from(
-      this.api.invoke(deleteAccountGroupAssignment, {
-        accountGroupId: groupId,
-        assignmentId,
-      }),
+    return this.assignmentSvc.AccountGroupAssignmentServiceDeleteAccountGroupAssignment(
+      this.assignmentName(groupId, assignmentId),
     ).pipe(map(() => undefined));
   }
 
   getAllAccountsWithOperations(groupId: string): Observable<AccountWithOperation[]> {
-    return from(
-      Promise.all([
-        this.api.invoke(listAccounts, { pageSize: 1000, showDeleted: true }),
-        this.api.invoke(listAccountGroupAssignments, { accountGroupId: groupId, pageSize: 1000 }),
-      ]),
-    ).pipe(
+    const groupName = this.groupName(groupId);
+    return combineLatest([
+      this.accountSvc.AccountServiceListAccounts({ parent: this.parent, pageSize: 1000, showDeleted: true }),
+      this.assignmentSvc.AccountGroupAssignmentServiceListAccountGroupAssignments({ parent: groupName, pageSize: 1000 }),
+    ]).pipe(
       map(([accountsResp, assignmentsResp]) => {
         const accounts = (accountsResp.accounts ?? []).map(mapApiAccount);
         const assignmentsMap = new Map(
-          (assignmentsResp.assignments ?? []).map((a) => [a.accountId, a]),
+          (assignmentsResp.assignments ?? []).map((a) => [a.account_id, a]),
         );
 
         return accounts.map((account) => {
           const apiAssignment = assignmentsMap.get(account.id);
           const assignment = apiAssignment
             ? {
-                id: apiAssignment.id,
-                accountId: apiAssignment.accountId,
+                id: apiAssignment.uid ?? '',
+                accountId: apiAssignment.account_id,
                 accountCode: account.code,
                 accountName: account.name,
                 operation: (apiAssignment.negate ? 'S' : 'A') as AccountGroupOperation,
@@ -119,17 +119,12 @@ export class HttpAccountGroupEditDataService extends AccountGroupEditDataService
     );
   }
 
-  updateAccountOperation(groupId: string, accountId: string, operation: AccountGroupOperation): Observable<void> {
+  updateAccountOperation(_groupId: string, _accountId: string, _operation: AccountGroupOperation): Observable<void> {
     // TODO: Implement when backend API supports operation updates
-    // For now, this is a placeholder that does nothing
-    return from(Promise.resolve(undefined));
+    return of(undefined);
   }
 
   deleteGroup(id: string): Observable<void> {
-    return from(
-      this.api.invoke(deleteAccountGroup, {
-        accountGroupId: id,
-      })
-    ).pipe(map(() => undefined));
+    return this.groupSvc.AccountGroupServiceDeleteAccountGroup(this.groupName(id)).pipe(map(() => undefined));
   }
 }

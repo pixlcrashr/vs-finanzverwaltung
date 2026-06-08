@@ -5,12 +5,12 @@ export interface V1ListTransactionsResponse {
   /**
    * A token to retrieve the next page of results.
    */
-  nextPageToken?: string;
+  next_page_token?: string;
 
   /**
    * Total number of transactions matching the filter (may be an estimate).
    */
-  totalSize?: string;
+  total_size?: string;
 
   /**
    * The transactions returned.

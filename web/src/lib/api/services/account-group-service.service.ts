@@ -13,7 +13,7 @@ import { V1ListAccountGroupsResponse } from '../models/v1list-account-groups-res
   providedIn: 'root',
 })
 class AccountGroupServiceService extends __BaseService {
-  static readonly AccountGroupServiceUpdateAccountGroupPath = '/v1/{accountGroup.name}';
+  static readonly AccountGroupServiceUpdateAccountGroupPath = '/v1/{account_group.name}';
   static readonly AccountGroupServiceGetAccountGroupPath = '/v1/{name_1}';
   static readonly AccountGroupServiceDeleteAccountGroupPath = '/v1/{name_1}';
   static readonly AccountGroupServiceListAccountGroupsPath = '/v1/{parent}/accountGroups';
@@ -30,10 +30,10 @@ class AccountGroupServiceService extends __BaseService {
    * Updates an existing account group.
    * @param params The `AccountGroupServiceService.AccountGroupServiceUpdateAccountGroupParams` containing the following parameters:
    *
-   * - `accountGroup.name`: The resource name of the account group.
+   * - `account_group.name`: The resource name of the account group.
    *   Format: organizations/{organization}/accountGroups/{account_group}
    *
-   * - `accountGroup`: The account group to update.
+   * - `account_group`: The account group to update.
    *
    * @return A successful response.
    */
@@ -64,10 +64,10 @@ class AccountGroupServiceService extends __BaseService {
    * Updates an existing account group.
    * @param params The `AccountGroupServiceService.AccountGroupServiceUpdateAccountGroupParams` containing the following parameters:
    *
-   * - `accountGroup.name`: The resource name of the account group.
+   * - `account_group.name`: The resource name of the account group.
    *   Format: organizations/{organization}/accountGroups/{account_group}
    *
-   * - `accountGroup`: The account group to update.
+   * - `account_group`: The account group to update.
    *
    * @return A successful response.
    */
@@ -164,12 +164,12 @@ class AccountGroupServiceService extends __BaseService {
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
    *
-   * - `pageToken`: A page token from a previous ListAccountGroups call.
+   * - `page_token`: A page token from a previous ListAccountGroups call.
    *
-   * - `pageSize`: Maximum number of account groups to return. The service may return fewer.
+   * - `page_size`: Maximum number of account groups to return. The service may return fewer.
    *   If unspecified, at most 20 are returned. Maximum value is 100.
    *
-   * - `orderBy`: Order by expression (e.g. "display_name", "create_time desc").
+   * - `order_by`: Order by expression (e.g. "display_name", "create_time desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: display_name.
@@ -182,9 +182,9 @@ class AccountGroupServiceService extends __BaseService {
     let __headers = new HttpHeaders();
     let __body: any = null;
 
-    if (params.pageToken != null) __params = __params.set('pageToken', params.pageToken.toString());
-    if (params.pageSize != null) __params = __params.set('pageSize', params.pageSize.toString());
-    if (params.orderBy != null) __params = __params.set('orderBy', params.orderBy.toString());
+    if (params.pageToken != null) __params = __params.set('page_token', params.pageToken.toString());
+    if (params.pageSize != null) __params = __params.set('page_size', params.pageSize.toString());
+    if (params.orderBy != null) __params = __params.set('order_by', params.orderBy.toString());
     if (params.filter != null) __params = __params.set('filter', params.filter.toString());
     let req = new HttpRequest<any>(
       'GET',
@@ -210,12 +210,12 @@ class AccountGroupServiceService extends __BaseService {
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
    *
-   * - `pageToken`: A page token from a previous ListAccountGroups call.
+   * - `page_token`: A page token from a previous ListAccountGroups call.
    *
-   * - `pageSize`: Maximum number of account groups to return. The service may return fewer.
+   * - `page_size`: Maximum number of account groups to return. The service may return fewer.
    *   If unspecified, at most 20 are returned. Maximum value is 100.
    *
-   * - `orderBy`: Order by expression (e.g. "display_name", "create_time desc").
+   * - `order_by`: Order by expression (e.g. "display_name", "create_time desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: display_name.
@@ -236,7 +236,7 @@ class AccountGroupServiceService extends __BaseService {
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
    *
-   * - `accountGroup`: The account group to create.
+   * - `account_group`: The account group to create.
    *
    * @return A successful response.
    */
@@ -270,7 +270,7 @@ class AccountGroupServiceService extends __BaseService {
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
    *
-   * - `accountGroup`: The account group to create.
+   * - `account_group`: The account group to create.
    *
    * @return A successful response.
    */
@@ -297,7 +297,7 @@ module AccountGroupServiceService {
     /**
      * The account group to update.
      */
-    accountGroup: {uid?: string, displayName: string, displayDescription?: string, updateTime?: string, createTime?: string, etag?: string};
+    accountGroup: {uid?: string, display_name: string, display_description?: string, update_time?: string, create_time?: string, etag?: string};
   }
 
   /**

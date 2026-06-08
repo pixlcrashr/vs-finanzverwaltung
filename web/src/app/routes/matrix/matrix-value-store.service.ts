@@ -14,7 +14,7 @@ export class MatrixValueStoreService {
   private budgetAccountKeys = new Map<string, Set<string>>(); // budgetId -> Set of keys
 
   private getKey(budgetId: string, accountId: string): string {
-    return `${budgetId}-${accountId}`;
+    return `${budgetId}|${accountId}`;
   }
 
   private trackBudgetKey(budgetId: string, key: string): void {
@@ -24,7 +24,7 @@ export class MatrixValueStoreService {
   }
 
   private parseKey(key: string): { budgetId: string; accountId: string } | null {
-    const separatorIndex = key.indexOf('-');
+    const separatorIndex = key.indexOf('|');
     if (separatorIndex === -1) return null;
     return {
       budgetId: key.substring(0, separatorIndex),

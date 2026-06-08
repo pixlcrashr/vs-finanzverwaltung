@@ -1,11 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, from, map } from 'rxjs';
-import { Api } from '../../api/api';
-import {
-  listBudgets,
-  listAccounts,
-  listTransactions,
-} from '../../api/functions';
+import { Observable, combineLatest, map } from 'rxjs';
+import { BudgetServiceService } from '../../api/services/budget-service.service';
+import { AccountServiceService } from '../../api/services/account-service.service';
+import { TransactionServiceService } from '../../api/services/transaction-service.service';
+import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import {
   DashboardDataService,
   DashboardStats,
@@ -13,24 +11,29 @@ import {
 
 @Injectable()
 export class HttpDashboardDataService extends DashboardDataService {
-  private readonly api = inject(Api);
+  private readonly budgetSvc = inject(BudgetServiceService);
+  private readonly accountSvc = inject(AccountServiceService);
+  private readonly txnSvc = inject(TransactionServiceService);
+  private readonly orgSvc = inject(CurrentOrganizationService);
+
+  private get parent(): string {
+    return `organizations/${this.orgSvc.currentOrganization()!.id}`;
+  }
 
   getStats(): Observable<DashboardStats> {
-    return from(
-      Promise.all([
-        this.api.invoke(listBudgets, { pageSize: 100 }),
-        this.api.invoke(listAccounts, { pageSize: 100, showDeleted: true }),
-        this.api.invoke(listTransactions, { pageSize: 1 }),
-      ]),
-    ).pipe(
+    return combineLatest([
+      this.budgetSvc.BudgetServiceListBudgets({ parent: this.parent, pageSize: 100 }),
+      this.accountSvc.AccountServiceListAccounts({ parent: this.parent, pageSize: 100, showDeleted: true }),
+      this.txnSvc.TransactionServiceListTransactions({ parent: this.parent, pageSize: 1 }),
+    ]).pipe(
       map(([budgetsResp, accountsResp, txnResp]) => {
         const budgets = budgetsResp.budgets ?? [];
         const accounts = accountsResp.accounts ?? [];
 
-        const openBudgets = budgets.filter((b) => !b.isClosed).length;
-        const closedBudgets = budgets.filter((b) => b.isClosed).length;
-        const activeAccounts = accounts.filter((a) => !a.isArchived).length;
-        const archivedAccounts = accounts.filter((a) => a.isArchived).length;
+        const openBudgets = budgets.filter((b) => !b.is_closed).length;
+        const closedBudgets = budgets.filter((b) => b.is_closed).length;
+        const activeAccounts = accounts.filter((a) => !a.is_archived).length;
+        const archivedAccounts = accounts.filter((a) => a.is_archived).length;
 
         return {
           budgets: {

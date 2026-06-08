@@ -5,15 +5,15 @@ export interface V1ListAccountGroupsResponse {
   /**
    * The account groups returned.
    */
-  accountGroups?: Array<V1AccountGroup>;
+  account_groups?: Array<V1AccountGroup>;
 
   /**
    * A token to retrieve the next page of results.
    */
-  nextPageToken?: string;
+  next_page_token?: string;
 
   /**
    * Total number of account groups matching the filter (may be an estimate).
    */
-  totalSize?: string;
+  total_size?: string;
 }

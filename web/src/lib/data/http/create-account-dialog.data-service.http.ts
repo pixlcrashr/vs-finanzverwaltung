@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable, from, map } from 'rxjs';
-import { Api } from '../../api/api';
-import { listAccounts, createAccount } from '../../api/functions';
+import { Observable, map } from 'rxjs';
+import { AccountServiceService } from '../../api/services/account-service.service';
+import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import { CreateAccountDialogDataService } from '../../../app/shared/dialogs/create-account-dialog/create-account-dialog.data-service';
 import {
   CreatedAccount,
@@ -17,21 +17,24 @@ interface FlatAccount {
 
 @Injectable()
 export class HttpCreateAccountDialogDataService extends CreateAccountDialogDataService {
-  private readonly api = inject(Api);
+  private readonly svc = inject(AccountServiceService);
+  private readonly orgSvc = inject(CurrentOrganizationService);
+
+  private get parent(): string {
+    return `organizations/${this.orgSvc.currentOrganization()!.id}`;
+  }
 
   getParentAccounts(): Observable<ParentAccountOption[]> {
-    return from(
-      this.api.invoke(listAccounts, { pageSize: 1000, showDeleted: false })
-    ).pipe(
+    return this.svc.AccountServiceListAccounts({ parent: this.parent, pageSize: 1000, showDeleted: false }).pipe(
       map((response) => {
         const flat: FlatAccount[] = (response.accounts ?? []).map((a) => ({
-          id: a.id,
-          code: a.displayCode,
-          name: a.displayName,
-          parentAccountId: a.parentAccountId ?? null,
+          id: a.uid ?? '',
+          code: a.display_code,
+          name: a.display_name,
+          parentAccountId: a.parent_account ? a.parent_account.split('/').pop() ?? null : null,
         }));
         return this.buildHierarchicalList(flat);
-      })
+      }),
     );
   }
 
@@ -59,25 +62,20 @@ export class HttpCreateAccountDialogDataService extends CreateAccountDialogDataS
     name: string,
     code: string,
     description: string,
-    parentAccountId: string | null
+    parentAccountId: string | null,
   ): Observable<CreatedAccount> {
-    return from(
-      this.api.invoke(createAccount, {
-        body: {
-          displayName: name,
-          displayCode: code,
-          displayDescription: description,
-          parentAccountId: parentAccountId ?? undefined,
-        },
-      })
-    ).pipe(
-      map((response) => ({
-        id: response.id,
-        code: response.displayCode,
-        name: response.displayName,
-        description: response.displayDescription,
-        parentAccountId: response.parentAccountId ?? null,
-      }))
+    const parentAccount = parentAccountId ? `${this.parent}/accounts/${parentAccountId}` : undefined;
+    return this.svc.AccountServiceCreateAccount({
+      parent: this.parent,
+      account: { display_name: name, display_code: code, display_description: description, parent_account: parentAccount },
+    }).pipe(
+      map((a) => ({
+        id: a.uid ?? '',
+        code: a.display_code,
+        name: a.display_name,
+        description: a.display_description ?? '',
+        parentAccountId: a.parent_account ? a.parent_account.split('/').pop() ?? null : null,
+      })),
     );
   }
 }

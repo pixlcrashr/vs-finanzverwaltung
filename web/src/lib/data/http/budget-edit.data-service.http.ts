@@ -1,41 +1,51 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, from, map, switchMap } from 'rxjs';
-import { Api } from '../../api/api';
-import {
-  getBudget,
-  updateBudget,
-  closeBudget,
-  listBudgetRevisions,
-  createBudgetRevision,
-  updateBudgetRevision,
-  deleteBudgetRevision,
-} from '../../api/functions';
+import { Observable, map, throwError } from 'rxjs';
+import { BudgetServiceService } from '../../api/services/budget-service.service';
+import { BudgetRevisionServiceService } from '../../api/services/budget-revision-service.service';
+import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import { BudgetRevision, BudgetTag } from '../../../app/shared/models';
 import {
   BudgetEditDataService,
   BudgetDetails,
 } from '../../../app/routes/budgets/budget-edit/budget-edit.data-service';
-import { mapApiBudget, mapApiBudgetRevision, toDateOnly } from './_mappers';
+import { mapApiBudget, mapApiBudgetRevision, dateToTypeDate } from './_mappers';
 
 @Injectable()
 export class HttpBudgetEditDataService extends BudgetEditDataService {
-  private readonly api = inject(Api);
-  private currentBudgetId = '';
+  private readonly svc = inject(BudgetServiceService);
+  private readonly revisionSvc = inject(BudgetRevisionServiceService);
+  private readonly orgSvc = inject(CurrentOrganizationService);
+
+  private get parent(): string {
+    return `organizations/${this.orgSvc.currentOrganization()!.id}`;
+  }
+
+  private budgetName(uid: string): string {
+    return `${this.parent}/budgets/${uid}`;
+  }
 
   override getBudget(id: string): Observable<BudgetDetails> {
-    throw new Error('Method not implemented.');
+    return this.svc.BudgetServiceGetBudget(this.budgetName(id)).pipe(
+      map((b) => ({
+        ...mapApiBudget(b),
+        tags: [],
+        hasUntaggedChanges: false,
+        changes: [],
+      })),
+    );
   }
 
-  override addTag(budgetId: string, date: Date, name: string, description: string, force: boolean): Observable<BudgetTag> {
-    throw new Error('Method not implemented.');
+  override addTag(budgetId: string, date: Date, name: string, description: string, _force: boolean): Observable<BudgetTag> {
+    // TODO: No tag API endpoint yet; create a revision as a proxy
+    return throwError(() => new Error('Budget tags API is not yet implemented.'));
   }
 
-  override deleteTag(id: string): Observable<void> {
-    throw new Error('Method not implemented.');
+  override deleteTag(_id: string): Observable<void> {
+    return throwError(() => new Error('Budget tags API is not yet implemented.'));
   }
 
   override updateTagPublication(_id: string, _isPublished: boolean): Observable<void> {
-    throw new Error('Method not implemented.');
+    return throwError(() => new Error('Budget tags API is not yet implemented.'));
   }
 
   updateBudget(
@@ -47,22 +57,18 @@ export class HttpBudgetEditDataService extends BudgetEditDataService {
     _publishCurrentTargetValuesAlways: boolean,
     _publishCurrentActualValuesAlways: boolean,
   ): Observable<void> {
-    return from(
-      this.api.invoke(updateBudget, {
-        budgetId: id,
-        body: {
-          displayName: name,
-          displayDescription: description,
-          periodStart: toDateOnly(startDate),
-          periodEnd: toDateOnly(endDate),
-        },
-      }),
-    ).pipe(map(() => undefined));
+    return this.svc.BudgetServiceUpdateBudget({
+      budgetName: this.budgetName(id),
+      budget: {
+        display_name: name,
+        display_description: description,
+        period_start: dateToTypeDate(startDate),
+        period_end: dateToTypeDate(endDate),
+      },
+    }).pipe(map(() => undefined));
   }
 
   closeBudget(id: string): Observable<void> {
-    return from(
-      this.api.invoke(closeBudget, { budgetId: id }),
-    ).pipe(map(() => undefined));
+    return this.svc.BudgetServiceCloseBudget({ name: this.budgetName(id), body: {} }).pipe(map(() => undefined));
   }
 }

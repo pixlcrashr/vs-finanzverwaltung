@@ -14,17 +14,17 @@ export interface V1TransactionAccount {
   /**
    * Creation timestamp.
    */
-  createTime?: string;
+  create_time?: string;
 
   /**
    * Optional free-text description.
    */
-  displayDescription?: string;
+  display_description?: string;
 
   /**
    * Human-readable name.
    */
-  displayName?: string;
+  display_name?: string;
 
   /**
    * Entity tag for optimistic concurrency control.
@@ -34,7 +34,7 @@ export interface V1TransactionAccount {
   /**
    * UUID of the import source this account belongs to.
    */
-  importSourceId: string;
+  import_source_id: string;
   name?: string;
 
   /**
@@ -45,5 +45,5 @@ export interface V1TransactionAccount {
   /**
    * Last modification timestamp.
    */
-  updateTime?: string;
+  update_time?: string;
 }

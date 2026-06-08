@@ -1,12 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, from, map } from 'rxjs';
-import { Api } from '../../api/api';
-import {
-  getImportSource,
-  updateImportSource,
-  listImportSourcePeriods,
-  closeImportSourcePeriod,
-} from '../../api/functions';
+import { Observable, combineLatest, map, switchMap } from 'rxjs';
+import { ImportSourceServiceService } from '../../api/services/import-source-service.service';
+import { ImportSourcePeriodServiceService } from '../../api/services/import-source-period-service.service';
+import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import { ImportSource } from '../../../app/shared/models';
 import {
   ImportSourceEditDataService,
@@ -16,15 +12,28 @@ import { mapApiImportSource, mapApiImportSourcePeriod } from './_mappers';
 
 @Injectable()
 export class HttpImportSourceEditDataService extends ImportSourceEditDataService {
-  private readonly api = inject(Api);
+  private readonly sourceSvc = inject(ImportSourceServiceService);
+  private readonly periodSvc = inject(ImportSourcePeriodServiceService);
+  private readonly orgSvc = inject(CurrentOrganizationService);
+
+  private get orgParent(): string {
+    return `organizations/${this.orgSvc.currentOrganization()!.id}`;
+  }
+
+  private sourceName(uid: string): string {
+    return `${this.orgParent}/importSources/${uid}`;
+  }
+
+  private periodName(sourceId: string, periodId: string): string {
+    return `${this.sourceName(sourceId)}/periods/${periodId}`;
+  }
 
   getImportSource(id: string): Observable<ImportSource> {
-    return from(
-      Promise.all([
-        this.api.invoke(getImportSource, { importSourceId: id }),
-        this.api.invoke(listImportSourcePeriods, { importSourceId: id, pageSize: 100 }),
-      ]),
-    ).pipe(
+    const name = this.sourceName(id);
+    return combineLatest([
+      this.sourceSvc.ImportSourceServiceGetImportSource(name),
+      this.periodSvc.ImportSourcePeriodServiceListImportSourcePeriods({ parent: name, pageSize: 100 }),
+    ]).pipe(
       map(([source, periodsResp]) => {
         const periods = (periodsResp.periods ?? []).map(mapApiImportSourcePeriod);
         return mapApiImportSource(source, periods);
@@ -33,25 +42,26 @@ export class HttpImportSourceEditDataService extends ImportSourceEditDataService
   }
 
   updateImportSource(id: string, input: UpdateImportSourceInput): Observable<ImportSource> {
-    return from(
-      this.api.invoke(updateImportSource, {
-        importSourceId: id,
-        body: {
-          displayName: input.name,
-          displayDescription: input.description,
-        },
-      }),
-    ).pipe(
+    const name = this.sourceName(id);
+    return this.sourceSvc.ImportSourceServiceGetImportSource(name).pipe(
+      switchMap((existing) =>
+        this.sourceSvc.ImportSourceServiceUpdateImportSource({
+          importSourceName: name,
+          importSource: {
+            display_name: input.name,
+            display_description: input.description,
+            period_start: existing.period_start,
+          },
+        }),
+      ),
       map((source) => mapApiImportSource(source, [])),
     );
   }
 
   closePeriod(sourceId: string, periodId: string): Observable<void> {
-    return from(
-      this.api.invoke(closeImportSourcePeriod, {
-        importSourceId: sourceId,
-        periodId,
-      }),
-    ).pipe(map(() => undefined));
+    return this.periodSvc.ImportSourcePeriodServiceCloseImportSourcePeriod({
+      name1: this.periodName(sourceId, periodId),
+      body: {},
+    }).pipe(map(() => undefined));
   }
 }

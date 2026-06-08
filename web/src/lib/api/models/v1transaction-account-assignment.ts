@@ -10,12 +10,12 @@ export interface V1TransactionAccountAssignment {
   /**
    * UUID of the budget account this portion of the transaction is assigned to.
    */
-  accountId: string;
+  account_id: string;
 
   /**
    * Creation timestamp.
    */
-  createTime?: string;
+  create_time?: string;
 
   /**
    * Entity tag for optimistic concurrency control.
@@ -32,7 +32,7 @@ export interface V1TransactionAccountAssignment {
   /**
    * Last modification timestamp.
    */
-  updateTime?: string;
+  update_time?: string;
 
   /**
    * The decimal value assigned to this account.

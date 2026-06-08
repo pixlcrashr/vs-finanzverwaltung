@@ -5,7 +5,7 @@ export interface V1ListReportsResponse {
   /**
    * A token to retrieve the next page of results.
    */
-  nextPageToken?: string;
+  next_page_token?: string;
 
   /**
    * The reports returned.
@@ -15,5 +15,5 @@ export interface V1ListReportsResponse {
   /**
    * Total number of reports matching the filter (may be an estimate).
    */
-  totalSize?: string;
+  total_size?: string;
 }

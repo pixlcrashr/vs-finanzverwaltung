@@ -13,8 +13,8 @@ import { V1ListReportsResponse } from '../models/v1list-reports-response';
   providedIn: 'root',
 })
 class ReportServiceService extends __BaseService {
-  static readonly ReportServiceGetReportPath = '/v1/{name_10}';
-  static readonly ReportServiceDeleteReportPath = '/v1/{name_8}';
+  static readonly ReportServiceGetReportPath = '/v1/{name_11}';
+  static readonly ReportServiceDeleteReportPath = '/v1/{name_9}';
   static readonly ReportServiceListReportsPath = '/v1/{parent}/reports';
   static readonly ReportServiceCreateReportPath = '/v1/{parent}/reports';
 
@@ -27,18 +27,18 @@ class ReportServiceService extends __BaseService {
 
   /**
    * Gets report metadata by resource name.
-   * @param name_10 The resource name of the report.
+   * @param name_11 The resource name of the report.
    * Format: organizations/{organization}/reports/{report}
    * @return A successful response.
    */
-  ReportServiceGetReportResponse(name10: string): __Observable<__StrictHttpResponse<V1Report>> {
+  ReportServiceGetReportResponse(name11: string): __Observable<__StrictHttpResponse<V1Report>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
 
     let req = new HttpRequest<any>(
       'GET',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name10))}`,
+      this.rootUrl + `/v1/${encodeURIComponent(String(name11))}`,
       __body,
       {
         headers: __headers,
@@ -55,30 +55,30 @@ class ReportServiceService extends __BaseService {
   }
   /**
    * Gets report metadata by resource name.
-   * @param name_10 The resource name of the report.
+   * @param name_11 The resource name of the report.
    * Format: organizations/{organization}/reports/{report}
    * @return A successful response.
    */
-  ReportServiceGetReport(name10: string): __Observable<V1Report> {
-    return this.ReportServiceGetReportResponse(name10).pipe(
+  ReportServiceGetReport(name11: string): __Observable<V1Report> {
+    return this.ReportServiceGetReportResponse(name11).pipe(
       __map(_r => _r.body as V1Report)
     );
   }
 
   /**
    * Permanently deletes a report.
-   * @param name_8 The resource name of the report.
+   * @param name_9 The resource name of the report.
    * Format: organizations/{organization}/reports/{report}
    * @return A successful response.
    */
-  ReportServiceDeleteReportResponse(name8: string): __Observable<__StrictHttpResponse<{}>> {
+  ReportServiceDeleteReportResponse(name9: string): __Observable<__StrictHttpResponse<{}>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
 
     let req = new HttpRequest<any>(
       'DELETE',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name8))}`,
+      this.rootUrl + `/v1/${encodeURIComponent(String(name9))}`,
       __body,
       {
         headers: __headers,
@@ -95,12 +95,12 @@ class ReportServiceService extends __BaseService {
   }
   /**
    * Permanently deletes a report.
-   * @param name_8 The resource name of the report.
+   * @param name_9 The resource name of the report.
    * Format: organizations/{organization}/reports/{report}
    * @return A successful response.
    */
-  ReportServiceDeleteReport(name8: string): __Observable<{}> {
-    return this.ReportServiceDeleteReportResponse(name8).pipe(
+  ReportServiceDeleteReport(name9: string): __Observable<{}> {
+    return this.ReportServiceDeleteReportResponse(name9).pipe(
       __map(_r => _r.body as {})
     );
   }
@@ -112,12 +112,12 @@ class ReportServiceService extends __BaseService {
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
    *
-   * - `pageToken`: A page token from a previous ListReports call.
+   * - `page_token`: A page token from a previous ListReports call.
    *
-   * - `pageSize`: Maximum number of reports to return. The service may return fewer.
+   * - `page_size`: Maximum number of reports to return. The service may return fewer.
    *   If unspecified, at most 20 are returned. Maximum value is 100.
    *
-   * - `orderBy`: Order by expression (e.g. "display_name", "create_time desc").
+   * - `order_by`: Order by expression (e.g. "display_name", "create_time desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: display_name, report_template_id.
@@ -130,9 +130,9 @@ class ReportServiceService extends __BaseService {
     let __headers = new HttpHeaders();
     let __body: any = null;
 
-    if (params.pageToken != null) __params = __params.set('pageToken', params.pageToken.toString());
-    if (params.pageSize != null) __params = __params.set('pageSize', params.pageSize.toString());
-    if (params.orderBy != null) __params = __params.set('orderBy', params.orderBy.toString());
+    if (params.pageToken != null) __params = __params.set('page_token', params.pageToken.toString());
+    if (params.pageSize != null) __params = __params.set('page_size', params.pageSize.toString());
+    if (params.orderBy != null) __params = __params.set('order_by', params.orderBy.toString());
     if (params.filter != null) __params = __params.set('filter', params.filter.toString());
     let req = new HttpRequest<any>(
       'GET',
@@ -158,12 +158,12 @@ class ReportServiceService extends __BaseService {
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
    *
-   * - `pageToken`: A page token from a previous ListReports call.
+   * - `page_token`: A page token from a previous ListReports call.
    *
-   * - `pageSize`: Maximum number of reports to return. The service may return fewer.
+   * - `page_size`: Maximum number of reports to return. The service may return fewer.
    *   If unspecified, at most 20 are returned. Maximum value is 100.
    *
-   * - `orderBy`: Order by expression (e.g. "display_name", "create_time desc").
+   * - `order_by`: Order by expression (e.g. "display_name", "create_time desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: display_name, report_template_id.

@@ -10,12 +10,12 @@ export interface V1Report {
   /**
    * Creation timestamp.
    */
-  createTime?: string;
+  create_time?: string;
 
   /**
    * Human-readable name.
    */
-  displayName: string;
+  display_name: string;
 
   /**
    * Entity tag for optimistic concurrency control.
@@ -26,7 +26,7 @@ export interface V1Report {
   /**
    * UUID of the report template used to generate this report.
    */
-  reportTemplateId: string;
+  report_template_id: string;
 
   /**
    * The UUID of the report.

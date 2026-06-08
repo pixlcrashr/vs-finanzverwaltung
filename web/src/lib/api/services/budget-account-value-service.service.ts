@@ -10,15 +10,18 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 import { V1BudgetAccountValue } from '../models/v1budget-account-value';
 import { V1Decimal } from '../models/v1decimal';
 import { V1ListBudgetAccountValuesResponse } from '../models/v1list-budget-account-values-response';
+import { V1BatchUpdateBudgetAccountValuesResponse } from '../models/v1batch-update-budget-account-values-response';
+import { BudgetAccountValueServiceBatchUpdateBudgetAccountValuesBody } from '../models/budget-account-value-service-batch-update-budget-account-values-body';
 @Injectable({
   providedIn: 'root',
 })
 class BudgetAccountValueServiceService extends __BaseService {
-  static readonly BudgetAccountValueServiceUpdateBudgetAccountValuePath = '/v1/{accountValue.name}';
+  static readonly BudgetAccountValueServiceUpdateBudgetAccountValuePath = '/v1/{account_value.name}';
   static readonly BudgetAccountValueServiceGetBudgetAccountValuePath = '/v1/{name_4}';
   static readonly BudgetAccountValueServiceDeleteBudgetAccountValuePath = '/v1/{name_4}';
   static readonly BudgetAccountValueServiceListBudgetAccountValuesPath = '/v1/{parent}/accountValues';
   static readonly BudgetAccountValueServiceCreateBudgetAccountValuePath = '/v1/{parent}/accountValues';
+  static readonly BudgetAccountValueServiceBatchUpdateBudgetAccountValuesPath = '/v1/{parent}/accountValues:batchUpdate';
 
   constructor(
     config: __Configuration,
@@ -31,10 +34,13 @@ class BudgetAccountValueServiceService extends __BaseService {
    * Updates an existing budget account value.
    * @param params The `BudgetAccountValueServiceService.BudgetAccountValueServiceUpdateBudgetAccountValueParams` containing the following parameters:
    *
-   * - `accountValue.name`: The resource name of the budget account value.
+   * - `account_value.name`: The resource name of the budget account value.
    *   Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
    *
-   * - `accountValue`: The budget account value to update.
+   * - `account_value`: The budget account value to update.
+   *
+   * - `allow_missing`: If set to true, and the resource is not found, a new resource will be
+   *   created. In this situation, update_mask is ignored.
    *
    * @return A successful response.
    */
@@ -44,6 +50,7 @@ class BudgetAccountValueServiceService extends __BaseService {
     let __body: any = null;
 
     __body = params.accountValue;
+    if (params.allowMissing != null) __params = __params.set('allow_missing', params.allowMissing.toString());
     let req = new HttpRequest<any>(
       'PATCH',
       this.rootUrl + `/v1/${encodeURIComponent(String(params.accountValueName))}`,
@@ -65,10 +72,13 @@ class BudgetAccountValueServiceService extends __BaseService {
    * Updates an existing budget account value.
    * @param params The `BudgetAccountValueServiceService.BudgetAccountValueServiceUpdateBudgetAccountValueParams` containing the following parameters:
    *
-   * - `accountValue.name`: The resource name of the budget account value.
+   * - `account_value.name`: The resource name of the budget account value.
    *   Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
    *
-   * - `accountValue`: The budget account value to update.
+   * - `account_value`: The budget account value to update.
+   *
+   * - `allow_missing`: If set to true, and the resource is not found, a new resource will be
+   *   created. In this situation, update_mask is ignored.
    *
    * @return A successful response.
    */
@@ -165,12 +175,12 @@ class BudgetAccountValueServiceService extends __BaseService {
    * - `parent`: The parent budget resource name.
    *   Format: organizations/{organization}/budgets/{budget}
    *
-   * - `pageToken`: A page token from a previous ListBudgetAccountValues call.
+   * - `page_token`: A page token from a previous ListBudgetAccountValues call.
    *
-   * - `pageSize`: Maximum number of values to return. The service may return fewer.
+   * - `page_size`: Maximum number of values to return. The service may return fewer.
    *   If unspecified, at most 20 are returned. Maximum value is 100.
    *
-   * - `orderBy`: Order by expression (e.g. "create_time desc").
+   * - `order_by`: Order by expression (e.g. "create_time desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: account_id.
@@ -183,9 +193,9 @@ class BudgetAccountValueServiceService extends __BaseService {
     let __headers = new HttpHeaders();
     let __body: any = null;
 
-    if (params.pageToken != null) __params = __params.set('pageToken', params.pageToken.toString());
-    if (params.pageSize != null) __params = __params.set('pageSize', params.pageSize.toString());
-    if (params.orderBy != null) __params = __params.set('orderBy', params.orderBy.toString());
+    if (params.pageToken != null) __params = __params.set('page_token', params.pageToken.toString());
+    if (params.pageSize != null) __params = __params.set('page_size', params.pageSize.toString());
+    if (params.orderBy != null) __params = __params.set('order_by', params.orderBy.toString());
     if (params.filter != null) __params = __params.set('filter', params.filter.toString());
     let req = new HttpRequest<any>(
       'GET',
@@ -211,12 +221,12 @@ class BudgetAccountValueServiceService extends __BaseService {
    * - `parent`: The parent budget resource name.
    *   Format: organizations/{organization}/budgets/{budget}
    *
-   * - `pageToken`: A page token from a previous ListBudgetAccountValues call.
+   * - `page_token`: A page token from a previous ListBudgetAccountValues call.
    *
-   * - `pageSize`: Maximum number of values to return. The service may return fewer.
+   * - `page_size`: Maximum number of values to return. The service may return fewer.
    *   If unspecified, at most 20 are returned. Maximum value is 100.
    *
-   * - `orderBy`: Order by expression (e.g. "create_time desc").
+   * - `order_by`: Order by expression (e.g. "create_time desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: account_id.
@@ -237,7 +247,7 @@ class BudgetAccountValueServiceService extends __BaseService {
    * - `parent`: The parent budget resource name.
    *   Format: organizations/{organization}/budgets/{budget}
    *
-   * - `accountValue`: The budget account value to create.
+   * - `account_value`: The budget account value to create.
    *
    * @return A successful response.
    */
@@ -271,13 +281,70 @@ class BudgetAccountValueServiceService extends __BaseService {
    * - `parent`: The parent budget resource name.
    *   Format: organizations/{organization}/budgets/{budget}
    *
-   * - `accountValue`: The budget account value to create.
+   * - `account_value`: The budget account value to create.
    *
    * @return A successful response.
    */
   BudgetAccountValueServiceCreateBudgetAccountValue(params: BudgetAccountValueServiceService.BudgetAccountValueServiceCreateBudgetAccountValueParams): __Observable<V1BudgetAccountValue> {
     return this.BudgetAccountValueServiceCreateBudgetAccountValueResponse(params).pipe(
       __map(_r => _r.body as V1BudgetAccountValue)
+    );
+  }
+
+  /**
+   * Atomically upserts multiple account values for a budget.
+   * Existing values for listed account IDs are updated; missing ones are created.
+   * @param params The `BudgetAccountValueServiceService.BudgetAccountValueServiceBatchUpdateBudgetAccountValuesParams` containing the following parameters:
+   *
+   * - `parent`: The parent resource shared by all budget account values being updated.
+   *   Format: organizations/{organization}/budgets/{budget}
+   *   If set, the parent field in each UpdateBudgetAccountValueRequest must
+   *   either be empty or match this field.
+   *
+   * - `body`:
+   *
+   * @return A successful response.
+   */
+  BudgetAccountValueServiceBatchUpdateBudgetAccountValuesResponse(params: BudgetAccountValueServiceService.BudgetAccountValueServiceBatchUpdateBudgetAccountValuesParams): __Observable<__StrictHttpResponse<V1BatchUpdateBudgetAccountValuesResponse>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    __body = params.body;
+    let req = new HttpRequest<any>(
+      'POST',
+      this.rootUrl + `/v1/${encodeURIComponent(String(params.parent))}/accountValues:batchUpdate`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<V1BatchUpdateBudgetAccountValuesResponse>;
+      })
+    );
+  }
+  /**
+   * Atomically upserts multiple account values for a budget.
+   * Existing values for listed account IDs are updated; missing ones are created.
+   * @param params The `BudgetAccountValueServiceService.BudgetAccountValueServiceBatchUpdateBudgetAccountValuesParams` containing the following parameters:
+   *
+   * - `parent`: The parent resource shared by all budget account values being updated.
+   *   Format: organizations/{organization}/budgets/{budget}
+   *   If set, the parent field in each UpdateBudgetAccountValueRequest must
+   *   either be empty or match this field.
+   *
+   * - `body`:
+   *
+   * @return A successful response.
+   */
+  BudgetAccountValueServiceBatchUpdateBudgetAccountValues(params: BudgetAccountValueServiceService.BudgetAccountValueServiceBatchUpdateBudgetAccountValuesParams): __Observable<V1BatchUpdateBudgetAccountValuesResponse> {
+    return this.BudgetAccountValueServiceBatchUpdateBudgetAccountValuesResponse(params).pipe(
+      __map(_r => _r.body as V1BatchUpdateBudgetAccountValuesResponse)
     );
   }
 }
@@ -298,7 +365,13 @@ module BudgetAccountValueServiceService {
     /**
      * The budget account value to update.
      */
-    accountValue: {uid?: string, budget?: string, accountId: string, value: V1Decimal, updateTime?: string, createTime?: string, etag?: string};
+    accountValue: {uid?: string, budget?: string, account_id: string, value: V1Decimal, update_time?: string, create_time?: string, etag?: string};
+
+    /**
+     * If set to true, and the resource is not found, a new resource will be
+     * created. In this situation, update_mask is ignored.
+     */
+    allowMissing?: boolean;
   }
 
   /**
@@ -351,6 +424,21 @@ module BudgetAccountValueServiceService {
      * The budget account value to create.
      */
     accountValue: V1BudgetAccountValue;
+  }
+
+  /**
+   * Parameters for BudgetAccountValueServiceBatchUpdateBudgetAccountValues
+   */
+  export interface BudgetAccountValueServiceBatchUpdateBudgetAccountValuesParams {
+
+    /**
+     * The parent resource shared by all budget account values being updated.
+     * Format: organizations/{organization}/budgets/{budget}
+     * If set, the parent field in each UpdateBudgetAccountValueRequest must
+     * either be empty or match this field.
+     */
+    parent: string;
+    body: BudgetAccountValueServiceBatchUpdateBudgetAccountValuesBody;
   }
 }
 

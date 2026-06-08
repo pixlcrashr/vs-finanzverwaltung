@@ -5,7 +5,7 @@ export interface V1ListBudgetRevisionsResponse {
   /**
    * A token to retrieve the next page of results.
    */
-  nextPageToken?: string;
+  next_page_token?: string;
 
   /**
    * The revisions returned, ordered reverse-chronologically by default.
@@ -15,5 +15,5 @@ export interface V1ListBudgetRevisionsResponse {
   /**
    * Total number of revisions for this budget.
    */
-  totalSize?: string;
+  total_size?: string;
 }

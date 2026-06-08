@@ -10,10 +10,10 @@ export interface V1ListBudgetsResponse {
   /**
    * A token to retrieve the next page of results.
    */
-  nextPageToken?: string;
+  next_page_token?: string;
 
   /**
    * Total number of budgets matching the filter (may be an estimate).
    */
-  totalSize?: string;
+  total_size?: string;
 }

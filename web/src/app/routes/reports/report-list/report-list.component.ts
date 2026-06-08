@@ -3,9 +3,10 @@ import {
   ChangeDetectionStrategy,
   inject,
   signal,
-  OnInit,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { merge, map, distinctUntilChanged, filter } from 'rxjs';
 import { Dialog } from '@angular/cdk/dialog';
 import {
   PageContentLayoutComponent,
@@ -125,21 +126,11 @@ import { ReportListDataService } from './report-list.data-service';
     </app-page-content-layout>
   `,
 })
-export class ReportListComponent implements OnInit {
+export class ReportListComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly dataService = inject(ReportListDataService);
   private readonly dialog = inject(Dialog);
   private readonly notifications = inject(NotificationService);
-
-  private getOrgId(): string {
-    let snapshot = this.route.snapshot;
-    while (snapshot) {
-      const id = snapshot.paramMap.get('orgId');
-      if (id) return id;
-      snapshot = snapshot.parent!;
-    }
-    return '';
-  }
 
   orgId = '';
 
@@ -148,9 +139,18 @@ export class ReportListComponent implements OnInit {
 
   readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Berichte` }];
 
-  ngOnInit(): void {
-    this.orgId = this.getOrgId();
-    this.loadData();
+  constructor() {
+    merge(...this.route.pathFromRoot.map(r => r.params)).pipe(
+      map(params => params['orgId'] as string | undefined),
+      filter((id): id is string => !!id),
+      distinctUntilChanged(),
+      takeUntilDestroyed(),
+    ).subscribe(id => {
+      this.orgId = id;
+      this.loading.set(true);
+      this.reports.set([]);
+      this.loadData();
+    });
   }
 
   private loadData(): void {

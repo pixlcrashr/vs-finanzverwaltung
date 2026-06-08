@@ -11,13 +11,13 @@ export interface V1BudgetAccountValue {
   /**
    * The UUID of the account this value is assigned to.
    */
-  accountId: string;
+  account_id: string;
   budget?: string;
 
   /**
    * Creation timestamp.
    */
-  createTime?: string;
+  create_time?: string;
 
   /**
    * Entity tag for optimistic concurrency control.
@@ -33,7 +33,7 @@ export interface V1BudgetAccountValue {
   /**
    * Last modification timestamp.
    */
-  updateTime?: string;
+  update_time?: string;
 
   /**
    * The target monetary value assigned to the account for this budget.

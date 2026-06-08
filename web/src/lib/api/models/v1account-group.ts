@@ -8,17 +8,17 @@ export interface V1AccountGroup {
   /**
    * Creation timestamp.
    */
-  createTime?: string;
+  create_time?: string;
 
   /**
    * Optional free-text description.
    */
-  displayDescription?: string;
+  display_description?: string;
 
   /**
    * Human-readable account group name.
    */
-  displayName: string;
+  display_name: string;
 
   /**
    * Entity tag for optimistic concurrency control.
@@ -34,5 +34,5 @@ export interface V1AccountGroup {
   /**
    * Last modification timestamp.
    */
-  updateTime?: string;
+  update_time?: string;
 }

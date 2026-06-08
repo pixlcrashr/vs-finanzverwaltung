@@ -13,11 +13,11 @@ import { V1ListTransactionAccountsResponse } from '../models/v1list-transaction-
   providedIn: 'root',
 })
 class TransactionAccountServiceService extends __BaseService {
-  static readonly TransactionAccountServiceDeleteTransactionAccountPath = '/v1/{name_11}';
-  static readonly TransactionAccountServiceGetTransactionAccountPath = '/v1/{name_13}';
+  static readonly TransactionAccountServiceDeleteTransactionAccountPath = '/v1/{name_12}';
+  static readonly TransactionAccountServiceGetTransactionAccountPath = '/v1/{name_14}';
   static readonly TransactionAccountServiceListTransactionAccountsPath = '/v1/{parent}/transactionAccounts';
   static readonly TransactionAccountServiceCreateTransactionAccountPath = '/v1/{parent}/transactionAccounts';
-  static readonly TransactionAccountServiceUpdateTransactionAccountPath = '/v1/{transactionAccount.name}';
+  static readonly TransactionAccountServiceUpdateTransactionAccountPath = '/v1/{transaction_account.name}';
 
   constructor(
     config: __Configuration,
@@ -28,18 +28,18 @@ class TransactionAccountServiceService extends __BaseService {
 
   /**
    * Permanently deletes a transaction account.
-   * @param name_11 The resource name of the transaction account.
+   * @param name_12 The resource name of the transaction account.
    * Format: organizations/{organization}/transactionAccounts/{transaction_account}
    * @return A successful response.
    */
-  TransactionAccountServiceDeleteTransactionAccountResponse(name11: string): __Observable<__StrictHttpResponse<{}>> {
+  TransactionAccountServiceDeleteTransactionAccountResponse(name12: string): __Observable<__StrictHttpResponse<{}>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
 
     let req = new HttpRequest<any>(
       'DELETE',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name11))}`,
+      this.rootUrl + `/v1/${encodeURIComponent(String(name12))}`,
       __body,
       {
         headers: __headers,
@@ -56,30 +56,30 @@ class TransactionAccountServiceService extends __BaseService {
   }
   /**
    * Permanently deletes a transaction account.
-   * @param name_11 The resource name of the transaction account.
+   * @param name_12 The resource name of the transaction account.
    * Format: organizations/{organization}/transactionAccounts/{transaction_account}
    * @return A successful response.
    */
-  TransactionAccountServiceDeleteTransactionAccount(name11: string): __Observable<{}> {
-    return this.TransactionAccountServiceDeleteTransactionAccountResponse(name11).pipe(
+  TransactionAccountServiceDeleteTransactionAccount(name12: string): __Observable<{}> {
+    return this.TransactionAccountServiceDeleteTransactionAccountResponse(name12).pipe(
       __map(_r => _r.body as {})
     );
   }
 
   /**
    * Gets a single transaction account by resource name.
-   * @param name_13 The resource name of the transaction account.
+   * @param name_14 The resource name of the transaction account.
    * Format: organizations/{organization}/transactionAccounts/{transaction_account}
    * @return A successful response.
    */
-  TransactionAccountServiceGetTransactionAccountResponse(name13: string): __Observable<__StrictHttpResponse<V1TransactionAccount>> {
+  TransactionAccountServiceGetTransactionAccountResponse(name14: string): __Observable<__StrictHttpResponse<V1TransactionAccount>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
 
     let req = new HttpRequest<any>(
       'GET',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name13))}`,
+      this.rootUrl + `/v1/${encodeURIComponent(String(name14))}`,
       __body,
       {
         headers: __headers,
@@ -96,12 +96,12 @@ class TransactionAccountServiceService extends __BaseService {
   }
   /**
    * Gets a single transaction account by resource name.
-   * @param name_13 The resource name of the transaction account.
+   * @param name_14 The resource name of the transaction account.
    * Format: organizations/{organization}/transactionAccounts/{transaction_account}
    * @return A successful response.
    */
-  TransactionAccountServiceGetTransactionAccount(name13: string): __Observable<V1TransactionAccount> {
-    return this.TransactionAccountServiceGetTransactionAccountResponse(name13).pipe(
+  TransactionAccountServiceGetTransactionAccount(name14: string): __Observable<V1TransactionAccount> {
+    return this.TransactionAccountServiceGetTransactionAccountResponse(name14).pipe(
       __map(_r => _r.body as V1TransactionAccount)
     );
   }
@@ -113,12 +113,12 @@ class TransactionAccountServiceService extends __BaseService {
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
    *
-   * - `pageToken`: A page token from a previous ListTransactionAccounts call.
+   * - `page_token`: A page token from a previous ListTransactionAccounts call.
    *
-   * - `pageSize`: Maximum number of accounts to return. The service may return fewer.
+   * - `page_size`: Maximum number of accounts to return. The service may return fewer.
    *   If unspecified, at most 20 are returned. Maximum value is 100.
    *
-   * - `orderBy`: Order by expression (e.g. "code", "display_name", "create_time desc").
+   * - `order_by`: Order by expression (e.g. "code", "display_name", "create_time desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: import_source_id, code, display_name.
@@ -131,9 +131,9 @@ class TransactionAccountServiceService extends __BaseService {
     let __headers = new HttpHeaders();
     let __body: any = null;
 
-    if (params.pageToken != null) __params = __params.set('pageToken', params.pageToken.toString());
-    if (params.pageSize != null) __params = __params.set('pageSize', params.pageSize.toString());
-    if (params.orderBy != null) __params = __params.set('orderBy', params.orderBy.toString());
+    if (params.pageToken != null) __params = __params.set('page_token', params.pageToken.toString());
+    if (params.pageSize != null) __params = __params.set('page_size', params.pageSize.toString());
+    if (params.orderBy != null) __params = __params.set('order_by', params.orderBy.toString());
     if (params.filter != null) __params = __params.set('filter', params.filter.toString());
     let req = new HttpRequest<any>(
       'GET',
@@ -159,12 +159,12 @@ class TransactionAccountServiceService extends __BaseService {
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
    *
-   * - `pageToken`: A page token from a previous ListTransactionAccounts call.
+   * - `page_token`: A page token from a previous ListTransactionAccounts call.
    *
-   * - `pageSize`: Maximum number of accounts to return. The service may return fewer.
+   * - `page_size`: Maximum number of accounts to return. The service may return fewer.
    *   If unspecified, at most 20 are returned. Maximum value is 100.
    *
-   * - `orderBy`: Order by expression (e.g. "code", "display_name", "create_time desc").
+   * - `order_by`: Order by expression (e.g. "code", "display_name", "create_time desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: import_source_id, code, display_name.
@@ -182,7 +182,7 @@ class TransactionAccountServiceService extends __BaseService {
    * Creates a new transaction account.
    * @param params The `TransactionAccountServiceService.TransactionAccountServiceCreateTransactionAccountParams` containing the following parameters:
    *
-   * - `transactionAccount`: The transaction account to create.
+   * - `transaction_account`: The transaction account to create.
    *
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
@@ -216,7 +216,7 @@ class TransactionAccountServiceService extends __BaseService {
    * Creates a new transaction account.
    * @param params The `TransactionAccountServiceService.TransactionAccountServiceCreateTransactionAccountParams` containing the following parameters:
    *
-   * - `transactionAccount`: The transaction account to create.
+   * - `transaction_account`: The transaction account to create.
    *
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
@@ -233,10 +233,10 @@ class TransactionAccountServiceService extends __BaseService {
    * Updates an existing transaction account.
    * @param params The `TransactionAccountServiceService.TransactionAccountServiceUpdateTransactionAccountParams` containing the following parameters:
    *
-   * - `transactionAccount.name`: The resource name of the transaction account.
+   * - `transaction_account.name`: The resource name of the transaction account.
    *   Format: organizations/{organization}/transactionAccounts/{transaction_account}
    *
-   * - `transactionAccount`: The transaction account to update.
+   * - `transaction_account`: The transaction account to update.
    *
    * @return A successful response.
    */
@@ -267,10 +267,10 @@ class TransactionAccountServiceService extends __BaseService {
    * Updates an existing transaction account.
    * @param params The `TransactionAccountServiceService.TransactionAccountServiceUpdateTransactionAccountParams` containing the following parameters:
    *
-   * - `transactionAccount.name`: The resource name of the transaction account.
+   * - `transaction_account.name`: The resource name of the transaction account.
    *   Format: organizations/{organization}/transactionAccounts/{transaction_account}
    *
-   * - `transactionAccount`: The transaction account to update.
+   * - `transaction_account`: The transaction account to update.
    *
    * @return A successful response.
    */
@@ -349,7 +349,7 @@ module TransactionAccountServiceService {
     /**
      * The transaction account to update.
      */
-    transactionAccount: {uid?: string, code: string, importSourceId: string, displayName?: string, displayDescription?: string, updateTime?: string, createTime?: string, etag?: string};
+    transactionAccount: {uid?: string, code: string, import_source_id: string, display_name?: string, display_description?: string, update_time?: string, create_time?: string, etag?: string};
   }
 }
 

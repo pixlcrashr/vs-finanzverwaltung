@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit, computed, OnDestroy } from '@angular/core';
 import { RouterOutlet, RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Subject, debounceTime, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { MenuItem, Organization } from '../../models';
 import { CurrentOrganizationService } from '../../services/current-organization.service';
 import { OrganizationDataService } from '../../services/organization.data-service';
@@ -246,14 +246,21 @@ export class MainLayoutComponent implements OnInit {
 
   constructor() {
     this.initializeTheme();
-    // Setup debounced organization change handler
+    // Setup organization change handler
     this.orgChangeSubject.pipe(
-      debounceTime(500),
       takeUntil(this.destroy$)
     ).subscribe((organizationId) => {
       this.selectOrganization(organizationId);
-      // Navigate to the new organization's dashboard
-      this.router.navigate(['/organizations', organizationId, 'dashboard']);
+      // Stay on the same route segment, just replace the orgId
+      const currentUrl = this.router.url;
+      const orgRouteMatch = currentUrl.match(/^\/organizations\/([^/]+)(\/[^?#]*)(.*)$/);
+      if (orgRouteMatch) {
+        const remainingPath = orgRouteMatch[2];
+        const queryAndHash = orgRouteMatch[3];
+        this.router.navigateByUrl(`/organizations/${organizationId}${remainingPath}${queryAndHash}`);
+      } else {
+        this.router.navigate(['/organizations', organizationId, 'dashboard']);
+      }
     });
   }
 

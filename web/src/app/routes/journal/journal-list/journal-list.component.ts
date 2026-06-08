@@ -4,10 +4,9 @@ import {
   inject,
   signal,
   computed,
-  OnInit,
-  OnDestroy,
 } from '@angular/core';
-import { Subject, Subscription, debounceTime } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject, debounceTime, merge, map, distinctUntilChanged, filter } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
@@ -297,25 +296,14 @@ import {
 
   `,
 })
-export class JournalListComponent implements OnInit, OnDestroy {
+export class JournalListComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly dataService = inject(JournalListDataService);
   private readonly notifications = inject(NotificationService);
 
   private readonly filterChange$ = new Subject<void>();
-  private filterSub?: Subscription;
 
   orgId = '';
-
-  private getOrgId(): string {
-    let snapshot = this.route.snapshot;
-    while (snapshot) {
-      const id = snapshot.paramMap.get('orgId');
-      if (id) return id;
-      snapshot = snapshot.parent!;
-    }
-    return '';
-  }
 
   readonly loading = signal(true);
   readonly loadingMore = signal(false);
@@ -339,19 +327,27 @@ export class JournalListComponent implements OnInit, OnDestroy {
   filterQuery = '';
   filterAssignmentStatus: 'all' | JournalAssignmentStatus = 'all';
 
-  ngOnInit(): void {
-    this.orgId = this.getOrgId();
-    this.filterSub = this.filterChange$
-      .pipe(debounceTime(500))
-      .subscribe(() => {
-        this.currentPage.set(0);
-        this.fetchEntries(0, false);
-      });
-    this.fetchEntries(0, false);
-  }
+  constructor() {
+    this.filterChange$.pipe(
+      debounceTime(500),
+      takeUntilDestroyed(),
+    ).subscribe(() => {
+      this.currentPage.set(0);
+      this.fetchEntries(0, false);
+    });
 
-  ngOnDestroy(): void {
-    this.filterSub?.unsubscribe();
+    merge(...this.route.pathFromRoot.map(r => r.params)).pipe(
+      map(params => params['orgId'] as string | undefined),
+      filter((id): id is string => !!id),
+      distinctUntilChanged(),
+      takeUntilDestroyed(),
+    ).subscribe(id => {
+      this.orgId = id;
+      this.currentPage.set(0);
+      this.entries.set([]);
+      this.total.set(0);
+      this.fetchEntries(0, false);
+    });
   }
 
   onFilterChange(): void {

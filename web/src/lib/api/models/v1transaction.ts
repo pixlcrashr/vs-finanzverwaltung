@@ -14,22 +14,22 @@ export interface V1Transaction {
   /**
    * Booking date.
    */
-  bookedAt: string;
+  booked_at: string;
 
   /**
    * Creation timestamp.
    */
-  createTime?: string;
+  create_time?: string;
 
   /**
    * UUID of the credit transaction account.
    */
-  creditTransactionAccountId: string;
+  credit_transaction_account_id: string;
 
   /**
    * UUID of the debit transaction account.
    */
-  debitTransactionAccountId: string;
+  debit_transaction_account_id: string;
 
   /**
    * Human-readable transaction description.
@@ -39,12 +39,12 @@ export interface V1Transaction {
   /**
    * Document date.
    */
-  documentDate: string;
+  document_date: string;
 
   /**
    * Optional document ID.
    */
-  documentId?: string;
+  document_id?: string;
 
   /**
    * Entity tag for optimistic concurrency control.
@@ -65,5 +65,5 @@ export interface V1Transaction {
   /**
    * Last modification timestamp.
    */
-  updateTime?: string;
+  update_time?: string;
 }

@@ -13,12 +13,12 @@ export interface V1BudgetRevisionAccountValue {
   /**
    * The UUID of the account whose value is recorded here.
    */
-  accountId?: string;
+  account_id?: string;
 
   /**
    * Timestamp when this record was created (equals the revision create_time).
    */
-  createTime?: string;
+  create_time?: string;
 
   /**
    * Entity tag for optimistic concurrency control.

@@ -276,17 +276,17 @@ class AccountServiceService extends __BaseService {
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
    *
-   * - `showDeleted`: If true, soft-deleted (archived) accounts are included in results.
+   * - `show_deleted`: If true, soft-deleted (archived) accounts are included in results.
    *   See AIP-132 for soft-delete guidance.
    *
-   * - `pageToken`: A page token from a previous ListAccounts call.
+   * - `page_token`: A page token from a previous ListAccounts call.
    *   Provide this to retrieve the next page.
    *
-   * - `pageSize`: Maximum number of accounts to return. The service may return fewer.
+   * - `page_size`: Maximum number of accounts to return. The service may return fewer.
    *   If unspecified, at most 20 accounts will be returned. Maximum value is 100;
    *   values above 100 will be coerced to 100.
    *
-   * - `orderBy`: Order by expression (e.g. "display_name", "create_time desc").
+   * - `order_by`: Order by expression (e.g. "display_name", "create_time desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: display_name, display_code, is_archived.
@@ -299,10 +299,10 @@ class AccountServiceService extends __BaseService {
     let __headers = new HttpHeaders();
     let __body: any = null;
 
-    if (params.showDeleted != null) __params = __params.set('showDeleted', params.showDeleted.toString());
-    if (params.pageToken != null) __params = __params.set('pageToken', params.pageToken.toString());
-    if (params.pageSize != null) __params = __params.set('pageSize', params.pageSize.toString());
-    if (params.orderBy != null) __params = __params.set('orderBy', params.orderBy.toString());
+    if (params.showDeleted != null) __params = __params.set('show_deleted', params.showDeleted.toString());
+    if (params.pageToken != null) __params = __params.set('page_token', params.pageToken.toString());
+    if (params.pageSize != null) __params = __params.set('page_size', params.pageSize.toString());
+    if (params.orderBy != null) __params = __params.set('order_by', params.orderBy.toString());
     if (params.filter != null) __params = __params.set('filter', params.filter.toString());
     let req = new HttpRequest<any>(
       'GET',
@@ -328,17 +328,17 @@ class AccountServiceService extends __BaseService {
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
    *
-   * - `showDeleted`: If true, soft-deleted (archived) accounts are included in results.
+   * - `show_deleted`: If true, soft-deleted (archived) accounts are included in results.
    *   See AIP-132 for soft-delete guidance.
    *
-   * - `pageToken`: A page token from a previous ListAccounts call.
+   * - `page_token`: A page token from a previous ListAccounts call.
    *   Provide this to retrieve the next page.
    *
-   * - `pageSize`: Maximum number of accounts to return. The service may return fewer.
+   * - `page_size`: Maximum number of accounts to return. The service may return fewer.
    *   If unspecified, at most 20 accounts will be returned. Maximum value is 100;
    *   values above 100 will be coerced to 100.
    *
-   * - `orderBy`: Order by expression (e.g. "display_name", "create_time desc").
+   * - `order_by`: Order by expression (e.g. "display_name", "create_time desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: display_name, display_code, is_archived.
@@ -475,7 +475,7 @@ module AccountServiceService {
     /**
      * The account to update.
      */
-    account: {uid?: string, parentAccount?: string, displayName: string, displayCode: string, displayDescription?: string, isContainer?: boolean, isArchived?: boolean, updateTime?: string, createTime?: string, etag?: string};
+    account: {uid?: string, parent_account?: string, display_name: string, display_code: string, display_description?: string, is_container?: boolean, is_archived?: boolean, update_time?: string, create_time?: string, etag?: string};
   }
 
   /**

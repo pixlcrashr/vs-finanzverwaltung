@@ -218,14 +218,14 @@ class BudgetServiceService extends __BaseService {
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
    *
-   * - `showDeleted`: If true, closed budgets are included in results.
+   * - `show_deleted`: If true, closed budgets are included in results.
    *
-   * - `pageToken`: A page token from a previous ListBudgets call.
+   * - `page_token`: A page token from a previous ListBudgets call.
    *
-   * - `pageSize`: Maximum number of budgets to return. The service may return fewer.
+   * - `page_size`: Maximum number of budgets to return. The service may return fewer.
    *   If unspecified, at most 20 are returned. Maximum value is 100.
    *
-   * - `orderBy`: Order by expression (e.g. "display_name", "period_start desc").
+   * - `order_by`: Order by expression (e.g. "display_name", "period_start desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: display_name, is_closed.
@@ -238,10 +238,10 @@ class BudgetServiceService extends __BaseService {
     let __headers = new HttpHeaders();
     let __body: any = null;
 
-    if (params.showDeleted != null) __params = __params.set('showDeleted', params.showDeleted.toString());
-    if (params.pageToken != null) __params = __params.set('pageToken', params.pageToken.toString());
-    if (params.pageSize != null) __params = __params.set('pageSize', params.pageSize.toString());
-    if (params.orderBy != null) __params = __params.set('orderBy', params.orderBy.toString());
+    if (params.showDeleted != null) __params = __params.set('show_deleted', params.showDeleted.toString());
+    if (params.pageToken != null) __params = __params.set('page_token', params.pageToken.toString());
+    if (params.pageSize != null) __params = __params.set('page_size', params.pageSize.toString());
+    if (params.orderBy != null) __params = __params.set('order_by', params.orderBy.toString());
     if (params.filter != null) __params = __params.set('filter', params.filter.toString());
     let req = new HttpRequest<any>(
       'GET',
@@ -267,14 +267,14 @@ class BudgetServiceService extends __BaseService {
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
    *
-   * - `showDeleted`: If true, closed budgets are included in results.
+   * - `show_deleted`: If true, closed budgets are included in results.
    *
-   * - `pageToken`: A page token from a previous ListBudgets call.
+   * - `page_token`: A page token from a previous ListBudgets call.
    *
-   * - `pageSize`: Maximum number of budgets to return. The service may return fewer.
+   * - `page_size`: Maximum number of budgets to return. The service may return fewer.
    *   If unspecified, at most 20 are returned. Maximum value is 100.
    *
-   * - `orderBy`: Order by expression (e.g. "display_name", "period_start desc").
+   * - `order_by`: Order by expression (e.g. "display_name", "period_start desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: display_name, is_closed.
@@ -356,7 +356,7 @@ module BudgetServiceService {
     /**
      * The budget to update.
      */
-    budget: {uid?: string, displayName: string, displayDescription?: string, isClosed?: boolean, periodStart: TypeDate, periodEnd: TypeDate, updateTime?: string, createTime?: string, etag?: string};
+    budget: {uid?: string, display_name: string, display_description?: string, is_closed?: boolean, period_start: TypeDate, period_end: TypeDate, update_time?: string, create_time?: string, etag?: string};
   }
 
   /**

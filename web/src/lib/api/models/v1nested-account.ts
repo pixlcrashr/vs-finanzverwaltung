@@ -1,6 +1,4 @@
 /* tslint:disable */
-import { V1NestedAccount } from './v1nested-account';
-
 /**
  * NestedAccount is a read-only view of an Account that includes its full
  * subtree of child accounts. It shares the same resource name as Account.
@@ -15,22 +13,22 @@ export interface V1NestedAccount {
   /**
    * Creation timestamp.
    */
-  createTime?: string;
+  create_time?: string;
 
   /**
    * Short account code.
    */
-  displayCode?: string;
+  display_code?: string;
 
   /**
    * Optional free-text description.
    */
-  displayDescription?: string;
+  display_description?: string;
 
   /**
    * Human-readable account name.
    */
-  displayName?: string;
+  display_name?: string;
 
   /**
    * Entity tag for optimistic concurrency control.
@@ -40,14 +38,14 @@ export interface V1NestedAccount {
   /**
    * Whether the account is archived.
    */
-  isArchived?: boolean;
+  is_archived?: boolean;
 
   /**
    * Whether this account is a container account.
    */
-  isContainer?: boolean;
+  is_container?: boolean;
   name?: string;
-  parentAccount?: string;
+  parent_account?: string;
 
   /**
    * The UUID of the account.
@@ -57,5 +55,5 @@ export interface V1NestedAccount {
   /**
    * Last modification timestamp.
    */
-  updateTime?: string;
+  update_time?: string;
 }

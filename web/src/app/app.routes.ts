@@ -27,11 +27,13 @@ export const routes: Routes = [
       },
       {
         path: 'organizations/:orgId/dashboard',
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
         loadChildren: () =>
           import('./routes/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
       },
       {
         path: 'organizations/:orgId/reimbursements',
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
         loadChildren: () =>
           import('./routes/reimbursements/reimbursements.routes').then(
             (m) => m.REIMBURSEMENTS_ROUTES,
@@ -39,15 +41,18 @@ export const routes: Routes = [
       },
       {
         path: 'organizations/:orgId/budgets',
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
         loadChildren: () => import('./routes/budgets/budgets.routes').then((m) => m.BUDGETS_ROUTES),
       },
       {
         path: 'organizations/:orgId/accounts',
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
         loadChildren: () =>
           import('./routes/accounts/accounts.routes').then((m) => m.ACCOUNTS_ROUTES),
       },
       {
         path: 'organizations/:orgId/accountGroups',
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
         loadChildren: () =>
           import('./routes/account-groups/account-groups.routes').then(
             (m) => m.ACCOUNT_GROUPS_ROUTES,
@@ -55,19 +60,23 @@ export const routes: Routes = [
       },
       {
         path: 'organizations/:orgId/journal',
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
         loadChildren: () => import('./routes/journal/journal.routes').then((m) => m.JOURNAL_ROUTES),
       },
       {
         path: 'organizations/:orgId/transactions',
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
         loadChildren: () =>
           import('./routes/transactions/transactions.routes').then((m) => m.TRANSACTIONS_ROUTES),
       },
       {
         path: 'organizations/:orgId/reports',
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
         loadChildren: () => import('./routes/reports/reports.routes').then((m) => m.REPORTS_ROUTES),
       },
       {
         path: 'organizations/:orgId/reportTemplates',
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
         loadChildren: () =>
           import('./routes/report-templates/report-templates.routes').then(
             (m) => m.REPORT_TEMPLATES_ROUTES,
@@ -75,6 +84,7 @@ export const routes: Routes = [
       },
       {
         path: 'organizations/:orgId/matrix',
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
         loadChildren: () => import('./routes/matrix/matrix.routes').then((m) => m.MATRIX_ROUTES),
       },
     ],

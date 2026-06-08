@@ -11,10 +11,10 @@ export interface V1ListAccountsResponse {
    * A token to retrieve the next page of results.
    * Pass this value in ListAccountsRequest.page_token on the next call.
    */
-  nextPageToken?: string;
+  next_page_token?: string;
 
   /**
    * Total number of accounts matching the filter (may be an estimate).
    */
-  totalSize?: string;
+  total_size?: string;
 }

@@ -9,17 +9,17 @@ export interface V1Budget {
   /**
    * Creation timestamp.
    */
-  createTime?: string;
+  create_time?: string;
 
   /**
    * Optional free-text description.
    */
-  displayDescription?: string;
+  display_description?: string;
 
   /**
    * Human-readable budget name.
    */
-  displayName: string;
+  display_name: string;
 
   /**
    * Entity tag for optimistic concurrency control.
@@ -29,18 +29,18 @@ export interface V1Budget {
   /**
    * Whether the budget is closed (no further modifications allowed).
    */
-  isClosed?: boolean;
+  is_closed?: boolean;
   name?: string;
 
   /**
    * Budget period end date.
    */
-  periodEnd: TypeDate;
+  period_end: TypeDate;
 
   /**
    * Budget period start date.
    */
-  periodStart: TypeDate;
+  period_start: TypeDate;
 
   /**
    * The UUID of the budget.
@@ -50,5 +50,5 @@ export interface V1Budget {
   /**
    * Last modification timestamp.
    */
-  updateTime?: string;
+  update_time?: string;
 }

@@ -14,9 +14,9 @@ import { V1ListImportSourcesResponse } from '../models/v1list-import-sources-res
   providedIn: 'root',
 })
 class ImportSourceServiceService extends __BaseService {
-  static readonly ImportSourceServiceUpdateImportSourcePath = '/v1/{importSource.name}';
-  static readonly ImportSourceServiceDeleteImportSourcePath = '/v1/{name_5}';
-  static readonly ImportSourceServiceGetImportSourcePath = '/v1/{name_7}';
+  static readonly ImportSourceServiceUpdateImportSourcePath = '/v1/{import_source.name}';
+  static readonly ImportSourceServiceDeleteImportSourcePath = '/v1/{name_6}';
+  static readonly ImportSourceServiceGetImportSourcePath = '/v1/{name_8}';
   static readonly ImportSourceServiceListImportSourcesPath = '/v1/{parent}/importSources';
   static readonly ImportSourceServiceCreateImportSourcePath = '/v1/{parent}/importSources';
 
@@ -31,10 +31,10 @@ class ImportSourceServiceService extends __BaseService {
    * Updates an existing import source.
    * @param params The `ImportSourceServiceService.ImportSourceServiceUpdateImportSourceParams` containing the following parameters:
    *
-   * - `importSource.name`: The resource name of the import source.
+   * - `import_source.name`: The resource name of the import source.
    *   Format: organizations/{organization}/importSources/{import_source}
    *
-   * - `importSource`: The import source to update.
+   * - `import_source`: The import source to update.
    *
    * @return A successful response.
    */
@@ -65,10 +65,10 @@ class ImportSourceServiceService extends __BaseService {
    * Updates an existing import source.
    * @param params The `ImportSourceServiceService.ImportSourceServiceUpdateImportSourceParams` containing the following parameters:
    *
-   * - `importSource.name`: The resource name of the import source.
+   * - `import_source.name`: The resource name of the import source.
    *   Format: organizations/{organization}/importSources/{import_source}
    *
-   * - `importSource`: The import source to update.
+   * - `import_source`: The import source to update.
    *
    * @return A successful response.
    */
@@ -80,18 +80,18 @@ class ImportSourceServiceService extends __BaseService {
 
   /**
    * Permanently deletes an import source.
-   * @param name_5 The resource name of the import source.
+   * @param name_6 The resource name of the import source.
    * Format: organizations/{organization}/importSources/{import_source}
    * @return A successful response.
    */
-  ImportSourceServiceDeleteImportSourceResponse(name5: string): __Observable<__StrictHttpResponse<{}>> {
+  ImportSourceServiceDeleteImportSourceResponse(name6: string): __Observable<__StrictHttpResponse<{}>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
 
     let req = new HttpRequest<any>(
       'DELETE',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name5))}`,
+      this.rootUrl + `/v1/${encodeURIComponent(String(name6))}`,
       __body,
       {
         headers: __headers,
@@ -108,30 +108,30 @@ class ImportSourceServiceService extends __BaseService {
   }
   /**
    * Permanently deletes an import source.
-   * @param name_5 The resource name of the import source.
+   * @param name_6 The resource name of the import source.
    * Format: organizations/{organization}/importSources/{import_source}
    * @return A successful response.
    */
-  ImportSourceServiceDeleteImportSource(name5: string): __Observable<{}> {
-    return this.ImportSourceServiceDeleteImportSourceResponse(name5).pipe(
+  ImportSourceServiceDeleteImportSource(name6: string): __Observable<{}> {
+    return this.ImportSourceServiceDeleteImportSourceResponse(name6).pipe(
       __map(_r => _r.body as {})
     );
   }
 
   /**
    * Gets a single import source by resource name.
-   * @param name_7 The resource name of the import source.
+   * @param name_8 The resource name of the import source.
    * Format: organizations/{organization}/importSources/{import_source}
    * @return A successful response.
    */
-  ImportSourceServiceGetImportSourceResponse(name7: string): __Observable<__StrictHttpResponse<V1ImportSource>> {
+  ImportSourceServiceGetImportSourceResponse(name8: string): __Observable<__StrictHttpResponse<V1ImportSource>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
 
     let req = new HttpRequest<any>(
       'GET',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name7))}`,
+      this.rootUrl + `/v1/${encodeURIComponent(String(name8))}`,
       __body,
       {
         headers: __headers,
@@ -148,12 +148,12 @@ class ImportSourceServiceService extends __BaseService {
   }
   /**
    * Gets a single import source by resource name.
-   * @param name_7 The resource name of the import source.
+   * @param name_8 The resource name of the import source.
    * Format: organizations/{organization}/importSources/{import_source}
    * @return A successful response.
    */
-  ImportSourceServiceGetImportSource(name7: string): __Observable<V1ImportSource> {
-    return this.ImportSourceServiceGetImportSourceResponse(name7).pipe(
+  ImportSourceServiceGetImportSource(name8: string): __Observable<V1ImportSource> {
+    return this.ImportSourceServiceGetImportSourceResponse(name8).pipe(
       __map(_r => _r.body as V1ImportSource)
     );
   }
@@ -165,12 +165,12 @@ class ImportSourceServiceService extends __BaseService {
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
    *
-   * - `pageToken`: A page token from a previous ListImportSources call.
+   * - `page_token`: A page token from a previous ListImportSources call.
    *
-   * - `pageSize`: Maximum number of import sources to return. The service may return fewer.
+   * - `page_size`: Maximum number of import sources to return. The service may return fewer.
    *   If unspecified, at most 20 are returned. Maximum value is 100.
    *
-   * - `orderBy`: Order by expression (e.g. "display_name", "create_time desc").
+   * - `order_by`: Order by expression (e.g. "display_name", "create_time desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: display_name.
@@ -183,9 +183,9 @@ class ImportSourceServiceService extends __BaseService {
     let __headers = new HttpHeaders();
     let __body: any = null;
 
-    if (params.pageToken != null) __params = __params.set('pageToken', params.pageToken.toString());
-    if (params.pageSize != null) __params = __params.set('pageSize', params.pageSize.toString());
-    if (params.orderBy != null) __params = __params.set('orderBy', params.orderBy.toString());
+    if (params.pageToken != null) __params = __params.set('page_token', params.pageToken.toString());
+    if (params.pageSize != null) __params = __params.set('page_size', params.pageSize.toString());
+    if (params.orderBy != null) __params = __params.set('order_by', params.orderBy.toString());
     if (params.filter != null) __params = __params.set('filter', params.filter.toString());
     let req = new HttpRequest<any>(
       'GET',
@@ -211,12 +211,12 @@ class ImportSourceServiceService extends __BaseService {
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
    *
-   * - `pageToken`: A page token from a previous ListImportSources call.
+   * - `page_token`: A page token from a previous ListImportSources call.
    *
-   * - `pageSize`: Maximum number of import sources to return. The service may return fewer.
+   * - `page_size`: Maximum number of import sources to return. The service may return fewer.
    *   If unspecified, at most 20 are returned. Maximum value is 100.
    *
-   * - `orderBy`: Order by expression (e.g. "display_name", "create_time desc").
+   * - `order_by`: Order by expression (e.g. "display_name", "create_time desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: display_name.
@@ -237,7 +237,7 @@ class ImportSourceServiceService extends __BaseService {
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
    *
-   * - `importSource`: The import source to create.
+   * - `import_source`: The import source to create.
    *
    * @return A successful response.
    */
@@ -271,7 +271,7 @@ class ImportSourceServiceService extends __BaseService {
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
    *
-   * - `importSource`: The import source to create.
+   * - `import_source`: The import source to create.
    *
    * @return A successful response.
    */
@@ -298,7 +298,7 @@ module ImportSourceServiceService {
     /**
      * The import source to update.
      */
-    importSource: {uid?: string, displayName: string, displayDescription?: string, periodStart: TypeDate, updateTime?: string, createTime?: string, etag?: string};
+    importSource: {uid?: string, display_name: string, display_description?: string, period_start: TypeDate, update_time?: string, create_time?: string, etag?: string};
   }
 
   /**

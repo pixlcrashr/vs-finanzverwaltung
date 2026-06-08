@@ -3,9 +3,10 @@ import {
   ChangeDetectionStrategy,
   inject,
   signal,
-  OnInit,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { merge, map, distinctUntilChanged, filter } from 'rxjs';
 import { Dialog } from '@angular/cdk/dialog';
 import {
   PageContentLayoutComponent,
@@ -129,21 +130,11 @@ import { BudgetListDataService } from './budget-list.data-service';
     </app-page-content-layout>
   `,
 })
-export class BudgetListComponent implements OnInit {
+export class BudgetListComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly dataService = inject(BudgetListDataService);
   private readonly dialog = inject(Dialog);
   private readonly _notificationService = inject(NotificationService);
-
-  private getOrgId(): string {
-    let snapshot = this.route.snapshot;
-    while (snapshot) {
-      const id = snapshot.paramMap.get('orgId');
-      if (id) return id;
-      snapshot = snapshot.parent!;
-    }
-    return '';
-  }
 
   orgId = '';
 
@@ -152,9 +143,18 @@ export class BudgetListComponent implements OnInit {
 
   readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Haushaltspläne` }];
 
-  ngOnInit(): void {
-    this.orgId = this.getOrgId();
-    this.loadBudgets();
+  constructor() {
+    merge(...this.route.pathFromRoot.map(r => r.params)).pipe(
+      map(params => params['orgId'] as string | undefined),
+      filter((id): id is string => !!id),
+      distinctUntilChanged(),
+      takeUntilDestroyed(),
+    ).subscribe(id => {
+      this.orgId = id;
+      this.loading.set(true);
+      this.budgets.set([]);
+      this.loadBudgets();
+    });
   }
 
   private loadBudgets(): void {

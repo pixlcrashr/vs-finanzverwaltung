@@ -15,8 +15,8 @@ import { V1ListTransactionAccountAssignmentsResponse } from '../models/v1list-tr
 })
 class TransactionAccountAssignmentServiceService extends __BaseService {
   static readonly TransactionAccountAssignmentServiceUpdateTransactionAccountAssignmentPath = '/v1/{assignment.name_1}';
-  static readonly TransactionAccountAssignmentServiceDeleteTransactionAccountAssignmentPath = '/v1/{name_12}';
-  static readonly TransactionAccountAssignmentServiceGetTransactionAccountAssignmentPath = '/v1/{name_14}';
+  static readonly TransactionAccountAssignmentServiceDeleteTransactionAccountAssignmentPath = '/v1/{name_13}';
+  static readonly TransactionAccountAssignmentServiceGetTransactionAccountAssignmentPath = '/v1/{name_15}';
   static readonly TransactionAccountAssignmentServiceListTransactionAccountAssignmentsPath = '/v1/{parent_1}/assignments';
   static readonly TransactionAccountAssignmentServiceCreateTransactionAccountAssignmentPath = '/v1/{parent_1}/assignments';
 
@@ -80,18 +80,18 @@ class TransactionAccountAssignmentServiceService extends __BaseService {
 
   /**
    * Permanently deletes an assignment.
-   * @param name_12 The resource name of the assignment.
+   * @param name_13 The resource name of the assignment.
    * Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
    * @return A successful response.
    */
-  TransactionAccountAssignmentServiceDeleteTransactionAccountAssignmentResponse(name12: string): __Observable<__StrictHttpResponse<{}>> {
+  TransactionAccountAssignmentServiceDeleteTransactionAccountAssignmentResponse(name13: string): __Observable<__StrictHttpResponse<{}>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
 
     let req = new HttpRequest<any>(
       'DELETE',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name12))}`,
+      this.rootUrl + `/v1/${encodeURIComponent(String(name13))}`,
       __body,
       {
         headers: __headers,
@@ -108,30 +108,30 @@ class TransactionAccountAssignmentServiceService extends __BaseService {
   }
   /**
    * Permanently deletes an assignment.
-   * @param name_12 The resource name of the assignment.
+   * @param name_13 The resource name of the assignment.
    * Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
    * @return A successful response.
    */
-  TransactionAccountAssignmentServiceDeleteTransactionAccountAssignment(name12: string): __Observable<{}> {
-    return this.TransactionAccountAssignmentServiceDeleteTransactionAccountAssignmentResponse(name12).pipe(
+  TransactionAccountAssignmentServiceDeleteTransactionAccountAssignment(name13: string): __Observable<{}> {
+    return this.TransactionAccountAssignmentServiceDeleteTransactionAccountAssignmentResponse(name13).pipe(
       __map(_r => _r.body as {})
     );
   }
 
   /**
    * Gets a single assignment by resource name.
-   * @param name_14 The resource name of the assignment.
+   * @param name_15 The resource name of the assignment.
    * Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
    * @return A successful response.
    */
-  TransactionAccountAssignmentServiceGetTransactionAccountAssignmentResponse(name14: string): __Observable<__StrictHttpResponse<V1TransactionAccountAssignment>> {
+  TransactionAccountAssignmentServiceGetTransactionAccountAssignmentResponse(name15: string): __Observable<__StrictHttpResponse<V1TransactionAccountAssignment>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
 
     let req = new HttpRequest<any>(
       'GET',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name14))}`,
+      this.rootUrl + `/v1/${encodeURIComponent(String(name15))}`,
       __body,
       {
         headers: __headers,
@@ -148,12 +148,12 @@ class TransactionAccountAssignmentServiceService extends __BaseService {
   }
   /**
    * Gets a single assignment by resource name.
-   * @param name_14 The resource name of the assignment.
+   * @param name_15 The resource name of the assignment.
    * Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
    * @return A successful response.
    */
-  TransactionAccountAssignmentServiceGetTransactionAccountAssignment(name14: string): __Observable<V1TransactionAccountAssignment> {
-    return this.TransactionAccountAssignmentServiceGetTransactionAccountAssignmentResponse(name14).pipe(
+  TransactionAccountAssignmentServiceGetTransactionAccountAssignment(name15: string): __Observable<V1TransactionAccountAssignment> {
+    return this.TransactionAccountAssignmentServiceGetTransactionAccountAssignmentResponse(name15).pipe(
       __map(_r => _r.body as V1TransactionAccountAssignment)
     );
   }
@@ -165,12 +165,12 @@ class TransactionAccountAssignmentServiceService extends __BaseService {
    * - `parent_1`: The parent transaction resource name.
    *   Format: organizations/{organization}/transactions/{transaction}
    *
-   * - `pageToken`: A page token from a previous ListTransactionAccountAssignments call.
+   * - `page_token`: A page token from a previous ListTransactionAccountAssignments call.
    *
-   * - `pageSize`: Maximum number of assignments to return. The service may return fewer.
+   * - `page_size`: Maximum number of assignments to return. The service may return fewer.
    *   If unspecified, at most 20 are returned. Maximum value is 100.
    *
-   * - `orderBy`: Order by expression (e.g. "create_time desc").
+   * - `order_by`: Order by expression (e.g. "create_time desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: account_id, value.
@@ -183,9 +183,9 @@ class TransactionAccountAssignmentServiceService extends __BaseService {
     let __headers = new HttpHeaders();
     let __body: any = null;
 
-    if (params.pageToken != null) __params = __params.set('pageToken', params.pageToken.toString());
-    if (params.pageSize != null) __params = __params.set('pageSize', params.pageSize.toString());
-    if (params.orderBy != null) __params = __params.set('orderBy', params.orderBy.toString());
+    if (params.pageToken != null) __params = __params.set('page_token', params.pageToken.toString());
+    if (params.pageSize != null) __params = __params.set('page_size', params.pageSize.toString());
+    if (params.orderBy != null) __params = __params.set('order_by', params.orderBy.toString());
     if (params.filter != null) __params = __params.set('filter', params.filter.toString());
     let req = new HttpRequest<any>(
       'GET',
@@ -211,12 +211,12 @@ class TransactionAccountAssignmentServiceService extends __BaseService {
    * - `parent_1`: The parent transaction resource name.
    *   Format: organizations/{organization}/transactions/{transaction}
    *
-   * - `pageToken`: A page token from a previous ListTransactionAccountAssignments call.
+   * - `page_token`: A page token from a previous ListTransactionAccountAssignments call.
    *
-   * - `pageSize`: Maximum number of assignments to return. The service may return fewer.
+   * - `page_size`: Maximum number of assignments to return. The service may return fewer.
    *   If unspecified, at most 20 are returned. Maximum value is 100.
    *
-   * - `orderBy`: Order by expression (e.g. "create_time desc").
+   * - `order_by`: Order by expression (e.g. "create_time desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: account_id, value.
@@ -298,7 +298,7 @@ module TransactionAccountAssignmentServiceService {
     /**
      * The assignment to update.
      */
-    assignment: {uid?: string, transaction?: string, accountId: string, value: V1Decimal, updateTime?: string, createTime?: string, etag?: string};
+    assignment: {uid?: string, transaction?: string, account_id: string, value: V1Decimal, update_time?: string, create_time?: string, etag?: string};
   }
 
   /**

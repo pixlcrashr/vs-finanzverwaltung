@@ -1,11 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, from, map } from 'rxjs';
-import { Api } from '../../api/api';
-import {
-  getAccount,
-  updateAccount,
-  listAccounts,
-} from '../../api/functions';
+import { Observable, map } from 'rxjs';
+import { AccountServiceService } from '../../api/services/account-service.service';
+import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import { Account } from '../../../app/shared/models';
 import {
   AccountEditDataService,
@@ -15,14 +11,23 @@ import { mapApiAccount } from './_mappers';
 
 @Injectable()
 export class HttpAccountEditDataService extends AccountEditDataService {
-  private readonly api = inject(Api);
+  private readonly svc = inject(AccountServiceService);
+  private readonly orgSvc = inject(CurrentOrganizationService);
+
+  private get parent(): string {
+    return `organizations/${this.orgSvc.currentOrganization()!.id}`;
+  }
+
+  private accountName(uid: string): string {
+    return `${this.parent}/accounts/${uid}`;
+  }
 
   getAccount(id: string): Observable<AccountDetails> {
-    return from(this.api.invoke(getAccount, { accountId: id })).pipe(
+    return this.svc.AccountServiceGetAccount(this.accountName(id)).pipe(
       map((a) => ({
         ...mapApiAccount(a),
-        createdAt: new Date(a.createTime),
-        updatedAt: new Date(a.updateTime),
+        createdAt: new Date(a.create_time ?? ''),
+        updatedAt: new Date(a.update_time ?? ''),
       })),
     );
   }
@@ -33,26 +38,21 @@ export class HttpAccountEditDataService extends AccountEditDataService {
     code: string,
     description: string,
   ): Observable<AccountDetails> {
-    return from(
-      this.api.invoke(updateAccount, {
-        accountId: id,
-        body: {
-          displayName: name,
-          displayDescription: description,
-        },
-      }),
-    ).pipe(
+    return this.svc.AccountServiceUpdateAccount({
+      accountName: this.accountName(id),
+      account: { display_name: name, display_code: code, display_description: description },
+    }).pipe(
       map((a) => ({
         ...mapApiAccount(a),
-        createdAt: new Date(a.createTime),
-        updatedAt: new Date(a.updateTime),
+        createdAt: new Date(a.create_time ?? ''),
+        updatedAt: new Date(a.update_time ?? ''),
       })),
     );
   }
 
   getParentAccounts(): Observable<Account[]> {
-    return from(
-      this.api.invoke(listAccounts, { pageSize: 100, showDeleted: false }),
-    ).pipe(map((resp) => (resp.accounts ?? []).map(mapApiAccount)));
+    return this.svc.AccountServiceListAccounts({ parent: this.parent, pageSize: 100, showDeleted: false }).pipe(
+      map((resp) => (resp.accounts ?? []).map(mapApiAccount)),
+    );
   }
 }

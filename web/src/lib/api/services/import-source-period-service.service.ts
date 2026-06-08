@@ -15,8 +15,8 @@ import { V1ListImportSourcePeriodsResponse } from '../models/v1list-import-sourc
 })
 class ImportSourcePeriodServiceService extends __BaseService {
   static readonly ImportSourcePeriodServiceCloseImportSourcePeriodPath = '/v1/{name_1}:close';
-  static readonly ImportSourcePeriodServiceDeleteImportSourcePeriodPath = '/v1/{name_6}';
-  static readonly ImportSourcePeriodServiceGetImportSourcePeriodPath = '/v1/{name_8}';
+  static readonly ImportSourcePeriodServiceDeleteImportSourcePeriodPath = '/v1/{name_7}';
+  static readonly ImportSourcePeriodServiceGetImportSourcePeriodPath = '/v1/{name_9}';
   static readonly ImportSourcePeriodServiceListImportSourcePeriodsPath = '/v1/{parent}/periods';
   static readonly ImportSourcePeriodServiceCreateImportSourcePeriodPath = '/v1/{parent}/periods';
 
@@ -80,18 +80,18 @@ class ImportSourcePeriodServiceService extends __BaseService {
 
   /**
    * Permanently deletes a period.
-   * @param name_6 The resource name of the period.
+   * @param name_7 The resource name of the period.
    * Format: organizations/{organization}/importSources/{import_source}/periods/{period}
    * @return A successful response.
    */
-  ImportSourcePeriodServiceDeleteImportSourcePeriodResponse(name6: string): __Observable<__StrictHttpResponse<{}>> {
+  ImportSourcePeriodServiceDeleteImportSourcePeriodResponse(name7: string): __Observable<__StrictHttpResponse<{}>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
 
     let req = new HttpRequest<any>(
       'DELETE',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name6))}`,
+      this.rootUrl + `/v1/${encodeURIComponent(String(name7))}`,
       __body,
       {
         headers: __headers,
@@ -108,30 +108,30 @@ class ImportSourcePeriodServiceService extends __BaseService {
   }
   /**
    * Permanently deletes a period.
-   * @param name_6 The resource name of the period.
+   * @param name_7 The resource name of the period.
    * Format: organizations/{organization}/importSources/{import_source}/periods/{period}
    * @return A successful response.
    */
-  ImportSourcePeriodServiceDeleteImportSourcePeriod(name6: string): __Observable<{}> {
-    return this.ImportSourcePeriodServiceDeleteImportSourcePeriodResponse(name6).pipe(
+  ImportSourcePeriodServiceDeleteImportSourcePeriod(name7: string): __Observable<{}> {
+    return this.ImportSourcePeriodServiceDeleteImportSourcePeriodResponse(name7).pipe(
       __map(_r => _r.body as {})
     );
   }
 
   /**
    * Gets a single period by resource name.
-   * @param name_8 The resource name of the period.
+   * @param name_9 The resource name of the period.
    * Format: organizations/{organization}/importSources/{import_source}/periods/{period}
    * @return A successful response.
    */
-  ImportSourcePeriodServiceGetImportSourcePeriodResponse(name8: string): __Observable<__StrictHttpResponse<V1ImportSourcePeriod>> {
+  ImportSourcePeriodServiceGetImportSourcePeriodResponse(name9: string): __Observable<__StrictHttpResponse<V1ImportSourcePeriod>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
 
     let req = new HttpRequest<any>(
       'GET',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name8))}`,
+      this.rootUrl + `/v1/${encodeURIComponent(String(name9))}`,
       __body,
       {
         headers: __headers,
@@ -148,12 +148,12 @@ class ImportSourcePeriodServiceService extends __BaseService {
   }
   /**
    * Gets a single period by resource name.
-   * @param name_8 The resource name of the period.
+   * @param name_9 The resource name of the period.
    * Format: organizations/{organization}/importSources/{import_source}/periods/{period}
    * @return A successful response.
    */
-  ImportSourcePeriodServiceGetImportSourcePeriod(name8: string): __Observable<V1ImportSourcePeriod> {
-    return this.ImportSourcePeriodServiceGetImportSourcePeriodResponse(name8).pipe(
+  ImportSourcePeriodServiceGetImportSourcePeriod(name9: string): __Observable<V1ImportSourcePeriod> {
+    return this.ImportSourcePeriodServiceGetImportSourcePeriodResponse(name9).pipe(
       __map(_r => _r.body as V1ImportSourcePeriod)
     );
   }
@@ -165,12 +165,12 @@ class ImportSourcePeriodServiceService extends __BaseService {
    * - `parent`: The parent import source resource name.
    *   Format: organizations/{organization}/importSources/{import_source}
    *
-   * - `pageToken`: A page token from a previous ListImportSourcePeriods call.
+   * - `page_token`: A page token from a previous ListImportSourcePeriods call.
    *
-   * - `pageSize`: Maximum number of periods to return. The service may return fewer.
+   * - `page_size`: Maximum number of periods to return. The service may return fewer.
    *   If unspecified, at most 20 are returned. Maximum value is 100.
    *
-   * - `orderBy`: Order by expression (e.g. "year desc", "create_time").
+   * - `order_by`: Order by expression (e.g. "year desc", "create_time").
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: year, is_closed.
@@ -183,9 +183,9 @@ class ImportSourcePeriodServiceService extends __BaseService {
     let __headers = new HttpHeaders();
     let __body: any = null;
 
-    if (params.pageToken != null) __params = __params.set('pageToken', params.pageToken.toString());
-    if (params.pageSize != null) __params = __params.set('pageSize', params.pageSize.toString());
-    if (params.orderBy != null) __params = __params.set('orderBy', params.orderBy.toString());
+    if (params.pageToken != null) __params = __params.set('page_token', params.pageToken.toString());
+    if (params.pageSize != null) __params = __params.set('page_size', params.pageSize.toString());
+    if (params.orderBy != null) __params = __params.set('order_by', params.orderBy.toString());
     if (params.filter != null) __params = __params.set('filter', params.filter.toString());
     let req = new HttpRequest<any>(
       'GET',
@@ -211,12 +211,12 @@ class ImportSourcePeriodServiceService extends __BaseService {
    * - `parent`: The parent import source resource name.
    *   Format: organizations/{organization}/importSources/{import_source}
    *
-   * - `pageToken`: A page token from a previous ListImportSourcePeriods call.
+   * - `page_token`: A page token from a previous ListImportSourcePeriods call.
    *
-   * - `pageSize`: Maximum number of periods to return. The service may return fewer.
+   * - `page_size`: Maximum number of periods to return. The service may return fewer.
    *   If unspecified, at most 20 are returned. Maximum value is 100.
    *
-   * - `orderBy`: Order by expression (e.g. "year desc", "create_time").
+   * - `order_by`: Order by expression (e.g. "year desc", "create_time").
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: year, is_closed.

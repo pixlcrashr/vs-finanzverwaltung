@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable, from, map } from 'rxjs';
-import { Api } from '../../api/api';
-import { createAccountGroup } from '../../api/functions';
+import { Observable, map } from 'rxjs';
+import { AccountGroupServiceService } from '../../api/services/account-group-service.service';
+import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import {
   CreateAccountGroupDialogDataService,
   CreatedAccountGroup,
@@ -9,22 +9,20 @@ import {
 
 @Injectable()
 export class HttpCreateAccountGroupDialogDataService extends CreateAccountGroupDialogDataService {
-  private readonly api = inject(Api);
+  private readonly svc = inject(AccountGroupServiceService);
+  private readonly orgSvc = inject(CurrentOrganizationService);
 
   createAccountGroup(name: string, description: string): Observable<CreatedAccountGroup> {
-    return from(
-      this.api.invoke(createAccountGroup, {
-        body: {
-          displayName: name,
-          displayDescription: description,
-        },
-      })
-    ).pipe(
-      map((response) => ({
-        id: response.id,
-        name: response.displayName,
-        description: response.displayDescription,
-      }))
+    const parent = `organizations/${this.orgSvc.currentOrganization()!.id}`;
+    return this.svc.AccountGroupServiceCreateAccountGroup({
+      parent,
+      accountGroup: { display_name: name, display_description: description },
+    }).pipe(
+      map((g) => ({
+        id: g.uid ?? '',
+        name: g.display_name,
+        description: g.display_description ?? '',
+      })),
     );
   }
 }

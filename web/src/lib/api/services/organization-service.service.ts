@@ -15,8 +15,8 @@ import { V1Organization } from '../models/v1organization';
 class OrganizationServiceService extends __BaseService {
   static readonly OrganizationServiceListOrganizationsPath = '/v1/organizations';
   static readonly OrganizationServiceCreateOrganizationPath = '/v1/organizations';
-  static readonly OrganizationServiceDeleteOrganizationPath = '/v1/{name_7}';
-  static readonly OrganizationServiceGetOrganizationPath = '/v1/{name_9}';
+  static readonly OrganizationServiceGetOrganizationPath = '/v1/{name_10}';
+  static readonly OrganizationServiceDeleteOrganizationPath = '/v1/{name_8}';
   static readonly OrganizationServiceUpdateOrganizationPath = '/v1/{organization.name}';
 
   constructor(
@@ -30,12 +30,12 @@ class OrganizationServiceService extends __BaseService {
    * Lists organizations with pagination.
    * @param params The `OrganizationServiceService.OrganizationServiceListOrganizationsParams` containing the following parameters:
    *
-   * - `pageToken`: A page token from a previous ListOrganizations call.
+   * - `page_token`: A page token from a previous ListOrganizations call.
    *
-   * - `pageSize`: Maximum number of organizations to return. The service may return fewer.
+   * - `page_size`: Maximum number of organizations to return. The service may return fewer.
    *   If unspecified, at most 20 are returned. Maximum value is 100.
    *
-   * - `orderBy`: Order by expression (e.g. "display_name", "create_time desc").
+   * - `order_by`: Order by expression (e.g. "display_name", "create_time desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: display_name.
@@ -47,9 +47,9 @@ class OrganizationServiceService extends __BaseService {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
-    if (params.pageToken != null) __params = __params.set('pageToken', params.pageToken.toString());
-    if (params.pageSize != null) __params = __params.set('pageSize', params.pageSize.toString());
-    if (params.orderBy != null) __params = __params.set('orderBy', params.orderBy.toString());
+    if (params.pageToken != null) __params = __params.set('page_token', params.pageToken.toString());
+    if (params.pageSize != null) __params = __params.set('page_size', params.pageSize.toString());
+    if (params.orderBy != null) __params = __params.set('order_by', params.orderBy.toString());
     if (params.filter != null) __params = __params.set('filter', params.filter.toString());
     let req = new HttpRequest<any>(
       'GET',
@@ -72,12 +72,12 @@ class OrganizationServiceService extends __BaseService {
    * Lists organizations with pagination.
    * @param params The `OrganizationServiceService.OrganizationServiceListOrganizationsParams` containing the following parameters:
    *
-   * - `pageToken`: A page token from a previous ListOrganizations call.
+   * - `page_token`: A page token from a previous ListOrganizations call.
    *
-   * - `pageSize`: Maximum number of organizations to return. The service may return fewer.
+   * - `page_size`: Maximum number of organizations to return. The service may return fewer.
    *   If unspecified, at most 20 are returned. Maximum value is 100.
    *
-   * - `orderBy`: Order by expression (e.g. "display_name", "create_time desc").
+   * - `order_by`: Order by expression (e.g. "display_name", "create_time desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: display_name.
@@ -130,59 +130,19 @@ class OrganizationServiceService extends __BaseService {
   }
 
   /**
-   * Permanently deletes an organization.
-   * @param name_7 The resource name of the organization.
-   * Format: organizations/{organization}
-   * @return A successful response.
-   */
-  OrganizationServiceDeleteOrganizationResponse(name7: string): __Observable<__StrictHttpResponse<{}>> {
-    let __params = this.newParams();
-    let __headers = new HttpHeaders();
-    let __body: any = null;
-
-    let req = new HttpRequest<any>(
-      'DELETE',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name7))}`,
-      __body,
-      {
-        headers: __headers,
-        params: __params,
-        responseType: 'json'
-      });
-
-    return this.http.request<any>(req).pipe(
-      __filter(_r => _r instanceof HttpResponse),
-      __map((_r) => {
-        return _r as __StrictHttpResponse<{}>;
-      })
-    );
-  }
-  /**
-   * Permanently deletes an organization.
-   * @param name_7 The resource name of the organization.
-   * Format: organizations/{organization}
-   * @return A successful response.
-   */
-  OrganizationServiceDeleteOrganization(name7: string): __Observable<{}> {
-    return this.OrganizationServiceDeleteOrganizationResponse(name7).pipe(
-      __map(_r => _r.body as {})
-    );
-  }
-
-  /**
    * Gets a single organization by resource name.
-   * @param name_9 The resource name of the organization.
+   * @param name_10 The resource name of the organization.
    * Format: organizations/{organization}
    * @return A successful response.
    */
-  OrganizationServiceGetOrganizationResponse(name9: string): __Observable<__StrictHttpResponse<V1Organization>> {
+  OrganizationServiceGetOrganizationResponse(name10: string): __Observable<__StrictHttpResponse<V1Organization>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
 
     let req = new HttpRequest<any>(
       'GET',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name9))}`,
+      this.rootUrl + `/v1/${encodeURIComponent(String(name10))}`,
       __body,
       {
         headers: __headers,
@@ -199,13 +159,53 @@ class OrganizationServiceService extends __BaseService {
   }
   /**
    * Gets a single organization by resource name.
-   * @param name_9 The resource name of the organization.
+   * @param name_10 The resource name of the organization.
    * Format: organizations/{organization}
    * @return A successful response.
    */
-  OrganizationServiceGetOrganization(name9: string): __Observable<V1Organization> {
-    return this.OrganizationServiceGetOrganizationResponse(name9).pipe(
+  OrganizationServiceGetOrganization(name10: string): __Observable<V1Organization> {
+    return this.OrganizationServiceGetOrganizationResponse(name10).pipe(
       __map(_r => _r.body as V1Organization)
+    );
+  }
+
+  /**
+   * Permanently deletes an organization.
+   * @param name_8 The resource name of the organization.
+   * Format: organizations/{organization}
+   * @return A successful response.
+   */
+  OrganizationServiceDeleteOrganizationResponse(name8: string): __Observable<__StrictHttpResponse<{}>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    let req = new HttpRequest<any>(
+      'DELETE',
+      this.rootUrl + `/v1/${encodeURIComponent(String(name8))}`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<{}>;
+      })
+    );
+  }
+  /**
+   * Permanently deletes an organization.
+   * @param name_8 The resource name of the organization.
+   * Format: organizations/{organization}
+   * @return A successful response.
+   */
+  OrganizationServiceDeleteOrganization(name8: string): __Observable<{}> {
+    return this.OrganizationServiceDeleteOrganizationResponse(name8).pipe(
+      __map(_r => _r.body as {})
     );
   }
 
@@ -306,7 +306,7 @@ module OrganizationServiceService {
     /**
      * The organization to update.
      */
-    organization: {uid?: string, displayName: string, updateTime?: string, createTime?: string, etag?: string};
+    organization: {uid?: string, display_name: string, update_time?: string, create_time?: string, etag?: string};
   }
 }
 

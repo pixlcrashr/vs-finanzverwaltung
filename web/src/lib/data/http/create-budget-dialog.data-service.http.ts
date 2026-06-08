@@ -1,38 +1,39 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable, from, map } from 'rxjs';
-import { Api } from '../../api/api';
-import { createBudget } from '../../api/functions';
+import { Observable, map } from 'rxjs';
+import { BudgetServiceService } from '../../api/services/budget-service.service';
+import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import { CreateBudgetDialogDataService } from '../../../app/shared/dialogs/create-budget-dialog/create-budget-dialog.data-service';
 import { CreatedBudget } from '../../../app/shared/dialogs/create-budget-dialog/create-budget-dialog.component';
-import { toDateOnly } from './_mappers';
+import { dateToTypeDate, typeDateToDate } from './_mappers';
 
 @Injectable()
 export class HttpCreateBudgetDialogDataService extends CreateBudgetDialogDataService {
-  private readonly api = inject(Api);
+  private readonly svc = inject(BudgetServiceService);
+  private readonly orgSvc = inject(CurrentOrganizationService);
 
   createBudget(
     name: string,
     description: string,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Observable<CreatedBudget> {
-    return from(
-      this.api.invoke(createBudget, {
-        body: {
-          displayName: name,
-          displayDescription: description,
-          periodStart: toDateOnly(startDate),
-          periodEnd: toDateOnly(endDate),
-        },
-      })
-    ).pipe(
-      map((response) => ({
-        id: response.id,
-        name: response.displayName,
-        description: response.displayDescription,
-        periodStart: new Date(response.periodStart),
-        periodEnd: new Date(response.periodEnd),
-      }))
+    const parent = `organizations/${this.orgSvc.currentOrganization()!.id}`;
+    return this.svc.BudgetServiceCreateBudget({
+      parent,
+      budget: {
+        display_name: name,
+        display_description: description,
+        period_start: dateToTypeDate(startDate),
+        period_end: dateToTypeDate(endDate),
+      },
+    }).pipe(
+      map((b) => ({
+        id: b.uid ?? '',
+        name: b.display_name,
+        description: b.display_description ?? '',
+        periodStart: typeDateToDate(b.period_start),
+        periodEnd: typeDateToDate(b.period_end),
+      })),
     );
   }
 }

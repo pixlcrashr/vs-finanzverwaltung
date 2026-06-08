@@ -1,12 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, from, map } from 'rxjs';
-import { Api } from '../../api/api';
-import {
-  listTransactions,
-  listTransactionAccounts,
-  listTransactionAccountAssignments,
-  listAccounts,
-} from '../../api/functions';
+import { Observable, combineLatest, map } from 'rxjs';
+import { TransactionServiceService } from '../../api/services/transaction-service.service';
+import { TransactionAccountServiceService } from '../../api/services/transaction-account-service.service';
+import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import {
   JournalListDataService,
   JournalEntry,
@@ -17,47 +13,43 @@ import {
 
 @Injectable()
 export class HttpJournalListDataService extends JournalListDataService {
-  private readonly api = inject(Api);
+  private readonly txnSvc = inject(TransactionServiceService);
+  private readonly txnAccountSvc = inject(TransactionAccountServiceService);
+  private readonly orgSvc = inject(CurrentOrganizationService);
+
+  private get parent(): string {
+    return `organizations/${this.orgSvc.currentOrganization()!.id}`;
+  }
 
   getEntries(
-    page: number,
+    _page: number,
     pageSize: number,
     filters?: JournalEntryFilters,
   ): Observable<{ entries: JournalEntry[]; total: number }> {
-    return from(
-      Promise.all([
-        this.api.invoke(listTransactions, {
-          pageSize,
-          bookedAtStart: filters?.afterDate,
-          bookedAtEnd: filters?.beforeDate,
-        }),
-        this.api.invoke(listTransactionAccounts, { pageSize: 100 }),
-        this.api.invoke(listAccounts, { pageSize: 100, showDeleted: false }),
-      ]),
-    ).pipe(
-      map(([txnResp, txnAccountsResp, accountsResp]) => {
+    return combineLatest([
+      this.txnSvc.TransactionServiceListTransactions({ parent: this.parent, pageSize }),
+      this.txnAccountSvc.TransactionAccountServiceListTransactionAccounts({ parent: this.parent, pageSize: 100 }),
+    ]).pipe(
+      map(([txnResp, txnAccountsResp]) => {
         const txnAccountsMap = new Map(
-          (txnAccountsResp.transactionAccounts ?? []).map((a) => [a.id, a]),
-        );
-        const accountsMap = new Map(
-          (accountsResp.accounts ?? []).map((a) => [a.id, a]),
+          (txnAccountsResp.transaction_accounts ?? []).map((a) => [a.uid ?? '', a]),
         );
 
         const entries: JournalEntry[] = (txnResp.transactions ?? []).map((t) => {
-          const debitAcct = txnAccountsMap.get(t.debitTransactionAccountId);
-          const creditAcct = txnAccountsMap.get(t.creditTransactionAccountId);
+          const debitAcct = txnAccountsMap.get(t.debit_transaction_account_id ?? '');
+          const creditAcct = txnAccountsMap.get(t.credit_transaction_account_id ?? '');
 
           return {
-            id: t.id,
-            documentDate: new Date(t.documentDate),
-            bookedAt: new Date(t.bookedAt),
-            amount: t.amount,
-            reference: t.reference,
+            id: t.uid ?? '',
+            documentDate: new Date(t.document_date),
+            bookedAt: new Date(t.booked_at),
+            amount: t.amount?.value ?? '',
+            reference: t.reference ?? '',
             debitAccountCode: debitAcct?.code ?? '',
-            debitAccountName: debitAcct?.displayName ?? '',
+            debitAccountName: debitAcct?.display_name ?? '',
             creditAccountCode: creditAcct?.code ?? '',
-            creditAccountName: creditAcct?.displayName ?? '',
-            description: t.description,
+            creditAccountName: creditAcct?.display_name ?? '',
+            description: t.description ?? '',
             assignmentStatus: 'open' as JournalAssignmentStatus,
             accountAssignments: [],
           };

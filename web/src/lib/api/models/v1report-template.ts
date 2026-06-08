@@ -8,12 +8,12 @@ export interface V1ReportTemplate {
   /**
    * Creation timestamp.
    */
-  createTime?: string;
+  create_time?: string;
 
   /**
    * Human-readable name.
    */
-  displayName: string;
+  display_name: string;
 
   /**
    * Entity tag for optimistic concurrency control.
@@ -34,5 +34,5 @@ export interface V1ReportTemplate {
   /**
    * Last modification timestamp.
    */
-  updateTime?: string;
+  update_time?: string;
 }

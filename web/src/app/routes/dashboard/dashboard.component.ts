@@ -3,12 +3,13 @@ import {
   ChangeDetectionStrategy,
   inject,
   signal,
-  OnInit,
   ElementRef,
   viewChild,
   effect,
   AfterViewInit,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { merge, map, distinctUntilChanged, filter } from 'rxjs';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import {
   PageContentLayoutComponent,
@@ -16,6 +17,7 @@ import {
   LoadingSpinnerComponent,
   NotificationService,
 } from '../../shared/components';
+import { ActivatedRoute } from '@angular/router';
 import { DashboardDataService, DashboardStats } from './dashboard.data-service';
 
 Chart.register(...registerables);
@@ -109,7 +111,8 @@ const CHART_COLORS = [
     </app-page-content-layout>
   `,
 })
-export class DashboardComponent implements OnInit, AfterViewInit {
+export class DashboardComponent implements AfterViewInit {
+  private readonly route = inject(ActivatedRoute);
   private readonly dataService = inject(DashboardDataService);
   private readonly notifications = inject(NotificationService);
 
@@ -134,10 +137,18 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         setTimeout(() => this.createCharts(data), 0);
       }
     });
-  }
 
-  ngOnInit(): void {
-    this.loadData();
+    merge(...this.route.pathFromRoot.map(r => r.params)).pipe(
+      map(params => params['orgId'] as string | undefined),
+      filter((id): id is string => !!id),
+      distinctUntilChanged(),
+      takeUntilDestroyed(),
+    ).subscribe(() => {
+      this.loading.set(true);
+      this.stats.set(null);
+      this.destroyCharts();
+      this.loadData();
+    });
   }
 
   ngAfterViewInit(): void {
@@ -158,6 +169,15 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         this.loading.set(false);
       },
     });
+  }
+
+  private destroyCharts(): void {
+    this.budgetsChart?.destroy();
+    this.budgetsChart = null;
+    this.accountsChart?.destroy();
+    this.accountsChart = null;
+    this.monthlyChart?.destroy();
+    this.monthlyChart = null;
   }
 
   private createCharts(data: DashboardStats): void {

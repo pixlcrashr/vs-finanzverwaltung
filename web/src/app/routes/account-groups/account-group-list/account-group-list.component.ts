@@ -3,9 +3,10 @@ import {
   ChangeDetectionStrategy,
   inject,
   signal,
-  OnInit,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { merge, map, distinctUntilChanged, filter } from 'rxjs';
 import { Dialog } from '@angular/cdk/dialog';
 import {
   PageContentLayoutComponent,
@@ -129,21 +130,11 @@ import { AccountGroupListDataService } from './account-group-list.data-service';
 
   `,
 })
-export class AccountGroupListComponent implements OnInit {
+export class AccountGroupListComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly dataService = inject(AccountGroupListDataService);
   private readonly dialog = inject(Dialog);
   private readonly notifications = inject(NotificationService);
-
-  private getOrgId(): string {
-    let snapshot = this.route.snapshot;
-    while (snapshot) {
-      const id = snapshot.paramMap.get('orgId');
-      if (id) return id;
-      snapshot = snapshot.parent!;
-    }
-    return '';
-  }
 
   orgId = '';
 
@@ -152,9 +143,18 @@ export class AccountGroupListComponent implements OnInit {
 
   readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Kontengruppen` }];
 
-  ngOnInit(): void {
-    this.orgId = this.getOrgId();
-    this.loadGroups();
+  constructor() {
+    merge(...this.route.pathFromRoot.map(r => r.params)).pipe(
+      map(params => params['orgId'] as string | undefined),
+      filter((id): id is string => !!id),
+      distinctUntilChanged(),
+      takeUntilDestroyed(),
+    ).subscribe(id => {
+      this.orgId = id;
+      this.loading.set(true);
+      this.groups.set([]);
+      this.loadGroups();
+    });
   }
 
   private loadGroups(): void {

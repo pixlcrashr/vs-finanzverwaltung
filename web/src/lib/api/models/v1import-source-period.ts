@@ -8,18 +8,18 @@ export interface V1ImportSourcePeriod {
   /**
    * Creation timestamp.
    */
-  createTime?: string;
+  create_time?: string;
 
   /**
    * Entity tag for optimistic concurrency control.
    */
   etag?: string;
-  importSource?: string;
+  import_source?: string;
 
   /**
    * Whether this period is closed for new imports.
    */
-  isClosed?: boolean;
+  is_closed?: boolean;
   name?: string;
 
   /**
@@ -30,7 +30,7 @@ export interface V1ImportSourcePeriod {
   /**
    * Last modification timestamp.
    */
-  updateTime?: string;
+  update_time?: string;
 
   /**
    * The fiscal year this period covers.

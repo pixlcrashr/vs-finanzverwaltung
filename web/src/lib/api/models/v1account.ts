@@ -8,22 +8,22 @@ export interface V1Account {
   /**
    * Creation timestamp.
    */
-  createTime?: string;
+  create_time?: string;
 
   /**
    * Short account code.
    */
-  displayCode: string;
+  display_code: string;
 
   /**
    * Optional free-text description.
    */
-  displayDescription?: string;
+  display_description?: string;
 
   /**
    * Human-readable account name.
    */
-  displayName: string;
+  display_name: string;
 
   /**
    * Entity tag for optimistic concurrency control.
@@ -33,15 +33,15 @@ export interface V1Account {
   /**
    * Whether the account is archived (soft-deleted).
    */
-  isArchived?: boolean;
+  is_archived?: boolean;
 
   /**
    * Whether this account is a container account (cannot hold values directly).
    * Immutable after creation.
    */
-  isContainer?: boolean;
+  is_container?: boolean;
   name?: string;
-  parentAccount?: string;
+  parent_account?: string;
 
   /**
    * The UUID of the account.
@@ -51,5 +51,5 @@ export interface V1Account {
   /**
    * Last modification timestamp.
    */
-  updateTime?: string;
+  update_time?: string;
 }

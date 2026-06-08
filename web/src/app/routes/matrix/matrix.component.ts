@@ -1,10 +1,12 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
+import { merge, map, distinctUntilChanged, filter, delay } from 'rxjs';
 import { MatrixHeader } from "./matrix-header/matrix-header";
 import { MatrixContent } from "./matrix-content/matrix-content";
 import { MatrixValueStoreService } from './matrix-value-store.service';
 import { MatrixData, MatrixDataProviderService } from './matrix-data-provider.service';
 import { MatrixDataService, MatrixBudgetValueUpdate } from './matrix.data-service';
-import { delay } from 'rxjs';
 import { LoadingSpinnerComponent } from '../../shared/components';
 
 
@@ -45,7 +47,8 @@ import { LoadingSpinnerComponent } from '../../shared/components';
     }
   `,
 })
-export class Matrix implements OnInit {
+export class Matrix {
+  private readonly route = inject(ActivatedRoute);
   private readonly dataProvider = inject(MatrixDataProviderService);
   private readonly dataService = inject(MatrixDataService);
   protected readonly valueStore = inject(MatrixValueStoreService);
@@ -74,8 +77,22 @@ export class Matrix implements OnInit {
   selectedTagIds = signal<string[]>([]);
   selectedAccountIds = signal<string[]>([]);
 
-  ngOnInit(): void {
-    this.loadInitialData();
+  constructor() {
+    merge(...this.route.pathFromRoot.map(r => r.params)).pipe(
+      map(params => params['orgId'] as string | undefined),
+      filter((id): id is string => !!id),
+      distinctUntilChanged(),
+      takeUntilDestroyed(),
+    ).subscribe(() => {
+      this.isLoading.set(true);
+      this.hasLoadedData.set(false);
+      this.matrixData.set({ columns: [], rows: [], budgets: [], accounts: [] });
+      this.selectedBudgetIds.set([]);
+      this.selectedTagIds.set([]);
+      this.selectedAccountIds.set([]);
+      this.valueStore.resetAllToOriginal();
+      this.loadInitialData();
+    });
   }
 
   private loadInitialData(): void {

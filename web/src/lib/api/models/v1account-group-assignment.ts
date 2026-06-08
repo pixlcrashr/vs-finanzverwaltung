@@ -4,17 +4,17 @@
  * AccountGroupAssignment associates an account with an account group.
  */
 export interface V1AccountGroupAssignment {
-  accountGroup?: string;
+  account_group?: string;
 
   /**
    * The UUID of the assigned account.
    */
-  accountId: string;
+  account_id: string;
 
   /**
    * Creation timestamp.
    */
-  createTime?: string;
+  create_time?: string;
 
   /**
    * Entity tag for optimistic concurrency control.
@@ -35,5 +35,5 @@ export interface V1AccountGroupAssignment {
   /**
    * Last modification timestamp.
    */
-  updateTime?: string;
+  update_time?: string;
 }

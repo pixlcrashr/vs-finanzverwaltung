@@ -3,10 +3,11 @@ import {
   ChangeDetectionStrategy,
   inject,
   signal,
-  OnInit,
   computed,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
+import { merge, map, distinctUntilChanged, filter } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import {
   PageContentLayoutComponent,
@@ -225,20 +226,12 @@ import {
     </app-page-content-layout>
   `,
 })
-export class AccountCompareComponent implements OnInit {
+export class AccountCompareComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly dataService = inject(AccountCompareDataService);
   private readonly notifications = inject(NotificationService);
 
-  private getOrgId(): string {
-    let snapshot = this.route.snapshot;
-    while (snapshot) {
-      const id = snapshot.paramMap.get('orgId');
-      if (id) return id;
-      snapshot = snapshot.parent!;
-    }
-    return '';
-  }
+  orgId = '';
 
   readonly loading = signal(true);
   readonly leftLoading = signal(false);
@@ -269,9 +262,25 @@ export class AccountCompareComponent implements OnInit {
       .toFixed(2),
   );
 
-  ngOnInit(): void {
-    this.breadcrumbs[0].path = `/organizations/${this.getOrgId()}/accounts`;
-    this.loadBudgets();
+  constructor() {
+    merge(...this.route.pathFromRoot.map(r => r.params)).pipe(
+      map(params => params['orgId'] as string | undefined),
+      filter((id): id is string => !!id),
+      distinctUntilChanged(),
+      takeUntilDestroyed(),
+    ).subscribe(id => {
+      this.orgId = id;
+      this.breadcrumbs[0].path = `/organizations/${id}/accounts`;
+      this.loading.set(true);
+      this.budgets.set([]);
+      this.accounts.set([]);
+      this.leftTransactions.set([]);
+      this.rightTransactions.set([]);
+      this.selectedBudgetId = '';
+      this.leftAccountId = '';
+      this.rightAccountId = '';
+      this.loadBudgets();
+    });
   }
 
   private loadBudgets(): void {

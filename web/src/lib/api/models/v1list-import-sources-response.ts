@@ -5,15 +5,15 @@ export interface V1ListImportSourcesResponse {
   /**
    * The import sources returned.
    */
-  importSources?: Array<V1ImportSource>;
+  import_sources?: Array<V1ImportSource>;
 
   /**
    * A token to retrieve the next page of results.
    */
-  nextPageToken?: string;
+  next_page_token?: string;
 
   /**
    * Total number of import sources matching the filter (may be an estimate).
    */
-  totalSize?: string;
+  total_size?: string;
 }

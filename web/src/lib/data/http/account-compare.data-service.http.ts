@@ -1,67 +1,66 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, from, map } from 'rxjs';
-import { Api } from '../../api/api';
-import {
-  listBudgets,
-  listAccounts,
-  listTransactions,
-} from '../../api/functions';
+import { Observable, map } from 'rxjs';
+import { AccountServiceService } from '../../api/services/account-service.service';
+import { BudgetServiceService } from '../../api/services/budget-service.service';
+import { TransactionServiceService } from '../../api/services/transaction-service.service';
+import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import {
   AccountCompareDataService,
   BudgetOption,
   CompareAccountOption,
   CompareAccountTransaction,
 } from '../../../app/routes/accounts/account-compare/account-compare.data-service';
-import { mapApiBudget } from './_mappers';
+import { typeDateToDate } from './_mappers';
 
 @Injectable()
 export class HttpAccountCompareDataService extends AccountCompareDataService {
-  private readonly api = inject(Api);
+  private readonly accountSvc = inject(AccountServiceService);
+  private readonly budgetSvc = inject(BudgetServiceService);
+  private readonly txnSvc = inject(TransactionServiceService);
+  private readonly orgSvc = inject(CurrentOrganizationService);
+
+  private get parent(): string {
+    return `organizations/${this.orgSvc.currentOrganization()!.id}`;
+  }
 
   getBudgets(): Observable<BudgetOption[]> {
-    return from(
-      this.api.invoke(listBudgets, { pageSize: 100 }),
-    ).pipe(
+    return this.budgetSvc.BudgetServiceListBudgets({ parent: this.parent, pageSize: 100 }).pipe(
       map((resp) =>
         (resp.budgets ?? []).map((b) => ({
-          id: b.id,
-          name: b.displayName,
-          year: new Date(b.periodStart).getFullYear(),
+          id: b.uid ?? '',
+          name: b.display_name,
+          year: typeDateToDate(b.period_start).getFullYear(),
         })),
       ),
     );
   }
 
-  getAccounts(budgetId: string): Observable<CompareAccountOption[]> {
-    return from(
-      this.api.invoke(listAccounts, { pageSize: 100, showDeleted: false }),
-    ).pipe(
+  getAccounts(_budgetId: string): Observable<CompareAccountOption[]> {
+    return this.accountSvc.AccountServiceListAccounts({ parent: this.parent, pageSize: 100, showDeleted: false }).pipe(
       map((resp) =>
         (resp.accounts ?? []).map((a) => ({
-          id: a.id,
-          code: a.displayCode,
-          name: a.displayName,
-          parentAccountId: a.parentAccountId ?? null,
+          id: a.uid ?? '',
+          code: a.display_code,
+          name: a.display_name,
+          parentAccountId: a.parent_account ? a.parent_account.split('/').pop() ?? null : null,
         })),
       ),
     );
   }
 
   getTransactions(
-    budgetId: string,
-    accountId: string,
+    _budgetId: string,
+    _accountId: string,
   ): Observable<CompareAccountTransaction[]> {
-    return from(
-      this.api.invoke(listTransactions, { pageSize: 100 }),
-    ).pipe(
+    return this.txnSvc.TransactionServiceListTransactions({ parent: this.parent, pageSize: 100 }).pipe(
       map((resp) =>
         (resp.transactions ?? []).map((t) => ({
-          id: t.id,
-          documentDate: new Date(t.documentDate),
-          amount: t.amount,
+          id: t.uid ?? '',
+          documentDate: new Date(t.document_date),
+          amount: t.amount?.value ?? '',
           debitAccountCode: '',
           creditAccountCode: '',
-          description: t.description,
+          description: t.description ?? '',
         })),
       ),
     );

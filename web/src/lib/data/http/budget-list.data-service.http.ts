@@ -1,23 +1,28 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, from, map } from 'rxjs';
-import { Api } from '../../api/api';
-import {
-  listBudgets,
-  createBudget,
-  deleteBudget,
-} from '../../api/functions';
+import { Observable, map } from 'rxjs';
+import { BudgetServiceService } from '../../api/services/budget-service.service';
+import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import { Budget } from '../../../app/shared/models';
 import { BudgetListDataService } from '../../../app/routes/budgets/budget-list/budget-list.data-service';
-import { mapApiBudget, toDateOnly } from './_mappers';
+import { mapApiBudget, dateToTypeDate } from './_mappers';
 
 @Injectable()
 export class HttpBudgetListDataService extends BudgetListDataService {
-  private readonly api = inject(Api);
+  private readonly svc = inject(BudgetServiceService);
+  private readonly orgSvc = inject(CurrentOrganizationService);
+
+  private get parent(): string {
+    return `organizations/${this.orgSvc.currentOrganization()!.id}`;
+  }
+
+  private budgetName(uid: string): string {
+    return `${this.parent}/budgets/${uid}`;
+  }
 
   getBudgets(): Observable<Budget[]> {
-    return from(
-      this.api.invoke(listBudgets, { pageSize: 100 }),
-    ).pipe(map((resp) => (resp.budgets ?? []).map(mapApiBudget)));
+    return this.svc.BudgetServiceListBudgets({ parent: this.parent, pageSize: 100 }).pipe(
+      map((resp) => (resp.budgets ?? []).map(mapApiBudget)),
+    );
   }
 
   createBudget(
@@ -26,21 +31,18 @@ export class HttpBudgetListDataService extends BudgetListDataService {
     startDate: Date,
     endDate: Date,
   ): Observable<Budget> {
-    return from(
-      this.api.invoke(createBudget, {
-        body: {
-          displayName: name,
-          displayDescription: description,
-          periodStart: startDate.toISOString().split('T')[0],
-          periodEnd: endDate.toISOString().split('T')[0]
-        },
-      }),
-    ).pipe(map(mapApiBudget));
+    return this.svc.BudgetServiceCreateBudget({
+      parent: this.parent,
+      budget: {
+        display_name: name,
+        display_description: description,
+        period_start: dateToTypeDate(startDate),
+        period_end: dateToTypeDate(endDate),
+      },
+    }).pipe(map(mapApiBudget));
   }
 
   deleteBudget(id: string): Observable<void> {
-    return from(
-      this.api.invoke(deleteBudget, { budgetId: id }),
-    ).pipe(map(() => undefined));
+    return this.svc.BudgetServiceDeleteBudget(this.budgetName(id)).pipe(map(() => undefined));
   }
 }

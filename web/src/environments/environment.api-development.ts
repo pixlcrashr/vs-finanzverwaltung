@@ -20,7 +20,7 @@ import { HttpJournalListDataService } from '../lib/data/http/journal-list.data-s
 import { HttpJournalImportDataService } from '../lib/data/http/journal-import.data-service.http';
 import { HttpDashboardDataService } from '../lib/data/http/dashboard.data-service.http';
 import { HttpSettingsDataService } from '../lib/data/http/settings.data-service.http';
-import { MockMatrixDataService } from '../lib/data/mock/matrix.data-service.mock';
+import { HttpMatrixDataService } from '../lib/data/http/matrix.data-service.http';
 import { HttpUserListDataService } from '../lib/data/http/user-list.data-service.http';
 import { HttpUserEditDataService } from '../lib/data/http/user-edit.data-service.http';
 import { HttpGroupListDataService } from '../lib/data/http/group-list.data-service.http';
@@ -37,14 +37,13 @@ import { HttpCreateReportDialogDataService } from '../lib/data/http/create-repor
 import { HttpClosePeriodDialogDataService } from '../lib/data/http/close-period-dialog.data-service.http';
 // Add Receipt Dialog - using mock until HTTP implementation exists
 import { MockAddReceiptDialogDataService } from '../lib/data/mock/add-receipt-dialog.data-service.mock';
-// Organization - using mock until HTTP implementation exists
-import { MockOrganizationDataService } from '../lib/data/mock/organization.data-service.mock';
-import { MockOrganizationListDataService } from '../lib/data/mock/organization-list.data-service.mock';
-import { MockOrganizationEditDataService } from '../lib/data/mock/organization-edit.data-service.mock';
+import { HttpOrganizationDataService } from '../lib/data/http/organization.data-service.http';
+import { HttpOrganizationListDataService } from '../lib/data/http/organization-list.data-service.http';
+import { HttpOrganizationEditDataService } from '../lib/data/http/organization-edit.data-service.http';
 
 export const environment = {
   production: false,
-  apiBaseUrl: 'http://localhost:8080',
+  apiBaseUrl: 'http://localhost:8080/api',
   dataServices: {
     accountGroupList: HttpAccountGroupListDataService,
     accountGroupEdit: HttpAccountGroupEditDataService,
@@ -66,7 +65,7 @@ export const environment = {
     journalList: HttpJournalListDataService,
     journalImport: HttpJournalImportDataService,
     dashboard: HttpDashboardDataService,
-    matrix: MockMatrixDataService,
+    matrix: HttpMatrixDataService,
     settings: HttpSettingsDataService,
     userList: HttpUserListDataService,
     userEdit: HttpUserEditDataService,
@@ -84,8 +83,8 @@ export const environment = {
     createReportDialog: HttpCreateReportDialogDataService,
     closePeriodDialog: HttpClosePeriodDialogDataService,
     addReceiptDialog: MockAddReceiptDialogDataService,
-    organization: MockOrganizationDataService,
-    organizationList: MockOrganizationListDataService,
-    organizationEdit: MockOrganizationEditDataService,
+    organization: HttpOrganizationDataService,
+    organizationList: HttpOrganizationListDataService,
+    organizationEdit: HttpOrganizationEditDataService,
   },
 };

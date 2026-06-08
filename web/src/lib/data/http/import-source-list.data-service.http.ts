@@ -1,26 +1,23 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, from, map } from 'rxjs';
-import { Api } from '../../api/api';
-import {
-  listImportSources,
-  listImportSourcePeriods,
-} from '../../api/functions';
+import { Observable, map } from 'rxjs';
+import { ImportSourceServiceService } from '../../api/services/import-source-service.service';
+import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import { ImportSource } from '../../../app/shared/models';
 import { ImportSourceListDataService } from '../../../app/routes/admin/import-sources/import-source-list.data-service';
-import { mapApiImportSource, mapApiImportSourcePeriod } from './_mappers';
+import { mapApiImportSource } from './_mappers';
 
 @Injectable()
 export class HttpImportSourceListDataService extends ImportSourceListDataService {
-  private readonly api = inject(Api);
+  private readonly svc = inject(ImportSourceServiceService);
+  private readonly orgSvc = inject(CurrentOrganizationService);
+
+  private get parent(): string {
+    return `organizations/${this.orgSvc.currentOrganization()!.id}`;
+  }
 
   getImportSources(): Observable<ImportSource[]> {
-    return from(
-      this.api.invoke(listImportSources, { pageSize: 100 }),
-    ).pipe(
-      map((resp) => {
-        const sources = resp.importSources ?? [];
-        return sources.map((s) => mapApiImportSource(s, []));
-      }),
+    return this.svc.ImportSourceServiceListImportSources({ parent: this.parent, pageSize: 100 }).pipe(
+      map((resp) => (resp.import_sources ?? []).map((s) => mapApiImportSource(s, []))),
     );
   }
 }

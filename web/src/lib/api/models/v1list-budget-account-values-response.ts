@@ -5,15 +5,15 @@ export interface V1ListBudgetAccountValuesResponse {
   /**
    * The budget account values returned.
    */
-  accountValues?: Array<V1BudgetAccountValue>;
+  account_values?: Array<V1BudgetAccountValue>;
 
   /**
    * A token to retrieve the next page of results.
    */
-  nextPageToken?: string;
+  next_page_token?: string;
 
   /**
    * Total number of account values matching the filter (may be an estimate).
    */
-  totalSize?: string;
+  total_size?: string;
 }

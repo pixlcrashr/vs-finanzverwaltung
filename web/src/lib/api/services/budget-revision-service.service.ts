@@ -71,12 +71,12 @@ class BudgetRevisionServiceService extends __BaseService {
    * - `parent`: The parent budget resource name.
    *   Format: organizations/{organization}/budgets/{budget}
    *
-   * - `pageToken`: A page token from a previous ListBudgetRevisions call.
+   * - `page_token`: A page token from a previous ListBudgetRevisions call.
    *
-   * - `pageSize`: Maximum number of revisions to return. The service may return fewer.
+   * - `page_size`: Maximum number of revisions to return. The service may return fewer.
    *   If unspecified, at most 20 are returned. Maximum value is 100.
    *
-   * - `orderBy`: Order by expression. Defaults to reverse chronological order (create_time desc).
+   * - `order_by`: Order by expression. Defaults to reverse chronological order (create_time desc).
    *   Example: "create_time desc", "display_name".
    *
    * @return A successful response.
@@ -86,9 +86,9 @@ class BudgetRevisionServiceService extends __BaseService {
     let __headers = new HttpHeaders();
     let __body: any = null;
 
-    if (params.pageToken != null) __params = __params.set('pageToken', params.pageToken.toString());
-    if (params.pageSize != null) __params = __params.set('pageSize', params.pageSize.toString());
-    if (params.orderBy != null) __params = __params.set('orderBy', params.orderBy.toString());
+    if (params.pageToken != null) __params = __params.set('page_token', params.pageToken.toString());
+    if (params.pageSize != null) __params = __params.set('page_size', params.pageSize.toString());
+    if (params.orderBy != null) __params = __params.set('order_by', params.orderBy.toString());
     let req = new HttpRequest<any>(
       'GET',
       this.rootUrl + `/v1/${encodeURIComponent(String(params.parent))}/revisions`,
@@ -113,12 +113,12 @@ class BudgetRevisionServiceService extends __BaseService {
    * - `parent`: The parent budget resource name.
    *   Format: organizations/{organization}/budgets/{budget}
    *
-   * - `pageToken`: A page token from a previous ListBudgetRevisions call.
+   * - `page_token`: A page token from a previous ListBudgetRevisions call.
    *
-   * - `pageSize`: Maximum number of revisions to return. The service may return fewer.
+   * - `page_size`: Maximum number of revisions to return. The service may return fewer.
    *   If unspecified, at most 20 are returned. Maximum value is 100.
    *
-   * - `orderBy`: Order by expression. Defaults to reverse chronological order (create_time desc).
+   * - `order_by`: Order by expression. Defaults to reverse chronological order (create_time desc).
    *   Example: "create_time desc", "display_name".
    *
    * @return A successful response.

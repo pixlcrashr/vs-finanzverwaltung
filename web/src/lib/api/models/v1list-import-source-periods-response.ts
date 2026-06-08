@@ -5,7 +5,7 @@ export interface V1ListImportSourcePeriodsResponse {
   /**
    * A token to retrieve the next page of results.
    */
-  nextPageToken?: string;
+  next_page_token?: string;
 
   /**
    * The periods returned.
@@ -15,5 +15,5 @@ export interface V1ListImportSourcePeriodsResponse {
   /**
    * Total number of periods matching the filter (may be an estimate).
    */
-  totalSize?: string;
+  total_size?: string;
 }

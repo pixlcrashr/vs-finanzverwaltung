@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -10,6 +11,14 @@ import (
 	gdate "google.golang.org/genproto/googleapis/type/date"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
+
+func decimalStr(s string) string {
+	if strings.Contains(s, ".") {
+		s = strings.TrimRight(s, "0")
+		s = strings.TrimRight(s, ".")
+	}
+	return s
+}
 
 // resourceName helpers
 
@@ -25,6 +34,9 @@ func assignmentName(orgID, groupID, id uuid.UUID) string {
 }
 func budgetName(orgID, id uuid.UUID) string {
 	return fmt.Sprintf("organizations/%s/budgets/%s", orgID, id)
+}
+func budgetAccountValueName(orgID, budgetID, id uuid.UUID) string {
+	return fmt.Sprintf("organizations/%s/budgets/%s/accountValues/%s", orgID, budgetID, id)
 }
 func importSourceName(orgID, id uuid.UUID) string {
 	return fmt.Sprintf("organizations/%s/importSources/%s", orgID, id)
@@ -165,6 +177,19 @@ func budgetRevisionAccountValueName(orgID, budgetID, revisionID, id uuid.UUID) s
 	return fmt.Sprintf("organizations/%s/budgets/%s/revisions/%s/accountValues/%s", orgID, budgetID, revisionID, id)
 }
 
+// BudgetAccountValueToProto maps model.BudgetAccountValue to gen.BudgetAccountValue.
+func BudgetAccountValueToProto(m *model.BudgetAccountValue) *gen.BudgetAccountValue {
+	return &gen.BudgetAccountValue{
+		Name:       budgetAccountValueName(m.OrganizationID, m.BudgetID, m.ID),
+		Uid:        m.ID.String(),
+		Budget:     budgetName(m.OrganizationID, m.BudgetID),
+		AccountId:  m.AccountID.String(),
+		Value:      &gen.Decimal{Value: decimalStr(m.Value.String())},
+		UpdateTime: ts(m.UpdatedAt),
+		CreateTime: ts(m.CreatedAt),
+	}
+}
+
 // BudgetRevisionToProto maps model.BudgetRevision to gen.BudgetRevision.
 func BudgetRevisionToProto(m *model.BudgetRevision) *gen.BudgetRevision {
 	return &gen.BudgetRevision{
@@ -185,7 +210,7 @@ func BudgetRevisionAccountValueToProto(m *model.BudgetRevisionAccountValue) *gen
 		Uid:        m.ID.String(),
 		Revision:   budgetRevisionName(m.OrganizationID, m.BudgetRevision.BudgetID, m.BudgetTagID),
 		AccountId:  m.AccountID.String(),
-		Value:      &gen.Decimal{Value: m.Value.String()},
+		Value:      &gen.Decimal{Value: decimalStr(m.Value.String())},
 		CreateTime: ts(m.CreatedAt),
 	}
 }
@@ -223,7 +248,7 @@ func TransactionToProto(m *model.Transaction_) *gen.Transaction {
 		Uid:                        m.ID.String(),
 		CreditTransactionAccountId: m.CreditTransactionAccountID.String(),
 		DebitTransactionAccountId:  m.DebitTransactionAccountID.String(),
-		Amount:                     &gen.Decimal{Value: m.Amount.String()},
+		Amount:                     &gen.Decimal{Value: decimalStr(m.Amount.String())},
 		Description:                m.Description,
 		Reference:                  m.Reference,
 		BookedAt:                   ts(m.BookedAt),
@@ -255,7 +280,7 @@ func TransactionAccountAssignmentToProto(m *model.TransactionAccountAssignment) 
 		Uid:         m.ID.String(),
 		Transaction: transactionName(m.OrganizationID, m.TransactionID),
 		AccountId:   m.AccountID.String(),
-		Value:       &gen.Decimal{Value: m.Value.String()},
+		Value:       &gen.Decimal{Value: decimalStr(m.Value.String())},
 		UpdateTime:  ts(m.UpdatedAt),
 		CreateTime:  ts(m.CreatedAt),
 	}

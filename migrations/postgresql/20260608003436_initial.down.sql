@@ -40,8 +40,6 @@ DROP TABLE "public"."reports";
 DROP INDEX "public"."idx_report_templates_org_id";
 -- reverse: create "report_templates" table
 DROP TABLE "public"."report_templates";
--- reverse: create index "idx_import_source_periods_source_year" to table: "import_source_periods"
-DROP INDEX "public"."idx_import_source_periods_source_year";
 -- reverse: create index "idx_import_source_periods_org_source" to table: "import_source_periods"
 DROP INDEX "public"."idx_import_source_periods_org_source";
 -- reverse: create index "idx_import_source_periods_org_id" to table: "import_source_periods"
@@ -68,6 +66,12 @@ DROP INDEX "public"."idx_budget_tags_org_budget";
 DROP INDEX "public"."idx_budget_revisions_date";
 -- reverse: create "budget_revisions" table
 DROP TABLE "public"."budget_revisions";
+-- reverse: create index "idx_budget_account_values_org_id" to table: "budget_account_values"
+DROP INDEX "public"."idx_budget_account_values_org_id";
+-- reverse: create index "idx_budget_account_values_org_budget_account" to table: "budget_account_values"
+DROP INDEX "public"."idx_budget_account_values_org_budget_account";
+-- reverse: create "budget_account_values" table
+DROP TABLE "public"."budget_account_values";
 -- reverse: create index "idx_budgets_org_id" to table: "budgets"
 DROP INDEX "public"."idx_budgets_org_id";
 -- reverse: create index "idx_budgets_display_name" to table: "budgets"
@@ -98,10 +102,8 @@ DROP TABLE "public"."accounts";
 DROP INDEX "public"."idx_account_groups_org_id";
 -- reverse: create "account_groups" table
 DROP TABLE "public"."account_groups";
--- reverse: create index "idx_user_groups_name" to table: "user_groups"
-DROP INDEX "public"."idx_user_groups_name";
--- reverse: create "user_groups" table
-DROP TABLE "public"."user_groups";
+-- reverse: create "organizations" table
+DROP TABLE "public"."organizations";
 -- reverse: create index "idx_casbin_rule_v2" to table: "casbin_rule"
 DROP INDEX "public"."idx_casbin_rule_v2";
 -- reverse: create index "idx_casbin_rule_v1" to table: "casbin_rule"
@@ -112,5 +114,7 @@ DROP INDEX "public"."idx_casbin_rule_v0";
 DROP INDEX "public"."idx_casbin_rule_ptype";
 -- reverse: create "casbin_rule" table
 DROP TABLE "public"."casbin_rule";
--- reverse: create "organizations" table
-DROP TABLE "public"."organizations";
+-- reverse: create index "idx_user_groups_name" to table: "user_groups"
+DROP INDEX "public"."idx_user_groups_name";
+-- reverse: create "user_groups" table
+DROP TABLE "public"."user_groups";

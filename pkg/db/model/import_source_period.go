@@ -11,7 +11,7 @@ type ImportSourcePeriod struct {
 	ID             uuid.UUID `gorm:"type:uuid;primaryKey;uniqueIndex:idx_import_source_periods_org_id,priority:1"`
 	OrganizationID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_import_source_periods_org_id,priority:2;uniqueIndex:idx_import_source_periods_org_source,priority:1"`
 	ImportSourceID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_import_source_periods_org_source,priority:2"`
-	Year           int       `gorm:"not null;default:0;uniqueIndex:idx_import_source_periods_source_year"`
+	Year           int       `gorm:"not null;default:0;uniqueIndex:idx_import_source_periods_org_source"`
 	IsClosed       bool      `gorm:"not null;default:false"`
 	UpdatedAt      time.Time `gorm:"not null;default:now()"`
 	CreatedAt      time.Time `gorm:"not null;default:now()"`

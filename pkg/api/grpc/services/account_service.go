@@ -137,13 +137,8 @@ func (s *accountServiceServer) GetNestedAccount(ctx context.Context, req *gen.Ge
 		return nil, status.Error(codes.Internal, "failed to list accounts")
 	}
 
-	nested := buildNestedTree(ms, uuid.NullUUID{Valid: true, UUID: root.ID})
-	var rootNested *gen.NestedAccount
-	if len(nested) > 0 {
-		rootNested = nested[0]
-	} else {
-		rootNested = NestedAccountToProto(root)
-	}
+	rootNested := NestedAccountToProto(root)
+	rootNested.Children = buildNestedTree(ms, uuid.NullUUID{Valid: true, UUID: root.ID})
 	return &gen.GetNestedAccountResponse{Account: rootNested}, nil
 }
 

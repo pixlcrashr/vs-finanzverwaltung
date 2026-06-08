@@ -5,7 +5,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
-	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
@@ -16,11 +15,18 @@ import (
 
 type budgetRevisionServiceServer struct {
 	gen.UnimplementedBudgetRevisionServiceServer
-	repo *repository.BudgetRevisionRepository
+	repo       *repository.BudgetRevisionRepository
+	budgetRepo *repository.BudgetRepository
 }
 
-func newBudgetRevisionServiceServer(repo *repository.BudgetRevisionRepository) gen.BudgetRevisionServiceServer {
-	return &budgetRevisionServiceServer{repo: repo}
+func newBudgetRevisionServiceServer(
+	repo *repository.BudgetRevisionRepository,
+	budgetRepo *repository.BudgetRepository,
+) gen.BudgetRevisionServiceServer {
+	return &budgetRevisionServiceServer{
+		repo:       repo,
+		budgetRepo: budgetRepo,
+	}
 }
 
 func (s *budgetRevisionServiceServer) GetBudgetRevision(ctx context.Context, req *gen.GetBudgetRevisionRequest) (*gen.BudgetRevision, error) {
@@ -105,16 +111,28 @@ func (s *budgetRevisionServiceServer) CreateBudgetRevision(ctx context.Context, 
 	if req.Revision == nil {
 		return nil, status.Error(codes.InvalidArgument, "revision is required")
 	}
-	m := &model.BudgetRevision{
+
+	budget, err := s.budgetRepo.GetByID(ctx, budgetID)
+	if err != nil {
+		if isNotFound(err) {
+			return nil, status.Error(codes.NotFound, "budget not found")
+		}
+		return nil, status.Error(codes.Internal, "failed to get budget")
+	}
+
+	params := repository.CreateWithSnapshotParams{
+		OrganizationID:     budget.OrganizationID,
 		BudgetID:           budgetID,
 		DisplayName:        req.Revision.DisplayName,
 		DisplayDescription: req.Revision.DisplayDescription,
 	}
 	if req.Revision.Date != nil {
-		m.Date = protoDateToTime(req.Revision.Date)
+		params.Date = protoDateToTime(req.Revision.Date)
 	}
-	if err := s.repo.Create(ctx, m); err != nil {
+	m, err := s.repo.CreateWithSnapshot(ctx, params)
+	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to create budget revision")
 	}
+
 	return BudgetRevisionToProto(m), nil
 }

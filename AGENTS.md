@@ -80,6 +80,17 @@ All `pkg/api/` models and routes follow these conventions:
 - List requests that support soft-deleted resources expose a `show_deleted` query parameter (bool, default false)
 - The corresponding Go struct field may be named `IncludeArchived` or `IncludeClosed` — only the tag name must be `show_deleted`
 
+## Database Migrations
+
+**NEVER manually create or edit migration files in `migrations/postgresql/`.** Migration files are generated automatically by [Atlas](https://atlasgo.io) from the GORM models.
+
+When a schema change is needed:
+1. Modify the relevant GORM model(s) in `pkg/db/model/`
+2. Regenerate the DAO code: `go generate ./pkg/db/model/`
+3. Ask the user to run Atlas to generate the migration from the model diff
+
+`migrations/postgresql/` is effectively **read-only** for agents. Treat it the same as `pkg/grpc/gen/` and `pkg/db/model/dao/`.
+
 ## Key Directories
 
 | Path | Purpose |

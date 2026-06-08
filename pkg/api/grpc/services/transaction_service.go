@@ -62,6 +62,7 @@ func (s *transactionServiceServer) ListTransactions(ctx context.Context, req *ge
 
 	params := repository.ListTransactionsParams{
 		PageSize: pageSize,
+		Offset:   int(offset),
 		Cond:     c,
 	}
 
@@ -75,8 +76,7 @@ func (s *transactionServiceServer) ListTransactions(ctx context.Context, req *ge
 		resp.Transactions = append(resp.Transactions, TransactionToProto(m))
 	}
 	if len(ms) == pageSize {
-		nextOffset := offset + int64(len(ms))
-		resp.NextPageToken = pagetoken.Encode(nextOffset)
+		resp.NextPageToken = pagetoken.Encode(offset + int64(len(ms)))
 	}
 	return resp, nil
 }

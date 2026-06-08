@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
+	"gorm.io/gorm/logger"
 
 	googlegrpc "google.golang.org/grpc"
 
@@ -27,14 +28,17 @@ const (
 )
 
 var (
-	lis                      *bufconn.Listener
-	conn                     *grpc.ClientConn
-	OrgClient                gen.OrganizationServiceClient
-	AccountClient            gen.AccountServiceClient
-	BudgetClient             gen.BudgetServiceClient
-	ImportSourceClient       gen.ImportSourceServiceClient
-	TransactionAccountClient gen.TransactionAccountServiceClient
-	TransactionClient        gen.TransactionServiceClient
+	lis                              *bufconn.Listener
+	conn                             *grpc.ClientConn
+	OrgClient                        gen.OrganizationServiceClient
+	AccountClient                    gen.AccountServiceClient
+	BudgetClient                     gen.BudgetServiceClient
+	BudgetRevisionClient             gen.BudgetRevisionServiceClient
+	BudgetRevisionAccountValueClient gen.BudgetRevisionAccountValueServiceClient
+	BudgetAccountValueClient         gen.BudgetAccountValueServiceClient
+	ImportSourceClient               gen.ImportSourceServiceClient
+	TransactionAccountClient         gen.TransactionAccountServiceClient
+	TransactionClient                gen.TransactionServiceClient
 )
 
 func TestGrpc(t *testing.T) {
@@ -56,6 +60,7 @@ var _ = BeforeSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 
 	gormDB, err := pkgdb.Connect(testDSN)
+	gormDB.Logger = gormDB.Logger.LogMode(logger.Silent)
 	Expect(err).NotTo(HaveOccurred())
 
 	svc := services.New(gormDB)
@@ -65,6 +70,9 @@ var _ = BeforeSuite(func() {
 	gen.RegisterOrganizationServiceServer(s, svc.Organization)
 	gen.RegisterAccountServiceServer(s, svc.Account)
 	gen.RegisterBudgetServiceServer(s, svc.Budget)
+	gen.RegisterBudgetRevisionServiceServer(s, svc.BudgetRevision)
+	gen.RegisterBudgetRevisionAccountValueServiceServer(s, svc.BudgetRevisionAccountValue)
+	gen.RegisterBudgetAccountValueServiceServer(s, svc.BudgetAccountValue)
 	gen.RegisterImportSourceServiceServer(s, svc.ImportSource)
 	gen.RegisterTransactionAccountServiceServer(s, svc.TransactionAccount)
 	gen.RegisterTransactionServiceServer(s, svc.Transaction)
@@ -82,6 +90,9 @@ var _ = BeforeSuite(func() {
 	OrgClient = gen.NewOrganizationServiceClient(conn)
 	AccountClient = gen.NewAccountServiceClient(conn)
 	BudgetClient = gen.NewBudgetServiceClient(conn)
+	BudgetRevisionClient = gen.NewBudgetRevisionServiceClient(conn)
+	BudgetRevisionAccountValueClient = gen.NewBudgetRevisionAccountValueServiceClient(conn)
+	BudgetAccountValueClient = gen.NewBudgetAccountValueServiceClient(conn)
 	ImportSourceClient = gen.NewImportSourceServiceClient(conn)
 	TransactionAccountClient = gen.NewTransactionAccountServiceClient(conn)
 	TransactionClient = gen.NewTransactionServiceClient(conn)

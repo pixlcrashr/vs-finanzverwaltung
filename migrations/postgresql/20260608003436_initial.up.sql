@@ -1,11 +1,16 @@
--- create "organizations" table
-CREATE TABLE "public"."organizations" (
+-- create "user_groups" table
+CREATE TABLE "public"."user_groups" (
   "id" uuid NOT NULL,
-  "display_name" text NOT NULL DEFAULT '',
-  "updated_at" timestamptz NOT NULL DEFAULT now(),
+  "name" text NOT NULL,
+  "description" text NOT NULL DEFAULT '',
+  "is_system" boolean NOT NULL DEFAULT false,
+  "is_default" boolean NOT NULL DEFAULT false,
   "created_at" timestamptz NOT NULL DEFAULT now(),
+  "updated_at" timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY ("id")
 );
+-- create index "idx_user_groups_name" to table: "user_groups"
+CREATE INDEX "idx_user_groups_name" ON "public"."user_groups" ("name");
 -- create "casbin_rule" table
 CREATE TABLE "public"."casbin_rule" (
   "id" uuid NOT NULL,
@@ -26,19 +31,14 @@ CREATE INDEX "idx_casbin_rule_v0" ON "public"."casbin_rule" ("v0");
 CREATE INDEX "idx_casbin_rule_v1" ON "public"."casbin_rule" ("v1");
 -- create index "idx_casbin_rule_v2" to table: "casbin_rule"
 CREATE INDEX "idx_casbin_rule_v2" ON "public"."casbin_rule" ("v2");
--- create "user_groups" table
-CREATE TABLE "public"."user_groups" (
+-- create "organizations" table
+CREATE TABLE "public"."organizations" (
   "id" uuid NOT NULL,
-  "name" text NOT NULL,
-  "description" text NOT NULL DEFAULT '',
-  "is_system" boolean NOT NULL DEFAULT false,
-  "is_default" boolean NOT NULL DEFAULT false,
-  "created_at" timestamptz NOT NULL DEFAULT now(),
+  "display_name" text NOT NULL DEFAULT '',
   "updated_at" timestamptz NOT NULL DEFAULT now(),
+  "created_at" timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY ("id")
 );
--- create index "idx_user_groups_name" to table: "user_groups"
-CREATE INDEX "idx_user_groups_name" ON "public"."user_groups" ("name");
 -- create "account_groups" table
 CREATE TABLE "public"."account_groups" (
   "id" uuid NOT NULL,
@@ -116,18 +116,37 @@ CREATE TABLE "public"."budgets" (
 CREATE INDEX "idx_budgets_display_name" ON "public"."budgets" ("display_name");
 -- create index "idx_budgets_org_id" to table: "budgets"
 CREATE UNIQUE INDEX "idx_budgets_org_id" ON "public"."budgets" ("id", "organization_id");
+-- create "budget_account_values" table
+CREATE TABLE "public"."budget_account_values" (
+  "id" uuid NOT NULL,
+  "organization_id" uuid NOT NULL,
+  "budget_id" uuid NOT NULL,
+  "account_id" uuid NOT NULL,
+  "value" numeric NOT NULL DEFAULT 0,
+  "updated_at" timestamptz NOT NULL DEFAULT now(),
+  "created_at" timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY ("id"),
+  CONSTRAINT "fk_accounts_budget_account_values" FOREIGN KEY ("account_id") REFERENCES "public"."accounts" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "fk_budgets_budget_account_values" FOREIGN KEY ("budget_id") REFERENCES "public"."budgets" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "fk_organizations_budget_account_values" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+-- create index "idx_budget_account_values_org_budget_account" to table: "budget_account_values"
+CREATE UNIQUE INDEX "idx_budget_account_values_org_budget_account" ON "public"."budget_account_values" ("organization_id", "budget_id", "account_id");
+-- create index "idx_budget_account_values_org_id" to table: "budget_account_values"
+CREATE UNIQUE INDEX "idx_budget_account_values_org_id" ON "public"."budget_account_values" ("id", "organization_id");
 -- create "budget_revisions" table
 CREATE TABLE "public"."budget_revisions" (
   "id" uuid NOT NULL,
   "organization_id" uuid NOT NULL,
   "budget_id" uuid NOT NULL,
-  "date" timestamptz NOT NULL,
+  "display_name" text NOT NULL DEFAULT '',
   "display_description" text NOT NULL DEFAULT '',
+  "date" timestamptz NOT NULL,
   "updated_at" timestamptz NOT NULL DEFAULT now(),
   "created_at" timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY ("id"),
-  CONSTRAINT "fk_budgets_budget_tags" FOREIGN KEY ("budget_id") REFERENCES "public"."budgets" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT "fk_organizations_budget_tags" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
+  CONSTRAINT "fk_budgets_budget_revisions" FOREIGN KEY ("budget_id") REFERENCES "public"."budgets" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "fk_organizations_budget_revisions" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 -- create index "idx_budget_revisions_date" to table: "budget_revisions"
 CREATE INDEX "idx_budget_revisions_date" ON "public"."budget_revisions" ("date");
@@ -145,9 +164,9 @@ CREATE TABLE "public"."budget_revision_account_values" (
   "updated_at" timestamptz NOT NULL DEFAULT now(),
   "created_at" timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY ("id"),
-  CONSTRAINT "fk_accounts_budget_tag_account_values" FOREIGN KEY ("account_id") REFERENCES "public"."accounts" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT "fk_budget_revisions_budget_tag_account_values" FOREIGN KEY ("budget_tag_id") REFERENCES "public"."budget_revisions" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT "fk_organizations_budget_tag_account_values" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
+  CONSTRAINT "fk_accounts_budget_revision_account_values" FOREIGN KEY ("account_id") REFERENCES "public"."accounts" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "fk_budget_revisions_budget_revision_account_values" FOREIGN KEY ("budget_tag_id") REFERENCES "public"."budget_revisions" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "fk_organizations_budget_revision_account_values" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 -- create index "idx_budget_revision_account_values_value" to table: "budget_revision_account_values"
 CREATE INDEX "idx_budget_revision_account_values_value" ON "public"."budget_revision_account_values" ("value");
@@ -185,9 +204,7 @@ CREATE TABLE "public"."import_source_periods" (
 -- create index "idx_import_source_periods_org_id" to table: "import_source_periods"
 CREATE UNIQUE INDEX "idx_import_source_periods_org_id" ON "public"."import_source_periods" ("id", "organization_id");
 -- create index "idx_import_source_periods_org_source" to table: "import_source_periods"
-CREATE UNIQUE INDEX "idx_import_source_periods_org_source" ON "public"."import_source_periods" ("organization_id", "import_source_id");
--- create index "idx_import_source_periods_source_year" to table: "import_source_periods"
-CREATE UNIQUE INDEX "idx_import_source_periods_source_year" ON "public"."import_source_periods" ("year");
+CREATE UNIQUE INDEX "idx_import_source_periods_org_source" ON "public"."import_source_periods" ("organization_id", "import_source_id", "year");
 -- create "report_templates" table
 CREATE TABLE "public"."report_templates" (
   "id" uuid NOT NULL,

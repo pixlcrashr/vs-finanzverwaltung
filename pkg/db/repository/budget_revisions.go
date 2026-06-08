@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
@@ -97,7 +98,57 @@ func (r *BudgetRevisionRepository) GetByID(ctx context.Context, id uuid.UUID) (*
 	return r.q.BudgetRevision.WithContext(ctx).Where(r.q.BudgetRevision.ID.Eq(id)).First()
 }
 
-// Create inserts a new budget revision.
-func (r *BudgetRevisionRepository) Create(ctx context.Context, m *model.BudgetRevision) error {
-	return r.q.BudgetRevision.WithContext(ctx).Create(m)
+// CreateWithSnapshotParams holds the fields required to create a budget revision with a snapshot.
+type CreateWithSnapshotParams struct {
+	OrganizationID     uuid.UUID
+	BudgetID           uuid.UUID
+	DisplayName        string
+	DisplayDescription string
+	Date               time.Time
+}
+
+// CreateWithSnapshot inserts a new revision from params and copies the current budget account
+// values as budget revision account values, all within a single transaction.
+func (r *BudgetRevisionRepository) CreateWithSnapshot(ctx context.Context, params CreateWithSnapshotParams) (*model.BudgetRevision, error) {
+	m := &model.BudgetRevision{
+		OrganizationID:     params.OrganizationID,
+		BudgetID:           params.BudgetID,
+		DisplayName:        params.DisplayName,
+		DisplayDescription: params.DisplayDescription,
+		Date:               params.Date,
+	}
+
+	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		q := dao.Use(tx)
+
+		if err := q.BudgetRevision.WithContext(ctx).Create(m); err != nil {
+			return err
+		}
+
+		var bavs []*model.BudgetAccountValue
+		if err := tx.Table("budget_account_values").
+			Where("budget_id = ?", m.BudgetID).
+			Find(&bavs).Error; err != nil {
+			return err
+		}
+
+		if len(bavs) == 0 {
+			return nil
+		}
+
+		ravs := make([]*model.BudgetRevisionAccountValue, 0, len(bavs))
+		for _, bav := range bavs {
+			ravs = append(ravs, &model.BudgetRevisionAccountValue{
+				OrganizationID: m.OrganizationID,
+				BudgetTagID:    m.ID,
+				AccountID:      bav.AccountID,
+				Value:          bav.Value,
+			})
+		}
+		return q.BudgetRevisionAccountValue.WithContext(ctx).Create(ravs...)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return m, nil
 }

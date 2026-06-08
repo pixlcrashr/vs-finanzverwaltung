@@ -23,6 +23,8 @@ type ListTransactionsParams struct {
 	KeysetValues []pagetoken.KeysetValue
 	// PageSize caps the number of rows returned.
 	PageSize int
+	// Offset skips the first N rows (used for offset-based pagination).
+	Offset int
 }
 
 // transactionColumnMapper maps filter field names to database column names.
@@ -105,6 +107,9 @@ func (r *TransactionRepository) List(ctx context.Context, params ListTransaction
 			db = db.Order("booked_at DESC, id DESC")
 		}
 
+		if params.Offset > 0 {
+			db = db.Offset(params.Offset)
+		}
 		db = db.Limit(params.PageSize)
 
 		var ms []*model.Transaction_
@@ -180,6 +185,9 @@ func (r *TransactionRepository) List(ctx context.Context, params ListTransaction
 		t = t.Order(r.q.Transaction_.BookedAt.Desc(), r.q.Transaction_.ID.Desc())
 	}
 
+	if params.Offset > 0 {
+		t = t.Offset(params.Offset)
+	}
 	t = t.Limit(params.PageSize)
 
 	ms, err := t.Find()

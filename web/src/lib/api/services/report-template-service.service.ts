@@ -1,0 +1,356 @@
+/* tslint:disable */
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpRequest, HttpResponse, HttpHeaders } from '@angular/common/http';
+import { BaseService as __BaseService } from '../base-service';
+import { ApiConfiguration as __Configuration } from '../api-configuration';
+import { StrictHttpResponse as __StrictHttpResponse } from '../strict-http-response';
+import { Observable as __Observable } from 'rxjs';
+import { map as __map, filter as __filter } from 'rxjs/operators';
+
+import { V1ReportTemplate } from '../models/v1report-template';
+import { V1ListReportTemplatesResponse } from '../models/v1list-report-templates-response';
+@Injectable({
+  providedIn: 'root',
+})
+class ReportTemplateServiceService extends __BaseService {
+  static readonly ReportTemplateServiceGetReportTemplatePath = '/v1/{name_11}';
+  static readonly ReportTemplateServiceDeleteReportTemplatePath = '/v1/{name_9}';
+  static readonly ReportTemplateServiceListReportTemplatesPath = '/v1/{parent}/reportTemplates';
+  static readonly ReportTemplateServiceCreateReportTemplatePath = '/v1/{parent}/reportTemplates';
+  static readonly ReportTemplateServiceUpdateReportTemplatePath = '/v1/{reportTemplate.name}';
+
+  constructor(
+    config: __Configuration,
+    http: HttpClient
+  ) {
+    super(config, http);
+  }
+
+  /**
+   * Gets a single report template by resource name.
+   * @param name_11 The resource name of the report template.
+   * Format: organizations/{organization}/reportTemplates/{report_template}
+   * @return A successful response.
+   */
+  ReportTemplateServiceGetReportTemplateResponse(name11: string): __Observable<__StrictHttpResponse<V1ReportTemplate>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    let req = new HttpRequest<any>(
+      'GET',
+      this.rootUrl + `/v1/${encodeURIComponent(String(name11))}`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<V1ReportTemplate>;
+      })
+    );
+  }
+  /**
+   * Gets a single report template by resource name.
+   * @param name_11 The resource name of the report template.
+   * Format: organizations/{organization}/reportTemplates/{report_template}
+   * @return A successful response.
+   */
+  ReportTemplateServiceGetReportTemplate(name11: string): __Observable<V1ReportTemplate> {
+    return this.ReportTemplateServiceGetReportTemplateResponse(name11).pipe(
+      __map(_r => _r.body as V1ReportTemplate)
+    );
+  }
+
+  /**
+   * Permanently deletes a report template.
+   * @param name_9 The resource name of the report template.
+   * Format: organizations/{organization}/reportTemplates/{report_template}
+   * @return A successful response.
+   */
+  ReportTemplateServiceDeleteReportTemplateResponse(name9: string): __Observable<__StrictHttpResponse<{}>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    let req = new HttpRequest<any>(
+      'DELETE',
+      this.rootUrl + `/v1/${encodeURIComponent(String(name9))}`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<{}>;
+      })
+    );
+  }
+  /**
+   * Permanently deletes a report template.
+   * @param name_9 The resource name of the report template.
+   * Format: organizations/{organization}/reportTemplates/{report_template}
+   * @return A successful response.
+   */
+  ReportTemplateServiceDeleteReportTemplate(name9: string): __Observable<{}> {
+    return this.ReportTemplateServiceDeleteReportTemplateResponse(name9).pipe(
+      __map(_r => _r.body as {})
+    );
+  }
+
+  /**
+   * Lists report templates with pagination.
+   * @param params The `ReportTemplateServiceService.ReportTemplateServiceListReportTemplatesParams` containing the following parameters:
+   *
+   * - `parent`: The parent organization resource name.
+   *   Format: organizations/{organization}
+   *
+   * - `pageToken`: A page token from a previous ListReportTemplates call.
+   *
+   * - `pageSize`: Maximum number of templates to return. The service may return fewer.
+   *   If unspecified, at most 20 are returned. Maximum value is 100.
+   *
+   * - `orderBy`: Order by expression (e.g. "display_name", "create_time desc").
+   *
+   * - `filter`: Filter expression conforming to AIP-160.
+   *   Supported fields: display_name.
+   *   Example: "display_name=\"Monthly\"".
+   *
+   * @return A successful response.
+   */
+  ReportTemplateServiceListReportTemplatesResponse(params: ReportTemplateServiceService.ReportTemplateServiceListReportTemplatesParams): __Observable<__StrictHttpResponse<V1ListReportTemplatesResponse>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    if (params.pageToken != null) __params = __params.set('pageToken', params.pageToken.toString());
+    if (params.pageSize != null) __params = __params.set('pageSize', params.pageSize.toString());
+    if (params.orderBy != null) __params = __params.set('orderBy', params.orderBy.toString());
+    if (params.filter != null) __params = __params.set('filter', params.filter.toString());
+    let req = new HttpRequest<any>(
+      'GET',
+      this.rootUrl + `/v1/${encodeURIComponent(String(params.parent))}/reportTemplates`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<V1ListReportTemplatesResponse>;
+      })
+    );
+  }
+  /**
+   * Lists report templates with pagination.
+   * @param params The `ReportTemplateServiceService.ReportTemplateServiceListReportTemplatesParams` containing the following parameters:
+   *
+   * - `parent`: The parent organization resource name.
+   *   Format: organizations/{organization}
+   *
+   * - `pageToken`: A page token from a previous ListReportTemplates call.
+   *
+   * - `pageSize`: Maximum number of templates to return. The service may return fewer.
+   *   If unspecified, at most 20 are returned. Maximum value is 100.
+   *
+   * - `orderBy`: Order by expression (e.g. "display_name", "create_time desc").
+   *
+   * - `filter`: Filter expression conforming to AIP-160.
+   *   Supported fields: display_name.
+   *   Example: "display_name=\"Monthly\"".
+   *
+   * @return A successful response.
+   */
+  ReportTemplateServiceListReportTemplates(params: ReportTemplateServiceService.ReportTemplateServiceListReportTemplatesParams): __Observable<V1ListReportTemplatesResponse> {
+    return this.ReportTemplateServiceListReportTemplatesResponse(params).pipe(
+      __map(_r => _r.body as V1ListReportTemplatesResponse)
+    );
+  }
+
+  /**
+   * Creates a new report template.
+   * @param params The `ReportTemplateServiceService.ReportTemplateServiceCreateReportTemplateParams` containing the following parameters:
+   *
+   * - `reportTemplate`: The report template to create.
+   *
+   * - `parent`: The parent organization resource name.
+   *   Format: organizations/{organization}
+   *
+   * @return A successful response.
+   */
+  ReportTemplateServiceCreateReportTemplateResponse(params: ReportTemplateServiceService.ReportTemplateServiceCreateReportTemplateParams): __Observable<__StrictHttpResponse<V1ReportTemplate>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+    __body = params.reportTemplate;
+
+    let req = new HttpRequest<any>(
+      'POST',
+      this.rootUrl + `/v1/${encodeURIComponent(String(params.parent))}/reportTemplates`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<V1ReportTemplate>;
+      })
+    );
+  }
+  /**
+   * Creates a new report template.
+   * @param params The `ReportTemplateServiceService.ReportTemplateServiceCreateReportTemplateParams` containing the following parameters:
+   *
+   * - `reportTemplate`: The report template to create.
+   *
+   * - `parent`: The parent organization resource name.
+   *   Format: organizations/{organization}
+   *
+   * @return A successful response.
+   */
+  ReportTemplateServiceCreateReportTemplate(params: ReportTemplateServiceService.ReportTemplateServiceCreateReportTemplateParams): __Observable<V1ReportTemplate> {
+    return this.ReportTemplateServiceCreateReportTemplateResponse(params).pipe(
+      __map(_r => _r.body as V1ReportTemplate)
+    );
+  }
+
+  /**
+   * Updates an existing report template.
+   * @param params The `ReportTemplateServiceService.ReportTemplateServiceUpdateReportTemplateParams` containing the following parameters:
+   *
+   * - `reportTemplate.name`: The resource name of the report template.
+   *   Format: organizations/{organization}/reportTemplates/{report_template}
+   *
+   * - `reportTemplate`: The report template to update.
+   *
+   * @return A successful response.
+   */
+  ReportTemplateServiceUpdateReportTemplateResponse(params: ReportTemplateServiceService.ReportTemplateServiceUpdateReportTemplateParams): __Observable<__StrictHttpResponse<V1ReportTemplate>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    __body = params.reportTemplate;
+    let req = new HttpRequest<any>(
+      'PATCH',
+      this.rootUrl + `/v1/${encodeURIComponent(String(params.reportTemplateName))}`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<V1ReportTemplate>;
+      })
+    );
+  }
+  /**
+   * Updates an existing report template.
+   * @param params The `ReportTemplateServiceService.ReportTemplateServiceUpdateReportTemplateParams` containing the following parameters:
+   *
+   * - `reportTemplate.name`: The resource name of the report template.
+   *   Format: organizations/{organization}/reportTemplates/{report_template}
+   *
+   * - `reportTemplate`: The report template to update.
+   *
+   * @return A successful response.
+   */
+  ReportTemplateServiceUpdateReportTemplate(params: ReportTemplateServiceService.ReportTemplateServiceUpdateReportTemplateParams): __Observable<V1ReportTemplate> {
+    return this.ReportTemplateServiceUpdateReportTemplateResponse(params).pipe(
+      __map(_r => _r.body as V1ReportTemplate)
+    );
+  }
+}
+
+module ReportTemplateServiceService {
+
+  /**
+   * Parameters for ReportTemplateServiceListReportTemplates
+   */
+  export interface ReportTemplateServiceListReportTemplatesParams {
+
+    /**
+     * The parent organization resource name.
+     * Format: organizations/{organization}
+     */
+    parent: string;
+
+    /**
+     * A page token from a previous ListReportTemplates call.
+     */
+    pageToken?: string;
+
+    /**
+     * Maximum number of templates to return. The service may return fewer.
+     * If unspecified, at most 20 are returned. Maximum value is 100.
+     */
+    pageSize?: number;
+
+    /**
+     * Order by expression (e.g. "display_name", "create_time desc").
+     */
+    orderBy?: string;
+
+    /**
+     * Filter expression conforming to AIP-160.
+     * Supported fields: display_name.
+     * Example: "display_name=\"Monthly\"".
+     */
+    filter?: string;
+  }
+
+  /**
+   * Parameters for ReportTemplateServiceCreateReportTemplate
+   */
+  export interface ReportTemplateServiceCreateReportTemplateParams {
+
+    /**
+     * The report template to create.
+     */
+    reportTemplate: V1ReportTemplate;
+
+    /**
+     * The parent organization resource name.
+     * Format: organizations/{organization}
+     */
+    parent: string;
+  }
+
+  /**
+   * Parameters for ReportTemplateServiceUpdateReportTemplate
+   */
+  export interface ReportTemplateServiceUpdateReportTemplateParams {
+
+    /**
+     * The resource name of the report template.
+     * Format: organizations/{organization}/reportTemplates/{report_template}
+     */
+    reportTemplateName: string;
+
+    /**
+     * The report template to update.
+     */
+    reportTemplate: {uid?: string, displayName: string, template: string, updateTime?: string, createTime?: string, etag?: string};
+  }
+}
+
+export { ReportTemplateServiceService }

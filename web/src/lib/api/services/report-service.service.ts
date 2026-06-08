@@ -1,0 +1,287 @@
+/* tslint:disable */
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpRequest, HttpResponse, HttpHeaders } from '@angular/common/http';
+import { BaseService as __BaseService } from '../base-service';
+import { ApiConfiguration as __Configuration } from '../api-configuration';
+import { StrictHttpResponse as __StrictHttpResponse } from '../strict-http-response';
+import { Observable as __Observable } from 'rxjs';
+import { map as __map, filter as __filter } from 'rxjs/operators';
+
+import { V1Report } from '../models/v1report';
+import { V1ListReportsResponse } from '../models/v1list-reports-response';
+@Injectable({
+  providedIn: 'root',
+})
+class ReportServiceService extends __BaseService {
+  static readonly ReportServiceGetReportPath = '/v1/{name_10}';
+  static readonly ReportServiceDeleteReportPath = '/v1/{name_8}';
+  static readonly ReportServiceListReportsPath = '/v1/{parent}/reports';
+  static readonly ReportServiceCreateReportPath = '/v1/{parent}/reports';
+
+  constructor(
+    config: __Configuration,
+    http: HttpClient
+  ) {
+    super(config, http);
+  }
+
+  /**
+   * Gets report metadata by resource name.
+   * @param name_10 The resource name of the report.
+   * Format: organizations/{organization}/reports/{report}
+   * @return A successful response.
+   */
+  ReportServiceGetReportResponse(name10: string): __Observable<__StrictHttpResponse<V1Report>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    let req = new HttpRequest<any>(
+      'GET',
+      this.rootUrl + `/v1/${encodeURIComponent(String(name10))}`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<V1Report>;
+      })
+    );
+  }
+  /**
+   * Gets report metadata by resource name.
+   * @param name_10 The resource name of the report.
+   * Format: organizations/{organization}/reports/{report}
+   * @return A successful response.
+   */
+  ReportServiceGetReport(name10: string): __Observable<V1Report> {
+    return this.ReportServiceGetReportResponse(name10).pipe(
+      __map(_r => _r.body as V1Report)
+    );
+  }
+
+  /**
+   * Permanently deletes a report.
+   * @param name_8 The resource name of the report.
+   * Format: organizations/{organization}/reports/{report}
+   * @return A successful response.
+   */
+  ReportServiceDeleteReportResponse(name8: string): __Observable<__StrictHttpResponse<{}>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    let req = new HttpRequest<any>(
+      'DELETE',
+      this.rootUrl + `/v1/${encodeURIComponent(String(name8))}`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<{}>;
+      })
+    );
+  }
+  /**
+   * Permanently deletes a report.
+   * @param name_8 The resource name of the report.
+   * Format: organizations/{organization}/reports/{report}
+   * @return A successful response.
+   */
+  ReportServiceDeleteReport(name8: string): __Observable<{}> {
+    return this.ReportServiceDeleteReportResponse(name8).pipe(
+      __map(_r => _r.body as {})
+    );
+  }
+
+  /**
+   * Lists reports with pagination.
+   * @param params The `ReportServiceService.ReportServiceListReportsParams` containing the following parameters:
+   *
+   * - `parent`: The parent organization resource name.
+   *   Format: organizations/{organization}
+   *
+   * - `pageToken`: A page token from a previous ListReports call.
+   *
+   * - `pageSize`: Maximum number of reports to return. The service may return fewer.
+   *   If unspecified, at most 20 are returned. Maximum value is 100.
+   *
+   * - `orderBy`: Order by expression (e.g. "display_name", "create_time desc").
+   *
+   * - `filter`: Filter expression conforming to AIP-160.
+   *   Supported fields: display_name, report_template_id.
+   *   Example: "display_name=\"Q1 Report\"".
+   *
+   * @return A successful response.
+   */
+  ReportServiceListReportsResponse(params: ReportServiceService.ReportServiceListReportsParams): __Observable<__StrictHttpResponse<V1ListReportsResponse>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    if (params.pageToken != null) __params = __params.set('pageToken', params.pageToken.toString());
+    if (params.pageSize != null) __params = __params.set('pageSize', params.pageSize.toString());
+    if (params.orderBy != null) __params = __params.set('orderBy', params.orderBy.toString());
+    if (params.filter != null) __params = __params.set('filter', params.filter.toString());
+    let req = new HttpRequest<any>(
+      'GET',
+      this.rootUrl + `/v1/${encodeURIComponent(String(params.parent))}/reports`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<V1ListReportsResponse>;
+      })
+    );
+  }
+  /**
+   * Lists reports with pagination.
+   * @param params The `ReportServiceService.ReportServiceListReportsParams` containing the following parameters:
+   *
+   * - `parent`: The parent organization resource name.
+   *   Format: organizations/{organization}
+   *
+   * - `pageToken`: A page token from a previous ListReports call.
+   *
+   * - `pageSize`: Maximum number of reports to return. The service may return fewer.
+   *   If unspecified, at most 20 are returned. Maximum value is 100.
+   *
+   * - `orderBy`: Order by expression (e.g. "display_name", "create_time desc").
+   *
+   * - `filter`: Filter expression conforming to AIP-160.
+   *   Supported fields: display_name, report_template_id.
+   *   Example: "display_name=\"Q1 Report\"".
+   *
+   * @return A successful response.
+   */
+  ReportServiceListReports(params: ReportServiceService.ReportServiceListReportsParams): __Observable<V1ListReportsResponse> {
+    return this.ReportServiceListReportsResponse(params).pipe(
+      __map(_r => _r.body as V1ListReportsResponse)
+    );
+  }
+
+  /**
+   * Creates a new report by rendering a template.
+   * @param params The `ReportServiceService.ReportServiceCreateReportParams` containing the following parameters:
+   *
+   * - `report`: The report to create.
+   *
+   * - `parent`: The parent organization resource name.
+   *   Format: organizations/{organization}
+   *
+   * @return A successful response.
+   */
+  ReportServiceCreateReportResponse(params: ReportServiceService.ReportServiceCreateReportParams): __Observable<__StrictHttpResponse<V1Report>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+    __body = params.report;
+
+    let req = new HttpRequest<any>(
+      'POST',
+      this.rootUrl + `/v1/${encodeURIComponent(String(params.parent))}/reports`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<V1Report>;
+      })
+    );
+  }
+  /**
+   * Creates a new report by rendering a template.
+   * @param params The `ReportServiceService.ReportServiceCreateReportParams` containing the following parameters:
+   *
+   * - `report`: The report to create.
+   *
+   * - `parent`: The parent organization resource name.
+   *   Format: organizations/{organization}
+   *
+   * @return A successful response.
+   */
+  ReportServiceCreateReport(params: ReportServiceService.ReportServiceCreateReportParams): __Observable<V1Report> {
+    return this.ReportServiceCreateReportResponse(params).pipe(
+      __map(_r => _r.body as V1Report)
+    );
+  }
+}
+
+module ReportServiceService {
+
+  /**
+   * Parameters for ReportServiceListReports
+   */
+  export interface ReportServiceListReportsParams {
+
+    /**
+     * The parent organization resource name.
+     * Format: organizations/{organization}
+     */
+    parent: string;
+
+    /**
+     * A page token from a previous ListReports call.
+     */
+    pageToken?: string;
+
+    /**
+     * Maximum number of reports to return. The service may return fewer.
+     * If unspecified, at most 20 are returned. Maximum value is 100.
+     */
+    pageSize?: number;
+
+    /**
+     * Order by expression (e.g. "display_name", "create_time desc").
+     */
+    orderBy?: string;
+
+    /**
+     * Filter expression conforming to AIP-160.
+     * Supported fields: display_name, report_template_id.
+     * Example: "display_name=\"Q1 Report\"".
+     */
+    filter?: string;
+  }
+
+  /**
+   * Parameters for ReportServiceCreateReport
+   */
+  export interface ReportServiceCreateReportParams {
+
+    /**
+     * The report to create.
+     */
+    report: V1Report;
+
+    /**
+     * The parent organization resource name.
+     * Format: organizations/{organization}
+     */
+    parent: string;
+  }
+}
+
+export { ReportServiceService }

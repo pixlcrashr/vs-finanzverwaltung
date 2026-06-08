@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "generate:api": "ng-openapi-gen --input http://127.0.0.1:8080/openapi.json --output .\\src\\lib\\api\\ --ignore-unused-models false"
+    "generate:apiV3": "ng-openapi-gen --input ../openapi.swagger.yaml --output .\\src\\lib\\api\\ --ignore-unused-models false",
+    "generate:apiV2": "ng-swagger-gen --input ../openapi.swagger.yaml --output .\\src\\lib\\api\\"
   },
   "private": true,
   "packageManager": "npm@11.6.4",
@@ -28,6 +29,8 @@
     "@fortawesome/free-solid-svg-icons": "^7.2.0",
     "chart.js": "^4.5.1",
     "decimal.js": "^10.6.0",
+    "ng-openapi-gen": "^1.0.5",
+    "ng-swagger-gen": "^2.3.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

@@ -14,10 +14,10 @@ import (
 
 // BudgetRevisionOrderFieldMapper maps API order_by field names to DB column names.
 var BudgetRevisionOrderFieldMapper = order.FieldMapper{
-	"displayName":        "display_name",
-	"displayDescription": "display_description",
-	"date":               "date",
-	"createTime":         "created_at",
+	"display_name":        "display_name",
+	"display_description": "display_description",
+	"date":                "date",
+	"create_time":         "created_at",
 }
 
 // ListBudgetRevisionsParams drives the List query.

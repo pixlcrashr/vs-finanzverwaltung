@@ -1,0 +1,187 @@
+syntax = "proto3";
+
+package pixlcrashr.vsfv.v1;
+
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/field_info.proto";
+import "google/api/resource.proto";
+import "google/protobuf/timestamp.proto";
+import "pixlcrashr/vsfv/v1/permission.proto";
+
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
+
+// User represents a human actor that can log in via SSO.
+// Users are created exclusively through the SSO/OAuth2 flow; this service
+// exposes a read-only view for administration purposes.
+message User {
+  option (google.api.resource) = {
+    type: "vsfv.pixlcrashr.dev/User"
+    pattern: "users/{user}"
+  };
+
+  // The resource name of the user.
+  // Format: users/{user}
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The UUID of the user.
+  string uid = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_info) = {format: UUID4}
+  ];
+
+  // Primary display name (derived from SSO provider at last login).
+  string display_name = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Primary e-mail address (derived from SSO provider at last login).
+  string email = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether the user account is active.
+  bool is_active = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Last modification timestamp.
+  google.protobuf.Timestamp update_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Creation timestamp (first SSO login).
+  google.protobuf.Timestamp create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Entity tag for optimistic concurrency control.
+  string etag = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ── Request / Response messages ──────────────────────────────────────────────
+
+message GetUserRequest {
+  // The resource name of the user.
+  // Format: users/{user}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/User"}
+  ];
+}
+
+message ListUsersRequest {
+  // Maximum number of users to return. The service may return fewer.
+  // If unspecified, at most 20 are returned. Maximum value is 100.
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // A page token from a previous ListUsers call.
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter expression conforming to AIP-160.
+  // Supported fields: display_name, email, is_active.
+  string filter = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order by expression (e.g. "display_name", "create_time desc").
+  string order_by = 4 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ListUsersResponse {
+  // The users returned.
+  repeated User users = 1;
+
+  // A token to retrieve the next page of results.
+  string next_page_token = 2;
+
+  // Total number of users matching the filter (may be an estimate).
+  int64 total_size = 3;
+}
+
+// ── Permission check ──────────────────────────────────────────────────────────
+
+// CheckUserOrganizationPermissionsRequest checks which of the requested
+// permissions a user holds within a single organization.
+message CheckUserOrganizationPermissionsRequest {
+  // The resource name of the user.
+  // Format: users/{user}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/User"}
+  ];
+
+  // The resource name of the organization to check permissions against.
+  // Format: organizations/{organization}
+  string organization = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Organization"}
+  ];
+
+  // The permissions to evaluate. At least one must be provided.
+  // Only the permissions listed here are evaluated and returned.
+  repeated Permission permissions = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// CheckUserOrganizationPermissionsResponse reports which of the requested
+// permissions the user actually holds.
+message CheckUserOrganizationPermissionsResponse {
+  // The organization that was evaluated.
+  // Format: organizations/{organization}
+  string organization = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The subset of the requested permissions that the user holds.
+  repeated Permission permitted = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// BatchCheckUserOrganizationPermissionsRequest checks permissions for a single
+// user across multiple organizations in one call (AIP-231 batch pattern).
+message BatchCheckUserOrganizationPermissionsRequest {
+  // The resource name of the user.
+  // Format: users/{user}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/User"}
+  ];
+
+  // Individual per-organization check requests.
+  // Maximum 100 entries per call.
+  repeated CheckUserOrganizationPermissionsRequest requests = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// BatchCheckUserOrganizationPermissionsResponse returns one result entry per
+// requested organization, in the same order as the request.
+message BatchCheckUserOrganizationPermissionsResponse {
+  // One result per entry in BatchCheckUserOrganizationPermissionsRequest.requests,
+  // in the same order.
+  repeated CheckUserOrganizationPermissionsResponse results = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ── Service ───────────────────────────────────────────────────────────────────
+
+// UserService provides a read-only administrative view of users.
+// Users are created exclusively through the SSO/OAuth2 flow.
+service UserService {
+  option (google.api.default_host) = "vsfv.pixlcrashr.dev";
+
+  // Gets a single user by resource name.
+  rpc GetUser(GetUserRequest) returns (User) {
+    option (google.api.http) = {get: "/v1/{name=users/*}"};
+    option (google.api.method_signature) = "name";
+  }
+
+  // Lists users with pagination.
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = {get: "/v1/users"};
+  }
+
+  // Checks which of the requested permissions a user holds within a single
+  // organization (custom method, AIP-136).
+  rpc CheckUserOrganizationPermissions(CheckUserOrganizationPermissionsRequest) returns (CheckUserOrganizationPermissionsResponse) {
+    option (google.api.http) = {
+      post: "/v1/{name=users/*}:checkOrganizationPermissions"
+      body: "*"
+    };
+    option (google.api.method_signature) = "name,organization,permissions";
+  }
+
+  // Checks permissions for a user across multiple organizations in one call
+  // (batch custom method, AIP-231).
+  rpc BatchCheckUserOrganizationPermissions(BatchCheckUserOrganizationPermissionsRequest) returns (BatchCheckUserOrganizationPermissionsResponse) {
+    option (google.api.http) = {
+      post: "/v1/{name=users/*}:batchCheckOrganizationPermissions"
+      body: "*"
+    };
+    option (google.api.method_signature) = "name,requests";
+  }
+}

@@ -115,6 +115,7 @@ require (
 	golang.org/x/tools v0.45.0 // indirect
 	google.golang.org/api v0.280.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260523011958-0a33c5d7ca68 // indirect
+	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.6.2 // indirect
 	gorm.io/datatypes v1.2.7 // indirect
 	gorm.io/driver/mysql v1.6.0 // indirect
 	gorm.io/driver/sqlite v1.6.0 // indirect

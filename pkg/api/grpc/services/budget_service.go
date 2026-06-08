@@ -45,6 +45,15 @@ func (s *budgetServiceServer) GetBudget(ctx context.Context, req *gen.GetBudgetR
 }
 
 func (s *budgetServiceServer) ListBudgets(ctx context.Context, req *gen.ListBudgetsRequest) (*gen.ListBudgetsResponse, error) {
+	var pn gen.OrganizationResourceName
+	if err := pn.UnmarshalString(req.Parent); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid parent")
+	}
+	orgID, err := uuid.Parse(pn.Organization)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid parent")
+	}
+
 	c, err := svcfilter.ParseBudgetFilter(req.Filter)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid filter: %v", err)
@@ -58,8 +67,8 @@ func (s *budgetServiceServer) ListBudgets(ctx context.Context, req *gen.ListBudg
 	pageSize := int(req.PageSize)
 	if pageSize <= 0 {
 		pageSize = 20
-	} else if pageSize > 100 {
-		pageSize = 100
+	} else if pageSize > 500 {
+		pageSize = 500
 	}
 
 	// Parse order_by
@@ -70,10 +79,11 @@ func (s *budgetServiceServer) ListBudgets(ctx context.Context, req *gen.ListBudg
 	orderExprs, _ := order.Resolve(orderBy, repository.BudgetOrderFieldMapper)
 
 	params := repository.ListBudgetsParams{
-		Page:     int(offset/int64(pageSize)) + 1,
-		PageSize: pageSize,
-		Cond:     c,
-		OrderBy:  orderExprs,
+		OrganizationID: orgID,
+		Page:           int(offset/int64(pageSize)) + 1,
+		PageSize:       pageSize,
+		Cond:           c,
+		OrderBy:        orderExprs,
 	}
 
 	ms, total, err := s.repo.List(ctx, params)

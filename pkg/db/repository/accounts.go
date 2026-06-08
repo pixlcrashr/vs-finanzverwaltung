@@ -26,6 +26,8 @@ var AccountOrderFieldMapper = order.FieldMapper{
 
 // ListAccountsParams drives the List query.
 type ListAccountsParams struct {
+	// OrganizationID restricts results to a single organization.
+	OrganizationID uuid.UUID
 	// Cond is an optional abstract condition chain (AND/OR/NOT support).
 	// When set, it is applied in addition to individual filter fields.
 	Cond cond.Cond
@@ -71,19 +73,21 @@ func (r *AccountRepository) List(ctx context.Context, params ListAccountsParams)
 		params.Page = 1
 	}
 
+	base := r.db.WithContext(ctx).Table("accounts")
+	if params.OrganizationID != (uuid.UUID{}) {
+		base = base.Where("organization_id = ?", params.OrganizationID)
+	}
+
 	var db *gorm.DB
 
 	// When condition chain is present, use raw GORM for flexible SQL
 	if params.Cond != nil && !params.Cond.IsEmpty() {
-		db = r.db.WithContext(ctx).Table("accounts")
+		db = base
 
 		// Apply abstract condition chain
 		db = cond.Apply(db, params.Cond, accountColumnMapper)
 	} else {
-		// Use generated query builder for simple filters
-		a := r.q.Account.WithContext(ctx)
-
-		db = a.UnderlyingDB()
+		db = base
 	}
 
 	// Get total count before pagination

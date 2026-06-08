@@ -46,6 +46,10 @@ func RegisterRoutes(app *fiber.App, svc *services.Services) {
 	mustRegister(gen.RegisterTransactionAccountAssignmentServiceHandlerServer(ctx, mux, svc.TransactionAccountAssignment))
 	mustRegister(gen.RegisterReportTemplateServiceHandlerServer(ctx, mux, svc.ReportTemplate))
 	mustRegister(gen.RegisterReportServiceHandlerServer(ctx, mux, svc.Report))
+	mustRegister(gen.RegisterUserServiceHandlerServer(ctx, mux, svc.User))
+	mustRegister(gen.RegisterUserSettingsServiceHandlerServer(ctx, mux, svc.UserSettings))
+	mustRegister(gen.RegisterUserIdentityServiceHandlerServer(ctx, mux, svc.UserIdentity))
+	mustRegister(gen.RegisterGroupServiceHandlerServer(ctx, mux, svc.Group))
 
 	app.All("/api/v1/*", adaptor.HTTPHandler(http.StripPrefix("/api", http.Handler(mux))))
 }

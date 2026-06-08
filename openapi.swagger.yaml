@@ -14,6 +14,7 @@ tags:
   - name: BudgetAccountValueService
   - name: BudgetRevisionService
   - name: BudgetRevisionAccountValueService
+  - name: GroupService
   - name: ImportSourceService
   - name: ImportSourcePeriodService
   - name: OrganizationService
@@ -22,6 +23,9 @@ tags:
   - name: TransactionService
   - name: TransactionAccountService
   - name: TransactionAccountAssignmentService
+  - name: UserService
+  - name: UserIdentityService
+  - name: UserSettingsService
 host: test.pixlcrashr.dev
 basePath: /api
 schemes:
@@ -31,6 +35,68 @@ consumes:
 produces:
   - application/json
 paths:
+  /v1/groups:
+    get:
+      summary: Lists groups with pagination.
+      operationId: GroupService_ListGroups
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListGroupsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: page_size
+          description: |-
+            Maximum number of groups to return. The service may return fewer.
+            If unspecified, at most 20 are returned. Maximum value is 100.
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: page_token
+          description: A page token from a previous ListGroups call.
+          in: query
+          required: false
+          type: string
+        - name: filter
+          description: |-
+            Filter expression conforming to AIP-160.
+            Supported fields: display_name.
+          in: query
+          required: false
+          type: string
+        - name: order_by
+          description: Order by expression (e.g. "display_name", "create_time desc").
+          in: query
+          required: false
+          type: string
+      tags:
+        - GroupService
+    post:
+      summary: Creates a new group.
+      operationId: GroupService_CreateGroup
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1Group'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: group
+          description: The group to create.
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1Group'
+      tags:
+        - GroupService
   /v1/organizations:
     get:
       summary: Lists organizations with pagination.
@@ -45,7 +111,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: pageSize
+        - name: page_size
           description: |-
             Maximum number of organizations to return. The service may return fewer.
             If unspecified, at most 20 are returned. Maximum value is 100.
@@ -53,7 +119,7 @@ paths:
           required: false
           type: integer
           format: int32
-        - name: pageToken
+        - name: page_token
           description: A page token from a previous ListOrganizations call.
           in: query
           required: false
@@ -66,7 +132,7 @@ paths:
           in: query
           required: false
           type: string
-        - name: orderBy
+        - name: order_by
           description: Order by expression (e.g. "display_name", "create_time desc").
           in: query
           required: false
@@ -94,6 +160,47 @@ paths:
             $ref: '#/definitions/v1Organization'
       tags:
         - OrganizationService
+  /v1/users:
+    get:
+      summary: Lists users with pagination.
+      operationId: UserService_ListUsers
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListUsersResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: page_size
+          description: |-
+            Maximum number of users to return. The service may return fewer.
+            If unspecified, at most 20 are returned. Maximum value is 100.
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: page_token
+          description: A page token from a previous ListUsers call.
+          in: query
+          required: false
+          type: string
+        - name: filter
+          description: |-
+            Filter expression conforming to AIP-160.
+            Supported fields: display_name, email, is_active.
+          in: query
+          required: false
+          type: string
+        - name: order_by
+          description: Order by expression (e.g. "display_name", "create_time desc").
+          in: query
+          required: false
+          type: string
+      tags:
+        - UserService
   /v1/{account.name}:
     patch:
       summary: Updates an existing account.
@@ -127,35 +234,35 @@ paths:
                 type: string
                 description: The UUID of the account.
                 readOnly: true
-              parentAccount:
+              parent_account:
                 type: string
                 title: |-
                   The resource name of the parent account, if any.
                   Format: organizations/{organization}/accounts/{account}
-              displayName:
+              display_name:
                 type: string
                 description: Human-readable account name.
-              displayCode:
+              display_code:
                 type: string
                 description: Short account code.
-              displayDescription:
+              display_description:
                 type: string
                 description: Optional free-text description.
-              isContainer:
+              is_container:
                 type: boolean
                 description: |-
                   Whether this account is a container account (cannot hold values directly).
                   Immutable after creation.
-              isArchived:
+              is_archived:
                 type: boolean
                 description: Whether the account is archived (soft-deleted).
                 readOnly: true
-              updateTime:
+              update_time:
                 type: string
                 format: date-time
                 description: Last modification timestamp.
                 readOnly: true
-              createTime:
+              create_time:
                 type: string
                 format: date-time
                 description: Creation timestamp.
@@ -166,12 +273,11 @@ paths:
                 readOnly: true
             title: The account to update.
             required:
-              - displayName
-              - displayCode
-              - account
+              - display_name
+              - display_code
       tags:
         - AccountService
-  /v1/{accountGroup.name}:
+  /v1/{account_group.name}:
     patch:
       summary: Updates an existing account group.
       operationId: AccountGroupService_UpdateAccountGroup
@@ -185,7 +291,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: accountGroup.name
+        - name: account_group.name
           description: |-
             The resource name of the account group.
             Format: organizations/{organization}/accountGroups/{account_group}
@@ -193,7 +299,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+/accountGroups/[^/]+
-        - name: accountGroup
+        - name: account_group
           description: The account group to update.
           in: body
           required: true
@@ -204,18 +310,18 @@ paths:
                 type: string
                 description: The UUID of the account group.
                 readOnly: true
-              displayName:
+              display_name:
                 type: string
                 description: Human-readable account group name.
-              displayDescription:
+              display_description:
                 type: string
                 description: Optional free-text description.
-              updateTime:
+              update_time:
                 type: string
                 format: date-time
                 description: Last modification timestamp.
                 readOnly: true
-              createTime:
+              create_time:
                 type: string
                 format: date-time
                 description: Creation timestamp.
@@ -226,11 +332,10 @@ paths:
                 readOnly: true
             title: The account group to update.
             required:
-              - displayName
-              - accountGroup
+              - display_name
       tags:
         - AccountGroupService
-  /v1/{accountValue.name}:
+  /v1/{account_value.name}:
     patch:
       summary: Updates an existing budget account value.
       operationId: BudgetAccountValueService_UpdateBudgetAccountValue
@@ -244,7 +349,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: accountValue.name
+        - name: account_value.name
           description: |-
             The resource name of the budget account value.
             Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
@@ -252,7 +357,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+/budgets/[^/]+/accountValues/[^/]+
-        - name: accountValue
+        - name: account_value
           description: The budget account value to update.
           in: body
           required: true
@@ -269,18 +374,18 @@ paths:
                   The resource name of the parent budget.
                   Format: organizations/{organization}/budgets/{budget}
                 readOnly: true
-              accountId:
+              account_id:
                 type: string
                 description: The UUID of the account this value is assigned to.
               value:
                 $ref: '#/definitions/v1Decimal'
                 description: The target monetary value assigned to the account for this budget.
-              updateTime:
+              update_time:
                 type: string
                 format: date-time
                 description: Last modification timestamp.
                 readOnly: true
-              createTime:
+              create_time:
                 type: string
                 format: date-time
                 description: Creation timestamp.
@@ -291,9 +396,15 @@ paths:
                 readOnly: true
             title: The budget account value to update.
             required:
-              - accountId
+              - account_id
               - value
-              - accountValue
+        - name: allow_missing
+          description: |-
+            If set to true, and the resource is not found, a new resource will be
+            created. In this situation, update_mask is ignored.
+          in: query
+          required: false
+          type: boolean
       tags:
         - BudgetAccountValueService
   /v1/{assignment.name_1}:
@@ -335,18 +446,18 @@ paths:
                   The resource name of the parent transaction.
                   Format: organizations/{organization}/transactions/{transaction}
                 readOnly: true
-              accountId:
+              account_id:
                 type: string
                 description: UUID of the budget account this portion of the transaction is assigned to.
               value:
                 $ref: '#/definitions/v1Decimal'
                 description: The decimal value assigned to this account.
-              updateTime:
+              update_time:
                 type: string
                 format: date-time
                 description: Last modification timestamp.
                 readOnly: true
-              createTime:
+              create_time:
                 type: string
                 format: date-time
                 description: Creation timestamp.
@@ -357,9 +468,8 @@ paths:
                 readOnly: true
             title: The assignment to update.
             required:
-              - accountId
+              - account_id
               - value
-              - assignment
       tags:
         - TransactionAccountAssignmentService
   /v1/{assignment.name}:
@@ -395,24 +505,24 @@ paths:
                 type: string
                 description: The UUID of the assignment.
                 readOnly: true
-              accountGroup:
+              account_group:
                 type: string
                 title: |-
                   The resource name of the parent account group.
                   Format: organizations/{organization}/accountGroups/{account_group}
                 readOnly: true
-              accountId:
+              account_id:
                 type: string
                 description: The UUID of the assigned account.
               negate:
                 type: boolean
                 description: If true, this account is excluded (negated) from the group aggregate.
-              updateTime:
+              update_time:
                 type: string
                 format: date-time
                 description: Last modification timestamp.
                 readOnly: true
-              createTime:
+              create_time:
                 type: string
                 format: date-time
                 description: Creation timestamp.
@@ -423,8 +533,7 @@ paths:
                 readOnly: true
             title: The assignment to update.
             required:
-              - accountId
-              - assignment
+              - account_id
       tags:
         - AccountGroupAssignmentService
   /v1/{budget.name}:
@@ -460,28 +569,28 @@ paths:
                 type: string
                 description: The UUID of the budget.
                 readOnly: true
-              displayName:
+              display_name:
                 type: string
                 description: Human-readable budget name.
-              displayDescription:
+              display_description:
                 type: string
                 description: Optional free-text description.
-              isClosed:
+              is_closed:
                 type: boolean
                 description: Whether the budget is closed (no further modifications allowed).
                 readOnly: true
-              periodStart:
+              period_start:
                 $ref: '#/definitions/typeDate'
                 description: Budget period start date.
-              periodEnd:
+              period_end:
                 $ref: '#/definitions/typeDate'
                 description: Budget period end date.
-              updateTime:
+              update_time:
                 type: string
                 format: date-time
                 description: Last modification timestamp.
                 readOnly: true
-              createTime:
+              create_time:
                 type: string
                 format: date-time
                 description: Creation timestamp.
@@ -492,13 +601,79 @@ paths:
                 readOnly: true
             title: The budget to update.
             required:
-              - displayName
-              - periodStart
-              - periodEnd
-              - budget
+              - display_name
+              - period_start
+              - period_end
       tags:
         - BudgetService
-  /v1/{importSource.name}:
+  /v1/{group.name}:
+    patch:
+      summary: Updates an existing group.
+      operationId: GroupService_UpdateGroup
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1Group'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: group.name
+          description: |-
+            The resource name of the group.
+            Format: groups/{group}
+          in: path
+          required: true
+          type: string
+          pattern: groups/[^/]+
+        - name: group
+          description: The group to update.
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              uid:
+                type: string
+                description: The UUID of the group.
+                readOnly: true
+              display_name:
+                type: string
+                description: Human-readable group name.
+              display_description:
+                type: string
+                description: Optional free-text description.
+              organization_policies:
+                type: array
+                items:
+                  type: object
+                  $ref: '#/definitions/v1GroupOrganizationPolicy'
+                description: |-
+                  Per-organization permission policies for this group.
+                  Each entry associates a distinct organization with a set of permissions.
+                  Multiple entries for the same organization are not allowed.
+              update_time:
+                type: string
+                format: date-time
+                description: Last modification timestamp.
+                readOnly: true
+              create_time:
+                type: string
+                format: date-time
+                description: Creation timestamp.
+                readOnly: true
+              etag:
+                type: string
+                description: Entity tag for optimistic concurrency control.
+                readOnly: true
+            title: The group to update.
+            required:
+              - display_name
+      tags:
+        - GroupService
+  /v1/{import_source.name}:
     patch:
       summary: Updates an existing import source.
       operationId: ImportSourceService_UpdateImportSource
@@ -512,7 +687,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: importSource.name
+        - name: import_source.name
           description: |-
             The resource name of the import source.
             Format: organizations/{organization}/importSources/{import_source}
@@ -520,7 +695,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+/importSources/[^/]+
-        - name: importSource
+        - name: import_source
           description: The import source to update.
           in: body
           required: true
@@ -531,21 +706,21 @@ paths:
                 type: string
                 description: The UUID of the import source.
                 readOnly: true
-              displayName:
+              display_name:
                 type: string
                 description: Human-readable import source name.
-              displayDescription:
+              display_description:
                 type: string
                 description: Optional free-text description.
-              periodStart:
+              period_start:
                 $ref: '#/definitions/typeDate'
                 description: Period start date for this import source.
-              updateTime:
+              update_time:
                 type: string
                 format: date-time
                 description: Last modification timestamp.
                 readOnly: true
-              createTime:
+              create_time:
                 type: string
                 format: date-time
                 description: Creation timestamp.
@@ -556,12 +731,59 @@ paths:
                 readOnly: true
             title: The import source to update.
             required:
-              - displayName
-              - periodStart
-              - importSource
+              - display_name
+              - period_start
       tags:
         - ImportSourceService
   /v1/{name_10}:
+    get:
+      summary: Gets a single organization by resource name.
+      operationId: OrganizationService_GetOrganization
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1Organization'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_10
+          description: |-
+            The resource name of the organization.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
+      tags:
+        - OrganizationService
+    delete:
+      summary: Permanently deletes a report template.
+      operationId: ReportTemplateService_DeleteReportTemplate
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            type: object
+            properties: {}
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_10
+          description: |-
+            The resource name of the report template.
+            Format: organizations/{organization}/reportTemplates/{report_template}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/reportTemplates/[^/]+
+      tags:
+        - ReportTemplateService
+  /v1/{name_11}:
     get:
       summary: Gets report metadata by resource name.
       operationId: ReportService_GetReport
@@ -575,7 +797,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: name_10
+        - name: name_11
           description: |-
             The resource name of the report.
             Format: organizations/{organization}/reports/{report}
@@ -599,7 +821,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: name_10
+        - name: name_11
           description: |-
             The resource name of the transaction.
             Format: organizations/{organization}/transactions/{transaction}
@@ -609,7 +831,7 @@ paths:
           pattern: organizations/[^/]+/transactions/[^/]+
       tags:
         - TransactionService
-  /v1/{name_11}:
+  /v1/{name_12}:
     get:
       summary: Gets a single report template by resource name.
       operationId: ReportTemplateService_GetReportTemplate
@@ -623,7 +845,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: name_11
+        - name: name_12
           description: |-
             The resource name of the report template.
             Format: organizations/{organization}/reportTemplates/{report_template}
@@ -647,7 +869,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: name_11
+        - name: name_12
           description: |-
             The resource name of the transaction account.
             Format: organizations/{organization}/transactionAccounts/{transaction_account}
@@ -657,7 +879,7 @@ paths:
           pattern: organizations/[^/]+/transactionAccounts/[^/]+
       tags:
         - TransactionAccountService
-  /v1/{name_12}:
+  /v1/{name_13}:
     get:
       summary: Gets a single transaction by resource name.
       operationId: TransactionService_GetTransaction
@@ -671,7 +893,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: name_12
+        - name: name_13
           description: |-
             The resource name of the transaction.
             Format: organizations/{organization}/transactions/{transaction}
@@ -695,7 +917,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: name_12
+        - name: name_13
           description: |-
             The resource name of the assignment.
             Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
@@ -705,7 +927,7 @@ paths:
           pattern: organizations/[^/]+/transactions/[^/]+/assignments/[^/]+
       tags:
         - TransactionAccountAssignmentService
-  /v1/{name_13}:
+  /v1/{name_14}:
     get:
       summary: Gets a single transaction account by resource name.
       operationId: TransactionAccountService_GetTransactionAccount
@@ -719,7 +941,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: name_13
+        - name: name_14
           description: |-
             The resource name of the transaction account.
             Format: organizations/{organization}/transactionAccounts/{transaction_account}
@@ -729,7 +951,7 @@ paths:
           pattern: organizations/[^/]+/transactionAccounts/[^/]+
       tags:
         - TransactionAccountService
-  /v1/{name_14}:
+  /v1/{name_15}:
     get:
       summary: Gets a single assignment by resource name.
       operationId: TransactionAccountAssignmentService_GetTransactionAccountAssignment
@@ -743,7 +965,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: name_14
+        - name: name_15
           description: |-
             The resource name of the assignment.
             Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
@@ -753,6 +975,78 @@ paths:
           pattern: organizations/[^/]+/transactions/[^/]+/assignments/[^/]+
       tags:
         - TransactionAccountAssignmentService
+  /v1/{name_16}:
+    get:
+      summary: Gets a single user by resource name.
+      operationId: UserService_GetUser
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1User'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_16
+          description: |-
+            The resource name of the user.
+            Format: users/{user}
+          in: path
+          required: true
+          type: string
+          pattern: users/[^/]+
+      tags:
+        - UserService
+  /v1/{name_17}:
+    get:
+      summary: Gets a single identity record.
+      operationId: UserIdentityService_GetUserIdentity
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1UserIdentity'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_17
+          description: |-
+            The resource name of the identity.
+            Format: users/{user}/identities/{identity}
+          in: path
+          required: true
+          type: string
+          pattern: users/[^/]+/identities/[^/]+
+      tags:
+        - UserIdentityService
+  /v1/{name_18}:
+    get:
+      summary: Gets the settings for a user.
+      operationId: UserSettingsService_GetUserSettings
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1UserSettings'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_18
+          description: |-
+            The resource name of the user settings.
+            Format: users/{user}/settings
+          in: path
+          required: true
+          type: string
+          pattern: users/[^/]+/settings
+      tags:
+        - UserSettingsService
   /v1/{name_1}:
     get:
       summary: Gets a single account group by resource name.
@@ -999,8 +1293,8 @@ paths:
       tags:
         - BudgetRevisionService
     delete:
-      summary: Permanently deletes an import source.
-      operationId: ImportSourceService_DeleteImportSource
+      summary: Permanently deletes a group.
+      operationId: GroupService_DeleteGroup
       responses:
         "200":
           description: A successful response.
@@ -1014,14 +1308,14 @@ paths:
       parameters:
         - name: name_5
           description: |-
-            The resource name of the import source.
-            Format: organizations/{organization}/importSources/{import_source}
+            The resource name of the group.
+            Format: groups/{group}
           in: path
           required: true
           type: string
-          pattern: organizations/[^/]+/importSources/[^/]+
+          pattern: groups/[^/]+
       tags:
-        - ImportSourceService
+        - GroupService
   /v1/{name_6}:
     get:
       summary: Gets a single budget revision account value by resource name.
@@ -1047,8 +1341,8 @@ paths:
       tags:
         - BudgetRevisionAccountValueService
     delete:
-      summary: Permanently deletes a period.
-      operationId: ImportSourcePeriodService_DeleteImportSourcePeriod
+      summary: Permanently deletes an import source.
+      operationId: ImportSourceService_DeleteImportSource
       responses:
         "200":
           description: A successful response.
@@ -1062,6 +1356,54 @@ paths:
       parameters:
         - name: name_6
           description: |-
+            The resource name of the import source.
+            Format: organizations/{organization}/importSources/{import_source}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/importSources/[^/]+
+      tags:
+        - ImportSourceService
+  /v1/{name_7}:
+    get:
+      summary: Gets a single group by resource name.
+      operationId: GroupService_GetGroup
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1Group'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_7
+          description: |-
+            The resource name of the group.
+            Format: groups/{group}
+          in: path
+          required: true
+          type: string
+          pattern: groups/[^/]+
+      tags:
+        - GroupService
+    delete:
+      summary: Permanently deletes a period.
+      operationId: ImportSourcePeriodService_DeleteImportSourcePeriod
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            type: object
+            properties: {}
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_7
+          description: |-
             The resource name of the period.
             Format: organizations/{organization}/importSources/{import_source}/periods/{period}
           in: path
@@ -1070,7 +1412,7 @@ paths:
           pattern: organizations/[^/]+/importSources/[^/]+/periods/[^/]+
       tags:
         - ImportSourcePeriodService
-  /v1/{name_7}:
+  /v1/{name_8}:
     get:
       summary: Gets a single import source by resource name.
       operationId: ImportSourceService_GetImportSource
@@ -1084,7 +1426,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: name_7
+        - name: name_8
           description: |-
             The resource name of the import source.
             Format: organizations/{organization}/importSources/{import_source}
@@ -1108,7 +1450,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: name_7
+        - name: name_8
           description: |-
             The resource name of the organization.
             Format: organizations/{organization}
@@ -1118,7 +1460,7 @@ paths:
           pattern: organizations/[^/]+
       tags:
         - OrganizationService
-  /v1/{name_8}:
+  /v1/{name_9}:
     get:
       summary: Gets a single period by resource name.
       operationId: ImportSourcePeriodService_GetImportSourcePeriod
@@ -1132,7 +1474,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: name_8
+        - name: name_9
           description: |-
             The resource name of the period.
             Format: organizations/{organization}/importSources/{import_source}/periods/{period}
@@ -1156,7 +1498,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: name_8
+        - name: name_9
           description: |-
             The resource name of the report.
             Format: organizations/{organization}/reports/{report}
@@ -1166,54 +1508,6 @@ paths:
           pattern: organizations/[^/]+/reports/[^/]+
       tags:
         - ReportService
-  /v1/{name_9}:
-    get:
-      summary: Gets a single organization by resource name.
-      operationId: OrganizationService_GetOrganization
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1Organization'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_9
-          description: |-
-            The resource name of the organization.
-            Format: organizations/{organization}
-          in: path
-          required: true
-          type: string
-          pattern: organizations/[^/]+
-      tags:
-        - OrganizationService
-    delete:
-      summary: Permanently deletes a report template.
-      operationId: ReportTemplateService_DeleteReportTemplate
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            type: object
-            properties: {}
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_9
-          description: |-
-            The resource name of the report template.
-            Format: organizations/{organization}/reportTemplates/{report_template}
-          in: path
-          required: true
-          type: string
-          pattern: organizations/[^/]+/reportTemplates/[^/]+
-      tags:
-        - ReportTemplateService
   /v1/{name}:
     get:
       summary: Gets a single account by resource name.
@@ -1291,6 +1585,68 @@ paths:
             $ref: '#/definitions/AccountServiceArchiveAccountBody'
       tags:
         - AccountService
+  /v1/{name}:batchCheckOrganizationPermissions:
+    post:
+      summary: |-
+        Checks permissions for a user across multiple organizations in one call
+        (batch custom method, AIP-231).
+      operationId: UserService_BatchCheckUserOrganizationPermissions
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1BatchCheckUserOrganizationPermissionsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name
+          description: |-
+            The resource name of the user.
+            Format: users/{user}
+          in: path
+          required: true
+          type: string
+          pattern: users/[^/]+
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/UserServiceBatchCheckUserOrganizationPermissionsBody'
+      tags:
+        - UserService
+  /v1/{name}:checkOrganizationPermissions:
+    post:
+      summary: |-
+        Checks which of the requested permissions a user holds within a single
+        organization (custom method, AIP-136).
+      operationId: UserService_CheckUserOrganizationPermissions
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1CheckUserOrganizationPermissionsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name
+          description: |-
+            The resource name of the user.
+            Format: users/{user}
+          in: path
+          required: true
+          type: string
+          pattern: users/[^/]+
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/UserServiceCheckUserOrganizationPermissionsBody'
+      tags:
+        - UserService
   /v1/{name}:close:
     post:
       summary: Closes a budget, marking it as no longer active.
@@ -1385,15 +1741,15 @@ paths:
                 type: string
                 description: The UUID of the organization.
                 readOnly: true
-              displayName:
+              display_name:
                 type: string
                 description: Human-readable organization name.
-              updateTime:
+              update_time:
                 type: string
                 format: date-time
                 description: Last modification timestamp.
                 readOnly: true
-              createTime:
+              create_time:
                 type: string
                 format: date-time
                 description: Creation timestamp.
@@ -1404,8 +1760,7 @@ paths:
                 readOnly: true
             title: The organization to update.
             required:
-              - displayName
-              - organization
+              - display_name
       tags:
         - OrganizationService
   /v1/{parent_1}/accountValues:
@@ -1430,7 +1785,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+/budgets/[^/]+/revisions/[^/]+
-        - name: pageSize
+        - name: page_size
           description: |-
             Maximum number of account values to return. The service may return fewer.
             If unspecified, at most 50 are returned. Maximum value is 200.
@@ -1438,7 +1793,7 @@ paths:
           required: false
           type: integer
           format: int32
-        - name: pageToken
+        - name: page_token
           description: A page token from a previous ListBudgetRevisionAccountValues call.
           in: query
           required: false
@@ -1451,7 +1806,7 @@ paths:
           in: query
           required: false
           type: string
-        - name: orderBy
+        - name: order_by
           description: Order by expression (e.g. "account_id", "value desc").
           in: query
           required: false
@@ -1480,7 +1835,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+/transactions/[^/]+
-        - name: pageSize
+        - name: page_size
           description: |-
             Maximum number of assignments to return. The service may return fewer.
             If unspecified, at most 20 are returned. Maximum value is 100.
@@ -1488,7 +1843,7 @@ paths:
           required: false
           type: integer
           format: int32
-        - name: pageToken
+        - name: page_token
           description: A page token from a previous ListTransactionAccountAssignments call.
           in: query
           required: false
@@ -1501,7 +1856,7 @@ paths:
           in: query
           required: false
           type: string
-        - name: orderBy
+        - name: order_by
           description: Order by expression (e.g. "create_time desc").
           in: query
           required: false
@@ -1559,7 +1914,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+
-        - name: pageSize
+        - name: page_size
           description: |-
             Maximum number of account groups to return. The service may return fewer.
             If unspecified, at most 20 are returned. Maximum value is 100.
@@ -1567,7 +1922,7 @@ paths:
           required: false
           type: integer
           format: int32
-        - name: pageToken
+        - name: page_token
           description: A page token from a previous ListAccountGroups call.
           in: query
           required: false
@@ -1580,7 +1935,7 @@ paths:
           in: query
           required: false
           type: string
-        - name: orderBy
+        - name: order_by
           description: Order by expression (e.g. "display_name", "create_time desc").
           in: query
           required: false
@@ -1608,7 +1963,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+
-        - name: accountGroup
+        - name: account_group
           description: The account group to create.
           in: body
           required: true
@@ -1638,7 +1993,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+/budgets/[^/]+
-        - name: pageSize
+        - name: page_size
           description: |-
             Maximum number of values to return. The service may return fewer.
             If unspecified, at most 20 are returned. Maximum value is 100.
@@ -1646,7 +2001,7 @@ paths:
           required: false
           type: integer
           format: int32
-        - name: pageToken
+        - name: page_token
           description: A page token from a previous ListBudgetAccountValues call.
           in: query
           required: false
@@ -1659,7 +2014,7 @@ paths:
           in: query
           required: false
           type: string
-        - name: orderBy
+        - name: order_by
           description: Order by expression (e.g. "create_time desc").
           in: query
           required: false
@@ -1687,12 +2042,45 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+/budgets/[^/]+
-        - name: accountValue
+        - name: account_value
           description: The budget account value to create.
           in: body
           required: true
           schema:
             $ref: '#/definitions/v1BudgetAccountValue'
+      tags:
+        - BudgetAccountValueService
+  /v1/{parent}/accountValues:batchUpdate:
+    post:
+      summary: |-
+        Atomically upserts multiple account values for a budget.
+        Existing values for listed account IDs are updated; missing ones are created.
+      operationId: BudgetAccountValueService_BatchUpdateBudgetAccountValues
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1BatchUpdateBudgetAccountValuesResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: parent
+          description: |-
+            The parent resource shared by all budget account values being updated.
+            Format: organizations/{organization}/budgets/{budget}
+            If set, the parent field in each UpdateBudgetAccountValueRequest must
+            either be empty or match this field.
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/budgets/[^/]+
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/BudgetAccountValueServiceBatchUpdateBudgetAccountValuesBody'
       tags:
         - BudgetAccountValueService
   /v1/{parent}/accounts:
@@ -1717,7 +2105,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+
-        - name: pageSize
+        - name: page_size
           description: |-
             Maximum number of accounts to return. The service may return fewer.
             If unspecified, at most 20 accounts will be returned. Maximum value is 100;
@@ -1726,7 +2114,7 @@ paths:
           required: false
           type: integer
           format: int32
-        - name: pageToken
+        - name: page_token
           description: |-
             A page token from a previous ListAccounts call.
             Provide this to retrieve the next page.
@@ -1741,14 +2129,14 @@ paths:
           in: query
           required: false
           type: string
-        - name: showDeleted
+        - name: show_deleted
           description: |-
             If true, soft-deleted (archived) accounts are included in results.
             See AIP-132 for soft-delete guidance.
           in: query
           required: false
           type: boolean
-        - name: orderBy
+        - name: order_by
           description: Order by expression (e.g. "display_name", "create_time desc").
           in: query
           required: false
@@ -1838,7 +2226,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+/accountGroups/[^/]+
-        - name: pageSize
+        - name: page_size
           description: |-
             Maximum number of assignments to return. The service may return fewer.
             If unspecified, at most 20 are returned. Maximum value is 100.
@@ -1846,7 +2234,7 @@ paths:
           required: false
           type: integer
           format: int32
-        - name: pageToken
+        - name: page_token
           description: A page token from a previous ListAccountGroupAssignments call.
           in: query
           required: false
@@ -1859,7 +2247,7 @@ paths:
           in: query
           required: false
           type: string
-        - name: orderBy
+        - name: order_by
           description: Order by expression (e.g. "create_time desc").
           in: query
           required: false
@@ -1917,7 +2305,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+
-        - name: pageSize
+        - name: page_size
           description: |-
             Maximum number of budgets to return. The service may return fewer.
             If unspecified, at most 20 are returned. Maximum value is 100.
@@ -1925,7 +2313,7 @@ paths:
           required: false
           type: integer
           format: int32
-        - name: pageToken
+        - name: page_token
           description: A page token from a previous ListBudgets call.
           in: query
           required: false
@@ -1938,12 +2326,12 @@ paths:
           in: query
           required: false
           type: string
-        - name: showDeleted
+        - name: show_deleted
           description: If true, closed budgets are included in results.
           in: query
           required: false
           type: boolean
-        - name: orderBy
+        - name: order_by
           description: Order by expression (e.g. "display_name", "period_start desc").
           in: query
           required: false
@@ -1979,6 +2367,43 @@ paths:
             $ref: '#/definitions/v1Budget'
       tags:
         - BudgetService
+  /v1/{parent}/identities:
+    get:
+      summary: Lists all identity records for a user.
+      operationId: UserIdentityService_ListUserIdentities
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListUserIdentitiesResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: parent
+          description: |-
+            The parent user resource name.
+            Format: users/{user}
+          in: path
+          required: true
+          type: string
+          pattern: users/[^/]+
+        - name: page_size
+          description: |-
+            Maximum number of identities to return.
+            If unspecified, at most 20 are returned. Maximum value is 100.
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: page_token
+          description: A page token from a previous ListUserIdentities call.
+          in: query
+          required: false
+          type: string
+      tags:
+        - UserIdentityService
   /v1/{parent}/importSources:
     get:
       summary: Lists import sources with pagination.
@@ -2001,7 +2426,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+
-        - name: pageSize
+        - name: page_size
           description: |-
             Maximum number of import sources to return. The service may return fewer.
             If unspecified, at most 20 are returned. Maximum value is 100.
@@ -2009,7 +2434,7 @@ paths:
           required: false
           type: integer
           format: int32
-        - name: pageToken
+        - name: page_token
           description: A page token from a previous ListImportSources call.
           in: query
           required: false
@@ -2022,7 +2447,7 @@ paths:
           in: query
           required: false
           type: string
-        - name: orderBy
+        - name: order_by
           description: Order by expression (e.g. "display_name", "create_time desc").
           in: query
           required: false
@@ -2050,7 +2475,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+
-        - name: importSource
+        - name: import_source
           description: The import source to create.
           in: body
           required: true
@@ -2080,7 +2505,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+/importSources/[^/]+
-        - name: pageSize
+        - name: page_size
           description: |-
             Maximum number of periods to return. The service may return fewer.
             If unspecified, at most 20 are returned. Maximum value is 100.
@@ -2088,7 +2513,7 @@ paths:
           required: false
           type: integer
           format: int32
-        - name: pageToken
+        - name: page_token
           description: A page token from a previous ListImportSourcePeriods call.
           in: query
           required: false
@@ -2101,7 +2526,7 @@ paths:
           in: query
           required: false
           type: string
-        - name: orderBy
+        - name: order_by
           description: Order by expression (e.g. "year desc", "create_time").
           in: query
           required: false
@@ -2159,7 +2584,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+
-        - name: pageSize
+        - name: page_size
           description: |-
             Maximum number of templates to return. The service may return fewer.
             If unspecified, at most 20 are returned. Maximum value is 100.
@@ -2167,7 +2592,7 @@ paths:
           required: false
           type: integer
           format: int32
-        - name: pageToken
+        - name: page_token
           description: A page token from a previous ListReportTemplates call.
           in: query
           required: false
@@ -2180,7 +2605,7 @@ paths:
           in: query
           required: false
           type: string
-        - name: orderBy
+        - name: order_by
           description: Order by expression (e.g. "display_name", "create_time desc").
           in: query
           required: false
@@ -2208,7 +2633,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+
-        - name: reportTemplate
+        - name: report_template
           description: The report template to create.
           in: body
           required: true
@@ -2238,7 +2663,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+
-        - name: pageSize
+        - name: page_size
           description: |-
             Maximum number of reports to return. The service may return fewer.
             If unspecified, at most 20 are returned. Maximum value is 100.
@@ -2246,7 +2671,7 @@ paths:
           required: false
           type: integer
           format: int32
-        - name: pageToken
+        - name: page_token
           description: A page token from a previous ListReports call.
           in: query
           required: false
@@ -2259,7 +2684,7 @@ paths:
           in: query
           required: false
           type: string
-        - name: orderBy
+        - name: order_by
           description: Order by expression (e.g. "display_name", "create_time desc").
           in: query
           required: false
@@ -2317,7 +2742,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+/budgets/[^/]+
-        - name: pageSize
+        - name: page_size
           description: |-
             Maximum number of revisions to return. The service may return fewer.
             If unspecified, at most 20 are returned. Maximum value is 100.
@@ -2325,12 +2750,12 @@ paths:
           required: false
           type: integer
           format: int32
-        - name: pageToken
+        - name: page_token
           description: A page token from a previous ListBudgetRevisions call.
           in: query
           required: false
           type: string
-        - name: orderBy
+        - name: order_by
           description: |-
             Order by expression. Defaults to reverse chronological order (create_time desc).
             Example: "create_time desc", "display_name".
@@ -2394,7 +2819,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+
-        - name: pageSize
+        - name: page_size
           description: |-
             Maximum number of accounts to return. The service may return fewer.
             If unspecified, at most 20 are returned. Maximum value is 100.
@@ -2402,7 +2827,7 @@ paths:
           required: false
           type: integer
           format: int32
-        - name: pageToken
+        - name: page_token
           description: A page token from a previous ListTransactionAccounts call.
           in: query
           required: false
@@ -2415,7 +2840,7 @@ paths:
           in: query
           required: false
           type: string
-        - name: orderBy
+        - name: order_by
           description: Order by expression (e.g. "code", "display_name", "create_time desc").
           in: query
           required: false
@@ -2443,7 +2868,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+
-        - name: transactionAccount
+        - name: transaction_account
           description: The transaction account to create.
           in: body
           required: true
@@ -2473,7 +2898,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+
-        - name: pageSize
+        - name: page_size
           description: |-
             Maximum number of transactions to return. The service may return fewer.
             If unspecified, at most 20 are returned. Maximum value is 100.
@@ -2481,7 +2906,7 @@ paths:
           required: false
           type: integer
           format: int32
-        - name: pageToken
+        - name: page_token
           description: A page token from a previous ListTransactions call.
           in: query
           required: false
@@ -2495,7 +2920,7 @@ paths:
           in: query
           required: false
           type: string
-        - name: orderBy
+        - name: order_by
           description: Order by expression (e.g. "booked_at desc", "amount").
           in: query
           required: false
@@ -2531,7 +2956,7 @@ paths:
             $ref: '#/definitions/v1Transaction'
       tags:
         - TransactionService
-  /v1/{reportTemplate.name}:
+  /v1/{report_template.name}:
     patch:
       summary: Updates an existing report template.
       operationId: ReportTemplateService_UpdateReportTemplate
@@ -2545,7 +2970,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: reportTemplate.name
+        - name: report_template.name
           description: |-
             The resource name of the report template.
             Format: organizations/{organization}/reportTemplates/{report_template}
@@ -2553,7 +2978,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+/reportTemplates/[^/]+
-        - name: reportTemplate
+        - name: report_template
           description: The report template to update.
           in: body
           required: true
@@ -2564,18 +2989,18 @@ paths:
                 type: string
                 description: The UUID of the report template.
                 readOnly: true
-              displayName:
+              display_name:
                 type: string
                 description: Human-readable name.
               template:
                 type: string
                 description: The Handlebars template content.
-              updateTime:
+              update_time:
                 type: string
                 format: date-time
                 description: Last modification timestamp.
                 readOnly: true
-              createTime:
+              create_time:
                 type: string
                 format: date-time
                 description: Creation timestamp.
@@ -2586,11 +3011,57 @@ paths:
                 readOnly: true
             title: The report template to update.
             required:
-              - displayName
+              - display_name
               - template
-              - reportTemplate
       tags:
         - ReportTemplateService
+  /v1/{settings.name}:
+    patch:
+      summary: Updates the settings for a user.
+      operationId: UserSettingsService_UpdateUserSettings
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1UserSettings'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: settings.name
+          description: |-
+            The resource name of the user settings.
+            Format: users/{user}/settings
+          in: path
+          required: true
+          type: string
+          pattern: users/[^/]+/settings
+        - name: settings
+          description: The user settings to update.
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              locale:
+                type: string
+                description: Preferred locale/language tag (e.g. "de-DE").
+              theme:
+                type: string
+                description: 'Preferred UI theme: "light", "dark", or "system".'
+              update_time:
+                type: string
+                format: date-time
+                description: Last modification timestamp.
+                readOnly: true
+              etag:
+                type: string
+                description: Entity tag for optimistic concurrency control.
+                readOnly: true
+            title: The user settings to update.
+      tags:
+        - UserSettingsService
   /v1/{transaction.name}:
     patch:
       summary: Updates an existing transaction.
@@ -2624,10 +3095,10 @@ paths:
                 type: string
                 description: The UUID of the transaction.
                 readOnly: true
-              creditTransactionAccountId:
+              credit_transaction_account_id:
                 type: string
                 description: UUID of the credit transaction account.
-              debitTransactionAccountId:
+              debit_transaction_account_id:
                 type: string
                 description: UUID of the debit transaction account.
               amount:
@@ -2639,23 +3110,23 @@ paths:
               reference:
                 type: string
                 description: External reference identifier.
-              bookedAt:
+              booked_at:
                 type: string
                 format: date-time
                 description: Booking date.
-              documentDate:
+              document_date:
                 type: string
                 format: date-time
                 description: Document date.
-              documentId:
+              document_id:
                 type: string
                 description: Optional document ID.
-              updateTime:
+              update_time:
                 type: string
                 format: date-time
                 description: Last modification timestamp.
                 readOnly: true
-              createTime:
+              create_time:
                 type: string
                 format: date-time
                 description: Creation timestamp.
@@ -2666,15 +3137,14 @@ paths:
                 readOnly: true
             title: The transaction to update.
             required:
-              - creditTransactionAccountId
-              - debitTransactionAccountId
+              - credit_transaction_account_id
+              - debit_transaction_account_id
               - amount
-              - bookedAt
-              - documentDate
-              - transaction
+              - booked_at
+              - document_date
       tags:
         - TransactionService
-  /v1/{transactionAccount.name}:
+  /v1/{transaction_account.name}:
     patch:
       summary: Updates an existing transaction account.
       operationId: TransactionAccountService_UpdateTransactionAccount
@@ -2688,7 +3158,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: transactionAccount.name
+        - name: transaction_account.name
           description: |-
             The resource name of the transaction account.
             Format: organizations/{organization}/transactionAccounts/{transaction_account}
@@ -2696,7 +3166,7 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+/transactionAccounts/[^/]+
-        - name: transactionAccount
+        - name: transaction_account
           description: The transaction account to update.
           in: body
           required: true
@@ -2710,21 +3180,21 @@ paths:
               code:
                 type: string
                 description: Unique account code (e.g. IBAN or internal code).
-              importSourceId:
+              import_source_id:
                 type: string
                 description: UUID of the import source this account belongs to.
-              displayName:
+              display_name:
                 type: string
                 description: Human-readable name.
-              displayDescription:
+              display_description:
                 type: string
                 description: Optional free-text description.
-              updateTime:
+              update_time:
                 type: string
                 format: date-time
                 description: Last modification timestamp.
                 readOnly: true
-              createTime:
+              create_time:
                 type: string
                 format: date-time
                 description: Creation timestamp.
@@ -2736,17 +3206,66 @@ paths:
             title: The transaction account to update.
             required:
               - code
-              - importSourceId
-              - transactionAccount
+              - import_source_id
       tags:
         - TransactionAccountService
 definitions:
   AccountServiceArchiveAccountBody:
     type: object
+  BudgetAccountValueServiceBatchUpdateBudgetAccountValuesBody:
+    type: object
+    properties:
+      requests:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1UpdateBudgetAccountValueRequest'
+        description: |-
+          The request messages specifying the resources to update.
+          A maximum of 1000 budget account values can be modified in a batch.
+    required:
+      - requests
   BudgetServiceCloseBudgetBody:
     type: object
   ImportSourcePeriodServiceCloseImportSourcePeriodBody:
     type: object
+  UserServiceBatchCheckUserOrganizationPermissionsBody:
+    type: object
+    properties:
+      requests:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1CheckUserOrganizationPermissionsRequest'
+        description: |-
+          Individual per-organization check requests.
+          Maximum 100 entries per call.
+    description: |-
+      BatchCheckUserOrganizationPermissionsRequest checks permissions for a single
+      user across multiple organizations in one call (AIP-231 batch pattern).
+    required:
+      - requests
+  UserServiceCheckUserOrganizationPermissionsBody:
+    type: object
+    properties:
+      organization:
+        type: string
+        title: |-
+          The resource name of the organization to check permissions against.
+          Format: organizations/{organization}
+      permissions:
+        type: array
+        items:
+          $ref: '#/definitions/v1Permission'
+        description: |-
+          The permissions to evaluate. At least one must be provided.
+          Only the permissions listed here are evaluated and returned.
+    description: |-
+      CheckUserOrganizationPermissionsRequest checks which of the requested
+      permissions a user holds within a single organization.
+    required:
+      - organization
+      - permissions
   protobufAny:
     type: object
     properties:
@@ -2818,35 +3337,35 @@ definitions:
         type: string
         description: The UUID of the account.
         readOnly: true
-      parentAccount:
+      parent_account:
         type: string
         title: |-
           The resource name of the parent account, if any.
           Format: organizations/{organization}/accounts/{account}
-      displayName:
+      display_name:
         type: string
         description: Human-readable account name.
-      displayCode:
+      display_code:
         type: string
         description: Short account code.
-      displayDescription:
+      display_description:
         type: string
         description: Optional free-text description.
-      isContainer:
+      is_container:
         type: boolean
         description: |-
           Whether this account is a container account (cannot hold values directly).
           Immutable after creation.
-      isArchived:
+      is_archived:
         type: boolean
         description: Whether the account is archived (soft-deleted).
         readOnly: true
-      updateTime:
+      update_time:
         type: string
         format: date-time
         description: Last modification timestamp.
         readOnly: true
-      createTime:
+      create_time:
         type: string
         format: date-time
         description: Creation timestamp.
@@ -2857,8 +3376,8 @@ definitions:
         readOnly: true
     description: Account represents a budget account in the chart of accounts.
     required:
-      - displayName
-      - displayCode
+      - display_name
+      - display_code
   v1AccountGroup:
     type: object
     properties:
@@ -2872,18 +3391,18 @@ definitions:
         type: string
         description: The UUID of the account group.
         readOnly: true
-      displayName:
+      display_name:
         type: string
         description: Human-readable account group name.
-      displayDescription:
+      display_description:
         type: string
         description: Optional free-text description.
-      updateTime:
+      update_time:
         type: string
         format: date-time
         description: Last modification timestamp.
         readOnly: true
-      createTime:
+      create_time:
         type: string
         format: date-time
         description: Creation timestamp.
@@ -2894,7 +3413,7 @@ definitions:
         readOnly: true
     description: AccountGroup is a named grouping of budget accounts.
     required:
-      - displayName
+      - display_name
   v1AccountGroupAssignment:
     type: object
     properties:
@@ -2908,24 +3427,24 @@ definitions:
         type: string
         description: The UUID of the assignment.
         readOnly: true
-      accountGroup:
+      account_group:
         type: string
         title: |-
           The resource name of the parent account group.
           Format: organizations/{organization}/accountGroups/{account_group}
         readOnly: true
-      accountId:
+      account_id:
         type: string
         description: The UUID of the assigned account.
       negate:
         type: boolean
         description: If true, this account is excluded (negated) from the group aggregate.
-      updateTime:
+      update_time:
         type: string
         format: date-time
         description: Last modification timestamp.
         readOnly: true
-      createTime:
+      create_time:
         type: string
         format: date-time
         description: Creation timestamp.
@@ -2936,7 +3455,31 @@ definitions:
         readOnly: true
     description: AccountGroupAssignment associates an account with an account group.
     required:
-      - accountId
+      - account_id
+  v1BatchCheckUserOrganizationPermissionsResponse:
+    type: object
+    properties:
+      results:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1CheckUserOrganizationPermissionsResponse'
+        description: |-
+          One result per entry in BatchCheckUserOrganizationPermissionsRequest.requests,
+          in the same order.
+        readOnly: true
+    description: |-
+      BatchCheckUserOrganizationPermissionsResponse returns one result entry per
+      requested organization, in the same order as the request.
+  v1BatchUpdateBudgetAccountValuesResponse:
+    type: object
+    properties:
+      account_values:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1BudgetAccountValue'
+        description: The budget account values that were updated.
   v1Budget:
     type: object
     properties:
@@ -2950,28 +3493,28 @@ definitions:
         type: string
         description: The UUID of the budget.
         readOnly: true
-      displayName:
+      display_name:
         type: string
         description: Human-readable budget name.
-      displayDescription:
+      display_description:
         type: string
         description: Optional free-text description.
-      isClosed:
+      is_closed:
         type: boolean
         description: Whether the budget is closed (no further modifications allowed).
         readOnly: true
-      periodStart:
+      period_start:
         $ref: '#/definitions/typeDate'
         description: Budget period start date.
-      periodEnd:
+      period_end:
         $ref: '#/definitions/typeDate'
         description: Budget period end date.
-      updateTime:
+      update_time:
         type: string
         format: date-time
         description: Last modification timestamp.
         readOnly: true
-      createTime:
+      create_time:
         type: string
         format: date-time
         description: Creation timestamp.
@@ -2982,9 +3525,9 @@ definitions:
         readOnly: true
     description: Budget represents a financial budget with a defined period.
     required:
-      - displayName
-      - periodStart
-      - periodEnd
+      - display_name
+      - period_start
+      - period_end
   v1BudgetAccountValue:
     type: object
     properties:
@@ -3004,18 +3547,18 @@ definitions:
           The resource name of the parent budget.
           Format: organizations/{organization}/budgets/{budget}
         readOnly: true
-      accountId:
+      account_id:
         type: string
         description: The UUID of the account this value is assigned to.
       value:
         $ref: '#/definitions/v1Decimal'
         description: The target monetary value assigned to the account for this budget.
-      updateTime:
+      update_time:
         type: string
         format: date-time
         description: Last modification timestamp.
         readOnly: true
-      createTime:
+      create_time:
         type: string
         format: date-time
         description: Creation timestamp.
@@ -3029,7 +3572,7 @@ definitions:
       a budget. Accounts may optionally be assigned a value; not all accounts in
       the system need to be present.
     required:
-      - accountId
+      - account_id
       - value
   v1BudgetRevision:
     type: object
@@ -3050,16 +3593,16 @@ definitions:
           The resource name of the parent budget.
           Format: organizations/{organization}/budgets/{budget}
         readOnly: true
-      displayName:
+      display_name:
         type: string
         description: Human-readable name for this revision.
-      displayDescription:
+      display_description:
         type: string
         description: Optional free-text description for this revision.
       date:
         $ref: '#/definitions/typeDate'
         description: The date this revision represents.
-      createTime:
+      create_time:
         type: string
         format: date-time
         description: Timestamp when this revision was created.
@@ -3074,7 +3617,7 @@ definitions:
       rolled back to. The captured account values are accessible as a paginated
       sub-collection via BudgetRevisionAccountValueService. See AIP-162.
     required:
-      - displayName
+      - display_name
   v1BudgetRevisionAccountValue:
     type: object
     properties:
@@ -3094,7 +3637,7 @@ definitions:
           The resource name of the parent revision.
           Format: organizations/{organization}/budgets/{budget}/revisions/{revision}
         readOnly: true
-      accountId:
+      account_id:
         type: string
         description: The UUID of the account whose value is recorded here.
         readOnly: true
@@ -3104,7 +3647,7 @@ definitions:
           The target monetary value for the account at the time the revision was
           created.
         readOnly: true
-      createTime:
+      create_time:
         type: string
         format: date-time
         description: Timestamp when this record was created (equals the revision create_time).
@@ -3119,6 +3662,51 @@ definitions:
       This resource is read-only; it cannot be created, updated, or deleted
       directly — it is populated by the server when the parent BudgetRevision is
       created.
+  v1CheckUserOrganizationPermissionsRequest:
+    type: object
+    properties:
+      name:
+        type: string
+        title: |-
+          The resource name of the user.
+          Format: users/{user}
+      organization:
+        type: string
+        title: |-
+          The resource name of the organization to check permissions against.
+          Format: organizations/{organization}
+      permissions:
+        type: array
+        items:
+          $ref: '#/definitions/v1Permission'
+        description: |-
+          The permissions to evaluate. At least one must be provided.
+          Only the permissions listed here are evaluated and returned.
+    description: |-
+      CheckUserOrganizationPermissionsRequest checks which of the requested
+      permissions a user holds within a single organization.
+    required:
+      - name
+      - organization
+      - permissions
+  v1CheckUserOrganizationPermissionsResponse:
+    type: object
+    properties:
+      organization:
+        type: string
+        title: |-
+          The organization that was evaluated.
+          Format: organizations/{organization}
+        readOnly: true
+      permitted:
+        type: array
+        items:
+          $ref: '#/definitions/v1Permission'
+        description: The subset of the requested permissions that the user holds.
+        readOnly: true
+    description: |-
+      CheckUserOrganizationPermissionsResponse reports which of the requested
+      permissions the user actually holds.
   v1Decimal:
     type: object
     properties:
@@ -3137,6 +3725,73 @@ definitions:
         $ref: '#/definitions/v1NestedAccount'
         description: The requested account with its full nested subtree.
     description: Response for the GetNestedAccount custom method.
+  v1Group:
+    type: object
+    properties:
+      name:
+        type: string
+        title: |-
+          The resource name of the group.
+          Format: groups/{group}
+        readOnly: true
+      uid:
+        type: string
+        description: The UUID of the group.
+        readOnly: true
+      display_name:
+        type: string
+        description: Human-readable group name.
+      display_description:
+        type: string
+        description: Optional free-text description.
+      organization_policies:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1GroupOrganizationPolicy'
+        description: |-
+          Per-organization permission policies for this group.
+          Each entry associates a distinct organization with a set of permissions.
+          Multiple entries for the same organization are not allowed.
+      update_time:
+        type: string
+        format: date-time
+        description: Last modification timestamp.
+        readOnly: true
+      create_time:
+        type: string
+        format: date-time
+        description: Creation timestamp.
+        readOnly: true
+      etag:
+        type: string
+        description: Entity tag for optimistic concurrency control.
+        readOnly: true
+    description: |-
+      Group is a named collection of users that share a common set of permissions,
+      scoped per organization via GroupOrganizationPolicy.
+    required:
+      - display_name
+  v1GroupOrganizationPolicy:
+    type: object
+    properties:
+      organization:
+        type: string
+        title: |-
+          The resource name of the organization this policy applies to.
+          Format: organizations/{organization}
+      permissions:
+        type: array
+        items:
+          $ref: '#/definitions/v1Permission'
+        description: The set of permissions granted within the organization.
+    description: |-
+      GroupOrganizationPolicy associates a set of permissions with a specific
+      organization for a group. A group may hold policies for multiple
+      organizations independently.
+    required:
+      - organization
+      - permissions
   v1ImportSource:
     type: object
     properties:
@@ -3150,21 +3805,21 @@ definitions:
         type: string
         description: The UUID of the import source.
         readOnly: true
-      displayName:
+      display_name:
         type: string
         description: Human-readable import source name.
-      displayDescription:
+      display_description:
         type: string
         description: Optional free-text description.
-      periodStart:
+      period_start:
         $ref: '#/definitions/typeDate'
         description: Period start date for this import source.
-      updateTime:
+      update_time:
         type: string
         format: date-time
         description: Last modification timestamp.
         readOnly: true
-      createTime:
+      create_time:
         type: string
         format: date-time
         description: Creation timestamp.
@@ -3175,8 +3830,8 @@ definitions:
         readOnly: true
     description: ImportSource represents an external data source from which transactions are imported.
     required:
-      - displayName
-      - periodStart
+      - display_name
+      - period_start
   v1ImportSourcePeriod:
     type: object
     properties:
@@ -3190,7 +3845,7 @@ definitions:
         type: string
         description: The UUID of the period.
         readOnly: true
-      importSource:
+      import_source:
         type: string
         title: |-
           The resource name of the parent import source.
@@ -3200,16 +3855,16 @@ definitions:
         type: integer
         format: int32
         description: The fiscal year this period covers.
-      isClosed:
+      is_closed:
         type: boolean
         description: Whether this period is closed for new imports.
         readOnly: true
-      updateTime:
+      update_time:
         type: string
         format: date-time
         description: Last modification timestamp.
         readOnly: true
-      createTime:
+      create_time:
         type: string
         format: date-time
         description: Creation timestamp.
@@ -3230,26 +3885,26 @@ definitions:
           type: object
           $ref: '#/definitions/v1AccountGroupAssignment'
         description: The assignments returned.
-      nextPageToken:
+      next_page_token:
         type: string
         description: A token to retrieve the next page of results.
-      totalSize:
+      total_size:
         type: string
         format: int64
         description: Total number of assignments matching the filter (may be an estimate).
   v1ListAccountGroupsResponse:
     type: object
     properties:
-      accountGroups:
+      account_groups:
         type: array
         items:
           type: object
           $ref: '#/definitions/v1AccountGroup'
         description: The account groups returned.
-      nextPageToken:
+      next_page_token:
         type: string
         description: A token to retrieve the next page of results.
-      totalSize:
+      total_size:
         type: string
         format: int64
         description: Total number of account groups matching the filter (may be an estimate).
@@ -3262,44 +3917,44 @@ definitions:
           type: object
           $ref: '#/definitions/v1Account'
         description: The accounts returned.
-      nextPageToken:
+      next_page_token:
         type: string
         description: |-
           A token to retrieve the next page of results.
           Pass this value in ListAccountsRequest.page_token on the next call.
-      totalSize:
+      total_size:
         type: string
         format: int64
         description: Total number of accounts matching the filter (may be an estimate).
   v1ListBudgetAccountValuesResponse:
     type: object
     properties:
-      accountValues:
+      account_values:
         type: array
         items:
           type: object
           $ref: '#/definitions/v1BudgetAccountValue'
         description: The budget account values returned.
-      nextPageToken:
+      next_page_token:
         type: string
         description: A token to retrieve the next page of results.
-      totalSize:
+      total_size:
         type: string
         format: int64
         description: Total number of account values matching the filter (may be an estimate).
   v1ListBudgetRevisionAccountValuesResponse:
     type: object
     properties:
-      accountValues:
+      account_values:
         type: array
         items:
           type: object
           $ref: '#/definitions/v1BudgetRevisionAccountValue'
         description: The account values returned.
-      nextPageToken:
+      next_page_token:
         type: string
         description: A token to retrieve the next page of results.
-      totalSize:
+      total_size:
         type: string
         format: int64
         description: Total number of account values in this revision.
@@ -3312,10 +3967,10 @@ definitions:
           type: object
           $ref: '#/definitions/v1BudgetRevision'
         description: The revisions returned, ordered reverse-chronologically by default.
-      nextPageToken:
+      next_page_token:
         type: string
         description: A token to retrieve the next page of results.
-      totalSize:
+      total_size:
         type: string
         format: int64
         description: Total number of revisions for this budget.
@@ -3328,13 +3983,29 @@ definitions:
           type: object
           $ref: '#/definitions/v1Budget'
         description: The budgets returned.
-      nextPageToken:
+      next_page_token:
         type: string
         description: A token to retrieve the next page of results.
-      totalSize:
+      total_size:
         type: string
         format: int64
         description: Total number of budgets matching the filter (may be an estimate).
+  v1ListGroupsResponse:
+    type: object
+    properties:
+      groups:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1Group'
+        description: The groups returned.
+      next_page_token:
+        type: string
+        description: A token to retrieve the next page of results.
+      total_size:
+        type: string
+        format: int64
+        description: Total number of groups matching the filter (may be an estimate).
   v1ListImportSourcePeriodsResponse:
     type: object
     properties:
@@ -3344,26 +4015,26 @@ definitions:
           type: object
           $ref: '#/definitions/v1ImportSourcePeriod'
         description: The periods returned.
-      nextPageToken:
+      next_page_token:
         type: string
         description: A token to retrieve the next page of results.
-      totalSize:
+      total_size:
         type: string
         format: int64
         description: Total number of periods matching the filter (may be an estimate).
   v1ListImportSourcesResponse:
     type: object
     properties:
-      importSources:
+      import_sources:
         type: array
         items:
           type: object
           $ref: '#/definitions/v1ImportSource'
         description: The import sources returned.
-      nextPageToken:
+      next_page_token:
         type: string
         description: A token to retrieve the next page of results.
-      totalSize:
+      total_size:
         type: string
         format: int64
         description: Total number of import sources matching the filter (may be an estimate).
@@ -3386,26 +4057,26 @@ definitions:
           type: object
           $ref: '#/definitions/v1Organization'
         description: The organizations returned.
-      nextPageToken:
+      next_page_token:
         type: string
         description: A token to retrieve the next page of results.
-      totalSize:
+      total_size:
         type: string
         format: int64
         description: Total number of organizations matching the filter (may be an estimate).
   v1ListReportTemplatesResponse:
     type: object
     properties:
-      reportTemplates:
+      report_templates:
         type: array
         items:
           type: object
           $ref: '#/definitions/v1ReportTemplate'
         description: The report templates returned.
-      nextPageToken:
+      next_page_token:
         type: string
         description: A token to retrieve the next page of results.
-      totalSize:
+      total_size:
         type: string
         format: int64
         description: Total number of templates matching the filter (may be an estimate).
@@ -3418,10 +4089,10 @@ definitions:
           type: object
           $ref: '#/definitions/v1Report'
         description: The reports returned.
-      nextPageToken:
+      next_page_token:
         type: string
         description: A token to retrieve the next page of results.
-      totalSize:
+      total_size:
         type: string
         format: int64
         description: Total number of reports matching the filter (may be an estimate).
@@ -3434,26 +4105,26 @@ definitions:
           type: object
           $ref: '#/definitions/v1TransactionAccountAssignment'
         description: The assignments returned.
-      nextPageToken:
+      next_page_token:
         type: string
         description: A token to retrieve the next page of results.
-      totalSize:
+      total_size:
         type: string
         format: int64
         description: Total number of assignments matching the filter (may be an estimate).
   v1ListTransactionAccountsResponse:
     type: object
     properties:
-      transactionAccounts:
+      transaction_accounts:
         type: array
         items:
           type: object
           $ref: '#/definitions/v1TransactionAccount'
         description: The transaction accounts returned.
-      nextPageToken:
+      next_page_token:
         type: string
         description: A token to retrieve the next page of results.
-      totalSize:
+      total_size:
         type: string
         format: int64
         description: Total number of accounts matching the filter (may be an estimate).
@@ -3466,13 +4137,45 @@ definitions:
           type: object
           $ref: '#/definitions/v1Transaction'
         description: The transactions returned.
-      nextPageToken:
+      next_page_token:
         type: string
         description: A token to retrieve the next page of results.
-      totalSize:
+      total_size:
         type: string
         format: int64
         description: Total number of transactions matching the filter (may be an estimate).
+  v1ListUserIdentitiesResponse:
+    type: object
+    properties:
+      identities:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1UserIdentity'
+        description: The identities returned.
+      next_page_token:
+        type: string
+        description: A token to retrieve the next page of results.
+      total_size:
+        type: string
+        format: int64
+        description: Total number of identities.
+  v1ListUsersResponse:
+    type: object
+    properties:
+      users:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1User'
+        description: The users returned.
+      next_page_token:
+        type: string
+        description: A token to retrieve the next page of results.
+      total_size:
+        type: string
+        format: int64
+        description: Total number of users matching the filter (may be an estimate).
   v1NestedAccount:
     type: object
     properties:
@@ -3486,28 +4189,28 @@ definitions:
         type: string
         description: The UUID of the account.
         readOnly: true
-      parentAccount:
+      parent_account:
         type: string
         title: |-
           The resource name of the parent account, if any.
           Format: organizations/{organization}/accounts/{account}
-      displayName:
+      display_name:
         type: string
         description: Human-readable account name.
         readOnly: true
-      displayCode:
+      display_code:
         type: string
         description: Short account code.
         readOnly: true
-      displayDescription:
+      display_description:
         type: string
         description: Optional free-text description.
         readOnly: true
-      isContainer:
+      is_container:
         type: boolean
         description: Whether this account is a container account.
         readOnly: true
-      isArchived:
+      is_archived:
         type: boolean
         description: Whether the account is archived.
         readOnly: true
@@ -3518,12 +4221,12 @@ definitions:
           $ref: '#/definitions/v1NestedAccount'
         description: Child accounts in the subtree.
         readOnly: true
-      updateTime:
+      update_time:
         type: string
         format: date-time
         description: Last modification timestamp.
         readOnly: true
-      createTime:
+      create_time:
         type: string
         format: date-time
         description: Creation timestamp.
@@ -3548,15 +4251,15 @@ definitions:
         type: string
         description: The UUID of the organization.
         readOnly: true
-      displayName:
+      display_name:
         type: string
         description: Human-readable organization name.
-      updateTime:
+      update_time:
         type: string
         format: date-time
         description: Last modification timestamp.
         readOnly: true
-      createTime:
+      create_time:
         type: string
         format: date-time
         description: Creation timestamp.
@@ -3567,7 +4270,68 @@ definitions:
         readOnly: true
     description: Organization is the top-level resource that owns all other resources.
     required:
-      - displayName
+      - display_name
+  v1Permission:
+    type: string
+    enum:
+      - PERMISSION_UNSPECIFIED
+      - PERMISSION_DASHBOARD_READ
+      - PERMISSION_ACCOUNTS_READ
+      - PERMISSION_ACCOUNTS_CREATE
+      - PERMISSION_ACCOUNTS_UPDATE
+      - PERMISSION_ACCOUNTS_DELETE
+      - PERMISSION_ACCOUNT_GROUPS_READ
+      - PERMISSION_ACCOUNT_GROUPS_CREATE
+      - PERMISSION_ACCOUNT_GROUPS_UPDATE
+      - PERMISSION_ACCOUNT_GROUPS_DELETE
+      - PERMISSION_BUDGETS_READ
+      - PERMISSION_BUDGETS_CREATE
+      - PERMISSION_BUDGETS_UPDATE
+      - PERMISSION_BUDGETS_DELETE
+      - PERMISSION_JOURNAL_READ
+      - PERMISSION_JOURNAL_IMPORT
+      - PERMISSION_TRANSACTIONS_READ
+      - PERMISSION_TRANSACTIONS_UPDATE
+      - PERMISSION_TRANSACTIONS_DELETE
+      - PERMISSION_MATRIX_READ
+      - PERMISSION_MATRIX_UPDATE
+      - PERMISSION_REPORTS_READ
+      - PERMISSION_REPORTS_CREATE
+      - PERMISSION_REPORTS_DELETE
+      - PERMISSION_REPORT_TEMPLATES_READ
+      - PERMISSION_REPORT_TEMPLATES_CREATE
+      - PERMISSION_REPORT_TEMPLATES_UPDATE
+      - PERMISSION_REPORT_TEMPLATES_DELETE
+      - PERMISSION_IMPORT_SOURCES_READ
+      - PERMISSION_IMPORT_SOURCES_CREATE
+      - PERMISSION_IMPORT_SOURCES_UPDATE
+      - PERMISSION_USERS_READ
+      - PERMISSION_USERS_UPDATE
+      - PERMISSION_GROUPS_READ
+      - PERMISSION_GROUPS_CREATE
+      - PERMISSION_GROUPS_UPDATE
+      - PERMISSION_GROUPS_DELETE
+      - PERMISSION_SETTINGS_READ
+      - PERMISSION_SETTINGS_UPDATE
+    default: PERMISSION_UNSPECIFIED
+    description: |-
+      Permission enumerates every discrete access right in the system.
+      Each value encodes a resource and an action, following the convention
+      RESOURCE_ACTION (all upper-snake-case).
+
+       - PERMISSION_DASHBOARD_READ: Dashboard
+       - PERMISSION_ACCOUNTS_READ: Accounts
+       - PERMISSION_ACCOUNT_GROUPS_READ: Account Groups
+       - PERMISSION_BUDGETS_READ: Budgets / Plans
+       - PERMISSION_JOURNAL_READ: Journal
+       - PERMISSION_TRANSACTIONS_READ: Transactions
+       - PERMISSION_MATRIX_READ: Matrix
+       - PERMISSION_REPORTS_READ: Reports
+       - PERMISSION_REPORT_TEMPLATES_READ: Report Templates
+       - PERMISSION_IMPORT_SOURCES_READ: Import Sources
+       - PERMISSION_USERS_READ: Users
+       - PERMISSION_GROUPS_READ: Groups
+       - PERMISSION_SETTINGS_READ: Settings
   v1Report:
     type: object
     properties:
@@ -3581,13 +4345,13 @@ definitions:
         type: string
         description: The UUID of the report.
         readOnly: true
-      displayName:
+      display_name:
         type: string
         description: Human-readable name.
-      reportTemplateId:
+      report_template_id:
         type: string
         description: UUID of the report template used to generate this report.
-      createTime:
+      create_time:
         type: string
         format: date-time
         description: Creation timestamp.
@@ -3601,8 +4365,8 @@ definitions:
       The rendered binary content is served exclusively via the Huma HTTP API
       (GET /v1/organizations/{organization}/reports/{reportId}:download) and is intentionally excluded here.
     required:
-      - displayName
-      - reportTemplateId
+      - display_name
+      - report_template_id
   v1ReportTemplate:
     type: object
     properties:
@@ -3616,18 +4380,18 @@ definitions:
         type: string
         description: The UUID of the report template.
         readOnly: true
-      displayName:
+      display_name:
         type: string
         description: Human-readable name.
       template:
         type: string
         description: The Handlebars template content.
-      updateTime:
+      update_time:
         type: string
         format: date-time
         description: Last modification timestamp.
         readOnly: true
-      createTime:
+      create_time:
         type: string
         format: date-time
         description: Creation timestamp.
@@ -3638,7 +4402,7 @@ definitions:
         readOnly: true
     description: ReportTemplate is a Handlebars template used to render reports.
     required:
-      - displayName
+      - display_name
       - template
   v1Transaction:
     type: object
@@ -3653,10 +4417,10 @@ definitions:
         type: string
         description: The UUID of the transaction.
         readOnly: true
-      creditTransactionAccountId:
+      credit_transaction_account_id:
         type: string
         description: UUID of the credit transaction account.
-      debitTransactionAccountId:
+      debit_transaction_account_id:
         type: string
         description: UUID of the debit transaction account.
       amount:
@@ -3668,23 +4432,23 @@ definitions:
       reference:
         type: string
         description: External reference identifier.
-      bookedAt:
+      booked_at:
         type: string
         format: date-time
         description: Booking date.
-      documentDate:
+      document_date:
         type: string
         format: date-time
         description: Document date.
-      documentId:
+      document_id:
         type: string
         description: Optional document ID.
-      updateTime:
+      update_time:
         type: string
         format: date-time
         description: Last modification timestamp.
         readOnly: true
-      createTime:
+      create_time:
         type: string
         format: date-time
         description: Creation timestamp.
@@ -3695,11 +4459,11 @@ definitions:
         readOnly: true
     description: Transaction represents a financial transaction between two transaction accounts.
     required:
-      - creditTransactionAccountId
-      - debitTransactionAccountId
+      - credit_transaction_account_id
+      - debit_transaction_account_id
       - amount
-      - bookedAt
-      - documentDate
+      - booked_at
+      - document_date
   v1TransactionAccount:
     type: object
     properties:
@@ -3716,21 +4480,21 @@ definitions:
       code:
         type: string
         description: Unique account code (e.g. IBAN or internal code).
-      importSourceId:
+      import_source_id:
         type: string
         description: UUID of the import source this account belongs to.
-      displayName:
+      display_name:
         type: string
         description: Human-readable name.
-      displayDescription:
+      display_description:
         type: string
         description: Optional free-text description.
-      updateTime:
+      update_time:
         type: string
         format: date-time
         description: Last modification timestamp.
         readOnly: true
-      createTime:
+      create_time:
         type: string
         format: date-time
         description: Creation timestamp.
@@ -3744,7 +4508,7 @@ definitions:
       (e.g. a bank account) involved in transactions.
     required:
       - code
-      - importSourceId
+      - import_source_id
   v1TransactionAccountAssignment:
     type: object
     properties:
@@ -3764,18 +4528,18 @@ definitions:
           The resource name of the parent transaction.
           Format: organizations/{organization}/transactions/{transaction}
         readOnly: true
-      accountId:
+      account_id:
         type: string
         description: UUID of the budget account this portion of the transaction is assigned to.
       value:
         $ref: '#/definitions/v1Decimal'
         description: The decimal value assigned to this account.
-      updateTime:
+      update_time:
         type: string
         format: date-time
         description: Last modification timestamp.
         readOnly: true
-      createTime:
+      create_time:
         type: string
         format: date-time
         description: Creation timestamp.
@@ -3788,5 +4552,133 @@ definitions:
       TransactionAccountAssignment maps a transaction to a budget account with a
       partial monetary value (split booking).
     required:
-      - accountId
+      - account_id
       - value
+  v1UpdateBudgetAccountValueRequest:
+    type: object
+    properties:
+      account_value:
+        $ref: '#/definitions/v1BudgetAccountValue'
+        description: The budget account value to update.
+      update_mask:
+        type: string
+        description: The list of fields to update.
+      allow_missing:
+        type: boolean
+        description: |-
+          If set to true, and the resource is not found, a new resource will be
+          created. In this situation, update_mask is ignored.
+    required:
+      - account_value
+  v1User:
+    type: object
+    properties:
+      name:
+        type: string
+        title: |-
+          The resource name of the user.
+          Format: users/{user}
+        readOnly: true
+      uid:
+        type: string
+        description: The UUID of the user.
+        readOnly: true
+      display_name:
+        type: string
+        description: Primary display name (derived from SSO provider at last login).
+        readOnly: true
+      email:
+        type: string
+        description: Primary e-mail address (derived from SSO provider at last login).
+        readOnly: true
+      is_active:
+        type: boolean
+        description: Whether the user account is active.
+        readOnly: true
+      update_time:
+        type: string
+        format: date-time
+        description: Last modification timestamp.
+        readOnly: true
+      create_time:
+        type: string
+        format: date-time
+        description: Creation timestamp (first SSO login).
+        readOnly: true
+      etag:
+        type: string
+        description: Entity tag for optimistic concurrency control.
+        readOnly: true
+    description: |-
+      User represents a human actor that can log in via SSO.
+      Users are created exclusively through the SSO/OAuth2 flow; this service
+      exposes a read-only view for administration purposes.
+  v1UserIdentity:
+    type: object
+    properties:
+      name:
+        type: string
+        title: |-
+          The resource name of the identity.
+          Format: users/{user}/identities/{identity}
+        readOnly: true
+      uid:
+        type: string
+        description: The UUID of the identity record.
+        readOnly: true
+      provider:
+        type: string
+        description: The OAuth2 provider identifier (e.g. "google", "github", "azure").
+        readOnly: true
+      provider_subject:
+        type: string
+        description: |-
+          The subject identifier as issued by the provider.
+          This is the provider's stable user ID, not a credential.
+        readOnly: true
+      display_name:
+        type: string
+        description: Display name as returned by the provider at last authentication.
+        readOnly: true
+      email:
+        type: string
+        description: E-mail address as returned by the provider at last authentication.
+        readOnly: true
+      last_authenticated_time:
+        type: string
+        format: date-time
+        description: Timestamp of the most recent successful authentication via this identity.
+        readOnly: true
+      create_time:
+        type: string
+        format: date-time
+        description: Timestamp when this identity was first linked.
+        readOnly: true
+    description: |-
+      UserIdentity is a read-only record of an OAuth2 / SSO connection linked to a
+      user.
+  v1UserSettings:
+    type: object
+    properties:
+      name:
+        type: string
+        title: |-
+          The resource name of the user settings.
+          Format: users/{user}/settings
+        readOnly: true
+      locale:
+        type: string
+        description: Preferred locale/language tag (e.g. "de-DE").
+      theme:
+        type: string
+        description: 'Preferred UI theme: "light", "dark", or "system".'
+      update_time:
+        type: string
+        format: date-time
+        description: Last modification timestamp.
+        readOnly: true
+      etag:
+        type: string
+        description: Entity tag for optimistic concurrency control.
+        readOnly: true
+    description: UserSettings holds per-user application preferences.

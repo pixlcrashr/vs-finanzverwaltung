@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package pixlcrashr.vsfv.v1;
+
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
+
+// UserSettings holds per-user application preferences.
+message UserSettings {
+  option (google.api.resource) = {
+    type: "vsfv.pixlcrashr.dev/UserSettings"
+    pattern: "users/{user}/settings"
+    singular: "settings"
+  };
+
+  // The resource name of the user settings.
+  // Format: users/{user}/settings
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Preferred locale/language tag (e.g. "de-DE").
+  string locale = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Preferred UI theme: "light", "dark", or "system".
+  string theme = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Last modification timestamp.
+  google.protobuf.Timestamp update_time = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Entity tag for optimistic concurrency control.
+  string etag = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ── Request / Response messages ──────────────────────────────────────────────
+
+message GetUserSettingsRequest {
+  // The resource name of the user settings.
+  // Format: users/{user}/settings
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/UserSettings"}
+  ];
+}
+
+message UpdateUserSettingsRequest {
+  // The user settings to update.
+  UserSettings settings = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The list of fields to update.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ── Service ───────────────────────────────────────────────────────────────────
+
+// UserSettingsService manages per-user application preferences.
+service UserSettingsService {
+  option (google.api.default_host) = "vsfv.pixlcrashr.dev";
+
+  // Gets the settings for a user.
+  rpc GetUserSettings(GetUserSettingsRequest) returns (UserSettings) {
+    option (google.api.http) = {get: "/v1/{name=users/*/settings}"};
+    option (google.api.method_signature) = "name";
+  }
+
+  // Updates the settings for a user.
+  rpc UpdateUserSettings(UpdateUserSettingsRequest) returns (UserSettings) {
+    option (google.api.http) = {
+      patch: "/v1/{settings.name=users/*/settings}"
+      body: "settings"
+    };
+    option (google.api.method_signature) = "settings,update_mask";
+  }
+}

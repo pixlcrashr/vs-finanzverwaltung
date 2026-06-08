@@ -24,6 +24,8 @@ var BudgetOrderFieldMapper = order.FieldMapper{
 
 // ListBudgetsParams drives the List query.
 type ListBudgetsParams struct {
+	// OrganizationID restricts results to a single organization.
+	OrganizationID uuid.UUID
 	// Cond is an optional abstract condition chain (AND/OR/NOT support).
 	Cond cond.Cond
 	// OrderBy specifies the sort field and direction as SQL expressions.
@@ -66,19 +68,21 @@ func (r *BudgetRepository) List(ctx context.Context, params ListBudgetsParams) (
 		params.Page = 1
 	}
 
+	base := r.db.WithContext(ctx).Table("budgets")
+	if params.OrganizationID != (uuid.UUID{}) {
+		base = base.Where("organization_id = ?", params.OrganizationID)
+	}
+
 	var db *gorm.DB
 
 	// When condition chain is present, use raw GORM for flexible SQL
 	if params.Cond != nil && !params.Cond.IsEmpty() {
-		db = r.db.WithContext(ctx).Table("budgets")
+		db = base
 
 		// Apply abstract condition chain
 		db = cond.Apply(db, params.Cond, budgetColumnMapper)
 	} else {
-		// Use generated query builder for simple filters
-		b := r.q.Budget.WithContext(ctx)
-
-		db = b.UnderlyingDB()
+		db = base
 	}
 
 	// Get total count before pagination

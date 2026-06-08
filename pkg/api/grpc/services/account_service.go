@@ -45,6 +45,15 @@ func (s *accountServiceServer) GetAccount(ctx context.Context, req *gen.GetAccou
 }
 
 func (s *accountServiceServer) ListAccounts(ctx context.Context, req *gen.ListAccountsRequest) (*gen.ListAccountsResponse, error) {
+	var pn gen.OrganizationResourceName
+	if err := pn.UnmarshalString(req.Parent); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid parent")
+	}
+	orgID, err := uuid.Parse(pn.Organization)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid parent")
+	}
+
 	c, err := svcfilter.ParseAccountFilter(req.Filter)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid filter: %v", err)
@@ -58,8 +67,8 @@ func (s *accountServiceServer) ListAccounts(ctx context.Context, req *gen.ListAc
 	pageSize := int(req.PageSize)
 	if pageSize <= 0 {
 		pageSize = 20
-	} else if pageSize > 100 {
-		pageSize = 100
+	} else if pageSize > 500 {
+		pageSize = 500
 	}
 
 	// Parse order_by
@@ -70,10 +79,11 @@ func (s *accountServiceServer) ListAccounts(ctx context.Context, req *gen.ListAc
 	orderExprs, _ := order.Resolve(orderBy, repository.AccountOrderFieldMapper)
 
 	params := repository.ListAccountsParams{
-		Page:     int(offset/int64(pageSize)) + 1,
-		PageSize: pageSize,
-		Cond:     c,
-		OrderBy:  orderExprs,
+		OrganizationID: orgID,
+		Page:           int(offset/int64(pageSize)) + 1,
+		PageSize:       pageSize,
+		Cond:           c,
+		OrderBy:        orderExprs,
 	}
 
 	ms, total, err := s.repo.List(ctx, params)

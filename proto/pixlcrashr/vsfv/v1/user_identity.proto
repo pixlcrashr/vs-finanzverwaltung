@@ -1,0 +1,109 @@
+syntax = "proto3";
+
+package pixlcrashr.vsfv.v1;
+
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/field_info.proto";
+import "google/api/resource.proto";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
+
+// UserIdentity is a read-only record of an OAuth2 / SSO connection linked to a
+// user.
+message UserIdentity {
+  option (google.api.resource) = {
+    type: "vsfv.pixlcrashr.dev/UserIdentity"
+    pattern: "users/{user}/identities/{identity}"
+  };
+
+  // The resource name of the identity.
+  // Format: users/{user}/identities/{identity}
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The UUID of the identity record.
+  string uid = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_info) = {format: UUID4}
+  ];
+
+  // The OAuth2 provider identifier (e.g. "google", "github", "azure").
+  string provider = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The subject identifier as issued by the provider.
+  // This is the provider's stable user ID, not a credential.
+  string provider_subject = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Display name as returned by the provider at last authentication.
+  string display_name = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // E-mail address as returned by the provider at last authentication.
+  string email = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Timestamp of the most recent successful authentication via this identity.
+  google.protobuf.Timestamp last_authenticated_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Timestamp when this identity was first linked.
+  google.protobuf.Timestamp create_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ── Request / Response messages ──────────────────────────────────────────────
+
+message GetUserIdentityRequest {
+  // The resource name of the identity.
+  // Format: users/{user}/identities/{identity}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/UserIdentity"}
+  ];
+}
+
+message ListUserIdentitiesRequest {
+  // The parent user resource name.
+  // Format: users/{user}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/User"}
+  ];
+
+  // Maximum number of identities to return.
+  // If unspecified, at most 20 are returned. Maximum value is 100.
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // A page token from a previous ListUserIdentities call.
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ListUserIdentitiesResponse {
+  // The identities returned.
+  repeated UserIdentity identities = 1;
+
+  // A token to retrieve the next page of results.
+  string next_page_token = 2;
+
+  // Total number of identities.
+  int64 total_size = 3;
+}
+
+// ── Service ───────────────────────────────────────────────────────────────────
+
+// UserIdentityService provides a read-only view of the OAuth2 / SSO
+// connections linked to a user. No credentials are ever returned.
+service UserIdentityService {
+  option (google.api.default_host) = "vsfv.pixlcrashr.dev";
+
+  // Gets a single identity record.
+  rpc GetUserIdentity(GetUserIdentityRequest) returns (UserIdentity) {
+    option (google.api.http) = {get: "/v1/{name=users/*/identities/*}"};
+    option (google.api.method_signature) = "name";
+  }
+
+  // Lists all identity records for a user.
+  rpc ListUserIdentities(ListUserIdentitiesRequest) returns (ListUserIdentitiesResponse) {
+    option (google.api.http) = {get: "/v1/{parent=users/*}/identities"};
+    option (google.api.method_signature) = "parent";
+  }
+}

@@ -23,6 +23,10 @@ type Services struct {
 	TransactionAccountAssignment gen.TransactionAccountAssignmentServiceServer
 	ReportTemplate               gen.ReportTemplateServiceServer
 	Report                       gen.ReportServiceServer
+	User                         gen.UserServiceServer
+	UserSettings                 gen.UserSettingsServiceServer
+	UserIdentity                 gen.UserIdentityServiceServer
+	Group                        gen.GroupServiceServer
 }
 
 // New creates a Services instance wiring all concrete service implementations
@@ -44,5 +48,9 @@ func New(db *gorm.DB) *Services {
 		TransactionAccountAssignment: newTransactionAccountAssignmentServiceServer(repository.NewTransactionAccountAssignmentRepository(db)),
 		ReportTemplate:               newReportTemplateServiceServer(repository.NewReportTemplateRepository(db)),
 		Report:                       newReportServiceServer(repository.NewReportRepository(db)),
+		User:                         &gen.UnimplementedUserServiceServer{},
+		UserSettings:                 &gen.UnimplementedUserSettingsServiceServer{},
+		UserIdentity:                 &gen.UnimplementedUserIdentityServiceServer{},
+		Group:                        &gen.UnimplementedGroupServiceServer{},
 	}
 }

@@ -292,6 +292,51 @@ func local_request_BudgetAccountValueService_DeleteBudgetAccountValue_0(ctx cont
 	return msg, metadata, err
 }
 
+func request_BudgetAccountValueService_BatchUpdateBudgetAccountValues_0(ctx context.Context, marshaler runtime.Marshaler, client BudgetAccountValueServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq BatchUpdateBudgetAccountValuesRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["parent"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
+	}
+	protoReq.Parent, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
+	}
+	msg, err := client.BatchUpdateBudgetAccountValues(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_BudgetAccountValueService_BatchUpdateBudgetAccountValues_0(ctx context.Context, marshaler runtime.Marshaler, server BudgetAccountValueServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq BatchUpdateBudgetAccountValuesRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	val, ok := pathParams["parent"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
+	}
+	protoReq.Parent, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
+	}
+	msg, err := server.BatchUpdateBudgetAccountValues(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 // RegisterBudgetAccountValueServiceHandlerServer registers the http handlers for service BudgetAccountValueService to "mux".
 // UnaryRPC     :call BudgetAccountValueServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
@@ -397,6 +442,26 @@ func RegisterBudgetAccountValueServiceHandlerServer(ctx context.Context, mux *ru
 			return
 		}
 		forward_BudgetAccountValueService_DeleteBudgetAccountValue_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPost, pattern_BudgetAccountValueService_BatchUpdateBudgetAccountValues_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetAccountValueService/BatchUpdateBudgetAccountValues", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*/budgets/*}/accountValues:batchUpdate"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_BudgetAccountValueService_BatchUpdateBudgetAccountValues_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_BudgetAccountValueService_BatchUpdateBudgetAccountValues_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
@@ -523,21 +588,40 @@ func RegisterBudgetAccountValueServiceHandlerClient(ctx context.Context, mux *ru
 		}
 		forward_BudgetAccountValueService_DeleteBudgetAccountValue_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_BudgetAccountValueService_BatchUpdateBudgetAccountValues_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.BudgetAccountValueService/BatchUpdateBudgetAccountValues", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*/budgets/*}/accountValues:batchUpdate"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_BudgetAccountValueService_BatchUpdateBudgetAccountValues_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_BudgetAccountValueService_BatchUpdateBudgetAccountValues_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	return nil
 }
 
 var (
-	pattern_BudgetAccountValueService_GetBudgetAccountValue_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 2, 3, 1, 0, 4, 6, 5, 4}, []string{"v1", "organizations", "budgets", "accountValues", "name"}, ""))
-	pattern_BudgetAccountValueService_ListBudgetAccountValues_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3, 2, 4}, []string{"v1", "organizations", "budgets", "parent", "accountValues"}, ""))
-	pattern_BudgetAccountValueService_CreateBudgetAccountValue_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3, 2, 4}, []string{"v1", "organizations", "budgets", "parent", "accountValues"}, ""))
-	pattern_BudgetAccountValueService_UpdateBudgetAccountValue_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 2, 3, 1, 0, 4, 6, 5, 4}, []string{"v1", "organizations", "budgets", "accountValues", "account_value.name"}, ""))
-	pattern_BudgetAccountValueService_DeleteBudgetAccountValue_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 2, 3, 1, 0, 4, 6, 5, 4}, []string{"v1", "organizations", "budgets", "accountValues", "name"}, ""))
+	pattern_BudgetAccountValueService_GetBudgetAccountValue_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 2, 3, 1, 0, 4, 6, 5, 4}, []string{"v1", "organizations", "budgets", "accountValues", "name"}, ""))
+	pattern_BudgetAccountValueService_ListBudgetAccountValues_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3, 2, 4}, []string{"v1", "organizations", "budgets", "parent", "accountValues"}, ""))
+	pattern_BudgetAccountValueService_CreateBudgetAccountValue_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3, 2, 4}, []string{"v1", "organizations", "budgets", "parent", "accountValues"}, ""))
+	pattern_BudgetAccountValueService_UpdateBudgetAccountValue_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 2, 3, 1, 0, 4, 6, 5, 4}, []string{"v1", "organizations", "budgets", "accountValues", "account_value.name"}, ""))
+	pattern_BudgetAccountValueService_DeleteBudgetAccountValue_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 2, 3, 1, 0, 4, 6, 5, 4}, []string{"v1", "organizations", "budgets", "accountValues", "name"}, ""))
+	pattern_BudgetAccountValueService_BatchUpdateBudgetAccountValues_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3, 2, 4}, []string{"v1", "organizations", "budgets", "parent", "accountValues"}, "batchUpdate"))
 )
 
 var (
-	forward_BudgetAccountValueService_GetBudgetAccountValue_0    = runtime.ForwardResponseMessage
-	forward_BudgetAccountValueService_ListBudgetAccountValues_0  = runtime.ForwardResponseMessage
-	forward_BudgetAccountValueService_CreateBudgetAccountValue_0 = runtime.ForwardResponseMessage
-	forward_BudgetAccountValueService_UpdateBudgetAccountValue_0 = runtime.ForwardResponseMessage
-	forward_BudgetAccountValueService_DeleteBudgetAccountValue_0 = runtime.ForwardResponseMessage
+	forward_BudgetAccountValueService_GetBudgetAccountValue_0          = runtime.ForwardResponseMessage
+	forward_BudgetAccountValueService_ListBudgetAccountValues_0        = runtime.ForwardResponseMessage
+	forward_BudgetAccountValueService_CreateBudgetAccountValue_0       = runtime.ForwardResponseMessage
+	forward_BudgetAccountValueService_UpdateBudgetAccountValue_0       = runtime.ForwardResponseMessage
+	forward_BudgetAccountValueService_DeleteBudgetAccountValue_0       = runtime.ForwardResponseMessage
+	forward_BudgetAccountValueService_BatchUpdateBudgetAccountValues_0 = runtime.ForwardResponseMessage
 )

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 
+	"github.com/cockroachdb/apd/v3"
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
@@ -20,11 +21,12 @@ var BudgetAccountValueOrderFieldMapper = order.FieldMapper{
 
 // ListBudgetAccountValuesParams drives the List query.
 type ListBudgetAccountValuesParams struct {
-	BudgetID uuid.UUID
-	Cond     cond.Cond
-	OrderBy  []order.Expr
-	Page     int
-	PageSize int
+	OrganizationID uuid.UUID
+	BudgetID       uuid.UUID
+	Cond           cond.Cond
+	OrderBy        []order.Expr
+	Page           int
+	PageSize       int
 }
 
 func budgetAccountValueColumnMapper(field string) (string, bool) {
@@ -57,6 +59,9 @@ func (r *BudgetAccountValueRepository) List(ctx context.Context, params ListBudg
 
 	db := r.db.WithContext(ctx).Table("budget_account_values").
 		Where("budget_id = ?", params.BudgetID)
+	if params.OrganizationID != (uuid.UUID{}) {
+		db = db.Where("organization_id = ?", params.OrganizationID)
+	}
 
 	db = cond.Apply(db, params.Cond, budgetAccountValueColumnMapper)
 
@@ -108,4 +113,43 @@ func (r *BudgetAccountValueRepository) Update(ctx context.Context, m *model.Budg
 // Delete removes the budget account value with the given ID.
 func (r *BudgetAccountValueRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return r.db.WithContext(ctx).Table("budget_account_values").Where("id = ?", id).Delete(&model.BudgetAccountValue{}).Error
+}
+
+// UpsertEntry carries the data for a single BatchUpsert entry.
+type UpsertEntry struct {
+	AccountID uuid.UUID
+	Value     apd.Decimal
+}
+
+// BatchUpsert creates or updates account values for the given org+budget.
+// For each entry, if a row with (organization_id, budget_id, account_id) already
+// exists its value is updated; otherwise a new row is inserted.
+func (r *BudgetAccountValueRepository) BatchUpsert(ctx context.Context, orgID, budgetID uuid.UUID, entries []UpsertEntry) ([]*model.BudgetAccountValue, error) {
+	var results []*model.BudgetAccountValue
+	for _, e := range entries {
+		var existing model.BudgetAccountValue
+		err := r.db.WithContext(ctx).
+			Table("budget_account_values").
+			Where("organization_id = ? AND budget_id = ? AND account_id = ?", orgID, budgetID, e.AccountID).
+			First(&existing).Error
+		if err == nil {
+			existing.Value = e.Value
+			if err := r.db.WithContext(ctx).Save(&existing).Error; err != nil {
+				return nil, err
+			}
+			results = append(results, &existing)
+		} else {
+			m := &model.BudgetAccountValue{
+				OrganizationID: orgID,
+				BudgetID:       budgetID,
+				AccountID:      e.AccountID,
+				Value:          e.Value,
+			}
+			if err := r.db.WithContext(ctx).Create(m).Error; err != nil {
+				return nil, err
+			}
+			results = append(results, m)
+		}
+	}
+	return results, nil
 }

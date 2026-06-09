@@ -8,11 +8,12 @@ import { AccountListDataService } from '../../../app/routes/accounts/account-lis
 export class MockAccountListDataService extends AccountListDataService {
   private accounts: Account[] = this.generateAccounts();
 
-  getAccounts(): Observable<Account[]> {
+  listAccounts(organizationId: string): Observable<Account[]> {
     return of([...this.accounts]).pipe(delay(300));
   }
 
   createAccount(
+    organizationId: string,
     name: string,
     code: string,
     description: string,
@@ -42,12 +43,12 @@ export class MockAccountListDataService extends AccountListDataService {
     return of(newAccount).pipe(delay(300));
   }
 
-  deleteAccount(id: string): Observable<void> {
+  deleteAccount(organizationId: string, id: string): Observable<void> {
     this.accounts = this.removeAccount(this.accounts, id);
     return of(undefined).pipe(delay(300));
   }
 
-  archiveAccount(id: string): Observable<void> {
+  archiveAccount(organizationId: string, id: string): Observable<void> {
     const account = this.findAccount(this.accounts, id);
     if (account) {
       account.isArchived = true;
@@ -55,7 +56,7 @@ export class MockAccountListDataService extends AccountListDataService {
     return of(undefined).pipe(delay(300));
   }
 
-  restoreAccount(id: string): Observable<void> {
+  restoreAccount(organizationId: string, id: string): Observable<void> {
     const account = this.findAccount(this.accounts, id);
     if (account) {
       account.isArchived = false;

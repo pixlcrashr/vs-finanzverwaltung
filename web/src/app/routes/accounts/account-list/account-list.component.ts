@@ -20,6 +20,7 @@ import {
 } from '../../../shared/components';
 import {
   CreateAccountDialogComponent,
+  CreateAccountDialogInput,
   CreateAccountDialogOutput,
 } from '../../../shared/dialogs/create-account-dialog/create-account-dialog.component';
 import { Account } from '../../../shared/models';
@@ -177,7 +178,7 @@ export class AccountListComponent implements OnInit {
   }
 
   private loadAccounts(): void {
-    this.dataService.getAccounts().subscribe({
+    this.dataService.listAccounts(this.orgId).subscribe({
       next: (accounts) => {
         this.accounts.set(accounts);
         const ids = new Set<string>();
@@ -202,11 +203,12 @@ export class AccountListComponent implements OnInit {
   }
 
   openCreateDialog(): void {
-    const dialogRef = this.dialog.open<CreateAccountDialogOutput>(
+    const dialogRef = this.dialog.open<CreateAccountDialogOutput, CreateAccountDialogInput>(
       CreateAccountDialogComponent,
       {
         backdropClass: 'cdk-overlay-dark-backdrop',
         width: '500px',
+        data: { organizationId: this.orgId },
       }
     );
 
@@ -251,7 +253,7 @@ export class AccountListComponent implements OnInit {
     if (this.isMutatingAccount(account.id)) return;
 
     this.archivingAccountId.set(account.id);
-    forkJoin([this.dataService.archiveAccount(account.id), timer(500)]).subscribe({
+    forkJoin([this.dataService.archiveAccount(this.orgId, account.id), timer(500)]).subscribe({
       next: () => {
         this.archivingAccountId.set(null);
         this.loadAccounts();
@@ -268,7 +270,7 @@ export class AccountListComponent implements OnInit {
 
     const archivedAncestorIds = this.findArchivedAncestors(account.id, this.accounts()) ?? [];
     const restoreCalls = [account.id, ...archivedAncestorIds]
-      .map((id) => this.dataService.restoreAccount(id));
+      .map((id) => this.dataService.restoreAccount(this.orgId, id));
 
     this.restoringAccountId.set(account.id);
     forkJoin([concat(...restoreCalls), timer(500)]).subscribe({

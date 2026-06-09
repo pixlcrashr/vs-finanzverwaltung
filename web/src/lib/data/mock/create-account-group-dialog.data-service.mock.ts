@@ -8,7 +8,7 @@ import {
 
 @Injectable()
 export class MockCreateAccountGroupDialogDataService extends CreateAccountGroupDialogDataService {
-  createAccountGroup(name: string, description: string): Observable<CreatedAccountGroup> {
+  createAccountGroup(organizationId: string, name: string, description: string): Observable<CreatedAccountGroup> {
     return of({
       id: faker.string.uuid(),
       name,

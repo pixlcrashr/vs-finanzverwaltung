@@ -9,5 +9,5 @@ export interface AddReceiptParams {
 }
 
 export abstract class AddReceiptDialogDataService {
-  abstract uploadReceipt(params: AddReceiptParams): Observable<InvoiceItem>;
+  abstract uploadReceipt(organizationId: string, params: AddReceiptParams): Observable<InvoiceItem>;
 }

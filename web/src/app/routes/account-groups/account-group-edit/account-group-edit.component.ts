@@ -300,7 +300,7 @@ export class AccountGroupEditComponent implements OnInit, OnDestroy {
   }
 
   private loadGroup(id: string): void {
-    this.dataService.getGroup(id).subscribe({
+    this.dataService.getGroup(this.orgId, id).subscribe({
       next: (group) => {
         this.group.set(group);
         this.groupForm.patchValue({
@@ -324,7 +324,7 @@ export class AccountGroupEditComponent implements OnInit, OnDestroy {
 
   private loadAccountsWithOperations(id: string): void {
     this.loadingAccounts.set(true);
-    this.dataService.getAllAccountsWithOperations(id).subscribe({
+    this.dataService.getAllAccountsWithOperations(this.orgId, id).subscribe({
       next: (accounts) => {
         this.editService.setAccountsWithOperations(accounts);
         this.loadingAccounts.set(false);
@@ -337,7 +337,7 @@ export class AccountGroupEditComponent implements OnInit, OnDestroy {
   }
 
   onOperationChange(accountId: string, operation: AccountGroupOperation): void {
-    this.dataService.updateAccountOperation(this.groupId, accountId, operation).subscribe({
+    this.dataService.updateAccountOperation(this.orgId, this.groupId, accountId, operation).subscribe({
       next: () => {
         // Reload accounts to update the display
         this.loadAccountsWithOperations(this.groupId);
@@ -354,7 +354,7 @@ export class AccountGroupEditComponent implements OnInit, OnDestroy {
     this.saving.set(true);
     const { name, description } = this.groupForm.value;
 
-    this.dataService.updateGroup(this.groupId, name, description).subscribe({
+    this.dataService.updateGroup(this.orgId, this.groupId, name, description).subscribe({
       next: () => {
         this.saving.set(false);
         this.groupForm.markAsPristine();
@@ -385,7 +385,7 @@ export class AccountGroupEditComponent implements OnInit, OnDestroy {
           groupName: group.name,
           onDelete: async (groupId: string) => {
             await new Promise<void>((resolve, reject) => {
-              this.dataService.deleteGroup(groupId).subscribe({
+              this.dataService.deleteGroup(this.orgId, groupId).subscribe({
                 next: () => resolve(),
                 error: (err) => reject(err),
               });

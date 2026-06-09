@@ -265,6 +265,8 @@ export class TransactionEditComponent implements OnInit {
   private readonly dataService = inject(TransactionEditDataService);
   private readonly notifications = inject(NotificationService);
 
+  private orgId = '';
+
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly adding = signal(false);
@@ -324,7 +326,8 @@ export class TransactionEditComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.breadcrumbs[0].path = `/organizations/${this.getOrgId()}/journal`;
+    this.orgId = this.getOrgId();
+    this.breadcrumbs[0].path = `/organizations/${this.orgId}/journal`;
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.loadTransaction(id);
@@ -333,7 +336,7 @@ export class TransactionEditComponent implements OnInit {
   }
 
   private loadTransaction(id: string): void {
-    this.dataService.getTransaction(id).subscribe({
+    this.dataService.getTransaction(this.orgId, id).subscribe({
       next: (transaction) => {
         this.transaction.set(transaction);
         this.description = transaction.description;
@@ -347,7 +350,7 @@ export class TransactionEditComponent implements OnInit {
   }
 
   private loadAvailableAccounts(): void {
-    this.dataService.getAvailableAccounts().subscribe({
+    this.dataService.listAvailableAccounts(this.orgId).subscribe({
       next: (accounts) => {
         this.availableAccounts.set(accounts);
       },
@@ -359,7 +362,7 @@ export class TransactionEditComponent implements OnInit {
     if (!tx) return;
 
     this.saving.set(true);
-    this.dataService.updateTransaction(tx.id, this.description).subscribe({
+    this.dataService.updateTransaction(this.orgId, tx.id, this.description).subscribe({
       next: (updated) => {
         this.transaction.set(updated);
         this.saving.set(false);
@@ -378,10 +381,10 @@ export class TransactionEditComponent implements OnInit {
     this.adding.set(true);
     const value = this.assignmentValue.toFixed(2);
 
-    this.dataService.addAssignment(tx.id, this.selectedAccountId, value).subscribe({
+    this.dataService.addAssignment(this.orgId, tx.id, this.selectedAccountId, value).subscribe({
       next: () => {
         // Reload transaction to get updated assignments
-        this.dataService.getTransaction(tx.id).subscribe({
+        this.dataService.getTransaction(this.orgId, tx.id).subscribe({
           next: (updated) => {
             this.transaction.set(updated);
             this.selectedAccountId = '';
@@ -402,10 +405,10 @@ export class TransactionEditComponent implements OnInit {
     if (!tx) return;
 
     this.removing.set(true);
-    this.dataService.removeAssignment(tx.id, assignment.id).subscribe({
+    this.dataService.removeAssignment(this.orgId, tx.id, assignment.id).subscribe({
       next: () => {
         // Reload transaction to get updated assignments
-        this.dataService.getTransaction(tx.id).subscribe({
+        this.dataService.getTransaction(this.orgId, tx.id).subscribe({
           next: (updated) => {
             this.transaction.set(updated);
             this.removing.set(false);

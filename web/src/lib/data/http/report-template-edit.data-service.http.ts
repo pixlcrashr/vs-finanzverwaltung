@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { ReportTemplateServiceService } from '../../api/services/report-template-service.service';
-import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import { ReportTemplate } from '../../../app/shared/models';
 import {
   ReportTemplateEditDataService,
@@ -12,21 +11,16 @@ import { mapApiReportTemplate } from './_mappers';
 @Injectable()
 export class HttpReportTemplateEditDataService extends ReportTemplateEditDataService {
   private readonly svc = inject(ReportTemplateServiceService);
-  private readonly orgSvc = inject(CurrentOrganizationService);
 
-  private templateName(id: string): string {
-    return `organizations/${this.orgSvc.currentOrganization()!.id}/reportTemplates/${id}`;
-  }
-
-  getTemplate(id: string): Observable<ReportTemplate> {
-    return this.svc.ReportTemplateServiceGetReportTemplate(this.templateName(id)).pipe(
+  getTemplate(organizationId: string, id: string): Observable<ReportTemplate> {
+    return this.svc.ReportTemplateServiceGetReportTemplate(`organizations/${organizationId}/reportTemplates/${id}`).pipe(
       map(mapApiReportTemplate),
     );
   }
 
-  updateTemplate(id: string, input: UpdateTemplateInput): Observable<ReportTemplate> {
+  updateTemplate(organizationId: string, id: string, input: UpdateTemplateInput): Observable<ReportTemplate> {
     return this.svc.ReportTemplateServiceUpdateReportTemplate({
-      reportTemplateName: this.templateName(id),
+      reportTemplateName: `organizations/${organizationId}/reportTemplates/${id}`,
       reportTemplate: { display_name: input.name, template: input.template },
     }).pipe(map(mapApiReportTemplate));
   }

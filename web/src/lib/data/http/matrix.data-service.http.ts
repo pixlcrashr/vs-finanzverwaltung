@@ -7,7 +7,6 @@ import { BudgetServiceService } from '../../api/services/budget-service.service'
 import { BudgetRevisionServiceService } from '../../api/services/budget-revision-service.service';
 import { BudgetRevisionAccountValueServiceService } from '../../api/services/budget-revision-account-value-service.service';
 import { BudgetAccountValueServiceService } from '../../api/services/budget-account-value-service.service';
-import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import { Account, Budget } from '../../../app/routes/matrix/matrix-data-provider.service';
 import {
   MatrixDataService,
@@ -24,18 +23,13 @@ export class HttpMatrixDataService extends MatrixDataService {
   private readonly revisionSvc = inject(BudgetRevisionServiceService);
   private readonly revisionValueSvc = inject(BudgetRevisionAccountValueServiceService);
   private readonly budgetValueSvc = inject(BudgetAccountValueServiceService);
-  private readonly orgSvc = inject(CurrentOrganizationService);
 
-  private get parent(): string {
-    return `organizations/${this.orgSvc.currentOrganization()!.id}`;
+  private budgetName(organizationId: string, budgetId: string): string {
+    return `organizations/${organizationId}/budgets/${budgetId}`;
   }
 
-  private budgetName(budgetId: string): string {
-    return `${this.parent}/budgets/${budgetId}`;
-  }
-
-  getBudgets(): Observable<Budget[]> {
-    return this.budgetSvc.BudgetServiceListBudgets({ parent: this.parent, pageSize: 100 }).pipe(
+  listBudgets(organizationId: string): Observable<Budget[]> {
+    return this.budgetSvc.BudgetServiceListBudgets({ parent: `organizations/${organizationId}`, pageSize: 100 }).pipe(
       switchMap((resp) => {
         const budgets = resp.budgets ?? [];
         if (budgets.length === 0) {
@@ -44,7 +38,7 @@ export class HttpMatrixDataService extends MatrixDataService {
         return forkJoin(
           budgets.map((b) =>
             this.revisionSvc.BudgetRevisionServiceListBudgetRevisions({
-              parent: this.budgetName(b.uid ?? ''),
+              parent: this.budgetName(organizationId, b.uid ?? ''),
               pageSize: 100,
               orderBy: 'create_time asc',
             }).pipe(
@@ -67,9 +61,9 @@ export class HttpMatrixDataService extends MatrixDataService {
     );
   }
 
-  getAccounts(): Observable<Account[]> {
+  listAccounts(organizationId: string): Observable<Account[]> {
     return this.accountSvc
-      .AccountServiceListAccounts({ parent: this.parent, pageSize: 500, showDeleted: true })
+      .AccountServiceListAccounts({ parent: `organizations/${organizationId}`, pageSize: 500, showDeleted: true })
       .pipe(
         map((resp) => {
           const flat = resp.accounts ?? [];
@@ -102,8 +96,8 @@ export class HttpMatrixDataService extends MatrixDataService {
       );
   }
 
-  getMatrixTargetValues(): Observable<MatrixTargetValues> {
-    return this.budgetSvc.BudgetServiceListBudgets({ parent: this.parent, pageSize: 100 }).pipe(
+  listMatrixTargetValues(organizationId: string): Observable<MatrixTargetValues> {
+    return this.budgetSvc.BudgetServiceListBudgets({ parent: `organizations/${organizationId}`, pageSize: 100 }).pipe(
       switchMap((resp) => {
         const budgets = resp.budgets ?? [];
         if (budgets.length === 0) {
@@ -112,7 +106,7 @@ export class HttpMatrixDataService extends MatrixDataService {
         return forkJoin(
           budgets.map((b) =>
             this.revisionSvc.BudgetRevisionServiceListBudgetRevisions({
-              parent: this.budgetName(b.uid ?? ''),
+              parent: this.budgetName(organizationId, b.uid ?? ''),
               pageSize: 100,
               orderBy: 'create_time asc',
             }).pipe(
@@ -125,7 +119,7 @@ export class HttpMatrixDataService extends MatrixDataService {
                   revisions.map((r) =>
                     this.revisionValueSvc
                       .BudgetRevisionAccountValueServiceListBudgetRevisionAccountValues({
-                        parent1: `${this.budgetName(b.uid ?? '')}/revisions/${r.uid ?? ''}`,
+                        parent1: `${this.budgetName(organizationId, b.uid ?? '')}/revisions/${r.uid ?? ''}`,
                         pageSize: 500,
                       })
                       .pipe(
@@ -156,8 +150,8 @@ export class HttpMatrixDataService extends MatrixDataService {
     );
   }
 
-  getMatrixActualValues(): Observable<MatrixActualValues> {
-    return this.budgetSvc.BudgetServiceListBudgets({ parent: this.parent, pageSize: 100 }).pipe(
+  listMatrixActualValues(organizationId: string): Observable<MatrixActualValues> {
+    return this.budgetSvc.BudgetServiceListBudgets({ parent: `organizations/${organizationId}`, pageSize: 100 }).pipe(
       switchMap((resp) => {
         const budgets = resp.budgets ?? [];
         if (budgets.length === 0) {
@@ -167,7 +161,7 @@ export class HttpMatrixDataService extends MatrixDataService {
           budgets.map((b) =>
             this.budgetValueSvc
               .BudgetAccountValueServiceListBudgetAccountValues({
-                parent: this.budgetName(b.uid ?? ''),
+                parent: this.budgetName(organizationId, b.uid ?? ''),
                 pageSize: 500,
               })
               .pipe(
@@ -196,8 +190,8 @@ export class HttpMatrixDataService extends MatrixDataService {
     );
   }
 
-  getMatrixEditableValues(): Observable<MatrixEditableValuesByBudget[]> {
-    return this.budgetSvc.BudgetServiceListBudgets({ parent: this.parent, pageSize: 100 }).pipe(
+  listMatrixEditableValues(organizationId: string): Observable<MatrixEditableValuesByBudget[]> {
+    return this.budgetSvc.BudgetServiceListBudgets({ parent: `organizations/${organizationId}`, pageSize: 100 }).pipe(
       switchMap((resp) => {
         const budgets = resp.budgets ?? [];
         if (budgets.length === 0) {
@@ -207,7 +201,7 @@ export class HttpMatrixDataService extends MatrixDataService {
           budgets.map((b) =>
             this.budgetValueSvc
               .BudgetAccountValueServiceListBudgetAccountValues({
-                parent: this.budgetName(b.uid ?? ''),
+                parent: this.budgetName(organizationId, b.uid ?? ''),
                 pageSize: 500,
               })
               .pipe(
@@ -227,7 +221,7 @@ export class HttpMatrixDataService extends MatrixDataService {
     );
   }
 
-  updateMatrixBudgetValues(updates: MatrixBudgetValueUpdate[]): Observable<void> {
+  updateMatrixBudgetValues(organizationId: string, updates: MatrixBudgetValueUpdate[]): Observable<void> {
     if (updates.length === 0) {
       return of(undefined);
     }
@@ -242,11 +236,11 @@ export class HttpMatrixDataService extends MatrixDataService {
     return forkJoin(
       Array.from(byBudget.entries()).map(([budgetId, budgetUpdates]) =>
         this.budgetValueSvc.BudgetAccountValueServiceBatchUpdateBudgetAccountValues({
-          parent: this.budgetName(budgetId),
+          parent: this.budgetName(organizationId, budgetId),
           body: {
             requests: budgetUpdates.map((u) => ({
               account_value: {
-                name: `${this.budgetName(budgetId)}/accountValues/${u.accountId}`,
+                name: `${this.budgetName(organizationId, budgetId)}/accountValues/${u.accountId}`,
                 account_id: u.accountId,
                 value: { value: u.value.toString() },
               },

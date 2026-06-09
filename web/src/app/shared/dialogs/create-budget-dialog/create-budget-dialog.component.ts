@@ -4,10 +4,14 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { DialogRef } from '@angular/cdk/dialog';
+import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonComponent } from '../../components';
 import { CreateBudgetDialogDataService } from './create-budget-dialog.data-service';
+
+export interface CreateBudgetDialogInput {
+  organizationId: string;
+}
 
 export interface CreatedBudget {
   id: string;
@@ -117,6 +121,7 @@ export class CreateBudgetDialogComponent {
   private readonly dialogRef = inject(DialogRef<CreateBudgetDialogOutput>);
   private readonly dataService = inject(CreateBudgetDialogDataService);
   private readonly fb = inject(FormBuilder);
+  readonly data = inject<CreateBudgetDialogInput>(DIALOG_DATA);
 
   readonly creating = signal(false);
 
@@ -150,7 +155,7 @@ export class CreateBudgetDialogComponent {
     const { name, description, startDate, endDate } = this.form.value;
 
     this.dataService
-      .createBudget(name, description || '', new Date(startDate), new Date(endDate))
+      .createBudget(this.data.organizationId, name, description || '', new Date(startDate), new Date(endDate))
       .subscribe({
         next: (budget) => {
           this.creating.set(false);

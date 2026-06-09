@@ -7,6 +7,6 @@ export interface ReportContent {
 }
 
 export abstract class ReportViewDataService {
-  abstract getReport(id: string): Observable<ReportContent>;
-  abstract downloadPdf(id: string): Observable<Blob>;
+  abstract getReport(organizationId: string, id: string): Observable<ReportContent>;
+  abstract downloadPdf(organizationId: string, id: string): Observable<Blob>;
 }

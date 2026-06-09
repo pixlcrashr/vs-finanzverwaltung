@@ -4,7 +4,6 @@ import { AccountGroupServiceService } from '../../api/services/account-group-ser
 import { AccountGroupAssignmentServiceService } from '../../api/services/account-group-assignment-service.service';
 import { AccountServiceService } from '../../api/services/account-service.service';
 import { BudgetServiceService } from '../../api/services/budget-service.service';
-import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import { AccountGroupStats, Budget, BudgetTag } from '../../../app/shared/models';
 import { AccountGroupStatsDataService } from '../../../app/routes/account-groups/account-group-stats/account-group-stats.data-service';
 import { mapApiAccountGroupAssignment, mapApiBudget } from './_mappers';
@@ -15,33 +14,28 @@ export class HttpAccountGroupStatsDataService extends AccountGroupStatsDataServi
   private readonly assignmentSvc = inject(AccountGroupAssignmentServiceService);
   private readonly accountSvc = inject(AccountServiceService);
   private readonly budgetSvc = inject(BudgetServiceService);
-  private readonly orgSvc = inject(CurrentOrganizationService);
 
-  private get parent(): string {
-    return `organizations/${this.orgSvc.currentOrganization()!.id}`;
+  private groupName(organizationId: string, uid: string): string {
+    return `organizations/${organizationId}/accountGroups/${uid}`;
   }
 
-  private groupName(uid: string): string {
-    return `${this.parent}/accountGroups/${uid}`;
-  }
-
-  getBudgets(): Observable<Budget[]> {
-    return this.budgetSvc.BudgetServiceListBudgets({ parent: this.parent, pageSize: 100 }).pipe(
+  listBudgets(organizationId: string): Observable<Budget[]> {
+    return this.budgetSvc.BudgetServiceListBudgets({ parent: `organizations/${organizationId}`, pageSize: 100 }).pipe(
       map((resp) => (resp.budgets ?? []).map(mapApiBudget)),
     );
   }
 
-  getBudgetTags(_budgetId: string): Observable<BudgetTag[]> {
-    // TODO: No generated API endpoint for budget tags listing.
-    return throwError(() => new Error('Budget tags API is not yet implemented.'));
+  listBudgetRevisions(_organizationId: string, _budgetId: string): Observable<BudgetTag[]> {
+    // TODO: No generated API endpoint for budget revision listing.
+    return throwError(() => new Error('Budget revision API is not yet implemented.'));
   }
 
-  getGroupStats(groupId: string, _budgetId: string): Observable<AccountGroupStats> {
-    const groupName = this.groupName(groupId);
+  getGroupStats(organizationId: string, groupId: string, _budgetId: string): Observable<AccountGroupStats> {
+    const groupName = this.groupName(organizationId, groupId);
     return combineLatest([
       this.groupSvc.AccountGroupServiceGetAccountGroup(groupName),
       this.assignmentSvc.AccountGroupAssignmentServiceListAccountGroupAssignments({ parent: groupName, pageSize: 100 }),
-      this.accountSvc.AccountServiceListAccounts({ parent: this.parent, pageSize: 100, showDeleted: false }),
+      this.accountSvc.AccountServiceListAccounts({ parent: `organizations/${organizationId}`, pageSize: 100, showDeleted: false }),
     ]).pipe(
       map(([group, assignmentsResp, accountsResp]) => {
         const accountsMap = new Map(
@@ -67,8 +61,8 @@ export class HttpAccountGroupStatsDataService extends AccountGroupStatsDataServi
     );
   }
 
-  getGroupStatsByTag(_groupId: string, _budgetId: string, _tagId: string): Observable<AccountGroupStats> {
-    // TODO: No generated API endpoint for tag-specific stats.
-    return throwError(() => new Error('Tag-specific stats API is not yet implemented.'));
+  getGroupStatsByRevision(_organizationId: string, _groupId: string, _budgetId: string, _budgetRevisionId: string): Observable<AccountGroupStats> {
+    // TODO: No generated API endpoint for revision-specific stats.
+    return throwError(() => new Error('Revision-specific stats API is not yet implemented.'));
   }
 }

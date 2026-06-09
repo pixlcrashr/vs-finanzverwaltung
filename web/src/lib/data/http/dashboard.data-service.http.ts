@@ -3,7 +3,6 @@ import { Observable, combineLatest, map } from 'rxjs';
 import { BudgetServiceService } from '../../api/services/budget-service.service';
 import { AccountServiceService } from '../../api/services/account-service.service';
 import { TransactionServiceService } from '../../api/services/transaction-service.service';
-import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import {
   DashboardDataService,
   DashboardStats,
@@ -14,17 +13,13 @@ export class HttpDashboardDataService extends DashboardDataService {
   private readonly budgetSvc = inject(BudgetServiceService);
   private readonly accountSvc = inject(AccountServiceService);
   private readonly txnSvc = inject(TransactionServiceService);
-  private readonly orgSvc = inject(CurrentOrganizationService);
 
-  private get parent(): string {
-    return `organizations/${this.orgSvc.currentOrganization()!.id}`;
-  }
-
-  getStats(): Observable<DashboardStats> {
+  getStats(organizationId: string): Observable<DashboardStats> {
+    const parent = `organizations/${organizationId}`;
     return combineLatest([
-      this.budgetSvc.BudgetServiceListBudgets({ parent: this.parent, pageSize: 100 }),
-      this.accountSvc.AccountServiceListAccounts({ parent: this.parent, pageSize: 100, showDeleted: true }),
-      this.txnSvc.TransactionServiceListTransactions({ parent: this.parent, pageSize: 1 }),
+      this.budgetSvc.BudgetServiceListBudgets({ parent, pageSize: 100 }),
+      this.accountSvc.AccountServiceListAccounts({ parent, pageSize: 100, showDeleted: true }),
+      this.txnSvc.TransactionServiceListTransactions({ parent, pageSize: 1 }),
     ]).pipe(
       map(([budgetsResp, accountsResp, txnResp]) => {
         const budgets = budgetsResp.budgets ?? [];

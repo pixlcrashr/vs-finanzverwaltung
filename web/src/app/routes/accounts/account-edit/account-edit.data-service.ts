@@ -7,12 +7,13 @@ export interface AccountDetails extends Account {
 }
 
 export abstract class AccountEditDataService {
-  abstract getAccount(id: string): Observable<AccountDetails>;
+  abstract getAccount(organizationId: string, accountId: string): Observable<AccountDetails>;
   abstract updateAccount(
-    id: string,
+    organizationId: string,
+    accountId: string,
     name: string,
     code: string,
     description: string
   ): Observable<AccountDetails>;
-  abstract getParentAccounts(): Observable<Account[]>;
+  abstract listParentAccounts(organizationId: string): Observable<Account[]>;
 }

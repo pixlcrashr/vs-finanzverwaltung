@@ -112,7 +112,7 @@ export class ReportViewComponent implements OnInit {
   }
 
   private loadReport(): void {
-    this.dataService.getReport(this.reportId).subscribe({
+    this.dataService.getReport(this.orgId, this.reportId).subscribe({
       next: ({ report, htmlContent }) => {
         this.report.set(report);
         this.htmlContent.set(this.sanitizer.bypassSecurityTrustHtml(htmlContent));
@@ -131,7 +131,7 @@ export class ReportViewComponent implements OnInit {
 
   downloadPdf(): void {
     this.downloading.set(true);
-    this.dataService.downloadPdf(this.reportId).subscribe({
+    this.dataService.downloadPdf(this.orgId, this.reportId).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');

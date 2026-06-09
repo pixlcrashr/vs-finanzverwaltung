@@ -51,8 +51,8 @@ export interface ImportSingleTransactionRequest {
 }
 
 export abstract class JournalImportDataService {
-  abstract getImportSources(): Observable<ImportSourceOption[]>;
-  abstract getAvailableAccounts(): Observable<AccountOption[]>;
-  abstract uploadFile(sourceId: string, type: JournalImportType, file: File): Observable<UploadResult>;
-  abstract importTransaction(request: ImportSingleTransactionRequest): Observable<{ success: boolean }>;
+  abstract getImportSources(organizationId: string): Observable<ImportSourceOption[]>;
+  abstract getAvailableAccounts(organizationId: string): Observable<AccountOption[]>;
+  abstract uploadFile(organizationId: string, sourceId: string, type: JournalImportType, file: File): Observable<UploadResult>;
+  abstract importTransaction(organizationId: string, request: ImportSingleTransactionRequest): Observable<{ success: boolean }>;
 }

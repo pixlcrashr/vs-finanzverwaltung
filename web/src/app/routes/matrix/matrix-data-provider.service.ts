@@ -110,13 +110,13 @@ export class MatrixDataProviderService {
     return actualValuesByBudgetAccount.get(this.getBudgetAccountKey(budgetId, accountId)) ?? new Decimal(0);
   }
 
-  getMatrixData(): Observable<MatrixData> {
+  getMatrixData(organizationId: string): Observable<MatrixData> {
     return forkJoin([
-      this.matrixDataService.getBudgets(),
-      this.matrixDataService.getAccounts(),
-      this.matrixDataService.getMatrixTargetValues(),
-      this.matrixDataService.getMatrixActualValues(),
-      this.matrixDataService.getMatrixEditableValues()
+      this.matrixDataService.listBudgets(organizationId),
+      this.matrixDataService.listAccounts(organizationId),
+      this.matrixDataService.listMatrixTargetValues(organizationId),
+      this.matrixDataService.listMatrixActualValues(organizationId),
+      this.matrixDataService.listMatrixEditableValues(organizationId)
     ]).pipe(
       map(([budgets, accounts, targetValues, actualValues, editableValuesByBudget]) => {
         const accountById = new Map(accounts.map(account => [account.id, account]));

@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { AccountServiceService } from '../../api/services/account-service.service';
-import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import { CreateAccountDialogDataService } from '../../../app/shared/dialogs/create-account-dialog/create-account-dialog.data-service';
 import {
   CreatedAccount,
@@ -18,14 +17,9 @@ interface FlatAccount {
 @Injectable()
 export class HttpCreateAccountDialogDataService extends CreateAccountDialogDataService {
   private readonly svc = inject(AccountServiceService);
-  private readonly orgSvc = inject(CurrentOrganizationService);
 
-  private get parent(): string {
-    return `organizations/${this.orgSvc.currentOrganization()!.id}`;
-  }
-
-  getParentAccounts(): Observable<ParentAccountOption[]> {
-    return this.svc.AccountServiceListAccounts({ parent: this.parent, pageSize: 1000, showDeleted: false }).pipe(
+  listParentAccounts(organizationId: string): Observable<ParentAccountOption[]> {
+    return this.svc.AccountServiceListAccounts({ parent: `organizations/${organizationId}`, pageSize: 1000, showDeleted: false }).pipe(
       map((response) => {
         const flat: FlatAccount[] = (response.accounts ?? []).map((a) => ({
           id: a.uid ?? '',
@@ -59,14 +53,16 @@ export class HttpCreateAccountDialogDataService extends CreateAccountDialogDataS
   }
 
   createAccount(
+    organizationId: string,
     name: string,
     code: string,
     description: string,
     parentAccountId: string | null,
   ): Observable<CreatedAccount> {
-    const parentAccount = parentAccountId ? `${this.parent}/accounts/${parentAccountId}` : undefined;
+    const parent = `organizations/${organizationId}`;
+    const parentAccount = parentAccountId ? `${parent}/accounts/${parentAccountId}` : undefined;
     return this.svc.AccountServiceCreateAccount({
-      parent: this.parent,
+      parent,
       account: { display_name: name, display_code: code, display_description: description, parent_account: parentAccount },
     }).pipe(
       map((a) => ({

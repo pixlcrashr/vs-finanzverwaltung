@@ -34,19 +34,19 @@ export interface MatrixBudgetValueUpdate {
 }
 
 export abstract class MatrixDataService {
-    public abstract getBudgets(): Observable<Budget[]>;
+    public abstract listBudgets(organizationId: string): Observable<Budget[]>;
 
-    public abstract getAccounts(): Observable<Account[]>;
+    public abstract listAccounts(organizationId: string): Observable<Account[]>;
 
-    public abstract getMatrixTargetValues(): Observable<MatrixTargetValues>;
+    public abstract listMatrixTargetValues(organizationId: string): Observable<MatrixTargetValues>;
 
-    public abstract getMatrixActualValues(): Observable<MatrixActualValues>;
+    public abstract listMatrixActualValues(organizationId: string): Observable<MatrixActualValues>;
 
-    public abstract getMatrixEditableValues(): Observable<MatrixEditableValuesByBudget[]>;
+    public abstract listMatrixEditableValues(organizationId: string): Observable<MatrixEditableValuesByBudget[]>;
 
-    public abstract updateMatrixBudgetValues(updates: MatrixBudgetValueUpdate[]): Observable<void>;
+    public abstract updateMatrixBudgetValues(organizationId: string, updates: MatrixBudgetValueUpdate[]): Observable<void>;
 }
 
 export abstract class MatrixTargetValuesService {
-    
+
 }

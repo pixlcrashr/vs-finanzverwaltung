@@ -222,7 +222,7 @@ export class AccountEditComponent implements OnInit, OnDestroy {
   }
 
   private loadAccount(id: string): void {
-    this.dataService.getAccount(id).subscribe({
+    this.dataService.getAccount(this.orgId, id).subscribe({
       next: (account) => {
         this.account.set(account);
         this.accountForm.patchValue({
@@ -252,7 +252,7 @@ export class AccountEditComponent implements OnInit, OnDestroy {
     const account = this.account()!;
     const { code, name, description } = this.accountForm.value;
 
-    this.dataService.updateAccount(account.id, name, code, description).subscribe({
+    this.dataService.updateAccount(this.orgId, account.id, name, code, description).subscribe({
       next: () => {
         this.saving.set(false);
         this.accountForm.markAsPristine();

@@ -24,9 +24,10 @@ export interface CompareAccountTransaction {
 }
 
 export abstract class AccountCompareDataService {
-  abstract getBudgets(): Observable<BudgetOption[]>;
-  abstract getAccounts(budgetId: string): Observable<CompareAccountOption[]>;
-  abstract getTransactions(
+  abstract listBudgets(organizationId: string): Observable<BudgetOption[]>;
+  abstract listAccounts(organizationId: string, budgetId: string): Observable<CompareAccountOption[]>;
+  abstract listTransactions(
+    organizationId: string,
     budgetId: string,
     accountId: string,
   ): Observable<CompareAccountTransaction[]>;

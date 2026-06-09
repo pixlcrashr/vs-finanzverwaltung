@@ -23,7 +23,8 @@ import {
 } from '../../../shared/dialogs/delete-account-group-dialog/delete-account-group-dialog.component';
 import {
   CreateAccountGroupDialogComponent,
-  CreateAccountGroupDialogOutput
+  CreateAccountGroupDialogInput,
+  CreateAccountGroupDialogOutput,
 } from '../../../shared/dialogs/create-account-group-dialog/create-account-group-dialog.component';
 import { AccountGroup } from '../../../shared/models';
 import { AccountGroupListDataService } from './account-group-list.data-service';
@@ -158,7 +159,7 @@ export class AccountGroupListComponent {
   }
 
   private loadGroups(): void {
-    this.dataService.getGroups().subscribe({
+    this.dataService.listGroups(this.orgId).subscribe({
       next: (groups) => {
         this.groups.set(groups);
         this.loading.set(false);
@@ -173,11 +174,12 @@ export class AccountGroupListComponent {
   trackById = (group: AccountGroup) => group.id;
 
   openCreateDialog(): void {
-    const dialogRef = this.dialog.open<CreateAccountGroupDialogOutput>(
+    const dialogRef = this.dialog.open<CreateAccountGroupDialogOutput, CreateAccountGroupDialogInput>(
       CreateAccountGroupDialogComponent,
       {
         backdropClass: 'cdk-overlay-dark-backdrop',
         width: '500px',
+        data: { organizationId: this.orgId },
       }
     );
 
@@ -199,7 +201,7 @@ export class AccountGroupListComponent {
           groupName: group.name,
           onDelete: async (groupId: string) => {
             await new Promise<void>((resolve, reject) => {
-              this.dataService.deleteGroup(groupId).subscribe({
+              this.dataService.deleteGroup(this.orgId, groupId).subscribe({
                 next: () => resolve(),
                 error: (err) => reject(err),
               });

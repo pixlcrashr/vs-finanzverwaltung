@@ -23,6 +23,7 @@ import {
 } from '../../../shared/dialogs/confirm-delete-dialog/confirm-delete-dialog.component';
 import {
   CreateReportDialogComponent,
+  CreateReportDialogInput,
   CreateReportDialogOutput,
 } from '../../../shared/dialogs/create-report-dialog/create-report-dialog.component';
 
@@ -154,7 +155,7 @@ export class ReportListComponent {
   }
 
   private loadData(): void {
-    this.dataService.getReports().subscribe({
+    this.dataService.listReports(this.orgId).subscribe({
       next: (reports) => {
         this.reports.set(reports);
         this.loading.set(false);
@@ -167,11 +168,12 @@ export class ReportListComponent {
   }
 
   openCreateDialog(): void {
-    const dialogRef = this.dialog.open<CreateReportDialogOutput>(
+    const dialogRef = this.dialog.open<CreateReportDialogOutput, CreateReportDialogInput>(
       CreateReportDialogComponent,
       {
         backdropClass: 'cdk-overlay-dark-backdrop',
         width: '500px',
+        data: { organizationId: this.orgId },
       }
     );
 
@@ -213,7 +215,7 @@ export class ReportListComponent {
   }
 
   private deleteReport(report: Report): void {
-    this.dataService.deleteReport(report.id).subscribe({
+    this.dataService.deleteReport(this.orgId, report.id).subscribe({
       next: () => {
         this.reports.update((reports) => reports.filter((r) => r.id !== report.id));
       },

@@ -6,7 +6,7 @@ import { AvailableAccount } from '../../../app/shared/dialogs/add-account-to-gro
 
 @Injectable()
 export class MockAddAccountToGroupDialogDataService extends AddAccountToGroupDialogDataService {
-  getAvailableAccounts(_groupId: string): Observable<AvailableAccount[]> {
+  listAvailableAccounts(_organizationId: string, _groupId: string): Observable<AvailableAccount[]> {
     const accounts: AvailableAccount[] = Array.from({ length: 10 }, () => ({
       id: faker.string.uuid(),
       code: faker.string.numeric(4),
@@ -15,7 +15,7 @@ export class MockAddAccountToGroupDialogDataService extends AddAccountToGroupDia
     return of(accounts).pipe(delay(300));
   }
 
-  addAccountToGroup(_groupId: string, _accountId: string): Observable<void> {
+  addAccountToGroup(_organizationId: string, _groupId: string, _accountId: string): Observable<void> {
     return of(undefined).pipe(delay(500));
   }
 }

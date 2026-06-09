@@ -4,7 +4,7 @@ import { CloseBudgetDialogDataService } from '../../../app/shared/dialogs/close-
 
 @Injectable()
 export class MockCloseBudgetDialogDataService extends CloseBudgetDialogDataService {
-  closeBudget(_budgetId: string): Observable<void> {
+  closeBudget(_organizationId: string, _budgetId: string): Observable<void> {
     return of(undefined).pipe(delay(500));
   }
 }

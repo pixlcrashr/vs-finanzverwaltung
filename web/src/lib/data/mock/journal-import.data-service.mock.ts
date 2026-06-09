@@ -13,7 +13,7 @@ import {
 
 @Injectable()
 export class MockJournalImportDataService extends JournalImportDataService {
-  getImportSources(): Observable<ImportSourceOption[]> {
+  getImportSources(organizationId: string): Observable<ImportSourceOption[]> {
     return of([
       { id: faker.string.uuid(), name: 'Sparkasse' },
       { id: faker.string.uuid(), name: 'Volksbank' },
@@ -22,7 +22,7 @@ export class MockJournalImportDataService extends JournalImportDataService {
     ]).pipe(delay(200));
   }
 
-  getAvailableAccounts(): Observable<AccountOption[]> {
+  getAvailableAccounts(organizationId: string): Observable<AccountOption[]> {
     return of([
       { id: faker.string.uuid(), name: '1-01 | Mitgliedsbeiträge', isArchived: false },
       { id: faker.string.uuid(), name: '1-02 | Spenden', isArchived: false },
@@ -33,7 +33,7 @@ export class MockJournalImportDataService extends JournalImportDataService {
     ]).pipe(delay(200));
   }
 
-  uploadFile(sourceId: string, type: JournalImportType, file: File): Observable<UploadResult> {
+  uploadFile(organizationId: string, sourceId: string, type: JournalImportType, file: File): Observable<UploadResult> {
     const count = type === 'lexware'
       ? faker.number.int({ min: 5, max: 15 })
       : faker.number.int({ min: 3, max: 10 });
@@ -59,7 +59,7 @@ export class MockJournalImportDataService extends JournalImportDataService {
     }).pipe(delay(1000));
   }
 
-  importTransaction(request: ImportSingleTransactionRequest): Observable<{ success: boolean }> {
+  importTransaction(organizationId: string, request: ImportSingleTransactionRequest): Observable<{ success: boolean }> {
     return of({ success: true }).pipe(delay(500));
   }
 }

@@ -8,11 +8,11 @@ import { ReportTemplateListDataService } from '../../../app/routes/report-templa
 export class MockReportTemplateListDataService extends ReportTemplateListDataService {
   private templates: ReportTemplate[] = this.generateTemplates();
 
-  getTemplates(): Observable<ReportTemplate[]> {
+  listTemplates(organizationId: string): Observable<ReportTemplate[]> {
     return of([...this.templates]).pipe(delay(300));
   }
 
-  deleteTemplate(id: string): Observable<void> {
+  deleteTemplate(organizationId: string, id: string): Observable<void> {
     this.templates = this.templates.filter((t) => t.id !== id);
     return of(undefined).pipe(delay(300));
   }

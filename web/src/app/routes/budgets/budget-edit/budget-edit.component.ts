@@ -376,7 +376,7 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
   }
 
   private loadBudget(id: string): void {
-    this.dataService.getBudget(id).subscribe({
+    this.dataService.getBudget(this.orgId, id).subscribe({
       next: (budget) => {
         this.budget.set(budget);
         this.budgetForm.patchValue({
@@ -418,6 +418,7 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
 
     this.dataService
       .updateBudget(
+        this.orgId,
         budget.id,
         name,
         description,
@@ -489,7 +490,7 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
     const budget = this.budget();
     if (!budget) return;
 
-    this.dataService.addTag(budget.id, new Date(), name, description, force).subscribe({
+    this.dataService.createBudgetRevision(this.orgId, budget.id, new Date(), name, description, force).subscribe({
       next: () => {
         this.loadBudget(budget.id);
         this.notifications.success($localize`Tag erfolgreich erstellt`);
@@ -511,7 +512,7 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
     const budget = this.budget();
     if (!budget || budget.isClosed) return;
 
-    this.dataService.updateTagPublication(tag.id, !tag.isPublished).subscribe({
+    this.dataService.updateBudgetRevision(this.orgId, tag.id, !tag.isPublished).subscribe({
       next: () => {
         this.loadBudget(budget.id);
         this.notifications.success(tag.isPublished ? $localize`Tag wurde unveröffentlicht` : $localize`Tag wurde veröffentlicht`);
@@ -526,7 +527,7 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
     const budget = this.budget();
     if (!budget) return;
 
-    this.dataService.deleteTag(tagId).subscribe({
+    this.dataService.deleteBudgetRevision(this.orgId, tagId).subscribe({
       next: () => {
         this.loadBudget(budget.id);
         this.notifications.success($localize`Tag erfolgreich entfernt`);
@@ -547,6 +548,7 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
         backdropClass: 'cdk-overlay-dark-backdrop',
         width: '500px',
         data: {
+          organizationId: this.orgId,
           budgetId: budget.id,
           budgetName: budget.displayName,
         },

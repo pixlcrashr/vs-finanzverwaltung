@@ -4,10 +4,14 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { DialogRef } from '@angular/cdk/dialog';
+import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonComponent } from '../../components';
 import { CreateAccountGroupDialogDataService } from './create-account-group-dialog.data-service';
+
+export interface CreateAccountGroupDialogInput {
+  organizationId: string;
+}
 
 export interface CreateAccountGroupDialogOutput {
   created: boolean;
@@ -81,6 +85,7 @@ export class CreateAccountGroupDialogComponent {
   private readonly dialogRef = inject(DialogRef<CreateAccountGroupDialogOutput>);
   private readonly dataService = inject(CreateAccountGroupDialogDataService);
   private readonly fb = inject(FormBuilder);
+  readonly data = inject<CreateAccountGroupDialogInput>(DIALOG_DATA);
 
   readonly creating = signal(false);
 
@@ -99,7 +104,7 @@ export class CreateAccountGroupDialogComponent {
     this.creating.set(true);
     const { name, description } = this.form.value;
 
-    this.dataService.createAccountGroup(name, description || '').subscribe({
+    this.dataService.createAccountGroup(this.data.organizationId, name, description || '').subscribe({
       next: (group) => {
         this.creating.set(false);
         this.dialogRef.close({

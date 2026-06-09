@@ -5,10 +5,14 @@ import {
   signal,
   OnInit,
 } from '@angular/core';
-import { DialogRef } from '@angular/cdk/dialog';
+import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { FormsModule } from '@angular/forms';
 import { ButtonComponent, LoadingSpinnerComponent } from '../../components';
 import { CreateReportDialogDataService } from './create-report-dialog.data-service';
+
+export interface CreateReportDialogInput {
+  organizationId: string;
+}
 
 export interface ReportTemplateOption {
   id: string;
@@ -99,6 +103,7 @@ export interface CreateReportDialogOutput {
 export class CreateReportDialogComponent implements OnInit {
   private readonly dialogRef = inject(DialogRef<CreateReportDialogOutput>);
   private readonly dataService = inject(CreateReportDialogDataService);
+  readonly data = inject<CreateReportDialogInput>(DIALOG_DATA);
 
   readonly loadingTemplates = signal(true);
   readonly generating = signal(false);
@@ -112,7 +117,7 @@ export class CreateReportDialogComponent implements OnInit {
   }
 
   private loadTemplates(): void {
-    this.dataService.getTemplates().subscribe({
+    this.dataService.listTemplates(this.data.organizationId).subscribe({
       next: (templates) => {
         this.templates.set(templates);
         this.loadingTemplates.set(false);
@@ -132,7 +137,7 @@ export class CreateReportDialogComponent implements OnInit {
 
     this.generating.set(true);
 
-    this.dataService.generateReport(this.selectedTemplateId, this.reportName).subscribe({
+    this.dataService.generateReport(this.data.organizationId, this.selectedTemplateId, this.reportName).subscribe({
       next: (report) => {
         this.generating.set(false);
         this.dialogRef.close({

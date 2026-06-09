@@ -84,14 +84,14 @@ export class MockAccountGroupEditDataService extends AccountGroupEditDataService
 
   private savedGroupData: AccountGroupDetails | null = null;
 
-  getGroup(id: string): Observable<AccountGroupDetails> {
+  getGroup(organizationId: string, id: string): Observable<AccountGroupDetails> {
     if (!this.savedGroupData) {
       this.savedGroupData = { ...this.groupData, id };
     }
     return of({ ...this.savedGroupData }).pipe(delay(300));
   }
 
-  updateGroup(id: string, name: string, description: string): Observable<AccountGroupDetails> {
+  updateGroup(organizationId: string, id: string, name: string, description: string): Observable<AccountGroupDetails> {
     if (this.savedGroupData) {
       this.savedGroupData.name = name;
       this.savedGroupData.description = description;
@@ -99,7 +99,7 @@ export class MockAccountGroupEditDataService extends AccountGroupEditDataService
     return of({ ...this.groupData, id, name, description }).pipe(delay(300));
   }
 
-  getAllAccountsWithOperations(groupId: string): Observable<AccountWithOperation[]> {
+  getAllAccountsWithOperations(organizationId: string, groupId: string): Observable<AccountWithOperation[]> {
     const accountsWithOps: AccountWithOperation[] = this.allAccounts.map((account) => {
       const assignment = this.groupData.assignments.find((a) => a.accountId === account.id) || null;
       return { account, assignment };
@@ -107,7 +107,7 @@ export class MockAccountGroupEditDataService extends AccountGroupEditDataService
     return of(accountsWithOps).pipe(delay(200));
   }
 
-  updateAccountOperation(groupId: string, accountId: string, operation: AccountGroupOperation): Observable<void> {
+  updateAccountOperation(organizationId: string, groupId: string, accountId: string, operation: AccountGroupOperation): Observable<void> {
     if (!this.savedGroupData) {
       this.savedGroupData = { ...this.groupData };
     }
@@ -146,7 +146,7 @@ export class MockAccountGroupEditDataService extends AccountGroupEditDataService
     return of(undefined).pipe(delay(200));
   }
 
-  deleteGroup(id: string): Observable<void> {
+  deleteGroup(organizationId: string, id: string): Observable<void> {
     // Simulate deletion with delay
     return of(undefined).pipe(delay(500));
   }

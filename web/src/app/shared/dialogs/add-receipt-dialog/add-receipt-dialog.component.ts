@@ -5,11 +5,15 @@ import {
   signal,
   computed,
 } from '@angular/core';
-import { DialogRef } from '@angular/cdk/dialog';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonComponent } from '../../components';
 import { AddReceiptDialogDataService } from './add-receipt-dialog.data-service';
 import { InvoiceItem, InvoiceItemType } from '../../models';
+
+export interface AddReceiptDialogInput {
+  organizationId: string;
+}
 
 export interface AddReceiptDialogOutput {
   added: boolean;
@@ -187,6 +191,7 @@ export interface AddReceiptDialogOutput {
 })
 export class AddReceiptDialogComponent {
   private readonly dialogRef = inject(DialogRef<AddReceiptDialogOutput>);
+  private readonly data = inject<AddReceiptDialogInput>(DIALOG_DATA);
   private readonly dataService = inject(AddReceiptDialogDataService);
   private readonly fb = inject(FormBuilder);
 
@@ -276,7 +281,7 @@ export class AddReceiptDialogComponent {
     const { type, amount, description } = this.form.value;
 
     this.dataService
-      .uploadReceipt({
+      .uploadReceipt(this.data.organizationId, {
         type,
         amount: Math.round(amount * 100), // Convert to cents
         description: description || null,

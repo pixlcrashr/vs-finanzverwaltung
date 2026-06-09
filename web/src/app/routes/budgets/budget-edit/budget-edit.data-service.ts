@@ -18,9 +18,10 @@ export interface BudgetDetails extends Budget {
 }
 
 export abstract class BudgetEditDataService {
-  abstract getBudget(id: string): Observable<BudgetDetails>;
+  abstract getBudget(organizationId: string, budgetId: string): Observable<BudgetDetails>;
   abstract updateBudget(
-    id: string,
+    organizationId: string,
+    budgetId: string,
     name: string,
     description: string,
     startDate: Date,
@@ -28,8 +29,8 @@ export abstract class BudgetEditDataService {
     publishCurrentTargetValuesAlways: boolean,
     publishCurrentActualValuesAlways: boolean
   ): Observable<void>;
-  abstract addTag(budgetId: string, date: Date, name: string, description: string, force: boolean): Observable<BudgetTag>;
-  abstract updateTagPublication(id: string, isPublished: boolean): Observable<void>;
-  abstract deleteTag(id: string): Observable<void>;
-  abstract closeBudget(id: string): Observable<void>;
+  abstract createBudgetRevision(organizationId: string, budgetId: string, date: Date, name: string, description: string, force: boolean): Observable<BudgetTag>;
+  abstract updateBudgetRevision(organizationId: string, budgetRevisionId: string, isPublished: boolean): Observable<void>;
+  abstract deleteBudgetRevision(organizationId: string, budgetRevisionId: string): Observable<void>;
+  abstract closeBudget(organizationId: string, budgetId: string): Observable<void>;
 }

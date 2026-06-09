@@ -2,14 +2,15 @@ import { Observable } from 'rxjs';
 import { Account } from '../../../shared/models';
 
 export abstract class AccountListDataService {
-  abstract getAccounts(): Observable<Account[]>;
+  abstract listAccounts(organizationId: string): Observable<Account[]>;
   abstract createAccount(
+    organizationId: string,
     name: string,
     code: string,
     description: string,
     parentAccountId: string | null
   ): Observable<Account>;
-  abstract deleteAccount(id: string): Observable<void>;
-  abstract archiveAccount(id: string): Observable<void>;
-  abstract restoreAccount(id: string): Observable<void>;
+  abstract deleteAccount(organizationId: string, accountId: string): Observable<void>;
+  abstract archiveAccount(organizationId: string, accountId: string): Observable<void>;
+  abstract restoreAccount(organizationId: string, accountId: string): Observable<void>;
 }

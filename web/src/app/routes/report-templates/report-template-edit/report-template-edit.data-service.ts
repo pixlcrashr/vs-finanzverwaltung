@@ -8,6 +8,6 @@ export interface UpdateTemplateInput {
 }
 
 export abstract class ReportTemplateEditDataService {
-  abstract getTemplate(id: string): Observable<ReportTemplate>;
-  abstract updateTemplate(id: string, input: UpdateTemplateInput): Observable<ReportTemplate>;
+  abstract getTemplate(organizationId: string, id: string): Observable<ReportTemplate>;
+  abstract updateTemplate(organizationId: string, id: string, input: UpdateTemplateInput): Observable<ReportTemplate>;
 }

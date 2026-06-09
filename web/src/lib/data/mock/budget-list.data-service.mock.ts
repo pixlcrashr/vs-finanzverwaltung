@@ -9,11 +9,12 @@ import { SharedBudgetMockData } from './_shared-budget-data';
 export class MockBudgetListDataService extends BudgetListDataService {
   private sharedData = SharedBudgetMockData.getInstance();
 
-  getBudgets(): Observable<Budget[]> {
+  listBudgets(organizationId: string): Observable<Budget[]> {
     return of(this.sharedData.getAllBudgets()).pipe(delay(300));
   }
 
   createBudget(
+    organizationId: string,
     name: string,
     description: string,
     startDate: Date,
@@ -33,7 +34,7 @@ export class MockBudgetListDataService extends BudgetListDataService {
     return of(newBudget).pipe(delay(300));
   }
 
-  deleteBudget(id: string): Observable<void> {
+  deleteBudget(organizationId: string, id: string): Observable<void> {
     this.sharedData.deleteBudget(id);
     return of(undefined).pipe(delay(300));
   }

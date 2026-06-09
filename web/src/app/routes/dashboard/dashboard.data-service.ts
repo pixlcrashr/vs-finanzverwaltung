@@ -32,5 +32,5 @@ export interface DashboardStats {
 }
 
 export abstract class DashboardDataService {
-  abstract getStats(): Observable<DashboardStats>;
+  abstract getStats(organizationId: string): Observable<DashboardStats>;
 }

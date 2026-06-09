@@ -27,6 +27,7 @@ import {
 import { formatDateShort } from '../../../shared/utils';
 import { ImportSource, ImportSourcePeriod } from '../../../shared/models';
 import { ImportSourceEditDataService } from './import-source-edit.data-service';
+import { CurrentOrganizationService } from '../../../shared/services/current-organization.service';
 
 @Component({
   selector: 'app-import-source-edit',
@@ -175,6 +176,7 @@ export class ImportSourceEditComponent implements OnInit, OnDestroy {
   private readonly dataService = inject(ImportSourceEditDataService);
   private readonly dialog = inject(Dialog);
   private readonly notifications = inject(NotificationService);
+  private readonly orgSvc = inject(CurrentOrganizationService);
 
   private readonly destroy$ = new Subject<void>();
 
@@ -279,6 +281,7 @@ export class ImportSourceEditComponent implements OnInit, OnDestroy {
         backdropClass: 'cdk-overlay-dark-backdrop',
         width: '500px',
         data: {
+          organizationId: this.orgSvc.currentOrganizationId() ?? '',
           importSourceId: this.sourceId,
           periodId: period.id,
           periodYear: period.year,

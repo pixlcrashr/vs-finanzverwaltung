@@ -350,7 +350,7 @@ export class JournalImportComponent implements OnInit {
   }
 
   private loadSources(): void {
-    this.dataService.getImportSources().subscribe({
+    this.dataService.getImportSources(this.orgId).subscribe({
       next: (sources) => {
         this.sources.set(sources);
         this.loading.set(false);
@@ -363,7 +363,7 @@ export class JournalImportComponent implements OnInit {
   }
 
   private loadAccounts(): void {
-    this.dataService.getAvailableAccounts().subscribe({
+    this.dataService.getAvailableAccounts(this.orgId).subscribe({
       next: (accounts) => this.accounts.set(accounts),
     });
   }
@@ -385,6 +385,7 @@ export class JournalImportComponent implements OnInit {
     this.uploading.set(true);
 
     this.dataService.uploadFile(
+      this.orgId,
       this.selectedSourceId,
       this.selectedType as JournalImportType,
       this.selectedFile()!,
@@ -450,7 +451,7 @@ export class JournalImportComponent implements OnInit {
 
     row.importing = true;
 
-    this.dataService.importTransaction({
+    this.dataService.importTransaction(this.orgId, {
       sourceId: this.sourceId,
       receiptFrom: row.transaction.receiptFrom,
       bookedAt: row.transaction.bookedAt,

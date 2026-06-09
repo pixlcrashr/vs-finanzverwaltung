@@ -42,16 +42,17 @@ export class MockAccountCompareDataService extends AccountCompareDataService {
     { id: 'acc-kasse', code: '3200', name: 'Kasse', parentAccountId: 'acc-vermoegen' },
   ];
 
-  getBudgets(): Observable<BudgetOption[]> {
+  listBudgets(organizationId: string): Observable<BudgetOption[]> {
     return of(this.budgets).pipe(delay(200));
   }
 
-  getAccounts(budgetId: string): Observable<CompareAccountOption[]> {
+  listAccounts(organizationId: string, budgetId: string): Observable<CompareAccountOption[]> {
     const hasBudget = this.budgets.some((budget) => budget.id === budgetId);
     return of(hasBudget ? this.accounts : []).pipe(delay(150));
   }
 
-  getTransactions(
+  listTransactions(
+    organizationId: string,
     budgetId: string,
     accountId: string,
   ): Observable<CompareAccountTransaction[]> {

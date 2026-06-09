@@ -16,7 +16,6 @@ import { MatrixValueStoreService } from '../matrix-value-store.service';
       display: block;
       width: 100%;
       height: 100%;
-      background-color: var(--color-bg-primary);
       color: var(--color-text-primary);
     }
 
@@ -221,7 +220,7 @@ import { MatrixValueStoreService } from '../matrix-value-store.service';
                   @if (differenceEnabled) {
                     <td class="last-revision-column value-cell">
                       @if (!row.isParent) {
-                        <app-matrix-value-span [value]="tagValues.isLatest ? budgetValues.editableTargetValue().minus(budgetValues.actualValue) : tagValues.diffValue" />
+                        <app-matrix-value-span [value]="tagValues.diffValue" />
                       }
                     </td>
                   }

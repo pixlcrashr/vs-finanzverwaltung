@@ -33,7 +33,8 @@ export interface JournalEntryFilters {
 }
 
 export abstract class JournalListDataService {
-  abstract getEntries(
+  abstract listTransactions(
+    organizationId: string,
     page: number,
     pageSize: number,
     filters?: JournalEntryFilters,

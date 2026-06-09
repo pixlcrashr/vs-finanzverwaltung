@@ -9,6 +9,7 @@ import { ButtonComponent } from '../../components';
 import { CloseBudgetDialogDataService } from './close-budget-dialog.data-service';
 
 export interface CloseBudgetDialogInput {
+  organizationId: string;
   budgetId: string;
   budgetName: string;
 }
@@ -56,7 +57,7 @@ export class CloseBudgetDialogComponent {
   confirm(): void {
     this.closing.set(true);
 
-    this.dataService.closeBudget(this.data.budgetId).subscribe({
+    this.dataService.closeBudget(this.data.organizationId, this.data.budgetId).subscribe({
       next: () => {
         this.closing.set(false);
         this.dialogRef.close({ closed: true });

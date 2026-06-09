@@ -9,7 +9,7 @@ import {
 
 @Injectable()
 export class MockCreateAccountDialogDataService extends CreateAccountDialogDataService {
-  getParentAccounts(): Observable<ParentAccountOption[]> {
+  listParentAccounts(organizationId: string): Observable<ParentAccountOption[]> {
     const accounts: ParentAccountOption[] = [
       { id: faker.string.uuid(), code: '1', name: 'Aktiva', depth: 0 },
       { id: faker.string.uuid(), code: '1.1', name: 'Kasse', depth: 1 },
@@ -26,6 +26,7 @@ export class MockCreateAccountDialogDataService extends CreateAccountDialogDataS
   }
 
   createAccount(
+    organizationId: string,
     name: string,
     code: string,
     description: string,

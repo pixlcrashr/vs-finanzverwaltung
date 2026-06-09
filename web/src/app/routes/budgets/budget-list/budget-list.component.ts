@@ -24,6 +24,7 @@ import {
 } from '../../../shared/dialogs/confirm-delete-dialog/confirm-delete-dialog.component';
 import {
   CreateBudgetDialogComponent,
+  CreateBudgetDialogInput,
   CreateBudgetDialogOutput,
 } from '../../../shared/dialogs/create-budget-dialog/create-budget-dialog.component';
 import { Budget } from '../../../shared/models';
@@ -158,7 +159,7 @@ export class BudgetListComponent {
   }
 
   private loadBudgets(): void {
-    this.dataService.getBudgets().subscribe({
+    this.dataService.listBudgets(this.orgId).subscribe({
       next: (budgets) => {
         const formatted = budgets.map((b) => ({
           ...b,
@@ -180,11 +181,12 @@ export class BudgetListComponent {
   trackById = (budget: Budget) => budget.id;
 
   openCreateDialog(): void {
-    const dialogRef = this.dialog.open<CreateBudgetDialogOutput>(
+    const dialogRef = this.dialog.open<CreateBudgetDialogOutput, CreateBudgetDialogInput>(
       CreateBudgetDialogComponent,
       {
         backdropClass: 'cdk-overlay-dark-backdrop',
         width: '500px',
+        data: { organizationId: this.orgId },
       }
     );
 
@@ -218,7 +220,7 @@ export class BudgetListComponent {
   }
 
   private deleteBudget(budget: Budget): void {
-    this.dataService.deleteBudget(budget.id).subscribe({
+    this.dataService.deleteBudget(this.orgId, budget.id).subscribe({
       next: () => {
         this.loadBudgets();
       },

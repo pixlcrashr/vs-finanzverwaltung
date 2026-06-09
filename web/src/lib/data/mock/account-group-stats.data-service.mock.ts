@@ -43,15 +43,15 @@ export class MockAccountGroupStatsDataService extends AccountGroupStatsDataServi
     { id: faker.string.uuid(), accountId: faker.string.uuid(), accountCode: '2.1.5', accountName: 'Werkverträge', operation: 'A' as const },
   ];
 
-  getBudgets(): Observable<Budget[]> {
+  listBudgets(organizationId: string): Observable<Budget[]> {
     return of(this.budgets).pipe(delay(200));
   }
 
-  getBudgetTags(budgetId: string): Observable<BudgetTag[]> {
+  listBudgetRevisions(organizationId: string, budgetId: string): Observable<BudgetTag[]> {
     return of(this.tags[budgetId] ?? []).pipe(delay(200));
   }
 
-  getGroupStats(groupId: string, budgetId: string): Observable<AccountGroupStats> {
+  getGroupStats(organizationId: string, groupId: string, budgetId: string): Observable<AccountGroupStats> {
     const accounts = this.accounts.map(a => ({
       ...a,
       targetValue: (Math.random() * 20000 + 5000).toFixed(2),
@@ -70,7 +70,7 @@ export class MockAccountGroupStatsDataService extends AccountGroupStatsDataServi
     }).pipe(delay(300));
   }
 
-  getGroupStatsByTag(groupId: string, budgetId: string, tagId: string): Observable<AccountGroupStats> {
+  getGroupStatsByRevision(organizationId: string, groupId: string, budgetId: string, tagId: string): Observable<AccountGroupStats> {
     const accounts = this.accounts.map(a => ({
       ...a,
       targetValue: (Math.random() * 15000 + 3000).toFixed(2),

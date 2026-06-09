@@ -17,6 +17,7 @@ export interface AvailableAccount {
 }
 
 export interface AddAccountToGroupDialogInput {
+  organizationId: string;
   groupId: string;
 }
 
@@ -95,7 +96,7 @@ export class AddAccountToGroupDialogComponent implements OnInit {
   }
 
   private loadAvailableAccounts(): void {
-    this.dataService.getAvailableAccounts(this.data.groupId).subscribe({
+    this.dataService.listAvailableAccounts(this.data.organizationId, this.data.groupId).subscribe({
       next: (accounts) => {
         this.availableAccounts.set(accounts);
         this.loadingAccounts.set(false);
@@ -115,7 +116,7 @@ export class AddAccountToGroupDialogComponent implements OnInit {
 
     this.adding.set(true);
 
-    this.dataService.addAccountToGroup(this.data.groupId, this.selectedAccountId).subscribe({
+    this.dataService.addAccountToGroup(this.data.organizationId, this.data.groupId, this.selectedAccountId).subscribe({
       next: () => {
         this.adding.set(false);
         this.dialogRef.close({

@@ -5,10 +5,14 @@ import {
   signal,
   OnInit,
 } from '@angular/core';
-import { DialogRef } from '@angular/cdk/dialog';
+import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonComponent } from '../../components';
 import { CreateAccountDialogDataService } from './create-account-dialog.data-service';
+
+export interface CreateAccountDialogInput {
+  organizationId: string;
+}
 
 export interface ParentAccountOption {
   id: string;
@@ -131,6 +135,7 @@ export class CreateAccountDialogComponent implements OnInit {
   private readonly dialogRef = inject(DialogRef<CreateAccountDialogOutput>);
   private readonly dataService = inject(CreateAccountDialogDataService);
   private readonly fb = inject(FormBuilder);
+  readonly data = inject<CreateAccountDialogInput>(DIALOG_DATA);
 
   readonly loadingAccounts = signal(true);
   readonly creating = signal(false);
@@ -148,7 +153,7 @@ export class CreateAccountDialogComponent implements OnInit {
   }
 
   private loadParentAccounts(): void {
-    this.dataService.getParentAccounts().subscribe({
+    this.dataService.listParentAccounts(this.data.organizationId).subscribe({
       next: (accounts) => {
         this.parentAccounts.set(accounts);
         this.loadingAccounts.set(false);
@@ -174,7 +179,7 @@ export class CreateAccountDialogComponent implements OnInit {
     const { code, name, description, parentAccountId } = this.form.value;
 
     this.dataService
-      .createAccount(name, code, description || '', parentAccountId || null)
+      .createAccount(this.data.organizationId, name, code, description || '', parentAccountId || null)
       .subscribe({
         next: (account) => {
           this.creating.set(false);

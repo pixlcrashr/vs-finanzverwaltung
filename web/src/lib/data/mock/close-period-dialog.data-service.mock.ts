@@ -4,7 +4,7 @@ import { ClosePeriodDialogDataService } from '../../../app/shared/dialogs/close-
 
 @Injectable()
 export class MockClosePeriodDialogDataService extends ClosePeriodDialogDataService {
-  closePeriod(_importSourceId: string, _periodId: string): Observable<void> {
+  closePeriod(_organizationId: string, _importSourceId: string, _periodId: string): Observable<void> {
     return of(undefined).pipe(delay(500));
   }
 }

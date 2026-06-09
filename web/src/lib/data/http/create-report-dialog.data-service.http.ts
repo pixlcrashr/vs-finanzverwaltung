@@ -2,7 +2,6 @@ import { inject, Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { ReportServiceService } from '../../api/services/report-service.service';
 import { ReportTemplateServiceService } from '../../api/services/report-template-service.service';
-import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import { CreateReportDialogDataService } from '../../../app/shared/dialogs/create-report-dialog/create-report-dialog.data-service';
 import {
   CreatedReport,
@@ -13,14 +12,8 @@ import {
 export class HttpCreateReportDialogDataService extends CreateReportDialogDataService {
   private readonly reportSvc = inject(ReportServiceService);
   private readonly templateSvc = inject(ReportTemplateServiceService);
-  private readonly orgSvc = inject(CurrentOrganizationService);
-
-  private get parent(): string {
-    return `organizations/${this.orgSvc.currentOrganization()!.id}`;
-  }
-
-  getTemplates(): Observable<ReportTemplateOption[]> {
-    return this.templateSvc.ReportTemplateServiceListReportTemplates({ parent: this.parent, pageSize: 100 }).pipe(
+  listTemplates(organizationId: string): Observable<ReportTemplateOption[]> {
+    return this.templateSvc.ReportTemplateServiceListReportTemplates({ parent: `organizations/${organizationId}`, pageSize: 100 }).pipe(
       map((response) =>
         (response.report_templates ?? []).map((t) => ({
           id: t.uid ?? '',
@@ -30,9 +23,9 @@ export class HttpCreateReportDialogDataService extends CreateReportDialogDataSer
     );
   }
 
-  generateReport(templateId: string, name: string): Observable<CreatedReport> {
+  generateReport(organizationId: string, templateId: string, name: string): Observable<CreatedReport> {
     return this.reportSvc.ReportServiceCreateReport({
-      parent: this.parent,
+      parent: `organizations/${organizationId}`,
       report: { display_name: name, report_template_id: templateId },
     }).pipe(
       map((r) => ({

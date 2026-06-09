@@ -8,11 +8,11 @@ import { AccountGroupListDataService } from '../../../app/routes/account-groups/
 export class MockAccountGroupListDataService extends AccountGroupListDataService {
   private groups: AccountGroup[] = this.generateGroups();
 
-  getGroups(): Observable<AccountGroup[]> {
+  listGroups(organizationId: string): Observable<AccountGroup[]> {
     return of([...this.groups]).pipe(delay(300));
   }
 
-  createGroup(name: string, description: string): Observable<AccountGroup> {
+  createGroup(organizationId: string, name: string, description: string): Observable<AccountGroup> {
     const newGroup: AccountGroup = {
       id: faker.string.uuid(),
       name,
@@ -24,7 +24,7 @@ export class MockAccountGroupListDataService extends AccountGroupListDataService
     return of(newGroup).pipe(delay(300));
   }
 
-  deleteGroup(id: string): Observable<void> {
+  deleteGroup(organizationId: string, id: string): Observable<void> {
     this.groups = this.groups.filter((g) => g.id !== id);
     return of(undefined).pipe(delay(300));
   }

@@ -8,6 +8,7 @@ export interface CreatedAccountGroup {
 
 export abstract class CreateAccountGroupDialogDataService {
   abstract createAccountGroup(
+    organizationId: string,
     name: string,
     description: string
   ): Observable<CreatedAccountGroup>;

@@ -12,7 +12,8 @@ import {
 export class MockJournalListDataService extends JournalListDataService {
   private readonly entries: JournalEntry[] = this.generateEntries();
 
-  getEntries(
+  listTransactions(
+    organizationId: string,
     page: number,
     pageSize: number,
     filters: JournalEntryFilters = {},

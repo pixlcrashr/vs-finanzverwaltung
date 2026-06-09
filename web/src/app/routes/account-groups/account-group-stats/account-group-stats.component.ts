@@ -207,7 +207,7 @@ export class AccountGroupStatsComponent implements OnInit {
   }
 
   private loadBudgets(): void {
-    this.dataService.getBudgets().subscribe({
+    this.dataService.listBudgets(this.orgId).subscribe({
       next: (budgets) => {
         this.budgets.set(budgets);
         if (budgets.length > 0) {
@@ -227,7 +227,7 @@ export class AccountGroupStatsComponent implements OnInit {
   }
 
   private loadTags(budgetId: string): void {
-    this.dataService.getBudgetTags(budgetId).subscribe({
+    this.dataService.listBudgetRevisions(this.orgId, budgetId).subscribe({
       next: (tags) => this.tags.set(tags),
       error: () => this.tags.set([]),
     });
@@ -239,8 +239,8 @@ export class AccountGroupStatsComponent implements OnInit {
     const tagId = this.selectedTagId();
 
     const request$ = tagId
-      ? this.dataService.getGroupStatsByTag(this.groupId, budgetId, tagId)
-      : this.dataService.getGroupStats(this.groupId, budgetId);
+      ? this.dataService.getGroupStatsByRevision(this.orgId, this.groupId, budgetId, tagId)
+      : this.dataService.getGroupStats(this.orgId, this.groupId, budgetId);
 
     request$.subscribe({
       next: (stats) => {

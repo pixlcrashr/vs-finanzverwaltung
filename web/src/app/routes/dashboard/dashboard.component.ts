@@ -120,6 +120,8 @@ export class DashboardComponent implements AfterViewInit {
   readonly accountsChartRef = viewChild<ElementRef<HTMLCanvasElement>>('accountsChart');
   readonly monthlyChartRef = viewChild<ElementRef<HTMLCanvasElement>>('monthlyChart');
 
+  orgId = '';
+
   readonly loading = signal(true);
   readonly stats = signal<DashboardStats | null>(null);
 
@@ -143,7 +145,8 @@ export class DashboardComponent implements AfterViewInit {
       filter((id): id is string => !!id),
       distinctUntilChanged(),
       takeUntilDestroyed(),
-    ).subscribe(() => {
+    ).subscribe((id) => {
+      this.orgId = id;
       this.loading.set(true);
       this.stats.set(null);
       this.destroyCharts();
@@ -159,7 +162,7 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   private loadData(): void {
-    this.dataService.getStats().subscribe({
+    this.dataService.getStats(this.orgId).subscribe({
       next: (data) => {
         this.stats.set(data);
         this.loading.set(false);

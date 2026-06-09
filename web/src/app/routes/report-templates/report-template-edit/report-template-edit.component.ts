@@ -177,7 +177,7 @@ export class ReportTemplateEditComponent implements OnInit {
   }
 
   private loadTemplate(): void {
-    this.dataService.getTemplate(this.templateId).subscribe({
+    this.dataService.getTemplate(this.orgId, this.templateId).subscribe({
       next: (template) => {
         this.template.set(template);
         this.name = template.name;
@@ -200,7 +200,7 @@ export class ReportTemplateEditComponent implements OnInit {
     if (!this.isValid()) return;
 
     this.saving.set(true);
-    this.dataService.updateTemplate(this.templateId, {
+    this.dataService.updateTemplate(this.orgId, this.templateId, {
       name: this.name.trim(),
       description: this.description.trim(),
       template: this.templateContent,

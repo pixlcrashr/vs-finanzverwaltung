@@ -8,7 +8,7 @@ import {
 
 @Injectable()
 export class MockReportViewDataService extends ReportViewDataService {
-  getReport(id: string): Observable<ReportContent> {
+  getReport(organizationId: string, id: string): Observable<ReportContent> {
     const report = {
       id,
       name: 'Haushaltsbericht Februar 2026',
@@ -22,7 +22,7 @@ export class MockReportViewDataService extends ReportViewDataService {
     return of({ report, htmlContent }).pipe(delay(400));
   }
 
-  downloadPdf(id: string): Observable<Blob> {
+  downloadPdf(organizationId: string, id: string): Observable<Blob> {
     // Create a simple PDF-like blob for mock purposes
     const content = 'Mock PDF content for report ' + id;
     const blob = new Blob([content], { type: 'application/pdf' });

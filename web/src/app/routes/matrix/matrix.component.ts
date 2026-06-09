@@ -53,6 +53,8 @@ export class Matrix {
   private readonly dataService = inject(MatrixDataService);
   protected readonly valueStore = inject(MatrixValueStoreService);
 
+  private orgId = '';
+
   isLoading = signal(true);
   isSaving = signal(false);
   hasLoadedData = signal(false);
@@ -83,7 +85,8 @@ export class Matrix {
       filter((id): id is string => !!id),
       distinctUntilChanged(),
       takeUntilDestroyed(),
-    ).subscribe(() => {
+    ).subscribe((id) => {
+      this.orgId = id;
       this.isLoading.set(true);
       this.hasLoadedData.set(false);
       this.matrixData.set({ columns: [], rows: [], budgets: [], accounts: [] });
@@ -98,7 +101,7 @@ export class Matrix {
   private loadInitialData(): void {
     this.isLoading.set(true);
 
-    this.dataProvider.getMatrixData().pipe(
+    this.dataProvider.getMatrixData(this.orgId).pipe(
       delay(200)
     ).subscribe({
       next: (data) => {
@@ -146,7 +149,7 @@ export class Matrix {
     console.log('Saving changed values:', updates);
     this.isSaving.set(true);
 
-    this.dataService.updateMatrixBudgetValues(updates).subscribe({
+    this.dataService.updateMatrixBudgetValues(this.orgId, updates).subscribe({
       next: () => {
         this.valueStore.markAllAsClean();
         this.matrixData.update(d => ({ ...d }));

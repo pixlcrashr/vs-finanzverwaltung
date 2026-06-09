@@ -388,7 +388,7 @@ export class JournalListComponent {
       this.loading.set(true);
     }
 
-    this.dataService.getEntries(page, this.pageSize, this.buildFilters()).subscribe({
+    this.dataService.listTransactions(this.orgId, page, this.pageSize, this.buildFilters()).subscribe({
       next: (result) => {
         if (append) {
           this.entries.update((existing) => [...existing, ...result.entries]);

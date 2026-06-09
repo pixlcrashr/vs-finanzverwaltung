@@ -284,7 +284,7 @@ export class AccountCompareComponent {
   }
 
   private loadBudgets(): void {
-    this.dataService.getBudgets().subscribe({
+    this.dataService.listBudgets(this.orgId).subscribe({
       next: (budgets) => {
         this.budgets.set(budgets);
         if (budgets.length > 0) {
@@ -308,7 +308,7 @@ export class AccountCompareComponent {
       return;
     }
 
-    this.dataService.getAccounts(this.selectedBudgetId).subscribe({
+    this.dataService.listAccounts(this.orgId, this.selectedBudgetId).subscribe({
       next: (accounts) => {
         this.accounts.set(this.arrangeAccountsHierarchically(accounts));
         this.loading.set(false);
@@ -355,7 +355,7 @@ export class AccountCompareComponent {
       this.rightLoading.set(true);
     }
 
-    this.dataService.getTransactions(this.selectedBudgetId, accountId).subscribe({
+    this.dataService.listTransactions(this.orgId, this.selectedBudgetId, accountId).subscribe({
       next: (transactions) => {
         if (side === 'left') {
           this.leftTransactions.set(transactions);

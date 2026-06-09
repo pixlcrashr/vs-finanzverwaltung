@@ -10,7 +10,7 @@ import {
 
 @Injectable()
 export class MockDashboardDataService extends DashboardDataService {
-  getStats(): Observable<DashboardStats> {
+  getStats(organizationId: string): Observable<DashboardStats> {
     const openBudgets = faker.number.int({ min: 1, max: 5 });
     const closedBudgets = faker.number.int({ min: 0, max: 10 });
     const activeAccounts = faker.number.int({ min: 10, max: 50 });

@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit, computed, OnDestroy } from '@angular/core';
-import { RouterOutlet, RouterLink, Router, ActivatedRoute } from '@angular/router';
+import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, filter } from 'rxjs';
 import { MenuItem, Organization } from '../../models';
 import { CurrentOrganizationService } from '../../services/current-organization.service';
 import { OrganizationDataService } from '../../services/organization.data-service';
@@ -177,7 +177,6 @@ import { OrganizationDataService } from '../../services/organization.data-servic
 })
 export class MainLayoutComponent implements OnInit {
   protected readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
   private readonly currentOrganizationService = inject(CurrentOrganizationService);
   private readonly organizationDataService = inject(OrganizationDataService);
 
@@ -187,22 +186,18 @@ export class MainLayoutComponent implements OnInit {
 
   readonly currentOrganizationId = signal<string>('');
 
-  // Computed menu items that include the organization ID
-  // Prioritizes the currently selected organization, falls back to route orgId
-  readonly orgIdFromRoute = computed(() => {
-    // First check if we have a selected organization in the service
-    const selectedOrgId = this.currentOrganizationService.currentOrganization()?.id;
-    if (selectedOrgId) return selectedOrgId;
+  // Extracts :orgId from the current URL path directly — avoids snapshot timing issues.
+  private orgIdFromUrl(): string {
+    const m = this.router.url.match(/\/organizations\/([^/?#]+)/);
+    return m ? m[1] : '';
+  }
 
-    // Fall back to route params - check parent routes too
-    let route = this.route;
-    while (route) {
-      const orgId = route.snapshot.paramMap.get('orgId') ?? route.snapshot.paramMap.get('id');
-      if (orgId) return orgId;
-      route = route.parent!;
-    }
-    return '';
+  // Computed menu items that include the organization ID
+  readonly orgIdFromRoute = computed(() => {
+    return this.currentOrganizationService.currentOrganization()?.id ?? this._routeOrgId();
   });
+
+  private readonly _routeOrgId = signal<string>('');
 
   // Check if we have an organization selected or are on an org-prefixed route
   readonly hasOrganization = computed(() => {
@@ -265,17 +260,35 @@ export class MainLayoutComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Initialize currentOrganizationId from service if available
-    const selectedOrgId = this.currentOrganizationService.currentOrganization()?.id;
-    if (selectedOrgId) {
-      this.currentOrganizationId.set(selectedOrgId);
-    }
+    this._routeOrgId.set(this.orgIdFromUrl());
+
+    // Keep _routeOrgId in sync on every navigation
+    this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+      takeUntil(this.destroy$),
+    ).subscribe((e) => {
+      const orgId = e.urlAfterRedirects.match(/\/organizations\/([^/?#]+)/)?.[1] ?? '';
+      this._routeOrgId.set(orgId);
+      if (orgId && this.organizations().length > 0) {
+        this.syncToUrlOrgId(orgId);
+      }
+    });
+
     this.loadOrganizations();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private syncToUrlOrgId(urlOrgId: string): void {
+    const orgs = this.organizations();
+    const currentOrg = this.currentOrganizationService.currentOrganization();
+    const org = orgs.find((o) => o.id === urlOrgId);
+    if (org && (!currentOrg || currentOrg.id !== org.id)) {
+      this.selectOrganization(org.id);
+    }
   }
 
   private loadOrganizations(): void {
@@ -285,38 +298,23 @@ export class MainLayoutComponent implements OnInit {
         this.organizations.set(orgs);
         this.loading.set(false);
 
-        // Get current selected org from service
         const currentOrg = this.currentOrganizationService.currentOrganization();
+        const urlOrgId = this.orgIdFromUrl();
 
-        // Try to get orgId from route params - check parent routes too
-        let routeOrgId: string | null = null;
-        let route = this.route;
-        while (route) {
-          routeOrgId = route.snapshot.paramMap.get('orgId') ?? route.snapshot.paramMap.get('id');
-          if (routeOrgId) break;
-          route = route.parent!;
-        }
-
-        if (routeOrgId) {
-          // On org-prefixed route - use the route's orgId if it exists
-          const org = orgs.find((o) => o.id === routeOrgId);
+        if (urlOrgId) {
+          const org = orgs.find((o) => o.id === urlOrgId);
           if (org) {
-            // Only update if different from current (prevents unnecessary switches on internal nav)
             if (!currentOrg || currentOrg.id !== org.id) {
               this.selectOrganization(org.id);
             } else {
-              // Just update the local signal without triggering service change
               this.currentOrganizationId.set(org.id);
             }
           } else if (!currentOrg && orgs.length > 0) {
-            // Route orgId not found, and no org selected - fallback to first
             this.selectOrganization(orgs[0].id);
           }
         } else if (currentOrg) {
-          // On admin route but have an org selected - just sync the local signal
           this.currentOrganizationId.set(currentOrg.id);
         } else if (orgs.length > 0) {
-          // No orgId in route (admin routes) and no org selected - auto-select first
           this.selectOrganization(orgs[0].id);
         }
       },

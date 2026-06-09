@@ -11,9 +11,9 @@ export interface AccountGroupDetails extends AccountGroup {
 }
 
 export abstract class AccountGroupEditDataService {
-  abstract getGroup(id: string): Observable<AccountGroupDetails>;
-  abstract updateGroup(id: string, name: string, description: string): Observable<AccountGroupDetails>;
-  abstract getAllAccountsWithOperations(groupId: string): Observable<AccountWithOperation[]>;
-  abstract updateAccountOperation(groupId: string, accountId: string, operation: AccountGroupOperation): Observable<void>;
-  abstract deleteGroup(id: string): Observable<void>;
+  abstract getGroup(organizationId: string, id: string): Observable<AccountGroupDetails>;
+  abstract updateGroup(organizationId: string, id: string, name: string, description: string): Observable<AccountGroupDetails>;
+  abstract getAllAccountsWithOperations(organizationId: string, accountGroupId: string): Observable<AccountWithOperation[]>;
+  abstract updateAccountOperation(organizationId: string, accountGroupId: string, accountId: string, operation: AccountGroupOperation): Observable<void>;
+  abstract deleteGroup(organizationId: string, id: string): Observable<void>;
 }

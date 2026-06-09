@@ -4,7 +4,6 @@ import { TransactionServiceService } from '../../api/services/transaction-servic
 import { TransactionAccountAssignmentServiceService } from '../../api/services/transaction-account-assignment-service.service';
 import { TransactionAccountServiceService } from '../../api/services/transaction-account-service.service';
 import { AccountServiceService } from '../../api/services/account-service.service';
-import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import { Transaction, Account } from '../../../app/shared/models';
 import { TransactionEditDataService } from '../../../app/routes/transactions/transaction-edit/transaction-edit.data-service';
 import { mapApiAccount, mapApiTransaction, mapApiTransactionAccountAssignment } from './_mappers';
@@ -15,27 +14,23 @@ export class HttpTransactionEditDataService extends TransactionEditDataService {
   private readonly assignmentSvc = inject(TransactionAccountAssignmentServiceService);
   private readonly txnAccountSvc = inject(TransactionAccountServiceService);
   private readonly accountSvc = inject(AccountServiceService);
-  private readonly orgSvc = inject(CurrentOrganizationService);
 
-  private get parent(): string {
-    return `organizations/${this.orgSvc.currentOrganization()!.id}`;
+  private txnName(organizationId: string, uid: string): string {
+    return `organizations/${organizationId}/transactions/${uid}`;
   }
 
-  private txnName(uid: string): string {
-    return `${this.parent}/transactions/${uid}`;
+  private assignmentName(organizationId: string, txnId: string, assignmentId: string): string {
+    return `${this.txnName(organizationId, txnId)}/assignments/${assignmentId}`;
   }
 
-  private assignmentName(txnId: string, assignmentId: string): string {
-    return `${this.txnName(txnId)}/assignments/${assignmentId}`;
-  }
-
-  getTransaction(id: string): Observable<Transaction> {
-    const txnName = this.txnName(id);
+  getTransaction(organizationId: string, id: string): Observable<Transaction> {
+    const txnName = this.txnName(organizationId, id);
+    const parent = `organizations/${organizationId}`;
     return combineLatest([
       this.txnSvc.TransactionServiceGetTransaction(txnName),
       this.assignmentSvc.TransactionAccountAssignmentServiceListTransactionAccountAssignments({ parent1: txnName, pageSize: 100 }),
-      this.txnAccountSvc.TransactionAccountServiceListTransactionAccounts({ parent: this.parent, pageSize: 100 }),
-      this.accountSvc.AccountServiceListAccounts({ parent: this.parent, pageSize: 100, showDeleted: false }),
+      this.txnAccountSvc.TransactionAccountServiceListTransactionAccounts({ parent, pageSize: 100 }),
+      this.accountSvc.AccountServiceListAccounts({ parent, pageSize: 100, showDeleted: false }),
     ]).pipe(
       map(([txn, assignmentsResp, txnAccountsResp, accountsResp]) => {
         const txnAccountsMap = new Map(
@@ -69,8 +64,8 @@ export class HttpTransactionEditDataService extends TransactionEditDataService {
     );
   }
 
-  updateTransaction(id: string, description: string): Observable<Transaction> {
-    const name = this.txnName(id);
+  updateTransaction(organizationId: string, id: string, description: string): Observable<Transaction> {
+    const name = this.txnName(organizationId, id);
     return this.txnSvc.TransactionServiceGetTransaction(name).pipe(
       switchMap((existing) =>
         this.txnSvc.TransactionServiceUpdateTransaction({
@@ -90,22 +85,22 @@ export class HttpTransactionEditDataService extends TransactionEditDataService {
     );
   }
 
-  getAvailableAccounts(): Observable<Account[]> {
-    return this.accountSvc.AccountServiceListAccounts({ parent: this.parent, pageSize: 100, showDeleted: false }).pipe(
+  listAvailableAccounts(organizationId: string): Observable<Account[]> {
+    return this.accountSvc.AccountServiceListAccounts({ parent: `organizations/${organizationId}`, pageSize: 100, showDeleted: false }).pipe(
       map((resp) => (resp.accounts ?? []).map(mapApiAccount)),
     );
   }
 
-  addAssignment(transactionId: string, accountId: string, value: string): Observable<void> {
+  addAssignment(organizationId: string, transactionId: string, accountId: string, value: string): Observable<void> {
     return this.assignmentSvc.TransactionAccountAssignmentServiceCreateTransactionAccountAssignment({
-      parent1: this.txnName(transactionId),
+      parent1: this.txnName(organizationId, transactionId),
       assignment: { account_id: accountId, value: { value } },
     }).pipe(map(() => undefined));
   }
 
-  removeAssignment(transactionId: string, assignmentId: string): Observable<void> {
+  removeAssignment(organizationId: string, transactionId: string, assignmentId: string): Observable<void> {
     return this.assignmentSvc.TransactionAccountAssignmentServiceDeleteTransactionAccountAssignment(
-      this.assignmentName(transactionId, assignmentId),
+      this.assignmentName(organizationId, transactionId, assignmentId),
     ).pipe(map(() => undefined));
   }
 }

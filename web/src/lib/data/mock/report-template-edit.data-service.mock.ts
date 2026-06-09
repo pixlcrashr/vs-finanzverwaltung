@@ -41,11 +41,11 @@ export class MockReportTemplateEditDataService extends ReportTemplateEditDataSer
     updatedAt: faker.date.recent({ days: 30 }),
   };
 
-  getTemplate(id: string): Observable<ReportTemplate> {
+  getTemplate(organizationId: string, id: string): Observable<ReportTemplate> {
     return of({ ...this.template, id }).pipe(delay(300));
   }
 
-  updateTemplate(id: string, input: UpdateTemplateInput): Observable<ReportTemplate> {
+  updateTemplate(organizationId: string, id: string, input: UpdateTemplateInput): Observable<ReportTemplate> {
     this.template = {
       ...this.template,
       id,

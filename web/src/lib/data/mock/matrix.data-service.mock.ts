@@ -94,16 +94,16 @@ const MOCK_EDITABLE_VALUES: MatrixEditableValuesByBudget[] = MOCK_BUDGETS.map(bu
 
 @Injectable()
 export class MockMatrixDataService extends MatrixDataService {
-  getBudgets(): Observable<Budget[]> {
+  listBudgets(organizationId: string): Observable<Budget[]> {
     return of(MOCK_BUDGETS).pipe(delay(500));
   }
 
-  getAccounts(): Observable<Account[]> {
+  listAccounts(organizationId: string): Observable<Account[]> {
     return of(MOCK_ACCOUNTS).pipe(delay(500));
   }
 
-  getMatrixTargetValues(): Observable<MatrixTargetValues> {
-    return this.getBudgets().pipe(
+  listMatrixTargetValues(organizationId: string): Observable<MatrixTargetValues> {
+    return this.listBudgets(organizationId).pipe(
       map(budgets => {
         const values: MatrixTargetValues = {};
         budgets.forEach(budget => {
@@ -122,8 +122,8 @@ export class MockMatrixDataService extends MatrixDataService {
     );
   }
 
-  getMatrixActualValues(): Observable<MatrixActualValues> {
-    return this.getBudgets().pipe(
+  listMatrixActualValues(organizationId: string): Observable<MatrixActualValues> {
+    return this.listBudgets(organizationId).pipe(
       map(budgets => {
         const values: MatrixActualValues = {};
         budgets.forEach(budget => {
@@ -140,11 +140,11 @@ export class MockMatrixDataService extends MatrixDataService {
     );
   }
 
-  getMatrixEditableValues(): Observable<MatrixEditableValuesByBudget[]> {
+  listMatrixEditableValues(organizationId: string): Observable<MatrixEditableValuesByBudget[]> {
     return of(MOCK_EDITABLE_VALUES).pipe(delay(500));
   }
 
-  updateMatrixBudgetValues(updates: MatrixBudgetValueUpdate[]): Observable<void> {
+  updateMatrixBudgetValues(organizationId: string, updates: MatrixBudgetValueUpdate[]): Observable<void> {
     console.log('MockMatrixDataService.updateMatrixBudgetValues called with:', updates);
 
     updates.forEach(update => {

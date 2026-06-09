@@ -14,12 +14,13 @@ import { SharedBudgetMockData } from './_shared-budget-data';
 export class MockBudgetEditDataService extends BudgetEditDataService {
   private sharedData = SharedBudgetMockData.getInstance();
 
-  getBudget(id: string): Observable<BudgetDetails> {
+  getBudget(organizationId: string, id: string): Observable<BudgetDetails> {
     const data = this.sharedData.getBudgetDetailsOrCreate(id);
     return of({ ...data.budget }).pipe(delay(300));
   }
 
   updateBudget(
+    organizationId: string,
     id: string,
     name: string,
     description: string,
@@ -45,7 +46,7 @@ export class MockBudgetEditDataService extends BudgetEditDataService {
   // Changes are now account-based and computed by the server.
   // In the mock, we keep the existing changes from the shared data.
 
-  addTag(budgetId: string, date: Date, name: string, description: string, force: boolean): Observable<BudgetTag> {
+  createBudgetRevision(organizationId: string, budgetId: string, date: Date, name: string, description: string, force: boolean): Observable<BudgetTag> {
     const data = this.sharedData.getBudgetDetails(budgetId);
     if (!data) {
       return throwError(() => new Error('Budget not found'));
@@ -83,7 +84,7 @@ export class MockBudgetEditDataService extends BudgetEditDataService {
     return of(tag).pipe(delay(300));
   }
 
-  updateTagPublication(id: string, isPublished: boolean): Observable<void> {
+  updateBudgetRevision(organizationId: string, id: string, isPublished: boolean): Observable<void> {
     const allBudgets = this.sharedData.getAllBudgets();
     for (const budget of allBudgets) {
       const data = this.sharedData.getBudgetDetails(budget.id);
@@ -97,7 +98,7 @@ export class MockBudgetEditDataService extends BudgetEditDataService {
     return of(undefined).pipe(delay(300));
   }
 
-  deleteTag(id: string): Observable<void> {
+  deleteBudgetRevision(organizationId: string, id: string): Observable<void> {
     const allBudgets = this.sharedData.getAllBudgets();
     for (const budget of allBudgets) {
       const data = this.sharedData.getBudgetDetails(budget.id);
@@ -112,7 +113,7 @@ export class MockBudgetEditDataService extends BudgetEditDataService {
     return of(undefined).pipe(delay(300));
   }
 
-  closeBudget(id: string): Observable<void> {
+  closeBudget(organizationId: string, id: string): Observable<void> {
     this.sharedData.updateBudget(id, { isClosed: true });
     return of(undefined).pipe(delay(300));
   }

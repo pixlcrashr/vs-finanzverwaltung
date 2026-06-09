@@ -38,17 +38,17 @@ export class MockTransactionEditDataService extends TransactionEditDataService {
     ],
   };
 
-  getTransaction(id: string): Observable<Transaction> {
+  getTransaction(organizationId: string, id: string): Observable<Transaction> {
     return of({ ...this.transaction, id }).pipe(delay(300));
   }
 
-  updateTransaction(id: string, description: string): Observable<Transaction> {
+  updateTransaction(organizationId: string, id: string, description: string): Observable<Transaction> {
     this.transaction.description = description;
     this.transaction.updatedAt = new Date();
     return of({ ...this.transaction, id }).pipe(delay(300));
   }
 
-  getAvailableAccounts(): Observable<Account[]> {
+  listAvailableAccounts(organizationId: string): Observable<Account[]> {
     return of([
       this.createAccount('2.1.3', 'Weiterbildung'),
       this.createAccount('2.2.1', 'Büromaterial'),
@@ -57,7 +57,7 @@ export class MockTransactionEditDataService extends TransactionEditDataService {
     ]).pipe(delay(200));
   }
 
-  addAssignment(transactionId: string, accountId: string, value: string): Observable<void> {
+  addAssignment(organizationId: string, transactionId: string, accountId: string, value: string): Observable<void> {
     this.transaction.accountAssignments.push({
       id: faker.string.uuid(),
       accountId,
@@ -68,7 +68,7 @@ export class MockTransactionEditDataService extends TransactionEditDataService {
     return of(undefined).pipe(delay(300));
   }
 
-  removeAssignment(transactionId: string, assignmentId: string): Observable<void> {
+  removeAssignment(organizationId: string, transactionId: string, assignmentId: string): Observable<void> {
     this.transaction.accountAssignments = this.transaction.accountAssignments.filter(
       (a) => a.id !== assignmentId
     );

@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { AccountGroupServiceService } from '../../api/services/account-group-service.service';
-import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import { AccountGroup } from '../../../app/shared/models';
 import { AccountGroupListDataService } from '../../../app/routes/account-groups/account-group-list/account-group-list.data-service';
 import { mapApiAccountGroup } from './_mappers';
@@ -9,30 +8,25 @@ import { mapApiAccountGroup } from './_mappers';
 @Injectable()
 export class HttpAccountGroupListDataService extends AccountGroupListDataService {
   private readonly svc = inject(AccountGroupServiceService);
-  private readonly orgSvc = inject(CurrentOrganizationService);
 
-  private get parent(): string {
-    return `organizations/${this.orgSvc.currentOrganization()!.id}`;
+  private groupName(organizationId: string, uid: string): string {
+    return `organizations/${organizationId}/accountGroups/${uid}`;
   }
 
-  private groupName(uid: string): string {
-    return `${this.parent}/accountGroups/${uid}`;
-  }
-
-  getGroups(): Observable<AccountGroup[]> {
-    return this.svc.AccountGroupServiceListAccountGroups({ parent: this.parent, pageSize: 100 }).pipe(
+  listGroups(organizationId: string): Observable<AccountGroup[]> {
+    return this.svc.AccountGroupServiceListAccountGroups({ parent: `organizations/${organizationId}`, pageSize: 100 }).pipe(
       map((resp) => (resp.account_groups ?? []).map(mapApiAccountGroup)),
     );
   }
 
-  createGroup(name: string, description: string): Observable<AccountGroup> {
+  createGroup(organizationId: string, name: string, description: string): Observable<AccountGroup> {
     return this.svc.AccountGroupServiceCreateAccountGroup({
-      parent: this.parent,
+      parent: `organizations/${organizationId}`,
       accountGroup: { display_name: name, display_description: description },
     }).pipe(map(mapApiAccountGroup));
   }
 
-  deleteGroup(id: string): Observable<void> {
-    return this.svc.AccountGroupServiceDeleteAccountGroup(this.groupName(id)).pipe(map(() => undefined));
+  deleteGroup(organizationId: string, id: string): Observable<void> {
+    return this.svc.AccountGroupServiceDeleteAccountGroup(this.groupName(organizationId, id)).pipe(map(() => undefined));
   }
 }

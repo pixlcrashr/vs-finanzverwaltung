@@ -155,7 +155,7 @@ export class ReportTemplateListComponent {
   }
 
   private loadTemplates(): void {
-    this.dataService.getTemplates().subscribe({
+    this.dataService.listTemplates(this.orgId).subscribe({
       next: (templates) => {
         this.templates.set(templates);
         this.loading.set(false);
@@ -189,7 +189,7 @@ export class ReportTemplateListComponent {
   }
 
   private deleteTemplate(template: ReportTemplate): void {
-    this.dataService.deleteTemplate(template.id).subscribe({
+    this.dataService.deleteTemplate(this.orgId, template.id).subscribe({
       next: () => {
         this.templates.update((templates) => templates.filter((t) => t.id !== template.id));
       },

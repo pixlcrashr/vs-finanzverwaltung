@@ -11,12 +11,13 @@ import {
 export class MockAccountEditDataService extends AccountEditDataService {
   private accounts: AccountDetails[] = this.generateAccounts();
 
-  getAccount(id: string): Observable<AccountDetails> {
+  getAccount(organizationId: string, id: string): Observable<AccountDetails> {
     const account = this.accounts.find((a) => a.id === id) || this.accounts[0];
     return of(account).pipe(delay(300));
   }
 
   updateAccount(
+    organizationId: string,
     id: string,
     name: string,
     code: string,
@@ -32,7 +33,7 @@ export class MockAccountEditDataService extends AccountEditDataService {
     return of(account || this.accounts[0]).pipe(delay(300));
   }
 
-  getParentAccounts(): Observable<Account[]> {
+  listParentAccounts(organizationId: string): Observable<Account[]> {
     return of(this.accounts.filter((a) => a.depth === 0)).pipe(delay(200));
   }
 

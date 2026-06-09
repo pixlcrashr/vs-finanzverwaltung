@@ -15,11 +15,11 @@ export class MockCreateReportDialogDataService extends CreateReportDialogDataSer
     { id: 't3', name: 'Kontenübersicht' },
   ];
 
-  getTemplates(): Observable<ReportTemplateOption[]> {
+  listTemplates(organizationId: string): Observable<ReportTemplateOption[]> {
     return of([...this.templates]).pipe(delay(300));
   }
 
-  generateReport(templateId: string, name: string): Observable<CreatedReport> {
+  generateReport(organizationId: string, templateId: string, name: string): Observable<CreatedReport> {
     const template = this.templates.find((t) => t.id === templateId);
     return of({
       id: faker.string.uuid(),

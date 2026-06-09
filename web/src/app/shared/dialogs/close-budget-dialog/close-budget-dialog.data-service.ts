@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
 
 export abstract class CloseBudgetDialogDataService {
-  abstract closeBudget(budgetId: string): Observable<void>;
+  abstract closeBudget(organizationId: string, budgetId: string): Observable<void>;
 }

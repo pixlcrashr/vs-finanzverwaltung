@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, map, switchMap } from 'rxjs';
 import { AccountServiceService } from '../../api/services/account-service.service';
-import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import { Account } from '../../../app/shared/models';
 import { AccountListDataService } from '../../../app/routes/accounts/account-list/account-list.data-service';
 import { mapApiAccount, buildAccountTree } from './_mappers';
@@ -9,18 +8,16 @@ import { mapApiAccount, buildAccountTree } from './_mappers';
 @Injectable()
 export class HttpAccountListDataService extends AccountListDataService {
   private readonly svc = inject(AccountServiceService);
-  private readonly orgSvc = inject(CurrentOrganizationService);
-
-  private get parent(): string {
-    return `organizations/${this.orgSvc.currentOrganization()!.id}`;
+  private orgParent(organizationId: string): string {
+    return `organizations/${organizationId}`;
   }
 
-  private accountName(uid: string): string {
-    return `${this.parent}/accounts/${uid}`;
+  private accountName(organizationId: string, uid: string): string {
+    return `${this.orgParent(organizationId)}/accounts/${uid}`;
   }
 
-  getAccounts(): Observable<Account[]> {
-    return this.svc.AccountServiceListAccounts({ parent: this.parent, pageSize: 100, showDeleted: true }).pipe(
+  listAccounts(organizationId: string): Observable<Account[]> {
+    return this.svc.AccountServiceListAccounts({ parent: this.orgParent(organizationId), pageSize: 100, showDeleted: true }).pipe(
       map((resp) => {
         const flat = (resp.accounts ?? []).map(mapApiAccount);
         return buildAccountTree(flat);
@@ -29,14 +26,15 @@ export class HttpAccountListDataService extends AccountListDataService {
   }
 
   createAccount(
+    organizationId: string,
     name: string,
     code: string,
     description: string,
     parentAccountId: string | null,
   ): Observable<Account> {
-    const parentAccount = parentAccountId ? this.accountName(parentAccountId) : undefined;
+    const parentAccount = parentAccountId ? this.accountName(organizationId, parentAccountId) : undefined;
     return this.svc.AccountServiceCreateAccount({
-      parent: this.parent,
+      parent: this.orgParent(organizationId),
       account: {
         display_name: name,
         display_code: code,
@@ -46,16 +44,16 @@ export class HttpAccountListDataService extends AccountListDataService {
     }).pipe(map(mapApiAccount));
   }
 
-  deleteAccount(id: string): Observable<void> {
-    return this.svc.AccountServiceDeleteAccount(this.accountName(id)).pipe(map(() => undefined));
+  deleteAccount(organizationId: string, id: string): Observable<void> {
+    return this.svc.AccountServiceDeleteAccount(this.accountName(organizationId, id)).pipe(map(() => undefined));
   }
 
-  archiveAccount(id: string): Observable<void> {
-    return this.svc.AccountServiceArchiveAccount({ name: this.accountName(id), body: {} }).pipe(map(() => undefined));
+  archiveAccount(organizationId: string, id: string): Observable<void> {
+    return this.svc.AccountServiceArchiveAccount({ name: this.accountName(organizationId, id), body: {} }).pipe(map(() => undefined));
   }
 
-  restoreAccount(id: string): Observable<void> {
-    const name = this.accountName(id);
+  restoreAccount(organizationId: string, id: string): Observable<void> {
+    const name = this.accountName(organizationId, id);
     return this.svc.AccountServiceGetAccount(name).pipe(
       switchMap((existing) =>
         this.svc.AccountServiceUpdateAccount({

@@ -2,7 +2,6 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, combineLatest, map } from 'rxjs';
 import { TransactionServiceService } from '../../api/services/transaction-service.service';
 import { TransactionAccountServiceService } from '../../api/services/transaction-account-service.service';
-import { CurrentOrganizationService } from '../../../app/shared/services/current-organization.service';
 import {
   JournalListDataService,
   JournalEntry,
@@ -15,20 +14,17 @@ import {
 export class HttpJournalListDataService extends JournalListDataService {
   private readonly txnSvc = inject(TransactionServiceService);
   private readonly txnAccountSvc = inject(TransactionAccountServiceService);
-  private readonly orgSvc = inject(CurrentOrganizationService);
 
-  private get parent(): string {
-    return `organizations/${this.orgSvc.currentOrganization()!.id}`;
-  }
-
-  getEntries(
+  listTransactions(
+    organizationId: string,
     _page: number,
     pageSize: number,
     filters?: JournalEntryFilters,
   ): Observable<{ entries: JournalEntry[]; total: number }> {
+    const parent = `organizations/${organizationId}`;
     return combineLatest([
-      this.txnSvc.TransactionServiceListTransactions({ parent: this.parent, pageSize }),
-      this.txnAccountSvc.TransactionAccountServiceListTransactionAccounts({ parent: this.parent, pageSize: 100 }),
+      this.txnSvc.TransactionServiceListTransactions({ parent, pageSize }),
+      this.txnAccountSvc.TransactionAccountServiceListTransactionAccounts({ parent, pageSize: 100 }),
     ]).pipe(
       map(([txnResp, txnAccountsResp]) => {
         const txnAccountsMap = new Map(

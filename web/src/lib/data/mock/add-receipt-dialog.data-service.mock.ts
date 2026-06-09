@@ -12,7 +12,7 @@ export class MockAddReceiptDialogDataService extends AddReceiptDialogDataService
   private receiptCounter = 1;
   private invoiceCounter = 1;
 
-  uploadReceipt(params: AddReceiptParams): Observable<InvoiceItem> {
+  uploadReceipt(organizationId: string, params: AddReceiptParams): Observable<InvoiceItem> {
     const year = new Date().getFullYear();
     const isReceipt = params.type === 'receipt';
     const counter = isReceipt ? this.receiptCounter++ : this.invoiceCounter++;

@@ -171,11 +171,12 @@ export class ReportTemplateNewComponent {
     if (!this.isValid()) return;
 
     this.saving.set(true);
-    this.dataService.createTemplate({
-      name: this.name.trim(),
-      description: this.description.trim(),
-      template: this.templateContent,
-    }).subscribe({
+    this.dataService.createTemplate(
+      this.getOrgId(),
+      this.name.trim(),
+      this.description.trim(),
+      this.templateContent,
+    ).subscribe({
       next: () => {
         this.router.navigate(['/organizations', this.getOrgId(), 'reportTemplates']);
       },

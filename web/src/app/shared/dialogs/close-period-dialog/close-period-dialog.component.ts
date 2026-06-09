@@ -9,6 +9,7 @@ import { ButtonComponent } from '../../components';
 import { ClosePeriodDialogDataService } from './close-period-dialog.data-service';
 
 export interface ClosePeriodDialogInput {
+  organizationId: string;
   importSourceId: string;
   periodId: string;
   periodYear: number;
@@ -61,7 +62,7 @@ export class ClosePeriodDialogComponent {
   confirm(): void {
     this.closing.set(true);
 
-    this.dataService.closePeriod(this.data.importSourceId, this.data.periodId).subscribe({
+    this.dataService.closePeriod(this.data.organizationId, this.data.importSourceId, this.data.periodId).subscribe({
       next: () => {
         this.closing.set(false);
         this.dialogRef.close({ closed: true });

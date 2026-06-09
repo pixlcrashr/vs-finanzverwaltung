@@ -9,15 +9,15 @@ export class MockReportListDataService extends ReportListDataService {
   private reports: Report[] = this.generateReports();
   private templates: ReportTemplate[] = this.generateTemplates();
 
-  getReports(): Observable<Report[]> {
+  listReports(organizationId: string): Observable<Report[]> {
     return of([...this.reports]).pipe(delay(300));
   }
 
-  getTemplates(): Observable<ReportTemplate[]> {
+  listTemplates(organizationId: string): Observable<ReportTemplate[]> {
     return of([...this.templates]).pipe(delay(200));
   }
 
-  generateReport(templateId: string, name: string): Observable<Report> {
+  generateReport(organizationId: string, templateId: string, name: string): Observable<Report> {
     const template = this.templates.find((t) => t.id === templateId);
     const report: Report = {
       id: faker.string.uuid(),
@@ -30,7 +30,7 @@ export class MockReportListDataService extends ReportListDataService {
     return of(report).pipe(delay(500));
   }
 
-  deleteReport(id: string): Observable<void> {
+  deleteReport(organizationId: string, id: string): Observable<void> {
     this.reports = this.reports.filter((r) => r.id !== id);
     return of(undefined).pipe(delay(300));
   }

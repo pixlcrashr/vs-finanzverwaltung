@@ -47,7 +47,7 @@ func cr(db *gorm.DB, v any) error { return db.Create(v).Error }
 
 func seed(db *gorm.DB) error {
 	// ── Organizations ────────────────────────────────────────────────────────
-	a // org1: Verein Musterstadt – a registered association (Verein), focuses on
+	// org1: Verein Musterstadt – a registered association (Verein), focuses on
 	//       membership fees, event income, and operating expenses.
 	// org2: Handwerk Süd GmbH – a small craft company, focuses on materials,
 	//       wages, and customer invoices.

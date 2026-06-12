@@ -239,6 +239,9 @@ class ImportSourcePeriodServiceService extends __BaseService {
    * - `parent`: The parent import source resource name.
    *   Format: organizations/{organization}/importSources/{import_source}
    *
+   * - `import_source_period_id`: The ID to use for the period. If not provided, a system-generated UUID
+   *   will be used. Must be unique within the parent import source.
+   *
    * @return A successful response.
    */
   ImportSourcePeriodServiceCreateImportSourcePeriodResponse(params: ImportSourcePeriodServiceService.ImportSourcePeriodServiceCreateImportSourcePeriodParams): __Observable<__StrictHttpResponse<V1ImportSourcePeriod>> {
@@ -247,6 +250,7 @@ class ImportSourcePeriodServiceService extends __BaseService {
     let __body: any = null;
     __body = params.period;
 
+    if (params.importSourcePeriodId != null) __params = __params.set('import_source_period_id', params.importSourcePeriodId.toString());
     let req = new HttpRequest<any>(
       'POST',
       this.rootUrl + `/v1/${encodeURIComponent(String(params.parent))}/periods`,
@@ -272,6 +276,9 @@ class ImportSourcePeriodServiceService extends __BaseService {
    *
    * - `parent`: The parent import source resource name.
    *   Format: organizations/{organization}/importSources/{import_source}
+   *
+   * - `import_source_period_id`: The ID to use for the period. If not provided, a system-generated UUID
+   *   will be used. Must be unique within the parent import source.
    *
    * @return A successful response.
    */
@@ -347,6 +354,12 @@ module ImportSourcePeriodServiceService {
      * Format: organizations/{organization}/importSources/{import_source}
      */
     parent: string;
+
+    /**
+     * The ID to use for the period. If not provided, a system-generated UUID
+     * will be used. Must be unique within the parent import source.
+     */
+    importSourcePeriodId?: string;
   }
 }
 

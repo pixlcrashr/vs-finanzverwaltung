@@ -27,4 +27,10 @@ export class HttpOrganizationEditDataService extends OrganizationEditDataService
       organization: { display_name: input.name },
     }).pipe(map((o) => ({ id: o.uid ?? '', name: o.display_name, description: '' })));
   }
+
+  deleteOrganization(id: string): Observable<void> {
+    return this.svc.OrganizationServiceDeleteOrganization(this.orgName(id)).pipe(
+      map(() => undefined),
+    );
+  }
 }

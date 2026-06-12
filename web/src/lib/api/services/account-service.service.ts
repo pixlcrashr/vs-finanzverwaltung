@@ -361,6 +361,9 @@ class AccountServiceService extends __BaseService {
    *
    * - `account`: The account to create.
    *
+   * - `account_id`: The ID to use for the account. If not provided, a system-generated UUID
+   *   will be used. Must be unique within the parent organization.
+   *
    * @return A successful response.
    */
   AccountServiceCreateAccountResponse(params: AccountServiceService.AccountServiceCreateAccountParams): __Observable<__StrictHttpResponse<V1Account>> {
@@ -369,6 +372,7 @@ class AccountServiceService extends __BaseService {
     let __body: any = null;
 
     __body = params.account;
+    if (params.accountId != null) __params = __params.set('account_id', params.accountId.toString());
     let req = new HttpRequest<any>(
       'POST',
       this.rootUrl + `/v1/${encodeURIComponent(String(params.parent))}/accounts`,
@@ -394,6 +398,9 @@ class AccountServiceService extends __BaseService {
    *   Format: organizations/{organization}
    *
    * - `account`: The account to create.
+   *
+   * - `account_id`: The ID to use for the account. If not provided, a system-generated UUID
+   *   will be used. Must be unique within the parent organization.
    *
    * @return A successful response.
    */
@@ -568,6 +575,12 @@ module AccountServiceService {
      * The account to create.
      */
     account: V1Account;
+
+    /**
+     * The ID to use for the account. If not provided, a system-generated UUID
+     * will be used. Must be unique within the parent organization.
+     */
+    accountId?: string;
   }
 
   /**

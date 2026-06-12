@@ -186,6 +186,7 @@ export class ImportSourceEditComponent implements OnInit, OnDestroy {
   readonly importSource = signal<ImportSource | null>(null);
 
   readonly breadcrumbs = signal<BreadcrumbItem[]>([
+    { label: $localize`Administration` },
     { label: $localize`Importquellen`, path: '/admin/importSources' },
     { label: $localize`Laden...` },
   ]);
@@ -235,6 +236,7 @@ export class ImportSourceEditComponent implements OnInit, OnDestroy {
         }, { emitEvent: false });
         this.sourceForm.markAsPristine();
         this.breadcrumbs.set([
+          { label: $localize`Administration` },
           { label: $localize`Importquellen`, path: '/admin/importSources' },
           { label: source.name },
         ]);
@@ -263,6 +265,7 @@ export class ImportSourceEditComponent implements OnInit, OnDestroy {
         this.sourceForm.markAsPristine();
         // Update breadcrumbs with new name
         this.breadcrumbs.set([
+          { label: $localize`Administration` },
           { label: $localize`Importquellen`, path: '/admin/importSources' },
           { label: name.trim() },
         ]);

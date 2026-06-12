@@ -15,6 +15,7 @@ import { CreateAccountDialogDataService } from './shared/dialogs/create-account-
 import { CreateReportDialogDataService } from './shared/dialogs/create-report-dialog/create-report-dialog.data-service';
 import { ClosePeriodDialogDataService } from './shared/dialogs/close-period-dialog/close-period-dialog.data-service';
 import { AddReceiptDialogDataService } from './shared/dialogs/add-receipt-dialog/add-receipt-dialog.data-service';
+import { CreateOrganizationDialogDataService } from './shared/dialogs/create-organization-dialog/create-organization-dialog.data-service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -31,5 +32,6 @@ export const appConfig: ApplicationConfig = {
     { provide: CreateReportDialogDataService, useClass: environment.dataServices.createReportDialog },
     { provide: ClosePeriodDialogDataService, useClass: environment.dataServices.closePeriodDialog },
     { provide: AddReceiptDialogDataService, useClass: environment.dataServices.addReceiptDialog },
+    { provide: CreateOrganizationDialogDataService, useClass: environment.dataServices.createOrganizationDialog },
   ],
 };

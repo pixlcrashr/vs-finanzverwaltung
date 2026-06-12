@@ -15,6 +15,7 @@ import {
   BreadcrumbItem,
   LoadingSpinnerComponent,
   NotificationService,
+  ButtonComponent,
 } from '../../../shared/components';
 import { Organization } from '../../../shared/models';
 import { OrganizationEditDataService } from './organization-edit.data-service';
@@ -26,6 +27,7 @@ import { OrganizationEditDataService } from './organization-edit.data-service';
     ReactiveFormsModule,
     PageContentLayoutComponent,
     LoadingSpinnerComponent,
+    ButtonComponent,
   ],
   template: `
     <app-page-content-layout [breadcrumbs]="breadcrumbs()">
@@ -105,13 +107,15 @@ import { OrganizationEditDataService } from './organization-edit.data-service';
                 <div class="bg-white rounded-lg border border-gray-200 p-4">
                   <h3 i18n class="text-xs font-semibold text-gray-500 uppercase mb-3">Aktionen</h3>
                   <div class="space-y-2">
-                    <button
-                      (click)="enterOrganization()"
-                      class="w-full px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      i18n
+                    <app-button
+                      variant="danger"
+                      size="md"
+                      [fullWidth]="true"
+                      [loading]="deleting()"
+                      (clicked)="deleteOrganization()"
                     >
-                      Organisation öffnen
-                    </button>
+                      <ng-container i18n>Organisation löschen</ng-container>
+                    </app-button>
                   </div>
                 </div>
               </div>
@@ -133,8 +137,10 @@ export class OrganizationEditComponent implements OnInit, OnDestroy {
 
   readonly loading = signal(true);
   readonly saving = signal(false);
+  readonly deleting = signal(false);
   readonly organization = signal<Organization | null>(null);
   readonly breadcrumbs = signal<BreadcrumbItem[]>([
+    { label: $localize`Administration` },
     { label: $localize`Organisationen`, path: '/admin/organizations' },
     { label: $localize`Laden...` },
   ]);
@@ -184,6 +190,7 @@ export class OrganizationEditComponent implements OnInit, OnDestroy {
         }, { emitEvent: false });
         this.organizationForm.markAsPristine();
         this.breadcrumbs.set([
+          { label: $localize`Administration` },
           { label: $localize`Organisationen`, path: '/admin/organizations' },
           { label: org.name },
         ]);
@@ -212,6 +219,7 @@ export class OrganizationEditComponent implements OnInit, OnDestroy {
         this.organizationForm.markAsPristine();
         // Update breadcrumbs with new name
         this.breadcrumbs.set([
+          { label: $localize`Administration` },
           { label: $localize`Organisationen`, path: '/admin/organizations' },
           { label: name.trim() },
         ]);
@@ -223,7 +231,21 @@ export class OrganizationEditComponent implements OnInit, OnDestroy {
     });
   }
 
-  enterOrganization(): void {
-    this.router.navigate(['/organizations', this.organizationId, 'dashboard']);
+  deleteOrganization(): void {
+    if (!confirm($localize`Sind Sie sicher, dass Sie diese Organisation löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.`)) {
+      return;
+    }
+
+    this.deleting.set(true);
+    this.dataService.deleteOrganization(this.organizationId).subscribe({
+      next: () => {
+        this.notifications.success($localize`Organisation gelöscht`);
+        this.router.navigate(['/admin/organizations']);
+      },
+      error: () => {
+        this.notifications.error($localize`Fehler beim Löschen der Organisation`);
+        this.deleting.set(false);
+      },
+    });
   }
 }

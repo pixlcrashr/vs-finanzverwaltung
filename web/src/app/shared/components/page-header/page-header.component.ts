@@ -24,10 +24,16 @@ export interface BreadcrumbItem {
             <ol class="flex items-center space-x-1.5 text-xs">
               @for (item of breadcrumbs(); track item.label; let last = $last) {
                 <li class="flex items-center">
-                  @if (!last && item.path) {
-                    <a [routerLink]="item.path" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
-                      {{ item.label }}
-                    </a>
+                  @if (!last) {
+                    @if (item.path) {
+                      <a [routerLink]="item.path" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
+                        {{ item.label }}
+                      </a>
+                    } @else {
+                      <span class="font-medium text-gray-900 dark:text-gray-100">
+                        {{ item.label }}
+                      </span>
+                    }
                     <svg
                       class="w-3 h-3 mx-1.5 text-gray-400 dark:text-gray-600"
                       fill="none"

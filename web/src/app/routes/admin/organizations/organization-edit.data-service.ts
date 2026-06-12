@@ -9,4 +9,5 @@ export interface UpdateOrganizationInput {
 export abstract class OrganizationEditDataService {
   abstract getOrganization(id: string): Observable<Organization>;
   abstract updateOrganization(id: string, input: UpdateOrganizationInput): Observable<Organization>;
+  abstract deleteOrganization(id: string): Observable<void>;
 }

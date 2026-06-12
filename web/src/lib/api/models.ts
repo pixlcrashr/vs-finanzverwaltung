@@ -14,6 +14,8 @@ export { V1Budget } from './models/v1budget';
 export { V1BudgetAccountValue } from './models/v1budget-account-value';
 export { V1BudgetRevision } from './models/v1budget-revision';
 export { V1BudgetRevisionAccountValue } from './models/v1budget-revision-account-value';
+export { V1CheckOrganizationIdRequest } from './models/v1check-organization-id-request';
+export { V1CheckOrganizationIdResponse } from './models/v1check-organization-id-response';
 export { V1CheckUserOrganizationPermissionsRequest } from './models/v1check-user-organization-permissions-request';
 export { V1CheckUserOrganizationPermissionsResponse } from './models/v1check-user-organization-permissions-response';
 export { V1Decimal } from './models/v1decimal';

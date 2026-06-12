@@ -33,6 +33,11 @@ export class MockAccountEditDataService extends AccountEditDataService {
     return of(account || this.accounts[0]).pipe(delay(300));
   }
 
+  deleteAccount(organizationId: string, id: string): Observable<void> {
+    this.accounts = this.accounts.filter((a) => a.id !== id);
+    return of(undefined).pipe(delay(300));
+  }
+
   listParentAccounts(organizationId: string): Observable<Account[]> {
     return of(this.accounts.filter((a) => a.depth === 0)).pipe(delay(200));
   }

@@ -92,14 +92,21 @@ class GroupServiceService extends __BaseService {
 
   /**
    * Creates a new group.
-   * @param group The group to create.
+   * @param params The `GroupServiceService.GroupServiceCreateGroupParams` containing the following parameters:
+   *
+   * - `group`: The group to create.
+   *
+   * - `group_id`: The ID to use for the group. If not provided, a system-generated UUID
+   *   will be used. Must be unique across all groups.
+   *
    * @return A successful response.
    */
-  GroupServiceCreateGroupResponse(group: V1Group): __Observable<__StrictHttpResponse<V1Group>> {
+  GroupServiceCreateGroupResponse(params: GroupServiceService.GroupServiceCreateGroupParams): __Observable<__StrictHttpResponse<V1Group>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
-    __body = group;
+    __body = params.group;
+    if (params.groupId != null) __params = __params.set('group_id', params.groupId.toString());
     let req = new HttpRequest<any>(
       'POST',
       this.rootUrl + `/v1/groups`,
@@ -119,11 +126,17 @@ class GroupServiceService extends __BaseService {
   }
   /**
    * Creates a new group.
-   * @param group The group to create.
+   * @param params The `GroupServiceService.GroupServiceCreateGroupParams` containing the following parameters:
+   *
+   * - `group`: The group to create.
+   *
+   * - `group_id`: The ID to use for the group. If not provided, a system-generated UUID
+   *   will be used. Must be unique across all groups.
+   *
    * @return A successful response.
    */
-  GroupServiceCreateGroup(group: V1Group): __Observable<V1Group> {
-    return this.GroupServiceCreateGroupResponse(group).pipe(
+  GroupServiceCreateGroup(params: GroupServiceService.GroupServiceCreateGroupParams): __Observable<V1Group> {
+    return this.GroupServiceCreateGroupResponse(params).pipe(
       __map(_r => _r.body as V1Group)
     );
   }
@@ -288,6 +301,23 @@ module GroupServiceService {
      * Supported fields: display_name.
      */
     filter?: string;
+  }
+
+  /**
+   * Parameters for GroupServiceCreateGroup
+   */
+  export interface GroupServiceCreateGroupParams {
+
+    /**
+     * The group to create.
+     */
+    group: V1Group;
+
+    /**
+     * The ID to use for the group. If not provided, a system-generated UUID
+     * will be used. Must be unique across all groups.
+     */
+    groupId?: string;
   }
 
   /**

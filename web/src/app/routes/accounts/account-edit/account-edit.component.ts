@@ -9,14 +9,22 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, filter, switchMap, takeUntil } from 'rxjs/operators';
+import { EMPTY } from 'rxjs';
+import { Dialog } from '@angular/cdk/dialog';
 import {
   PageContentLayoutComponent,
   BreadcrumbItem,
+  ButtonComponent,
   StatusBadgeComponent,
   LoadingSpinnerComponent,
   NotificationService,
 } from '../../../shared/components';
+import {
+  ConfirmDeleteDialogComponent,
+  ConfirmDeleteDialogInput,
+  ConfirmDeleteDialogOutput,
+} from '../../../shared/dialogs/confirm-delete-dialog/confirm-delete-dialog.component';
 import { formatDateTime } from '../../../shared/utils';
 import { AccountEditDataService, AccountDetails } from './account-edit.data-service';
 
@@ -26,6 +34,7 @@ import { AccountEditDataService, AccountDetails } from './account-edit.data-serv
   imports: [
     ReactiveFormsModule,
     PageContentLayoutComponent,
+    ButtonComponent,
     StatusBadgeComponent,
     LoadingSpinnerComponent,
   ],
@@ -144,10 +153,19 @@ import { AccountEditDataService, AccountDetails } from './account-edit.data-serv
                 </div>
 
                 <!-- Actions Card -->
-                <!-- <div class="bg-white rounded-lg border border-gray-200 p-4">
-                  <h3 i18n class="text-xs font-semibold text-gray-500 uppercase mb-3">Aktionen</h3>
-
-                </div> -->
+                @if (account()!.isArchived) {
+                  <div class="bg-white rounded-lg border border-gray-200 p-4">
+                    <h3 i18n class="text-xs font-semibold text-gray-500 uppercase mb-3">Aktionen</h3>
+                    <app-button
+                      variant="danger"
+                      size="sm"
+                      [loading]="deleting()"
+                      (clicked)="openDeleteDialog()"
+                    >
+                      <ng-container i18n>Konto löschen</ng-container>
+                    </app-button>
+                  </div>
+                }
               </div>
             </div>
           </div>
@@ -162,11 +180,13 @@ export class AccountEditComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly notifications = inject(NotificationService);
+  private readonly dialog = inject(Dialog);
 
   private readonly destroy$ = new Subject<void>();
 
   readonly loading = signal(true);
   readonly saving = signal(false);
+  readonly deleting = signal(false);
   readonly account = signal<AccountDetails | null>(null);
 
   readonly breadcrumbs = signal<BreadcrumbItem[]>([
@@ -270,4 +290,39 @@ export class AccountEditComponent implements OnInit, OnDestroy {
   }
 
   formatDateTime = formatDateTime;
+
+  openDeleteDialog(): void {
+    const acc = this.account();
+    if (!acc) return;
+
+    const dialogRef = this.dialog.open<ConfirmDeleteDialogOutput, ConfirmDeleteDialogInput>(
+      ConfirmDeleteDialogComponent,
+      {
+        backdropClass: 'cdk-overlay-dark-backdrop',
+        width: '400px',
+        data: {
+          title: $localize`Konto löschen`,
+          message: $localize`Möchten Sie das Konto wirklich unwiderruflich löschen?`,
+          itemName: `${acc.code} – ${acc.name}`,
+        },
+      },
+    );
+
+    dialogRef.closed.pipe(
+      switchMap((result) => {
+        if (!result?.confirmed) return EMPTY;
+        this.deleting.set(true);
+        return this.dataService.deleteAccount(this.orgId, acc.id);
+      }),
+    ).subscribe({
+      next: () => {
+        this.deleting.set(false);
+        this.router.navigate(['/organizations', this.orgId, 'accounts']);
+      },
+      error: () => {
+        this.deleting.set(false);
+        this.notifications.error($localize`Fehler beim Löschen des Kontos`);
+      },
+    });
+  }
 }

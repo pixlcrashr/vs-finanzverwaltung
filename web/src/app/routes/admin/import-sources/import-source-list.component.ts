@@ -90,7 +90,10 @@ export class ImportSourceListComponent implements OnInit {
   readonly loading = signal(true);
   readonly importSources = signal<ImportSource[]>([]);
 
-  readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Importquellen` }];
+  readonly breadcrumbs: BreadcrumbItem[] = [
+    { label: $localize`Administration` },
+    { label: $localize`Importquellen` }
+  ];
 
   ngOnInit(): void {
     this.loadImportSources();

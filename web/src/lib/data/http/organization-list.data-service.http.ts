@@ -20,10 +20,4 @@ export class HttpOrganizationListDataService extends OrganizationListDataService
       }),
     );
   }
-
-  deleteOrganization(id: string): Observable<void> {
-    return this.svc.OrganizationServiceDeleteOrganization(`organizations/${id}`).pipe(
-      map(() => undefined),
-    );
-  }
 }

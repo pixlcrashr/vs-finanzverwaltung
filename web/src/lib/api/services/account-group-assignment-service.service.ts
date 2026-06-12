@@ -238,6 +238,9 @@ class AccountGroupAssignmentServiceService extends __BaseService {
    *
    * - `assignment`: The assignment to create.
    *
+   * - `account_group_assignment_id`: The ID to use for the assignment. If not provided, a system-generated UUID
+   *   will be used. Must be unique within the parent account group.
+   *
    * @return A successful response.
    */
   AccountGroupAssignmentServiceCreateAccountGroupAssignmentResponse(params: AccountGroupAssignmentServiceService.AccountGroupAssignmentServiceCreateAccountGroupAssignmentParams): __Observable<__StrictHttpResponse<V1AccountGroupAssignment>> {
@@ -246,6 +249,7 @@ class AccountGroupAssignmentServiceService extends __BaseService {
     let __body: any = null;
 
     __body = params.assignment;
+    if (params.accountGroupAssignmentId != null) __params = __params.set('account_group_assignment_id', params.accountGroupAssignmentId.toString());
     let req = new HttpRequest<any>(
       'POST',
       this.rootUrl + `/v1/${encodeURIComponent(String(params.parent))}/assignments`,
@@ -271,6 +275,9 @@ class AccountGroupAssignmentServiceService extends __BaseService {
    *   Format: organizations/{organization}/accountGroups/{account_group}
    *
    * - `assignment`: The assignment to create.
+   *
+   * - `account_group_assignment_id`: The ID to use for the assignment. If not provided, a system-generated UUID
+   *   will be used. Must be unique within the parent account group.
    *
    * @return A successful response.
    */
@@ -350,6 +357,12 @@ module AccountGroupAssignmentServiceService {
      * The assignment to create.
      */
     assignment: V1AccountGroupAssignment;
+
+    /**
+     * The ID to use for the assignment. If not provided, a system-generated UUID
+     * will be used. Must be unique within the parent account group.
+     */
+    accountGroupAssignmentId?: string;
   }
 }
 

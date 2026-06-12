@@ -29,6 +29,11 @@ export class MockOrganizationEditDataService extends OrganizationEditDataService
     return of({ ...updated }).pipe(delay(300));
   }
 
+  deleteOrganization(id: string): Observable<void> {
+    this.organizations = this.organizations.filter((o) => o.id !== id);
+    return of(undefined).pipe(delay(300));
+  }
+
   private generateMockOrganizations(): Organization[] {
     return [
       {

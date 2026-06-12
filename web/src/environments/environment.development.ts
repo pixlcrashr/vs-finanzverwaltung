@@ -19,7 +19,6 @@ import { MockJournalListDataService } from '../lib/data/mock/journal-list.data-s
 import { MockJournalImportDataService } from '../lib/data/mock/journal-import.data-service.mock';
 import { MockDashboardDataService } from '../lib/data/mock/dashboard.data-service.mock';
 import { MockMatrixDataService } from '../lib/data/mock/matrix.data-service.mock';
-import { MockSettingsDataService } from '../lib/data/mock/settings.data-service.mock';
 import { MockUserListDataService } from '../lib/data/mock/user-list.data-service.mock';
 import { MockUserEditDataService } from '../lib/data/mock/user-edit.data-service.mock';
 import { MockGroupListDataService } from '../lib/data/mock/group-list.data-service.mock';
@@ -35,9 +34,10 @@ import { MockCreateAccountDialogDataService } from '../lib/data/mock/create-acco
 import { MockCreateReportDialogDataService } from '../lib/data/mock/create-report-dialog.data-service.mock';
 import { MockClosePeriodDialogDataService } from '../lib/data/mock/close-period-dialog.data-service.mock';
 import { MockAddReceiptDialogDataService } from '../lib/data/mock/add-receipt-dialog.data-service.mock';
-import { MockOrganizationDataService } from '../lib/data/mock/organization.data-service.mock';
 import { MockOrganizationListDataService } from '../lib/data/mock/organization-list.data-service.mock';
 import { MockOrganizationEditDataService } from '../lib/data/mock/organization-edit.data-service.mock';
+import { MockCreateOrganizationDialogDataService } from '../lib/data/mock/create-organization-dialog.data-service.mock';
+import { MockMainLayoutDataService } from '../lib/data/mock/main-layout.data-service.mock';
 
 
 
@@ -66,7 +66,6 @@ export const environment = {
     journalImport: MockJournalImportDataService,
     dashboard: MockDashboardDataService,
     matrix: MockMatrixDataService,
-    settings: MockSettingsDataService,
     userList: MockUserListDataService,
     userEdit: MockUserEditDataService,
     groupList: MockGroupListDataService,
@@ -83,8 +82,9 @@ export const environment = {
     createReportDialog: MockCreateReportDialogDataService,
     closePeriodDialog: MockClosePeriodDialogDataService,
     addReceiptDialog: MockAddReceiptDialogDataService,
-    organization: MockOrganizationDataService,
     organizationList: MockOrganizationListDataService,
     organizationEdit: MockOrganizationEditDataService,
+    createOrganizationDialog: MockCreateOrganizationDialogDataService,
+    mainLayout: MockMainLayoutDataService,
   },
 };

@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { SettingsDataService } from './settings/settings.data-service';
 import { UserListDataService } from './users/user-list.data-service';
 import { UserEditDataService } from './users/user-edit.data-service';
 import { GroupListDataService } from './groups/group-list.data-service';
@@ -13,14 +12,6 @@ import { OrganizationEditDataService } from './organizations/organization-edit.d
 import { environment } from '../../../environments/environment';
 
 export const ADMIN_ROUTES: Routes = [
-  {
-    path: 'settings',
-    loadComponent: () =>
-      import('./settings/settings.component').then((m) => m.SettingsComponent),
-    providers: [
-      { provide: SettingsDataService, useClass: environment.dataServices.settings },
-    ],
-  },
   {
     path: 'users',
     loadComponent: () => import('./users/user-list.component').then((m) => m.UserListComponent),

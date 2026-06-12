@@ -9,12 +9,15 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 
 import { V1ListOrganizationsResponse } from '../models/v1list-organizations-response';
 import { V1Organization } from '../models/v1organization';
+import { V1CheckOrganizationIdResponse } from '../models/v1check-organization-id-response';
+import { V1CheckOrganizationIdRequest } from '../models/v1check-organization-id-request';
 @Injectable({
   providedIn: 'root',
 })
 class OrganizationServiceService extends __BaseService {
   static readonly OrganizationServiceListOrganizationsPath = '/v1/organizations';
   static readonly OrganizationServiceCreateOrganizationPath = '/v1/organizations';
+  static readonly OrganizationServiceCheckOrganizationIdPath = '/v1/organizations:checkId';
   static readonly OrganizationServiceGetOrganizationPath = '/v1/{name_10}';
   static readonly OrganizationServiceDeleteOrganizationPath = '/v1/{name_8}';
   static readonly OrganizationServiceUpdateOrganizationPath = '/v1/{organization.name}';
@@ -93,14 +96,21 @@ class OrganizationServiceService extends __BaseService {
 
   /**
    * Creates a new organization.
-   * @param organization The organization to create.
+   * @param params The `OrganizationServiceService.OrganizationServiceCreateOrganizationParams` containing the following parameters:
+   *
+   * - `organization`: The organization to create.
+   *
+   * - `organization_id`: The ID to use for the organization. If not provided, a system-generated
+   *   UUID will be used. Must be unique across all organizations.
+   *
    * @return A successful response.
    */
-  OrganizationServiceCreateOrganizationResponse(organization: V1Organization): __Observable<__StrictHttpResponse<V1Organization>> {
+  OrganizationServiceCreateOrganizationResponse(params: OrganizationServiceService.OrganizationServiceCreateOrganizationParams): __Observable<__StrictHttpResponse<V1Organization>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
-    __body = organization;
+    __body = params.organization;
+    if (params.organizationId != null) __params = __params.set('organization_id', params.organizationId.toString());
     let req = new HttpRequest<any>(
       'POST',
       this.rootUrl + `/v1/organizations`,
@@ -120,12 +130,56 @@ class OrganizationServiceService extends __BaseService {
   }
   /**
    * Creates a new organization.
-   * @param organization The organization to create.
+   * @param params The `OrganizationServiceService.OrganizationServiceCreateOrganizationParams` containing the following parameters:
+   *
+   * - `organization`: The organization to create.
+   *
+   * - `organization_id`: The ID to use for the organization. If not provided, a system-generated
+   *   UUID will be used. Must be unique across all organizations.
+   *
    * @return A successful response.
    */
-  OrganizationServiceCreateOrganization(organization: V1Organization): __Observable<V1Organization> {
-    return this.OrganizationServiceCreateOrganizationResponse(organization).pipe(
+  OrganizationServiceCreateOrganization(params: OrganizationServiceService.OrganizationServiceCreateOrganizationParams): __Observable<V1Organization> {
+    return this.OrganizationServiceCreateOrganizationResponse(params).pipe(
       __map(_r => _r.body as V1Organization)
+    );
+  }
+
+  /**
+   * Checks whether an organization ID (slug) is available for use.
+   * @param body undefined
+   * @return A successful response.
+   */
+  OrganizationServiceCheckOrganizationIdResponse(body: V1CheckOrganizationIdRequest): __Observable<__StrictHttpResponse<V1CheckOrganizationIdResponse>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+    __body = body;
+    let req = new HttpRequest<any>(
+      'POST',
+      this.rootUrl + `/v1/organizations:checkId`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<V1CheckOrganizationIdResponse>;
+      })
+    );
+  }
+  /**
+   * Checks whether an organization ID (slug) is available for use.
+   * @param body undefined
+   * @return A successful response.
+   */
+  OrganizationServiceCheckOrganizationId(body: V1CheckOrganizationIdRequest): __Observable<V1CheckOrganizationIdResponse> {
+    return this.OrganizationServiceCheckOrganizationIdResponse(body).pipe(
+      __map(_r => _r.body as V1CheckOrganizationIdResponse)
     );
   }
 
@@ -290,6 +344,23 @@ module OrganizationServiceService {
      * Example: "display_name=\"Acme\"".
      */
     filter?: string;
+  }
+
+  /**
+   * Parameters for OrganizationServiceCreateOrganization
+   */
+  export interface OrganizationServiceCreateOrganizationParams {
+
+    /**
+     * The organization to create.
+     */
+    organization: V1Organization;
+
+    /**
+     * The ID to use for the organization. If not provided, a system-generated
+     * UUID will be used. Must be unique across all organizations.
+     */
+    organizationId?: string;
   }
 
   /**

@@ -190,6 +190,9 @@ class TransactionServiceService extends __BaseService {
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
    *
+   * - `transaction_id`: The ID to use for the transaction. If not provided, a system-generated
+   *   UUID will be used. Must be unique within the parent organization.
+   *
    * @return A successful response.
    */
   TransactionServiceCreateTransactionResponse(params: TransactionServiceService.TransactionServiceCreateTransactionParams): __Observable<__StrictHttpResponse<V1Transaction>> {
@@ -198,6 +201,7 @@ class TransactionServiceService extends __BaseService {
     let __body: any = null;
     __body = params.transaction;
 
+    if (params.transactionId != null) __params = __params.set('transaction_id', params.transactionId.toString());
     let req = new HttpRequest<any>(
       'POST',
       this.rootUrl + `/v1/${encodeURIComponent(String(params.parent))}/transactions`,
@@ -223,6 +227,9 @@ class TransactionServiceService extends __BaseService {
    *
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
+   *
+   * - `transaction_id`: The ID to use for the transaction. If not provided, a system-generated
+   *   UUID will be used. Must be unique within the parent organization.
    *
    * @return A successful response.
    */
@@ -337,6 +344,12 @@ module TransactionServiceService {
      * Format: organizations/{organization}
      */
     parent: string;
+
+    /**
+     * The ID to use for the transaction. If not provided, a system-generated
+     * UUID will be used. Must be unique within the parent organization.
+     */
+    transactionId?: string;
   }
 
   /**

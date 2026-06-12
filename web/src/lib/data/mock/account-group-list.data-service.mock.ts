@@ -6,13 +6,21 @@ import { AccountGroupListDataService } from '../../../app/routes/account-groups/
 
 @Injectable()
 export class MockAccountGroupListDataService extends AccountGroupListDataService {
-  private groups: AccountGroup[] = this.generateGroups();
+  private groupsByOrg = new Map<string, AccountGroup[]>();
+
+  private getGroups(organizationId: string): AccountGroup[] {
+    if (!this.groupsByOrg.has(organizationId)) {
+      this.groupsByOrg.set(organizationId, this.generateGroups());
+    }
+    return this.groupsByOrg.get(organizationId)!;
+  }
 
   listGroups(organizationId: string): Observable<AccountGroup[]> {
-    return of([...this.groups]).pipe(delay(300));
+    return of([...this.getGroups(organizationId)]).pipe(delay(300));
   }
 
   createGroup(organizationId: string, name: string, description: string): Observable<AccountGroup> {
+    const groups = this.getGroups(organizationId);
     const newGroup: AccountGroup = {
       id: faker.string.uuid(),
       name,
@@ -20,12 +28,13 @@ export class MockAccountGroupListDataService extends AccountGroupListDataService
       assignmentCount: 0,
     };
 
-    this.groups = [newGroup, ...this.groups];
+    groups.unshift(newGroup);
     return of(newGroup).pipe(delay(300));
   }
 
   deleteGroup(organizationId: string, id: string): Observable<void> {
-    this.groups = this.groups.filter((g) => g.id !== id);
+    const groups = this.getGroups(organizationId);
+    this.groupsByOrg.set(organizationId, groups.filter((g) => g.id !== id));
     return of(undefined).pipe(delay(300));
   }
 

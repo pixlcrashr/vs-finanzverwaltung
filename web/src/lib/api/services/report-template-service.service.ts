@@ -187,6 +187,9 @@ class ReportTemplateServiceService extends __BaseService {
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
    *
+   * - `report_template_id`: The ID to use for the report template. If not provided, a system-generated
+   *   UUID will be used. Must be unique within the parent organization.
+   *
    * @return A successful response.
    */
   ReportTemplateServiceCreateReportTemplateResponse(params: ReportTemplateServiceService.ReportTemplateServiceCreateReportTemplateParams): __Observable<__StrictHttpResponse<V1ReportTemplate>> {
@@ -195,6 +198,7 @@ class ReportTemplateServiceService extends __BaseService {
     let __body: any = null;
     __body = params.reportTemplate;
 
+    if (params.reportTemplateId != null) __params = __params.set('report_template_id', params.reportTemplateId.toString());
     let req = new HttpRequest<any>(
       'POST',
       this.rootUrl + `/v1/${encodeURIComponent(String(params.parent))}/reportTemplates`,
@@ -220,6 +224,9 @@ class ReportTemplateServiceService extends __BaseService {
    *
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
+   *
+   * - `report_template_id`: The ID to use for the report template. If not provided, a system-generated
+   *   UUID will be used. Must be unique within the parent organization.
    *
    * @return A successful response.
    */
@@ -333,6 +340,12 @@ module ReportTemplateServiceService {
      * Format: organizations/{organization}
      */
     parent: string;
+
+    /**
+     * The ID to use for the report template. If not provided, a system-generated
+     * UUID will be used. Must be unique within the parent organization.
+     */
+    reportTemplateId?: string;
   }
 
   /**

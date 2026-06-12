@@ -3,12 +3,12 @@ import {
   ChangeDetectionStrategy,
   inject,
   signal,
-  OnInit,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NgTemplateOutlet } from '@angular/common';
 import { Dialog } from '@angular/cdk/dialog';
-import { concat, forkJoin, timer } from 'rxjs';
+import { concat, forkJoin, merge, map, distinctUntilChanged, filter, timer, switchMap, EMPTY } from 'rxjs';
 import {
   PageContentLayoutComponent,
   BreadcrumbItem,
@@ -23,6 +23,11 @@ import {
   CreateAccountDialogInput,
   CreateAccountDialogOutput,
 } from '../../../shared/dialogs/create-account-dialog/create-account-dialog.component';
+import {
+  ConfirmDeleteDialogComponent,
+  ConfirmDeleteDialogInput,
+  ConfirmDeleteDialogOutput,
+} from '../../../shared/dialogs/confirm-delete-dialog/confirm-delete-dialog.component';
 import { Account } from '../../../shared/models';
 import { AccountListDataService } from './account-list.data-service';
 
@@ -121,6 +126,14 @@ import { AccountListDataService } from './account-list.data-service';
               >
                 <ng-container i18n>{{ restoringAccountId() === account.id ? 'Wird wiederhergestellt...' : 'Wiederherstellen' }}</ng-container>
               </button>
+              <button
+                type="button"
+                class="text-xs text-red-600 hover:underline disabled:text-gray-400 disabled:no-underline"
+                [disabled]="isMutatingAccount(account.id)"
+                (click)="openDeleteDialog(account)"
+              >
+                <ng-container i18n>{{ deletingAccountId() === account.id ? 'Wird gelöscht...' : 'Löschen' }}</ng-container>
+              </button>
             } @else if (canArchive(account)) {
               <button
                 type="button"
@@ -146,35 +159,35 @@ import { AccountListDataService } from './account-list.data-service';
     </ng-template>
   `,
 })
-export class AccountListComponent implements OnInit {
+export class AccountListComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly dataService = inject(AccountListDataService);
   private readonly dialog = inject(Dialog);
   private readonly notifications = inject(NotificationService);
-
-  private getOrgId(): string {
-    let snapshot = this.route.snapshot;
-    while (snapshot) {
-      const id = snapshot.paramMap.get('orgId');
-      if (id) return id;
-      snapshot = snapshot.parent!;
-    }
-    return '';
-  }
 
   orgId = '';
 
   readonly loading = signal(true);
   readonly archivingAccountId = signal<string | null>(null);
   readonly restoringAccountId = signal<string | null>(null);
+  readonly deletingAccountId = signal<string | null>(null);
   readonly accounts = signal<Account[]>([]);
   readonly expandedIds = signal<Set<string>>(new Set());
 
   readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Haushaltskonten` }];
 
-  ngOnInit(): void {
-    this.orgId = this.getOrgId();
-    this.loadAccounts();
+  constructor() {
+    merge(...this.route.pathFromRoot.map(r => r.params)).pipe(
+      map(params => params['orgId'] as string | undefined),
+      filter((id): id is string => !!id),
+      distinctUntilChanged(),
+      takeUntilDestroyed(),
+    ).subscribe(id => {
+      this.orgId = id;
+      this.loading.set(true);
+      this.accounts.set([]);
+      this.loadAccounts();
+    });
   }
 
   private loadAccounts(): void {
@@ -246,7 +259,41 @@ export class AccountListComponent implements OnInit {
   }
 
   isMutatingAccount(id: string): boolean {
-    return this.archivingAccountId() === id || this.restoringAccountId() === id;
+    return this.archivingAccountId() === id || this.restoringAccountId() === id || this.deletingAccountId() === id;
+  }
+
+  openDeleteDialog(account: Account): void {
+    if (this.isMutatingAccount(account.id)) return;
+
+    const dialogRef = this.dialog.open<ConfirmDeleteDialogOutput, ConfirmDeleteDialogInput>(
+      ConfirmDeleteDialogComponent,
+      {
+        backdropClass: 'cdk-overlay-dark-backdrop',
+        width: '400px',
+        data: {
+          title: $localize`Konto löschen`,
+          message: $localize`Möchten Sie das Konto wirklich unwiderruflich löschen?`,
+          itemName: `${account.code} – ${account.name}`,
+        },
+      },
+    );
+
+    dialogRef.closed.pipe(
+      switchMap((result) => {
+        if (!result?.confirmed) return EMPTY;
+        this.deletingAccountId.set(account.id);
+        return forkJoin([this.dataService.deleteAccount(this.orgId, account.id), timer(500)]);
+      }),
+    ).subscribe({
+      next: () => {
+        this.deletingAccountId.set(null);
+        this.loadAccounts();
+      },
+      error: () => {
+        this.deletingAccountId.set(null);
+        this.notifications.error($localize`Fehler beim Löschen des Kontos`);
+      },
+    });
   }
 
   archiveAccount(account: Account): void {

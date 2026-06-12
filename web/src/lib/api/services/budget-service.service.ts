@@ -297,6 +297,9 @@ class BudgetServiceService extends __BaseService {
    *
    * - `budget`: The budget to create.
    *
+   * - `budget_id`: The ID to use for the budget. If not provided, a system-generated UUID
+   *   will be used. Must be unique within the parent organization.
+   *
    * @return A successful response.
    */
   BudgetServiceCreateBudgetResponse(params: BudgetServiceService.BudgetServiceCreateBudgetParams): __Observable<__StrictHttpResponse<V1Budget>> {
@@ -305,6 +308,7 @@ class BudgetServiceService extends __BaseService {
     let __body: any = null;
 
     __body = params.budget;
+    if (params.budgetId != null) __params = __params.set('budget_id', params.budgetId.toString());
     let req = new HttpRequest<any>(
       'POST',
       this.rootUrl + `/v1/${encodeURIComponent(String(params.parent))}/budgets`,
@@ -330,6 +334,9 @@ class BudgetServiceService extends __BaseService {
    *   Format: organizations/{organization}
    *
    * - `budget`: The budget to create.
+   *
+   * - `budget_id`: The ID to use for the budget. If not provided, a system-generated UUID
+   *   will be used. Must be unique within the parent organization.
    *
    * @return A successful response.
    */
@@ -427,6 +434,12 @@ module BudgetServiceService {
      * The budget to create.
      */
     budget: V1Budget;
+
+    /**
+     * The ID to use for the budget. If not provided, a system-generated UUID
+     * will be used. Must be unique within the parent organization.
+     */
+    budgetId?: string;
   }
 }
 

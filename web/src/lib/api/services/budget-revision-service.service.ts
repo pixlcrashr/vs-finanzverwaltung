@@ -140,6 +140,9 @@ class BudgetRevisionServiceService extends __BaseService {
    * - `parent`: The parent budget resource name.
    *   Format: organizations/{organization}/budgets/{budget}
    *
+   * - `budget_revision_id`: The ID to use for the revision. If not provided, a system-generated UUID
+   *   will be used. Must be unique within the parent budget.
+   *
    * @return A successful response.
    */
   BudgetRevisionServiceCreateBudgetRevisionResponse(params: BudgetRevisionServiceService.BudgetRevisionServiceCreateBudgetRevisionParams): __Observable<__StrictHttpResponse<V1BudgetRevision>> {
@@ -148,6 +151,7 @@ class BudgetRevisionServiceService extends __BaseService {
     let __body: any = null;
     __body = params.revision;
 
+    if (params.budgetRevisionId != null) __params = __params.set('budget_revision_id', params.budgetRevisionId.toString());
     let req = new HttpRequest<any>(
       'POST',
       this.rootUrl + `/v1/${encodeURIComponent(String(params.parent))}/revisions`,
@@ -175,6 +179,9 @@ class BudgetRevisionServiceService extends __BaseService {
    *
    * - `parent`: The parent budget resource name.
    *   Format: organizations/{organization}/budgets/{budget}
+   *
+   * - `budget_revision_id`: The ID to use for the revision. If not provided, a system-generated UUID
+   *   will be used. Must be unique within the parent budget.
    *
    * @return A successful response.
    */
@@ -232,6 +239,12 @@ module BudgetRevisionServiceService {
      * Format: organizations/{organization}/budgets/{budget}
      */
     parent: string;
+
+    /**
+     * The ID to use for the revision. If not provided, a system-generated UUID
+     * will be used. Must be unique within the parent budget.
+     */
+    budgetRevisionId?: string;
   }
 }
 

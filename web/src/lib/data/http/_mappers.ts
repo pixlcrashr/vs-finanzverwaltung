@@ -80,12 +80,20 @@ export function buildAccountTree(flatAccounts: Account[]): Account[] {
     }
   }
 
+  function sortByCode(accounts: Account[]): void {
+    accounts.sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true, sensitivity: 'base' }));
+    for (const a of accounts) {
+      sortByCode(a.children);
+    }
+  }
+
   function setDepth(accounts: Account[], depth: number): void {
     for (const a of accounts) {
       a.depth = depth;
       setDepth(a.children, depth + 1);
     }
   }
+  sortByCode(roots);
   setDepth(roots, 0);
 
   return roots;

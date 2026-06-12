@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { OrganizationDataService } from './shared/services/organization.data-service';
+import { MainLayoutDataService } from './shared/layout/main-layout/main-layout.data-service';
 import { environment } from '../environments/environment';
 
 export const routes: Routes = [
@@ -11,7 +11,7 @@ export const routes: Routes = [
         (m) => m.MainLayoutComponent,
       ),
     providers: [
-      { provide: OrganizationDataService, useClass: environment.dataServices.organization },
+      { provide: MainLayoutDataService, useClass: environment.dataServices.mainLayout },
     ],
     children: [
       // Admin routes

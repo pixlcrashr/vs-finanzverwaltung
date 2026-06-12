@@ -249,6 +249,9 @@ class BudgetAccountValueServiceService extends __BaseService {
    *
    * - `account_value`: The budget account value to create.
    *
+   * - `budget_account_value_id`: The ID to use for the budget account value. If not provided, a
+   *   system-generated UUID will be used. Must be unique within the parent budget.
+   *
    * @return A successful response.
    */
   BudgetAccountValueServiceCreateBudgetAccountValueResponse(params: BudgetAccountValueServiceService.BudgetAccountValueServiceCreateBudgetAccountValueParams): __Observable<__StrictHttpResponse<V1BudgetAccountValue>> {
@@ -257,6 +260,7 @@ class BudgetAccountValueServiceService extends __BaseService {
     let __body: any = null;
 
     __body = params.accountValue;
+    if (params.budgetAccountValueId != null) __params = __params.set('budget_account_value_id', params.budgetAccountValueId.toString());
     let req = new HttpRequest<any>(
       'POST',
       this.rootUrl + `/v1/${encodeURIComponent(String(params.parent))}/accountValues`,
@@ -282,6 +286,9 @@ class BudgetAccountValueServiceService extends __BaseService {
    *   Format: organizations/{organization}/budgets/{budget}
    *
    * - `account_value`: The budget account value to create.
+   *
+   * - `budget_account_value_id`: The ID to use for the budget account value. If not provided, a
+   *   system-generated UUID will be used. Must be unique within the parent budget.
    *
    * @return A successful response.
    */
@@ -424,6 +431,12 @@ module BudgetAccountValueServiceService {
      * The budget account value to create.
      */
     accountValue: V1BudgetAccountValue;
+
+    /**
+     * The ID to use for the budget account value. If not provided, a
+     * system-generated UUID will be used. Must be unique within the parent budget.
+     */
+    budgetAccountValueId?: string;
   }
 
   /**

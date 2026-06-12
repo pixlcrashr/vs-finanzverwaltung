@@ -239,6 +239,9 @@ class ImportSourceServiceService extends __BaseService {
    *
    * - `import_source`: The import source to create.
    *
+   * - `import_source_id`: The ID to use for the import source. If not provided, a system-generated
+   *   UUID will be used. Must be unique within the parent organization.
+   *
    * @return A successful response.
    */
   ImportSourceServiceCreateImportSourceResponse(params: ImportSourceServiceService.ImportSourceServiceCreateImportSourceParams): __Observable<__StrictHttpResponse<V1ImportSource>> {
@@ -247,6 +250,7 @@ class ImportSourceServiceService extends __BaseService {
     let __body: any = null;
 
     __body = params.importSource;
+    if (params.importSourceId != null) __params = __params.set('import_source_id', params.importSourceId.toString());
     let req = new HttpRequest<any>(
       'POST',
       this.rootUrl + `/v1/${encodeURIComponent(String(params.parent))}/importSources`,
@@ -272,6 +276,9 @@ class ImportSourceServiceService extends __BaseService {
    *   Format: organizations/{organization}
    *
    * - `import_source`: The import source to create.
+   *
+   * - `import_source_id`: The ID to use for the import source. If not provided, a system-generated
+   *   UUID will be used. Must be unique within the parent organization.
    *
    * @return A successful response.
    */
@@ -351,6 +358,12 @@ module ImportSourceServiceService {
      * The import source to create.
      */
     importSource: V1ImportSource;
+
+    /**
+     * The ID to use for the import source. If not provided, a system-generated
+     * UUID will be used. Must be unique within the parent organization.
+     */
+    importSourceId?: string;
   }
 }
 

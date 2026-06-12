@@ -127,6 +127,7 @@ export class UserEditComponent implements OnInit {
   readonly allGroups = signal<UserGroup[]>([]);
 
   readonly breadcrumbs: BreadcrumbItem[] = [
+    { label: $localize`Administration` },
     { label: $localize`Benutzer`, path: '/admin/users' },
     { label: $localize`Bearbeiten` },
   ];

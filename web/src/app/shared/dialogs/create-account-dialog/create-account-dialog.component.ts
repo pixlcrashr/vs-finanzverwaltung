@@ -49,6 +49,27 @@ export interface CreateAccountDialogOutput {
           <div class="space-y-3">
             <div>
               <label
+                for="parentAccount"
+                class="block text-xs font-medium text-gray-700 mb-1"
+              >
+                <ng-container i18n>Übergeordnetes Konto (optional)</ng-container>
+              </label>
+              <select
+                id="parentAccount"
+                formControlName="parentAccountId"
+                class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
+              >
+                <option i18n value="">Kein übergeordnetes Konto</option>
+                @for (account of parentAccounts(); track account.id) {
+                  <option [value]="account.id">
+                    {{ indent(account.depth) }}{{ account.code }} - {{ account.name }}
+                  </option>
+                }
+              </select>
+            </div>
+
+            <div>
+              <label
                 for="code"
                 class="block text-xs font-medium text-gray-700 mb-1"
               >
@@ -58,6 +79,7 @@ export interface CreateAccountDialogOutput {
                 id="code"
                 type="text"
                 formControlName="code"
+                autocomplete="off"
                 class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
               />
             </div>
@@ -73,6 +95,7 @@ export interface CreateAccountDialogOutput {
                 id="name"
                 type="text"
                 formControlName="name"
+                autocomplete="off"
                 class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
               />
             </div>
@@ -92,25 +115,16 @@ export interface CreateAccountDialogOutput {
               ></textarea>
             </div>
 
-            <div>
-              <label
-                for="parentAccount"
-                class="block text-xs font-medium text-gray-700 mb-1"
-              >
-                <ng-container i18n>Übergeordnetes Konto (optional)</ng-container>
+            <div class="flex items-center gap-2">
+              <input
+                id="isContainer"
+                type="checkbox"
+                formControlName="isContainer"
+                class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50"
+              />
+              <label for="isContainer" class="text-xs font-medium text-gray-700 cursor-pointer">
+                <ng-container i18n>Sammelkonto (kann keine Werte enthalten)</ng-container>
               </label>
-              <select
-                id="parentAccount"
-                formControlName="parentAccountId"
-                class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
-              >
-                <option i18n value="">Kein übergeordnetes Konto</option>
-                @for (account of parentAccounts(); track account.id) {
-                  <option [value]="account.id">
-                    {{ indent(account.depth) }}{{ account.code }} - {{ account.name }}
-                  </option>
-                }
-              </select>
             </div>
           </div>
         </fieldset>
@@ -146,6 +160,7 @@ export class CreateAccountDialogComponent implements OnInit {
     name: ['', Validators.required],
     description: [''],
     parentAccountId: [''],
+    isContainer: [false],
   });
 
   ngOnInit(): void {
@@ -176,10 +191,10 @@ export class CreateAccountDialogComponent implements OnInit {
     if (this.form.invalid) return;
 
     this.creating.set(true);
-    const { code, name, description, parentAccountId } = this.form.value;
+    const { code, name, description, parentAccountId, isContainer } = this.form.value;
 
     this.dataService
-      .createAccount(this.data.organizationId, name, code, description || '', parentAccountId || null)
+      .createAccount(this.data.organizationId, name, code, description || '', parentAccountId || null, !!isContainer)
       .subscribe({
         next: (account) => {
           this.creating.set(false);

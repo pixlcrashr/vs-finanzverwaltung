@@ -238,6 +238,9 @@ class AccountGroupServiceService extends __BaseService {
    *
    * - `account_group`: The account group to create.
    *
+   * - `account_group_id`: The ID to use for the account group. If not provided, a system-generated
+   *   UUID will be used. Must be unique within the parent organization.
+   *
    * @return A successful response.
    */
   AccountGroupServiceCreateAccountGroupResponse(params: AccountGroupServiceService.AccountGroupServiceCreateAccountGroupParams): __Observable<__StrictHttpResponse<V1AccountGroup>> {
@@ -246,6 +249,7 @@ class AccountGroupServiceService extends __BaseService {
     let __body: any = null;
 
     __body = params.accountGroup;
+    if (params.accountGroupId != null) __params = __params.set('account_group_id', params.accountGroupId.toString());
     let req = new HttpRequest<any>(
       'POST',
       this.rootUrl + `/v1/${encodeURIComponent(String(params.parent))}/accountGroups`,
@@ -271,6 +275,9 @@ class AccountGroupServiceService extends __BaseService {
    *   Format: organizations/{organization}
    *
    * - `account_group`: The account group to create.
+   *
+   * - `account_group_id`: The ID to use for the account group. If not provided, a system-generated
+   *   UUID will be used. Must be unique within the parent organization.
    *
    * @return A successful response.
    */
@@ -350,6 +357,12 @@ module AccountGroupServiceService {
      * The account group to create.
      */
     accountGroup: V1AccountGroup;
+
+    /**
+     * The ID to use for the account group. If not provided, a system-generated
+     * UUID will be used. Must be unique within the parent organization.
+     */
+    accountGroupId?: string;
   }
 }
 

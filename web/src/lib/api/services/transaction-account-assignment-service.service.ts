@@ -239,6 +239,9 @@ class TransactionAccountAssignmentServiceService extends __BaseService {
    *
    * - `assignment`: The assignment to create.
    *
+   * - `transaction_account_assignment_id`: The ID to use for the assignment. If not provided, a system-generated UUID
+   *   will be used. Must be unique within the parent transaction.
+   *
    * @return A successful response.
    */
   TransactionAccountAssignmentServiceCreateTransactionAccountAssignmentResponse(params: TransactionAccountAssignmentServiceService.TransactionAccountAssignmentServiceCreateTransactionAccountAssignmentParams): __Observable<__StrictHttpResponse<V1TransactionAccountAssignment>> {
@@ -247,6 +250,7 @@ class TransactionAccountAssignmentServiceService extends __BaseService {
     let __body: any = null;
 
     __body = params.assignment;
+    if (params.transactionAccountAssignmentId != null) __params = __params.set('transaction_account_assignment_id', params.transactionAccountAssignmentId.toString());
     let req = new HttpRequest<any>(
       'POST',
       this.rootUrl + `/v1/${encodeURIComponent(String(params.parent1))}/assignments`,
@@ -272,6 +276,9 @@ class TransactionAccountAssignmentServiceService extends __BaseService {
    *   Format: organizations/{organization}/transactions/{transaction}
    *
    * - `assignment`: The assignment to create.
+   *
+   * - `transaction_account_assignment_id`: The ID to use for the assignment. If not provided, a system-generated UUID
+   *   will be used. Must be unique within the parent transaction.
    *
    * @return A successful response.
    */
@@ -351,6 +358,12 @@ module TransactionAccountAssignmentServiceService {
      * The assignment to create.
      */
     assignment: V1TransactionAccountAssignment;
+
+    /**
+     * The ID to use for the assignment. If not provided, a system-generated UUID
+     * will be used. Must be unique within the parent transaction.
+     */
+    transactionAccountAssignmentId?: string;
   }
 }
 

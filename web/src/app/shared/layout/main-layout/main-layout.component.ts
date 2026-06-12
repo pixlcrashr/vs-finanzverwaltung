@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, filter } from 'rxjs';
 import { MenuItem, Organization } from '../../models';
 import { CurrentOrganizationService } from '../../services/current-organization.service';
-import { OrganizationDataService } from '../../services/organization.data-service';
+import { MainLayoutDataService } from './main-layout.data-service';
 
 @Component({
   selector: 'app-main-layout',
@@ -178,7 +178,7 @@ import { OrganizationDataService } from '../../services/organization.data-servic
 export class MainLayoutComponent implements OnInit {
   protected readonly router = inject(Router);
   private readonly currentOrganizationService = inject(CurrentOrganizationService);
-  private readonly organizationDataService = inject(OrganizationDataService);
+  private readonly dataService = inject(MainLayoutDataService);
 
   readonly isDarkMode = signal(false);
   readonly organizations = signal<Organization[]>([]);
@@ -232,7 +232,6 @@ export class MainLayoutComponent implements OnInit {
   });
 
   readonly adminMenuItems = computed<MenuItem[]>(() => [
-    { name: $localize`Einstellungen`, path: '/admin/settings' },
     { name: $localize`Organisationen`, path: '/admin/organizations' },
     { name: $localize`Benutzer`, path: '/admin/users' },
     { name: $localize`Gruppen`, path: '/admin/groups' },
@@ -272,6 +271,13 @@ export class MainLayoutComponent implements OnInit {
       if (orgId && this.organizations().length > 0) {
         this.syncToUrlOrgId(orgId);
       }
+      if (!orgId && (e.urlAfterRedirects === '/' || e.urlAfterRedirects === '')) {
+        const selectedOrgId = this.currentOrganizationService.currentOrganization()?.id
+          ?? this.currentOrganizationId();
+        if (selectedOrgId) {
+          this.router.navigate(['/organizations', selectedOrgId, 'dashboard']);
+        }
+      }
     });
 
     this.loadOrganizations();
@@ -293,7 +299,7 @@ export class MainLayoutComponent implements OnInit {
 
   private loadOrganizations(): void {
     this.loading.set(true);
-    this.organizationDataService.getOrganizations().subscribe({
+    this.dataService.getOrganizations().subscribe({
       next: (orgs) => {
         this.organizations.set(orgs);
         this.loading.set(false);
@@ -314,8 +320,14 @@ export class MainLayoutComponent implements OnInit {
           }
         } else if (currentOrg) {
           this.currentOrganizationId.set(currentOrg.id);
+          if (this.router.url === '/' || this.router.url === '') {
+            this.router.navigate(['/organizations', currentOrg.id, 'dashboard']);
+          }
         } else if (orgs.length > 0) {
           this.selectOrganization(orgs[0].id);
+          if (this.router.url === '/' || this.router.url === '') {
+            this.router.navigate(['/organizations', orgs[0].id, 'dashboard']);
+          }
         }
       },
       error: () => {
@@ -340,27 +352,6 @@ export class MainLayoutComponent implements OnInit {
     if (org) {
       this.currentOrganizationId.set(organizationId);
       this.currentOrganizationService.setOrganization(org);
-    }
-  }
-
-  createOrganization(name: string, description: string): void {
-    this.organizationDataService.createOrganization(name, description).subscribe({
-      next: (org) => {
-        this.organizations.update((orgs) => [org, ...orgs]);
-        this.selectOrganization(org.id);
-        // Navigate to the newly created organization's dashboard
-        this.router.navigate(['/organizations', org.id, 'dashboard']);
-      },
-    });
-  }
-
-  onCreateOrganization(): void {
-    const name = this.newOrgName().trim();
-    const description = this.newOrgDescription().trim();
-    if (name) {
-      this.createOrganization(name, description);
-      this.newOrgName.set('');
-      this.newOrgDescription.set('');
     }
   }
 

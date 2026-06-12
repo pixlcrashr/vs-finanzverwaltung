@@ -8,7 +8,8 @@ export abstract class AccountListDataService {
     name: string,
     code: string,
     description: string,
-    parentAccountId: string | null
+    parentAccountId: string | null,
+    isContainer: boolean,
   ): Observable<Account>;
   abstract deleteAccount(organizationId: string, accountId: string): Observable<void>;
   abstract archiveAccount(organizationId: string, accountId: string): Observable<void>;

@@ -104,7 +104,10 @@ export class UserListComponent implements OnInit {
   readonly loading = signal(true);
   readonly users = signal<User[]>([]);
 
-  readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Benutzer` }];
+  readonly breadcrumbs: BreadcrumbItem[] = [
+    { label: $localize`Administration` },
+    { label: $localize`Benutzer` }
+  ];
 
   ngOnInit(): void {
     this.loadUsers();

@@ -58,12 +58,13 @@ export class HttpCreateAccountDialogDataService extends CreateAccountDialogDataS
     code: string,
     description: string,
     parentAccountId: string | null,
+    isContainer: boolean,
   ): Observable<CreatedAccount> {
     const parent = `organizations/${organizationId}`;
     const parentAccount = parentAccountId ? `${parent}/accounts/${parentAccountId}` : undefined;
     return this.svc.AccountServiceCreateAccount({
       parent,
-      account: { display_name: name, display_code: code, display_description: description, parent_account: parentAccount },
+      account: { display_name: name, display_code: code, display_description: description, parent_account: parentAccount, is_container: isContainer },
     }).pipe(
       map((a) => ({
         id: a.uid ?? '',

@@ -1,4 +1,5 @@
 /* tslint:disable */
+
 /**
  * NestedAccount is a read-only view of an Account that includes its full
  * subtree of child accounts. It shares the same resource name as Account.

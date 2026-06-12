@@ -45,6 +45,10 @@ export class HttpAccountEditDataService extends AccountEditDataService {
     );
   }
 
+  deleteAccount(organizationId: string, id: string): Observable<void> {
+    return this.svc.AccountServiceDeleteAccount(this.accountName(organizationId, id)).pipe(map(() => undefined));
+  }
+
   listParentAccounts(organizationId: string): Observable<Account[]> {
     return this.svc.AccountServiceListAccounts({ parent: `organizations/${organizationId}`, pageSize: 100, showDeleted: false }).pipe(
       map((resp) => (resp.accounts ?? []).map(mapApiAccount)),

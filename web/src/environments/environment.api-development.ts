@@ -19,7 +19,6 @@ import { HttpTransactionEditDataService } from '../lib/data/http/transaction-edi
 import { HttpJournalListDataService } from '../lib/data/http/journal-list.data-service.http';
 import { HttpJournalImportDataService } from '../lib/data/http/journal-import.data-service.http';
 import { HttpDashboardDataService } from '../lib/data/http/dashboard.data-service.http';
-import { HttpSettingsDataService } from '../lib/data/http/settings.data-service.http';
 import { HttpMatrixDataService } from '../lib/data/http/matrix.data-service.http';
 import { HttpUserListDataService } from '../lib/data/http/user-list.data-service.http';
 import { HttpUserEditDataService } from '../lib/data/http/user-edit.data-service.http';
@@ -37,9 +36,12 @@ import { HttpCreateReportDialogDataService } from '../lib/data/http/create-repor
 import { HttpClosePeriodDialogDataService } from '../lib/data/http/close-period-dialog.data-service.http';
 // Add Receipt Dialog - using mock until HTTP implementation exists
 import { MockAddReceiptDialogDataService } from '../lib/data/mock/add-receipt-dialog.data-service.mock';
-import { HttpOrganizationDataService } from '../lib/data/http/organization.data-service.http';
 import { HttpOrganizationListDataService } from '../lib/data/http/organization-list.data-service.http';
 import { HttpOrganizationEditDataService } from '../lib/data/http/organization-edit.data-service.http';
+import { HttpCreateOrganizationDialogDataService } from '../lib/data/http/create-organization-dialog.data-service.http';
+import { HttpMainLayoutDataService } from '../lib/data/http/main-layout.data-service.http';
+
+
 
 export const environment = {
   production: false,
@@ -66,7 +68,6 @@ export const environment = {
     journalImport: HttpJournalImportDataService,
     dashboard: HttpDashboardDataService,
     matrix: HttpMatrixDataService,
-    settings: HttpSettingsDataService,
     userList: HttpUserListDataService,
     userEdit: HttpUserEditDataService,
     groupList: HttpGroupListDataService,
@@ -83,8 +84,9 @@ export const environment = {
     createReportDialog: HttpCreateReportDialogDataService,
     closePeriodDialog: HttpClosePeriodDialogDataService,
     addReceiptDialog: MockAddReceiptDialogDataService,
-    organization: HttpOrganizationDataService,
     organizationList: HttpOrganizationListDataService,
     organizationEdit: HttpOrganizationEditDataService,
+    createOrganizationDialog: HttpCreateOrganizationDialogDataService,
+    mainLayout: HttpMainLayoutDataService,
   },
 };

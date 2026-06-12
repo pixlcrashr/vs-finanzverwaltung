@@ -6,10 +6,17 @@ import { AccountListDataService } from '../../../app/routes/accounts/account-lis
 
 @Injectable()
 export class MockAccountListDataService extends AccountListDataService {
-  private accounts: Account[] = this.generateAccounts();
+  private accountsByOrg = new Map<string, Account[]>();
+
+  private getAccounts(organizationId: string): Account[] {
+    if (!this.accountsByOrg.has(organizationId)) {
+      this.accountsByOrg.set(organizationId, this.generateAccounts());
+    }
+    return this.accountsByOrg.get(organizationId)!;
+  }
 
   listAccounts(organizationId: string): Observable<Account[]> {
-    return of([...this.accounts]).pipe(delay(300));
+    return of([...this.getAccounts(organizationId)]).pipe(delay(300));
   }
 
   createAccount(
@@ -17,8 +24,10 @@ export class MockAccountListDataService extends AccountListDataService {
     name: string,
     code: string,
     description: string,
-    parentAccountId: string | null
+    parentAccountId: string | null,
+    isContainer: boolean,
   ): Observable<Account> {
+    const accounts = this.getAccounts(organizationId);
     const newAccount: Account = {
       id: faker.string.uuid(),
       name,
@@ -32,24 +41,24 @@ export class MockAccountListDataService extends AccountListDataService {
     };
 
     if (parentAccountId) {
-      const parent = this.findAccount(this.accounts, parentAccountId);
+      const parent = this.findAccount(accounts, parentAccountId);
       if (parent) {
         parent.children.push(newAccount);
       }
     } else {
-      this.accounts = [newAccount, ...this.accounts];
+      accounts.unshift(newAccount);
     }
 
     return of(newAccount).pipe(delay(300));
   }
 
   deleteAccount(organizationId: string, id: string): Observable<void> {
-    this.accounts = this.removeAccount(this.accounts, id);
+    this.accountsByOrg.set(organizationId, this.removeAccount(this.getAccounts(organizationId), id));
     return of(undefined).pipe(delay(300));
   }
 
   archiveAccount(organizationId: string, id: string): Observable<void> {
-    const account = this.findAccount(this.accounts, id);
+    const account = this.findAccount(this.getAccounts(organizationId), id);
     if (account) {
       account.isArchived = true;
     }
@@ -57,7 +66,7 @@ export class MockAccountListDataService extends AccountListDataService {
   }
 
   restoreAccount(organizationId: string, id: string): Observable<void> {
-    const account = this.findAccount(this.accounts, id);
+    const account = this.findAccount(this.getAccounts(organizationId), id);
     if (account) {
       account.isArchived = false;
     }

@@ -76,6 +76,7 @@ export interface CreateReportDialogOutput {
             <input
               id="name"
               type="text"
+              autocomplete="off"
               [(ngModel)]="reportName"
               i18n-placeholder
               placeholder="z.B. Haushaltsbericht Q1 2026"

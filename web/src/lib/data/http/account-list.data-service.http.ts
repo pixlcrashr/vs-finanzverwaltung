@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, map, switchMap } from 'rxjs';
+import { Observable, map, expand, reduce, EMPTY, switchMap } from 'rxjs';
 import { AccountServiceService } from '../../api/services/account-service.service';
+import { V1ListAccountsResponse } from '../../api/models/v1list-accounts-response';
 import { Account } from '../../../app/shared/models';
 import { AccountListDataService } from '../../../app/routes/accounts/account-list/account-list.data-service';
 import { mapApiAccount, buildAccountTree } from './_mappers';
@@ -17,11 +18,18 @@ export class HttpAccountListDataService extends AccountListDataService {
   }
 
   listAccounts(organizationId: string): Observable<Account[]> {
-    return this.svc.AccountServiceListAccounts({ parent: this.orgParent(organizationId), pageSize: 100, showDeleted: true }).pipe(
-      map((resp) => {
-        const flat = (resp.accounts ?? []).map(mapApiAccount);
-        return buildAccountTree(flat);
-      }),
+    const parent = this.orgParent(organizationId);
+    return this.svc.AccountServiceListAccounts({ parent, pageSize: 1000, showDeleted: true }).pipe(
+      expand((resp: V1ListAccountsResponse) =>
+        resp.next_page_token
+          ? this.svc.AccountServiceListAccounts({ parent, pageSize: 1000, showDeleted: true, pageToken: resp.next_page_token })
+          : EMPTY
+      ),
+      reduce((all: Account[], resp: V1ListAccountsResponse) =>
+        all.concat((resp.accounts ?? []).map(mapApiAccount)),
+        []
+      ),
+      map(buildAccountTree),
     );
   }
 
@@ -31,6 +39,7 @@ export class HttpAccountListDataService extends AccountListDataService {
     code: string,
     description: string,
     parentAccountId: string | null,
+    isContainer: boolean,
   ): Observable<Account> {
     const parentAccount = parentAccountId ? this.accountName(organizationId, parentAccountId) : undefined;
     return this.svc.AccountServiceCreateAccount({
@@ -40,6 +49,7 @@ export class HttpAccountListDataService extends AccountListDataService {
         display_code: code,
         display_description: description,
         parent_account: parentAccount,
+        is_container: isContainer,
       },
     }).pipe(map(mapApiAccount));
   }

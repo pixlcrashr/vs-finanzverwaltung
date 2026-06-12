@@ -30,7 +30,8 @@ export class MockCreateAccountDialogDataService extends CreateAccountDialogDataS
     name: string,
     code: string,
     description: string,
-    parentAccountId: string | null
+    parentAccountId: string | null,
+    isContainer: boolean,
   ): Observable<CreatedAccount> {
     return of({
       id: faker.string.uuid(),

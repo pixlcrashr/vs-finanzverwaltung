@@ -187,6 +187,9 @@ class TransactionAccountServiceService extends __BaseService {
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
    *
+   * - `transaction_account_id`: The ID to use for the transaction account. If not provided, a
+   *   system-generated UUID will be used. Must be unique within the parent organization.
+   *
    * @return A successful response.
    */
   TransactionAccountServiceCreateTransactionAccountResponse(params: TransactionAccountServiceService.TransactionAccountServiceCreateTransactionAccountParams): __Observable<__StrictHttpResponse<V1TransactionAccount>> {
@@ -195,6 +198,7 @@ class TransactionAccountServiceService extends __BaseService {
     let __body: any = null;
     __body = params.transactionAccount;
 
+    if (params.transactionAccountId != null) __params = __params.set('transaction_account_id', params.transactionAccountId.toString());
     let req = new HttpRequest<any>(
       'POST',
       this.rootUrl + `/v1/${encodeURIComponent(String(params.parent))}/transactionAccounts`,
@@ -220,6 +224,9 @@ class TransactionAccountServiceService extends __BaseService {
    *
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
+   *
+   * - `transaction_account_id`: The ID to use for the transaction account. If not provided, a
+   *   system-generated UUID will be used. Must be unique within the parent organization.
    *
    * @return A successful response.
    */
@@ -333,6 +340,12 @@ module TransactionAccountServiceService {
      * Format: organizations/{organization}
      */
     parent: string;
+
+    /**
+     * The ID to use for the transaction account. If not provided, a
+     * system-generated UUID will be used. Must be unique within the parent organization.
+     */
+    transactionAccountId?: string;
   }
 
   /**

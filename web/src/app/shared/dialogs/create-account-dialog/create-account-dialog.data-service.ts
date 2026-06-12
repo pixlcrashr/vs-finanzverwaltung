@@ -8,6 +8,7 @@ export abstract class CreateAccountDialogDataService {
     name: string,
     code: string,
     description: string,
-    parentAccountId: string | null
+    parentAccountId: string | null,
+    isContainer: boolean,
   ): Observable<CreatedAccount>;
 }

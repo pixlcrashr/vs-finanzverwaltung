@@ -186,6 +186,9 @@ class ReportServiceService extends __BaseService {
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
    *
+   * - `report_id`: The ID to use for the report. If not provided, a system-generated UUID
+   *   will be used. Must be unique within the parent organization.
+   *
    * @return A successful response.
    */
   ReportServiceCreateReportResponse(params: ReportServiceService.ReportServiceCreateReportParams): __Observable<__StrictHttpResponse<V1Report>> {
@@ -194,6 +197,7 @@ class ReportServiceService extends __BaseService {
     let __body: any = null;
     __body = params.report;
 
+    if (params.reportId != null) __params = __params.set('report_id', params.reportId.toString());
     let req = new HttpRequest<any>(
       'POST',
       this.rootUrl + `/v1/${encodeURIComponent(String(params.parent))}/reports`,
@@ -219,6 +223,9 @@ class ReportServiceService extends __BaseService {
    *
    * - `parent`: The parent organization resource name.
    *   Format: organizations/{organization}
+   *
+   * - `report_id`: The ID to use for the report. If not provided, a system-generated UUID
+   *   will be used. Must be unique within the parent organization.
    *
    * @return A successful response.
    */
@@ -281,6 +288,12 @@ module ReportServiceService {
      * Format: organizations/{organization}
      */
     parent: string;
+
+    /**
+     * The ID to use for the report. If not provided, a system-generated UUID
+     * will be used. Must be unique within the parent organization.
+     */
+    reportId?: string;
   }
 }
 

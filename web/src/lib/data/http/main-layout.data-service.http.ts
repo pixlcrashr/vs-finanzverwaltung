@@ -1,11 +1,11 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { OrganizationServiceService } from '../../api/services/organization-service.service';
 import { Organization } from '../../../app/shared/models';
-import { OrganizationDataService } from '../../../app/shared/services/organization.data-service';
+import { MainLayoutDataService } from '../../../app/shared/layout/main-layout/main-layout.data-service';
 
 @Injectable()
-export class HttpOrganizationDataService extends OrganizationDataService {
+export class HttpMainLayoutDataService extends MainLayoutDataService {
   private readonly svc = inject(OrganizationServiceService);
 
   getOrganizations(): Observable<Organization[]> {
@@ -17,12 +17,6 @@ export class HttpOrganizationDataService extends OrganizationDataService {
           description: '',
         })),
       ),
-    );
-  }
-
-  createOrganization(name: string, _description: string): Observable<Organization> {
-    return this.svc.OrganizationServiceCreateOrganization({ display_name: name }).pipe(
-      map((o) => ({ id: o.uid ?? '', name: o.display_name, description: '' })),
     );
   }
 }

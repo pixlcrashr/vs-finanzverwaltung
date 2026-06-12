@@ -182,6 +182,7 @@ export class GroupEditComponent implements OnInit, OnDestroy {
   readonly assignedPermissionIds = signal<Set<string>>(new Set());
 
   readonly breadcrumbs = signal<BreadcrumbItem[]>([
+    { label: $localize`Administration` },
     { label: $localize`Gruppen`, path: '/admin/groups' },
     { label: $localize`Laden...` },
   ]);
@@ -232,6 +233,7 @@ export class GroupEditComponent implements OnInit, OnDestroy {
         }, { emitEvent: false });
         this.groupForm.markAsPristine();
         this.breadcrumbs.set([
+          { label: $localize`Administration` },
           { label: $localize`Gruppen`, path: '/admin/groups' },
           { label: group.name },
         ]);
@@ -260,6 +262,7 @@ export class GroupEditComponent implements OnInit, OnDestroy {
         this.groupForm.markAsPristine();
         // Update breadcrumbs with new name
         this.breadcrumbs.set([
+          { label: $localize`Administration` },
           { label: $localize`Gruppen`, path: '/admin/groups' },
           { label: name.trim() },
         ]);

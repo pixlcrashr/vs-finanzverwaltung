@@ -173,6 +173,10 @@ message CreateAccountRequest {
 
   // The account to create.
   Account account = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The ID to use for the account. If not provided, a system-generated UUID
+  // will be used. Must be unique within the parent organization.
+  string account_id = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message UpdateAccountRequest {
@@ -277,7 +281,7 @@ service AccountService {
       post: "/v1/{parent=organizations/*}/accounts"
       body: "account"
     };
-    option (google.api.method_signature) = "parent,account";
+    option (google.api.method_signature) = "parent,account,account_id";
   }
 
   // Updates an existing account.

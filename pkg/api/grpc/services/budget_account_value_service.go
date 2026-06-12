@@ -57,8 +57,12 @@ func (s *budgetAccountValueServiceServer) CreateBudgetAccountValue(ctx context.C
 		BudgetID:       budgetID,
 		AccountID:      accountID,
 		Value:          val,
+		CustomID:       req.BudgetAccountValueId,
 	}
 	if err := s.repo.Create(ctx, m); err != nil {
+		if isDuplicateKey(err) {
+			return nil, status.Error(codes.AlreadyExists, "budget account value with this ID already exists")
+		}
 		return nil, status.Error(codes.Internal, "failed to create budget account value")
 	}
 	return BudgetAccountValueToProto(m), nil

@@ -126,6 +126,15 @@ func (r *AccountRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.A
 	return r.q.Account.WithContext(ctx).Where(r.q.Account.ID.Eq(id)).First()
 }
 
+// GetByCustomID returns the account with the given custom ID within an organization.
+// Returns gorm.ErrRecordNotFound when no such account exists.
+func (r *AccountRepository) GetByCustomID(ctx context.Context, orgID uuid.UUID, customID string) (*model.Account, error) {
+	return r.q.Account.WithContext(ctx).Where(
+		r.q.Account.OrganizationID.Eq(orgID),
+		r.q.Account.CustomID.Eq(customID),
+	).First()
+}
+
 // Create inserts a new account.
 func (r *AccountRepository) Create(ctx context.Context, m *model.Account) error {
 	return r.q.Account.WithContext(ctx).Create(m)

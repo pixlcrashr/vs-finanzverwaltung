@@ -28,6 +28,7 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 	tableName := _organization.organizationDo.TableName()
 	_organization.ALL = field.NewAsterisk(tableName)
 	_organization.ID = field.NewField(tableName, "id")
+	_organization.CustomID = field.NewString(tableName, "custom_id")
 	_organization.DisplayName = field.NewString(tableName, "display_name")
 	_organization.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_organization.CreatedAt = field.NewTime(tableName, "created_at")
@@ -68,35 +69,38 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 					Organization struct {
 						field.RelationField
 					}
-					BudgetRevision struct {
+					Budget struct {
 						field.RelationField
 						Organization struct {
 							field.RelationField
 						}
-						Budget struct {
+						BudgetRevisions struct {
 							field.RelationField
 							Organization struct {
 								field.RelationField
 							}
-							BudgetRevisions struct {
+							Budget struct {
 								field.RelationField
 							}
-							BudgetAccountValues struct {
+							BudgetRevisionAccountValues struct {
 								field.RelationField
-								Organization struct {
-									field.RelationField
-								}
-								Budget struct {
-									field.RelationField
-								}
-								Account struct {
-									field.RelationField
-								}
 							}
 						}
-						BudgetRevisionAccountValues struct {
+						BudgetAccountValues struct {
 							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							Budget struct {
+								field.RelationField
+							}
+							Account struct {
+								field.RelationField
+							}
 						}
+					}
+					BudgetRevision struct {
+						field.RelationField
 					}
 					Account struct {
 						field.RelationField
@@ -243,35 +247,38 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 					Organization struct {
 						field.RelationField
 					}
-					BudgetRevision struct {
+					Budget struct {
 						field.RelationField
 						Organization struct {
 							field.RelationField
 						}
-						Budget struct {
+						BudgetRevisions struct {
 							field.RelationField
 							Organization struct {
 								field.RelationField
 							}
-							BudgetRevisions struct {
+							Budget struct {
 								field.RelationField
 							}
-							BudgetAccountValues struct {
+							BudgetRevisionAccountValues struct {
 								field.RelationField
-								Organization struct {
-									field.RelationField
-								}
-								Budget struct {
-									field.RelationField
-								}
-								Account struct {
-									field.RelationField
-								}
 							}
 						}
-						BudgetRevisionAccountValues struct {
+						BudgetAccountValues struct {
 							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							Budget struct {
+								field.RelationField
+							}
+							Account struct {
+								field.RelationField
+							}
 						}
+					}
+					BudgetRevision struct {
+						field.RelationField
 					}
 					Account struct {
 						field.RelationField
@@ -358,35 +365,38 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 					Organization struct {
 						field.RelationField
 					}
-					BudgetRevision struct {
+					Budget struct {
 						field.RelationField
 						Organization struct {
 							field.RelationField
 						}
-						Budget struct {
+						BudgetRevisions struct {
 							field.RelationField
 							Organization struct {
 								field.RelationField
 							}
-							BudgetRevisions struct {
+							Budget struct {
 								field.RelationField
 							}
-							BudgetAccountValues struct {
+							BudgetRevisionAccountValues struct {
 								field.RelationField
-								Organization struct {
-									field.RelationField
-								}
-								Budget struct {
-									field.RelationField
-								}
-								Account struct {
-									field.RelationField
-								}
 							}
 						}
-						BudgetRevisionAccountValues struct {
+						BudgetAccountValues struct {
 							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							Budget struct {
+								field.RelationField
+							}
+							Account struct {
+								field.RelationField
+							}
 						}
+					}
+					BudgetRevision struct {
+						field.RelationField
 					}
 					Account struct {
 						field.RelationField
@@ -398,109 +408,105 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 					}{
 						RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetRevisionAccountValues.Organization", "model.Organization"),
 					},
-					BudgetRevision: struct {
+					Budget: struct {
 						field.RelationField
 						Organization struct {
 							field.RelationField
 						}
-						Budget struct {
+						BudgetRevisions struct {
 							field.RelationField
 							Organization struct {
 								field.RelationField
 							}
-							BudgetRevisions struct {
+							Budget struct {
 								field.RelationField
 							}
-							BudgetAccountValues struct {
+							BudgetRevisionAccountValues struct {
 								field.RelationField
-								Organization struct {
-									field.RelationField
-								}
-								Budget struct {
-									field.RelationField
-								}
-								Account struct {
-									field.RelationField
-								}
 							}
 						}
-						BudgetRevisionAccountValues struct {
+						BudgetAccountValues struct {
 							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							Budget struct {
+								field.RelationField
+							}
+							Account struct {
+								field.RelationField
+							}
 						}
 					}{
-						RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetRevisionAccountValues.BudgetRevision", "model.BudgetRevision"),
+						RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetRevisionAccountValues.Budget", "model.Budget"),
 						Organization: struct {
 							field.RelationField
 						}{
-							RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetRevisionAccountValues.BudgetRevision.Organization", "model.Organization"),
+							RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetRevisionAccountValues.Budget.Organization", "model.Organization"),
 						},
-						Budget: struct {
+						BudgetRevisions: struct {
 							field.RelationField
 							Organization struct {
 								field.RelationField
 							}
-							BudgetRevisions struct {
+							Budget struct {
 								field.RelationField
 							}
-							BudgetAccountValues struct {
+							BudgetRevisionAccountValues struct {
 								field.RelationField
-								Organization struct {
-									field.RelationField
-								}
-								Budget struct {
-									field.RelationField
-								}
-								Account struct {
-									field.RelationField
-								}
 							}
 						}{
-							RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetRevisionAccountValues.BudgetRevision.Budget", "model.Budget"),
+							RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetRevisionAccountValues.Budget.BudgetRevisions", "model.BudgetRevision"),
 							Organization: struct {
 								field.RelationField
 							}{
-								RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetRevisionAccountValues.BudgetRevision.Budget.Organization", "model.Organization"),
+								RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetRevisionAccountValues.Budget.BudgetRevisions.Organization", "model.Organization"),
 							},
-							BudgetRevisions: struct {
+							Budget: struct {
 								field.RelationField
 							}{
-								RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetRevisionAccountValues.BudgetRevision.Budget.BudgetRevisions", "model.BudgetRevision"),
+								RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetRevisionAccountValues.Budget.BudgetRevisions.Budget", "model.Budget"),
 							},
-							BudgetAccountValues: struct {
+							BudgetRevisionAccountValues: struct {
 								field.RelationField
-								Organization struct {
-									field.RelationField
-								}
-								Budget struct {
-									field.RelationField
-								}
-								Account struct {
-									field.RelationField
-								}
 							}{
-								RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetRevisionAccountValues.BudgetRevision.Budget.BudgetAccountValues", "model.BudgetAccountValue"),
-								Organization: struct {
-									field.RelationField
-								}{
-									RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetRevisionAccountValues.BudgetRevision.Budget.BudgetAccountValues.Organization", "model.Organization"),
-								},
-								Budget: struct {
-									field.RelationField
-								}{
-									RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetRevisionAccountValues.BudgetRevision.Budget.BudgetAccountValues.Budget", "model.Budget"),
-								},
-								Account: struct {
-									field.RelationField
-								}{
-									RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetRevisionAccountValues.BudgetRevision.Budget.BudgetAccountValues.Account", "model.Account"),
-								},
+								RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetRevisionAccountValues.Budget.BudgetRevisions.BudgetRevisionAccountValues", "model.BudgetRevisionAccountValue"),
 							},
 						},
-						BudgetRevisionAccountValues: struct {
+						BudgetAccountValues: struct {
 							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							Budget struct {
+								field.RelationField
+							}
+							Account struct {
+								field.RelationField
+							}
 						}{
-							RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetRevisionAccountValues.BudgetRevision.BudgetRevisionAccountValues", "model.BudgetRevisionAccountValue"),
+							RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetRevisionAccountValues.Budget.BudgetAccountValues", "model.BudgetAccountValue"),
+							Organization: struct {
+								field.RelationField
+							}{
+								RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetRevisionAccountValues.Budget.BudgetAccountValues.Organization", "model.Organization"),
+							},
+							Budget: struct {
+								field.RelationField
+							}{
+								RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetRevisionAccountValues.Budget.BudgetAccountValues.Budget", "model.Budget"),
+							},
+							Account: struct {
+								field.RelationField
+							}{
+								RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetRevisionAccountValues.Budget.BudgetAccountValues.Account", "model.Account"),
+							},
 						},
+					},
+					BudgetRevision: struct {
+						field.RelationField
+					}{
+						RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetRevisionAccountValues.BudgetRevision", "model.BudgetRevision"),
 					},
 					Account: struct {
 						field.RelationField
@@ -906,6 +912,7 @@ type organization struct {
 
 	ALL                     field.Asterisk
 	ID                      field.Field
+	CustomID                field.String
 	DisplayName             field.String
 	UpdatedAt               field.Time
 	CreatedAt               field.Time
@@ -953,6 +960,7 @@ func (o organization) As(alias string) *organization {
 func (o *organization) updateTableName(table string) *organization {
 	o.ALL = field.NewAsterisk(table)
 	o.ID = field.NewField(table, "id")
+	o.CustomID = field.NewString(table, "custom_id")
 	o.DisplayName = field.NewString(table, "display_name")
 	o.UpdatedAt = field.NewTime(table, "updated_at")
 	o.CreatedAt = field.NewTime(table, "created_at")
@@ -984,8 +992,9 @@ func (o *organization) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (o *organization) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 18)
+	o.fieldMap = make(map[string]field.Expr, 19)
 	o.fieldMap["id"] = o.ID
+	o.fieldMap["custom_id"] = o.CustomID
 	o.fieldMap["display_name"] = o.DisplayName
 	o.fieldMap["updated_at"] = o.UpdatedAt
 	o.fieldMap["created_at"] = o.CreatedAt
@@ -1082,35 +1091,38 @@ type organizationHasManyAccountGroupAssignments struct {
 				Organization struct {
 					field.RelationField
 				}
-				BudgetRevision struct {
+				Budget struct {
 					field.RelationField
 					Organization struct {
 						field.RelationField
 					}
-					Budget struct {
+					BudgetRevisions struct {
 						field.RelationField
 						Organization struct {
 							field.RelationField
 						}
-						BudgetRevisions struct {
+						Budget struct {
 							field.RelationField
 						}
-						BudgetAccountValues struct {
+						BudgetRevisionAccountValues struct {
 							field.RelationField
-							Organization struct {
-								field.RelationField
-							}
-							Budget struct {
-								field.RelationField
-							}
-							Account struct {
-								field.RelationField
-							}
 						}
 					}
-					BudgetRevisionAccountValues struct {
+					BudgetAccountValues struct {
 						field.RelationField
+						Organization struct {
+							field.RelationField
+						}
+						Budget struct {
+							field.RelationField
+						}
+						Account struct {
+							field.RelationField
+						}
 					}
+				}
+				BudgetRevision struct {
+					field.RelationField
 				}
 				Account struct {
 					field.RelationField

@@ -107,6 +107,10 @@ message CreateBudgetRevisionRequest {
   // The revision to create. Only display_name and display_description are
   // user-supplied; all other fields are populated by the server.
   BudgetRevision revision = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The ID to use for the revision. If not provided, a system-generated UUID
+  // will be used. Must be unique within the parent budget.
+  string budget_revision_id = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // BudgetRevisionService manages read-only revision history for budgets.
@@ -134,6 +138,6 @@ service BudgetRevisionService {
       post: "/v1/{parent=organizations/*/budgets/*}/revisions"
       body: "revision"
     };
-    option (google.api.method_signature) = "parent,revision";
+    option (google.api.method_signature) = "parent,revision,budget_revision_id";
   }
 }

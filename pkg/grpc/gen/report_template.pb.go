@@ -327,8 +327,11 @@ type CreateReportTemplateRequest struct {
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
 	// The report template to create.
 	ReportTemplate *ReportTemplate `protobuf:"bytes,2,opt,name=report_template,json=reportTemplate,proto3" json:"report_template,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// The ID to use for the report template. If not provided, a system-generated
+	// UUID will be used. Must be unique within the parent organization.
+	ReportTemplateId string `protobuf:"bytes,3,opt,name=report_template_id,json=reportTemplateId,proto3" json:"report_template_id,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *CreateReportTemplateRequest) Reset() {
@@ -373,6 +376,13 @@ func (x *CreateReportTemplateRequest) GetReportTemplate() *ReportTemplate {
 		return x.ReportTemplate
 	}
 	return nil
+}
+
+func (x *CreateReportTemplateRequest) GetReportTemplateId() string {
+	if x != nil {
+		return x.ReportTemplateId
+	}
+	return ""
 }
 
 type UpdateReportTemplateRequest struct {
@@ -506,22 +516,23 @@ const file_pixlcrashr_vsfv_v1_report_template_proto_rawDesc = "" +
 	"\x10report_templates\x18\x01 \x03(\v2\".pixlcrashr.vsfv.v1.ReportTemplateR\x0freportTemplates\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xb1\x01\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xe4\x01\n" +
 	"\x1bCreateReportTemplateRequest\x12@\n" +
 	"\x06parent\x18\x01 \x01(\tB(\xe0A\x02\xfaA\"\n" +
 	" vsfv.pixlcrashr.dev/OrganizationR\x06parent\x12P\n" +
-	"\x0freport_template\x18\x02 \x01(\v2\".pixlcrashr.vsfv.v1.ReportTemplateB\x03\xe0A\x02R\x0ereportTemplate\"\xb1\x01\n" +
+	"\x0freport_template\x18\x02 \x01(\v2\".pixlcrashr.vsfv.v1.ReportTemplateB\x03\xe0A\x02R\x0ereportTemplate\x121\n" +
+	"\x12report_template_id\x18\x03 \x01(\tB\x03\xe0A\x01R\x10reportTemplateId\"\xb1\x01\n" +
 	"\x1bUpdateReportTemplateRequest\x12P\n" +
 	"\x0freport_template\x18\x01 \x01(\v2\".pixlcrashr.vsfv.v1.ReportTemplateB\x03\xe0A\x02R\x0ereportTemplate\x12@\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMask\"]\n" +
 	"\x1bDeleteReportTemplateRequest\x12>\n" +
 	"\x04name\x18\x01 \x01(\tB*\xe0A\x02\xfaA$\n" +
-	"\"vsfv.pixlcrashr.dev/ReportTemplateR\x04name2\xdc\a\n" +
+	"\"vsfv.pixlcrashr.dev/ReportTemplateR\x04name2\xef\a\n" +
 	"\x15ReportTemplateService\x12\xa2\x01\n" +
 	"\x11GetReportTemplate\x12,.pixlcrashr.vsfv.v1.GetReportTemplateRequest\x1a\".pixlcrashr.vsfv.v1.ReportTemplate\";\xdaA\x04name\x82\xd3\xe4\x93\x02.\x12,/v1/{name=organizations/*/reportTemplates/*}\x12\xb5\x01\n" +
-	"\x13ListReportTemplates\x12..pixlcrashr.vsfv.v1.ListReportTemplatesRequest\x1a/.pixlcrashr.vsfv.v1.ListReportTemplatesResponse\"=\xdaA\x06parent\x82\xd3\xe4\x93\x02.\x12,/v1/{parent=organizations/*}/reportTemplates\x12\xcb\x01\n" +
-	"\x14CreateReportTemplate\x12/.pixlcrashr.vsfv.v1.CreateReportTemplateRequest\x1a\".pixlcrashr.vsfv.v1.ReportTemplate\"^\xdaA\x16parent,report_template\x82\xd3\xe4\x93\x02?:\x0freport_template\",/v1/{parent=organizations/*}/reportTemplates\x12\xe0\x01\n" +
+	"\x13ListReportTemplates\x12..pixlcrashr.vsfv.v1.ListReportTemplatesRequest\x1a/.pixlcrashr.vsfv.v1.ListReportTemplatesResponse\"=\xdaA\x06parent\x82\xd3\xe4\x93\x02.\x12,/v1/{parent=organizations/*}/reportTemplates\x12\xde\x01\n" +
+	"\x14CreateReportTemplate\x12/.pixlcrashr.vsfv.v1.CreateReportTemplateRequest\x1a\".pixlcrashr.vsfv.v1.ReportTemplate\"q\xdaA)parent,report_template,report_template_id\x82\xd3\xe4\x93\x02?:\x0freport_template\",/v1/{parent=organizations/*}/reportTemplates\x12\xe0\x01\n" +
 	"\x14UpdateReportTemplate\x12/.pixlcrashr.vsfv.v1.UpdateReportTemplateRequest\x1a\".pixlcrashr.vsfv.v1.ReportTemplate\"s\xdaA\x1breport_template,update_mask\x82\xd3\xe4\x93\x02O:\x0freport_template2</v1/{report_template.name=organizations/*/reportTemplates/*}\x12\x9c\x01\n" +
 	"\x14DeleteReportTemplate\x12/.pixlcrashr.vsfv.v1.DeleteReportTemplateRequest\x1a\x16.google.protobuf.Empty\";\xdaA\x04name\x82\xd3\xe4\x93\x02.*,/v1/{name=organizations/*/reportTemplates/*}\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xc0\x01\n" +
 	"\x16com.pixlcrashr.vsfv.v1B\x13ReportTemplateProtoP\x01Z'github.com/pixlcrashr/vsfv/pkg/grpc/gen\xa2\x02\x03PVX\xaa\x02\x12Pixlcrashr.Vsfv.V1\xca\x02\x12Pixlcrashr\\Vsfv\\V1\xe2\x02\x1ePixlcrashr\\Vsfv\\V1\\GPBMetadata\xea\x02\x14Pixlcrashr::Vsfv::V1b\x06proto3"

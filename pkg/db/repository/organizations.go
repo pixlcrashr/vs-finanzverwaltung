@@ -97,6 +97,18 @@ func (r *OrganizationRepository) GetByID(ctx context.Context, id uuid.UUID) (*mo
 	return r.q.Organization.WithContext(ctx).Where(r.q.Organization.ID.Eq(id)).First()
 }
 
+// ExistsByCustomID reports whether an organization with the given custom ID exists.
+func (r *OrganizationRepository) ExistsByCustomID(ctx context.Context, customID string) (bool, error) {
+	var count int64
+	err := r.db.WithContext(ctx).Model(&model.Organization{}).
+		Where("custom_id = ?", customID).
+		Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
 // Create inserts a new organization.
 func (r *OrganizationRepository) Create(ctx context.Context, m *model.Organization) error {
 	return r.q.Organization.WithContext(ctx).Create(m)

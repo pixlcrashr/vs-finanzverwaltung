@@ -336,9 +336,12 @@ type CreateAccountGroupAssignmentRequest struct {
 	// Format: organizations/{organization}/accountGroups/{account_group}
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
 	// The assignment to create.
-	Assignment    *AccountGroupAssignment `protobuf:"bytes,2,opt,name=assignment,proto3" json:"assignment,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Assignment *AccountGroupAssignment `protobuf:"bytes,2,opt,name=assignment,proto3" json:"assignment,omitempty"`
+	// The ID to use for the assignment. If not provided, a system-generated UUID
+	// will be used. Must be unique within the parent account group.
+	AccountGroupAssignmentId string `protobuf:"bytes,3,opt,name=account_group_assignment_id,json=accountGroupAssignmentId,proto3" json:"account_group_assignment_id,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *CreateAccountGroupAssignmentRequest) Reset() {
@@ -383,6 +386,13 @@ func (x *CreateAccountGroupAssignmentRequest) GetAssignment() *AccountGroupAssig
 		return x.Assignment
 	}
 	return nil
+}
+
+func (x *CreateAccountGroupAssignmentRequest) GetAccountGroupAssignmentId() string {
+	if x != nil {
+		return x.AccountGroupAssignmentId
+	}
+	return ""
 }
 
 type UpdateAccountGroupAssignmentRequest struct {
@@ -519,13 +529,14 @@ const file_pixlcrashr_vsfv_v1_account_group_assignment_proto_rawDesc = "" +
 	"\vassignments\x18\x01 \x03(\v2*.pixlcrashr.vsfv.v1.AccountGroupAssignmentR\vassignments\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xb8\x01\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xfc\x01\n" +
 	"#CreateAccountGroupAssignmentRequest\x12@\n" +
 	"\x06parent\x18\x01 \x01(\tB(\xe0A\x02\xfaA\"\n" +
 	" vsfv.pixlcrashr.dev/AccountGroupR\x06parent\x12O\n" +
 	"\n" +
 	"assignment\x18\x02 \x01(\v2*.pixlcrashr.vsfv.v1.AccountGroupAssignmentB\x03\xe0A\x02R\n" +
-	"assignment\"\xb8\x01\n" +
+	"assignment\x12B\n" +
+	"\x1baccount_group_assignment_id\x18\x03 \x01(\tB\x03\xe0A\x01R\x18accountGroupAssignmentId\"\xb8\x01\n" +
 	"#UpdateAccountGroupAssignmentRequest\x12O\n" +
 	"\n" +
 	"assignment\x18\x01 \x01(\v2*.pixlcrashr.vsfv.v1.AccountGroupAssignmentB\x03\xe0A\x02R\n" +
@@ -534,11 +545,11 @@ const file_pixlcrashr_vsfv_v1_account_group_assignment_proto_rawDesc = "" +
 	"updateMask\"m\n" +
 	"#DeleteAccountGroupAssignmentRequest\x12F\n" +
 	"\x04name\x18\x01 \x01(\tB2\xe0A\x02\xfaA,\n" +
-	"*vsfv.pixlcrashr.dev/AccountGroupAssignmentR\x04name2\xf7\b\n" +
+	"*vsfv.pixlcrashr.dev/AccountGroupAssignmentR\x04name2\x93\t\n" +
 	"\x1dAccountGroupAssignmentService\x12\xc6\x01\n" +
 	"\x19GetAccountGroupAssignment\x124.pixlcrashr.vsfv.v1.GetAccountGroupAssignmentRequest\x1a*.pixlcrashr.vsfv.v1.AccountGroupAssignment\"G\xdaA\x04name\x82\xd3\xe4\x93\x02:\x128/v1/{name=organizations/*/accountGroups/*/assignments/*}\x12\xd9\x01\n" +
-	"\x1bListAccountGroupAssignments\x126.pixlcrashr.vsfv.v1.ListAccountGroupAssignmentsRequest\x1a7.pixlcrashr.vsfv.v1.ListAccountGroupAssignmentsResponse\"I\xdaA\x06parent\x82\xd3\xe4\x93\x02:\x128/v1/{parent=organizations/*/accountGroups/*}/assignments\x12\xe5\x01\n" +
-	"\x1cCreateAccountGroupAssignment\x127.pixlcrashr.vsfv.v1.CreateAccountGroupAssignmentRequest\x1a*.pixlcrashr.vsfv.v1.AccountGroupAssignment\"`\xdaA\x11parent,assignment\x82\xd3\xe4\x93\x02F:\n" +
+	"\x1bListAccountGroupAssignments\x126.pixlcrashr.vsfv.v1.ListAccountGroupAssignmentsRequest\x1a7.pixlcrashr.vsfv.v1.ListAccountGroupAssignmentsResponse\"I\xdaA\x06parent\x82\xd3\xe4\x93\x02:\x128/v1/{parent=organizations/*/accountGroups/*}/assignments\x12\x81\x02\n" +
+	"\x1cCreateAccountGroupAssignment\x127.pixlcrashr.vsfv.v1.CreateAccountGroupAssignmentRequest\x1a*.pixlcrashr.vsfv.v1.AccountGroupAssignment\"|\xdaA-parent,assignment,account_group_assignment_id\x82\xd3\xe4\x93\x02F:\n" +
 	"assignment\"8/v1/{parent=organizations/*/accountGroups/*}/assignments\x12\xf5\x01\n" +
 	"\x1cUpdateAccountGroupAssignment\x127.pixlcrashr.vsfv.v1.UpdateAccountGroupAssignmentRequest\x1a*.pixlcrashr.vsfv.v1.AccountGroupAssignment\"p\xdaA\x16assignment,update_mask\x82\xd3\xe4\x93\x02Q:\n" +
 	"assignment2C/v1/{assignment.name=organizations/*/accountGroups/*/assignments/*}\x12\xb8\x01\n" +

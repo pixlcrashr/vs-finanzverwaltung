@@ -304,9 +304,12 @@ func (x *ListOrganizationsResponse) GetTotalSize() int64 {
 type CreateOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The organization to create.
-	Organization  *Organization `protobuf:"bytes,1,opt,name=organization,proto3" json:"organization,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Organization *Organization `protobuf:"bytes,1,opt,name=organization,proto3" json:"organization,omitempty"`
+	// The ID to use for the organization. If not provided, a system-generated
+	// UUID will be used. Must be unique across all organizations.
+	OrganizationId string `protobuf:"bytes,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *CreateOrganizationRequest) Reset() {
@@ -344,6 +347,13 @@ func (x *CreateOrganizationRequest) GetOrganization() *Organization {
 		return x.Organization
 	}
 	return nil
+}
+
+func (x *CreateOrganizationRequest) GetOrganizationId() string {
+	if x != nil {
+		return x.OrganizationId
+	}
+	return ""
 }
 
 type UpdateOrganizationRequest struct {
@@ -400,6 +410,96 @@ func (x *UpdateOrganizationRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+type CheckOrganizationIdRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The candidate organization ID (slug) to check for availability.
+	OrganizationId string `protobuf:"bytes,1,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *CheckOrganizationIdRequest) Reset() {
+	*x = CheckOrganizationIdRequest{}
+	mi := &file_pixlcrashr_vsfv_v1_organization_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckOrganizationIdRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckOrganizationIdRequest) ProtoMessage() {}
+
+func (x *CheckOrganizationIdRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pixlcrashr_vsfv_v1_organization_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckOrganizationIdRequest.ProtoReflect.Descriptor instead.
+func (*CheckOrganizationIdRequest) Descriptor() ([]byte, []int) {
+	return file_pixlcrashr_vsfv_v1_organization_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *CheckOrganizationIdRequest) GetOrganizationId() string {
+	if x != nil {
+		return x.OrganizationId
+	}
+	return ""
+}
+
+type CheckOrganizationIdResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Whether the organization ID is available (not yet in use).
+	Available     bool `protobuf:"varint,1,opt,name=available,proto3" json:"available,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckOrganizationIdResponse) Reset() {
+	*x = CheckOrganizationIdResponse{}
+	mi := &file_pixlcrashr_vsfv_v1_organization_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckOrganizationIdResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckOrganizationIdResponse) ProtoMessage() {}
+
+func (x *CheckOrganizationIdResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pixlcrashr_vsfv_v1_organization_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckOrganizationIdResponse.ProtoReflect.Descriptor instead.
+func (*CheckOrganizationIdResponse) Descriptor() ([]byte, []int) {
+	return file_pixlcrashr_vsfv_v1_organization_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *CheckOrganizationIdResponse) GetAvailable() bool {
+	if x != nil {
+		return x.Available
+	}
+	return false
+}
+
 type DeleteOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The resource name of the organization.
@@ -411,7 +511,7 @@ type DeleteOrganizationRequest struct {
 
 func (x *DeleteOrganizationRequest) Reset() {
 	*x = DeleteOrganizationRequest{}
-	mi := &file_pixlcrashr_vsfv_v1_organization_proto_msgTypes[6]
+	mi := &file_pixlcrashr_vsfv_v1_organization_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -423,7 +523,7 @@ func (x *DeleteOrganizationRequest) String() string {
 func (*DeleteOrganizationRequest) ProtoMessage() {}
 
 func (x *DeleteOrganizationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_organization_proto_msgTypes[6]
+	mi := &file_pixlcrashr_vsfv_v1_organization_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -436,7 +536,7 @@ func (x *DeleteOrganizationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteOrganizationRequest.ProtoReflect.Descriptor instead.
 func (*DeleteOrganizationRequest) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_organization_proto_rawDescGZIP(), []int{6}
+	return file_pixlcrashr_vsfv_v1_organization_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *DeleteOrganizationRequest) GetName() string {
@@ -474,22 +574,28 @@ const file_pixlcrashr_vsfv_v1_organization_proto_rawDesc = "" +
 	"\rorganizations\x18\x01 \x03(\v2 .pixlcrashr.vsfv.v1.OrganizationR\rorganizations\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"f\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\x94\x01\n" +
 	"\x19CreateOrganizationRequest\x12I\n" +
-	"\forganization\x18\x01 \x01(\v2 .pixlcrashr.vsfv.v1.OrganizationB\x03\xe0A\x02R\forganization\"\xa8\x01\n" +
+	"\forganization\x18\x01 \x01(\v2 .pixlcrashr.vsfv.v1.OrganizationB\x03\xe0A\x02R\forganization\x12,\n" +
+	"\x0forganization_id\x18\x02 \x01(\tB\x03\xe0A\x01R\x0eorganizationId\"\xa8\x01\n" +
 	"\x19UpdateOrganizationRequest\x12I\n" +
 	"\forganization\x18\x01 \x01(\v2 .pixlcrashr.vsfv.v1.OrganizationB\x03\xe0A\x02R\forganization\x12@\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
-	"updateMask\"Y\n" +
+	"updateMask\"J\n" +
+	"\x1aCheckOrganizationIdRequest\x12,\n" +
+	"\x0forganization_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x0eorganizationId\";\n" +
+	"\x1bCheckOrganizationIdResponse\x12\x1c\n" +
+	"\tavailable\x18\x01 \x01(\bR\tavailable\"Y\n" +
 	"\x19DeleteOrganizationRequest\x12<\n" +
 	"\x04name\x18\x01 \x01(\tB(\xe0A\x02\xfaA\"\n" +
-	" vsfv.pixlcrashr.dev/OrganizationR\x04name2\xb3\x06\n" +
+	" vsfv.pixlcrashr.dev/OrganizationR\x04name2\xf4\a\n" +
 	"\x13OrganizationService\x12\x8a\x01\n" +
 	"\x0fGetOrganization\x12*.pixlcrashr.vsfv.v1.GetOrganizationRequest\x1a .pixlcrashr.vsfv.v1.Organization\")\xdaA\x04name\x82\xd3\xe4\x93\x02\x1c\x12\x1a/v1/{name=organizations/*}\x12\x8b\x01\n" +
-	"\x11ListOrganizations\x12,.pixlcrashr.vsfv.v1.ListOrganizationsRequest\x1a-.pixlcrashr.vsfv.v1.ListOrganizationsResponse\"\x19\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/organizations\x12\x9d\x01\n" +
-	"\x12CreateOrganization\x12-.pixlcrashr.vsfv.v1.CreateOrganizationRequest\x1a .pixlcrashr.vsfv.v1.Organization\"6\xdaA\forganization\x82\xd3\xe4\x93\x02!:\forganization\"\x11/v1/organizations\x12\xbf\x01\n" +
+	"\x11ListOrganizations\x12,.pixlcrashr.vsfv.v1.ListOrganizationsRequest\x1a-.pixlcrashr.vsfv.v1.ListOrganizationsResponse\"\x19\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/organizations\x12\xad\x01\n" +
+	"\x12CreateOrganization\x12-.pixlcrashr.vsfv.v1.CreateOrganizationRequest\x1a .pixlcrashr.vsfv.v1.Organization\"F\xdaA\x1corganization,organization_id\x82\xd3\xe4\x93\x02!:\forganization\"\x11/v1/organizations\x12\xbf\x01\n" +
 	"\x12UpdateOrganization\x12-.pixlcrashr.vsfv.v1.UpdateOrganizationRequest\x1a .pixlcrashr.vsfv.v1.Organization\"X\xdaA\x18organization,update_mask\x82\xd3\xe4\x93\x027:\forganization2'/v1/{organization.name=organizations/*}\x12\x86\x01\n" +
-	"\x12DeleteOrganization\x12-.pixlcrashr.vsfv.v1.DeleteOrganizationRequest\x1a\x16.google.protobuf.Empty\")\xdaA\x04name\x82\xd3\xe4\x93\x02\x1c*\x1a/v1/{name=organizations/*}\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xbe\x01\n" +
+	"\x12DeleteOrganization\x12-.pixlcrashr.vsfv.v1.DeleteOrganizationRequest\x1a\x16.google.protobuf.Empty\")\xdaA\x04name\x82\xd3\xe4\x93\x02\x1c*\x1a/v1/{name=organizations/*}\x12\xae\x01\n" +
+	"\x13CheckOrganizationId\x12..pixlcrashr.vsfv.v1.CheckOrganizationIdRequest\x1a/.pixlcrashr.vsfv.v1.CheckOrganizationIdResponse\"6\xdaA\x0forganization_id\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/v1/organizations:checkId\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xbe\x01\n" +
 	"\x16com.pixlcrashr.vsfv.v1B\x11OrganizationProtoP\x01Z'github.com/pixlcrashr/vsfv/pkg/grpc/gen\xa2\x02\x03PVX\xaa\x02\x12Pixlcrashr.Vsfv.V1\xca\x02\x12Pixlcrashr\\Vsfv\\V1\xe2\x02\x1ePixlcrashr\\Vsfv\\V1\\GPBMetadata\xea\x02\x14Pixlcrashr::Vsfv::V1b\x06proto3"
 
 var (
@@ -504,38 +610,42 @@ func file_pixlcrashr_vsfv_v1_organization_proto_rawDescGZIP() []byte {
 	return file_pixlcrashr_vsfv_v1_organization_proto_rawDescData
 }
 
-var file_pixlcrashr_vsfv_v1_organization_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_pixlcrashr_vsfv_v1_organization_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_pixlcrashr_vsfv_v1_organization_proto_goTypes = []any{
-	(*Organization)(nil),              // 0: pixlcrashr.vsfv.v1.Organization
-	(*GetOrganizationRequest)(nil),    // 1: pixlcrashr.vsfv.v1.GetOrganizationRequest
-	(*ListOrganizationsRequest)(nil),  // 2: pixlcrashr.vsfv.v1.ListOrganizationsRequest
-	(*ListOrganizationsResponse)(nil), // 3: pixlcrashr.vsfv.v1.ListOrganizationsResponse
-	(*CreateOrganizationRequest)(nil), // 4: pixlcrashr.vsfv.v1.CreateOrganizationRequest
-	(*UpdateOrganizationRequest)(nil), // 5: pixlcrashr.vsfv.v1.UpdateOrganizationRequest
-	(*DeleteOrganizationRequest)(nil), // 6: pixlcrashr.vsfv.v1.DeleteOrganizationRequest
-	(*timestamppb.Timestamp)(nil),     // 7: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),     // 8: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),             // 9: google.protobuf.Empty
+	(*Organization)(nil),                // 0: pixlcrashr.vsfv.v1.Organization
+	(*GetOrganizationRequest)(nil),      // 1: pixlcrashr.vsfv.v1.GetOrganizationRequest
+	(*ListOrganizationsRequest)(nil),    // 2: pixlcrashr.vsfv.v1.ListOrganizationsRequest
+	(*ListOrganizationsResponse)(nil),   // 3: pixlcrashr.vsfv.v1.ListOrganizationsResponse
+	(*CreateOrganizationRequest)(nil),   // 4: pixlcrashr.vsfv.v1.CreateOrganizationRequest
+	(*UpdateOrganizationRequest)(nil),   // 5: pixlcrashr.vsfv.v1.UpdateOrganizationRequest
+	(*CheckOrganizationIdRequest)(nil),  // 6: pixlcrashr.vsfv.v1.CheckOrganizationIdRequest
+	(*CheckOrganizationIdResponse)(nil), // 7: pixlcrashr.vsfv.v1.CheckOrganizationIdResponse
+	(*DeleteOrganizationRequest)(nil),   // 8: pixlcrashr.vsfv.v1.DeleteOrganizationRequest
+	(*timestamppb.Timestamp)(nil),       // 9: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),       // 10: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),               // 11: google.protobuf.Empty
 }
 var file_pixlcrashr_vsfv_v1_organization_proto_depIdxs = []int32{
-	7,  // 0: pixlcrashr.vsfv.v1.Organization.update_time:type_name -> google.protobuf.Timestamp
-	7,  // 1: pixlcrashr.vsfv.v1.Organization.create_time:type_name -> google.protobuf.Timestamp
+	9,  // 0: pixlcrashr.vsfv.v1.Organization.update_time:type_name -> google.protobuf.Timestamp
+	9,  // 1: pixlcrashr.vsfv.v1.Organization.create_time:type_name -> google.protobuf.Timestamp
 	0,  // 2: pixlcrashr.vsfv.v1.ListOrganizationsResponse.organizations:type_name -> pixlcrashr.vsfv.v1.Organization
 	0,  // 3: pixlcrashr.vsfv.v1.CreateOrganizationRequest.organization:type_name -> pixlcrashr.vsfv.v1.Organization
 	0,  // 4: pixlcrashr.vsfv.v1.UpdateOrganizationRequest.organization:type_name -> pixlcrashr.vsfv.v1.Organization
-	8,  // 5: pixlcrashr.vsfv.v1.UpdateOrganizationRequest.update_mask:type_name -> google.protobuf.FieldMask
+	10, // 5: pixlcrashr.vsfv.v1.UpdateOrganizationRequest.update_mask:type_name -> google.protobuf.FieldMask
 	1,  // 6: pixlcrashr.vsfv.v1.OrganizationService.GetOrganization:input_type -> pixlcrashr.vsfv.v1.GetOrganizationRequest
 	2,  // 7: pixlcrashr.vsfv.v1.OrganizationService.ListOrganizations:input_type -> pixlcrashr.vsfv.v1.ListOrganizationsRequest
 	4,  // 8: pixlcrashr.vsfv.v1.OrganizationService.CreateOrganization:input_type -> pixlcrashr.vsfv.v1.CreateOrganizationRequest
 	5,  // 9: pixlcrashr.vsfv.v1.OrganizationService.UpdateOrganization:input_type -> pixlcrashr.vsfv.v1.UpdateOrganizationRequest
-	6,  // 10: pixlcrashr.vsfv.v1.OrganizationService.DeleteOrganization:input_type -> pixlcrashr.vsfv.v1.DeleteOrganizationRequest
-	0,  // 11: pixlcrashr.vsfv.v1.OrganizationService.GetOrganization:output_type -> pixlcrashr.vsfv.v1.Organization
-	3,  // 12: pixlcrashr.vsfv.v1.OrganizationService.ListOrganizations:output_type -> pixlcrashr.vsfv.v1.ListOrganizationsResponse
-	0,  // 13: pixlcrashr.vsfv.v1.OrganizationService.CreateOrganization:output_type -> pixlcrashr.vsfv.v1.Organization
-	0,  // 14: pixlcrashr.vsfv.v1.OrganizationService.UpdateOrganization:output_type -> pixlcrashr.vsfv.v1.Organization
-	9,  // 15: pixlcrashr.vsfv.v1.OrganizationService.DeleteOrganization:output_type -> google.protobuf.Empty
-	11, // [11:16] is the sub-list for method output_type
-	6,  // [6:11] is the sub-list for method input_type
+	8,  // 10: pixlcrashr.vsfv.v1.OrganizationService.DeleteOrganization:input_type -> pixlcrashr.vsfv.v1.DeleteOrganizationRequest
+	6,  // 11: pixlcrashr.vsfv.v1.OrganizationService.CheckOrganizationId:input_type -> pixlcrashr.vsfv.v1.CheckOrganizationIdRequest
+	0,  // 12: pixlcrashr.vsfv.v1.OrganizationService.GetOrganization:output_type -> pixlcrashr.vsfv.v1.Organization
+	3,  // 13: pixlcrashr.vsfv.v1.OrganizationService.ListOrganizations:output_type -> pixlcrashr.vsfv.v1.ListOrganizationsResponse
+	0,  // 14: pixlcrashr.vsfv.v1.OrganizationService.CreateOrganization:output_type -> pixlcrashr.vsfv.v1.Organization
+	0,  // 15: pixlcrashr.vsfv.v1.OrganizationService.UpdateOrganization:output_type -> pixlcrashr.vsfv.v1.Organization
+	11, // 16: pixlcrashr.vsfv.v1.OrganizationService.DeleteOrganization:output_type -> google.protobuf.Empty
+	7,  // 17: pixlcrashr.vsfv.v1.OrganizationService.CheckOrganizationId:output_type -> pixlcrashr.vsfv.v1.CheckOrganizationIdResponse
+	12, // [12:18] is the sub-list for method output_type
+	6,  // [6:12] is the sub-list for method input_type
 	6,  // [6:6] is the sub-list for extension type_name
 	6,  // [6:6] is the sub-list for extension extendee
 	0,  // [0:6] is the sub-list for field type_name
@@ -552,7 +662,7 @@ func file_pixlcrashr_vsfv_v1_organization_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pixlcrashr_vsfv_v1_organization_proto_rawDesc), len(file_pixlcrashr_vsfv_v1_organization_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

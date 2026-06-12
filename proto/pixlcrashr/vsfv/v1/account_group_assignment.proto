@@ -108,6 +108,10 @@ message CreateAccountGroupAssignmentRequest {
 
   // The assignment to create.
   AccountGroupAssignment assignment = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The ID to use for the assignment. If not provided, a system-generated UUID
+  // will be used. Must be unique within the parent account group.
+  string account_group_assignment_id = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message UpdateAccountGroupAssignmentRequest {
@@ -149,7 +153,7 @@ service AccountGroupAssignmentService {
       post: "/v1/{parent=organizations/*/accountGroups/*}/assignments"
       body: "assignment"
     };
-    option (google.api.method_signature) = "parent,assignment";
+    option (google.api.method_signature) = "parent,assignment,account_group_assignment_id";
   }
 
   // Updates an existing assignment.

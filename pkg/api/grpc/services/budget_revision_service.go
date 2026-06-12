@@ -125,12 +125,16 @@ func (s *budgetRevisionServiceServer) CreateBudgetRevision(ctx context.Context, 
 		BudgetID:           budgetID,
 		DisplayName:        req.Revision.DisplayName,
 		DisplayDescription: req.Revision.DisplayDescription,
+		CustomID:           req.BudgetRevisionId,
 	}
 	if req.Revision.Date != nil {
 		params.Date = protoDateToTime(req.Revision.Date)
 	}
 	m, err := s.repo.CreateWithSnapshot(ctx, params)
 	if err != nil {
+		if isDuplicateKey(err) {
+			return nil, status.Error(codes.AlreadyExists, "budget revision with this ID already exists")
+		}
 		return nil, status.Error(codes.Internal, "failed to create budget revision")
 	}
 

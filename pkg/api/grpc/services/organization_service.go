@@ -97,8 +97,12 @@ func (s *organizationServiceServer) CreateOrganization(ctx context.Context, req 
 	}
 	m := &model.Organization{
 		DisplayName: req.Organization.DisplayName,
+		CustomID:    req.OrganizationId,
 	}
 	if err := s.repo.Create(ctx, m); err != nil {
+		if isDuplicateKey(err) {
+			return nil, status.Error(codes.AlreadyExists, "organization with this ID already exists")
+		}
 		return nil, status.Error(codes.Internal, "failed to create organization")
 	}
 	return OrganizationToProto(m), nil
@@ -128,6 +132,17 @@ func (s *organizationServiceServer) UpdateOrganization(ctx context.Context, req 
 		return nil, status.Error(codes.Internal, "failed to update organization")
 	}
 	return OrganizationToProto(m), nil
+}
+
+func (s *organizationServiceServer) CheckOrganizationId(ctx context.Context, req *gen.CheckOrganizationIdRequest) (*gen.CheckOrganizationIdResponse, error) {
+	if req.OrganizationId == "" {
+		return nil, status.Error(codes.InvalidArgument, "organization_id is required")
+	}
+	exists, err := s.repo.ExistsByCustomID(ctx, req.OrganizationId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "failed to check organization id")
+	}
+	return &gen.CheckOrganizationIdResponse{Available: !exists}, nil
 }
 
 func (s *organizationServiceServer) DeleteOrganization(ctx context.Context, req *gen.DeleteOrganizationRequest) (*emptypb.Empty, error) {

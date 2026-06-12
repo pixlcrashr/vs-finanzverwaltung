@@ -21,6 +21,8 @@ var AccountGroupOrderFieldMapper = order.FieldMapper{
 
 // ListAccountGroupsParams drives the List query.
 type ListAccountGroupsParams struct {
+	// OrganizationID scopes the query to a specific organization.
+	OrganizationID uuid.UUID
 	// Cond is an optional abstract condition chain (AND/OR/NOT support).
 	Cond cond.Cond
 	// OrderBy specifies the sort field and direction as SQL expressions.
@@ -63,6 +65,11 @@ func (r *AccountGroupRepository) List(ctx context.Context, params ListAccountGro
 
 	db := r.db.WithContext(ctx).Table("account_groups")
 
+	// Scope to organization
+	if params.OrganizationID != uuid.Nil {
+		db = db.Where("organization_id = ?", params.OrganizationID)
+	}
+
 	// Apply abstract condition chain
 	db = cond.Apply(db, params.Cond, accountGroupColumnMapper)
 
@@ -100,6 +107,15 @@ func (r *AccountGroupRepository) List(ctx context.Context, params ListAccountGro
 // Returns gorm.ErrRecordNotFound when no such account group exists.
 func (r *AccountGroupRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.AccountGroup, error) {
 	return r.q.AccountGroup.WithContext(ctx).Where(r.q.AccountGroup.ID.Eq(id)).First()
+}
+
+// GetByCustomID returns the account group with the given custom ID within an organization.
+// Returns gorm.ErrRecordNotFound when no such account group exists.
+func (r *AccountGroupRepository) GetByCustomID(ctx context.Context, orgID uuid.UUID, customID string) (*model.AccountGroup, error) {
+	return r.q.AccountGroup.WithContext(ctx).Where(
+		r.q.AccountGroup.OrganizationID.Eq(orgID),
+		r.q.AccountGroup.CustomID.Eq(customID),
+	).First()
 }
 
 // Create inserts a new account group.

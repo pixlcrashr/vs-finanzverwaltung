@@ -382,7 +382,10 @@ func (x *ListGroupsResponse) GetTotalSize() int64 {
 type CreateGroupRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The group to create.
-	Group         *Group `protobuf:"bytes,1,opt,name=group,proto3" json:"group,omitempty"`
+	Group *Group `protobuf:"bytes,1,opt,name=group,proto3" json:"group,omitempty"`
+	// The ID to use for the group. If not provided, a system-generated UUID
+	// will be used. Must be unique across all groups.
+	GroupId       string `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -422,6 +425,13 @@ func (x *CreateGroupRequest) GetGroup() *Group {
 		return x.Group
 	}
 	return nil
+}
+
+func (x *CreateGroupRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
 }
 
 type UpdateGroupRequest struct {
@@ -558,22 +568,23 @@ const file_pixlcrashr_vsfv_v1_group_proto_rawDesc = "" +
 	"\x06groups\x18\x01 \x03(\v2\x19.pixlcrashr.vsfv.v1.GroupR\x06groups\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"J\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"j\n" +
 	"\x12CreateGroupRequest\x124\n" +
-	"\x05group\x18\x01 \x01(\v2\x19.pixlcrashr.vsfv.v1.GroupB\x03\xe0A\x02R\x05group\"\x8c\x01\n" +
+	"\x05group\x18\x01 \x01(\v2\x19.pixlcrashr.vsfv.v1.GroupB\x03\xe0A\x02R\x05group\x12\x1e\n" +
+	"\bgroup_id\x18\x02 \x01(\tB\x03\xe0A\x01R\agroupId\"\x8c\x01\n" +
 	"\x12UpdateGroupRequest\x124\n" +
 	"\x05group\x18\x01 \x01(\v2\x19.pixlcrashr.vsfv.v1.GroupB\x03\xe0A\x02R\x05group\x12@\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMask\"K\n" +
 	"\x12DeleteGroupRequest\x125\n" +
 	"\x04name\x18\x01 \x01(\tB!\xe0A\x02\xfaA\x1b\n" +
-	"\x19vsfv.pixlcrashr.dev/GroupR\x04name2\x80\x05\n" +
+	"\x19vsfv.pixlcrashr.dev/GroupR\x04name2\x89\x05\n" +
 	"\fGroupService\x12n\n" +
 	"\bGetGroup\x12#.pixlcrashr.vsfv.v1.GetGroupRequest\x1a\x19.pixlcrashr.vsfv.v1.Group\"\"\xdaA\x04name\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/{name=groups/*}\x12o\n" +
 	"\n" +
 	"ListGroups\x12%.pixlcrashr.vsfv.v1.ListGroupsRequest\x1a&.pixlcrashr.vsfv.v1.ListGroupsResponse\"\x12\x82\xd3\xe4\x93\x02\f\x12\n" +
-	"/v1/groups\x12s\n" +
-	"\vCreateGroup\x12&.pixlcrashr.vsfv.v1.CreateGroupRequest\x1a\x19.pixlcrashr.vsfv.v1.Group\"!\xdaA\x05group\x82\xd3\xe4\x93\x02\x13:\x05group\"\n" +
+	"/v1/groups\x12|\n" +
+	"\vCreateGroup\x12&.pixlcrashr.vsfv.v1.CreateGroupRequest\x1a\x19.pixlcrashr.vsfv.v1.Group\"*\xdaA\x0egroup,group_id\x82\xd3\xe4\x93\x02\x13:\x05group\"\n" +
 	"/v1/groups\x12\x8e\x01\n" +
 	"\vUpdateGroup\x12&.pixlcrashr.vsfv.v1.UpdateGroupRequest\x1a\x19.pixlcrashr.vsfv.v1.Group\"<\xdaA\x11group,update_mask\x82\xd3\xe4\x93\x02\":\x05group2\x19/v1/{group.name=groups/*}\x12q\n" +
 	"\vDeleteGroup\x12&.pixlcrashr.vsfv.v1.DeleteGroupRequest\x1a\x16.google.protobuf.Empty\"\"\xdaA\x04name\x82\xd3\xe4\x93\x02\x15*\x13/v1/{name=groups/*}\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xb7\x01\n" +

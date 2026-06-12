@@ -28,6 +28,7 @@ func newImportSourcePeriod(db *gorm.DB, opts ...gen.DOOption) importSourcePeriod
 	tableName := _importSourcePeriod.importSourcePeriodDo.TableName()
 	_importSourcePeriod.ALL = field.NewAsterisk(tableName)
 	_importSourcePeriod.ID = field.NewField(tableName, "id")
+	_importSourcePeriod.CustomID = field.NewString(tableName, "custom_id")
 	_importSourcePeriod.OrganizationID = field.NewField(tableName, "organization_id")
 	_importSourcePeriod.ImportSourceID = field.NewField(tableName, "import_source_id")
 	_importSourcePeriod.Year = field.NewInt(tableName, "year")
@@ -71,35 +72,38 @@ func newImportSourcePeriod(db *gorm.DB, opts ...gen.DOOption) importSourcePeriod
 					Organization struct {
 						field.RelationField
 					}
-					BudgetRevision struct {
+					Budget struct {
 						field.RelationField
 						Organization struct {
 							field.RelationField
 						}
-						Budget struct {
+						BudgetRevisions struct {
 							field.RelationField
 							Organization struct {
 								field.RelationField
 							}
-							BudgetRevisions struct {
+							Budget struct {
 								field.RelationField
 							}
-							BudgetAccountValues struct {
+							BudgetRevisionAccountValues struct {
 								field.RelationField
-								Organization struct {
-									field.RelationField
-								}
-								Budget struct {
-									field.RelationField
-								}
-								Account struct {
-									field.RelationField
-								}
 							}
 						}
-						BudgetRevisionAccountValues struct {
+						BudgetAccountValues struct {
 							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							Budget struct {
+								field.RelationField
+							}
+							Account struct {
+								field.RelationField
+							}
 						}
+					}
+					BudgetRevision struct {
+						field.RelationField
 					}
 					Account struct {
 						field.RelationField
@@ -207,35 +211,38 @@ func newImportSourcePeriod(db *gorm.DB, opts ...gen.DOOption) importSourcePeriod
 					Organization struct {
 						field.RelationField
 					}
-					BudgetRevision struct {
+					Budget struct {
 						field.RelationField
 						Organization struct {
 							field.RelationField
 						}
-						Budget struct {
+						BudgetRevisions struct {
 							field.RelationField
 							Organization struct {
 								field.RelationField
 							}
-							BudgetRevisions struct {
+							Budget struct {
 								field.RelationField
 							}
-							BudgetAccountValues struct {
+							BudgetRevisionAccountValues struct {
 								field.RelationField
-								Organization struct {
-									field.RelationField
-								}
-								Budget struct {
-									field.RelationField
-								}
-								Account struct {
-									field.RelationField
-								}
 							}
 						}
-						BudgetRevisionAccountValues struct {
+						BudgetAccountValues struct {
 							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							Budget struct {
+								field.RelationField
+							}
+							Account struct {
+								field.RelationField
+							}
 						}
+					}
+					BudgetRevision struct {
+						field.RelationField
 					}
 					Account struct {
 						field.RelationField
@@ -322,35 +329,38 @@ func newImportSourcePeriod(db *gorm.DB, opts ...gen.DOOption) importSourcePeriod
 					Organization struct {
 						field.RelationField
 					}
-					BudgetRevision struct {
+					Budget struct {
 						field.RelationField
 						Organization struct {
 							field.RelationField
 						}
-						Budget struct {
+						BudgetRevisions struct {
 							field.RelationField
 							Organization struct {
 								field.RelationField
 							}
-							BudgetRevisions struct {
+							Budget struct {
 								field.RelationField
 							}
-							BudgetAccountValues struct {
+							BudgetRevisionAccountValues struct {
 								field.RelationField
-								Organization struct {
-									field.RelationField
-								}
-								Budget struct {
-									field.RelationField
-								}
-								Account struct {
-									field.RelationField
-								}
 							}
 						}
-						BudgetRevisionAccountValues struct {
+						BudgetAccountValues struct {
 							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							Budget struct {
+								field.RelationField
+							}
+							Account struct {
+								field.RelationField
+							}
 						}
+					}
+					BudgetRevision struct {
+						field.RelationField
 					}
 					Account struct {
 						field.RelationField
@@ -362,109 +372,105 @@ func newImportSourcePeriod(db *gorm.DB, opts ...gen.DOOption) importSourcePeriod
 					}{
 						RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.Organization", "model.Organization"),
 					},
-					BudgetRevision: struct {
+					Budget: struct {
 						field.RelationField
 						Organization struct {
 							field.RelationField
 						}
-						Budget struct {
+						BudgetRevisions struct {
 							field.RelationField
 							Organization struct {
 								field.RelationField
 							}
-							BudgetRevisions struct {
+							Budget struct {
 								field.RelationField
 							}
-							BudgetAccountValues struct {
+							BudgetRevisionAccountValues struct {
 								field.RelationField
-								Organization struct {
-									field.RelationField
-								}
-								Budget struct {
-									field.RelationField
-								}
-								Account struct {
-									field.RelationField
-								}
 							}
 						}
-						BudgetRevisionAccountValues struct {
+						BudgetAccountValues struct {
 							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							Budget struct {
+								field.RelationField
+							}
+							Account struct {
+								field.RelationField
+							}
 						}
 					}{
-						RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.BudgetRevision", "model.BudgetRevision"),
+						RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.Budget", "model.Budget"),
 						Organization: struct {
 							field.RelationField
 						}{
-							RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.BudgetRevision.Organization", "model.Organization"),
+							RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.Budget.Organization", "model.Organization"),
 						},
-						Budget: struct {
+						BudgetRevisions: struct {
 							field.RelationField
 							Organization struct {
 								field.RelationField
 							}
-							BudgetRevisions struct {
+							Budget struct {
 								field.RelationField
 							}
-							BudgetAccountValues struct {
+							BudgetRevisionAccountValues struct {
 								field.RelationField
-								Organization struct {
-									field.RelationField
-								}
-								Budget struct {
-									field.RelationField
-								}
-								Account struct {
-									field.RelationField
-								}
 							}
 						}{
-							RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.BudgetRevision.Budget", "model.Budget"),
+							RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.Budget.BudgetRevisions", "model.BudgetRevision"),
 							Organization: struct {
 								field.RelationField
 							}{
-								RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.BudgetRevision.Budget.Organization", "model.Organization"),
+								RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.Budget.BudgetRevisions.Organization", "model.Organization"),
 							},
-							BudgetRevisions: struct {
+							Budget: struct {
 								field.RelationField
 							}{
-								RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.BudgetRevision.Budget.BudgetRevisions", "model.BudgetRevision"),
+								RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.Budget.BudgetRevisions.Budget", "model.Budget"),
 							},
-							BudgetAccountValues: struct {
+							BudgetRevisionAccountValues: struct {
 								field.RelationField
-								Organization struct {
-									field.RelationField
-								}
-								Budget struct {
-									field.RelationField
-								}
-								Account struct {
-									field.RelationField
-								}
 							}{
-								RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.BudgetRevision.Budget.BudgetAccountValues", "model.BudgetAccountValue"),
-								Organization: struct {
-									field.RelationField
-								}{
-									RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.BudgetRevision.Budget.BudgetAccountValues.Organization", "model.Organization"),
-								},
-								Budget: struct {
-									field.RelationField
-								}{
-									RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.BudgetRevision.Budget.BudgetAccountValues.Budget", "model.Budget"),
-								},
-								Account: struct {
-									field.RelationField
-								}{
-									RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.BudgetRevision.Budget.BudgetAccountValues.Account", "model.Account"),
-								},
+								RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.Budget.BudgetRevisions.BudgetRevisionAccountValues", "model.BudgetRevisionAccountValue"),
 							},
 						},
-						BudgetRevisionAccountValues: struct {
+						BudgetAccountValues: struct {
 							field.RelationField
+							Organization struct {
+								field.RelationField
+							}
+							Budget struct {
+								field.RelationField
+							}
+							Account struct {
+								field.RelationField
+							}
 						}{
-							RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.BudgetRevision.BudgetRevisionAccountValues", "model.BudgetRevisionAccountValue"),
+							RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.Budget.BudgetAccountValues", "model.BudgetAccountValue"),
+							Organization: struct {
+								field.RelationField
+							}{
+								RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.Budget.BudgetAccountValues.Organization", "model.Organization"),
+							},
+							Budget: struct {
+								field.RelationField
+							}{
+								RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.Budget.BudgetAccountValues.Budget", "model.Budget"),
+							},
+							Account: struct {
+								field.RelationField
+							}{
+								RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.Budget.BudgetAccountValues.Account", "model.Account"),
+							},
 						},
+					},
+					BudgetRevision: struct {
+						field.RelationField
+					}{
+						RelationField: field.NewRelation("Organization.AccountGroupAssignments.Account.BudgetRevisionAccountValues.BudgetRevision", "model.BudgetRevision"),
 					},
 					Account: struct {
 						field.RelationField
@@ -798,6 +804,7 @@ type importSourcePeriod struct {
 
 	ALL            field.Asterisk
 	ID             field.Field
+	CustomID       field.String
 	OrganizationID field.Field
 	ImportSourceID field.Field
 	Year           field.Int
@@ -824,6 +831,7 @@ func (i importSourcePeriod) As(alias string) *importSourcePeriod {
 func (i *importSourcePeriod) updateTableName(table string) *importSourcePeriod {
 	i.ALL = field.NewAsterisk(table)
 	i.ID = field.NewField(table, "id")
+	i.CustomID = field.NewString(table, "custom_id")
 	i.OrganizationID = field.NewField(table, "organization_id")
 	i.ImportSourceID = field.NewField(table, "import_source_id")
 	i.Year = field.NewInt(table, "year")
@@ -858,8 +866,9 @@ func (i *importSourcePeriod) GetFieldByName(fieldName string) (field.OrderExpr, 
 }
 
 func (i *importSourcePeriod) fillFieldMap() {
-	i.fieldMap = make(map[string]field.Expr, 9)
+	i.fieldMap = make(map[string]field.Expr, 10)
 	i.fieldMap["id"] = i.ID
+	i.fieldMap["custom_id"] = i.CustomID
 	i.fieldMap["organization_id"] = i.OrganizationID
 	i.fieldMap["import_source_id"] = i.ImportSourceID
 	i.fieldMap["year"] = i.Year
@@ -923,35 +932,38 @@ type importSourcePeriodBelongsToOrganization struct {
 				Organization struct {
 					field.RelationField
 				}
-				BudgetRevision struct {
+				Budget struct {
 					field.RelationField
 					Organization struct {
 						field.RelationField
 					}
-					Budget struct {
+					BudgetRevisions struct {
 						field.RelationField
 						Organization struct {
 							field.RelationField
 						}
-						BudgetRevisions struct {
+						Budget struct {
 							field.RelationField
 						}
-						BudgetAccountValues struct {
+						BudgetRevisionAccountValues struct {
 							field.RelationField
-							Organization struct {
-								field.RelationField
-							}
-							Budget struct {
-								field.RelationField
-							}
-							Account struct {
-								field.RelationField
-							}
 						}
 					}
-					BudgetRevisionAccountValues struct {
+					BudgetAccountValues struct {
 						field.RelationField
+						Organization struct {
+							field.RelationField
+						}
+						Budget struct {
+							field.RelationField
+						}
+						Account struct {
+							field.RelationField
+						}
 					}
+				}
+				BudgetRevision struct {
+					field.RelationField
 				}
 				Account struct {
 					field.RelationField

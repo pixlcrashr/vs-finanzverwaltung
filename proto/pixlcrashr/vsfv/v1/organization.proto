@@ -84,6 +84,10 @@ message ListOrganizationsResponse {
 message CreateOrganizationRequest {
   // The organization to create.
   Organization organization = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The ID to use for the organization. If not provided, a system-generated
+  // UUID will be used. Must be unique across all organizations.
+  string organization_id = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message UpdateOrganizationRequest {
@@ -92,6 +96,16 @@ message UpdateOrganizationRequest {
 
   // The list of fields to update.
   google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message CheckOrganizationIdRequest {
+  // The candidate organization ID (slug) to check for availability.
+  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message CheckOrganizationIdResponse {
+  // Whether the organization ID is available (not yet in use).
+  bool available = 1;
 }
 
 message DeleteOrganizationRequest {
@@ -124,7 +138,7 @@ service OrganizationService {
       post: "/v1/organizations"
       body: "organization"
     };
-    option (google.api.method_signature) = "organization";
+    option (google.api.method_signature) = "organization,organization_id";
   }
 
   // Updates an existing organization.
@@ -140,5 +154,14 @@ service OrganizationService {
   rpc DeleteOrganization(DeleteOrganizationRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/{name=organizations/*}"};
     option (google.api.method_signature) = "name";
+  }
+
+  // Checks whether an organization ID (slug) is available for use.
+  rpc CheckOrganizationId(CheckOrganizationIdRequest) returns (CheckOrganizationIdResponse) {
+    option (google.api.http) = {
+      post: "/v1/organizations:checkId"
+      body: "*"
+    };
+    option (google.api.method_signature) = "organization_id";
   }
 }

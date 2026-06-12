@@ -127,6 +127,8 @@ func local_request_BudgetRevisionService_ListBudgetRevisions_0(ctx context.Conte
 	return msg, metadata, err
 }
 
+var filter_BudgetRevisionService_CreateBudgetRevision_0 = &utilities.DoubleArray{Encoding: map[string]int{"revision": 0, "parent": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
+
 func request_BudgetRevisionService_CreateBudgetRevision_0(ctx context.Context, marshaler runtime.Marshaler, client BudgetRevisionServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq CreateBudgetRevisionRequest
@@ -146,6 +148,12 @@ func request_BudgetRevisionService_CreateBudgetRevision_0(ctx context.Context, m
 	protoReq.Parent, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
+	}
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_BudgetRevisionService_CreateBudgetRevision_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.CreateBudgetRevision(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -167,6 +175,12 @@ func local_request_BudgetRevisionService_CreateBudgetRevision_0(ctx context.Cont
 	protoReq.Parent, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
+	}
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_BudgetRevisionService_CreateBudgetRevision_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := server.CreateBudgetRevision(ctx, &protoReq)
 	return msg, metadata, err

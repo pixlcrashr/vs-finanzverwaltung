@@ -338,9 +338,12 @@ type CreateBudgetAccountValueRequest struct {
 	// Format: organizations/{organization}/budgets/{budget}
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
 	// The budget account value to create.
-	AccountValue  *BudgetAccountValue `protobuf:"bytes,2,opt,name=account_value,json=accountValue,proto3" json:"account_value,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	AccountValue *BudgetAccountValue `protobuf:"bytes,2,opt,name=account_value,json=accountValue,proto3" json:"account_value,omitempty"`
+	// The ID to use for the budget account value. If not provided, a
+	// system-generated UUID will be used. Must be unique within the parent budget.
+	BudgetAccountValueId string `protobuf:"bytes,3,opt,name=budget_account_value_id,json=budgetAccountValueId,proto3" json:"budget_account_value_id,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *CreateBudgetAccountValueRequest) Reset() {
@@ -385,6 +388,13 @@ func (x *CreateBudgetAccountValueRequest) GetAccountValue() *BudgetAccountValue 
 		return x.AccountValue
 	}
 	return nil
+}
+
+func (x *CreateBudgetAccountValueRequest) GetBudgetAccountValueId() string {
+	if x != nil {
+		return x.BudgetAccountValueId
+	}
+	return ""
 }
 
 type UpdateBudgetAccountValueRequest struct {
@@ -635,11 +645,12 @@ const file_pixlcrashr_vsfv_v1_budget_account_value_proto_rawDesc = "" +
 	"\x0eaccount_values\x18\x01 \x03(\v2&.pixlcrashr.vsfv.v1.BudgetAccountValueR\raccountValues\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xaf\x01\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xeb\x01\n" +
 	"\x1fCreateBudgetAccountValueRequest\x12:\n" +
 	"\x06parent\x18\x01 \x01(\tB\"\xe0A\x02\xfaA\x1c\n" +
 	"\x1avsfv.pixlcrashr.dev/BudgetR\x06parent\x12P\n" +
-	"\raccount_value\x18\x02 \x01(\v2&.pixlcrashr.vsfv.v1.BudgetAccountValueB\x03\xe0A\x02R\faccountValue\"\xdf\x01\n" +
+	"\raccount_value\x18\x02 \x01(\v2&.pixlcrashr.vsfv.v1.BudgetAccountValueB\x03\xe0A\x02R\faccountValue\x12:\n" +
+	"\x17budget_account_value_id\x18\x03 \x01(\tB\x03\xe0A\x01R\x14budgetAccountValueId\"\xdf\x01\n" +
 	"\x1fUpdateBudgetAccountValueRequest\x12P\n" +
 	"\raccount_value\x18\x01 \x01(\v2&.pixlcrashr.vsfv.v1.BudgetAccountValueB\x03\xe0A\x02R\faccountValue\x12@\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
@@ -652,12 +663,12 @@ const file_pixlcrashr_vsfv_v1_budget_account_value_proto_rawDesc = "" +
 	"\x06parent\x18\x01 \x01(\tB.\xe0A\x02\xfaA(\x12&vsfv.pixlcrashr.dev/BudgetAccountValueR\x06parent\x12T\n" +
 	"\brequests\x18\x02 \x03(\v23.pixlcrashr.vsfv.v1.UpdateBudgetAccountValueRequestB\x03\xe0A\x02R\brequests\"w\n" +
 	"&BatchUpdateBudgetAccountValuesResponse\x12M\n" +
-	"\x0eaccount_values\x18\x01 \x03(\v2&.pixlcrashr.vsfv.v1.BudgetAccountValueR\raccountValues2\xae\n" +
+	"\x0eaccount_values\x18\x01 \x03(\v2&.pixlcrashr.vsfv.v1.BudgetAccountValueR\raccountValues2\xc6\n" +
 	"\n" +
 	"\x19BudgetAccountValueService\x12\xb6\x01\n" +
 	"\x15GetBudgetAccountValue\x120.pixlcrashr.vsfv.v1.GetBudgetAccountValueRequest\x1a&.pixlcrashr.vsfv.v1.BudgetAccountValue\"C\xdaA\x04name\x82\xd3\xe4\x93\x026\x124/v1/{name=organizations/*/budgets/*/accountValues/*}\x12\xc9\x01\n" +
-	"\x17ListBudgetAccountValues\x122.pixlcrashr.vsfv.v1.ListBudgetAccountValuesRequest\x1a3.pixlcrashr.vsfv.v1.ListBudgetAccountValuesResponse\"E\xdaA\x06parent\x82\xd3\xe4\x93\x026\x124/v1/{parent=organizations/*/budgets/*}/accountValues\x12\xdb\x01\n" +
-	"\x18CreateBudgetAccountValue\x123.pixlcrashr.vsfv.v1.CreateBudgetAccountValueRequest\x1a&.pixlcrashr.vsfv.v1.BudgetAccountValue\"b\xdaA\x14parent,account_value\x82\xd3\xe4\x93\x02E:\raccount_value\"4/v1/{parent=organizations/*/budgets/*}/accountValues\x12\xee\x01\n" +
+	"\x17ListBudgetAccountValues\x122.pixlcrashr.vsfv.v1.ListBudgetAccountValuesRequest\x1a3.pixlcrashr.vsfv.v1.ListBudgetAccountValuesResponse\"E\xdaA\x06parent\x82\xd3\xe4\x93\x026\x124/v1/{parent=organizations/*/budgets/*}/accountValues\x12\xf3\x01\n" +
+	"\x18CreateBudgetAccountValue\x123.pixlcrashr.vsfv.v1.CreateBudgetAccountValueRequest\x1a&.pixlcrashr.vsfv.v1.BudgetAccountValue\"z\xdaA,parent,account_value,budget_account_value_id\x82\xd3\xe4\x93\x02E:\raccount_value\"4/v1/{parent=organizations/*/budgets/*}/accountValues\x12\xee\x01\n" +
 	"\x18UpdateBudgetAccountValue\x123.pixlcrashr.vsfv.v1.UpdateBudgetAccountValueRequest\x1a&.pixlcrashr.vsfv.v1.BudgetAccountValue\"u\xdaA\x19account_value,update_mask\x82\xd3\xe4\x93\x02S:\raccount_value2B/v1/{account_value.name=organizations/*/budgets/*/accountValues/*}\x12\xac\x01\n" +
 	"\x18DeleteBudgetAccountValue\x123.pixlcrashr.vsfv.v1.DeleteBudgetAccountValueRequest\x1a\x16.google.protobuf.Empty\"C\xdaA\x04name\x82\xd3\xe4\x93\x026*4/v1/{name=organizations/*/budgets/*/accountValues/*}\x12\xf5\x01\n" +
 	"\x1eBatchUpdateBudgetAccountValues\x129.pixlcrashr.vsfv.v1.BatchUpdateBudgetAccountValuesRequest\x1a:.pixlcrashr.vsfv.v1.BatchUpdateBudgetAccountValuesResponse\"\\\xdaA\x0eparent,entries\x82\xd3\xe4\x93\x02E:\x01*\"@/v1/{parent=organizations/*/budgets/*}/accountValues:batchUpdate\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xc4\x01\n" +

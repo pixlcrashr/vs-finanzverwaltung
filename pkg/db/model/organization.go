@@ -9,6 +9,7 @@ import (
 
 type Organization struct {
 	ID          uuid.UUID `gorm:"type:uuid;primaryKey"`
+	CustomID    string    `gorm:"uniqueIndex:idx_organizations_custom_id"`
 	DisplayName string    `gorm:"not null;default:''"`
 	UpdatedAt   time.Time `gorm:"not null;default:now()"`
 	CreatedAt   time.Time `gorm:"not null;default:now()"`
@@ -36,6 +37,11 @@ func (m *Organization) BeforeCreate(tx *gorm.DB) error {
 	if m.ID == uuid.Nil {
 		m.ID = uuid.New()
 	}
+
+	if m.CustomID == "" {
+		m.CustomID = m.ID.String()
+	}
+
 	return nil
 }
 

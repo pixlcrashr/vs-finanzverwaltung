@@ -525,7 +525,10 @@ type CreateAccountRequest struct {
 	// Format: organizations/{organization}
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
 	// The account to create.
-	Account       *Account `protobuf:"bytes,2,opt,name=account,proto3" json:"account,omitempty"`
+	Account *Account `protobuf:"bytes,2,opt,name=account,proto3" json:"account,omitempty"`
+	// The ID to use for the account. If not provided, a system-generated UUID
+	// will be used. Must be unique within the parent organization.
+	AccountId     string `protobuf:"bytes,3,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -572,6 +575,13 @@ func (x *CreateAccountRequest) GetAccount() *Account {
 		return x.Account
 	}
 	return nil
+}
+
+func (x *CreateAccountRequest) GetAccountId() string {
+	if x != nil {
+		return x.AccountId
+	}
+	return ""
 }
 
 type UpdateAccountRequest struct {
@@ -985,11 +995,13 @@ const file_pixlcrashr_vsfv_v1_account_proto_rawDesc = "" +
 	"\baccounts\x18\x01 \x03(\v2\x1b.pixlcrashr.vsfv.v1.AccountR\baccounts\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\x94\x01\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xb8\x01\n" +
 	"\x14CreateAccountRequest\x12@\n" +
 	"\x06parent\x18\x01 \x01(\tB(\xe0A\x02\xfaA\"\n" +
 	" vsfv.pixlcrashr.dev/OrganizationR\x06parent\x12:\n" +
-	"\aaccount\x18\x02 \x01(\v2\x1b.pixlcrashr.vsfv.v1.AccountB\x03\xe0A\x02R\aaccount\"\x94\x01\n" +
+	"\aaccount\x18\x02 \x01(\v2\x1b.pixlcrashr.vsfv.v1.AccountB\x03\xe0A\x02R\aaccount\x12\"\n" +
+	"\n" +
+	"account_id\x18\x03 \x01(\tB\x03\xe0A\x01R\taccountId\"\x94\x01\n" +
 	"\x14UpdateAccountRequest\x12:\n" +
 	"\aaccount\x18\x01 \x01(\v2\x1b.pixlcrashr.vsfv.v1.AccountB\x03\xe0A\x02R\aaccount\x12@\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
@@ -1011,15 +1023,15 @@ const file_pixlcrashr_vsfv_v1_account_proto_rawDesc = "" +
 	"\x1bvsfv.pixlcrashr.dev/AccountR\x04name\x12\x1b\n" +
 	"\x06filter\x18\x02 \x01(\tB\x03\xe0A\x01R\x06filter\"W\n" +
 	"\x18GetNestedAccountResponse\x12;\n" +
-	"\aaccount\x18\x01 \x01(\v2!.pixlcrashr.vsfv.v1.NestedAccountR\aaccount2\xad\n" +
+	"\aaccount\x18\x01 \x01(\v2!.pixlcrashr.vsfv.v1.NestedAccountR\aaccount2\xb8\n" +
 	"\n" +
 	"\x0eAccountService\x12\x86\x01\n" +
 	"\n" +
 	"GetAccount\x12%.pixlcrashr.vsfv.v1.GetAccountRequest\x1a\x1b.pixlcrashr.vsfv.v1.Account\"4\xdaA\x04name\x82\xd3\xe4\x93\x02'\x12%/v1/{name=organizations/*/accounts/*}\x12\x99\x01\n" +
 	"\fListAccounts\x12'.pixlcrashr.vsfv.v1.ListAccountsRequest\x1a(.pixlcrashr.vsfv.v1.ListAccountsResponse\"6\xdaA\x06parent\x82\xd3\xe4\x93\x02'\x12%/v1/{parent=organizations/*}/accounts\x12\xb6\x01\n" +
 	"\x12ListNestedAccounts\x12-.pixlcrashr.vsfv.v1.ListNestedAccountsRequest\x1a..pixlcrashr.vsfv.v1.ListNestedAccountsResponse\"A\xdaA\x06parent\x82\xd3\xe4\x93\x022\x120/v1/{parent=organizations/*}/accounts:listNested\x12\xad\x01\n" +
-	"\x10GetNestedAccount\x12+.pixlcrashr.vsfv.v1.GetNestedAccountRequest\x1a,.pixlcrashr.vsfv.v1.GetNestedAccountResponse\">\xdaA\x04name\x82\xd3\xe4\x93\x021\x12//v1/{name=organizations/*/accounts/*}:getNested\x12\x9f\x01\n" +
-	"\rCreateAccount\x12(.pixlcrashr.vsfv.v1.CreateAccountRequest\x1a\x1b.pixlcrashr.vsfv.v1.Account\"G\xdaA\x0eparent,account\x82\xd3\xe4\x93\x020:\aaccount\"%/v1/{parent=organizations/*}/accounts\x12\xac\x01\n" +
+	"\x10GetNestedAccount\x12+.pixlcrashr.vsfv.v1.GetNestedAccountRequest\x1a,.pixlcrashr.vsfv.v1.GetNestedAccountResponse\">\xdaA\x04name\x82\xd3\xe4\x93\x021\x12//v1/{name=organizations/*/accounts/*}:getNested\x12\xaa\x01\n" +
+	"\rCreateAccount\x12(.pixlcrashr.vsfv.v1.CreateAccountRequest\x1a\x1b.pixlcrashr.vsfv.v1.Account\"R\xdaA\x19parent,account,account_id\x82\xd3\xe4\x93\x020:\aaccount\"%/v1/{parent=organizations/*}/accounts\x12\xac\x01\n" +
 	"\rUpdateAccount\x12(.pixlcrashr.vsfv.v1.UpdateAccountRequest\x1a\x1b.pixlcrashr.vsfv.v1.Account\"T\xdaA\x13account,update_mask\x82\xd3\xe4\x93\x028:\aaccount2-/v1/{account.name=organizations/*/accounts/*}\x12\x99\x01\n" +
 	"\x0eArchiveAccount\x12).pixlcrashr.vsfv.v1.ArchiveAccountRequest\x1a\x1b.pixlcrashr.vsfv.v1.Account\"?\xdaA\x04name\x82\xd3\xe4\x93\x022:\x01*\"-/v1/{name=organizations/*/accounts/*}:archive\x12\x87\x01\n" +
 	"\rDeleteAccount\x12(.pixlcrashr.vsfv.v1.DeleteAccountRequest\x1a\x16.google.protobuf.Empty\"4\xdaA\x04name\x82\xd3\xe4\x93\x02'*%/v1/{name=organizations/*/accounts/*}\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xb9\x01\n" +

@@ -381,7 +381,10 @@ type CreateTransactionRequest struct {
 	// Format: organizations/{organization}
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
 	// The transaction to create.
-	Transaction   *Transaction `protobuf:"bytes,2,opt,name=transaction,proto3" json:"transaction,omitempty"`
+	Transaction *Transaction `protobuf:"bytes,2,opt,name=transaction,proto3" json:"transaction,omitempty"`
+	// The ID to use for the transaction. If not provided, a system-generated
+	// UUID will be used. Must be unique within the parent organization.
+	TransactionId string `protobuf:"bytes,3,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -428,6 +431,13 @@ func (x *CreateTransactionRequest) GetTransaction() *Transaction {
 		return x.Transaction
 	}
 	return nil
+}
+
+func (x *CreateTransactionRequest) GetTransactionId() string {
+	if x != nil {
+		return x.TransactionId
+	}
+	return ""
 }
 
 type UpdateTransactionRequest struct {
@@ -569,22 +579,23 @@ const file_pixlcrashr_vsfv_v1_transaction_proto_rawDesc = "" +
 	"\ftransactions\x18\x01 \x03(\v2\x1f.pixlcrashr.vsfv.v1.TransactionR\ftransactions\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xa4\x01\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xd0\x01\n" +
 	"\x18CreateTransactionRequest\x12@\n" +
 	"\x06parent\x18\x01 \x01(\tB(\xe0A\x02\xfaA\"\n" +
 	" vsfv.pixlcrashr.dev/OrganizationR\x06parent\x12F\n" +
-	"\vtransaction\x18\x02 \x01(\v2\x1f.pixlcrashr.vsfv.v1.TransactionB\x03\xe0A\x02R\vtransaction\"\xa4\x01\n" +
+	"\vtransaction\x18\x02 \x01(\v2\x1f.pixlcrashr.vsfv.v1.TransactionB\x03\xe0A\x02R\vtransaction\x12*\n" +
+	"\x0etransaction_id\x18\x03 \x01(\tB\x03\xe0A\x01R\rtransactionId\"\xa4\x01\n" +
 	"\x18UpdateTransactionRequest\x12F\n" +
 	"\vtransaction\x18\x01 \x01(\v2\x1f.pixlcrashr.vsfv.v1.TransactionB\x03\xe0A\x02R\vtransaction\x12@\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMask\"W\n" +
 	"\x18DeleteTransactionRequest\x12;\n" +
 	"\x04name\x18\x01 \x01(\tB'\xe0A\x02\xfaA!\n" +
-	"\x1fvsfv.pixlcrashr.dev/TransactionR\x04name2\x8c\a\n" +
+	"\x1fvsfv.pixlcrashr.dev/TransactionR\x04name2\x9b\a\n" +
 	"\x12TransactionService\x12\x96\x01\n" +
 	"\x0eGetTransaction\x12).pixlcrashr.vsfv.v1.GetTransactionRequest\x1a\x1f.pixlcrashr.vsfv.v1.Transaction\"8\xdaA\x04name\x82\xd3\xe4\x93\x02+\x12)/v1/{name=organizations/*/transactions/*}\x12\xa9\x01\n" +
-	"\x10ListTransactions\x12+.pixlcrashr.vsfv.v1.ListTransactionsRequest\x1a,.pixlcrashr.vsfv.v1.ListTransactionsResponse\":\xdaA\x06parent\x82\xd3\xe4\x93\x02+\x12)/v1/{parent=organizations/*}/transactions\x12\xb7\x01\n" +
-	"\x11CreateTransaction\x12,.pixlcrashr.vsfv.v1.CreateTransactionRequest\x1a\x1f.pixlcrashr.vsfv.v1.Transaction\"S\xdaA\x12parent,transaction\x82\xd3\xe4\x93\x028:\vtransaction\")/v1/{parent=organizations/*}/transactions\x12\xc8\x01\n" +
+	"\x10ListTransactions\x12+.pixlcrashr.vsfv.v1.ListTransactionsRequest\x1a,.pixlcrashr.vsfv.v1.ListTransactionsResponse\":\xdaA\x06parent\x82\xd3\xe4\x93\x02+\x12)/v1/{parent=organizations/*}/transactions\x12\xc6\x01\n" +
+	"\x11CreateTransaction\x12,.pixlcrashr.vsfv.v1.CreateTransactionRequest\x1a\x1f.pixlcrashr.vsfv.v1.Transaction\"b\xdaA!parent,transaction,transaction_id\x82\xd3\xe4\x93\x028:\vtransaction\")/v1/{parent=organizations/*}/transactions\x12\xc8\x01\n" +
 	"\x11UpdateTransaction\x12,.pixlcrashr.vsfv.v1.UpdateTransactionRequest\x1a\x1f.pixlcrashr.vsfv.v1.Transaction\"d\xdaA\x17transaction,update_mask\x82\xd3\xe4\x93\x02D:\vtransaction25/v1/{transaction.name=organizations/*/transactions/*}\x12\x93\x01\n" +
 	"\x11DeleteTransaction\x12,.pixlcrashr.vsfv.v1.DeleteTransactionRequest\x1a\x16.google.protobuf.Empty\"8\xdaA\x04name\x82\xd3\xe4\x93\x02+*)/v1/{name=organizations/*/transactions/*}\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xbd\x01\n" +
 	"\x16com.pixlcrashr.vsfv.v1B\x10TransactionProtoP\x01Z'github.com/pixlcrashr/vsfv/pkg/grpc/gen\xa2\x02\x03PVX\xaa\x02\x12Pixlcrashr.Vsfv.V1\xca\x02\x12Pixlcrashr\\Vsfv\\V1\xe2\x02\x1ePixlcrashr\\Vsfv\\V1\\GPBMetadata\xea\x02\x14Pixlcrashr::Vsfv::V1b\x06proto3"

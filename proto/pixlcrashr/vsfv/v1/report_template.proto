@@ -101,6 +101,10 @@ message CreateReportTemplateRequest {
 
   // The report template to create.
   ReportTemplate report_template = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The ID to use for the report template. If not provided, a system-generated
+  // UUID will be used. Must be unique within the parent organization.
+  string report_template_id = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message UpdateReportTemplateRequest {
@@ -142,7 +146,7 @@ service ReportTemplateService {
       post: "/v1/{parent=organizations/*}/reportTemplates"
       body: "report_template"
     };
-    option (google.api.method_signature) = "parent,report_template";
+    option (google.api.method_signature) = "parent,report_template,report_template_id";
   }
 
   // Updates an existing report template.

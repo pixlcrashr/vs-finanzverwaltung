@@ -9,8 +9,9 @@ import (
 
 type ImportSourcePeriod struct {
 	ID             uuid.UUID `gorm:"type:uuid;primaryKey;uniqueIndex:idx_import_source_periods_org_id,priority:1"`
-	OrganizationID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_import_source_periods_org_id,priority:2;uniqueIndex:idx_import_source_periods_org_source,priority:1"`
-	ImportSourceID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_import_source_periods_org_source,priority:2"`
+	CustomID       string    `gorm:"uniqueIndex:idx_import_source_periods_custom_id,priority:1"`
+	OrganizationID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_import_source_periods_org_id,priority:2;uniqueIndex:idx_import_source_periods_org_source,priority:1;uniqueIndex:idx_import_source_periods_custom_id,priority:2"`
+	ImportSourceID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_import_source_periods_org_source,priority:2;uniqueIndex:idx_import_source_periods_custom_id,priority:3"`
 	Year           int       `gorm:"not null;default:0;uniqueIndex:idx_import_source_periods_org_source"`
 	IsClosed       bool      `gorm:"not null;default:false"`
 	UpdatedAt      time.Time `gorm:"not null;default:now()"`
@@ -27,6 +28,11 @@ func (m *ImportSourcePeriod) BeforeCreate(tx *gorm.DB) error {
 	if m.ID == uuid.Nil {
 		m.ID = uuid.New()
 	}
+
+	if m.CustomID == "" {
+		m.CustomID = m.ID.String()
+	}
+
 	return nil
 }
 

@@ -30,11 +30,12 @@ func (s *accountGroupServiceServer) GetAccountGroup(ctx context.Context, req *ge
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid account_group name")
 	}
-	id, err := uuid.Parse(n.AccountGroup)
+	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid account_group name")
+		return nil, status.Error(codes.InvalidArgument, "invalid organization in account_group name")
 	}
-	m, err := s.repo.GetByID(ctx, id)
+	// Use CustomID (n.AccountGroup) instead of parsing as UUID
+	m, err := s.repo.GetByCustomID(ctx, orgID, n.AccountGroup)
 	if err != nil {
 		if isNotFound(err) {
 			return nil, status.Error(codes.NotFound, "account group not found")
@@ -45,6 +46,15 @@ func (s *accountGroupServiceServer) GetAccountGroup(ctx context.Context, req *ge
 }
 
 func (s *accountGroupServiceServer) ListAccountGroups(ctx context.Context, req *gen.ListAccountGroupsRequest) (*gen.ListAccountGroupsResponse, error) {
+	var orgN gen.OrganizationResourceName
+	if err := orgN.UnmarshalString(req.Parent); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid parent")
+	}
+	orgID, err := uuid.Parse(orgN.Organization)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid parent")
+	}
+
 	c, err := svcfilter.ParseAccountGroupFilter(req.Filter)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid filter: %v", err)
@@ -70,10 +80,11 @@ func (s *accountGroupServiceServer) ListAccountGroups(ctx context.Context, req *
 	orderExprs, _ := order.Resolve(orderBy, repository.AccountGroupOrderFieldMapper)
 
 	params := repository.ListAccountGroupsParams{
-		Page:     int(offset/int64(pageSize)) + 1,
-		PageSize: pageSize,
-		Cond:     c,
-		OrderBy:  orderExprs,
+		OrganizationID: orgID,
+		Page:           int(offset/int64(pageSize)) + 1,
+		PageSize:       pageSize,
+		Cond:           c,
+		OrderBy:        orderExprs,
 	}
 
 	ms, total, err := s.repo.List(ctx, params)
@@ -99,8 +110,12 @@ func (s *accountGroupServiceServer) CreateAccountGroup(ctx context.Context, req 
 	m := &model.AccountGroup{
 		DisplayName:        req.AccountGroup.DisplayName,
 		DisplayDescription: req.AccountGroup.DisplayDescription,
+		CustomID:           req.AccountGroupId,
 	}
 	if err := s.repo.Create(ctx, m); err != nil {
+		if isDuplicateKey(err) {
+			return nil, status.Error(codes.AlreadyExists, "account group with this ID already exists")
+		}
 		return nil, status.Error(codes.Internal, "failed to create account group")
 	}
 	return AccountGroupToProto(m), nil
@@ -114,11 +129,12 @@ func (s *accountGroupServiceServer) UpdateAccountGroup(ctx context.Context, req 
 	if err := n.UnmarshalString(req.AccountGroup.Name); err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid account_group name")
 	}
-	id, err := uuid.Parse(n.AccountGroup)
+	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid account_group name")
+		return nil, status.Error(codes.InvalidArgument, "invalid organization in account_group name")
 	}
-	m, err := s.repo.GetByID(ctx, id)
+	// Use CustomID (n.AccountGroup) instead of parsing as UUID
+	m, err := s.repo.GetByCustomID(ctx, orgID, n.AccountGroup)
 	if err != nil {
 		if isNotFound(err) {
 			return nil, status.Error(codes.NotFound, "account group not found")
@@ -138,11 +154,19 @@ func (s *accountGroupServiceServer) DeleteAccountGroup(ctx context.Context, req 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid account_group name")
 	}
-	id, err := uuid.Parse(n.AccountGroup)
+	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid account_group name")
+		return nil, status.Error(codes.InvalidArgument, "invalid organization in account_group name")
 	}
-	if err := s.repo.Delete(ctx, id); err != nil {
+	// Use CustomID (n.AccountGroup) to find the group, then delete by actual ID
+	m, err := s.repo.GetByCustomID(ctx, orgID, n.AccountGroup)
+	if err != nil {
+		if isNotFound(err) {
+			return nil, status.Error(codes.NotFound, "account group not found")
+		}
+		return nil, status.Error(codes.Internal, "failed to get account group")
+	}
+	if err := s.repo.Delete(ctx, m.ID); err != nil {
 		if isNotFound(err) {
 			return nil, status.Error(codes.NotFound, "account group not found")
 		}

@@ -102,6 +102,14 @@ func (r *TransactionAccountRepository) GetByID(ctx context.Context, id uuid.UUID
 	return r.q.TransactionAccount.WithContext(ctx).Where(r.q.TransactionAccount.ID.Eq(id)).First()
 }
 
+// GetByCustomID returns the transaction account with the given custom ID within an organization.
+func (r *TransactionAccountRepository) GetByCustomID(ctx context.Context, orgID uuid.UUID, customID string) (*model.TransactionAccount, error) {
+	return r.q.TransactionAccount.WithContext(ctx).Where(
+		r.q.TransactionAccount.OrganizationID.Eq(orgID),
+		r.q.TransactionAccount.CustomID.Eq(customID),
+	).First()
+}
+
 // GetByCode returns the transaction account with the given code.
 func (r *TransactionAccountRepository) GetByCode(ctx context.Context, code string) (*model.TransactionAccount, error) {
 	return r.q.TransactionAccount.WithContext(ctx).Where(r.q.TransactionAccount.Code.Eq(code)).First()

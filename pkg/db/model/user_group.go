@@ -10,6 +10,7 @@ import (
 // UserGroup uses a string primary key (not auto-generated UUID).
 type UserGroup struct {
 	ID          uuid.UUID `gorm:"type:uuid;primaryKey"`
+	CustomID    string    `gorm:"uniqueIndex:idx_user_groups_custom_id"`
 	Name        string    `gorm:"not null;index:idx_user_groups_name"`
 	Description string    `gorm:"not null;default:''"`
 	IsSystem    bool      `gorm:"not null;default:false"`
@@ -24,6 +25,11 @@ func (m *UserGroup) BeforeCreate(tx *gorm.DB) error {
 	if m.ID == uuid.Nil {
 		m.ID = uuid.New()
 	}
+
+	if m.CustomID == "" {
+		m.CustomID = m.ID.String()
+	}
+
 	return nil
 }
 

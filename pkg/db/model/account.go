@@ -9,7 +9,8 @@ import (
 
 type Account struct {
 	ID                 uuid.UUID     `gorm:"type:uuid;primaryKey;uniqueIndex:idx_accounts_org_id,priority:1"`
-	OrganizationID     uuid.UUID     `gorm:"type:uuid;not null;uniqueIndex:idx_accounts_org_id,priority:2"`
+	CustomID           string        `gorm:"uniqueIndex:idx_accounts_custom_id_org,priority:1"`
+	OrganizationID     uuid.UUID     `gorm:"type:uuid;not null;uniqueIndex:idx_accounts_org_id,priority:2;uniqueIndex:idx_accounts_custom_id_org,priority:2"`
 	ParentAccountID    uuid.NullUUID `gorm:"type:uuid;index:idx_accounts_parent_account_id"`
 	DisplayName        string        `gorm:"not null;default:'';index:idx_accounts_display_name"`
 	DisplayCode        string        `gorm:"not null;default:'';index:idx_accounts_display_code"`
@@ -35,6 +36,11 @@ func (m *Account) BeforeCreate(tx *gorm.DB) error {
 	if m.ID == uuid.Nil {
 		m.ID = uuid.New()
 	}
+
+	if m.CustomID == "" {
+		m.CustomID = m.ID.String()
+	}
+
 	return nil
 }
 

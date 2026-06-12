@@ -335,9 +335,12 @@ type CreateImportSourcePeriodRequest struct {
 	// Format: organizations/{organization}/importSources/{import_source}
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
 	// The period to create.
-	Period        *ImportSourcePeriod `protobuf:"bytes,2,opt,name=period,proto3" json:"period,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Period *ImportSourcePeriod `protobuf:"bytes,2,opt,name=period,proto3" json:"period,omitempty"`
+	// The ID to use for the period. If not provided, a system-generated UUID
+	// will be used. Must be unique within the parent import source.
+	ImportSourcePeriodId string `protobuf:"bytes,3,opt,name=import_source_period_id,json=importSourcePeriodId,proto3" json:"import_source_period_id,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *CreateImportSourcePeriodRequest) Reset() {
@@ -382,6 +385,13 @@ func (x *CreateImportSourcePeriodRequest) GetPeriod() *ImportSourcePeriod {
 		return x.Period
 	}
 	return nil
+}
+
+func (x *CreateImportSourcePeriodRequest) GetImportSourcePeriodId() string {
+	if x != nil {
+		return x.ImportSourcePeriodId
+	}
+	return ""
 }
 
 type CloseImportSourcePeriodRequest struct {
@@ -509,21 +519,22 @@ const file_pixlcrashr_vsfv_v1_import_source_period_proto_rawDesc = "" +
 	"\aperiods\x18\x01 \x03(\v2&.pixlcrashr.vsfv.v1.ImportSourcePeriodR\aperiods\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xa8\x01\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xe4\x01\n" +
 	"\x1fCreateImportSourcePeriodRequest\x12@\n" +
 	"\x06parent\x18\x01 \x01(\tB(\xe0A\x02\xfaA\"\n" +
 	" vsfv.pixlcrashr.dev/ImportSourceR\x06parent\x12C\n" +
-	"\x06period\x18\x02 \x01(\v2&.pixlcrashr.vsfv.v1.ImportSourcePeriodB\x03\xe0A\x02R\x06period\"d\n" +
+	"\x06period\x18\x02 \x01(\v2&.pixlcrashr.vsfv.v1.ImportSourcePeriodB\x03\xe0A\x02R\x06period\x12:\n" +
+	"\x17import_source_period_id\x18\x03 \x01(\tB\x03\xe0A\x01R\x14importSourcePeriodId\"d\n" +
 	"\x1eCloseImportSourcePeriodRequest\x12B\n" +
 	"\x04name\x18\x01 \x01(\tB.\xe0A\x02\xfaA(\n" +
 	"&vsfv.pixlcrashr.dev/ImportSourcePeriodR\x04name\"e\n" +
 	"\x1fDeleteImportSourcePeriodRequest\x12B\n" +
 	"\x04name\x18\x01 \x01(\tB.\xe0A\x02\xfaA(\n" +
-	"&vsfv.pixlcrashr.dev/ImportSourcePeriodR\x04name2\xfd\a\n" +
+	"&vsfv.pixlcrashr.dev/ImportSourcePeriodR\x04name2\x95\b\n" +
 	"\x19ImportSourcePeriodService\x12\xb6\x01\n" +
 	"\x15GetImportSourcePeriod\x120.pixlcrashr.vsfv.v1.GetImportSourcePeriodRequest\x1a&.pixlcrashr.vsfv.v1.ImportSourcePeriod\"C\xdaA\x04name\x82\xd3\xe4\x93\x026\x124/v1/{name=organizations/*/importSources/*/periods/*}\x12\xc9\x01\n" +
-	"\x17ListImportSourcePeriods\x122.pixlcrashr.vsfv.v1.ListImportSourcePeriodsRequest\x1a3.pixlcrashr.vsfv.v1.ListImportSourcePeriodsResponse\"E\xdaA\x06parent\x82\xd3\xe4\x93\x026\x124/v1/{parent=organizations/*/importSources/*}/periods\x12\xcd\x01\n" +
-	"\x18CreateImportSourcePeriod\x123.pixlcrashr.vsfv.v1.CreateImportSourcePeriodRequest\x1a&.pixlcrashr.vsfv.v1.ImportSourcePeriod\"T\xdaA\rparent,period\x82\xd3\xe4\x93\x02>:\x06period\"4/v1/{parent=organizations/*/importSources/*}/periods\x12\xc3\x01\n" +
+	"\x17ListImportSourcePeriods\x122.pixlcrashr.vsfv.v1.ListImportSourcePeriodsRequest\x1a3.pixlcrashr.vsfv.v1.ListImportSourcePeriodsResponse\"E\xdaA\x06parent\x82\xd3\xe4\x93\x026\x124/v1/{parent=organizations/*/importSources/*}/periods\x12\xe5\x01\n" +
+	"\x18CreateImportSourcePeriod\x123.pixlcrashr.vsfv.v1.CreateImportSourcePeriodRequest\x1a&.pixlcrashr.vsfv.v1.ImportSourcePeriod\"l\xdaA%parent,period,import_source_period_id\x82\xd3\xe4\x93\x02>:\x06period\"4/v1/{parent=organizations/*/importSources/*}/periods\x12\xc3\x01\n" +
 	"\x17CloseImportSourcePeriod\x122.pixlcrashr.vsfv.v1.CloseImportSourcePeriodRequest\x1a&.pixlcrashr.vsfv.v1.ImportSourcePeriod\"L\xdaA\x04name\x82\xd3\xe4\x93\x02?:\x01*\":/v1/{name=organizations/*/importSources/*/periods/*}:close\x12\xac\x01\n" +
 	"\x18DeleteImportSourcePeriod\x123.pixlcrashr.vsfv.v1.DeleteImportSourcePeriodRequest\x1a\x16.google.protobuf.Empty\"C\xdaA\x04name\x82\xd3\xe4\x93\x026*4/v1/{name=organizations/*/importSources/*/periods/*}\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xc4\x01\n" +
 	"\x16com.pixlcrashr.vsfv.v1B\x17ImportSourcePeriodProtoP\x01Z'github.com/pixlcrashr/vsfv/pkg/grpc/gen\xa2\x02\x03PVX\xaa\x02\x12Pixlcrashr.Vsfv.V1\xca\x02\x12Pixlcrashr\\Vsfv\\V1\xe2\x02\x1ePixlcrashr\\Vsfv\\V1\\GPBMetadata\xea\x02\x14Pixlcrashr::Vsfv::V1b\x06proto3"

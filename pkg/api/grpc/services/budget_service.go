@@ -30,11 +30,12 @@ func (s *budgetServiceServer) GetBudget(ctx context.Context, req *gen.GetBudgetR
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid budget name")
 	}
-	id, err := uuid.Parse(n.Budget)
+	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid budget name")
+		return nil, status.Error(codes.InvalidArgument, "invalid organization in budget name")
 	}
-	m, err := s.repo.GetByID(ctx, id)
+	// Use CustomID (n.Budget) instead of parsing as UUID
+	m, err := s.repo.GetByCustomID(ctx, orgID, n.Budget)
 	if err != nil {
 		if isNotFound(err) {
 			return nil, status.Error(codes.NotFound, "budget not found")
@@ -119,6 +120,7 @@ func (s *budgetServiceServer) CreateBudget(ctx context.Context, req *gen.CreateB
 		OrganizationID:     orgID,
 		DisplayName:        b.DisplayName,
 		DisplayDescription: b.DisplayDescription,
+		CustomID:           req.BudgetId,
 	}
 	if b.PeriodStart != nil {
 		m.PeriodStart = protoDateToTime(b.PeriodStart)
@@ -127,6 +129,9 @@ func (s *budgetServiceServer) CreateBudget(ctx context.Context, req *gen.CreateB
 		m.PeriodEnd = protoDateToTime(b.PeriodEnd)
 	}
 	if err := s.repo.Create(ctx, m); err != nil {
+		if isDuplicateKey(err) {
+			return nil, status.Error(codes.AlreadyExists, "budget with this ID already exists")
+		}
 		return nil, status.Error(codes.Internal, "failed to create budget")
 	}
 	return BudgetToProto(m), nil
@@ -140,11 +145,12 @@ func (s *budgetServiceServer) UpdateBudget(ctx context.Context, req *gen.UpdateB
 	if err := n.UnmarshalString(req.Budget.Name); err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid budget name")
 	}
-	id, err := uuid.Parse(n.Budget)
+	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid budget name")
+		return nil, status.Error(codes.InvalidArgument, "invalid organization in budget name")
 	}
-	m, err := s.repo.GetByID(ctx, id)
+	// Use CustomID (n.Budget) instead of parsing as UUID
+	m, err := s.repo.GetByCustomID(ctx, orgID, n.Budget)
 	if err != nil {
 		if isNotFound(err) {
 			return nil, status.Error(codes.NotFound, "budget not found")
@@ -170,11 +176,12 @@ func (s *budgetServiceServer) CloseBudget(ctx context.Context, req *gen.CloseBud
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid budget name")
 	}
-	id, err := uuid.Parse(n.Budget)
+	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid budget name")
+		return nil, status.Error(codes.InvalidArgument, "invalid organization in budget name")
 	}
-	m, err := s.repo.GetByID(ctx, id)
+	// Use CustomID (n.Budget) instead of parsing as UUID
+	m, err := s.repo.GetByCustomID(ctx, orgID, n.Budget)
 	if err != nil {
 		if isNotFound(err) {
 			return nil, status.Error(codes.NotFound, "budget not found")
@@ -193,11 +200,19 @@ func (s *budgetServiceServer) DeleteBudget(ctx context.Context, req *gen.DeleteB
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid budget name")
 	}
-	id, err := uuid.Parse(n.Budget)
+	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid budget name")
+		return nil, status.Error(codes.InvalidArgument, "invalid organization in budget name")
 	}
-	if err := s.repo.Delete(ctx, id); err != nil {
+	// Use CustomID (n.Budget) to find the budget, then delete by actual ID
+	m, err := s.repo.GetByCustomID(ctx, orgID, n.Budget)
+	if err != nil {
+		if isNotFound(err) {
+			return nil, status.Error(codes.NotFound, "budget not found")
+		}
+		return nil, status.Error(codes.Internal, "failed to get budget")
+	}
+	if err := s.repo.Delete(ctx, m.ID); err != nil {
 		if isNotFound(err) {
 			return nil, status.Error(codes.NotFound, "budget not found")
 		}

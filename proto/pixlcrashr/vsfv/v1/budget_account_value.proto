@@ -114,6 +114,10 @@ message CreateBudgetAccountValueRequest {
 
   // The budget account value to create.
   BudgetAccountValue account_value = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The ID to use for the budget account value. If not provided, a
+  // system-generated UUID will be used. Must be unique within the parent budget.
+  string budget_account_value_id = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message UpdateBudgetAccountValueRequest {
@@ -144,9 +148,7 @@ message BatchUpdateBudgetAccountValuesRequest {
   // either be empty or match this field.
   string parent = 1 [
     (google.api.field_behavior) = REQUIRED,
-    (google.api.resource_reference) = {
-      child_type: "vsfv.pixlcrashr.dev/BudgetAccountValue"
-    }
+    (google.api.resource_reference) = {child_type: "vsfv.pixlcrashr.dev/BudgetAccountValue"}
   ];
 
   // The request messages specifying the resources to update.
@@ -181,7 +183,7 @@ service BudgetAccountValueService {
       post: "/v1/{parent=organizations/*/budgets/*}/accountValues"
       body: "account_value"
     };
-    option (google.api.method_signature) = "parent,account_value";
+    option (google.api.method_signature) = "parent,account_value,budget_account_value_id";
   }
 
   // Updates an existing budget account value.

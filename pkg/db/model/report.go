@@ -9,7 +9,8 @@ import (
 
 type Report struct {
 	ID             uuid.UUID `gorm:"type:uuid;primaryKey;uniqueIndex:idx_reports_org_id,priority:1"`
-	OrganizationID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_reports_org_id,priority:2"`
+	CustomID       string    `gorm:"uniqueIndex:idx_reports_custom_id_org,priority:1"`
+	OrganizationID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_reports_org_id,priority:2;uniqueIndex:idx_reports_custom_id_org,priority:2"`
 	DisplayName    string    `gorm:"not null;default:''"`
 	Data           []byte    `gorm:"type:bytea;not null"`
 	CreatedAt      time.Time `gorm:"not null;default:now()"`
@@ -24,6 +25,11 @@ func (m *Report) BeforeCreate(tx *gorm.DB) error {
 	if m.ID == uuid.Nil {
 		m.ID = uuid.New()
 	}
+
+	if m.CustomID == "" {
+		m.CustomID = m.ID.String()
+	}
+
 	return nil
 }
 

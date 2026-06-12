@@ -10,8 +10,9 @@ import (
 
 type BudgetAccountValue struct {
 	ID             uuid.UUID   `gorm:"type:uuid;primaryKey;uniqueIndex:idx_budget_account_values_org_id,priority:1"`
-	OrganizationID uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_budget_account_values_org_id,priority:2;uniqueIndex:idx_budget_account_values_org_budget_account,priority:1"`
-	BudgetID       uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_budget_account_values_org_budget_account,priority:2"`
+	CustomID       string      `gorm:"uniqueIndex:idx_budget_account_values_custom_id,priority:1"`
+	OrganizationID uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_budget_account_values_org_id,priority:2;uniqueIndex:idx_budget_account_values_org_budget_account,priority:1;uniqueIndex:idx_budget_account_values_custom_id,priority:2"`
+	BudgetID       uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_budget_account_values_org_budget_account,priority:2;uniqueIndex:idx_budget_account_values_custom_id,priority:3"`
 	AccountID      uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_budget_account_values_org_budget_account,priority:3"`
 	Value          apd.Decimal `gorm:"type:decimal;not null;default:0"`
 	UpdatedAt      time.Time   `gorm:"not null;default:now()"`
@@ -29,6 +30,11 @@ func (m *BudgetAccountValue) BeforeCreate(tx *gorm.DB) error {
 	if m.ID == uuid.Nil {
 		m.ID = uuid.New()
 	}
+
+	if m.CustomID == "" {
+		m.CustomID = m.ID.String()
+	}
+
 	return nil
 }
 

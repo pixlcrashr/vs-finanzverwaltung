@@ -12,6 +12,41 @@
       "program": "${workspaceFolder}",
       "args": ["serve", "--config", "${workspaceFolder}/config.dev.yaml"],
       "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Web: Serve Mock (Chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "preLaunchTask": "web:serve:mock",
+      "url": "http://localhost:4200/",
+      "webRoot": "${workspaceFolder}/web",
+      "sourceMaps": true
+    },
+    {
+      "name": "Web: Serve API (Chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "preLaunchTask": "web:serve:api",
+      "url": "http://localhost:4200/",
+      "webRoot": "${workspaceFolder}/web",
+      "sourceMaps": true
+    },
+    {
+      "name": "Web: Test (Chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "preLaunchTask": "web:test",
+      "url": "http://localhost:9876/debug.html"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Web: Serve Mock + Debug",
+      "configurations": ["Web: Serve Mock (Chrome)"]
+    },
+    {
+      "name": "Web: Serve API + Debug",
+      "configurations": ["Web: Serve API (Chrome)"]
     }
   ]
 }

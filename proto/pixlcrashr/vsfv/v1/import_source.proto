@@ -105,6 +105,10 @@ message CreateImportSourceRequest {
 
   // The import source to create.
   ImportSource import_source = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The ID to use for the import source. If not provided, a system-generated
+  // UUID will be used. Must be unique within the parent organization.
+  string import_source_id = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message UpdateImportSourceRequest {
@@ -146,7 +150,7 @@ service ImportSourceService {
       post: "/v1/{parent=organizations/*}/importSources"
       body: "import_source"
     };
-    option (google.api.method_signature) = "parent,import_source";
+    option (google.api.method_signature) = "parent,import_source,import_source_id";
   }
 
   // Updates an existing import source.

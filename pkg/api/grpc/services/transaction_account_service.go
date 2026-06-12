@@ -30,11 +30,12 @@ func (s *transactionAccountServiceServer) GetTransactionAccount(ctx context.Cont
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid transaction account name")
 	}
-	id, err := uuid.Parse(n.TransactionAccount)
+	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid transaction account name")
+		return nil, status.Error(codes.InvalidArgument, "invalid organization in transaction account name")
 	}
-	m, err := s.repo.GetByID(ctx, id)
+	// Use CustomID (n.TransactionAccount) instead of parsing as UUID
+	m, err := s.repo.GetByCustomID(ctx, orgID, n.TransactionAccount)
 	if err != nil {
 		if isNotFound(err) {
 			return nil, status.Error(codes.NotFound, "transaction account not found")
@@ -114,8 +115,12 @@ func (s *transactionAccountServiceServer) CreateTransactionAccount(ctx context.C
 		ImportSourceID:     srcID,
 		DisplayName:        req.TransactionAccount.DisplayName,
 		DisplayDescription: req.TransactionAccount.DisplayDescription,
+		CustomID:           req.TransactionAccountId,
 	}
 	if err := s.repo.Create(ctx, m); err != nil {
+		if isDuplicateKey(err) {
+			return nil, status.Error(codes.AlreadyExists, "transaction account with this ID already exists")
+		}
 		return nil, status.Error(codes.Internal, "failed to create transaction account")
 	}
 	return TransactionAccountToProto(m), nil
@@ -129,11 +134,12 @@ func (s *transactionAccountServiceServer) UpdateTransactionAccount(ctx context.C
 	if err := n.UnmarshalString(req.TransactionAccount.Name); err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid transaction account name")
 	}
-	id, err := uuid.Parse(n.TransactionAccount)
+	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid transaction account name")
+		return nil, status.Error(codes.InvalidArgument, "invalid organization in transaction account name")
 	}
-	m, err := s.repo.GetByID(ctx, id)
+	// Use CustomID (n.TransactionAccount) instead of parsing as UUID
+	m, err := s.repo.GetByCustomID(ctx, orgID, n.TransactionAccount)
 	if err != nil {
 		if isNotFound(err) {
 			return nil, status.Error(codes.NotFound, "transaction account not found")
@@ -154,11 +160,19 @@ func (s *transactionAccountServiceServer) DeleteTransactionAccount(ctx context.C
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid transaction account name")
 	}
-	id, err := uuid.Parse(n.TransactionAccount)
+	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid transaction account name")
+		return nil, status.Error(codes.InvalidArgument, "invalid organization in transaction account name")
 	}
-	if err := s.repo.Delete(ctx, id); err != nil {
+	// Use CustomID (n.TransactionAccount) to find the account, then delete by actual ID
+	m, err := s.repo.GetByCustomID(ctx, orgID, n.TransactionAccount)
+	if err != nil {
+		if isNotFound(err) {
+			return nil, status.Error(codes.NotFound, "transaction account not found")
+		}
+		return nil, status.Error(codes.Internal, "failed to get transaction account")
+	}
+	if err := s.repo.Delete(ctx, m.ID); err != nil {
 		if isNotFound(err) {
 			return nil, status.Error(codes.NotFound, "transaction account not found")
 		}

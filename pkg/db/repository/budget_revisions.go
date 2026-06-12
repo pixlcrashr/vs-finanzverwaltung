@@ -98,6 +98,14 @@ func (r *BudgetRevisionRepository) GetByID(ctx context.Context, id uuid.UUID) (*
 	return r.q.BudgetRevision.WithContext(ctx).Where(r.q.BudgetRevision.ID.Eq(id)).First()
 }
 
+// GetByCustomID returns the budget revision with the given custom ID within an organization.
+func (r *BudgetRevisionRepository) GetByCustomID(ctx context.Context, orgID uuid.UUID, customID string) (*model.BudgetRevision, error) {
+	return r.q.BudgetRevision.WithContext(ctx).Where(
+		r.q.BudgetRevision.OrganizationID.Eq(orgID),
+		r.q.BudgetRevision.CustomID.Eq(customID),
+	).First()
+}
+
 // CreateWithSnapshotParams holds the fields required to create a budget revision with a snapshot.
 type CreateWithSnapshotParams struct {
 	OrganizationID     uuid.UUID
@@ -105,6 +113,7 @@ type CreateWithSnapshotParams struct {
 	DisplayName        string
 	DisplayDescription string
 	Date               time.Time
+	CustomID           string
 }
 
 // CreateWithSnapshot inserts a new revision from params and copies the current budget account
@@ -116,6 +125,7 @@ func (r *BudgetRevisionRepository) CreateWithSnapshot(ctx context.Context, param
 		DisplayName:        params.DisplayName,
 		DisplayDescription: params.DisplayDescription,
 		Date:               params.Date,
+		CustomID:           params.CustomID,
 	}
 
 	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -139,10 +149,11 @@ func (r *BudgetRevisionRepository) CreateWithSnapshot(ctx context.Context, param
 		ravs := make([]*model.BudgetRevisionAccountValue, 0, len(bavs))
 		for _, bav := range bavs {
 			ravs = append(ravs, &model.BudgetRevisionAccountValue{
-				OrganizationID: m.OrganizationID,
-				BudgetTagID:    m.ID,
-				AccountID:      bav.AccountID,
-				Value:          bav.Value,
+				OrganizationID:   m.OrganizationID,
+				BudgetID:         m.BudgetID,
+				BudgetRevisionID: m.ID,
+				AccountID:        bav.AccountID,
+				Value:            bav.Value,
 			})
 		}
 		return q.BudgetRevisionAccountValue.WithContext(ctx).Create(ravs...)

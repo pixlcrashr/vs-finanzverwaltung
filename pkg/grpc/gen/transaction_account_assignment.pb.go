@@ -337,9 +337,12 @@ type CreateTransactionAccountAssignmentRequest struct {
 	// Format: organizations/{organization}/transactions/{transaction}
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
 	// The assignment to create.
-	Assignment    *TransactionAccountAssignment `protobuf:"bytes,2,opt,name=assignment,proto3" json:"assignment,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Assignment *TransactionAccountAssignment `protobuf:"bytes,2,opt,name=assignment,proto3" json:"assignment,omitempty"`
+	// The ID to use for the assignment. If not provided, a system-generated UUID
+	// will be used. Must be unique within the parent transaction.
+	TransactionAccountAssignmentId string `protobuf:"bytes,3,opt,name=transaction_account_assignment_id,json=transactionAccountAssignmentId,proto3" json:"transaction_account_assignment_id,omitempty"`
+	unknownFields                  protoimpl.UnknownFields
+	sizeCache                      protoimpl.SizeCache
 }
 
 func (x *CreateTransactionAccountAssignmentRequest) Reset() {
@@ -384,6 +387,13 @@ func (x *CreateTransactionAccountAssignmentRequest) GetAssignment() *Transaction
 		return x.Assignment
 	}
 	return nil
+}
+
+func (x *CreateTransactionAccountAssignmentRequest) GetTransactionAccountAssignmentId() string {
+	if x != nil {
+		return x.TransactionAccountAssignmentId
+	}
+	return ""
 }
 
 type UpdateTransactionAccountAssignmentRequest struct {
@@ -520,13 +530,14 @@ const file_pixlcrashr_vsfv_v1_transaction_account_assignment_proto_rawDesc = "" 
 	"\vassignments\x18\x01 \x03(\v20.pixlcrashr.vsfv.v1.TransactionAccountAssignmentR\vassignments\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xc3\x01\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\x93\x02\n" +
 	")CreateTransactionAccountAssignmentRequest\x12?\n" +
 	"\x06parent\x18\x01 \x01(\tB'\xe0A\x02\xfaA!\n" +
 	"\x1fvsfv.pixlcrashr.dev/TransactionR\x06parent\x12U\n" +
 	"\n" +
 	"assignment\x18\x02 \x01(\v20.pixlcrashr.vsfv.v1.TransactionAccountAssignmentB\x03\xe0A\x02R\n" +
-	"assignment\"\xc4\x01\n" +
+	"assignment\x12N\n" +
+	"!transaction_account_assignment_id\x18\x03 \x01(\tB\x03\xe0A\x01R\x1etransactionAccountAssignmentId\"\xc4\x01\n" +
 	")UpdateTransactionAccountAssignmentRequest\x12U\n" +
 	"\n" +
 	"assignment\x18\x01 \x01(\v20.pixlcrashr.vsfv.v1.TransactionAccountAssignmentB\x03\xe0A\x02R\n" +
@@ -535,11 +546,11 @@ const file_pixlcrashr_vsfv_v1_transaction_account_assignment_proto_rawDesc = "" 
 	"updateMask\"y\n" +
 	")DeleteTransactionAccountAssignmentRequest\x12L\n" +
 	"\x04name\x18\x01 \x01(\tB8\xe0A\x02\xfaA2\n" +
-	"0vsfv.pixlcrashr.dev/TransactionAccountAssignmentR\x04name2\xcc\t\n" +
+	"0vsfv.pixlcrashr.dev/TransactionAccountAssignmentR\x04name2\xef\t\n" +
 	"#TransactionAccountAssignmentService\x12\xd7\x01\n" +
 	"\x1fGetTransactionAccountAssignment\x12:.pixlcrashr.vsfv.v1.GetTransactionAccountAssignmentRequest\x1a0.pixlcrashr.vsfv.v1.TransactionAccountAssignment\"F\xdaA\x04name\x82\xd3\xe4\x93\x029\x127/v1/{name=organizations/*/transactions/*/assignments/*}\x12\xea\x01\n" +
-	"!ListTransactionAccountAssignments\x12<.pixlcrashr.vsfv.v1.ListTransactionAccountAssignmentsRequest\x1a=.pixlcrashr.vsfv.v1.ListTransactionAccountAssignmentsResponse\"H\xdaA\x06parent\x82\xd3\xe4\x93\x029\x127/v1/{parent=organizations/*/transactions/*}/assignments\x12\xf6\x01\n" +
-	"\"CreateTransactionAccountAssignment\x12=.pixlcrashr.vsfv.v1.CreateTransactionAccountAssignmentRequest\x1a0.pixlcrashr.vsfv.v1.TransactionAccountAssignment\"_\xdaA\x11parent,assignment\x82\xd3\xe4\x93\x02E:\n" +
+	"!ListTransactionAccountAssignments\x12<.pixlcrashr.vsfv.v1.ListTransactionAccountAssignmentsRequest\x1a=.pixlcrashr.vsfv.v1.ListTransactionAccountAssignmentsResponse\"H\xdaA\x06parent\x82\xd3\xe4\x93\x029\x127/v1/{parent=organizations/*/transactions/*}/assignments\x12\x99\x02\n" +
+	"\"CreateTransactionAccountAssignment\x12=.pixlcrashr.vsfv.v1.CreateTransactionAccountAssignmentRequest\x1a0.pixlcrashr.vsfv.v1.TransactionAccountAssignment\"\x81\x01\xdaA3parent,assignment,transaction_account_assignment_id\x82\xd3\xe4\x93\x02E:\n" +
 	"assignment\"7/v1/{parent=organizations/*/transactions/*}/assignments\x12\x86\x02\n" +
 	"\"UpdateTransactionAccountAssignment\x12=.pixlcrashr.vsfv.v1.UpdateTransactionAccountAssignmentRequest\x1a0.pixlcrashr.vsfv.v1.TransactionAccountAssignment\"o\xdaA\x16assignment,update_mask\x82\xd3\xe4\x93\x02P:\n" +
 	"assignment2B/v1/{assignment.name=organizations/*/transactions/*/assignments/*}\x12\xc3\x01\n" +

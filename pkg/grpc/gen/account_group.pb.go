@@ -326,9 +326,12 @@ type CreateAccountGroupRequest struct {
 	// Format: organizations/{organization}
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
 	// The account group to create.
-	AccountGroup  *AccountGroup `protobuf:"bytes,2,opt,name=account_group,json=accountGroup,proto3" json:"account_group,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	AccountGroup *AccountGroup `protobuf:"bytes,2,opt,name=account_group,json=accountGroup,proto3" json:"account_group,omitempty"`
+	// The ID to use for the account group. If not provided, a system-generated
+	// UUID will be used. Must be unique within the parent organization.
+	AccountGroupId string `protobuf:"bytes,3,opt,name=account_group_id,json=accountGroupId,proto3" json:"account_group_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *CreateAccountGroupRequest) Reset() {
@@ -373,6 +376,13 @@ func (x *CreateAccountGroupRequest) GetAccountGroup() *AccountGroup {
 		return x.AccountGroup
 	}
 	return nil
+}
+
+func (x *CreateAccountGroupRequest) GetAccountGroupId() string {
+	if x != nil {
+		return x.AccountGroupId
+	}
+	return ""
 }
 
 type UpdateAccountGroupRequest struct {
@@ -506,22 +516,23 @@ const file_pixlcrashr_vsfv_v1_account_group_proto_rawDesc = "" +
 	"\x0eaccount_groups\x18\x01 \x03(\v2 .pixlcrashr.vsfv.v1.AccountGroupR\raccountGroups\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xa9\x01\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xd8\x01\n" +
 	"\x19CreateAccountGroupRequest\x12@\n" +
 	"\x06parent\x18\x01 \x01(\tB(\xe0A\x02\xfaA\"\n" +
 	" vsfv.pixlcrashr.dev/OrganizationR\x06parent\x12J\n" +
-	"\raccount_group\x18\x02 \x01(\v2 .pixlcrashr.vsfv.v1.AccountGroupB\x03\xe0A\x02R\faccountGroup\"\xa9\x01\n" +
+	"\raccount_group\x18\x02 \x01(\v2 .pixlcrashr.vsfv.v1.AccountGroupB\x03\xe0A\x02R\faccountGroup\x12-\n" +
+	"\x10account_group_id\x18\x03 \x01(\tB\x03\xe0A\x01R\x0eaccountGroupId\"\xa9\x01\n" +
 	"\x19UpdateAccountGroupRequest\x12J\n" +
 	"\raccount_group\x18\x01 \x01(\v2 .pixlcrashr.vsfv.v1.AccountGroupB\x03\xe0A\x02R\faccountGroup\x12@\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMask\"Y\n" +
 	"\x19DeleteAccountGroupRequest\x12<\n" +
 	"\x04name\x18\x01 \x01(\tB(\xe0A\x02\xfaA\"\n" +
-	" vsfv.pixlcrashr.dev/AccountGroupR\x04name2\xaa\a\n" +
+	" vsfv.pixlcrashr.dev/AccountGroupR\x04name2\xbb\a\n" +
 	"\x13AccountGroupService\x12\x9a\x01\n" +
 	"\x0fGetAccountGroup\x12*.pixlcrashr.vsfv.v1.GetAccountGroupRequest\x1a .pixlcrashr.vsfv.v1.AccountGroup\"9\xdaA\x04name\x82\xd3\xe4\x93\x02,\x12*/v1/{name=organizations/*/accountGroups/*}\x12\xad\x01\n" +
-	"\x11ListAccountGroups\x12,.pixlcrashr.vsfv.v1.ListAccountGroupsRequest\x1a-.pixlcrashr.vsfv.v1.ListAccountGroupsResponse\";\xdaA\x06parent\x82\xd3\xe4\x93\x02,\x12*/v1/{parent=organizations/*}/accountGroups\x12\xbf\x01\n" +
-	"\x12CreateAccountGroup\x12-.pixlcrashr.vsfv.v1.CreateAccountGroupRequest\x1a .pixlcrashr.vsfv.v1.AccountGroup\"X\xdaA\x14parent,account_group\x82\xd3\xe4\x93\x02;:\raccount_group\"*/v1/{parent=organizations/*}/accountGroups\x12\xd2\x01\n" +
+	"\x11ListAccountGroups\x12,.pixlcrashr.vsfv.v1.ListAccountGroupsRequest\x1a-.pixlcrashr.vsfv.v1.ListAccountGroupsResponse\";\xdaA\x06parent\x82\xd3\xe4\x93\x02,\x12*/v1/{parent=organizations/*}/accountGroups\x12\xd0\x01\n" +
+	"\x12CreateAccountGroup\x12-.pixlcrashr.vsfv.v1.CreateAccountGroupRequest\x1a .pixlcrashr.vsfv.v1.AccountGroup\"i\xdaA%parent,account_group,account_group_id\x82\xd3\xe4\x93\x02;:\raccount_group\"*/v1/{parent=organizations/*}/accountGroups\x12\xd2\x01\n" +
 	"\x12UpdateAccountGroup\x12-.pixlcrashr.vsfv.v1.UpdateAccountGroupRequest\x1a .pixlcrashr.vsfv.v1.AccountGroup\"k\xdaA\x19account_group,update_mask\x82\xd3\xe4\x93\x02I:\raccount_group28/v1/{account_group.name=organizations/*/accountGroups/*}\x12\x96\x01\n" +
 	"\x12DeleteAccountGroup\x12-.pixlcrashr.vsfv.v1.DeleteAccountGroupRequest\x1a\x16.google.protobuf.Empty\"9\xdaA\x04name\x82\xd3\xe4\x93\x02,**/v1/{name=organizations/*/accountGroups/*}\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xbe\x01\n" +
 	"\x16com.pixlcrashr.vsfv.v1B\x11AccountGroupProtoP\x01Z'github.com/pixlcrashr/vsfv/pkg/grpc/gen\xa2\x02\x03PVX\xaa\x02\x12Pixlcrashr.Vsfv.V1\xca\x02\x12Pixlcrashr\\Vsfv\\V1\xe2\x02\x1ePixlcrashr\\Vsfv\\V1\\GPBMetadata\xea\x02\x14Pixlcrashr::Vsfv::V1b\x06proto3"

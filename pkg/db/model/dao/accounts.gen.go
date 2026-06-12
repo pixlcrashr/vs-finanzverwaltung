@@ -28,6 +28,7 @@ func newAccount(db *gorm.DB, opts ...gen.DOOption) account {
 	tableName := _account.accountDo.TableName()
 	_account.ALL = field.NewAsterisk(tableName)
 	_account.ID = field.NewField(tableName, "id")
+	_account.CustomID = field.NewString(tableName, "custom_id")
 	_account.OrganizationID = field.NewField(tableName, "organization_id")
 	_account.ParentAccountID = field.NewField(tableName, "parent_account_id")
 	_account.DisplayName = field.NewString(tableName, "display_name")
@@ -96,6 +97,9 @@ func newAccount(db *gorm.DB, opts ...gen.DOOption) account {
 				BudgetRevisionAccountValues struct {
 					field.RelationField
 					Organization struct {
+						field.RelationField
+					}
+					Budget struct {
 						field.RelationField
 					}
 					BudgetRevision struct {
@@ -284,6 +288,9 @@ func newAccount(db *gorm.DB, opts ...gen.DOOption) account {
 					Organization struct {
 						field.RelationField
 					}
+					Budget struct {
+						field.RelationField
+					}
 					BudgetRevision struct {
 						field.RelationField
 					}
@@ -365,6 +372,9 @@ func newAccount(db *gorm.DB, opts ...gen.DOOption) account {
 					Organization struct {
 						field.RelationField
 					}
+					Budget struct {
+						field.RelationField
+					}
 					BudgetRevision struct {
 						field.RelationField
 					}
@@ -377,6 +387,11 @@ func newAccount(db *gorm.DB, opts ...gen.DOOption) account {
 						field.RelationField
 					}{
 						RelationField: field.NewRelation("ChildAccounts.Organization.BudgetRevisions.BudgetRevisionAccountValues.Organization", "model.Organization"),
+					},
+					Budget: struct {
+						field.RelationField
+					}{
+						RelationField: field.NewRelation("ChildAccounts.Organization.BudgetRevisions.BudgetRevisionAccountValues.Budget", "model.Budget"),
 					},
 					BudgetRevision: struct {
 						field.RelationField
@@ -768,6 +783,7 @@ type account struct {
 
 	ALL                field.Asterisk
 	ID                 field.Field
+	CustomID           field.String
 	OrganizationID     field.Field
 	ParentAccountID    field.Field
 	DisplayName        field.String
@@ -807,6 +823,7 @@ func (a account) As(alias string) *account {
 func (a *account) updateTableName(table string) *account {
 	a.ALL = field.NewAsterisk(table)
 	a.ID = field.NewField(table, "id")
+	a.CustomID = field.NewString(table, "custom_id")
 	a.OrganizationID = field.NewField(table, "organization_id")
 	a.ParentAccountID = field.NewField(table, "parent_account_id")
 	a.DisplayName = field.NewString(table, "display_name")
@@ -840,8 +857,9 @@ func (a *account) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *account) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 17)
+	a.fieldMap = make(map[string]field.Expr, 18)
 	a.fieldMap["id"] = a.ID
+	a.fieldMap["custom_id"] = a.CustomID
 	a.fieldMap["organization_id"] = a.OrganizationID
 	a.fieldMap["parent_account_id"] = a.ParentAccountID
 	a.fieldMap["display_name"] = a.DisplayName
@@ -945,6 +963,9 @@ type accountHasManyChildAccounts struct {
 			BudgetRevisionAccountValues struct {
 				field.RelationField
 				Organization struct {
+					field.RelationField
+				}
+				Budget struct {
 					field.RelationField
 				}
 				BudgetRevision struct {

@@ -108,6 +108,10 @@ message CreateTransactionAccountRequest {
 
   // The transaction account to create.
   TransactionAccount transaction_account = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The ID to use for the transaction account. If not provided, a
+  // system-generated UUID will be used. Must be unique within the parent organization.
+  string transaction_account_id = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message UpdateTransactionAccountRequest {
@@ -149,7 +153,7 @@ service TransactionAccountService {
       post: "/v1/{parent=organizations/*}/transactionAccounts"
       body: "transaction_account"
     };
-    option (google.api.method_signature) = "parent,transaction_account";
+    option (google.api.method_signature) = "parent,transaction_account,transaction_account_id";
   }
 
   // Updates an existing transaction account.

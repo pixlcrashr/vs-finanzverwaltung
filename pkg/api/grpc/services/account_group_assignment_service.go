@@ -122,8 +122,12 @@ func (s *accountGroupAssignmentServiceServer) CreateAccountGroupAssignment(ctx c
 		AccountGroupID: groupID,
 		AccountID:      accountID,
 		Negate:         req.Assignment.Negate,
+		CustomID:       req.AccountGroupAssignmentId,
 	}
 	if err := s.repo.Create(ctx, m); err != nil {
+		if isDuplicateKey(err) {
+			return nil, status.Error(codes.AlreadyExists, "assignment with this ID already exists")
+		}
 		return nil, status.Error(codes.Internal, "failed to create assignment")
 	}
 	return AccountGroupAssignmentToProto(m), nil

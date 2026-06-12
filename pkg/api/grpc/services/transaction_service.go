@@ -108,6 +108,7 @@ func (s *transactionServiceServer) CreateTransaction(ctx context.Context, req *g
 		DebitTransactionAccountID:  debitID,
 		Description:                t.Description,
 		Reference:                  t.Reference,
+		CustomID:                   req.TransactionId,
 	}
 	if t.BookedAt != nil {
 		m.BookedAt = t.BookedAt.AsTime()
@@ -116,6 +117,9 @@ func (s *transactionServiceServer) CreateTransaction(ctx context.Context, req *g
 		m.DocumentDate = t.DocumentDate.AsTime()
 	}
 	if err := s.repo.Create(ctx, m); err != nil {
+		if isDuplicateKey(err) {
+			return nil, status.Error(codes.AlreadyExists, "transaction with this ID already exists")
+		}
 		return nil, status.Error(codes.Internal, "failed to create transaction")
 	}
 	return TransactionToProto(m), nil

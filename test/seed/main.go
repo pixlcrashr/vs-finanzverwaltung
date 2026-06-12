@@ -222,16 +222,16 @@ func seed(db *gorm.DB) error {
 
 	// ── Budget Revision Account Values ───────────────────────────────────────
 	for _, v := range []any{
-		&model.BudgetRevisionAccountValue{OrganizationID: org1.ID, BudgetTagID: rev1.ID, AccountID: acc1.ID, Value: dec("1850")},
-		&model.BudgetRevisionAccountValue{OrganizationID: org1.ID, BudgetTagID: rev1.ID, AccountID: acc2.ID, Value: dec("7600")},
-		&model.BudgetRevisionAccountValue{OrganizationID: org1.ID, BudgetTagID: rev1.ID, AccountID: acc3.ID, Value: dec("11800")},
-		&model.BudgetRevisionAccountValue{OrganizationID: org1.ID, BudgetTagID: rev2.ID, AccountID: acc1.ID, Value: dec("2500")},
-		&model.BudgetRevisionAccountValue{OrganizationID: org1.ID, BudgetTagID: rev2.ID, AccountID: acc3.ID, Value: dec("7200")},
-		&model.BudgetRevisionAccountValue{OrganizationID: org2.ID, BudgetTagID: rev3.ID, AccountID: acc10.ID, Value: dec("43500")},
-		&model.BudgetRevisionAccountValue{OrganizationID: org2.ID, BudgetTagID: rev3.ID, AccountID: acc11.ID, Value: dec("17200")},
-		&model.BudgetRevisionAccountValue{OrganizationID: org2.ID, BudgetTagID: rev3.ID, AccountID: acc12.ID, Value: dec("21500")},
-		&model.BudgetRevisionAccountValue{OrganizationID: org2.ID, BudgetTagID: rev4.ID, AccountID: acc10.ID, Value: dec("50000")},
-		&model.BudgetRevisionAccountValue{OrganizationID: org2.ID, BudgetTagID: rev4.ID, AccountID: acc11.ID, Value: dec("19500")},
+		&model.BudgetRevisionAccountValue{OrganizationID: org1.ID, BudgetID: bud1.ID, BudgetRevisionID: rev1.ID, AccountID: acc1.ID, Value: dec("1850")},
+		&model.BudgetRevisionAccountValue{OrganizationID: org1.ID, BudgetID: bud1.ID, BudgetRevisionID: rev1.ID, AccountID: acc2.ID, Value: dec("7600")},
+		&model.BudgetRevisionAccountValue{OrganizationID: org1.ID, BudgetID: bud1.ID, BudgetRevisionID: rev1.ID, AccountID: acc3.ID, Value: dec("11800")},
+		&model.BudgetRevisionAccountValue{OrganizationID: org1.ID, BudgetID: bud2.ID, BudgetRevisionID: rev2.ID, AccountID: acc1.ID, Value: dec("2500")},
+		&model.BudgetRevisionAccountValue{OrganizationID: org1.ID, BudgetID: bud2.ID, BudgetRevisionID: rev2.ID, AccountID: acc3.ID, Value: dec("7200")},
+		&model.BudgetRevisionAccountValue{OrganizationID: org2.ID, BudgetID: bud3.ID, BudgetRevisionID: rev3.ID, AccountID: acc10.ID, Value: dec("43500")},
+		&model.BudgetRevisionAccountValue{OrganizationID: org2.ID, BudgetID: bud3.ID, BudgetRevisionID: rev3.ID, AccountID: acc11.ID, Value: dec("17200")},
+		&model.BudgetRevisionAccountValue{OrganizationID: org2.ID, BudgetID: bud3.ID, BudgetRevisionID: rev3.ID, AccountID: acc12.ID, Value: dec("21500")},
+		&model.BudgetRevisionAccountValue{OrganizationID: org2.ID, BudgetID: bud4.ID, BudgetRevisionID: rev4.ID, AccountID: acc10.ID, Value: dec("50000")},
+		&model.BudgetRevisionAccountValue{OrganizationID: org2.ID, BudgetID: bud4.ID, BudgetRevisionID: rev4.ID, AccountID: acc11.ID, Value: dec("19500")},
 	} {
 		if err := cr(db, v); err != nil {
 			return err

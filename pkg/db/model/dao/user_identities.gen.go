@@ -28,6 +28,7 @@ func newUserIdentity(db *gorm.DB, opts ...gen.DOOption) userIdentity {
 	tableName := _userIdentity.userIdentityDo.TableName()
 	_userIdentity.ALL = field.NewAsterisk(tableName)
 	_userIdentity.ID = field.NewField(tableName, "id")
+	_userIdentity.CustomID = field.NewString(tableName, "custom_id")
 	_userIdentity.UserID = field.NewField(tableName, "user_id")
 	_userIdentity.Provider = field.NewString(tableName, "provider")
 	_userIdentity.ProviderUserID = field.NewString(tableName, "provider_user_id")
@@ -62,6 +63,7 @@ type userIdentity struct {
 
 	ALL            field.Asterisk
 	ID             field.Field
+	CustomID       field.String
 	UserID         field.Field
 	Provider       field.String
 	ProviderUserID field.String
@@ -85,6 +87,7 @@ func (u userIdentity) As(alias string) *userIdentity {
 func (u *userIdentity) updateTableName(table string) *userIdentity {
 	u.ALL = field.NewAsterisk(table)
 	u.ID = field.NewField(table, "id")
+	u.CustomID = field.NewString(table, "custom_id")
 	u.UserID = field.NewField(table, "user_id")
 	u.Provider = field.NewString(table, "provider")
 	u.ProviderUserID = field.NewString(table, "provider_user_id")
@@ -118,8 +121,9 @@ func (u *userIdentity) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (u *userIdentity) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 7)
+	u.fieldMap = make(map[string]field.Expr, 8)
 	u.fieldMap["id"] = u.ID
+	u.fieldMap["custom_id"] = u.CustomID
 	u.fieldMap["user_id"] = u.UserID
 	u.fieldMap["provider"] = u.Provider
 	u.fieldMap["provider_user_id"] = u.ProviderUserID

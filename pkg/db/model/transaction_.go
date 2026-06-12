@@ -11,7 +11,8 @@ import (
 // Transaction_ has suffix due to naming conflicts when using Gorm DAOs.
 type Transaction_ struct {
 	ID                         uuid.UUID   `gorm:"type:uuid;primaryKey;uniqueIndex:idx_transactions_org_id,priority:1"`
-	OrganizationID             uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_transactions_org_id,priority:2"`
+	CustomID                   string      `gorm:"uniqueIndex:idx_transactions_custom_id_org,priority:1"`
+	OrganizationID             uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_transactions_org_id,priority:2;uniqueIndex:idx_transactions_custom_id_org,priority:2"`
 	CreditTransactionAccountID uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_transactions_unique_entry,priority:1"`
 	DebitTransactionAccountID  uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_transactions_unique_entry,priority:2"`
 	Amount                     apd.Decimal `gorm:"type:decimal;not null;uniqueIndex:idx_transactions_unique_entry,priority:3"`
@@ -35,6 +36,11 @@ func (m *Transaction_) BeforeCreate(tx *gorm.DB) error {
 	if m.ID == uuid.Nil {
 		m.ID = uuid.New()
 	}
+
+	if m.CustomID == "" {
+		m.CustomID = m.ID.String()
+	}
+
 	return nil
 }
 

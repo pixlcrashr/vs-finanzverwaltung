@@ -108,11 +108,15 @@ func (s *importSourceServiceServer) CreateImportSource(ctx context.Context, req 
 		OrganizationID:     orgID,
 		DisplayName:        req.ImportSource.DisplayName,
 		DisplayDescription: req.ImportSource.DisplayDescription,
+		CustomID:           req.ImportSourceId,
 	}
 	if req.ImportSource.PeriodStart != nil {
 		m.PeriodStart = protoDateToTime(req.ImportSource.PeriodStart)
 	}
 	if err := s.repo.Create(ctx, m); err != nil {
+		if isDuplicateKey(err) {
+			return nil, status.Error(codes.AlreadyExists, "import source with this ID already exists")
+		}
 		return nil, status.Error(codes.Internal, "failed to create import source")
 	}
 	return ImportSourceToProto(m), nil

@@ -28,6 +28,7 @@ func newUserGroup(db *gorm.DB, opts ...gen.DOOption) userGroup {
 	tableName := _userGroup.userGroupDo.TableName()
 	_userGroup.ALL = field.NewAsterisk(tableName)
 	_userGroup.ID = field.NewField(tableName, "id")
+	_userGroup.CustomID = field.NewString(tableName, "custom_id")
 	_userGroup.Name = field.NewString(tableName, "name")
 	_userGroup.Description = field.NewString(tableName, "description")
 	_userGroup.IsSystem = field.NewBool(tableName, "is_system")
@@ -45,6 +46,7 @@ type userGroup struct {
 
 	ALL         field.Asterisk
 	ID          field.Field
+	CustomID    field.String
 	Name        field.String
 	Description field.String
 	IsSystem    field.Bool
@@ -68,6 +70,7 @@ func (u userGroup) As(alias string) *userGroup {
 func (u *userGroup) updateTableName(table string) *userGroup {
 	u.ALL = field.NewAsterisk(table)
 	u.ID = field.NewField(table, "id")
+	u.CustomID = field.NewString(table, "custom_id")
 	u.Name = field.NewString(table, "name")
 	u.Description = field.NewString(table, "description")
 	u.IsSystem = field.NewBool(table, "is_system")
@@ -100,8 +103,9 @@ func (u *userGroup) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *userGroup) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 7)
+	u.fieldMap = make(map[string]field.Expr, 8)
 	u.fieldMap["id"] = u.ID
+	u.fieldMap["custom_id"] = u.CustomID
 	u.fieldMap["name"] = u.Name
 	u.fieldMap["description"] = u.Description
 	u.fieldMap["is_system"] = u.IsSystem

@@ -670,6 +670,14 @@
             <ul>
               
                 <li>
+                  <a href="#pixlcrashr.vsfv.v1.CheckOrganizationIdRequest"><span class="badge">M</span>CheckOrganizationIdRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.CheckOrganizationIdResponse"><span class="badge">M</span>CheckOrganizationIdResponse</a>
+                </li>
+              
+                <li>
                   <a href="#pixlcrashr.vsfv.v1.CreateOrganizationRequest"><span class="badge">M</span>CreateOrganizationRequest</a>
                 </li>
               
@@ -1194,6 +1202,14 @@ Format: organizations/{organization} </p></td>
                   <td><a href="#pixlcrashr.vsfv.v1.Account">Account</a></td>
                   <td></td>
                   <td><p>The account to create. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>account_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The ID to use for the account. If not provided, a system-generated UUID
+will be used. Must be unique within the parent organization. </p></td>
                 </tr>
               
             </tbody>
@@ -1880,6 +1896,14 @@ Format: organizations/{organization} </p></td>
                   <td><p>The account group to create. </p></td>
                 </tr>
               
+                <tr>
+                  <td>account_group_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The ID to use for the account group. If not provided, a system-generated
+UUID will be used. Must be unique within the parent organization. </p></td>
+                </tr>
+              
             </tbody>
           </table>
 
@@ -2289,6 +2313,14 @@ Format: organizations/{organization}/accountGroups/{account_group} </p></td>
                   <td><a href="#pixlcrashr.vsfv.v1.AccountGroupAssignment">AccountGroupAssignment</a></td>
                   <td></td>
                   <td><p>The assignment to create. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>account_group_assignment_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The ID to use for the assignment. If not provided, a system-generated UUID
+will be used. Must be unique within the parent account group. </p></td>
                 </tr>
               
             </tbody>
@@ -2738,6 +2770,14 @@ Format: organizations/{organization} </p></td>
                   <td><a href="#pixlcrashr.vsfv.v1.Budget">Budget</a></td>
                   <td></td>
                   <td><p>The budget to create. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>budget_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The ID to use for the budget. If not provided, a system-generated UUID
+will be used. Must be unique within the parent organization. </p></td>
                 </tr>
               
             </tbody>
@@ -3272,6 +3312,14 @@ Format: organizations/{organization}/budgets/{budget} </p></td>
                   <td><p>The budget account value to create. </p></td>
                 </tr>
               
+                <tr>
+                  <td>budget_account_value_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The ID to use for the budget account value. If not provided, a
+system-generated UUID will be used. Must be unique within the parent budget. </p></td>
+                </tr>
+              
             </tbody>
           </table>
 
@@ -3708,6 +3756,14 @@ Format: organizations/{organization}/budgets/{budget} </p></td>
                   <td></td>
                   <td><p>The revision to create. Only display_name and display_description are
 user-supplied; all other fields are populated by the server. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>budget_revision_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The ID to use for the revision. If not provided, a system-generated UUID
+will be used. Must be unique within the parent budget. </p></td>
                 </tr>
               
             </tbody>
@@ -4466,6 +4522,14 @@ Example: &#34;account_id=\&#34;&lt;uuid&gt;\&#34;&#34;. </p></td>
                   <td><p>The group to create. </p></td>
                 </tr>
               
+                <tr>
+                  <td>group_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The ID to use for the group. If not provided, a system-generated UUID
+will be used. Must be unique across all groups. </p></td>
+                </tr>
+              
             </tbody>
           </table>
 
@@ -4899,6 +4963,14 @@ Format: organizations/{organization} </p></td>
                   <td><a href="#pixlcrashr.vsfv.v1.ImportSource">ImportSource</a></td>
                   <td></td>
                   <td><p>The import source to create. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>import_source_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The ID to use for the import source. If not provided, a system-generated
+UUID will be used. Must be unique within the parent organization. </p></td>
                 </tr>
               
             </tbody>
@@ -5336,6 +5408,14 @@ Format: organizations/{organization}/importSources/{import_source} </p></td>
                   <td><p>The period to create. </p></td>
                 </tr>
               
+                <tr>
+                  <td>import_source_period_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The ID to use for the period. If not provided, a system-generated UUID
+will be used. Must be unique within the parent import source. </p></td>
+                </tr>
+              
             </tbody>
           </table>
 
@@ -5691,6 +5771,54 @@ Example: &#34;is_closed=false&#34; or &#34;year=2025&#34;. </p></td>
       <p></p>
 
       
+        <h3 id="pixlcrashr.vsfv.v1.CheckOrganizationIdRequest">CheckOrganizationIdRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>organization_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The candidate organization ID (slug) to check for availability. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.CheckOrganizationIdResponse">CheckOrganizationIdResponse</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>available</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>Whether the organization ID is available (not yet in use). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
         <h3 id="pixlcrashr.vsfv.v1.CreateOrganizationRequest">CreateOrganizationRequest</h3>
         <p></p>
 
@@ -5706,6 +5834,14 @@ Example: &#34;is_closed=false&#34; or &#34;year=2025&#34;. </p></td>
                   <td><a href="#pixlcrashr.vsfv.v1.Organization">Organization</a></td>
                   <td></td>
                   <td><p>The organization to create. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>organization_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The ID to use for the organization. If not provided, a system-generated
+UUID will be used. Must be unique across all organizations. </p></td>
                 </tr>
               
             </tbody>
@@ -5991,6 +6127,13 @@ Format: organizations/{organization} </p></td>
                 <td><p>Permanently deletes an organization.</p></td>
               </tr>
             
+              <tr>
+                <td>CheckOrganizationId</td>
+                <td><a href="#pixlcrashr.vsfv.v1.CheckOrganizationIdRequest">CheckOrganizationIdRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.CheckOrganizationIdResponse">CheckOrganizationIdResponse</a></td>
+                <td><p>Checks whether an organization ID (slug) is available for use.</p></td>
+              </tr>
+            
           </tbody>
         </table>
 
@@ -6059,6 +6202,16 @@ Format: organizations/{organization} </p></td>
               </tr>
               
             
+              
+              
+              <tr>
+                <td>CheckOrganizationId</td>
+                <td>POST</td>
+                <td>/v1/organizations:checkId</td>
+                <td>*</td>
+              </tr>
+              
+            
             </tbody>
           </table>
           
@@ -6094,6 +6247,14 @@ Format: organizations/{organization} </p></td>
                   <td><a href="#pixlcrashr.vsfv.v1.Report">Report</a></td>
                   <td></td>
                   <td><p>The report to create. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>report_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The ID to use for the report. If not provided, a system-generated UUID
+will be used. Must be unique within the parent organization. </p></td>
                 </tr>
               
             </tbody>
@@ -6442,6 +6603,14 @@ Format: organizations/{organization} </p></td>
                   <td><a href="#pixlcrashr.vsfv.v1.ReportTemplate">ReportTemplate</a></td>
                   <td></td>
                   <td><p>The report template to create. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>report_template_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The ID to use for the report template. If not provided, a system-generated
+UUID will be used. Must be unique within the parent organization. </p></td>
                 </tr>
               
             </tbody>
@@ -6845,6 +7014,14 @@ Format: organizations/{organization} </p></td>
                   <td><a href="#pixlcrashr.vsfv.v1.Transaction">Transaction</a></td>
                   <td></td>
                   <td><p>The transaction to create. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>transaction_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The ID to use for the transaction. If not provided, a system-generated
+UUID will be used. Must be unique within the parent organization. </p></td>
                 </tr>
               
             </tbody>
@@ -7293,6 +7470,14 @@ Format: organizations/{organization} </p></td>
                   <td><p>The transaction account to create. </p></td>
                 </tr>
               
+                <tr>
+                  <td>transaction_account_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The ID to use for the transaction account. If not provided, a
+system-generated UUID will be used. Must be unique within the parent organization. </p></td>
+                </tr>
+              
             </tbody>
           </table>
 
@@ -7708,6 +7893,14 @@ Format: organizations/{organization}/transactions/{transaction} </p></td>
                   <td><a href="#pixlcrashr.vsfv.v1.TransactionAccountAssignment">TransactionAccountAssignment</a></td>
                   <td></td>
                   <td><p>The assignment to create. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>transaction_account_assignment_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The ID to use for the assignment. If not provided, a system-generated UUID
+will be used. Must be unique within the parent transaction. </p></td>
                 </tr>
               
             </tbody>

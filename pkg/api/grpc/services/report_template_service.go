@@ -99,8 +99,12 @@ func (s *reportTemplateServiceServer) CreateReportTemplate(ctx context.Context, 
 	m := &model.ReportTemplate{
 		DisplayName: req.ReportTemplate.DisplayName,
 		Template:    req.ReportTemplate.Template,
+		CustomID:    req.ReportTemplateId,
 	}
 	if err := s.repo.Create(ctx, m); err != nil {
+		if isDuplicateKey(err) {
+			return nil, status.Error(codes.AlreadyExists, "report template with this ID already exists")
+		}
 		return nil, status.Error(codes.Internal, "failed to create report template")
 	}
 	return ReportTemplateToProto(m), nil

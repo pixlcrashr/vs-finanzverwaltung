@@ -20,6 +20,7 @@ logs
 # Editor
 .vscode/*
 !.vscode/launch.json
+!.vscode/tasks.json
 !.vscode/*.code-snippets
 
 .idea

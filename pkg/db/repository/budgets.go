@@ -121,6 +121,15 @@ func (r *BudgetRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.Bu
 	return r.q.Budget.WithContext(ctx).Where(r.q.Budget.ID.Eq(id)).First()
 }
 
+// GetByCustomID returns the budget with the given custom ID within an organization.
+// Returns gorm.ErrRecordNotFound when no such budget exists.
+func (r *BudgetRepository) GetByCustomID(ctx context.Context, orgID uuid.UUID, customID string) (*model.Budget, error) {
+	return r.q.Budget.WithContext(ctx).Where(
+		r.q.Budget.OrganizationID.Eq(orgID),
+		r.q.Budget.CustomID.Eq(customID),
+	).First()
+}
+
 // Create inserts a new budget.
 func (r *BudgetRepository) Create(ctx context.Context, m *model.Budget) error {
 	return r.q.Budget.WithContext(ctx).Create(m)

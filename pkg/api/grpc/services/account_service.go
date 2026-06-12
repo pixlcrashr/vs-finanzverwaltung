@@ -30,11 +30,12 @@ func (s *accountServiceServer) GetAccount(ctx context.Context, req *gen.GetAccou
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid account name")
 	}
-	id, err := uuid.Parse(n.Account)
+	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid account name")
+		return nil, status.Error(codes.InvalidArgument, "invalid organization in account name")
 	}
-	m, err := s.repo.GetByID(ctx, id)
+	// Use CustomID (n.Account) instead of parsing as UUID
+	m, err := s.repo.GetByCustomID(ctx, orgID, n.Account)
 	if err != nil {
 		if isNotFound(err) {
 			return nil, status.Error(codes.NotFound, "account not found")
@@ -129,12 +130,13 @@ func (s *accountServiceServer) GetNestedAccount(ctx context.Context, req *gen.Ge
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid account name")
 	}
-	id, err := uuid.Parse(n.Account)
+	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid account name")
+		return nil, status.Error(codes.InvalidArgument, "invalid organization in account name")
 	}
 
-	root, err := s.repo.GetByID(ctx, id)
+	// Use CustomID (n.Account) instead of parsing as UUID
+	root, err := s.repo.GetByCustomID(ctx, orgID, n.Account)
 	if err != nil {
 		if isNotFound(err) {
 			return nil, status.Error(codes.NotFound, "account not found")
@@ -170,19 +172,34 @@ func (s *accountServiceServer) CreateAccount(ctx context.Context, req *gen.Creat
 		DisplayCode:        req.Account.DisplayCode,
 		DisplayDescription: req.Account.DisplayDescription,
 		IsContainer:        req.Account.IsContainer,
+		CustomID:           req.AccountId,
 	}
 	if req.Account.ParentAccount != "" {
 		var pn gen.AccountResourceName
 		if err := pn.UnmarshalString(req.Account.ParentAccount); err != nil {
 			return nil, status.Error(codes.InvalidArgument, "invalid parent_account")
 		}
-		pid, err := uuid.Parse(pn.Account)
+		parentOrgID, err := uuid.Parse(pn.Organization)
 		if err != nil {
-			return nil, status.Error(codes.InvalidArgument, "invalid parent_account")
+			return nil, status.Error(codes.InvalidArgument, "invalid parent_account organization")
 		}
-		m.ParentAccountID = uuid.NullUUID{Valid: true, UUID: pid}
+		// Use CustomID (pn.Account) instead of parsing as UUID
+		parent, err := s.repo.GetByCustomID(ctx, parentOrgID, pn.Account)
+		if err != nil {
+			if isNotFound(err) {
+				return nil, status.Error(codes.NotFound, "parent account not found")
+			}
+			return nil, status.Error(codes.Internal, "failed to get parent account")
+		}
+		if !parent.IsContainer {
+			return nil, status.Error(codes.InvalidArgument, "parent account must be a container account")
+		}
+		m.ParentAccountID = uuid.NullUUID{Valid: true, UUID: parent.ID}
 	}
 	if err := s.repo.Create(ctx, m); err != nil {
+		if isDuplicateKey(err) {
+			return nil, status.Error(codes.AlreadyExists, "account with this ID already exists")
+		}
 		return nil, status.Error(codes.Internal, "failed to create account")
 	}
 	return AccountToProto(m), nil
@@ -196,11 +213,12 @@ func (s *accountServiceServer) UpdateAccount(ctx context.Context, req *gen.Updat
 	if err := n.UnmarshalString(req.Account.Name); err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid account name")
 	}
-	id, err := uuid.Parse(n.Account)
+	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid account name")
+		return nil, status.Error(codes.InvalidArgument, "invalid organization in account name")
 	}
-	m, err := s.repo.GetByID(ctx, id)
+	// Use CustomID (n.Account) instead of parsing as UUID
+	m, err := s.repo.GetByCustomID(ctx, orgID, n.Account)
 	if err != nil {
 		if isNotFound(err) {
 			return nil, status.Error(codes.NotFound, "account not found")
@@ -222,11 +240,12 @@ func (s *accountServiceServer) ArchiveAccount(ctx context.Context, req *gen.Arch
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid account name")
 	}
-	id, err := uuid.Parse(n.Account)
+	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid account name")
+		return nil, status.Error(codes.InvalidArgument, "invalid organization in account name")
 	}
-	m, err := s.repo.GetByID(ctx, id)
+	// Use CustomID (n.Account) instead of parsing as UUID
+	m, err := s.repo.GetByCustomID(ctx, orgID, n.Account)
 	if err != nil {
 		if isNotFound(err) {
 			return nil, status.Error(codes.NotFound, "account not found")
@@ -245,11 +264,19 @@ func (s *accountServiceServer) DeleteAccount(ctx context.Context, req *gen.Delet
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid account name")
 	}
-	id, err := uuid.Parse(n.Account)
+	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid account name")
+		return nil, status.Error(codes.InvalidArgument, "invalid organization in account name")
 	}
-	if err := s.repo.Delete(ctx, id); err != nil {
+	// Use CustomID (n.Account) instead of parsing as UUID
+	m, err := s.repo.GetByCustomID(ctx, orgID, n.Account)
+	if err != nil {
+		if isNotFound(err) {
+			return nil, status.Error(codes.NotFound, "account not found")
+		}
+		return nil, status.Error(codes.Internal, "failed to get account")
+	}
+	if err := s.repo.Delete(ctx, m.ID); err != nil {
 		if isNotFound(err) {
 			return nil, status.Error(codes.NotFound, "account not found")
 		}

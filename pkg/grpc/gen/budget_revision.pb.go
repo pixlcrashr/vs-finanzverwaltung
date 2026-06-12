@@ -329,9 +329,12 @@ type CreateBudgetRevisionRequest struct {
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
 	// The revision to create. Only display_name and display_description are
 	// user-supplied; all other fields are populated by the server.
-	Revision      *BudgetRevision `protobuf:"bytes,2,opt,name=revision,proto3" json:"revision,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Revision *BudgetRevision `protobuf:"bytes,2,opt,name=revision,proto3" json:"revision,omitempty"`
+	// The ID to use for the revision. If not provided, a system-generated UUID
+	// will be used. Must be unique within the parent budget.
+	BudgetRevisionId string `protobuf:"bytes,3,opt,name=budget_revision_id,json=budgetRevisionId,proto3" json:"budget_revision_id,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *CreateBudgetRevisionRequest) Reset() {
@@ -378,6 +381,13 @@ func (x *CreateBudgetRevisionRequest) GetRevision() *BudgetRevision {
 	return nil
 }
 
+func (x *CreateBudgetRevisionRequest) GetBudgetRevisionId() string {
+	if x != nil {
+		return x.BudgetRevisionId
+	}
+	return ""
+}
+
 var File_pixlcrashr_vsfv_v1_budget_revision_proto protoreflect.FileDescriptor
 
 const file_pixlcrashr_vsfv_v1_budget_revision_proto_rawDesc = "" +
@@ -409,15 +419,16 @@ const file_pixlcrashr_vsfv_v1_budget_revision_proto_rawDesc = "" +
 	"\trevisions\x18\x01 \x03(\v2\".pixlcrashr.vsfv.v1.BudgetRevisionR\trevisions\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\x9e\x01\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xd1\x01\n" +
 	"\x1bCreateBudgetRevisionRequest\x12:\n" +
 	"\x06parent\x18\x01 \x01(\tB\"\xe0A\x02\xfaA\x1c\n" +
 	"\x1avsfv.pixlcrashr.dev/BudgetR\x06parent\x12C\n" +
-	"\brevision\x18\x02 \x01(\v2\".pixlcrashr.vsfv.v1.BudgetRevisionB\x03\xe0A\x02R\brevision2\xd8\x04\n" +
+	"\brevision\x18\x02 \x01(\v2\".pixlcrashr.vsfv.v1.BudgetRevisionB\x03\xe0A\x02R\brevision\x121\n" +
+	"\x12budget_revision_id\x18\x03 \x01(\tB\x03\xe0A\x01R\x10budgetRevisionId2\xeb\x04\n" +
 	"\x15BudgetRevisionService\x12\xa6\x01\n" +
 	"\x11GetBudgetRevision\x12,.pixlcrashr.vsfv.v1.GetBudgetRevisionRequest\x1a\".pixlcrashr.vsfv.v1.BudgetRevision\"?\xdaA\x04name\x82\xd3\xe4\x93\x022\x120/v1/{name=organizations/*/budgets/*/revisions/*}\x12\xb9\x01\n" +
-	"\x13ListBudgetRevisions\x12..pixlcrashr.vsfv.v1.ListBudgetRevisionsRequest\x1a/.pixlcrashr.vsfv.v1.ListBudgetRevisionsResponse\"A\xdaA\x06parent\x82\xd3\xe4\x93\x022\x120/v1/{parent=organizations/*/budgets/*}/revisions\x12\xc1\x01\n" +
-	"\x14CreateBudgetRevision\x12/.pixlcrashr.vsfv.v1.CreateBudgetRevisionRequest\x1a\".pixlcrashr.vsfv.v1.BudgetRevision\"T\xdaA\x0fparent,revision\x82\xd3\xe4\x93\x02<:\brevision\"0/v1/{parent=organizations/*/budgets/*}/revisions\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xc0\x01\n" +
+	"\x13ListBudgetRevisions\x12..pixlcrashr.vsfv.v1.ListBudgetRevisionsRequest\x1a/.pixlcrashr.vsfv.v1.ListBudgetRevisionsResponse\"A\xdaA\x06parent\x82\xd3\xe4\x93\x022\x120/v1/{parent=organizations/*/budgets/*}/revisions\x12\xd4\x01\n" +
+	"\x14CreateBudgetRevision\x12/.pixlcrashr.vsfv.v1.CreateBudgetRevisionRequest\x1a\".pixlcrashr.vsfv.v1.BudgetRevision\"g\xdaA\"parent,revision,budget_revision_id\x82\xd3\xe4\x93\x02<:\brevision\"0/v1/{parent=organizations/*/budgets/*}/revisions\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xc0\x01\n" +
 	"\x16com.pixlcrashr.vsfv.v1B\x13BudgetRevisionProtoP\x01Z'github.com/pixlcrashr/vsfv/pkg/grpc/gen\xa2\x02\x03PVX\xaa\x02\x12Pixlcrashr.Vsfv.V1\xca\x02\x12Pixlcrashr\\Vsfv\\V1\xe2\x02\x1ePixlcrashr\\Vsfv\\V1\\GPBMetadata\xea\x02\x14Pixlcrashr::Vsfv::V1b\x06proto3"
 
 var (

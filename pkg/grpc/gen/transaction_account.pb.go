@@ -346,8 +346,11 @@ type CreateTransactionAccountRequest struct {
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
 	// The transaction account to create.
 	TransactionAccount *TransactionAccount `protobuf:"bytes,2,opt,name=transaction_account,json=transactionAccount,proto3" json:"transaction_account,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// The ID to use for the transaction account. If not provided, a
+	// system-generated UUID will be used. Must be unique within the parent organization.
+	TransactionAccountId string `protobuf:"bytes,3,opt,name=transaction_account_id,json=transactionAccountId,proto3" json:"transaction_account_id,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *CreateTransactionAccountRequest) Reset() {
@@ -392,6 +395,13 @@ func (x *CreateTransactionAccountRequest) GetTransactionAccount() *TransactionAc
 		return x.TransactionAccount
 	}
 	return nil
+}
+
+func (x *CreateTransactionAccountRequest) GetTransactionAccountId() string {
+	if x != nil {
+		return x.TransactionAccountId
+	}
+	return ""
 }
 
 type UpdateTransactionAccountRequest struct {
@@ -527,22 +537,23 @@ const file_pixlcrashr_vsfv_v1_transaction_account_proto_rawDesc = "" +
 	"\x14transaction_accounts\x18\x01 \x03(\v2&.pixlcrashr.vsfv.v1.TransactionAccountR\x13transactionAccounts\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xc1\x01\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xfc\x01\n" +
 	"\x1fCreateTransactionAccountRequest\x12@\n" +
 	"\x06parent\x18\x01 \x01(\tB(\xe0A\x02\xfaA\"\n" +
 	" vsfv.pixlcrashr.dev/OrganizationR\x06parent\x12\\\n" +
-	"\x13transaction_account\x18\x02 \x01(\v2&.pixlcrashr.vsfv.v1.TransactionAccountB\x03\xe0A\x02R\x12transactionAccount\"\xc1\x01\n" +
+	"\x13transaction_account\x18\x02 \x01(\v2&.pixlcrashr.vsfv.v1.TransactionAccountB\x03\xe0A\x02R\x12transactionAccount\x129\n" +
+	"\x16transaction_account_id\x18\x03 \x01(\tB\x03\xe0A\x01R\x14transactionAccountId\"\xc1\x01\n" +
 	"\x1fUpdateTransactionAccountRequest\x12\\\n" +
 	"\x13transaction_account\x18\x01 \x01(\v2&.pixlcrashr.vsfv.v1.TransactionAccountB\x03\xe0A\x02R\x12transactionAccount\x12@\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMask\"e\n" +
 	"\x1fDeleteTransactionAccountRequest\x12B\n" +
 	"\x04name\x18\x01 \x01(\tB.\xe0A\x02\xfaA(\n" +
-	"&vsfv.pixlcrashr.dev/TransactionAccountR\x04name2\xc1\b\n" +
+	"&vsfv.pixlcrashr.dev/TransactionAccountR\x04name2\xd9\b\n" +
 	"\x19TransactionAccountService\x12\xb2\x01\n" +
 	"\x15GetTransactionAccount\x120.pixlcrashr.vsfv.v1.GetTransactionAccountRequest\x1a&.pixlcrashr.vsfv.v1.TransactionAccount\"?\xdaA\x04name\x82\xd3\xe4\x93\x022\x120/v1/{name=organizations/*/transactionAccounts/*}\x12\xc5\x01\n" +
-	"\x17ListTransactionAccounts\x122.pixlcrashr.vsfv.v1.ListTransactionAccountsRequest\x1a3.pixlcrashr.vsfv.v1.ListTransactionAccountsResponse\"A\xdaA\x06parent\x82\xd3\xe4\x93\x022\x120/v1/{parent=organizations/*}/transactionAccounts\x12\xe3\x01\n" +
-	"\x18CreateTransactionAccount\x123.pixlcrashr.vsfv.v1.CreateTransactionAccountRequest\x1a&.pixlcrashr.vsfv.v1.TransactionAccount\"j\xdaA\x1aparent,transaction_account\x82\xd3\xe4\x93\x02G:\x13transaction_account\"0/v1/{parent=organizations/*}/transactionAccounts\x12\xfd\x01\n" +
+	"\x17ListTransactionAccounts\x122.pixlcrashr.vsfv.v1.ListTransactionAccountsRequest\x1a3.pixlcrashr.vsfv.v1.ListTransactionAccountsResponse\"A\xdaA\x06parent\x82\xd3\xe4\x93\x022\x120/v1/{parent=organizations/*}/transactionAccounts\x12\xfb\x01\n" +
+	"\x18CreateTransactionAccount\x123.pixlcrashr.vsfv.v1.CreateTransactionAccountRequest\x1a&.pixlcrashr.vsfv.v1.TransactionAccount\"\x81\x01\xdaA1parent,transaction_account,transaction_account_id\x82\xd3\xe4\x93\x02G:\x13transaction_account\"0/v1/{parent=organizations/*}/transactionAccounts\x12\xfd\x01\n" +
 	"\x18UpdateTransactionAccount\x123.pixlcrashr.vsfv.v1.UpdateTransactionAccountRequest\x1a&.pixlcrashr.vsfv.v1.TransactionAccount\"\x83\x01\xdaA\x1ftransaction_account,update_mask\x82\xd3\xe4\x93\x02[:\x13transaction_account2D/v1/{transaction_account.name=organizations/*/transactionAccounts/*}\x12\xa8\x01\n" +
 	"\x18DeleteTransactionAccount\x123.pixlcrashr.vsfv.v1.DeleteTransactionAccountRequest\x1a\x16.google.protobuf.Empty\"?\xdaA\x04name\x82\xd3\xe4\x93\x022*0/v1/{name=organizations/*/transactionAccounts/*}\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xc4\x01\n" +
 	"\x16com.pixlcrashr.vsfv.v1B\x17TransactionAccountProtoP\x01Z'github.com/pixlcrashr/vsfv/pkg/grpc/gen\xa2\x02\x03PVX\xaa\x02\x12Pixlcrashr.Vsfv.V1\xca\x02\x12Pixlcrashr\\Vsfv\\V1\xe2\x02\x1ePixlcrashr\\Vsfv\\V1\\GPBMetadata\xea\x02\x14Pixlcrashr::Vsfv::V1b\x06proto3"

@@ -28,6 +28,7 @@ func newBudgetRevision(db *gorm.DB, opts ...gen.DOOption) budgetRevision {
 	tableName := _budgetRevision.budgetRevisionDo.TableName()
 	_budgetRevision.ALL = field.NewAsterisk(tableName)
 	_budgetRevision.ID = field.NewField(tableName, "id")
+	_budgetRevision.CustomID = field.NewString(tableName, "custom_id")
 	_budgetRevision.OrganizationID = field.NewField(tableName, "organization_id")
 	_budgetRevision.BudgetID = field.NewField(tableName, "budget_id")
 	_budgetRevision.DisplayName = field.NewString(tableName, "display_name")
@@ -876,6 +877,11 @@ func newBudgetRevision(db *gorm.DB, opts ...gen.DOOption) budgetRevision {
 				RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.TransactionAccounts", "model.TransactionAccount"),
 			},
 		},
+		Budget: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("BudgetRevisionAccountValues.Budget", "model.Budget"),
+		},
 		BudgetRevision: struct {
 			field.RelationField
 		}{
@@ -910,6 +916,7 @@ type budgetRevision struct {
 
 	ALL                         field.Asterisk
 	ID                          field.Field
+	CustomID                    field.String
 	OrganizationID              field.Field
 	BudgetID                    field.Field
 	DisplayName                 field.String
@@ -939,6 +946,7 @@ func (b budgetRevision) As(alias string) *budgetRevision {
 func (b *budgetRevision) updateTableName(table string) *budgetRevision {
 	b.ALL = field.NewAsterisk(table)
 	b.ID = field.NewField(table, "id")
+	b.CustomID = field.NewString(table, "custom_id")
 	b.OrganizationID = field.NewField(table, "organization_id")
 	b.BudgetID = field.NewField(table, "budget_id")
 	b.DisplayName = field.NewString(table, "display_name")
@@ -974,8 +982,9 @@ func (b *budgetRevision) GetFieldByName(fieldName string) (field.OrderExpr, bool
 }
 
 func (b *budgetRevision) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 11)
+	b.fieldMap = make(map[string]field.Expr, 12)
 	b.fieldMap["id"] = b.ID
+	b.fieldMap["custom_id"] = b.CustomID
 	b.fieldMap["organization_id"] = b.OrganizationID
 	b.fieldMap["budget_id"] = b.BudgetID
 	b.fieldMap["display_name"] = b.DisplayName
@@ -1171,6 +1180,9 @@ type budgetRevisionHasManyBudgetRevisionAccountValues struct {
 		TransactionAccounts struct {
 			field.RelationField
 		}
+	}
+	Budget struct {
+		field.RelationField
 	}
 	BudgetRevision struct {
 		field.RelationField

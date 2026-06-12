@@ -95,6 +95,13 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/v1Group'
+        - name: group_id
+          description: |-
+            The ID to use for the group. If not provided, a system-generated UUID
+            will be used. Must be unique across all groups.
+          in: query
+          required: false
+          type: string
       tags:
         - GroupService
   /v1/organizations:
@@ -158,6 +165,34 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/v1Organization'
+        - name: organization_id
+          description: |-
+            The ID to use for the organization. If not provided, a system-generated
+            UUID will be used. Must be unique across all organizations.
+          in: query
+          required: false
+          type: string
+      tags:
+        - OrganizationService
+  /v1/organizations:checkId:
+    post:
+      summary: Checks whether an organization ID (slug) is available for use.
+      operationId: OrganizationService_CheckOrganizationId
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1CheckOrganizationIdResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1CheckOrganizationIdRequest'
       tags:
         - OrganizationService
   /v1/users:
@@ -1890,6 +1925,13 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/v1TransactionAccountAssignment'
+        - name: transaction_account_assignment_id
+          description: |-
+            The ID to use for the assignment. If not provided, a system-generated UUID
+            will be used. Must be unique within the parent transaction.
+          in: query
+          required: false
+          type: string
       tags:
         - TransactionAccountAssignmentService
   /v1/{parent}/accountGroups:
@@ -1969,6 +2011,13 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/v1AccountGroup'
+        - name: account_group_id
+          description: |-
+            The ID to use for the account group. If not provided, a system-generated
+            UUID will be used. Must be unique within the parent organization.
+          in: query
+          required: false
+          type: string
       tags:
         - AccountGroupService
   /v1/{parent}/accountValues:
@@ -2048,6 +2097,13 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/v1BudgetAccountValue'
+        - name: budget_account_value_id
+          description: |-
+            The ID to use for the budget account value. If not provided, a
+            system-generated UUID will be used. Must be unique within the parent budget.
+          in: query
+          required: false
+          type: string
       tags:
         - BudgetAccountValueService
   /v1/{parent}/accountValues:batchUpdate:
@@ -2170,6 +2226,13 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/v1Account'
+        - name: account_id
+          description: |-
+            The ID to use for the account. If not provided, a system-generated UUID
+            will be used. Must be unique within the parent organization.
+          in: query
+          required: false
+          type: string
       tags:
         - AccountService
   /v1/{parent}/accounts:listNested:
@@ -2281,6 +2344,13 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/v1AccountGroupAssignment'
+        - name: account_group_assignment_id
+          description: |-
+            The ID to use for the assignment. If not provided, a system-generated UUID
+            will be used. Must be unique within the parent account group.
+          in: query
+          required: false
+          type: string
       tags:
         - AccountGroupAssignmentService
   /v1/{parent}/budgets:
@@ -2365,6 +2435,13 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/v1Budget'
+        - name: budget_id
+          description: |-
+            The ID to use for the budget. If not provided, a system-generated UUID
+            will be used. Must be unique within the parent organization.
+          in: query
+          required: false
+          type: string
       tags:
         - BudgetService
   /v1/{parent}/identities:
@@ -2481,6 +2558,13 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/v1ImportSource'
+        - name: import_source_id
+          description: |-
+            The ID to use for the import source. If not provided, a system-generated
+            UUID will be used. Must be unique within the parent organization.
+          in: query
+          required: false
+          type: string
       tags:
         - ImportSourceService
   /v1/{parent}/periods:
@@ -2560,6 +2644,13 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/v1ImportSourcePeriod'
+        - name: import_source_period_id
+          description: |-
+            The ID to use for the period. If not provided, a system-generated UUID
+            will be used. Must be unique within the parent import source.
+          in: query
+          required: false
+          type: string
       tags:
         - ImportSourcePeriodService
   /v1/{parent}/reportTemplates:
@@ -2639,6 +2730,13 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/v1ReportTemplate'
+        - name: report_template_id
+          description: |-
+            The ID to use for the report template. If not provided, a system-generated
+            UUID will be used. Must be unique within the parent organization.
+          in: query
+          required: false
+          type: string
       tags:
         - ReportTemplateService
   /v1/{parent}/reports:
@@ -2718,6 +2816,13 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/v1Report'
+        - name: report_id
+          description: |-
+            The ID to use for the report. If not provided, a system-generated UUID
+            will be used. Must be unique within the parent organization.
+          in: query
+          required: false
+          type: string
       tags:
         - ReportService
   /v1/{parent}/revisions:
@@ -2795,6 +2900,13 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/v1BudgetRevision'
+        - name: budget_revision_id
+          description: |-
+            The ID to use for the revision. If not provided, a system-generated UUID
+            will be used. Must be unique within the parent budget.
+          in: query
+          required: false
+          type: string
       tags:
         - BudgetRevisionService
   /v1/{parent}/transactionAccounts:
@@ -2874,6 +2986,13 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/v1TransactionAccount'
+        - name: transaction_account_id
+          description: |-
+            The ID to use for the transaction account. If not provided, a
+            system-generated UUID will be used. Must be unique within the parent organization.
+          in: query
+          required: false
+          type: string
       tags:
         - TransactionAccountService
   /v1/{parent}/transactions:
@@ -2954,6 +3073,13 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/v1Transaction'
+        - name: transaction_id
+          description: |-
+            The ID to use for the transaction. If not provided, a system-generated
+            UUID will be used. Must be unique within the parent organization.
+          in: query
+          required: false
+          type: string
       tags:
         - TransactionService
   /v1/{report_template.name}:
@@ -3662,6 +3788,20 @@ definitions:
       This resource is read-only; it cannot be created, updated, or deleted
       directly — it is populated by the server when the parent BudgetRevision is
       created.
+  v1CheckOrganizationIdRequest:
+    type: object
+    properties:
+      organization_id:
+        type: string
+        description: The candidate organization ID (slug) to check for availability.
+    required:
+      - organization_id
+  v1CheckOrganizationIdResponse:
+    type: object
+    properties:
+      available:
+        type: boolean
+        description: Whether the organization ID is available (not yet in use).
   v1CheckUserOrganizationPermissionsRequest:
     type: object
     properties:

@@ -121,6 +121,10 @@ message CreateTransactionRequest {
 
   // The transaction to create.
   Transaction transaction = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The ID to use for the transaction. If not provided, a system-generated
+  // UUID will be used. Must be unique within the parent organization.
+  string transaction_id = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message UpdateTransactionRequest {
@@ -162,7 +166,7 @@ service TransactionService {
       post: "/v1/{parent=organizations/*}/transactions"
       body: "transaction"
     };
-    option (google.api.method_signature) = "parent,transaction";
+    option (google.api.method_signature) = "parent,transaction,transaction_id";
   }
 
   // Updates an existing transaction.

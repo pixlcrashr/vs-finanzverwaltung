@@ -118,8 +118,12 @@ func (s *importSourcePeriodServiceServer) CreateImportSourcePeriod(ctx context.C
 		ImportSourceID: srcID,
 		Year:           int(req.Period.Year),
 		IsClosed:       req.Period.IsClosed,
+		CustomID:       req.ImportSourcePeriodId,
 	}
 	if err := s.repo.Create(ctx, m); err != nil {
+		if isDuplicateKey(err) {
+			return nil, status.Error(codes.AlreadyExists, "period with this ID already exists")
+		}
 		return nil, status.Error(codes.Internal, "failed to create period")
 	}
 	return ImportSourcePeriodToProto(m), nil

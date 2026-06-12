@@ -98,8 +98,12 @@ func (s *reportServiceServer) CreateReport(ctx context.Context, req *gen.CreateR
 	}
 	m := &model.Report{
 		DisplayName: req.Report.DisplayName,
+		CustomID:    req.ReportId,
 	}
 	if err := s.repo.Create(ctx, m); err != nil {
+		if isDuplicateKey(err) {
+			return nil, status.Error(codes.AlreadyExists, "report with this ID already exists")
+		}
 		return nil, status.Error(codes.Internal, "failed to create report")
 	}
 	return ReportToProto(m), nil

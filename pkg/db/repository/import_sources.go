@@ -99,6 +99,15 @@ func (r *ImportSourceRepository) GetByID(ctx context.Context, id uuid.UUID) (*mo
 	return r.q.ImportSource.WithContext(ctx).Where(r.q.ImportSource.ID.Eq(id)).First()
 }
 
+// GetByCustomID returns the import source with the given custom ID within an organization.
+// Returns gorm.ErrRecordNotFound when no such import source exists.
+func (r *ImportSourceRepository) GetByCustomID(ctx context.Context, orgID uuid.UUID, customID string) (*model.ImportSource, error) {
+	return r.q.ImportSource.WithContext(ctx).Where(
+		r.q.ImportSource.OrganizationID.Eq(orgID),
+		r.q.ImportSource.CustomID.Eq(customID),
+	).First()
+}
+
 // Create inserts a new import source.
 func (r *ImportSourceRepository) Create(ctx context.Context, m *model.ImportSource) error {
 	return r.q.ImportSource.WithContext(ctx).Create(m)

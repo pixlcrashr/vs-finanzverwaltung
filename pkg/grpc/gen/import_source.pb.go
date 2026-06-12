@@ -336,9 +336,12 @@ type CreateImportSourceRequest struct {
 	// Format: organizations/{organization}
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
 	// The import source to create.
-	ImportSource  *ImportSource `protobuf:"bytes,2,opt,name=import_source,json=importSource,proto3" json:"import_source,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ImportSource *ImportSource `protobuf:"bytes,2,opt,name=import_source,json=importSource,proto3" json:"import_source,omitempty"`
+	// The ID to use for the import source. If not provided, a system-generated
+	// UUID will be used. Must be unique within the parent organization.
+	ImportSourceId string `protobuf:"bytes,3,opt,name=import_source_id,json=importSourceId,proto3" json:"import_source_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *CreateImportSourceRequest) Reset() {
@@ -383,6 +386,13 @@ func (x *CreateImportSourceRequest) GetImportSource() *ImportSource {
 		return x.ImportSource
 	}
 	return nil
+}
+
+func (x *CreateImportSourceRequest) GetImportSourceId() string {
+	if x != nil {
+		return x.ImportSourceId
+	}
+	return ""
 }
 
 type UpdateImportSourceRequest struct {
@@ -517,22 +527,23 @@ const file_pixlcrashr_vsfv_v1_import_source_proto_rawDesc = "" +
 	"\x0eimport_sources\x18\x01 \x03(\v2 .pixlcrashr.vsfv.v1.ImportSourceR\rimportSources\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xa9\x01\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xd8\x01\n" +
 	"\x19CreateImportSourceRequest\x12@\n" +
 	"\x06parent\x18\x01 \x01(\tB(\xe0A\x02\xfaA\"\n" +
 	" vsfv.pixlcrashr.dev/OrganizationR\x06parent\x12J\n" +
-	"\rimport_source\x18\x02 \x01(\v2 .pixlcrashr.vsfv.v1.ImportSourceB\x03\xe0A\x02R\fimportSource\"\xa9\x01\n" +
+	"\rimport_source\x18\x02 \x01(\v2 .pixlcrashr.vsfv.v1.ImportSourceB\x03\xe0A\x02R\fimportSource\x12-\n" +
+	"\x10import_source_id\x18\x03 \x01(\tB\x03\xe0A\x01R\x0eimportSourceId\"\xa9\x01\n" +
 	"\x19UpdateImportSourceRequest\x12J\n" +
 	"\rimport_source\x18\x01 \x01(\v2 .pixlcrashr.vsfv.v1.ImportSourceB\x03\xe0A\x02R\fimportSource\x12@\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMask\"Y\n" +
 	"\x19DeleteImportSourceRequest\x12<\n" +
 	"\x04name\x18\x01 \x01(\tB(\xe0A\x02\xfaA\"\n" +
-	" vsfv.pixlcrashr.dev/ImportSourceR\x04name2\xaa\a\n" +
+	" vsfv.pixlcrashr.dev/ImportSourceR\x04name2\xbb\a\n" +
 	"\x13ImportSourceService\x12\x9a\x01\n" +
 	"\x0fGetImportSource\x12*.pixlcrashr.vsfv.v1.GetImportSourceRequest\x1a .pixlcrashr.vsfv.v1.ImportSource\"9\xdaA\x04name\x82\xd3\xe4\x93\x02,\x12*/v1/{name=organizations/*/importSources/*}\x12\xad\x01\n" +
-	"\x11ListImportSources\x12,.pixlcrashr.vsfv.v1.ListImportSourcesRequest\x1a-.pixlcrashr.vsfv.v1.ListImportSourcesResponse\";\xdaA\x06parent\x82\xd3\xe4\x93\x02,\x12*/v1/{parent=organizations/*}/importSources\x12\xbf\x01\n" +
-	"\x12CreateImportSource\x12-.pixlcrashr.vsfv.v1.CreateImportSourceRequest\x1a .pixlcrashr.vsfv.v1.ImportSource\"X\xdaA\x14parent,import_source\x82\xd3\xe4\x93\x02;:\rimport_source\"*/v1/{parent=organizations/*}/importSources\x12\xd2\x01\n" +
+	"\x11ListImportSources\x12,.pixlcrashr.vsfv.v1.ListImportSourcesRequest\x1a-.pixlcrashr.vsfv.v1.ListImportSourcesResponse\";\xdaA\x06parent\x82\xd3\xe4\x93\x02,\x12*/v1/{parent=organizations/*}/importSources\x12\xd0\x01\n" +
+	"\x12CreateImportSource\x12-.pixlcrashr.vsfv.v1.CreateImportSourceRequest\x1a .pixlcrashr.vsfv.v1.ImportSource\"i\xdaA%parent,import_source,import_source_id\x82\xd3\xe4\x93\x02;:\rimport_source\"*/v1/{parent=organizations/*}/importSources\x12\xd2\x01\n" +
 	"\x12UpdateImportSource\x12-.pixlcrashr.vsfv.v1.UpdateImportSourceRequest\x1a .pixlcrashr.vsfv.v1.ImportSource\"k\xdaA\x19import_source,update_mask\x82\xd3\xe4\x93\x02I:\rimport_source28/v1/{import_source.name=organizations/*/importSources/*}\x12\x96\x01\n" +
 	"\x12DeleteImportSource\x12-.pixlcrashr.vsfv.v1.DeleteImportSourceRequest\x1a\x16.google.protobuf.Empty\"9\xdaA\x04name\x82\xd3\xe4\x93\x02,**/v1/{name=organizations/*/importSources/*}\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xbe\x01\n" +
 	"\x16com.pixlcrashr.vsfv.v1B\x11ImportSourceProtoP\x01Z'github.com/pixlcrashr/vsfv/pkg/grpc/gen\xa2\x02\x03PVX\xaa\x02\x12Pixlcrashr.Vsfv.V1\xca\x02\x12Pixlcrashr\\Vsfv\\V1\xe2\x02\x1ePixlcrashr\\Vsfv\\V1\\GPBMetadata\xea\x02\x14Pixlcrashr::Vsfv::V1b\x06proto3"

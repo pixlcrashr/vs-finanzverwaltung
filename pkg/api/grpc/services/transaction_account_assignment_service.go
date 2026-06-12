@@ -114,8 +114,12 @@ func (s *transactionAccountAssignmentServiceServer) CreateTransactionAccountAssi
 	m := &model.TransactionAccountAssignment{
 		TransactionID: txID,
 		AccountID:     accountID,
+		CustomID:      req.TransactionAccountAssignmentId,
 	}
 	if err := s.repo.Create(ctx, m); err != nil {
+		if isDuplicateKey(err) {
+			return nil, status.Error(codes.AlreadyExists, "assignment with this ID already exists")
+		}
 		return nil, status.Error(codes.Internal, "failed to create assignment")
 	}
 	return TransactionAccountAssignmentToProto(m), nil

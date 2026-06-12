@@ -101,6 +101,10 @@ message CreateAccountGroupRequest {
 
   // The account group to create.
   AccountGroup account_group = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The ID to use for the account group. If not provided, a system-generated
+  // UUID will be used. Must be unique within the parent organization.
+  string account_group_id = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message UpdateAccountGroupRequest {
@@ -142,7 +146,7 @@ service AccountGroupService {
       post: "/v1/{parent=organizations/*}/accountGroups"
       body: "account_group"
     };
-    option (google.api.method_signature) = "parent,account_group";
+    option (google.api.method_signature) = "parent,account_group,account_group_id";
   }
 
   // Updates an existing account group.

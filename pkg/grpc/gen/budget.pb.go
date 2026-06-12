@@ -363,7 +363,10 @@ type CreateBudgetRequest struct {
 	// Format: organizations/{organization}
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
 	// The budget to create.
-	Budget        *Budget `protobuf:"bytes,2,opt,name=budget,proto3" json:"budget,omitempty"`
+	Budget *Budget `protobuf:"bytes,2,opt,name=budget,proto3" json:"budget,omitempty"`
+	// The ID to use for the budget. If not provided, a system-generated UUID
+	// will be used. Must be unique within the parent organization.
+	BudgetId      string `protobuf:"bytes,3,opt,name=budget_id,json=budgetId,proto3" json:"budget_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -410,6 +413,13 @@ func (x *CreateBudgetRequest) GetBudget() *Budget {
 		return x.Budget
 	}
 	return nil
+}
+
+func (x *CreateBudgetRequest) GetBudgetId() string {
+	if x != nil {
+		return x.BudgetId
+	}
+	return ""
 }
 
 type UpdateBudgetRequest struct {
@@ -595,11 +605,12 @@ const file_pixlcrashr_vsfv_v1_budget_proto_rawDesc = "" +
 	"\abudgets\x18\x01 \x03(\v2\x1a.pixlcrashr.vsfv.v1.BudgetR\abudgets\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\x90\x01\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xb2\x01\n" +
 	"\x13CreateBudgetRequest\x12@\n" +
 	"\x06parent\x18\x01 \x01(\tB(\xe0A\x02\xfaA\"\n" +
 	" vsfv.pixlcrashr.dev/OrganizationR\x06parent\x127\n" +
-	"\x06budget\x18\x02 \x01(\v2\x1a.pixlcrashr.vsfv.v1.BudgetB\x03\xe0A\x02R\x06budget\"\x90\x01\n" +
+	"\x06budget\x18\x02 \x01(\v2\x1a.pixlcrashr.vsfv.v1.BudgetB\x03\xe0A\x02R\x06budget\x12 \n" +
+	"\tbudget_id\x18\x03 \x01(\tB\x03\xe0A\x01R\bbudgetId\"\x90\x01\n" +
 	"\x13UpdateBudgetRequest\x127\n" +
 	"\x06budget\x18\x01 \x01(\v2\x1a.pixlcrashr.vsfv.v1.BudgetB\x03\xe0A\x02R\x06budget\x12@\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
@@ -609,11 +620,11 @@ const file_pixlcrashr_vsfv_v1_budget_proto_rawDesc = "" +
 	"\x1avsfv.pixlcrashr.dev/BudgetR\x04name\"L\n" +
 	"\x12CloseBudgetRequest\x126\n" +
 	"\x04name\x18\x01 \x01(\tB\"\xe0A\x02\xfaA\x1c\n" +
-	"\x1avsfv.pixlcrashr.dev/BudgetR\x04name2\xa1\a\n" +
+	"\x1avsfv.pixlcrashr.dev/BudgetR\x04name2\xab\a\n" +
 	"\rBudgetService\x12\x82\x01\n" +
 	"\tGetBudget\x12$.pixlcrashr.vsfv.v1.GetBudgetRequest\x1a\x1a.pixlcrashr.vsfv.v1.Budget\"3\xdaA\x04name\x82\xd3\xe4\x93\x02&\x12$/v1/{name=organizations/*/budgets/*}\x12\x95\x01\n" +
-	"\vListBudgets\x12&.pixlcrashr.vsfv.v1.ListBudgetsRequest\x1a'.pixlcrashr.vsfv.v1.ListBudgetsResponse\"5\xdaA\x06parent\x82\xd3\xe4\x93\x02&\x12$/v1/{parent=organizations/*}/budgets\x12\x99\x01\n" +
-	"\fCreateBudget\x12'.pixlcrashr.vsfv.v1.CreateBudgetRequest\x1a\x1a.pixlcrashr.vsfv.v1.Budget\"D\xdaA\rparent,budget\x82\xd3\xe4\x93\x02.:\x06budget\"$/v1/{parent=organizations/*}/budgets\x12\xa5\x01\n" +
+	"\vListBudgets\x12&.pixlcrashr.vsfv.v1.ListBudgetsRequest\x1a'.pixlcrashr.vsfv.v1.ListBudgetsResponse\"5\xdaA\x06parent\x82\xd3\xe4\x93\x02&\x12$/v1/{parent=organizations/*}/budgets\x12\xa3\x01\n" +
+	"\fCreateBudget\x12'.pixlcrashr.vsfv.v1.CreateBudgetRequest\x1a\x1a.pixlcrashr.vsfv.v1.Budget\"N\xdaA\x17parent,budget,budget_id\x82\xd3\xe4\x93\x02.:\x06budget\"$/v1/{parent=organizations/*}/budgets\x12\xa5\x01\n" +
 	"\fUpdateBudget\x12'.pixlcrashr.vsfv.v1.UpdateBudgetRequest\x1a\x1a.pixlcrashr.vsfv.v1.Budget\"P\xdaA\x12budget,update_mask\x82\xd3\xe4\x93\x025:\x06budget2+/v1/{budget.name=organizations/*/budgets/*}\x12\x8f\x01\n" +
 	"\vCloseBudget\x12&.pixlcrashr.vsfv.v1.CloseBudgetRequest\x1a\x1a.pixlcrashr.vsfv.v1.Budget\"<\xdaA\x04name\x82\xd3\xe4\x93\x02/:\x01*\"*/v1/{name=organizations/*/budgets/*}:close\x12\x84\x01\n" +
 	"\fDeleteBudget\x12'.pixlcrashr.vsfv.v1.DeleteBudgetRequest\x1a\x16.google.protobuf.Empty\"3\xdaA\x04name\x82\xd3\xe4\x93\x02&*$/v1/{name=organizations/*/budgets/*}\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xb8\x01\n" +

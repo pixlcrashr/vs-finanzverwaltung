@@ -318,7 +318,10 @@ type CreateReportRequest struct {
 	// Format: organizations/{organization}
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
 	// The report to create.
-	Report        *Report `protobuf:"bytes,2,opt,name=report,proto3" json:"report,omitempty"`
+	Report *Report `protobuf:"bytes,2,opt,name=report,proto3" json:"report,omitempty"`
+	// The ID to use for the report. If not provided, a system-generated UUID
+	// will be used. Must be unique within the parent organization.
+	ReportId      string `protobuf:"bytes,3,opt,name=report_id,json=reportId,proto3" json:"report_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -365,6 +368,13 @@ func (x *CreateReportRequest) GetReport() *Report {
 		return x.Report
 	}
 	return nil
+}
+
+func (x *CreateReportRequest) GetReportId() string {
+	if x != nil {
+		return x.ReportId
+	}
+	return ""
 }
 
 type DeleteReportRequest struct {
@@ -442,18 +452,19 @@ const file_pixlcrashr_vsfv_v1_report_proto_rawDesc = "" +
 	"\areports\x18\x01 \x03(\v2\x1a.pixlcrashr.vsfv.v1.ReportR\areports\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\x90\x01\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xb2\x01\n" +
 	"\x13CreateReportRequest\x12@\n" +
 	"\x06parent\x18\x01 \x01(\tB(\xe0A\x02\xfaA\"\n" +
 	" vsfv.pixlcrashr.dev/OrganizationR\x06parent\x127\n" +
-	"\x06report\x18\x02 \x01(\v2\x1a.pixlcrashr.vsfv.v1.ReportB\x03\xe0A\x02R\x06report\"M\n" +
+	"\x06report\x18\x02 \x01(\v2\x1a.pixlcrashr.vsfv.v1.ReportB\x03\xe0A\x02R\x06report\x12 \n" +
+	"\treport_id\x18\x03 \x01(\tB\x03\xe0A\x01R\breportId\"M\n" +
 	"\x13DeleteReportRequest\x126\n" +
 	"\x04name\x18\x01 \x01(\tB\"\xe0A\x02\xfaA\x1c\n" +
-	"\x1avsfv.pixlcrashr.dev/ReportR\x04name2\xe7\x04\n" +
+	"\x1avsfv.pixlcrashr.dev/ReportR\x04name2\xf1\x04\n" +
 	"\rReportService\x12\x82\x01\n" +
 	"\tGetReport\x12$.pixlcrashr.vsfv.v1.GetReportRequest\x1a\x1a.pixlcrashr.vsfv.v1.Report\"3\xdaA\x04name\x82\xd3\xe4\x93\x02&\x12$/v1/{name=organizations/*/reports/*}\x12\x95\x01\n" +
-	"\vListReports\x12&.pixlcrashr.vsfv.v1.ListReportsRequest\x1a'.pixlcrashr.vsfv.v1.ListReportsResponse\"5\xdaA\x06parent\x82\xd3\xe4\x93\x02&\x12$/v1/{parent=organizations/*}/reports\x12\x99\x01\n" +
-	"\fCreateReport\x12'.pixlcrashr.vsfv.v1.CreateReportRequest\x1a\x1a.pixlcrashr.vsfv.v1.Report\"D\xdaA\rparent,report\x82\xd3\xe4\x93\x02.:\x06report\"$/v1/{parent=organizations/*}/reports\x12\x84\x01\n" +
+	"\vListReports\x12&.pixlcrashr.vsfv.v1.ListReportsRequest\x1a'.pixlcrashr.vsfv.v1.ListReportsResponse\"5\xdaA\x06parent\x82\xd3\xe4\x93\x02&\x12$/v1/{parent=organizations/*}/reports\x12\xa3\x01\n" +
+	"\fCreateReport\x12'.pixlcrashr.vsfv.v1.CreateReportRequest\x1a\x1a.pixlcrashr.vsfv.v1.Report\"N\xdaA\x17parent,report,report_id\x82\xd3\xe4\x93\x02.:\x06report\"$/v1/{parent=organizations/*}/reports\x12\x84\x01\n" +
 	"\fDeleteReport\x12'.pixlcrashr.vsfv.v1.DeleteReportRequest\x1a\x16.google.protobuf.Empty\"3\xdaA\x04name\x82\xd3\xe4\x93\x02&*$/v1/{name=organizations/*/reports/*}\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xb8\x01\n" +
 	"\x16com.pixlcrashr.vsfv.v1B\vReportProtoP\x01Z'github.com/pixlcrashr/vsfv/pkg/grpc/gen\xa2\x02\x03PVX\xaa\x02\x12Pixlcrashr.Vsfv.V1\xca\x02\x12Pixlcrashr\\Vsfv\\V1\xe2\x02\x1ePixlcrashr\\Vsfv\\V1\\GPBMetadata\xea\x02\x14Pixlcrashr::Vsfv::V1b\x06proto3"
 

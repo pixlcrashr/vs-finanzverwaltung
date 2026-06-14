@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
@@ -12,6 +13,14 @@ import (
 	"go.einride.tech/aip/ordering"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+)
+
+var (
+	statusInvalidBudgetRevisionAccountValueName = status.New(codes.InvalidArgument, "invalid budget revision account value name")
+	statusInvalidParentRevisionName             = status.New(codes.InvalidArgument, "invalid parent revision name")
+	statusBudgetRevisionAccountValueNotFound    = status.New(codes.NotFound, "budget revision account value not found")
+	statusFailedGetBudgetRevisionAccountValue   = status.New(codes.Internal, "failed to get budget revision account value")
+	statusFailedListBudgetRevisionAccountValues = status.New(codes.Internal, "failed to list budget revision account values")
 )
 
 type budgetRevisionAccountValueServiceServer struct {
@@ -25,54 +34,57 @@ func newBudgetRevisionAccountValueServiceServer(repo *repository.BudgetRevisionA
 
 func (s *budgetRevisionAccountValueServiceServer) GetBudgetRevisionAccountValue(ctx context.Context, req *gen.GetBudgetRevisionAccountValueRequest) (*gen.BudgetRevisionAccountValue, error) {
 	var n gen.BudgetRevisionAccountValueResourceName
+
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid budget revision account value name")
+		return nil, &ServerError{Err: err, Status: statusInvalidBudgetRevisionAccountValueName}
 	}
+
 	id, err := uuid.Parse(n.AccountValue)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid budget revision account value name")
+		return nil, &ServerError{Err: err, Status: statusInvalidBudgetRevisionAccountValueName}
 	}
+
 	m, err := s.repo.GetByID(ctx, id)
 	if err != nil {
-		if isNotFound(err) {
-			return nil, status.Error(codes.NotFound, "budget revision account value not found")
+		if errors.Is(err, repository.ErrBudgetRevisionAccountValueNotFound) {
+			return nil, &ServerError{Err: err, Status: statusBudgetRevisionAccountValueNotFound}
 		}
-		return nil, status.Error(codes.Internal, "failed to get budget revision account value")
+
+		return nil, &ServerError{Err: err, Status: statusFailedGetBudgetRevisionAccountValue}
 	}
+
 	return BudgetRevisionAccountValueToProto(n.Organization, n.Budget, n.Revision, m), nil
 }
 
 func (s *budgetRevisionAccountValueServiceServer) ListBudgetRevisionAccountValues(ctx context.Context, req *gen.ListBudgetRevisionAccountValuesRequest) (*gen.ListBudgetRevisionAccountValuesResponse, error) {
 	var pn gen.BudgetRevisionResourceName
+
 	if err := pn.UnmarshalString(req.Parent); err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid parent revision name")
+		return nil, &ServerError{Err: err, Status: statusInvalidParentRevisionName}
 	}
+
 	revisionID, err := uuid.Parse(pn.Revision)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid parent revision name")
+		return nil, &ServerError{Err: err, Status: statusInvalidParentRevisionName}
 	}
 
 	c, err := svcfilter.ParseBudgetRevisionAccountValueFilter(req.Filter)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid filter: %v", err)
+		return nil, &ServerError{Err: err, Status: statusInvalidFilter}
 	}
 
 	offset, err := pagetoken.Decode(req.PageToken)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid page_token")
+		return nil, &ServerError{Err: err, Status: statusInvalidPageToken}
 	}
 
-	pageSize := int(req.PageSize)
-	if pageSize <= 0 {
-		pageSize = 50
-	} else if pageSize > 200 {
-		pageSize = 200
-	}
+	pageSize := normalizePageSize(req.PageSize)
 
 	orderBy, err := ordering.ParseOrderBy(req)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid order_by: %v", err)
+		return nil, &ServerError{Err: err, Status: statusInvalidOrderBy}
 	}
+
 	orderExprs, _ := order.Resolve(orderBy, order.FieldMapper{
 		"accountId": "account_id",
 		"value":     "value",
@@ -88,16 +100,18 @@ func (s *budgetRevisionAccountValueServiceServer) ListBudgetRevisionAccountValue
 
 	ms, total, err := s.repo.List(ctx, params)
 	if err != nil {
-		return nil, status.Error(codes.Internal, "failed to list budget revision account values")
+		return nil, &ServerError{Err: err, Status: statusFailedListBudgetRevisionAccountValues}
 	}
 
 	resp := &gen.ListBudgetRevisionAccountValuesResponse{TotalSize: total}
 	for _, m := range ms {
 		resp.AccountValues = append(resp.AccountValues, BudgetRevisionAccountValueToProto(pn.Organization, pn.Budget, pn.Revision, m))
 	}
+
 	nextOffset := offset + int64(len(ms))
 	if nextOffset < total {
 		resp.NextPageToken = pagetoken.Encode(nextOffset)
 	}
+
 	return resp, nil
 }

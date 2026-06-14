@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	errInvalidParentAccountGroupName = status.Error(codes.InvalidArgument, "invalid parent account_group name")
+	statusInvalidParentAccountGroupName = status.New(codes.InvalidArgument, "invalid parent account_group name")
 )
 
 type accountGroupAssignmentServiceServer struct {
@@ -31,55 +31,58 @@ func newAccountGroupAssignmentServiceServer(repo *repository.AccountGroupAssignm
 
 func (s *accountGroupAssignmentServiceServer) GetAccountGroupAssignment(ctx context.Context, req *gen.GetAccountGroupAssignmentRequest) (*gen.AccountGroupAssignment, error) {
 	var n gen.AccountGroupAssignmentResourceName
+
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, errInvalidAssignmentName
+		return nil, &ServerError{Err: err, Status: statusInvalidAssignmentName}
 	}
+
 	assignID, err := uuid.Parse(n.Assignment)
 	if err != nil {
-		return nil, errInvalidAssignmentName
+		return nil, &ServerError{Err: err, Status: statusInvalidAssignmentName}
 	}
+
 	m, err := s.repo.GetByID(ctx, assignID)
 	if err != nil {
-		if isNotFound(err) {
-			return nil, errAssignmentNotFound
+		if errors.Is(err, repository.ErrAccountGroupAssignmentNotFound) {
+			return nil, &ServerError{Err: err, Status: statusAssignmentNotFound}
 		}
-		return nil, errFailedGetAssignment
+
+		return nil, &ServerError{Err: err, Status: statusFailedGetAssignment}
 	}
+
 	return AccountGroupAssignmentToProto(n.Organization, n.AccountGroup, m), nil
 }
 
 func (s *accountGroupAssignmentServiceServer) ListAccountGroupAssignments(ctx context.Context, req *gen.ListAccountGroupAssignmentsRequest) (*gen.ListAccountGroupAssignmentsResponse, error) {
 	var pn gen.AccountGroupResourceName
+
 	if err := pn.UnmarshalString(req.Parent); err != nil {
-		return nil, errInvalidParentAccountGroupName
+		return nil, &ServerError{Err: err, Status: statusInvalidParentAccountGroupName}
 	}
+
 	groupID, err := uuid.Parse(pn.AccountGroup)
 	if err != nil {
-		return nil, errInvalidParentAccountGroupName
+		return nil, &ServerError{Err: err, Status: statusInvalidParentAccountGroupName}
 	}
 
 	c, err := svcfilter.ParseAccountGroupAssignmentFilter(req.Filter)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid filter: %v", err)
+		return nil, &ServerError{Err: err, Status: statusInvalidFilter}
 	}
 
 	offset, err := pagetoken.Decode(req.PageToken)
 	if err != nil {
-		return nil, errInvalidPageToken
+		return nil, &ServerError{Err: err, Status: statusInvalidPageToken}
 	}
 
-	pageSize := int(req.PageSize)
-	if pageSize <= 0 {
-		pageSize = 20
-	} else if pageSize > 100 {
-		pageSize = 100
-	}
+	pageSize := normalizePageSize(req.PageSize)
 
 	// Parse order_by
 	orderBy, err := ordering.ParseOrderBy(req)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid order_by: %v", err)
+		return nil, &ServerError{Err: err, Status: statusInvalidOrderBy}
 	}
+
 	orderExprs, _ := order.Resolve(orderBy, repository.AccountGroupAssignmentOrderFieldMapper)
 
 	params := repository.ListAccountGroupAssignmentsParams{
@@ -92,36 +95,43 @@ func (s *accountGroupAssignmentServiceServer) ListAccountGroupAssignments(ctx co
 
 	ms, total, err := s.repo.List(ctx, params)
 	if err != nil {
-		return nil, errFailedListAssignments
+		return nil, &ServerError{Err: err, Status: statusFailedListAssignments}
 	}
 
 	resp := &gen.ListAccountGroupAssignmentsResponse{TotalSize: total}
 	for _, m := range ms {
 		resp.Assignments = append(resp.Assignments, AccountGroupAssignmentToProto(pn.Organization, pn.AccountGroup, m))
 	}
+
 	nextOffset := offset + int64(len(ms))
 	if nextOffset < total {
 		resp.NextPageToken = pagetoken.Encode(nextOffset)
 	}
+
 	return resp, nil
 }
 
 func (s *accountGroupAssignmentServiceServer) CreateAccountGroupAssignment(ctx context.Context, req *gen.CreateAccountGroupAssignmentRequest) (*gen.AccountGroupAssignment, error) {
 	var pn gen.AccountGroupResourceName
+
 	if err := pn.UnmarshalString(req.Parent); err != nil {
-		return nil, errInvalidParentAccountGroupName
+		return nil, &ServerError{Err: err, Status: statusInvalidParentAccountGroupName}
 	}
+
 	groupID, err := uuid.Parse(pn.AccountGroup)
 	if err != nil {
-		return nil, errInvalidParentAccountGroupName
+		return nil, &ServerError{Err: err, Status: statusInvalidParentAccountGroupName}
 	}
+
 	if req.Assignment == nil {
-		return nil, errAssignmentRequired
+		return nil, &ServerError{Status: statusAssignmentRequired}
 	}
+
 	accountID, err := uuid.Parse(req.Assignment.AccountId)
 	if err != nil {
-		return nil, errInvalidAccountID
+		return nil, &ServerError{Err: err, Status: statusInvalidAccountID}
 	}
+
 	m, err := s.repo.Create(ctx, repository.CreateAccountGroupAssignmentParams{
 		AccountGroupID: groupID,
 		AccountID:      accountID,
@@ -130,59 +140,76 @@ func (s *accountGroupAssignmentServiceServer) CreateAccountGroupAssignment(ctx c
 	})
 	if err != nil {
 		if errors.Is(err, repository.ErrAccountGroupAssignmentAlreadyExists) {
-			return nil, errAssignmentAlreadyExists
+			return nil, &ServerError{Err: err, Status: statusAssignmentAlreadyExists}
 		}
+
 		if errors.Is(err, repository.ErrAccountGroupNotFound) {
-			return nil, errAccountGroupNotFound
+			return nil, &ServerError{Err: err, Status: statusAccountGroupNotFound}
 		}
+
 		if errors.Is(err, repository.ErrAccountNotFound) {
-			return nil, errAccountNotFound
+			return nil, &ServerError{Err: err, Status: statusAccountNotFound}
 		}
-		return nil, errFailedCreateAssignment
+
+		return nil, &ServerError{Err: err, Status: statusFailedCreateAssignment}
 	}
+
 	return AccountGroupAssignmentToProto(pn.Organization, pn.AccountGroup, m), nil
 }
 
 func (s *accountGroupAssignmentServiceServer) UpdateAccountGroupAssignment(ctx context.Context, req *gen.UpdateAccountGroupAssignmentRequest) (*gen.AccountGroupAssignment, error) {
 	if req.Assignment == nil {
-		return nil, errAssignmentRequired
+		return nil, &ServerError{Status: statusAssignmentRequired}
 	}
+
 	var n gen.AccountGroupAssignmentResourceName
+
 	if err := n.UnmarshalString(req.Assignment.Name); err != nil {
-		return nil, errInvalidAssignmentName
+		return nil, &ServerError{Err: err, Status: statusInvalidAssignmentName}
 	}
+
 	assignID, err := uuid.Parse(n.Assignment)
 	if err != nil {
-		return nil, errInvalidAssignmentName
+		return nil, &ServerError{Err: err, Status: statusInvalidAssignmentName}
 	}
+
 	m, err := s.repo.GetByID(ctx, assignID)
 	if err != nil {
-		if isNotFound(err) {
-			return nil, errAssignmentNotFound
+		if errors.Is(err, repository.ErrAccountGroupAssignmentNotFound) {
+			return nil, &ServerError{Err: err, Status: statusAssignmentNotFound}
 		}
-		return nil, errFailedGetAssignment
+
+		return nil, &ServerError{Err: err, Status: statusFailedGetAssignment}
 	}
+
 	m.Negate = req.Assignment.Negate
+
 	if err := s.repo.Update(ctx, m); err != nil {
-		return nil, errFailedUpdateAssignment
+		return nil, &ServerError{Err: err, Status: statusFailedUpdateAssignment}
 	}
+
 	return AccountGroupAssignmentToProto(n.Organization, n.AccountGroup, m), nil
 }
 
 func (s *accountGroupAssignmentServiceServer) DeleteAccountGroupAssignment(ctx context.Context, req *gen.DeleteAccountGroupAssignmentRequest) (*emptypb.Empty, error) {
 	var n gen.AccountGroupAssignmentResourceName
+
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, errInvalidAssignmentName
+		return nil, &ServerError{Err: err, Status: statusInvalidAssignmentName}
 	}
+
 	assignID, err := uuid.Parse(n.Assignment)
 	if err != nil {
-		return nil, errInvalidAssignmentName
+		return nil, &ServerError{Err: err, Status: statusInvalidAssignmentName}
 	}
+
 	if err := s.repo.Delete(ctx, assignID); err != nil {
-		if isNotFound(err) {
-			return nil, errAssignmentNotFound
+		if errors.Is(err, repository.ErrAccountGroupAssignmentNotFound) {
+			return nil, &ServerError{Err: err, Status: statusAssignmentNotFound}
 		}
-		return nil, errFailedDeleteAssignment
+
+		return nil, &ServerError{Err: err, Status: statusFailedDeleteAssignment}
 	}
+
 	return &emptypb.Empty{}, nil
 }

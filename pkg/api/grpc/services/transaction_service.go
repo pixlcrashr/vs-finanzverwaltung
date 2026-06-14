@@ -16,16 +16,16 @@ import (
 )
 
 var (
-	errTransactionRequired               = status.Error(codes.InvalidArgument, "transaction is required")
-	errInvalidTransactionName            = status.Error(codes.InvalidArgument, "invalid transaction name")
-	errInvalidCreditTransactionAccountID = status.Error(codes.InvalidArgument, "invalid credit_transaction_account_id")
-	errInvalidDebitTransactionAccountID  = status.Error(codes.InvalidArgument, "invalid debit_transaction_account_id")
-	errTransactionAlreadyExists          = status.Error(codes.AlreadyExists, "transaction with this ID already exists")
-	errFailedGetTransaction              = status.Error(codes.Internal, "failed to get transaction")
-	errFailedListTransactions            = status.Error(codes.Internal, "failed to list transactions")
-	errFailedCreateTransaction           = status.Error(codes.Internal, "failed to create transaction")
-	errFailedUpdateTransaction           = status.Error(codes.Internal, "failed to update transaction")
-	errFailedDeleteTransaction           = status.Error(codes.Internal, "failed to delete transaction")
+	statusTransactionRequired               = status.New(codes.InvalidArgument, "transaction is required")
+	statusInvalidTransactionName            = status.New(codes.InvalidArgument, "invalid transaction name")
+	statusInvalidCreditTransactionAccountID = status.New(codes.InvalidArgument, "invalid credit_transaction_account_id")
+	statusInvalidDebitTransactionAccountID  = status.New(codes.InvalidArgument, "invalid debit_transaction_account_id")
+	statusTransactionAlreadyExists          = status.New(codes.AlreadyExists, "transaction with this ID already exists")
+	statusFailedGetTransaction              = status.New(codes.Internal, "failed to get transaction")
+	statusFailedListTransactions            = status.New(codes.Internal, "failed to list transactions")
+	statusFailedCreateTransaction           = status.New(codes.Internal, "failed to create transaction")
+	statusFailedUpdateTransaction           = status.New(codes.Internal, "failed to update transaction")
+	statusFailedDeleteTransaction           = status.New(codes.Internal, "failed to delete transaction")
 )
 
 type transactionServiceServer struct {
@@ -39,44 +39,45 @@ func newTransactionServiceServer(repo *repository.TransactionRepository) gen.Tra
 
 func (s *transactionServiceServer) GetTransaction(ctx context.Context, req *gen.GetTransactionRequest) (*gen.Transaction, error) {
 	var n gen.TransactionResourceName
+
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, errInvalidTransactionName
+		return nil, &ServerError{Err: err, Status: statusInvalidTransactionName}
 	}
+
 	id, err := uuid.Parse(n.Transaction)
 	if err != nil {
-		return nil, errInvalidTransactionName
+		return nil, &ServerError{Err: err, Status: statusInvalidTransactionName}
 	}
+
 	m, err := s.repo.GetByID(ctx, id)
 	if err != nil {
-		if isNotFound(err) {
-			return nil, errTransactionNotFound
+		if errors.Is(err, repository.ErrTransactionNotFound) {
+			return nil, &ServerError{Err: err, Status: statusTransactionNotFound}
 		}
-		return nil, errFailedGetTransaction
+
+		return nil, &ServerError{Err: err, Status: statusFailedGetTransaction}
 	}
+
 	return TransactionToProto(n.Organization, n.Transaction, m), nil
 }
 
 func (s *transactionServiceServer) ListTransactions(ctx context.Context, req *gen.ListTransactionsRequest) (*gen.ListTransactionsResponse, error) {
 	var pn gen.OrganizationResourceName
+
 	if err := pn.UnmarshalString(req.Parent); err != nil {
-		return nil, errInvalidParent
+		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
 	c, err := svcfilter.ParseTransactionFilter(req.Filter)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid filter: %v", err)
+		return nil, &ServerError{Err: err, Status: statusInvalidFilter}
 	}
 
-	pageSize := int(req.PageSize)
-	if pageSize <= 0 {
-		pageSize = 20
-	} else if pageSize > 100 {
-		pageSize = 100
-	}
+	pageSize := normalizePageSize(req.PageSize)
 
 	offset, err := pagetoken.Decode(req.PageToken)
 	if err != nil {
-		return nil, errInvalidPageToken
+		return nil, &ServerError{Err: err, Status: statusInvalidPageToken}
 	}
 
 	params := repository.ListTransactionsParams{
@@ -87,40 +88,49 @@ func (s *transactionServiceServer) ListTransactions(ctx context.Context, req *ge
 
 	ms, err := s.repo.List(ctx, params)
 	if err != nil {
-		return nil, errFailedListTransactions
+		return nil, &ServerError{Err: err, Status: statusFailedListTransactions}
 	}
 
 	resp := &gen.ListTransactionsResponse{}
 	for _, m := range ms {
 		resp.Transactions = append(resp.Transactions, TransactionToProto(pn.Organization, m.CustomID, m))
 	}
+
 	if len(ms) == pageSize {
 		resp.NextPageToken = pagetoken.Encode(offset + int64(len(ms)))
 	}
+
 	return resp, nil
 }
 
 func (s *transactionServiceServer) CreateTransaction(ctx context.Context, req *gen.CreateTransactionRequest) (*gen.Transaction, error) {
 	if req.Transaction == nil {
-		return nil, errTransactionRequired
+		return nil, &ServerError{Status: statusTransactionRequired}
 	}
+
 	var n gen.OrganizationResourceName
+
 	if err := n.UnmarshalString(req.Parent); err != nil {
-		return nil, errInvalidParent
+		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
+
 	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, errInvalidParent
+		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
+
 	t := req.Transaction
+
 	creditID, err := uuid.Parse(t.CreditTransactionAccountId)
 	if err != nil {
-		return nil, errInvalidCreditTransactionAccountID
+		return nil, &ServerError{Err: err, Status: statusInvalidCreditTransactionAccountID}
 	}
+
 	debitID, err := uuid.Parse(t.DebitTransactionAccountId)
 	if err != nil {
-		return nil, errInvalidDebitTransactionAccountID
+		return nil, &ServerError{Err: err, Status: statusInvalidDebitTransactionAccountID}
 	}
+
 	params := repository.CreateTransactionParams{
 		OrganizationID:             orgID,
 		CreditTransactionAccountID: creditID,
@@ -132,70 +142,90 @@ func (s *transactionServiceServer) CreateTransaction(ctx context.Context, req *g
 	if t.BookedAt != nil {
 		params.BookedAt = t.BookedAt.AsTime()
 	}
+
 	if t.DocumentDate != nil {
 		params.DocumentDate = t.DocumentDate.AsTime()
 	}
+
 	m, err := s.repo.Create(ctx, params)
 	if err != nil {
 		if errors.Is(err, repository.ErrTransactionAlreadyExists) {
-			return nil, errTransactionAlreadyExists
+			return nil, &ServerError{Err: err, Status: statusTransactionAlreadyExists}
 		}
+
 		if errors.Is(err, repository.ErrTransactionAccountNotFound) {
-			return nil, errTransactionAccountNotFound
+			return nil, &ServerError{Err: err, Status: statusTransactionAccountNotFound}
 		}
-		return nil, errFailedCreateTransaction
+
+		return nil, &ServerError{Err: err, Status: statusFailedCreateTransaction}
 	}
+
 	return TransactionToProto(n.Organization, req.TransactionId, m), nil
 }
 
 func (s *transactionServiceServer) UpdateTransaction(ctx context.Context, req *gen.UpdateTransactionRequest) (*gen.Transaction, error) {
 	if req.Transaction == nil {
-		return nil, errTransactionRequired
+		return nil, &ServerError{Status: statusTransactionRequired}
 	}
+
 	var n gen.TransactionResourceName
+
 	if err := n.UnmarshalString(req.Transaction.Name); err != nil {
-		return nil, errInvalidTransactionName
+		return nil, &ServerError{Err: err, Status: statusInvalidTransactionName}
 	}
+
 	id, err := uuid.Parse(n.Transaction)
 	if err != nil {
-		return nil, errInvalidTransactionName
+		return nil, &ServerError{Err: err, Status: statusInvalidTransactionName}
 	}
+
 	m, err := s.repo.GetByID(ctx, id)
 	if err != nil {
-		if isNotFound(err) {
-			return nil, errTransactionNotFound
+		if errors.Is(err, repository.ErrTransactionNotFound) {
+			return nil, &ServerError{Err: err, Status: statusTransactionNotFound}
 		}
-		return nil, errFailedGetTransaction
+
+		return nil, &ServerError{Err: err, Status: statusFailedGetTransaction}
 	}
+
 	t := req.Transaction
 	m.Description = t.Description
 	m.Reference = t.Reference
+
 	if t.BookedAt != nil {
 		m.BookedAt = t.BookedAt.AsTime()
 	}
+
 	if t.DocumentDate != nil {
 		m.DocumentDate = t.DocumentDate.AsTime()
 	}
+
 	if err := s.repo.Update(ctx, m); err != nil {
-		return nil, errFailedUpdateTransaction
+		return nil, &ServerError{Err: err, Status: statusFailedUpdateTransaction}
 	}
+
 	return TransactionToProto(n.Organization, n.Transaction, m), nil
 }
 
 func (s *transactionServiceServer) DeleteTransaction(ctx context.Context, req *gen.DeleteTransactionRequest) (*emptypb.Empty, error) {
 	var n gen.TransactionResourceName
+
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, errInvalidTransactionName
+		return nil, &ServerError{Err: err, Status: statusInvalidTransactionName}
 	}
+
 	id, err := uuid.Parse(n.Transaction)
 	if err != nil {
-		return nil, errInvalidTransactionName
+		return nil, &ServerError{Err: err, Status: statusInvalidTransactionName}
 	}
+
 	if err := s.repo.Delete(ctx, id); err != nil {
-		if isNotFound(err) {
-			return nil, errTransactionNotFound
+		if errors.Is(err, repository.ErrTransactionNotFound) {
+			return nil, &ServerError{Err: err, Status: statusTransactionNotFound}
 		}
-		return nil, errFailedDeleteTransaction
+
+		return nil, &ServerError{Err: err, Status: statusFailedDeleteTransaction}
 	}
+
 	return &emptypb.Empty{}, nil
 }

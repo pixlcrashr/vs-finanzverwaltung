@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
@@ -11,6 +12,17 @@ import (
 	"go.einride.tech/aip/ordering"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+)
+
+var (
+	statusInvalidBudgetRevisionName       = status.New(codes.InvalidArgument, "invalid budget revision name")
+	statusInvalidParentBudgetRevisionName = status.New(codes.InvalidArgument, "invalid parent budget name")
+	statusBudgetRevisionNotFound          = status.New(codes.NotFound, "budget revision not found")
+	statusBudgetRevisionAlreadyExists     = status.New(codes.AlreadyExists, "budget revision with this ID already exists")
+	statusRevisionRequired                = status.New(codes.InvalidArgument, "revision is required")
+	statusFailedGetBudgetRevision         = status.New(codes.Internal, "failed to get budget revision")
+	statusFailedListBudgetRevisions       = status.New(codes.Internal, "failed to list budget revisions")
+	statusFailedCreateBudgetRevision      = status.New(codes.Internal, "failed to create budget revision")
 )
 
 type budgetRevisionServiceServer struct {
@@ -31,49 +43,52 @@ func newBudgetRevisionServiceServer(
 
 func (s *budgetRevisionServiceServer) GetBudgetRevision(ctx context.Context, req *gen.GetBudgetRevisionRequest) (*gen.BudgetRevision, error) {
 	var n gen.BudgetRevisionResourceName
+
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid budget revision name")
+		return nil, &ServerError{Err: err, Status: statusInvalidBudgetRevisionName}
 	}
+
 	revisionID, err := uuid.Parse(n.Revision)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid budget revision name")
+		return nil, &ServerError{Err: err, Status: statusInvalidBudgetRevisionName}
 	}
+
 	m, err := s.repo.GetByID(ctx, revisionID)
 	if err != nil {
-		if isNotFound(err) {
-			return nil, status.Error(codes.NotFound, "budget revision not found")
+		if errors.Is(err, repository.ErrBudgetRevisionNotFound) {
+			return nil, &ServerError{Err: err, Status: statusBudgetRevisionNotFound}
 		}
-		return nil, status.Error(codes.Internal, "failed to get budget revision")
+
+		return nil, &ServerError{Err: err, Status: statusFailedGetBudgetRevision}
 	}
+
 	return BudgetRevisionToProto(n.Organization, n.Budget, m), nil
 }
 
 func (s *budgetRevisionServiceServer) ListBudgetRevisions(ctx context.Context, req *gen.ListBudgetRevisionsRequest) (*gen.ListBudgetRevisionsResponse, error) {
 	var pn gen.BudgetResourceName
+
 	if err := pn.UnmarshalString(req.Parent); err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid parent budget name")
+		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetRevisionName}
 	}
+
 	budgetID, err := uuid.Parse(pn.Budget)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid parent budget name")
+		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetRevisionName}
 	}
 
 	offset, err := pagetoken.Decode(req.PageToken)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid page_token")
+		return nil, &ServerError{Err: err, Status: statusInvalidPageToken}
 	}
 
-	pageSize := int(req.PageSize)
-	if pageSize <= 0 {
-		pageSize = 20
-	} else if pageSize > 100 {
-		pageSize = 100
-	}
+	pageSize := normalizePageSize(req.PageSize)
 
 	orderBy, err := ordering.ParseOrderBy(req)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid order_by: %v", err)
+		return nil, &ServerError{Err: err, Status: statusInvalidOrderBy}
 	}
+
 	orderExprs, _ := order.Resolve(orderBy, repository.BudgetRevisionOrderFieldMapper)
 
 	params := repository.ListBudgetRevisionsParams{
@@ -85,39 +100,45 @@ func (s *budgetRevisionServiceServer) ListBudgetRevisions(ctx context.Context, r
 
 	ms, total, err := s.repo.List(ctx, params)
 	if err != nil {
-		return nil, status.Error(codes.Internal, "failed to list budget revisions")
+		return nil, &ServerError{Err: err, Status: statusFailedListBudgetRevisions}
 	}
 
 	resp := &gen.ListBudgetRevisionsResponse{TotalSize: total}
 	for _, m := range ms {
 		resp.Revisions = append(resp.Revisions, BudgetRevisionToProto(pn.Organization, pn.Budget, m))
 	}
+
 	nextOffset := offset + int64(len(ms))
 	if nextOffset < total {
 		resp.NextPageToken = pagetoken.Encode(nextOffset)
 	}
+
 	return resp, nil
 }
 
 func (s *budgetRevisionServiceServer) CreateBudgetRevision(ctx context.Context, req *gen.CreateBudgetRevisionRequest) (*gen.BudgetRevision, error) {
 	var pn gen.BudgetResourceName
+
 	if err := pn.UnmarshalString(req.Parent); err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid parent budget name")
+		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetRevisionName}
 	}
+
 	budgetID, err := uuid.Parse(pn.Budget)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid parent budget name")
+		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetRevisionName}
 	}
+
 	if req.Revision == nil {
-		return nil, status.Error(codes.InvalidArgument, "revision is required")
+		return nil, &ServerError{Status: statusRevisionRequired}
 	}
 
 	budget, err := s.budgetRepo.GetByID(ctx, budgetID)
 	if err != nil {
-		if isNotFound(err) {
-			return nil, status.Error(codes.NotFound, "budget not found")
+		if errors.Is(err, repository.ErrBudgetNotFound) {
+			return nil, &ServerError{Err: err, Status: statusBudgetNotFound}
 		}
-		return nil, status.Error(codes.Internal, "failed to get budget")
+
+		return nil, &ServerError{Err: err, Status: statusFailedGetBudget}
 	}
 
 	params := repository.CreateWithSnapshotParams{
@@ -130,12 +151,18 @@ func (s *budgetRevisionServiceServer) CreateBudgetRevision(ctx context.Context, 
 	if req.Revision.Date != nil {
 		params.Date = protoDateToTime(req.Revision.Date)
 	}
+
 	m, err := s.repo.CreateWithSnapshot(ctx, params)
 	if err != nil {
-		if isDuplicateKey(err) {
-			return nil, status.Error(codes.AlreadyExists, "budget revision with this ID already exists")
+		if errors.Is(err, repository.ErrBudgetRevisionAlreadyExists) {
+			return nil, &ServerError{Err: err, Status: statusBudgetRevisionAlreadyExists}
 		}
-		return nil, status.Error(codes.Internal, "failed to create budget revision")
+
+		if errors.Is(err, repository.ErrBudgetNotFound) {
+			return nil, &ServerError{Err: err, Status: statusBudgetNotFound}
+		}
+
+		return nil, &ServerError{Err: err, Status: statusFailedCreateBudgetRevision}
 	}
 
 	return BudgetRevisionToProto(pn.Organization, pn.Budget, m), nil

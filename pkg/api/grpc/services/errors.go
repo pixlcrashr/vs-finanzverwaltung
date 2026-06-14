@@ -5,36 +5,77 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Shared errors used across multiple service files.
+// Shared statuses used across multiple service files.
 var (
-	errInvalidPageToken = status.Error(codes.InvalidArgument, "invalid page_token")
-	errInvalidParent    = status.Error(codes.InvalidArgument, "invalid parent")
+	statusInvalidPageToken = status.New(codes.InvalidArgument, "invalid page_token")
+	statusInvalidParent    = status.New(codes.InvalidArgument, "invalid parent")
+	statusInvalidFilter    = status.New(codes.InvalidArgument, "invalid filter")
+	statusInvalidOrderBy   = status.New(codes.InvalidArgument, "invalid order_by")
 
 	// used by account_group, account, budget, import_source, transaction_account, report_template, report services
-	errOrganizationNotFound = status.Error(codes.NotFound, "organization not found")
+	statusOrganizationNotFound = status.New(codes.NotFound, "organization not found")
 
 	// used by account_group, account_group_assignment services
-	errAccountGroupNotFound = status.Error(codes.NotFound, "account group not found")
+	statusAccountGroupNotFound = status.New(codes.NotFound, "account group not found")
 
 	// used by account_group_assignment, budget_account_value, transaction_account_assignment services
-	errAccountNotFound  = status.Error(codes.NotFound, "account not found")
-	errInvalidAccountID = status.Error(codes.InvalidArgument, "invalid account_id")
+	statusAccountNotFound  = status.New(codes.NotFound, "account not found")
+	statusInvalidAccountID = status.New(codes.InvalidArgument, "invalid account_id")
 
 	// used by import_source_period, transaction_account services
-	errImportSourceNotFound = status.Error(codes.NotFound, "import source not found")
+	statusImportSourceNotFound = status.New(codes.NotFound, "import source not found")
 
 	// used by transaction, transaction_account_assignment services
-	errTransactionNotFound        = status.Error(codes.NotFound, "transaction not found")
-	errTransactionAccountNotFound = status.Error(codes.NotFound, "transaction account not found")
+	statusTransactionNotFound        = status.New(codes.NotFound, "transaction not found")
+	statusTransactionAccountNotFound = status.New(codes.NotFound, "transaction account not found")
 
 	// used by account_group_assignment, transaction_account_assignment services
-	errAssignmentRequired      = status.Error(codes.InvalidArgument, "assignment is required")
-	errInvalidAssignmentName   = status.Error(codes.InvalidArgument, "invalid assignment name")
-	errAssignmentNotFound      = status.Error(codes.NotFound, "assignment not found")
-	errAssignmentAlreadyExists = status.Error(codes.AlreadyExists, "assignment with this ID already exists")
-	errFailedGetAssignment     = status.Error(codes.Internal, "failed to get assignment")
-	errFailedListAssignments   = status.Error(codes.Internal, "failed to list assignments")
-	errFailedCreateAssignment  = status.Error(codes.Internal, "failed to create assignment")
-	errFailedUpdateAssignment  = status.Error(codes.Internal, "failed to update assignment")
-	errFailedDeleteAssignment  = status.Error(codes.Internal, "failed to delete assignment")
+	statusAssignmentRequired      = status.New(codes.InvalidArgument, "assignment is required")
+	statusInvalidAssignmentName   = status.New(codes.InvalidArgument, "invalid assignment name")
+	statusAssignmentNotFound      = status.New(codes.NotFound, "assignment not found")
+	statusAssignmentAlreadyExists = status.New(codes.AlreadyExists, "assignment with this ID already exists")
+	statusFailedGetAssignment     = status.New(codes.Internal, "failed to get assignment")
+	statusFailedListAssignments   = status.New(codes.Internal, "failed to list assignments")
+	statusFailedCreateAssignment  = status.New(codes.Internal, "failed to create assignment")
+	statusFailedUpdateAssignment  = status.New(codes.Internal, "failed to update assignment")
+	statusFailedDeleteAssignment  = status.New(codes.Internal, "failed to delete assignment")
 )
+
+// ServerError wraps an internal error and a safe gRPC status.
+// The internal Err is never forwarded to the client; only Status is.
+type ServerError struct {
+	Err    error
+	Status *status.Status
+}
+
+// Error implements the standard error interface.
+func (e *ServerError) Error() string {
+	if e.Err != nil {
+		return e.Err.Error()
+	}
+
+	return e.Status.Message()
+}
+
+// Unwrap allows standard Go errors.Is and errors.As to work.
+func (e *ServerError) Unwrap() error {
+	return e.Err
+}
+
+func (e *ServerError) GRPCStatus() *status.Status {
+	return e.Status
+}
+
+// normalizePageSize clamps the requested page size to [1, 200], defaulting to 100.
+func normalizePageSize(requested int32) int {
+	n := int(requested)
+	if n <= 0 {
+		return 100
+	}
+
+	if n > 200 {
+		return 200
+	}
+
+	return n
+}

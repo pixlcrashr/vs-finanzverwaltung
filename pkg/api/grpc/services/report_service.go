@@ -19,14 +19,14 @@ import (
 )
 
 var (
-	errReportRequired      = status.Error(codes.InvalidArgument, "report is required")
-	errInvalidReportName   = status.Error(codes.InvalidArgument, "invalid report name")
-	errReportNotFound      = status.Error(codes.NotFound, "report not found")
-	errReportAlreadyExists = status.Error(codes.AlreadyExists, "report with this ID already exists")
-	errFailedGetReport     = status.Error(codes.Internal, "failed to get report")
-	errFailedListReports   = status.Error(codes.Internal, "failed to list reports")
-	errFailedCreateReport  = status.Error(codes.Internal, "failed to create report")
-	errFailedDeleteReport  = status.Error(codes.Internal, "failed to delete report")
+	statusReportRequired      = status.New(codes.InvalidArgument, "report is required")
+	statusInvalidReportName   = status.New(codes.InvalidArgument, "invalid report name")
+	statusReportNotFound      = status.New(codes.NotFound, "report not found")
+	statusReportAlreadyExists = status.New(codes.AlreadyExists, "report with this ID already exists")
+	statusFailedGetReport     = status.New(codes.Internal, "failed to get report")
+	statusFailedListReports   = status.New(codes.Internal, "failed to list reports")
+	statusFailedCreateReport  = status.New(codes.Internal, "failed to create report")
+	statusFailedDeleteReport  = status.New(codes.Internal, "failed to delete report")
 )
 
 type reportServiceServer struct {
@@ -40,51 +40,53 @@ func newReportServiceServer(repo *repository.ReportRepository) gen.ReportService
 
 func (s *reportServiceServer) GetReport(ctx context.Context, req *gen.GetReportRequest) (*gen.Report, error) {
 	var n gen.ReportResourceName
+
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, errInvalidReportName
+		return nil, &ServerError{Err: err, Status: statusInvalidReportName}
 	}
+
 	id, err := uuid.Parse(n.Report)
 	if err != nil {
-		return nil, errInvalidReportName
+		return nil, &ServerError{Err: err, Status: statusInvalidReportName}
 	}
+
 	m, err := s.repo.GetByID(ctx, id)
 	if err != nil {
-		if isNotFound(err) {
-			return nil, errReportNotFound
+		if errors.Is(err, repository.ErrReportNotFound) {
+			return nil, &ServerError{Err: err, Status: statusReportNotFound}
 		}
-		return nil, errFailedGetReport
+
+		return nil, &ServerError{Err: err, Status: statusFailedGetReport}
 	}
+
 	return ReportToProto(n.Organization, n.Report, m), nil
 }
 
 func (s *reportServiceServer) ListReports(ctx context.Context, req *gen.ListReportsRequest) (*gen.ListReportsResponse, error) {
 	var pn gen.OrganizationResourceName
+
 	if err := pn.UnmarshalString(req.Parent); err != nil {
-		return nil, errInvalidParent
+		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
 	c, err := svcfilter.ParseReportFilter(req.Filter)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid filter: %v", err)
+		return nil, &ServerError{Err: err, Status: statusInvalidFilter}
 	}
 
 	offset, err := pagetoken.Decode(req.PageToken)
 	if err != nil {
-		return nil, errInvalidPageToken
+		return nil, &ServerError{Err: err, Status: statusInvalidPageToken}
 	}
 
-	pageSize := int(req.PageSize)
-	if pageSize <= 0 {
-		pageSize = 20
-	} else if pageSize > 100 {
-		pageSize = 100
-	}
+	pageSize := normalizePageSize(req.PageSize)
 
 	// Parse order_by
 	orderBy, err := ordering.ParseOrderBy(req)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid order_by: %v", err)
+		return nil, &ServerError{Err: err, Status: statusInvalidOrderBy}
 	}
+
 	orderExprs, _ := order.Resolve(orderBy, repository.ReportOrderFieldMapper)
 
 	params := repository.ListReportsParams{
@@ -96,32 +98,38 @@ func (s *reportServiceServer) ListReports(ctx context.Context, req *gen.ListRepo
 
 	ms, total, err := s.repo.List(ctx, params)
 	if err != nil {
-		return nil, errFailedListReports
+		return nil, &ServerError{Err: err, Status: statusFailedListReports}
 	}
 
 	resp := &gen.ListReportsResponse{TotalSize: total}
 	for _, m := range ms {
 		resp.Reports = append(resp.Reports, ReportToProto(pn.Organization, m.CustomID, m))
 	}
+
 	nextOffset := offset + int64(len(ms))
 	if nextOffset < total {
 		resp.NextPageToken = pagetoken.Encode(nextOffset)
 	}
+
 	return resp, nil
 }
 
 func (s *reportServiceServer) CreateReport(ctx context.Context, req *gen.CreateReportRequest) (*gen.Report, error) {
 	if req.Report == nil {
-		return nil, errReportRequired
+		return nil, &ServerError{Status: statusReportRequired}
 	}
+
 	var pn gen.OrganizationResourceName
+
 	if err := pn.UnmarshalString(req.Parent); err != nil {
-		return nil, errInvalidParent
+		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
+
 	orgID, err := uuid.Parse(pn.Organization)
 	if err != nil {
-		return nil, errInvalidParent
+		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
+
 	m, err := s.repo.Create(ctx, repository.CreateReportParams{
 		OrganizationID: orgID,
 		DisplayName:    req.Report.DisplayName,
@@ -129,30 +137,38 @@ func (s *reportServiceServer) CreateReport(ctx context.Context, req *gen.CreateR
 	})
 	if err != nil {
 		if errors.Is(err, repository.ErrReportAlreadyExists) {
-			return nil, errReportAlreadyExists
+			return nil, &ServerError{Err: err, Status: statusReportAlreadyExists}
 		}
+
 		if errors.Is(err, repository.ErrOrganizationNotFound) {
-			return nil, errOrganizationNotFound
+			return nil, &ServerError{Err: err, Status: statusOrganizationNotFound}
 		}
-		return nil, errFailedCreateReport
+
+		return nil, &ServerError{Err: err, Status: statusFailedCreateReport}
 	}
+
 	return ReportToProto(pn.Organization, req.ReportId, m), nil
 }
 
 func (s *reportServiceServer) DeleteReport(ctx context.Context, req *gen.DeleteReportRequest) (*emptypb.Empty, error) {
 	var n gen.ReportResourceName
+
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, errInvalidReportName
+		return nil, &ServerError{Err: err, Status: statusInvalidReportName}
 	}
+
 	id, err := uuid.Parse(n.Report)
 	if err != nil {
-		return nil, errInvalidReportName
+		return nil, &ServerError{Err: err, Status: statusInvalidReportName}
 	}
+
 	if err := s.repo.Delete(ctx, id); err != nil {
-		if isNotFound(err) {
-			return nil, errReportNotFound
+		if errors.Is(err, repository.ErrReportNotFound) {
+			return nil, &ServerError{Err: err, Status: statusReportNotFound}
 		}
-		return nil, errFailedDeleteReport
+
+		return nil, &ServerError{Err: err, Status: statusFailedDeleteReport}
 	}
+
 	return &emptypb.Empty{}, nil
 }

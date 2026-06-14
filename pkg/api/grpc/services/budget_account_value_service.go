@@ -19,20 +19,22 @@ import (
 )
 
 var (
-	errAccountValueRequired                 = status.Error(codes.InvalidArgument, "account_value is required")
-	errInvalidAccountValueName              = status.Error(codes.InvalidArgument, "invalid account value name")
-	errInvalidParentBudgetName              = status.Error(codes.InvalidArgument, "invalid parent budget name")
-	errInvalidValue                         = status.Error(codes.InvalidArgument, "invalid value")
-	errBudgetAccountValueNotFound           = status.Error(codes.NotFound, "budget account value not found")
-	errBudgetAccountValueAlreadyExists      = status.Error(codes.AlreadyExists, "budget account value with this ID already exists")
-	errFailedGetBudgetAccountValue          = status.Error(codes.Internal, "failed to get budget account value")
-	errFailedListBudgetAccountValues        = status.Error(codes.Internal, "failed to list budget account values")
-	errFailedCreateBudgetAccountValue       = status.Error(codes.Internal, "failed to create budget account value")
-	errFailedUpdateBudgetAccountValue       = status.Error(codes.Internal, "failed to update budget account value")
-	errFailedDeleteBudgetAccountValue       = status.Error(codes.Internal, "failed to delete budget account value")
-	errFailedBatchUpdateBudgetAccountValues = status.Error(codes.Internal, "failed to batch update budget account values")
-	errAccountValueNameMismatch             = status.Error(codes.InvalidArgument, "account value name does not match batch parent")
-	errAccountValueRequestRequired          = status.Error(codes.InvalidArgument, "account_value is required in each request")
+	statusAccountValueRequired                 = status.New(codes.InvalidArgument, "account_value is required")
+	statusInvalidAccountValueName              = status.New(codes.InvalidArgument, "invalid account value name")
+	statusInvalidParentBudgetName              = status.New(codes.InvalidArgument, "invalid parent budget name")
+	statusInvalidValue                         = status.New(codes.InvalidArgument, "invalid value")
+	statusBudgetAccountValueNotFound           = status.New(codes.NotFound, "budget account value not found")
+	statusBudgetAccountValueAlreadyExists      = status.New(codes.AlreadyExists, "budget account value with this ID already exists")
+	statusFailedGetBudgetAccountValue          = status.New(codes.Internal, "failed to get budget account value")
+	statusFailedListBudgetAccountValues        = status.New(codes.Internal, "failed to list budget account values")
+	statusFailedCreateBudgetAccountValue       = status.New(codes.Internal, "failed to create budget account value")
+	statusFailedUpdateBudgetAccountValue       = status.New(codes.Internal, "failed to update budget account value")
+	statusFailedDeleteBudgetAccountValue       = status.New(codes.Internal, "failed to delete budget account value")
+	statusFailedBatchUpdateBudgetAccountValues = status.New(codes.Internal, "failed to batch update budget account values")
+	statusAccountValueNameMismatch             = status.New(codes.InvalidArgument, "account value name does not match batch parent")
+	statusAccountValueRequestRequired          = status.New(codes.InvalidArgument, "account_value is required in each request")
+	statusInvalidAccountValueInBatch           = status.New(codes.InvalidArgument, "invalid account_id in batch request")
+	statusInvalidValueInBatch                  = status.New(codes.InvalidArgument, "invalid value in batch request")
 )
 
 type budgetAccountValueServiceServer struct {
@@ -46,30 +48,38 @@ func newBudgetAccountValueServiceServer(repo *repository.BudgetAccountValueRepos
 
 func (s *budgetAccountValueServiceServer) CreateBudgetAccountValue(ctx context.Context, req *gen.CreateBudgetAccountValueRequest) (*gen.BudgetAccountValue, error) {
 	if req.AccountValue == nil {
-		return nil, errAccountValueRequired
+		return nil, &ServerError{Status: statusAccountValueRequired}
 	}
+
 	var pn gen.BudgetResourceName
+
 	if err := pn.UnmarshalString(req.Parent); err != nil {
-		return nil, errInvalidParentBudgetName
+		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetName}
 	}
+
 	orgID, err := uuid.Parse(pn.Organization)
 	if err != nil {
-		return nil, errInvalidParentBudgetName
+		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetName}
 	}
+
 	budgetID, err := uuid.Parse(pn.Budget)
 	if err != nil {
-		return nil, errInvalidParentBudgetName
+		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetName}
 	}
+
 	accountID, err := uuid.Parse(req.AccountValue.AccountId)
 	if err != nil {
-		return nil, errInvalidAccountID
+		return nil, &ServerError{Err: err, Status: statusInvalidAccountID}
 	}
+
 	var val apd.Decimal
+
 	if req.AccountValue.Value != nil {
 		if _, _, err := val.SetString(req.AccountValue.Value.Value); err != nil {
-			return nil, errInvalidValue
+			return nil, &ServerError{Err: err, Status: statusInvalidValue}
 		}
 	}
+
 	m, err := s.repo.Create(ctx, repository.CreateBudgetAccountValueParams{
 		OrganizationID: orgID,
 		BudgetID:       budgetID,
@@ -79,73 +89,81 @@ func (s *budgetAccountValueServiceServer) CreateBudgetAccountValue(ctx context.C
 	})
 	if err != nil {
 		if errors.Is(err, repository.ErrBudgetAccountValueAlreadyExists) {
-			return nil, errBudgetAccountValueAlreadyExists
+			return nil, &ServerError{Err: err, Status: statusBudgetAccountValueAlreadyExists}
 		}
+
 		if errors.Is(err, repository.ErrBudgetNotFound) {
-			return nil, errBudgetNotFound
+			return nil, &ServerError{Err: err, Status: statusBudgetNotFound}
 		}
+
 		if errors.Is(err, repository.ErrAccountNotFound) {
-			return nil, errAccountNotFound
+			return nil, &ServerError{Err: err, Status: statusAccountNotFound}
 		}
-		return nil, errFailedCreateBudgetAccountValue
+
+		return nil, &ServerError{Err: err, Status: statusFailedCreateBudgetAccountValue}
 	}
+
 	return BudgetAccountValueToProto(pn.Organization, pn.Budget, m), nil
 }
 
 func (s *budgetAccountValueServiceServer) GetBudgetAccountValue(ctx context.Context, req *gen.GetBudgetAccountValueRequest) (*gen.BudgetAccountValue, error) {
 	var n gen.BudgetAccountValueResourceName
+
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, errInvalidAccountValueName
+		return nil, &ServerError{Err: err, Status: statusInvalidAccountValueName}
 	}
+
 	id, err := uuid.Parse(n.AccountValue)
 	if err != nil {
-		return nil, errInvalidAccountValueName
+		return nil, &ServerError{Err: err, Status: statusInvalidAccountValueName}
 	}
+
 	m, err := s.repo.GetByID(ctx, id)
 	if err != nil {
-		if isNotFound(err) {
-			return nil, errBudgetAccountValueNotFound
+		if errors.Is(err, repository.ErrBudgetAccountValueNotFound) {
+			return nil, &ServerError{Err: err, Status: statusBudgetAccountValueNotFound}
 		}
-		return nil, errFailedGetBudgetAccountValue
+
+		return nil, &ServerError{Err: err, Status: statusFailedGetBudgetAccountValue}
 	}
+
 	return BudgetAccountValueToProto(n.Organization, n.Budget, m), nil
 }
 
 func (s *budgetAccountValueServiceServer) ListBudgetAccountValues(ctx context.Context, req *gen.ListBudgetAccountValuesRequest) (*gen.ListBudgetAccountValuesResponse, error) {
 	var pn gen.BudgetResourceName
+
 	if err := pn.UnmarshalString(req.Parent); err != nil {
-		return nil, errInvalidParentBudgetName
+		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetName}
 	}
+
 	orgID, err := uuid.Parse(pn.Organization)
 	if err != nil {
-		return nil, errInvalidParentBudgetName
+		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetName}
 	}
+
 	budgetID, err := uuid.Parse(pn.Budget)
 	if err != nil {
-		return nil, errInvalidParentBudgetName
+		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetName}
 	}
 
 	c, err := svcfilter.ParseBudgetAccountValueFilter(req.Filter)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid filter: %v", err)
+		return nil, &ServerError{Err: err, Status: statusInvalidFilter}
 	}
 
 	offset, err := pagetoken.Decode(req.PageToken)
 	if err != nil {
-		return nil, errInvalidPageToken
+		return nil, &ServerError{Err: err, Status: statusInvalidPageToken}
 	}
 
-	pageSize := int(req.PageSize)
-	if pageSize <= 0 {
-		pageSize = 20
-	} else if pageSize > 500 {
-		pageSize = 500
-	}
+	pageSize := normalizePageSize(req.PageSize)
 
 	orderBy, err := ordering.ParseOrderBy(req)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid order_by: %v", err)
+		return nil, &ServerError{Err: err, Status: statusInvalidOrderBy}
 	}
+
 	orderExprs, _ := order.Resolve(orderBy, repository.BudgetAccountValueOrderFieldMapper)
 
 	params := repository.ListBudgetAccountValuesParams{
@@ -159,59 +177,72 @@ func (s *budgetAccountValueServiceServer) ListBudgetAccountValues(ctx context.Co
 
 	ms, total, err := s.repo.List(ctx, params)
 	if err != nil {
-		return nil, errFailedListBudgetAccountValues
+		return nil, &ServerError{Err: err, Status: statusFailedListBudgetAccountValues}
 	}
 
 	resp := &gen.ListBudgetAccountValuesResponse{TotalSize: total}
 	for _, m := range ms {
 		resp.AccountValues = append(resp.AccountValues, BudgetAccountValueToProto(pn.Organization, pn.Budget, m))
 	}
+
 	nextOffset := offset + int64(len(ms))
 	if nextOffset < total {
 		resp.NextPageToken = pagetoken.Encode(nextOffset)
 	}
+
 	return resp, nil
 }
 
 func (s *budgetAccountValueServiceServer) UpdateBudgetAccountValue(ctx context.Context, req *gen.UpdateBudgetAccountValueRequest) (*gen.BudgetAccountValue, error) {
 	if req.AccountValue == nil {
-		return nil, errAccountValueRequired
+		return nil, &ServerError{Status: statusAccountValueRequired}
 	}
+
 	var n gen.BudgetAccountValueResourceName
+
 	if err := n.UnmarshalString(req.AccountValue.Name); err != nil {
-		return nil, errInvalidAccountValueName
+		return nil, &ServerError{Err: err, Status: statusInvalidAccountValueName}
 	}
+
 	id, err := uuid.Parse(n.AccountValue)
 	if err != nil {
-		return nil, errInvalidAccountValueName
+		return nil, &ServerError{Err: err, Status: statusInvalidAccountValueName}
 	}
+
 	m, err := s.repo.GetByID(ctx, id)
 	if err != nil {
-		if !isNotFound(err) {
-			return nil, errFailedGetBudgetAccountValue
+		if !errors.Is(err, repository.ErrBudgetAccountValueNotFound) {
+			return nil, &ServerError{Err: err, Status: statusFailedGetBudgetAccountValue}
 		}
+
 		if !req.AllowMissing {
-			return nil, errBudgetAccountValueNotFound
+			return nil, &ServerError{Err: err, Status: statusBudgetAccountValueNotFound}
 		}
+
 		// allow_missing: create the resource
 		orgID, err := uuid.Parse(n.Organization)
 		if err != nil {
-			return nil, errInvalidAccountValueName
+			return nil, &ServerError{Err: err, Status: statusInvalidAccountValueName}
 		}
+
 		budgetID, err := uuid.Parse(n.Budget)
 		if err != nil {
-			return nil, errInvalidAccountValueName
+			return nil, &ServerError{Err: err, Status: statusInvalidAccountValueName}
 		}
+
 		accountID, err := uuid.Parse(req.AccountValue.AccountId)
 		if err != nil {
-			return nil, errInvalidAccountID
+			return nil, &ServerError{Err: err, Status: statusInvalidAccountID}
 		}
+
 		var val apd.Decimal
+
 		if req.AccountValue.Value != nil {
 			if _, _, err := val.SetString(req.AccountValue.Value.Value); err != nil {
-				return nil, errInvalidValue
+				return nil, &ServerError{Err: err, Status: statusInvalidValue}
 			}
 		}
+
 		newM, err := s.repo.Create(ctx, repository.CreateBudgetAccountValueParams{
 			OrganizationID: orgID,
 			BudgetID:       budgetID,
@@ -219,89 +250,109 @@ func (s *budgetAccountValueServiceServer) UpdateBudgetAccountValue(ctx context.C
 			Value:          val,
 		})
 		if err != nil {
-			return nil, errFailedCreateBudgetAccountValue
+			return nil, &ServerError{Err: err, Status: statusFailedCreateBudgetAccountValue}
 		}
+
 		return BudgetAccountValueToProto(n.Organization, n.Budget, newM), nil
 	}
+
 	if req.AccountValue.Value != nil {
 		if _, _, err := m.Value.SetString(req.AccountValue.Value.Value); err != nil {
-			return nil, errInvalidValue
+			return nil, &ServerError{Err: err, Status: statusInvalidValue}
 		}
 	}
+
 	if err := s.repo.Update(ctx, m); err != nil {
-		return nil, errFailedUpdateBudgetAccountValue
+		return nil, &ServerError{Err: err, Status: statusFailedUpdateBudgetAccountValue}
 	}
+
 	return BudgetAccountValueToProto(n.Organization, n.Budget, m), nil
 }
 
 func (s *budgetAccountValueServiceServer) BatchUpdateBudgetAccountValues(ctx context.Context, req *gen.BatchUpdateBudgetAccountValuesRequest) (*gen.BatchUpdateBudgetAccountValuesResponse, error) {
 	var pn gen.BudgetResourceName
+
 	if err := pn.UnmarshalString(req.Parent); err != nil {
-		return nil, errInvalidParentBudgetName
+		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetName}
 	}
+
 	orgID, err := uuid.Parse(pn.Organization)
 	if err != nil {
-		return nil, errInvalidParentBudgetName
+		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetName}
 	}
+
 	budgetID, err := uuid.Parse(pn.Budget)
 	if err != nil {
-		return nil, errInvalidParentBudgetName
+		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetName}
 	}
 
 	entries := make([]repository.UpsertEntry, 0, len(req.Requests))
 	for _, r := range req.Requests {
 		if r.AccountValue == nil {
-			return nil, errAccountValueRequestRequired
+			return nil, &ServerError{Status: statusAccountValueRequestRequired}
 		}
+
 		// Validate that any set resource name is consistent with the batch parent.
 		if r.AccountValue.Name != "" {
 			var n gen.BudgetAccountValueResourceName
+
 			if err := n.UnmarshalString(r.AccountValue.Name); err != nil {
-				return nil, errInvalidAccountValueName
+				return nil, &ServerError{Err: err, Status: statusInvalidAccountValueName}
 			}
+
 			if n.Organization != pn.Organization || n.Budget != pn.Budget {
-				return nil, errAccountValueNameMismatch
+				return nil, &ServerError{Status: statusAccountValueNameMismatch}
 			}
 		}
+
 		accountID, err := uuid.Parse(r.AccountValue.AccountId)
 		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "invalid account_id %q: %v", r.AccountValue.AccountId, err)
+			return nil, &ServerError{Err: err, Status: statusInvalidAccountValueInBatch}
 		}
+
 		var val apd.Decimal
+
 		if r.AccountValue.Value != nil {
 			if _, _, err := val.SetString(r.AccountValue.Value.Value); err != nil {
-				return nil, status.Errorf(codes.InvalidArgument, "invalid value for account %q: %v", r.AccountValue.AccountId, err)
+				return nil, &ServerError{Err: err, Status: statusInvalidValueInBatch}
 			}
 		}
+
 		entries = append(entries, repository.UpsertEntry{AccountID: accountID, Value: val})
 	}
 
 	ms, err := s.repo.BatchUpsert(ctx, orgID, budgetID, entries)
 	if err != nil {
-		return nil, errFailedBatchUpdateBudgetAccountValues
+		return nil, &ServerError{Err: err, Status: statusFailedBatchUpdateBudgetAccountValues}
 	}
 
 	resp := &gen.BatchUpdateBudgetAccountValuesResponse{}
 	for _, m := range ms {
 		resp.AccountValues = append(resp.AccountValues, BudgetAccountValueToProto(pn.Organization, pn.Budget, m))
 	}
+
 	return resp, nil
 }
 
 func (s *budgetAccountValueServiceServer) DeleteBudgetAccountValue(ctx context.Context, req *gen.DeleteBudgetAccountValueRequest) (*emptypb.Empty, error) {
 	var n gen.BudgetAccountValueResourceName
+
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, errInvalidAccountValueName
+		return nil, &ServerError{Err: err, Status: statusInvalidAccountValueName}
 	}
+
 	id, err := uuid.Parse(n.AccountValue)
 	if err != nil {
-		return nil, errInvalidAccountValueName
+		return nil, &ServerError{Err: err, Status: statusInvalidAccountValueName}
 	}
+
 	if err := s.repo.Delete(ctx, id); err != nil {
-		if isNotFound(err) {
-			return nil, errBudgetAccountValueNotFound
+		if errors.Is(err, repository.ErrBudgetAccountValueNotFound) {
+			return nil, &ServerError{Err: err, Status: statusBudgetAccountValueNotFound}
 		}
-		return nil, errFailedDeleteBudgetAccountValue
+
+		return nil, &ServerError{Err: err, Status: statusFailedDeleteBudgetAccountValue}
 	}
+
 	return &emptypb.Empty{}, nil
 }

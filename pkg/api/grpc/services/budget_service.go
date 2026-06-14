@@ -17,17 +17,17 @@ import (
 )
 
 var (
-	errBudgetRequired                  = status.Error(codes.InvalidArgument, "budget is required")
-	errInvalidBudgetName               = status.Error(codes.InvalidArgument, "invalid budget name")
-	errInvalidOrganizationInBudgetName = status.Error(codes.InvalidArgument, "invalid organization in budget name")
-	errBudgetNotFound                  = status.Error(codes.NotFound, "budget not found")
-	errBudgetAlreadyExists             = status.Error(codes.AlreadyExists, "budget with this ID already exists")
-	errFailedGetBudget                 = status.Error(codes.Internal, "failed to get budget")
-	errFailedListBudgets               = status.Error(codes.Internal, "failed to list budgets")
-	errFailedCreateBudget              = status.Error(codes.Internal, "failed to create budget")
-	errFailedUpdateBudget              = status.Error(codes.Internal, "failed to update budget")
-	errFailedCloseBudget               = status.Error(codes.Internal, "failed to close budget")
-	errFailedDeleteBudget              = status.Error(codes.Internal, "failed to delete budget")
+	statusBudgetRequired                  = status.New(codes.InvalidArgument, "budget is required")
+	statusInvalidBudgetName               = status.New(codes.InvalidArgument, "invalid budget name")
+	statusInvalidOrganizationInBudgetName = status.New(codes.InvalidArgument, "invalid organization in budget name")
+	statusBudgetNotFound                  = status.New(codes.NotFound, "budget not found")
+	statusBudgetAlreadyExists             = status.New(codes.AlreadyExists, "budget with this ID already exists")
+	statusFailedGetBudget                 = status.New(codes.Internal, "failed to get budget")
+	statusFailedListBudgets               = status.New(codes.Internal, "failed to list budgets")
+	statusFailedCreateBudget              = status.New(codes.Internal, "failed to create budget")
+	statusFailedUpdateBudget              = status.New(codes.Internal, "failed to update budget")
+	statusFailedCloseBudget               = status.New(codes.Internal, "failed to close budget")
+	statusFailedDeleteBudget              = status.New(codes.Internal, "failed to delete budget")
 )
 
 type budgetServiceServer struct {
@@ -41,56 +41,59 @@ func newBudgetServiceServer(repo *repository.BudgetRepository) gen.BudgetService
 
 func (s *budgetServiceServer) GetBudget(ctx context.Context, req *gen.GetBudgetRequest) (*gen.Budget, error) {
 	var n gen.BudgetResourceName
+
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, errInvalidBudgetName
+		return nil, &ServerError{Err: err, Status: statusInvalidBudgetName}
 	}
+
 	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, errInvalidOrganizationInBudgetName
+		return nil, &ServerError{Err: err, Status: statusInvalidOrganizationInBudgetName}
 	}
+
 	// Use CustomID (n.Budget) instead of parsing as UUID
 	m, err := s.repo.GetByCustomID(ctx, orgID, n.Budget)
 	if err != nil {
-		if isNotFound(err) {
-			return nil, errBudgetNotFound
+		if errors.Is(err, repository.ErrBudgetNotFound) {
+			return nil, &ServerError{Err: err, Status: statusBudgetNotFound}
 		}
-		return nil, errFailedGetBudget
+
+		return nil, &ServerError{Err: err, Status: statusFailedGetBudget}
 	}
+
 	return BudgetToProto(n.Organization, m), nil
 }
 
 func (s *budgetServiceServer) ListBudgets(ctx context.Context, req *gen.ListBudgetsRequest) (*gen.ListBudgetsResponse, error) {
 	var pn gen.OrganizationResourceName
+
 	if err := pn.UnmarshalString(req.Parent); err != nil {
-		return nil, errInvalidParent
+		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
+
 	orgID, err := uuid.Parse(pn.Organization)
 	if err != nil {
-		return nil, errInvalidParent
+		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
 	c, err := svcfilter.ParseBudgetFilter(req.Filter)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid filter: %v", err)
+		return nil, &ServerError{Err: err, Status: statusInvalidFilter}
 	}
 
 	offset, err := pagetoken.Decode(req.PageToken)
 	if err != nil {
-		return nil, errInvalidPageToken
+		return nil, &ServerError{Err: err, Status: statusInvalidPageToken}
 	}
 
-	pageSize := int(req.PageSize)
-	if pageSize <= 0 {
-		pageSize = 20
-	} else if pageSize > 500 {
-		pageSize = 500
-	}
+	pageSize := normalizePageSize(req.PageSize)
 
 	// Parse order_by
 	orderBy, err := ordering.ParseOrderBy(req)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid order_by: %v", err)
+		return nil, &ServerError{Err: err, Status: statusInvalidOrderBy}
 	}
+
 	orderExprs, _ := order.Resolve(orderBy, repository.BudgetOrderFieldMapper)
 
 	params := repository.ListBudgetsParams{
@@ -103,7 +106,7 @@ func (s *budgetServiceServer) ListBudgets(ctx context.Context, req *gen.ListBudg
 
 	ms, total, err := s.repo.List(ctx, params)
 	if err != nil {
-		return nil, errFailedListBudgets
+		return nil, &ServerError{Err: err, Status: statusFailedListBudgets}
 	}
 
 	resp := &gen.ListBudgetsResponse{TotalSize: total}
@@ -119,16 +122,20 @@ func (s *budgetServiceServer) ListBudgets(ctx context.Context, req *gen.ListBudg
 
 func (s *budgetServiceServer) CreateBudget(ctx context.Context, req *gen.CreateBudgetRequest) (*gen.Budget, error) {
 	if req.Budget == nil {
-		return nil, errBudgetRequired
+		return nil, &ServerError{Status: statusBudgetRequired}
 	}
+
 	var n gen.OrganizationResourceName
+
 	if err := n.UnmarshalString(req.Parent); err != nil {
-		return nil, errInvalidParent
+		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
+
 	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, errInvalidParent
+		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
+
 	b := req.Budget
 	params := repository.CreateBudgetParams{
 		OrganizationID:     orgID,
@@ -139,102 +146,131 @@ func (s *budgetServiceServer) CreateBudget(ctx context.Context, req *gen.CreateB
 	if b.PeriodStart != nil {
 		params.PeriodStart = protoDateToTime(b.PeriodStart)
 	}
+
 	if b.PeriodEnd != nil {
 		params.PeriodEnd = protoDateToTime(b.PeriodEnd)
 	}
+
 	m, err := s.repo.Create(ctx, params)
 	if err != nil {
 		if errors.Is(err, repository.ErrBudgetAlreadyExists) {
-			return nil, errBudgetAlreadyExists
+			return nil, &ServerError{Err: err, Status: statusBudgetAlreadyExists}
 		}
+
 		if errors.Is(err, repository.ErrOrganizationNotFound) {
-			return nil, errOrganizationNotFound
+			return nil, &ServerError{Err: err, Status: statusOrganizationNotFound}
 		}
-		return nil, errFailedCreateBudget
+
+		return nil, &ServerError{Err: err, Status: statusFailedCreateBudget}
 	}
+
 	return BudgetToProto(n.Organization, m), nil
 }
 
 func (s *budgetServiceServer) UpdateBudget(ctx context.Context, req *gen.UpdateBudgetRequest) (*gen.Budget, error) {
 	if req.Budget == nil {
-		return nil, errBudgetRequired
+		return nil, &ServerError{Status: statusBudgetRequired}
 	}
+
 	var n gen.BudgetResourceName
+
 	if err := n.UnmarshalString(req.Budget.Name); err != nil {
-		return nil, errInvalidBudgetName
+		return nil, &ServerError{Err: err, Status: statusInvalidBudgetName}
 	}
+
 	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, errInvalidOrganizationInBudgetName
+		return nil, &ServerError{Err: err, Status: statusInvalidOrganizationInBudgetName}
 	}
+
 	// Use CustomID (n.Budget) instead of parsing as UUID
 	m, err := s.repo.GetByCustomID(ctx, orgID, n.Budget)
 	if err != nil {
-		if isNotFound(err) {
-			return nil, errBudgetNotFound
+		if errors.Is(err, repository.ErrBudgetNotFound) {
+			return nil, &ServerError{Err: err, Status: statusBudgetNotFound}
 		}
-		return nil, errFailedGetBudget
+
+		return nil, &ServerError{Err: err, Status: statusFailedGetBudget}
 	}
+
 	m.DisplayName = req.Budget.DisplayName
 	m.DisplayDescription = req.Budget.DisplayDescription
+
 	if req.Budget.PeriodStart != nil {
 		m.PeriodStart = protoDateToTime(req.Budget.PeriodStart)
 	}
+
 	if req.Budget.PeriodEnd != nil {
 		m.PeriodEnd = protoDateToTime(req.Budget.PeriodEnd)
 	}
+
 	if err := s.repo.Update(ctx, m); err != nil {
-		return nil, errFailedUpdateBudget
+		return nil, &ServerError{Err: err, Status: statusFailedUpdateBudget}
 	}
+
 	return BudgetToProto(n.Organization, m), nil
 }
 
 func (s *budgetServiceServer) CloseBudget(ctx context.Context, req *gen.CloseBudgetRequest) (*gen.Budget, error) {
 	var n gen.BudgetResourceName
+
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, errInvalidBudgetName
+		return nil, &ServerError{Err: err, Status: statusInvalidBudgetName}
 	}
+
 	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, errInvalidOrganizationInBudgetName
+		return nil, &ServerError{Err: err, Status: statusInvalidOrganizationInBudgetName}
 	}
+
 	// Use CustomID (n.Budget) instead of parsing as UUID
 	m, err := s.repo.GetByCustomID(ctx, orgID, n.Budget)
 	if err != nil {
-		if isNotFound(err) {
-			return nil, errBudgetNotFound
+		if errors.Is(err, repository.ErrBudgetNotFound) {
+			return nil, &ServerError{Err: err, Status: statusBudgetNotFound}
 		}
-		return nil, errFailedGetBudget
+
+		return nil, &ServerError{Err: err, Status: statusFailedGetBudget}
 	}
+
 	m.IsClosed = true
+
 	if err := s.repo.Update(ctx, m); err != nil {
-		return nil, errFailedCloseBudget
+		return nil, &ServerError{Err: err, Status: statusFailedCloseBudget}
 	}
+
 	return BudgetToProto(n.Organization, m), nil
 }
 
 func (s *budgetServiceServer) DeleteBudget(ctx context.Context, req *gen.DeleteBudgetRequest) (*emptypb.Empty, error) {
 	var n gen.BudgetResourceName
+
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, errInvalidBudgetName
+		return nil, &ServerError{Err: err, Status: statusInvalidBudgetName}
 	}
+
 	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, errInvalidOrganizationInBudgetName
+		return nil, &ServerError{Err: err, Status: statusInvalidOrganizationInBudgetName}
 	}
+
 	// Use CustomID (n.Budget) to find the budget, then delete by actual ID
 	m, err := s.repo.GetByCustomID(ctx, orgID, n.Budget)
 	if err != nil {
-		if isNotFound(err) {
-			return nil, errBudgetNotFound
+		if errors.Is(err, repository.ErrBudgetNotFound) {
+			return nil, &ServerError{Err: err, Status: statusBudgetNotFound}
 		}
-		return nil, errFailedGetBudget
+
+		return nil, &ServerError{Err: err, Status: statusFailedGetBudget}
 	}
+
 	if err := s.repo.Delete(ctx, m.ID); err != nil {
-		if isNotFound(err) {
-			return nil, errBudgetNotFound
+		if errors.Is(err, repository.ErrBudgetNotFound) {
+			return nil, &ServerError{Err: err, Status: statusBudgetNotFound}
 		}
-		return nil, errFailedDeleteBudget
+
+		return nil, &ServerError{Err: err, Status: statusFailedDeleteBudget}
 	}
+
 	return &emptypb.Empty{}, nil
 }

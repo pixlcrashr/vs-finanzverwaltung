@@ -19,15 +19,15 @@ import (
 )
 
 var (
-	errReportTemplateRequired      = status.Error(codes.InvalidArgument, "report_template is required")
-	errInvalidReportTemplateName   = status.Error(codes.InvalidArgument, "invalid report template name")
-	errReportTemplateNotFound      = status.Error(codes.NotFound, "report template not found")
-	errReportTemplateAlreadyExists = status.Error(codes.AlreadyExists, "report template with this ID already exists")
-	errFailedGetReportTemplate     = status.Error(codes.Internal, "failed to get report template")
-	errFailedListReportTemplates   = status.Error(codes.Internal, "failed to list report templates")
-	errFailedCreateReportTemplate  = status.Error(codes.Internal, "failed to create report template")
-	errFailedUpdateReportTemplate  = status.Error(codes.Internal, "failed to update report template")
-	errFailedDeleteReportTemplate  = status.Error(codes.Internal, "failed to delete report template")
+	statusReportTemplateRequired      = status.New(codes.InvalidArgument, "report_template is required")
+	statusInvalidReportTemplateName   = status.New(codes.InvalidArgument, "invalid report template name")
+	statusReportTemplateNotFound      = status.New(codes.NotFound, "report template not found")
+	statusReportTemplateAlreadyExists = status.New(codes.AlreadyExists, "report template with this ID already exists")
+	statusFailedGetReportTemplate     = status.New(codes.Internal, "failed to get report template")
+	statusFailedListReportTemplates   = status.New(codes.Internal, "failed to list report templates")
+	statusFailedCreateReportTemplate  = status.New(codes.Internal, "failed to create report template")
+	statusFailedUpdateReportTemplate  = status.New(codes.Internal, "failed to update report template")
+	statusFailedDeleteReportTemplate  = status.New(codes.Internal, "failed to delete report template")
 )
 
 type reportTemplateServiceServer struct {
@@ -41,51 +41,53 @@ func newReportTemplateServiceServer(repo *repository.ReportTemplateRepository) g
 
 func (s *reportTemplateServiceServer) GetReportTemplate(ctx context.Context, req *gen.GetReportTemplateRequest) (*gen.ReportTemplate, error) {
 	var n gen.ReportTemplateResourceName
+
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, errInvalidReportTemplateName
+		return nil, &ServerError{Err: err, Status: statusInvalidReportTemplateName}
 	}
+
 	id, err := uuid.Parse(n.ReportTemplate)
 	if err != nil {
-		return nil, errInvalidReportTemplateName
+		return nil, &ServerError{Err: err, Status: statusInvalidReportTemplateName}
 	}
+
 	m, err := s.repo.GetByID(ctx, id)
 	if err != nil {
-		if isNotFound(err) {
-			return nil, errReportTemplateNotFound
+		if errors.Is(err, repository.ErrReportTemplateNotFound) {
+			return nil, &ServerError{Err: err, Status: statusReportTemplateNotFound}
 		}
-		return nil, errFailedGetReportTemplate
+
+		return nil, &ServerError{Err: err, Status: statusFailedGetReportTemplate}
 	}
+
 	return ReportTemplateToProto(n.Organization, n.ReportTemplate, m), nil
 }
 
 func (s *reportTemplateServiceServer) ListReportTemplates(ctx context.Context, req *gen.ListReportTemplatesRequest) (*gen.ListReportTemplatesResponse, error) {
 	var pn gen.OrganizationResourceName
+
 	if err := pn.UnmarshalString(req.Parent); err != nil {
-		return nil, errInvalidParent
+		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
 	c, err := svcfilter.ParseReportTemplateFilter(req.Filter)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid filter: %v", err)
+		return nil, &ServerError{Err: err, Status: statusInvalidFilter}
 	}
 
 	offset, err := pagetoken.Decode(req.PageToken)
 	if err != nil {
-		return nil, errInvalidPageToken
+		return nil, &ServerError{Err: err, Status: statusInvalidPageToken}
 	}
 
-	pageSize := int(req.PageSize)
-	if pageSize <= 0 {
-		pageSize = 20
-	} else if pageSize > 100 {
-		pageSize = 100
-	}
+	pageSize := normalizePageSize(req.PageSize)
 
 	// Parse order_by
 	orderBy, err := ordering.ParseOrderBy(req)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid order_by: %v", err)
+		return nil, &ServerError{Err: err, Status: statusInvalidOrderBy}
 	}
+
 	orderExprs, _ := order.Resolve(orderBy, repository.ReportTemplateOrderFieldMapper)
 
 	params := repository.ListReportTemplatesParams{
@@ -97,32 +99,38 @@ func (s *reportTemplateServiceServer) ListReportTemplates(ctx context.Context, r
 
 	ms, total, err := s.repo.List(ctx, params)
 	if err != nil {
-		return nil, errFailedListReportTemplates
+		return nil, &ServerError{Err: err, Status: statusFailedListReportTemplates}
 	}
 
 	resp := &gen.ListReportTemplatesResponse{TotalSize: total}
 	for _, m := range ms {
 		resp.ReportTemplates = append(resp.ReportTemplates, ReportTemplateToProto(pn.Organization, m.CustomID, m))
 	}
+
 	nextOffset := offset + int64(len(ms))
 	if nextOffset < total {
 		resp.NextPageToken = pagetoken.Encode(nextOffset)
 	}
+
 	return resp, nil
 }
 
 func (s *reportTemplateServiceServer) CreateReportTemplate(ctx context.Context, req *gen.CreateReportTemplateRequest) (*gen.ReportTemplate, error) {
 	if req.ReportTemplate == nil {
-		return nil, errReportTemplateRequired
+		return nil, &ServerError{Status: statusReportTemplateRequired}
 	}
+
 	var pn gen.OrganizationResourceName
+
 	if err := pn.UnmarshalString(req.Parent); err != nil {
-		return nil, errInvalidParent
+		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
+
 	orgID, err := uuid.Parse(pn.Organization)
 	if err != nil {
-		return nil, errInvalidParent
+		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
+
 	m, err := s.repo.Create(ctx, repository.CreateReportTemplateParams{
 		OrganizationID: orgID,
 		DisplayName:    req.ReportTemplate.DisplayName,
@@ -131,57 +139,73 @@ func (s *reportTemplateServiceServer) CreateReportTemplate(ctx context.Context, 
 	})
 	if err != nil {
 		if errors.Is(err, repository.ErrReportTemplateAlreadyExists) {
-			return nil, errReportTemplateAlreadyExists
+			return nil, &ServerError{Err: err, Status: statusReportTemplateAlreadyExists}
 		}
+
 		if errors.Is(err, repository.ErrOrganizationNotFound) {
-			return nil, errOrganizationNotFound
+			return nil, &ServerError{Err: err, Status: statusOrganizationNotFound}
 		}
-		return nil, errFailedCreateReportTemplate
+
+		return nil, &ServerError{Err: err, Status: statusFailedCreateReportTemplate}
 	}
+
 	return ReportTemplateToProto(pn.Organization, req.ReportTemplateId, m), nil
 }
 
 func (s *reportTemplateServiceServer) UpdateReportTemplate(ctx context.Context, req *gen.UpdateReportTemplateRequest) (*gen.ReportTemplate, error) {
 	if req.ReportTemplate == nil {
-		return nil, errReportTemplateRequired
+		return nil, &ServerError{Status: statusReportTemplateRequired}
 	}
+
 	var n gen.ReportTemplateResourceName
+
 	if err := n.UnmarshalString(req.ReportTemplate.Name); err != nil {
-		return nil, errInvalidReportTemplateName
+		return nil, &ServerError{Err: err, Status: statusInvalidReportTemplateName}
 	}
+
 	id, err := uuid.Parse(n.ReportTemplate)
 	if err != nil {
-		return nil, errInvalidReportTemplateName
+		return nil, &ServerError{Err: err, Status: statusInvalidReportTemplateName}
 	}
+
 	m, err := s.repo.GetByID(ctx, id)
 	if err != nil {
-		if isNotFound(err) {
-			return nil, errReportTemplateNotFound
+		if errors.Is(err, repository.ErrReportTemplateNotFound) {
+			return nil, &ServerError{Err: err, Status: statusReportTemplateNotFound}
 		}
-		return nil, errFailedGetReportTemplate
+
+		return nil, &ServerError{Err: err, Status: statusFailedGetReportTemplate}
 	}
+
 	m.DisplayName = req.ReportTemplate.DisplayName
 	m.Template = req.ReportTemplate.Template
+
 	if err := s.repo.Update(ctx, m); err != nil {
-		return nil, errFailedUpdateReportTemplate
+		return nil, &ServerError{Err: err, Status: statusFailedUpdateReportTemplate}
 	}
+
 	return ReportTemplateToProto(n.Organization, n.ReportTemplate, m), nil
 }
 
 func (s *reportTemplateServiceServer) DeleteReportTemplate(ctx context.Context, req *gen.DeleteReportTemplateRequest) (*emptypb.Empty, error) {
 	var n gen.ReportTemplateResourceName
+
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, errInvalidReportTemplateName
+		return nil, &ServerError{Err: err, Status: statusInvalidReportTemplateName}
 	}
+
 	id, err := uuid.Parse(n.ReportTemplate)
 	if err != nil {
-		return nil, errInvalidReportTemplateName
+		return nil, &ServerError{Err: err, Status: statusInvalidReportTemplateName}
 	}
+
 	if err := s.repo.Delete(ctx, id); err != nil {
-		if isNotFound(err) {
-			return nil, errReportTemplateNotFound
+		if errors.Is(err, repository.ErrReportTemplateNotFound) {
+			return nil, &ServerError{Err: err, Status: statusReportTemplateNotFound}
 		}
-		return nil, errFailedDeleteReportTemplate
+
+		return nil, &ServerError{Err: err, Status: statusFailedDeleteReportTemplate}
 	}
+
 	return &emptypb.Empty{}, nil
 }

@@ -19,16 +19,16 @@ import (
 )
 
 var (
-	errTransactionAccountRequired                  = status.Error(codes.InvalidArgument, "transaction_account is required")
-	errInvalidTransactionAccountName               = status.Error(codes.InvalidArgument, "invalid transaction account name")
-	errInvalidOrganizationInTransactionAccountName = status.Error(codes.InvalidArgument, "invalid organization in transaction account name")
-	errInvalidImportSourceID                       = status.Error(codes.InvalidArgument, "invalid import_source_id")
-	errTransactionAccountAlreadyExists             = status.Error(codes.AlreadyExists, "transaction account with this ID already exists")
-	errFailedGetTransactionAccount                 = status.Error(codes.Internal, "failed to get transaction account")
-	errFailedListTransactionAccounts               = status.Error(codes.Internal, "failed to list transaction accounts")
-	errFailedCreateTransactionAccount              = status.Error(codes.Internal, "failed to create transaction account")
-	errFailedUpdateTransactionAccount              = status.Error(codes.Internal, "failed to update transaction account")
-	errFailedDeleteTransactionAccount              = status.Error(codes.Internal, "failed to delete transaction account")
+	statusTransactionAccountRequired                  = status.New(codes.InvalidArgument, "transaction_account is required")
+	statusInvalidTransactionAccountName               = status.New(codes.InvalidArgument, "invalid transaction account name")
+	statusInvalidOrganizationInTransactionAccountName = status.New(codes.InvalidArgument, "invalid organization in transaction account name")
+	statusInvalidImportSourceID                       = status.New(codes.InvalidArgument, "invalid import_source_id")
+	statusTransactionAccountAlreadyExists             = status.New(codes.AlreadyExists, "transaction account with this ID already exists")
+	statusFailedGetTransactionAccount                 = status.New(codes.Internal, "failed to get transaction account")
+	statusFailedListTransactionAccounts               = status.New(codes.Internal, "failed to list transaction accounts")
+	statusFailedCreateTransactionAccount              = status.New(codes.Internal, "failed to create transaction account")
+	statusFailedUpdateTransactionAccount              = status.New(codes.Internal, "failed to update transaction account")
+	statusFailedDeleteTransactionAccount              = status.New(codes.Internal, "failed to delete transaction account")
 )
 
 type transactionAccountServiceServer struct {
@@ -42,52 +42,54 @@ func newTransactionAccountServiceServer(repo *repository.TransactionAccountRepos
 
 func (s *transactionAccountServiceServer) GetTransactionAccount(ctx context.Context, req *gen.GetTransactionAccountRequest) (*gen.TransactionAccount, error) {
 	var n gen.TransactionAccountResourceName
+
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, errInvalidTransactionAccountName
+		return nil, &ServerError{Err: err, Status: statusInvalidTransactionAccountName}
 	}
+
 	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, errInvalidOrganizationInTransactionAccountName
+		return nil, &ServerError{Err: err, Status: statusInvalidOrganizationInTransactionAccountName}
 	}
+
 	// Use CustomID (n.TransactionAccount) instead of parsing as UUID
 	m, err := s.repo.GetByCustomID(ctx, orgID, n.TransactionAccount)
 	if err != nil {
-		if isNotFound(err) {
-			return nil, errTransactionAccountNotFound
+		if errors.Is(err, repository.ErrTransactionAccountNotFound) {
+			return nil, &ServerError{Err: err, Status: statusTransactionAccountNotFound}
 		}
-		return nil, errFailedGetTransactionAccount
+
+		return nil, &ServerError{Err: err, Status: statusFailedGetTransactionAccount}
 	}
+
 	return TransactionAccountToProto(n.Organization, n.TransactionAccount, m), nil
 }
 
 func (s *transactionAccountServiceServer) ListTransactionAccounts(ctx context.Context, req *gen.ListTransactionAccountsRequest) (*gen.ListTransactionAccountsResponse, error) {
 	var pn gen.OrganizationResourceName
+
 	if err := pn.UnmarshalString(req.Parent); err != nil {
-		return nil, errInvalidParent
+		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
 	c, err := svcfilter.ParseTransactionAccountFilter(req.Filter)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid filter: %v", err)
+		return nil, &ServerError{Err: err, Status: statusInvalidFilter}
 	}
 
 	offset, err := pagetoken.Decode(req.PageToken)
 	if err != nil {
-		return nil, errInvalidPageToken
+		return nil, &ServerError{Err: err, Status: statusInvalidPageToken}
 	}
 
-	pageSize := int(req.PageSize)
-	if pageSize <= 0 {
-		pageSize = 20
-	} else if pageSize > 100 {
-		pageSize = 100
-	}
+	pageSize := normalizePageSize(req.PageSize)
 
 	// Parse order_by
 	orderBy, err := ordering.ParseOrderBy(req)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid order_by: %v", err)
+		return nil, &ServerError{Err: err, Status: statusInvalidOrderBy}
 	}
+
 	orderExprs, _ := order.Resolve(orderBy, repository.TransactionAccountOrderFieldMapper)
 
 	params := repository.ListTransactionAccountsParams{
@@ -99,36 +101,43 @@ func (s *transactionAccountServiceServer) ListTransactionAccounts(ctx context.Co
 
 	ms, total, err := s.repo.List(ctx, params)
 	if err != nil {
-		return nil, errFailedListTransactionAccounts
+		return nil, &ServerError{Err: err, Status: statusFailedListTransactionAccounts}
 	}
 
 	resp := &gen.ListTransactionAccountsResponse{TotalSize: total}
 	for _, m := range ms {
 		resp.TransactionAccounts = append(resp.TransactionAccounts, TransactionAccountToProto(pn.Organization, m.CustomID, m))
 	}
+
 	nextOffset := offset + int64(len(ms))
 	if nextOffset < total {
 		resp.NextPageToken = pagetoken.Encode(nextOffset)
 	}
+
 	return resp, nil
 }
 
 func (s *transactionAccountServiceServer) CreateTransactionAccount(ctx context.Context, req *gen.CreateTransactionAccountRequest) (*gen.TransactionAccount, error) {
 	if req.TransactionAccount == nil {
-		return nil, errTransactionAccountRequired
+		return nil, &ServerError{Status: statusTransactionAccountRequired}
 	}
+
 	var n gen.OrganizationResourceName
+
 	if err := n.UnmarshalString(req.Parent); err != nil {
-		return nil, errInvalidParent
+		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
+
 	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, errInvalidParent
+		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
+
 	srcID, err := uuid.Parse(req.TransactionAccount.ImportSourceId)
 	if err != nil {
-		return nil, errInvalidImportSourceID
+		return nil, &ServerError{Err: err, Status: statusInvalidImportSourceID}
 	}
+
 	m, err := s.repo.Create(ctx, repository.CreateTransactionAccountParams{
 		OrganizationID:     orgID,
 		Code:               req.TransactionAccount.Code,
@@ -139,70 +148,89 @@ func (s *transactionAccountServiceServer) CreateTransactionAccount(ctx context.C
 	})
 	if err != nil {
 		if errors.Is(err, repository.ErrTransactionAccountAlreadyExists) {
-			return nil, errTransactionAccountAlreadyExists
+			return nil, &ServerError{Err: err, Status: statusTransactionAccountAlreadyExists}
 		}
+
 		if errors.Is(err, repository.ErrOrganizationNotFound) {
-			return nil, errOrganizationNotFound
+			return nil, &ServerError{Err: err, Status: statusOrganizationNotFound}
 		}
+
 		if errors.Is(err, repository.ErrImportSourceNotFound) {
-			return nil, errImportSourceNotFound
+			return nil, &ServerError{Err: err, Status: statusImportSourceNotFound}
 		}
-		return nil, errFailedCreateTransactionAccount
+
+		return nil, &ServerError{Err: err, Status: statusFailedCreateTransactionAccount}
 	}
+
 	return TransactionAccountToProto(n.Organization, req.TransactionAccountId, m), nil
 }
 
 func (s *transactionAccountServiceServer) UpdateTransactionAccount(ctx context.Context, req *gen.UpdateTransactionAccountRequest) (*gen.TransactionAccount, error) {
 	if req.TransactionAccount == nil {
-		return nil, errTransactionAccountRequired
+		return nil, &ServerError{Status: statusTransactionAccountRequired}
 	}
+
 	var n gen.TransactionAccountResourceName
+
 	if err := n.UnmarshalString(req.TransactionAccount.Name); err != nil {
-		return nil, errInvalidTransactionAccountName
+		return nil, &ServerError{Err: err, Status: statusInvalidTransactionAccountName}
 	}
+
 	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, errInvalidOrganizationInTransactionAccountName
+		return nil, &ServerError{Err: err, Status: statusInvalidOrganizationInTransactionAccountName}
 	}
+
 	// Use CustomID (n.TransactionAccount) instead of parsing as UUID
 	m, err := s.repo.GetByCustomID(ctx, orgID, n.TransactionAccount)
 	if err != nil {
-		if isNotFound(err) {
-			return nil, errTransactionAccountNotFound
+		if errors.Is(err, repository.ErrTransactionAccountNotFound) {
+			return nil, &ServerError{Err: err, Status: statusTransactionAccountNotFound}
 		}
-		return nil, errFailedGetTransactionAccount
+
+		return nil, &ServerError{Err: err, Status: statusFailedGetTransactionAccount}
 	}
+
 	m.Code = req.TransactionAccount.Code
 	m.DisplayName = req.TransactionAccount.DisplayName
 	m.DisplayDescription = req.TransactionAccount.DisplayDescription
+
 	if err := s.repo.Update(ctx, m); err != nil {
-		return nil, errFailedUpdateTransactionAccount
+		return nil, &ServerError{Err: err, Status: statusFailedUpdateTransactionAccount}
 	}
+
 	return TransactionAccountToProto(n.Organization, n.TransactionAccount, m), nil
 }
 
 func (s *transactionAccountServiceServer) DeleteTransactionAccount(ctx context.Context, req *gen.DeleteTransactionAccountRequest) (*emptypb.Empty, error) {
 	var n gen.TransactionAccountResourceName
+
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, errInvalidTransactionAccountName
+		return nil, &ServerError{Err: err, Status: statusInvalidTransactionAccountName}
 	}
+
 	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, errInvalidOrganizationInTransactionAccountName
+		return nil, &ServerError{Err: err, Status: statusInvalidOrganizationInTransactionAccountName}
 	}
+
 	// Use CustomID (n.TransactionAccount) to find the account, then delete by actual ID
 	m, err := s.repo.GetByCustomID(ctx, orgID, n.TransactionAccount)
 	if err != nil {
-		if isNotFound(err) {
-			return nil, errTransactionAccountNotFound
+		if errors.Is(err, repository.ErrTransactionAccountNotFound) {
+			return nil, &ServerError{Err: err, Status: statusTransactionAccountNotFound}
 		}
-		return nil, errFailedGetTransactionAccount
+
+		return nil, &ServerError{Err: err, Status: statusFailedGetTransactionAccount}
 	}
+
 	if err := s.repo.Delete(ctx, m.ID); err != nil {
-		if isNotFound(err) {
-			return nil, errTransactionAccountNotFound
+		if errors.Is(err, repository.ErrTransactionAccountNotFound) {
+			return nil, &ServerError{Err: err, Status: statusTransactionAccountNotFound}
 		}
-		return nil, errFailedDeleteTransactionAccount
+
+		return nil, &ServerError{Err: err, Status: statusFailedDeleteTransactionAccount}
 	}
+
 	return &emptypb.Empty{}, nil
 }

@@ -19,16 +19,16 @@ import (
 )
 
 var (
-	errPeriodRequired            = status.Error(codes.InvalidArgument, "period is required")
-	errInvalidPeriodName         = status.Error(codes.InvalidArgument, "invalid period name")
-	errInvalidParentImportSource = status.Error(codes.InvalidArgument, "invalid parent import_source name")
-	errPeriodNotFound            = status.Error(codes.NotFound, "period not found")
-	errPeriodAlreadyExists       = status.Error(codes.AlreadyExists, "period with this ID already exists")
-	errFailedGetPeriod           = status.Error(codes.Internal, "failed to get period")
-	errFailedListPeriods         = status.Error(codes.Internal, "failed to list periods")
-	errFailedCreatePeriod        = status.Error(codes.Internal, "failed to create period")
-	errFailedClosePeriod         = status.Error(codes.Internal, "failed to close period")
-	errFailedDeletePeriod        = status.Error(codes.Internal, "failed to delete period")
+	statusPeriodRequired            = status.New(codes.InvalidArgument, "period is required")
+	statusInvalidPeriodName         = status.New(codes.InvalidArgument, "invalid period name")
+	statusInvalidParentImportSource = status.New(codes.InvalidArgument, "invalid parent import_source name")
+	statusPeriodNotFound            = status.New(codes.NotFound, "period not found")
+	statusPeriodAlreadyExists       = status.New(codes.AlreadyExists, "period with this ID already exists")
+	statusFailedGetPeriod           = status.New(codes.Internal, "failed to get period")
+	statusFailedListPeriods         = status.New(codes.Internal, "failed to list periods")
+	statusFailedCreatePeriod        = status.New(codes.Internal, "failed to create period")
+	statusFailedClosePeriod         = status.New(codes.Internal, "failed to close period")
+	statusFailedDeletePeriod        = status.New(codes.Internal, "failed to delete period")
 )
 
 type importSourcePeriodServiceServer struct {
@@ -42,55 +42,58 @@ func newImportSourcePeriodServiceServer(repo *repository.ImportSourcePeriodRepos
 
 func (s *importSourcePeriodServiceServer) GetImportSourcePeriod(ctx context.Context, req *gen.GetImportSourcePeriodRequest) (*gen.ImportSourcePeriod, error) {
 	var n gen.ImportSourcePeriodResourceName
+
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, errInvalidPeriodName
+		return nil, &ServerError{Err: err, Status: statusInvalidPeriodName}
 	}
+
 	periodID, err := uuid.Parse(n.Period)
 	if err != nil {
-		return nil, errInvalidPeriodName
+		return nil, &ServerError{Err: err, Status: statusInvalidPeriodName}
 	}
+
 	m, err := s.repo.GetByID(ctx, periodID)
 	if err != nil {
-		if isNotFound(err) {
-			return nil, errPeriodNotFound
+		if errors.Is(err, repository.ErrImportSourcePeriodNotFound) {
+			return nil, &ServerError{Err: err, Status: statusPeriodNotFound}
 		}
-		return nil, errFailedGetPeriod
+
+		return nil, &ServerError{Err: err, Status: statusFailedGetPeriod}
 	}
+
 	return ImportSourcePeriodToProto(n.Organization, n.ImportSource, m), nil
 }
 
 func (s *importSourcePeriodServiceServer) ListImportSourcePeriods(ctx context.Context, req *gen.ListImportSourcePeriodsRequest) (*gen.ListImportSourcePeriodsResponse, error) {
 	var pn gen.ImportSourceResourceName
+
 	if err := pn.UnmarshalString(req.Parent); err != nil {
-		return nil, errInvalidParentImportSource
+		return nil, &ServerError{Err: err, Status: statusInvalidParentImportSource}
 	}
+
 	srcID, err := uuid.Parse(pn.ImportSource)
 	if err != nil {
-		return nil, errInvalidParentImportSource
+		return nil, &ServerError{Err: err, Status: statusInvalidParentImportSource}
 	}
 
 	c, err := svcfilter.ParseImportSourcePeriodFilter(req.Filter)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid filter: %v", err)
+		return nil, &ServerError{Err: err, Status: statusInvalidFilter}
 	}
 
 	offset, err := pagetoken.Decode(req.PageToken)
 	if err != nil {
-		return nil, errInvalidPageToken
+		return nil, &ServerError{Err: err, Status: statusInvalidPageToken}
 	}
 
-	pageSize := int(req.PageSize)
-	if pageSize <= 0 {
-		pageSize = 20
-	} else if pageSize > 100 {
-		pageSize = 100
-	}
+	pageSize := normalizePageSize(req.PageSize)
 
 	// Parse order_by
 	orderBy, err := ordering.ParseOrderBy(req)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid order_by: %v", err)
+		return nil, &ServerError{Err: err, Status: statusInvalidOrderBy}
 	}
+
 	orderExprs, _ := order.Resolve(orderBy, repository.ImportSourcePeriodOrderFieldMapper)
 
 	params := repository.ListImportSourcePeriodsParams{
@@ -103,32 +106,38 @@ func (s *importSourcePeriodServiceServer) ListImportSourcePeriods(ctx context.Co
 
 	ms, total, err := s.repo.List(ctx, params)
 	if err != nil {
-		return nil, errFailedListPeriods
+		return nil, &ServerError{Err: err, Status: statusFailedListPeriods}
 	}
 
 	resp := &gen.ListImportSourcePeriodsResponse{TotalSize: total}
 	for _, m := range ms {
 		resp.Periods = append(resp.Periods, ImportSourcePeriodToProto(pn.Organization, pn.ImportSource, m))
 	}
+
 	nextOffset := offset + int64(len(ms))
 	if nextOffset < total {
 		resp.NextPageToken = pagetoken.Encode(nextOffset)
 	}
+
 	return resp, nil
 }
 
 func (s *importSourcePeriodServiceServer) CreateImportSourcePeriod(ctx context.Context, req *gen.CreateImportSourcePeriodRequest) (*gen.ImportSourcePeriod, error) {
 	var pn gen.ImportSourceResourceName
+
 	if err := pn.UnmarshalString(req.Parent); err != nil {
-		return nil, errInvalidParentImportSource
+		return nil, &ServerError{Err: err, Status: statusInvalidParentImportSource}
 	}
+
 	srcID, err := uuid.Parse(pn.ImportSource)
 	if err != nil {
-		return nil, errInvalidParentImportSource
+		return nil, &ServerError{Err: err, Status: statusInvalidParentImportSource}
 	}
+
 	if req.Period == nil {
-		return nil, errPeriodRequired
+		return nil, &ServerError{Status: statusPeriodRequired}
 	}
+
 	m, err := s.repo.Create(ctx, repository.CreateImportSourcePeriodParams{
 		ImportSourceID: srcID,
 		Year:           int(req.Period.Year),
@@ -137,53 +146,68 @@ func (s *importSourcePeriodServiceServer) CreateImportSourcePeriod(ctx context.C
 	})
 	if err != nil {
 		if errors.Is(err, repository.ErrImportSourcePeriodAlreadyExists) {
-			return nil, errPeriodAlreadyExists
+			return nil, &ServerError{Err: err, Status: statusPeriodAlreadyExists}
 		}
+
 		if errors.Is(err, repository.ErrImportSourceNotFound) {
-			return nil, errImportSourceNotFound
+			return nil, &ServerError{Err: err, Status: statusImportSourceNotFound}
 		}
-		return nil, errFailedCreatePeriod
+
+		return nil, &ServerError{Err: err, Status: statusFailedCreatePeriod}
 	}
+
 	return ImportSourcePeriodToProto(pn.Organization, pn.ImportSource, m), nil
 }
 
 func (s *importSourcePeriodServiceServer) CloseImportSourcePeriod(ctx context.Context, req *gen.CloseImportSourcePeriodRequest) (*gen.ImportSourcePeriod, error) {
 	var n gen.ImportSourcePeriodResourceName
+
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, errInvalidPeriodName
+		return nil, &ServerError{Err: err, Status: statusInvalidPeriodName}
 	}
+
 	periodID, err := uuid.Parse(n.Period)
 	if err != nil {
-		return nil, errInvalidPeriodName
+		return nil, &ServerError{Err: err, Status: statusInvalidPeriodName}
 	}
+
 	m, err := s.repo.GetByID(ctx, periodID)
 	if err != nil {
-		if isNotFound(err) {
-			return nil, errPeriodNotFound
+		if errors.Is(err, repository.ErrImportSourcePeriodNotFound) {
+			return nil, &ServerError{Err: err, Status: statusPeriodNotFound}
 		}
-		return nil, errFailedGetPeriod
+
+		return nil, &ServerError{Err: err, Status: statusFailedGetPeriod}
 	}
+
 	m.IsClosed = true
+
 	if err := s.repo.Update(ctx, m); err != nil {
-		return nil, errFailedClosePeriod
+		return nil, &ServerError{Err: err, Status: statusFailedClosePeriod}
 	}
+
 	return ImportSourcePeriodToProto(n.Organization, n.ImportSource, m), nil
 }
 
 func (s *importSourcePeriodServiceServer) DeleteImportSourcePeriod(ctx context.Context, req *gen.DeleteImportSourcePeriodRequest) (*emptypb.Empty, error) {
 	var n gen.ImportSourcePeriodResourceName
+
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, errInvalidPeriodName
+		return nil, &ServerError{Err: err, Status: statusInvalidPeriodName}
 	}
+
 	periodID, err := uuid.Parse(n.Period)
 	if err != nil {
-		return nil, errInvalidPeriodName
+		return nil, &ServerError{Err: err, Status: statusInvalidPeriodName}
 	}
+
 	if err := s.repo.Delete(ctx, periodID); err != nil {
-		if isNotFound(err) {
-			return nil, errPeriodNotFound
+		if errors.Is(err, repository.ErrImportSourcePeriodNotFound) {
+			return nil, &ServerError{Err: err, Status: statusPeriodNotFound}
 		}
-		return nil, errFailedDeletePeriod
+
+		return nil, &ServerError{Err: err, Status: statusFailedDeletePeriod}
 	}
+
 	return &emptypb.Empty{}, nil
 }

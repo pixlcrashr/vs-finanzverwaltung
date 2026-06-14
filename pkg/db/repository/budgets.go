@@ -2,6 +2,9 @@ package repository
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
@@ -9,6 +12,11 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"gorm.io/gorm"
+)
+
+var (
+	ErrBudgetNotFound      = errors.New("budget not found")
+	ErrBudgetAlreadyExists = errors.New("budget already exists")
 )
 
 // BudgetOrderFieldMapper maps API order_by field names to database column names.
@@ -88,7 +96,7 @@ func (r *BudgetRepository) List(ctx context.Context, params ListBudgetsParams) (
 	// Get total count before pagination
 	var total int64
 	if err := db.Count(&total).Error; err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("count budgets organization_id=%s: %w", params.OrganizationID, err)
 	}
 
 	// Apply ordering
@@ -109,46 +117,94 @@ func (r *BudgetRepository) List(ctx context.Context, params ListBudgetsParams) (
 
 	var ms []*model.Budget
 	if err := db.Find(&ms).Error; err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("list budgets organization_id=%s: %w", params.OrganizationID, err)
 	}
 
 	return ms, total, nil
 }
 
 // GetByID returns the budget with the given ID.
-// Returns gorm.ErrRecordNotFound when no such budget exists.
 func (r *BudgetRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.Budget, error) {
-	return r.q.Budget.WithContext(ctx).Where(r.q.Budget.ID.Eq(id)).First()
+	m, err := r.q.Budget.WithContext(ctx).Where(r.q.Budget.ID.Eq(id)).First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Join(ErrBudgetNotFound, fmt.Errorf("id=%s: %w", id, err))
+		}
+		return nil, fmt.Errorf("get budget id=%s: %w", id, err)
+	}
+	return m, nil
 }
 
 // GetByCustomID returns the budget with the given custom ID within an organization.
-// Returns gorm.ErrRecordNotFound when no such budget exists.
 func (r *BudgetRepository) GetByCustomID(ctx context.Context, orgID uuid.UUID, customID string) (*model.Budget, error) {
-	return r.q.Budget.WithContext(ctx).Where(
+	m, err := r.q.Budget.WithContext(ctx).Where(
 		r.q.Budget.OrganizationID.Eq(orgID),
 		r.q.Budget.CustomID.Eq(customID),
 	).First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Join(ErrBudgetNotFound, fmt.Errorf("organization_id=%s custom_id=%s: %w", orgID, customID, err))
+		}
+		return nil, fmt.Errorf("get budget organization_id=%s custom_id=%s: %w", orgID, customID, err)
+	}
+	return m, nil
+}
+
+// CreateBudgetParams holds the fields required to create a budget.
+type CreateBudgetParams struct {
+	OrganizationID     uuid.UUID
+	DisplayName        string
+	DisplayDescription string
+	PeriodStart        time.Time
+	PeriodEnd          time.Time
+	IsClosed           bool
+	CustomID           string
 }
 
 // Create inserts a new budget.
-func (r *BudgetRepository) Create(ctx context.Context, m *model.Budget) error {
-	return r.q.Budget.WithContext(ctx).Create(m)
+func (r *BudgetRepository) Create(ctx context.Context, params CreateBudgetParams) (*model.Budget, error) {
+	orgCount, err := r.q.Organization.WithContext(ctx).Where(r.q.Organization.ID.Eq(params.OrganizationID)).Count()
+	if err != nil {
+		return nil, fmt.Errorf("create budget: check organization organization_id=%s: %w", params.OrganizationID, err)
+	}
+	if orgCount == 0 {
+		return nil, errors.Join(ErrOrganizationNotFound, fmt.Errorf("organization_id=%s: %w", params.OrganizationID, gorm.ErrRecordNotFound))
+	}
+	m := &model.Budget{
+		OrganizationID:     params.OrganizationID,
+		DisplayName:        params.DisplayName,
+		DisplayDescription: params.DisplayDescription,
+		PeriodStart:        params.PeriodStart,
+		PeriodEnd:          params.PeriodEnd,
+		IsClosed:           params.IsClosed,
+		CustomID:           params.CustomID,
+	}
+	if err := r.q.Budget.WithContext(ctx).Create(m); err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return nil, errors.Join(ErrBudgetAlreadyExists, fmt.Errorf("organization_id=%s custom_id=%s: %w", m.OrganizationID, m.CustomID, err))
+		}
+		return nil, fmt.Errorf("create budget organization_id=%s custom_id=%s: %w", m.OrganizationID, m.CustomID, err)
+	}
+	return m, nil
 }
 
 // Update updates fields of an existing budget matched by its primary key.
 func (r *BudgetRepository) Update(ctx context.Context, m *model.Budget) error {
 	_, err := r.q.Budget.WithContext(ctx).Where(r.q.Budget.ID.Eq(m.ID)).Updates(m)
-	return err
+	if err != nil {
+		return fmt.Errorf("update budget id=%s: %w", m.ID, err)
+	}
+	return nil
 }
 
 // Delete removes the budget with the given ID.
 func (r *BudgetRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	result, err := r.q.Budget.WithContext(ctx).Where(r.q.Budget.ID.Eq(id)).Delete()
 	if err != nil {
-		return err
+		return fmt.Errorf("delete budget id=%s: %w", id, err)
 	}
 	if result.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return errors.Join(ErrBudgetNotFound, fmt.Errorf("id=%s: %w", id, gorm.ErrRecordNotFound))
 	}
 	return nil
 }

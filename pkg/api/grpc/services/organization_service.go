@@ -2,11 +2,11 @@ package services
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
-	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
@@ -14,6 +14,19 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
+)
+
+var (
+	errOrganizationRequired      = status.Error(codes.InvalidArgument, "organization is required")
+	errInvalidOrganizationName   = status.Error(codes.InvalidArgument, "invalid organization name")
+	errOrganizationIDRequired    = status.Error(codes.InvalidArgument, "organization_id is required")
+	errOrganizationAlreadyExists = status.Error(codes.AlreadyExists, "organization with this ID already exists")
+	errFailedGetOrganization     = status.Error(codes.Internal, "failed to get organization")
+	errFailedListOrganizations   = status.Error(codes.Internal, "failed to list organizations")
+	errFailedCreateOrganization  = status.Error(codes.Internal, "failed to create organization")
+	errFailedUpdateOrganization  = status.Error(codes.Internal, "failed to update organization")
+	errFailedDeleteOrganization  = status.Error(codes.Internal, "failed to delete organization")
+	errFailedCheckOrganization   = status.Error(codes.Internal, "failed to check organization id")
 )
 
 type organizationServiceServer struct {
@@ -28,19 +41,17 @@ func newOrganizationServiceServer(repo *repository.OrganizationRepository) gen.O
 func (s *organizationServiceServer) GetOrganization(ctx context.Context, req *gen.GetOrganizationRequest) (*gen.Organization, error) {
 	var n gen.OrganizationResourceName
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid organization name")
+		return nil, errInvalidOrganizationName
 	}
-	id, err := uuid.Parse(n.Organization)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid organization name")
-	}
-	m, err := s.repo.GetByID(ctx, id)
+
+	m, err := s.repo.GetByResourceName(ctx, n.Organization)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, status.Error(codes.NotFound, "organization not found")
+			return nil, errOrganizationNotFound
 		}
-		return nil, status.Error(codes.Internal, "failed to get organization")
+		return nil, errFailedGetOrganization
 	}
+
 	return OrganizationToProto(m), nil
 }
 
@@ -52,7 +63,7 @@ func (s *organizationServiceServer) ListOrganizations(ctx context.Context, req *
 
 	offset, err := pagetoken.Decode(req.PageToken)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid page_token")
+		return nil, errInvalidPageToken
 	}
 
 	pageSize := int(req.PageSize)
@@ -77,7 +88,7 @@ func (s *organizationServiceServer) ListOrganizations(ctx context.Context, req *
 
 	ms, total, err := s.repo.List(ctx, params)
 	if err != nil {
-		return nil, status.Error(codes.Internal, "failed to list organizations")
+		return nil, errFailedListOrganizations
 	}
 
 	resp := &gen.ListOrganizationsResponse{TotalSize: total}
@@ -93,54 +104,54 @@ func (s *organizationServiceServer) ListOrganizations(ctx context.Context, req *
 
 func (s *organizationServiceServer) CreateOrganization(ctx context.Context, req *gen.CreateOrganizationRequest) (*gen.Organization, error) {
 	if req.Organization == nil {
-		return nil, status.Error(codes.InvalidArgument, "organization is required")
+		return nil, errOrganizationRequired
 	}
-	m := &model.Organization{
+	m, err := s.repo.Create(ctx, repository.CreateOrganizationParams{
 		DisplayName: req.Organization.DisplayName,
 		CustomID:    req.OrganizationId,
-	}
-	if err := s.repo.Create(ctx, m); err != nil {
-		if isDuplicateKey(err) {
-			return nil, status.Error(codes.AlreadyExists, "organization with this ID already exists")
+	})
+	if err != nil {
+		if errors.Is(err, repository.ErrOrganizationAlreadyExists) {
+			return nil, errOrganizationAlreadyExists
 		}
-		return nil, status.Error(codes.Internal, "failed to create organization")
+		return nil, errFailedCreateOrganization
 	}
 	return OrganizationToProto(m), nil
 }
 
 func (s *organizationServiceServer) UpdateOrganization(ctx context.Context, req *gen.UpdateOrganizationRequest) (*gen.Organization, error) {
 	if req.Organization == nil {
-		return nil, status.Error(codes.InvalidArgument, "organization is required")
+		return nil, errOrganizationRequired
 	}
 	var n gen.OrganizationResourceName
 	if err := n.UnmarshalString(req.Organization.Name); err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid organization name")
+		return nil, errInvalidOrganizationName
 	}
 	id, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid organization name")
+		return nil, errInvalidOrganizationName
 	}
 	m, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, status.Error(codes.NotFound, "organization not found")
+			return nil, errOrganizationNotFound
 		}
-		return nil, status.Error(codes.Internal, "failed to get organization")
+		return nil, errFailedGetOrganization
 	}
 	m.DisplayName = req.Organization.DisplayName
 	if err := s.repo.Update(ctx, m); err != nil {
-		return nil, status.Error(codes.Internal, "failed to update organization")
+		return nil, errFailedUpdateOrganization
 	}
 	return OrganizationToProto(m), nil
 }
 
 func (s *organizationServiceServer) CheckOrganizationId(ctx context.Context, req *gen.CheckOrganizationIdRequest) (*gen.CheckOrganizationIdResponse, error) {
 	if req.OrganizationId == "" {
-		return nil, status.Error(codes.InvalidArgument, "organization_id is required")
+		return nil, errOrganizationIDRequired
 	}
 	exists, err := s.repo.ExistsByCustomID(ctx, req.OrganizationId)
 	if err != nil {
-		return nil, status.Error(codes.Internal, "failed to check organization id")
+		return nil, errFailedCheckOrganization
 	}
 	return &gen.CheckOrganizationIdResponse{Available: !exists}, nil
 }
@@ -148,17 +159,17 @@ func (s *organizationServiceServer) CheckOrganizationId(ctx context.Context, req
 func (s *organizationServiceServer) DeleteOrganization(ctx context.Context, req *gen.DeleteOrganizationRequest) (*emptypb.Empty, error) {
 	var n gen.OrganizationResourceName
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid organization name")
+		return nil, errInvalidOrganizationName
 	}
 	id, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid organization name")
+		return nil, errInvalidOrganizationName
 	}
 	if err := s.repo.Delete(ctx, id); err != nil {
 		if isNotFound(err) {
-			return nil, status.Error(codes.NotFound, "organization not found")
+			return nil, errOrganizationNotFound
 		}
-		return nil, status.Error(codes.Internal, "failed to delete organization")
+		return nil, errFailedDeleteOrganization
 	}
 	return &emptypb.Empty{}, nil
 }

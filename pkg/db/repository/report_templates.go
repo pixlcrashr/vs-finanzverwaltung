@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
@@ -9,6 +11,11 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"gorm.io/gorm"
+)
+
+var (
+	ErrReportTemplateNotFound      = errors.New("report template not found")
+	ErrReportTemplateAlreadyExists = errors.New("report template already exists")
 )
 
 // ReportTemplateOrderFieldMapper maps API order_by field names to database column names.
@@ -67,7 +74,7 @@ func (r *ReportTemplateRepository) List(ctx context.Context, params ListReportTe
 
 	var total int64
 	if err := db.Count(&total).Error; err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("count report templates page=%d: %w", params.Page, err)
 	}
 
 	if len(params.OrderBy) > 0 {
@@ -86,7 +93,7 @@ func (r *ReportTemplateRepository) List(ctx context.Context, params ListReportTe
 
 	var ms []*model.ReportTemplate
 	if err := db.Find(&ms).Error; err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("list report templates page=%d: %w", params.Page, err)
 	}
 
 	return ms, total, nil
@@ -94,22 +101,65 @@ func (r *ReportTemplateRepository) List(ctx context.Context, params ListReportTe
 
 // GetByID returns the report template with the given ID.
 func (r *ReportTemplateRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.ReportTemplate, error) {
-	return r.q.ReportTemplate.WithContext(ctx).Where(r.q.ReportTemplate.ID.Eq(id)).First()
+	m, err := r.q.ReportTemplate.WithContext(ctx).Where(r.q.ReportTemplate.ID.Eq(id)).First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Join(ErrReportTemplateNotFound, fmt.Errorf("id=%s: %w", id, err))
+		}
+		return nil, fmt.Errorf("get report template id=%s: %w", id, err)
+	}
+	return m, nil
+}
+
+// CreateReportTemplateParams holds the fields required to create a report template.
+type CreateReportTemplateParams struct {
+	OrganizationID uuid.UUID
+	DisplayName    string
+	Template       string
+	CustomID       string
 }
 
 // Create inserts a new report template.
-func (r *ReportTemplateRepository) Create(ctx context.Context, m *model.ReportTemplate) error {
-	return r.q.ReportTemplate.WithContext(ctx).Create(m)
+func (r *ReportTemplateRepository) Create(ctx context.Context, params CreateReportTemplateParams) (*model.ReportTemplate, error) {
+	orgCount, err := r.q.Organization.WithContext(ctx).Where(r.q.Organization.ID.Eq(params.OrganizationID)).Count()
+	if err != nil {
+		return nil, fmt.Errorf("create report template: check organization organization_id=%s: %w", params.OrganizationID, err)
+	}
+	if orgCount == 0 {
+		return nil, errors.Join(ErrOrganizationNotFound, fmt.Errorf("organization_id=%s: %w", params.OrganizationID, gorm.ErrRecordNotFound))
+	}
+	m := &model.ReportTemplate{
+		OrganizationID: params.OrganizationID,
+		DisplayName:    params.DisplayName,
+		Template:       params.Template,
+		CustomID:       params.CustomID,
+	}
+	if err := r.q.ReportTemplate.WithContext(ctx).Create(m); err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return nil, errors.Join(ErrReportTemplateAlreadyExists, fmt.Errorf("organization_id=%s custom_id=%s: %w", m.OrganizationID, m.CustomID, err))
+		}
+		return nil, fmt.Errorf("create report template: %w", err)
+	}
+	return m, nil
 }
 
 // Update updates fields of an existing report template.
 func (r *ReportTemplateRepository) Update(ctx context.Context, m *model.ReportTemplate) error {
 	_, err := r.q.ReportTemplate.WithContext(ctx).Where(r.q.ReportTemplate.ID.Eq(m.ID)).Updates(m)
-	return err
+	if err != nil {
+		return fmt.Errorf("update report template id=%s: %w", m.ID, err)
+	}
+	return nil
 }
 
 // Delete removes the report template with the given ID.
 func (r *ReportTemplateRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	_, err := r.q.ReportTemplate.WithContext(ctx).Where(r.q.ReportTemplate.ID.Eq(id)).Delete()
-	return err
+	result, err := r.q.ReportTemplate.WithContext(ctx).Where(r.q.ReportTemplate.ID.Eq(id)).Delete()
+	if err != nil {
+		return fmt.Errorf("delete report template id=%s: %w", id, err)
+	}
+	if result.RowsAffected == 0 {
+		return errors.Join(ErrReportTemplateNotFound, fmt.Errorf("id=%s: %w", id, gorm.ErrRecordNotFound))
+	}
+	return nil
 }

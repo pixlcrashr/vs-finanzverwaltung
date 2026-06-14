@@ -45,7 +45,7 @@ func (s *budgetRevisionServiceServer) GetBudgetRevision(ctx context.Context, req
 		}
 		return nil, status.Error(codes.Internal, "failed to get budget revision")
 	}
-	return BudgetRevisionToProto(m), nil
+	return BudgetRevisionToProto(n.Organization, n.Budget, m), nil
 }
 
 func (s *budgetRevisionServiceServer) ListBudgetRevisions(ctx context.Context, req *gen.ListBudgetRevisionsRequest) (*gen.ListBudgetRevisionsResponse, error) {
@@ -90,7 +90,7 @@ func (s *budgetRevisionServiceServer) ListBudgetRevisions(ctx context.Context, r
 
 	resp := &gen.ListBudgetRevisionsResponse{TotalSize: total}
 	for _, m := range ms {
-		resp.Revisions = append(resp.Revisions, BudgetRevisionToProto(m))
+		resp.Revisions = append(resp.Revisions, BudgetRevisionToProto(pn.Organization, pn.Budget, m))
 	}
 	nextOffset := offset + int64(len(ms))
 	if nextOffset < total {
@@ -138,5 +138,5 @@ func (s *budgetRevisionServiceServer) CreateBudgetRevision(ctx context.Context, 
 		return nil, status.Error(codes.Internal, "failed to create budget revision")
 	}
 
-	return BudgetRevisionToProto(m), nil
+	return BudgetRevisionToProto(pn.Organization, pn.Budget, m), nil
 }

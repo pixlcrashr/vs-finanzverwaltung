@@ -2,13 +2,21 @@ package repository
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
+)
+
+var (
+	ErrOrganizationNotFound      = errors.New("organization not found")
+	ErrOrganizationAlreadyExists = errors.New("organization already exists")
 )
 
 // OrganizationOrderFieldMapper maps API order_by field names to database column names.
@@ -51,6 +59,26 @@ func NewOrganizationRepository(db *gorm.DB) *OrganizationRepository {
 	return &OrganizationRepository{db: db, q: dao.Use(db)}
 }
 
+func (r *OrganizationRepository) GetByResourceName(ctx context.Context, organization string) (*model.Organization, error) {
+	var orgID uuid.UUID
+	orgID, _ = uuid.Parse(organization)
+
+	o, err := r.q.Organization.WithContext(ctx).Where(
+		field.Or(
+			r.q.Organization.CustomID.Eq(organization),
+			r.q.Organization.ID.Eq(orgID),
+		),
+	).First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Join(ErrOrganizationNotFound, fmt.Errorf("organization=%s: %w", organization, err))
+		}
+		return nil, fmt.Errorf("get organization organization=%s: %w", organization, err)
+	}
+
+	return o, nil
+}
+
 // List returns organizations matching params along with the total count.
 func (r *OrganizationRepository) List(ctx context.Context, params ListOrganizationsParams) ([]*model.Organization, int64, error) {
 	if params.PageSize <= 0 {
@@ -66,7 +94,7 @@ func (r *OrganizationRepository) List(ctx context.Context, params ListOrganizati
 
 	var total int64
 	if err := db.Count(&total).Error; err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("count organizations page=%d: %w", params.Page, err)
 	}
 
 	if len(params.OrderBy) > 0 {
@@ -85,16 +113,22 @@ func (r *OrganizationRepository) List(ctx context.Context, params ListOrganizati
 
 	var ms []*model.Organization
 	if err := db.Find(&ms).Error; err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("list organizations page=%d: %w", params.Page, err)
 	}
 
 	return ms, total, nil
 }
 
 // GetByID returns the organization with the given ID.
-// Returns gorm.ErrRecordNotFound when no such organization exists.
 func (r *OrganizationRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.Organization, error) {
-	return r.q.Organization.WithContext(ctx).Where(r.q.Organization.ID.Eq(id)).First()
+	m, err := r.q.Organization.WithContext(ctx).Where(r.q.Organization.ID.Eq(id)).First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Join(ErrOrganizationNotFound, fmt.Errorf("id=%s: %w", id, err))
+		}
+		return nil, fmt.Errorf("get organization id=%s: %w", id, err)
+	}
+	return m, nil
 }
 
 // ExistsByCustomID reports whether an organization with the given custom ID exists.
@@ -104,30 +138,49 @@ func (r *OrganizationRepository) ExistsByCustomID(ctx context.Context, customID 
 		Where("custom_id = ?", customID).
 		Count(&count).Error
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("check organization exists custom_id=%s: %w", customID, err)
 	}
 	return count > 0, nil
 }
 
+// CreateOrganizationParams holds the fields required to create an organization.
+type CreateOrganizationParams struct {
+	DisplayName string
+	CustomID    string
+}
+
 // Create inserts a new organization.
-func (r *OrganizationRepository) Create(ctx context.Context, m *model.Organization) error {
-	return r.q.Organization.WithContext(ctx).Create(m)
+func (r *OrganizationRepository) Create(ctx context.Context, params CreateOrganizationParams) (*model.Organization, error) {
+	m := &model.Organization{
+		DisplayName: params.DisplayName,
+		CustomID:    params.CustomID,
+	}
+	if err := r.q.Organization.WithContext(ctx).Create(m); err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return nil, errors.Join(ErrOrganizationAlreadyExists, fmt.Errorf("custom_id=%s: %w", m.CustomID, err))
+		}
+		return nil, fmt.Errorf("create organization custom_id=%s: %w", m.CustomID, err)
+	}
+	return m, nil
 }
 
 // Update updates fields of an existing organization matched by its primary key.
 func (r *OrganizationRepository) Update(ctx context.Context, m *model.Organization) error {
 	_, err := r.q.Organization.WithContext(ctx).Where(r.q.Organization.ID.Eq(m.ID)).Updates(m)
-	return err
+	if err != nil {
+		return fmt.Errorf("update organization id=%s: %w", m.ID, err)
+	}
+	return nil
 }
 
 // Delete removes the organization with the given ID.
 func (r *OrganizationRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	result, err := r.q.Organization.WithContext(ctx).Where(r.q.Organization.ID.Eq(id)).Delete()
 	if err != nil {
-		return err
+		return fmt.Errorf("delete organization id=%s: %w", id, err)
 	}
 	if result.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return errors.Join(ErrOrganizationNotFound, fmt.Errorf("id=%s: %w", id, gorm.ErrRecordNotFound))
 	}
 	return nil
 }

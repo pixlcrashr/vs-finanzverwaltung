@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
@@ -9,6 +11,11 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"gorm.io/gorm"
+)
+
+var (
+	ErrAccountGroupAssignmentNotFound      = errors.New("account group assignment not found")
+	ErrAccountGroupAssignmentAlreadyExists = errors.New("account group assignment already exists")
 )
 
 // AccountGroupAssignmentOrderFieldMapper maps API order_by field names to database column names.
@@ -69,7 +76,7 @@ func (r *AccountGroupAssignmentRepository) List(ctx context.Context, params List
 
 	var total int64
 	if err := db.Count(&total).Error; err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("count account group assignments account_group_id=%s: %w", params.AccountGroupID, err)
 	}
 
 	if len(params.OrderBy) > 0 {
@@ -88,26 +95,78 @@ func (r *AccountGroupAssignmentRepository) List(ctx context.Context, params List
 
 	var ms []*model.AccountGroupAssignment
 	if err := db.Find(&ms).Error; err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("list account group assignments account_group_id=%s: %w", params.AccountGroupID, err)
 	}
 
 	return ms, total, nil
 }
 
 func (r *AccountGroupAssignmentRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.AccountGroupAssignment, error) {
-	return r.q.AccountGroupAssignment.WithContext(ctx).Where(r.q.AccountGroupAssignment.ID.Eq(id)).First()
+	m, err := r.q.AccountGroupAssignment.WithContext(ctx).Where(r.q.AccountGroupAssignment.ID.Eq(id)).First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Join(ErrAccountGroupAssignmentNotFound, fmt.Errorf("id=%s: %w", id, err))
+		}
+		return nil, fmt.Errorf("get account group assignment id=%s: %w", id, err)
+	}
+	return m, nil
 }
 
-func (r *AccountGroupAssignmentRepository) Create(ctx context.Context, m *model.AccountGroupAssignment) error {
-	return r.q.AccountGroupAssignment.WithContext(ctx).Create(m)
+// CreateAccountGroupAssignmentParams holds the fields required to create an account group assignment.
+type CreateAccountGroupAssignmentParams struct {
+	OrganizationID uuid.UUID
+	AccountGroupID uuid.UUID
+	AccountID      uuid.UUID
+	Negate         bool
+	CustomID       string
+}
+
+func (r *AccountGroupAssignmentRepository) Create(ctx context.Context, params CreateAccountGroupAssignmentParams) (*model.AccountGroupAssignment, error) {
+	groupCount, err := r.q.AccountGroup.WithContext(ctx).Where(r.q.AccountGroup.ID.Eq(params.AccountGroupID)).Count()
+	if err != nil {
+		return nil, fmt.Errorf("create account group assignment: check account group account_group_id=%s: %w", params.AccountGroupID, err)
+	}
+	if groupCount == 0 {
+		return nil, errors.Join(ErrAccountGroupNotFound, fmt.Errorf("account_group_id=%s: %w", params.AccountGroupID, gorm.ErrRecordNotFound))
+	}
+	accountCount, err := r.q.Account.WithContext(ctx).Where(r.q.Account.ID.Eq(params.AccountID)).Count()
+	if err != nil {
+		return nil, fmt.Errorf("create account group assignment: check account account_id=%s: %w", params.AccountID, err)
+	}
+	if accountCount == 0 {
+		return nil, errors.Join(ErrAccountNotFound, fmt.Errorf("account_id=%s: %w", params.AccountID, gorm.ErrRecordNotFound))
+	}
+	m := &model.AccountGroupAssignment{
+		OrganizationID: params.OrganizationID,
+		AccountGroupID: params.AccountGroupID,
+		AccountID:      params.AccountID,
+		Negate:         params.Negate,
+		CustomID:       params.CustomID,
+	}
+	if err := r.q.AccountGroupAssignment.WithContext(ctx).Create(m); err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return nil, errors.Join(ErrAccountGroupAssignmentAlreadyExists, fmt.Errorf("account_group_id=%s account_id=%s: %w", m.AccountGroupID, m.AccountID, err))
+		}
+		return nil, fmt.Errorf("create account group assignment account_group_id=%s account_id=%s: %w", m.AccountGroupID, m.AccountID, err)
+	}
+	return m, nil
 }
 
 func (r *AccountGroupAssignmentRepository) Update(ctx context.Context, m *model.AccountGroupAssignment) error {
 	_, err := r.q.AccountGroupAssignment.WithContext(ctx).Where(r.q.AccountGroupAssignment.ID.Eq(m.ID)).Updates(m)
-	return err
+	if err != nil {
+		return fmt.Errorf("update account group assignment id=%s: %w", m.ID, err)
+	}
+	return nil
 }
 
 func (r *AccountGroupAssignmentRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	_, err := r.q.AccountGroupAssignment.WithContext(ctx).Where(r.q.AccountGroupAssignment.ID.Eq(id)).Delete()
-	return err
+	result, err := r.q.AccountGroupAssignment.WithContext(ctx).Where(r.q.AccountGroupAssignment.ID.Eq(id)).Delete()
+	if err != nil {
+		return fmt.Errorf("delete account group assignment id=%s: %w", id, err)
+	}
+	if result.RowsAffected == 0 {
+		return errors.Join(ErrAccountGroupAssignmentNotFound, fmt.Errorf("id=%s: %w", id, gorm.ErrRecordNotFound))
+	}
+	return nil
 }

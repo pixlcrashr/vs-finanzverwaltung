@@ -3,10 +3,12 @@ package services
 import (
 	"context"
 
+	"errors"
+
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
-	"github.com/pixlcrashr/vsfv/pkg/db/model"
+
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
@@ -14,6 +16,17 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
+)
+
+var (
+	errReportRequired      = status.Error(codes.InvalidArgument, "report is required")
+	errInvalidReportName   = status.Error(codes.InvalidArgument, "invalid report name")
+	errReportNotFound      = status.Error(codes.NotFound, "report not found")
+	errReportAlreadyExists = status.Error(codes.AlreadyExists, "report with this ID already exists")
+	errFailedGetReport     = status.Error(codes.Internal, "failed to get report")
+	errFailedListReports   = status.Error(codes.Internal, "failed to list reports")
+	errFailedCreateReport  = status.Error(codes.Internal, "failed to create report")
+	errFailedDeleteReport  = status.Error(codes.Internal, "failed to delete report")
 )
 
 type reportServiceServer struct {
@@ -28,23 +41,28 @@ func newReportServiceServer(repo *repository.ReportRepository) gen.ReportService
 func (s *reportServiceServer) GetReport(ctx context.Context, req *gen.GetReportRequest) (*gen.Report, error) {
 	var n gen.ReportResourceName
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid report name")
+		return nil, errInvalidReportName
 	}
 	id, err := uuid.Parse(n.Report)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid report name")
+		return nil, errInvalidReportName
 	}
 	m, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, status.Error(codes.NotFound, "report not found")
+			return nil, errReportNotFound
 		}
-		return nil, status.Error(codes.Internal, "failed to get report")
+		return nil, errFailedGetReport
 	}
-	return ReportToProto(m), nil
+	return ReportToProto(n.Organization, n.Report, m), nil
 }
 
 func (s *reportServiceServer) ListReports(ctx context.Context, req *gen.ListReportsRequest) (*gen.ListReportsResponse, error) {
+	var pn gen.OrganizationResourceName
+	if err := pn.UnmarshalString(req.Parent); err != nil {
+		return nil, errInvalidParent
+	}
+
 	c, err := svcfilter.ParseReportFilter(req.Filter)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid filter: %v", err)
@@ -52,7 +70,7 @@ func (s *reportServiceServer) ListReports(ctx context.Context, req *gen.ListRepo
 
 	offset, err := pagetoken.Decode(req.PageToken)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid page_token")
+		return nil, errInvalidPageToken
 	}
 
 	pageSize := int(req.PageSize)
@@ -78,12 +96,12 @@ func (s *reportServiceServer) ListReports(ctx context.Context, req *gen.ListRepo
 
 	ms, total, err := s.repo.List(ctx, params)
 	if err != nil {
-		return nil, status.Error(codes.Internal, "failed to list reports")
+		return nil, errFailedListReports
 	}
 
 	resp := &gen.ListReportsResponse{TotalSize: total}
 	for _, m := range ms {
-		resp.Reports = append(resp.Reports, ReportToProto(m))
+		resp.Reports = append(resp.Reports, ReportToProto(pn.Organization, m.CustomID, m))
 	}
 	nextOffset := offset + int64(len(ms))
 	if nextOffset < total {
@@ -94,35 +112,47 @@ func (s *reportServiceServer) ListReports(ctx context.Context, req *gen.ListRepo
 
 func (s *reportServiceServer) CreateReport(ctx context.Context, req *gen.CreateReportRequest) (*gen.Report, error) {
 	if req.Report == nil {
-		return nil, status.Error(codes.InvalidArgument, "report is required")
+		return nil, errReportRequired
 	}
-	m := &model.Report{
-		DisplayName: req.Report.DisplayName,
-		CustomID:    req.ReportId,
+	var pn gen.OrganizationResourceName
+	if err := pn.UnmarshalString(req.Parent); err != nil {
+		return nil, errInvalidParent
 	}
-	if err := s.repo.Create(ctx, m); err != nil {
-		if isDuplicateKey(err) {
-			return nil, status.Error(codes.AlreadyExists, "report with this ID already exists")
+	orgID, err := uuid.Parse(pn.Organization)
+	if err != nil {
+		return nil, errInvalidParent
+	}
+	m, err := s.repo.Create(ctx, repository.CreateReportParams{
+		OrganizationID: orgID,
+		DisplayName:    req.Report.DisplayName,
+		CustomID:       req.ReportId,
+	})
+	if err != nil {
+		if errors.Is(err, repository.ErrReportAlreadyExists) {
+			return nil, errReportAlreadyExists
 		}
-		return nil, status.Error(codes.Internal, "failed to create report")
+		if errors.Is(err, repository.ErrOrganizationNotFound) {
+			return nil, errOrganizationNotFound
+		}
+		return nil, errFailedCreateReport
 	}
-	return ReportToProto(m), nil
+	return ReportToProto(pn.Organization, req.ReportId, m), nil
 }
 
 func (s *reportServiceServer) DeleteReport(ctx context.Context, req *gen.DeleteReportRequest) (*emptypb.Empty, error) {
 	var n gen.ReportResourceName
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid report name")
+		return nil, errInvalidReportName
 	}
 	id, err := uuid.Parse(n.Report)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid report name")
+		return nil, errInvalidReportName
 	}
 	if err := s.repo.Delete(ctx, id); err != nil {
 		if isNotFound(err) {
-			return nil, status.Error(codes.NotFound, "report not found")
+			return nil, errReportNotFound
 		}
-		return nil, status.Error(codes.Internal, "failed to delete report")
+		return nil, errFailedDeleteReport
 	}
 	return &emptypb.Empty{}, nil
 }

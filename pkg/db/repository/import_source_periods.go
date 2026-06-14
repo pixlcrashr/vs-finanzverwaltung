@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
@@ -9,6 +11,11 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"gorm.io/gorm"
+)
+
+var (
+	ErrImportSourcePeriodNotFound      = errors.New("import source period not found")
+	ErrImportSourcePeriodAlreadyExists = errors.New("import source period already exists")
 )
 
 // ImportSourcePeriodOrderFieldMapper maps API order_by field names to database column names.
@@ -69,7 +76,7 @@ func (r *ImportSourcePeriodRepository) List(ctx context.Context, params ListImpo
 
 	var total int64
 	if err := db.Count(&total).Error; err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("count import source periods import_source_id=%s: %w", params.ImportSourceID, err)
 	}
 
 	if len(params.OrderBy) > 0 {
@@ -88,26 +95,71 @@ func (r *ImportSourcePeriodRepository) List(ctx context.Context, params ListImpo
 
 	var ms []*model.ImportSourcePeriod
 	if err := db.Find(&ms).Error; err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("list import source periods import_source_id=%s: %w", params.ImportSourceID, err)
 	}
 
 	return ms, total, nil
 }
 
 func (r *ImportSourcePeriodRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.ImportSourcePeriod, error) {
-	return r.q.ImportSourcePeriod.WithContext(ctx).Where(r.q.ImportSourcePeriod.ID.Eq(id)).First()
+	m, err := r.q.ImportSourcePeriod.WithContext(ctx).Where(r.q.ImportSourcePeriod.ID.Eq(id)).First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Join(ErrImportSourcePeriodNotFound, fmt.Errorf("id=%s: %w", id, err))
+		}
+		return nil, fmt.Errorf("get import source period id=%s: %w", id, err)
+	}
+	return m, nil
 }
 
-func (r *ImportSourcePeriodRepository) Create(ctx context.Context, m *model.ImportSourcePeriod) error {
-	return r.q.ImportSourcePeriod.WithContext(ctx).Create(m)
+// CreateImportSourcePeriodParams holds the fields required to create an import source period.
+type CreateImportSourcePeriodParams struct {
+	OrganizationID uuid.UUID
+	ImportSourceID uuid.UUID
+	Year           int
+	IsClosed       bool
+	CustomID       string
+}
+
+func (r *ImportSourcePeriodRepository) Create(ctx context.Context, params CreateImportSourcePeriodParams) (*model.ImportSourcePeriod, error) {
+	sourceCount, err := r.q.ImportSource.WithContext(ctx).Where(r.q.ImportSource.ID.Eq(params.ImportSourceID)).Count()
+	if err != nil {
+		return nil, fmt.Errorf("create import source period: check import source import_source_id=%s: %w", params.ImportSourceID, err)
+	}
+	if sourceCount == 0 {
+		return nil, errors.Join(ErrImportSourceNotFound, fmt.Errorf("import_source_id=%s: %w", params.ImportSourceID, gorm.ErrRecordNotFound))
+	}
+	m := &model.ImportSourcePeriod{
+		OrganizationID: params.OrganizationID,
+		ImportSourceID: params.ImportSourceID,
+		Year:           params.Year,
+		IsClosed:       params.IsClosed,
+		CustomID:       params.CustomID,
+	}
+	if err := r.q.ImportSourcePeriod.WithContext(ctx).Create(m); err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return nil, errors.Join(ErrImportSourcePeriodAlreadyExists, fmt.Errorf("import_source_id=%s year=%d: %w", m.ImportSourceID, m.Year, err))
+		}
+		return nil, fmt.Errorf("create import source period import_source_id=%s: %w", m.ImportSourceID, err)
+	}
+	return m, nil
 }
 
 func (r *ImportSourcePeriodRepository) Update(ctx context.Context, m *model.ImportSourcePeriod) error {
 	_, err := r.q.ImportSourcePeriod.WithContext(ctx).Where(r.q.ImportSourcePeriod.ID.Eq(m.ID)).Updates(m)
-	return err
+	if err != nil {
+		return fmt.Errorf("update import source period id=%s: %w", m.ID, err)
+	}
+	return nil
 }
 
 func (r *ImportSourcePeriodRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	_, err := r.q.ImportSourcePeriod.WithContext(ctx).Where(r.q.ImportSourcePeriod.ID.Eq(id)).Delete()
-	return err
+	result, err := r.q.ImportSourcePeriod.WithContext(ctx).Where(r.q.ImportSourcePeriod.ID.Eq(id)).Delete()
+	if err != nil {
+		return fmt.Errorf("delete import source period id=%s: %w", id, err)
+	}
+	if result.RowsAffected == 0 {
+		return errors.Join(ErrImportSourcePeriodNotFound, fmt.Errorf("id=%s: %w", id, gorm.ErrRecordNotFound))
+	}
+	return nil
 }

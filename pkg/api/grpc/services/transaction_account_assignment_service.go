@@ -3,9 +3,11 @@ package services
 import (
 	"context"
 
+	"errors"
+
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
-	"github.com/pixlcrashr/vsfv/pkg/db/model"
+
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
@@ -13,6 +15,10 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
+)
+
+var (
+	errInvalidParentTransactionName = status.Error(codes.InvalidArgument, "invalid parent transaction name")
 )
 
 type transactionAccountAssignmentServiceServer struct {
@@ -27,35 +33,35 @@ func newTransactionAccountAssignmentServiceServer(repo *repository.TransactionAc
 func (s *transactionAccountAssignmentServiceServer) GetTransactionAccountAssignment(ctx context.Context, req *gen.GetTransactionAccountAssignmentRequest) (*gen.TransactionAccountAssignment, error) {
 	var n gen.TransactionAccountAssignmentResourceName
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid assignment name")
+		return nil, errInvalidAssignmentName
 	}
 	assignID, err := uuid.Parse(n.Assignment)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid assignment name")
+		return nil, errInvalidAssignmentName
 	}
 	m, err := s.repo.GetByID(ctx, assignID)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, status.Error(codes.NotFound, "assignment not found")
+			return nil, errAssignmentNotFound
 		}
-		return nil, status.Error(codes.Internal, "failed to get assignment")
+		return nil, errFailedGetAssignment
 	}
-	return TransactionAccountAssignmentToProto(m), nil
+	return TransactionAccountAssignmentToProto(n.Organization, n.Transaction, n.Assignment, m), nil
 }
 
 func (s *transactionAccountAssignmentServiceServer) ListTransactionAccountAssignments(ctx context.Context, req *gen.ListTransactionAccountAssignmentsRequest) (*gen.ListTransactionAccountAssignmentsResponse, error) {
 	var pn gen.TransactionResourceName
 	if err := pn.UnmarshalString(req.Parent); err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid parent transaction name")
+		return nil, errInvalidParentTransactionName
 	}
 	txID, err := uuid.Parse(pn.Transaction)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid parent transaction name")
+		return nil, errInvalidParentTransactionName
 	}
 
 	offset, err := pagetoken.Decode(req.PageToken)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid page_token")
+		return nil, errInvalidPageToken
 	}
 
 	pageSize := int(req.PageSize)
@@ -81,12 +87,12 @@ func (s *transactionAccountAssignmentServiceServer) ListTransactionAccountAssign
 
 	ms, total, err := s.repo.List(ctx, params)
 	if err != nil {
-		return nil, status.Error(codes.Internal, "failed to list assignments")
+		return nil, errFailedListAssignments
 	}
 
 	resp := &gen.ListTransactionAccountAssignmentsResponse{TotalSize: total}
 	for _, m := range ms {
-		resp.Assignments = append(resp.Assignments, TransactionAccountAssignmentToProto(m))
+		resp.Assignments = append(resp.Assignments, TransactionAccountAssignmentToProto(pn.Organization, pn.Transaction, m.CustomID, m))
 	}
 	nextOffset := offset + int64(len(ms))
 	if nextOffset < total {
@@ -98,77 +104,83 @@ func (s *transactionAccountAssignmentServiceServer) ListTransactionAccountAssign
 func (s *transactionAccountAssignmentServiceServer) CreateTransactionAccountAssignment(ctx context.Context, req *gen.CreateTransactionAccountAssignmentRequest) (*gen.TransactionAccountAssignment, error) {
 	var pn gen.TransactionResourceName
 	if err := pn.UnmarshalString(req.Parent); err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid parent transaction name")
+		return nil, errInvalidParentTransactionName
 	}
 	txID, err := uuid.Parse(pn.Transaction)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid parent transaction name")
+		return nil, errInvalidParentTransactionName
 	}
 	if req.Assignment == nil {
-		return nil, status.Error(codes.InvalidArgument, "assignment is required")
+		return nil, errAssignmentRequired
 	}
 	accountID, err := uuid.Parse(req.Assignment.AccountId)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid account_id")
+		return nil, errInvalidAccountID
 	}
-	m := &model.TransactionAccountAssignment{
+	m, err := s.repo.Create(ctx, repository.CreateTransactionAccountAssignmentParams{
 		TransactionID: txID,
 		AccountID:     accountID,
 		CustomID:      req.TransactionAccountAssignmentId,
-	}
-	if err := s.repo.Create(ctx, m); err != nil {
-		if isDuplicateKey(err) {
-			return nil, status.Error(codes.AlreadyExists, "assignment with this ID already exists")
+	})
+	if err != nil {
+		if errors.Is(err, repository.ErrTransactionAccountAssignmentAlreadyExists) {
+			return nil, errAssignmentAlreadyExists
 		}
-		return nil, status.Error(codes.Internal, "failed to create assignment")
+		if errors.Is(err, repository.ErrTransactionNotFound) {
+			return nil, errTransactionNotFound
+		}
+		if errors.Is(err, repository.ErrAccountNotFound) {
+			return nil, errAccountNotFound
+		}
+		return nil, errFailedCreateAssignment
 	}
-	return TransactionAccountAssignmentToProto(m), nil
+	return TransactionAccountAssignmentToProto(pn.Organization, pn.Transaction, req.TransactionAccountAssignmentId, m), nil
 }
 
 func (s *transactionAccountAssignmentServiceServer) UpdateTransactionAccountAssignment(ctx context.Context, req *gen.UpdateTransactionAccountAssignmentRequest) (*gen.TransactionAccountAssignment, error) {
 	if req.Assignment == nil {
-		return nil, status.Error(codes.InvalidArgument, "assignment is required")
+		return nil, errAssignmentRequired
 	}
 	var n gen.TransactionAccountAssignmentResourceName
 	if err := n.UnmarshalString(req.Assignment.Name); err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid assignment name")
+		return nil, errInvalidAssignmentName
 	}
 	assignID, err := uuid.Parse(n.Assignment)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid assignment name")
+		return nil, errInvalidAssignmentName
 	}
 	m, err := s.repo.GetByID(ctx, assignID)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, status.Error(codes.NotFound, "assignment not found")
+			return nil, errAssignmentNotFound
 		}
-		return nil, status.Error(codes.Internal, "failed to get assignment")
+		return nil, errFailedGetAssignment
 	}
 	accountID, err := uuid.Parse(req.Assignment.AccountId)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid account_id")
+		return nil, errInvalidAccountID
 	}
 	m.AccountID = accountID
 	if err := s.repo.Update(ctx, m); err != nil {
-		return nil, status.Error(codes.Internal, "failed to update assignment")
+		return nil, errFailedUpdateAssignment
 	}
-	return TransactionAccountAssignmentToProto(m), nil
+	return TransactionAccountAssignmentToProto(n.Organization, n.Transaction, n.Assignment, m), nil
 }
 
 func (s *transactionAccountAssignmentServiceServer) DeleteTransactionAccountAssignment(ctx context.Context, req *gen.DeleteTransactionAccountAssignmentRequest) (*emptypb.Empty, error) {
 	var n gen.TransactionAccountAssignmentResourceName
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid assignment name")
+		return nil, errInvalidAssignmentName
 	}
 	assignID, err := uuid.Parse(n.Assignment)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid assignment name")
+		return nil, errInvalidAssignmentName
 	}
 	if err := s.repo.Delete(ctx, assignID); err != nil {
 		if isNotFound(err) {
-			return nil, status.Error(codes.NotFound, "assignment not found")
+			return nil, errAssignmentNotFound
 		}
-		return nil, status.Error(codes.Internal, "failed to delete assignment")
+		return nil, errFailedDeleteAssignment
 	}
 	return &emptypb.Empty{}, nil
 }

@@ -39,7 +39,7 @@ func (s *budgetRevisionAccountValueServiceServer) GetBudgetRevisionAccountValue(
 		}
 		return nil, status.Error(codes.Internal, "failed to get budget revision account value")
 	}
-	return BudgetRevisionAccountValueToProto(m), nil
+	return BudgetRevisionAccountValueToProto(n.Organization, n.Budget, n.Revision, m), nil
 }
 
 func (s *budgetRevisionAccountValueServiceServer) ListBudgetRevisionAccountValues(ctx context.Context, req *gen.ListBudgetRevisionAccountValuesRequest) (*gen.ListBudgetRevisionAccountValuesResponse, error) {
@@ -93,7 +93,7 @@ func (s *budgetRevisionAccountValueServiceServer) ListBudgetRevisionAccountValue
 
 	resp := &gen.ListBudgetRevisionAccountValuesResponse{TotalSize: total}
 	for _, m := range ms {
-		resp.AccountValues = append(resp.AccountValues, BudgetRevisionAccountValueToProto(m))
+		resp.AccountValues = append(resp.AccountValues, BudgetRevisionAccountValueToProto(pn.Organization, pn.Budget, pn.Revision, m))
 	}
 	nextOffset := offset + int64(len(ms))
 	if nextOffset < total {

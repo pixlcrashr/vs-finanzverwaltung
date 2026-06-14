@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
@@ -10,6 +12,8 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"gorm.io/gorm"
 )
+
+var ErrBudgetRevisionAccountValueNotFound = errors.New("budget revision account value not found")
 
 // ListBudgetRevisionAccountValuesParams drives the List query.
 type ListBudgetRevisionAccountValuesParams struct {
@@ -56,7 +60,7 @@ func (r *BudgetRevisionAccountValueRepository) List(ctx context.Context, params 
 
 	var total int64
 	if err := db.Count(&total).Error; err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("count budget revision account values budget_revision_id=%s: %w", params.BudgetRevisionID, err)
 	}
 
 	if len(params.OrderBy) > 0 {
@@ -75,12 +79,19 @@ func (r *BudgetRevisionAccountValueRepository) List(ctx context.Context, params 
 
 	var ms []*model.BudgetRevisionAccountValue
 	if err := db.Find(&ms).Error; err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("list budget revision account values budget_revision_id=%s: %w", params.BudgetRevisionID, err)
 	}
 	return ms, total, nil
 }
 
 // GetByID returns the account value with the given ID.
 func (r *BudgetRevisionAccountValueRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.BudgetRevisionAccountValue, error) {
-	return r.q.BudgetRevisionAccountValue.WithContext(ctx).Where(r.q.BudgetRevisionAccountValue.ID.Eq(id)).First()
+	m, err := r.q.BudgetRevisionAccountValue.WithContext(ctx).Where(r.q.BudgetRevisionAccountValue.ID.Eq(id)).First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Join(ErrBudgetRevisionAccountValueNotFound, fmt.Errorf("id=%s: %w", id, err))
+		}
+		return nil, fmt.Errorf("get budget revision account value id=%s: %w", id, err)
+	}
+	return m, nil
 }

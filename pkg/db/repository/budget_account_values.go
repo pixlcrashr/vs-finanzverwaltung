@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/cockroachdb/apd/v3"
 	"github.com/google/uuid"
@@ -9,6 +11,11 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"gorm.io/gorm"
+)
+
+var (
+	ErrBudgetAccountValueNotFound      = errors.New("budget account value not found")
+	ErrBudgetAccountValueAlreadyExists = errors.New("budget account value already exists")
 )
 
 // BudgetAccountValueOrderFieldMapper maps API order_by field names to DB column names.
@@ -67,7 +74,7 @@ func (r *BudgetAccountValueRepository) List(ctx context.Context, params ListBudg
 
 	var total int64
 	if err := db.Count(&total).Error; err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("count budget account values budget_id=%s: %w", params.BudgetID, err)
 	}
 
 	if len(params.OrderBy) > 0 {
@@ -86,7 +93,7 @@ func (r *BudgetAccountValueRepository) List(ctx context.Context, params ListBudg
 
 	var ms []*model.BudgetAccountValue
 	if err := db.Find(&ms).Error; err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("list budget account values budget_id=%s: %w", params.BudgetID, err)
 	}
 	return ms, total, nil
 }
@@ -95,24 +102,73 @@ func (r *BudgetAccountValueRepository) List(ctx context.Context, params ListBudg
 func (r *BudgetAccountValueRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.BudgetAccountValue, error) {
 	var m model.BudgetAccountValue
 	if err := r.db.WithContext(ctx).Table("budget_account_values").Where("id = ?", id).First(&m).Error; err != nil {
-		return nil, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Join(ErrBudgetAccountValueNotFound, fmt.Errorf("id=%s: %w", id, err))
+		}
+		return nil, fmt.Errorf("get budget account value id=%s: %w", id, err)
 	}
 	return &m, nil
 }
 
+// CreateBudgetAccountValueParams holds the fields required to create a budget account value.
+type CreateBudgetAccountValueParams struct {
+	OrganizationID uuid.UUID
+	BudgetID       uuid.UUID
+	AccountID      uuid.UUID
+	Value          apd.Decimal
+	CustomID       string
+}
+
 // Create inserts a new budget account value.
-func (r *BudgetAccountValueRepository) Create(ctx context.Context, m *model.BudgetAccountValue) error {
-	return r.db.WithContext(ctx).Create(m).Error
+func (r *BudgetAccountValueRepository) Create(ctx context.Context, params CreateBudgetAccountValueParams) (*model.BudgetAccountValue, error) {
+	var budgetCount int64
+	if err := r.db.WithContext(ctx).Table("budgets").Where("id = ?", params.BudgetID).Count(&budgetCount).Error; err != nil {
+		return nil, fmt.Errorf("create budget account value: check budget budget_id=%s: %w", params.BudgetID, err)
+	}
+	if budgetCount == 0 {
+		return nil, errors.Join(ErrBudgetNotFound, fmt.Errorf("budget_id=%s: %w", params.BudgetID, gorm.ErrRecordNotFound))
+	}
+	var accountCount int64
+	if err := r.db.WithContext(ctx).Table("accounts").Where("id = ?", params.AccountID).Count(&accountCount).Error; err != nil {
+		return nil, fmt.Errorf("create budget account value: check account account_id=%s: %w", params.AccountID, err)
+	}
+	if accountCount == 0 {
+		return nil, errors.Join(ErrAccountNotFound, fmt.Errorf("account_id=%s: %w", params.AccountID, gorm.ErrRecordNotFound))
+	}
+	m := &model.BudgetAccountValue{
+		OrganizationID: params.OrganizationID,
+		BudgetID:       params.BudgetID,
+		AccountID:      params.AccountID,
+		Value:          params.Value,
+		CustomID:       params.CustomID,
+	}
+	if err := r.db.WithContext(ctx).Create(m).Error; err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return nil, errors.Join(ErrBudgetAccountValueAlreadyExists, fmt.Errorf("budget_id=%s account_id=%s: %w", m.BudgetID, m.AccountID, err))
+		}
+		return nil, fmt.Errorf("create budget account value budget_id=%s account_id=%s: %w", m.BudgetID, m.AccountID, err)
+	}
+	return m, nil
 }
 
 // Update saves changes to an existing budget account value.
 func (r *BudgetAccountValueRepository) Update(ctx context.Context, m *model.BudgetAccountValue) error {
-	return r.db.WithContext(ctx).Save(m).Error
+	if err := r.db.WithContext(ctx).Save(m).Error; err != nil {
+		return fmt.Errorf("update budget account value id=%s: %w", m.ID, err)
+	}
+	return nil
 }
 
 // Delete removes the budget account value with the given ID.
 func (r *BudgetAccountValueRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	return r.db.WithContext(ctx).Table("budget_account_values").Where("id = ?", id).Delete(&model.BudgetAccountValue{}).Error
+	result := r.db.WithContext(ctx).Table("budget_account_values").Where("id = ?", id).Delete(&model.BudgetAccountValue{})
+	if result.Error != nil {
+		return fmt.Errorf("delete budget account value id=%s: %w", id, result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return errors.Join(ErrBudgetAccountValueNotFound, fmt.Errorf("id=%s: %w", id, gorm.ErrRecordNotFound))
+	}
+	return nil
 }
 
 // UpsertEntry carries the data for a single BatchUpsert entry.
@@ -135,7 +191,7 @@ func (r *BudgetAccountValueRepository) BatchUpsert(ctx context.Context, orgID, b
 		if err == nil {
 			existing.Value = e.Value
 			if err := r.db.WithContext(ctx).Save(&existing).Error; err != nil {
-				return nil, err
+				return nil, fmt.Errorf("batch upsert budget account value (update) budget_id=%s account_id=%s: %w", budgetID, e.AccountID, err)
 			}
 			results = append(results, &existing)
 		} else {
@@ -146,7 +202,7 @@ func (r *BudgetAccountValueRepository) BatchUpsert(ctx context.Context, orgID, b
 				Value:          e.Value,
 			}
 			if err := r.db.WithContext(ctx).Create(m).Error; err != nil {
-				return nil, err
+				return nil, fmt.Errorf("batch upsert budget account value (create) budget_id=%s account_id=%s: %w", budgetID, e.AccountID, err)
 			}
 			results = append(results, m)
 		}

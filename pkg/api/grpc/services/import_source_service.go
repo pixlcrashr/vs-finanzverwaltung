@@ -2,11 +2,11 @@ package services
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
-	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
@@ -14,6 +14,17 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
+)
+
+var (
+	errImportSourceRequired      = status.Error(codes.InvalidArgument, "import_source is required")
+	errInvalidImportSourceName   = status.Error(codes.InvalidArgument, "invalid import source name")
+	errImportSourceAlreadyExists = status.Error(codes.AlreadyExists, "import source with this ID already exists")
+	errFailedGetImportSource     = status.Error(codes.Internal, "failed to get import source")
+	errFailedListImportSources   = status.Error(codes.Internal, "failed to list import sources")
+	errFailedCreateImportSource  = status.Error(codes.Internal, "failed to create import source")
+	errFailedUpdateImportSource  = status.Error(codes.Internal, "failed to update import source")
+	errFailedDeleteImportSource  = status.Error(codes.Internal, "failed to delete import source")
 )
 
 type importSourceServiceServer struct {
@@ -28,23 +39,32 @@ func newImportSourceServiceServer(repo *repository.ImportSourceRepository) gen.I
 func (s *importSourceServiceServer) GetImportSource(ctx context.Context, req *gen.GetImportSourceRequest) (*gen.ImportSource, error) {
 	var n gen.ImportSourceResourceName
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid import source name")
+		return nil, errInvalidImportSourceName
 	}
 	id, err := uuid.Parse(n.ImportSource)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid import source name")
+		return nil, errInvalidImportSourceName
 	}
 	m, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, status.Error(codes.NotFound, "import source not found")
+			return nil, errImportSourceNotFound
 		}
-		return nil, status.Error(codes.Internal, "failed to get import source")
+		return nil, errFailedGetImportSource
 	}
-	return ImportSourceToProto(m), nil
+	return ImportSourceToProto(n.Organization, m), nil
 }
 
 func (s *importSourceServiceServer) ListImportSources(ctx context.Context, req *gen.ListImportSourcesRequest) (*gen.ListImportSourcesResponse, error) {
+	var pn gen.OrganizationResourceName
+	if err := pn.UnmarshalString(req.Parent); err != nil {
+		return nil, errInvalidParent
+	}
+	orgID, err := uuid.Parse(pn.Organization)
+	if err != nil {
+		return nil, errInvalidParent
+	}
+
 	c, err := svcfilter.ParseImportSourceFilter(req.Filter)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid filter: %v", err)
@@ -52,7 +72,7 @@ func (s *importSourceServiceServer) ListImportSources(ctx context.Context, req *
 
 	offset, err := pagetoken.Decode(req.PageToken)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid page_token")
+		return nil, errInvalidPageToken
 	}
 
 	pageSize := int(req.PageSize)
@@ -69,6 +89,7 @@ func (s *importSourceServiceServer) ListImportSources(ctx context.Context, req *
 	}
 	orderExprs, _ := order.Resolve(orderBy, repository.ImportSourceOrderFieldMapper)
 
+	_ = orgID // used via pn.Organization in mapper calls below
 	params := repository.ListImportSourcesParams{
 		Page:     int(offset/int64(pageSize)) + 1,
 		PageSize: pageSize,
@@ -78,12 +99,12 @@ func (s *importSourceServiceServer) ListImportSources(ctx context.Context, req *
 
 	ms, total, err := s.repo.List(ctx, params)
 	if err != nil {
-		return nil, status.Error(codes.Internal, "failed to list import sources")
+		return nil, errFailedListImportSources
 	}
 
 	resp := &gen.ListImportSourcesResponse{TotalSize: total}
 	for _, m := range ms {
-		resp.ImportSources = append(resp.ImportSources, ImportSourceToProto(m))
+		resp.ImportSources = append(resp.ImportSources, ImportSourceToProto(pn.Organization, m))
 	}
 	nextOffset := offset + int64(len(ms))
 	if nextOffset < total {
@@ -94,52 +115,56 @@ func (s *importSourceServiceServer) ListImportSources(ctx context.Context, req *
 
 func (s *importSourceServiceServer) CreateImportSource(ctx context.Context, req *gen.CreateImportSourceRequest) (*gen.ImportSource, error) {
 	if req.ImportSource == nil {
-		return nil, status.Error(codes.InvalidArgument, "import_source is required")
+		return nil, errImportSourceRequired
 	}
 	var n gen.OrganizationResourceName
 	if err := n.UnmarshalString(req.Parent); err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid parent")
+		return nil, errInvalidParent
 	}
 	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid parent")
+		return nil, errInvalidParent
 	}
-	m := &model.ImportSource{
+	params := repository.CreateImportSourceParams{
 		OrganizationID:     orgID,
 		DisplayName:        req.ImportSource.DisplayName,
 		DisplayDescription: req.ImportSource.DisplayDescription,
 		CustomID:           req.ImportSourceId,
 	}
 	if req.ImportSource.PeriodStart != nil {
-		m.PeriodStart = protoDateToTime(req.ImportSource.PeriodStart)
+		params.PeriodStart = protoDateToTime(req.ImportSource.PeriodStart)
 	}
-	if err := s.repo.Create(ctx, m); err != nil {
-		if isDuplicateKey(err) {
-			return nil, status.Error(codes.AlreadyExists, "import source with this ID already exists")
+	m, err := s.repo.Create(ctx, params)
+	if err != nil {
+		if errors.Is(err, repository.ErrImportSourceAlreadyExists) {
+			return nil, errImportSourceAlreadyExists
 		}
-		return nil, status.Error(codes.Internal, "failed to create import source")
+		if errors.Is(err, repository.ErrOrganizationNotFound) {
+			return nil, errOrganizationNotFound
+		}
+		return nil, errFailedCreateImportSource
 	}
-	return ImportSourceToProto(m), nil
+	return ImportSourceToProto(n.Organization, m), nil
 }
 
 func (s *importSourceServiceServer) UpdateImportSource(ctx context.Context, req *gen.UpdateImportSourceRequest) (*gen.ImportSource, error) {
 	if req.ImportSource == nil {
-		return nil, status.Error(codes.InvalidArgument, "import_source is required")
+		return nil, errImportSourceRequired
 	}
 	var n gen.ImportSourceResourceName
 	if err := n.UnmarshalString(req.ImportSource.Name); err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid import source name")
+		return nil, errInvalidImportSourceName
 	}
 	id, err := uuid.Parse(n.ImportSource)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid import source name")
+		return nil, errInvalidImportSourceName
 	}
 	m, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, status.Error(codes.NotFound, "import source not found")
+			return nil, errImportSourceNotFound
 		}
-		return nil, status.Error(codes.Internal, "failed to get import source")
+		return nil, errFailedGetImportSource
 	}
 	m.DisplayName = req.ImportSource.DisplayName
 	m.DisplayDescription = req.ImportSource.DisplayDescription
@@ -147,25 +172,25 @@ func (s *importSourceServiceServer) UpdateImportSource(ctx context.Context, req 
 		m.PeriodStart = protoDateToTime(req.ImportSource.PeriodStart)
 	}
 	if err := s.repo.Update(ctx, m); err != nil {
-		return nil, status.Error(codes.Internal, "failed to update import source")
+		return nil, errFailedUpdateImportSource
 	}
-	return ImportSourceToProto(m), nil
+	return ImportSourceToProto(n.Organization, m), nil
 }
 
 func (s *importSourceServiceServer) DeleteImportSource(ctx context.Context, req *gen.DeleteImportSourceRequest) (*emptypb.Empty, error) {
 	var n gen.ImportSourceResourceName
 	if err := n.UnmarshalString(req.Name); err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid import source name")
+		return nil, errInvalidImportSourceName
 	}
 	id, err := uuid.Parse(n.ImportSource)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid import source name")
+		return nil, errInvalidImportSourceName
 	}
 	if err := s.repo.Delete(ctx, id); err != nil {
 		if isNotFound(err) {
-			return nil, status.Error(codes.NotFound, "import source not found")
+			return nil, errImportSourceNotFound
 		}
-		return nil, status.Error(codes.Internal, "failed to delete import source")
+		return nil, errFailedDeleteImportSource
 	}
 	return &emptypb.Empty{}, nil
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
+	"github.com/theater-improrama/go-utils/optional"
 	"go.einride.tech/aip/ordering"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -193,18 +194,26 @@ func (s *budgetServiceServer) UpdateBudget(ctx context.Context, req *gen.UpdateB
 		return nil, &ServerError{Err: err, Status: statusFailedGetBudget}
 	}
 
-	m.DisplayName = req.Budget.DisplayName
-	m.DisplayDescription = req.Budget.DisplayDescription
+	updateParams := repository.UpdateBudgetParams{
+		DisplayName:        optional.From(req.Budget.DisplayName),
+		DisplayDescription: optional.From(req.Budget.DisplayDescription),
+	}
 
 	if req.Budget.PeriodStart != nil {
-		m.PeriodStart = protoDateToTime(req.Budget.PeriodStart)
+		updateParams.PeriodStart = optional.From(protoDateToTime(req.Budget.PeriodStart))
 	}
 
 	if req.Budget.PeriodEnd != nil {
-		m.PeriodEnd = protoDateToTime(req.Budget.PeriodEnd)
+		updateParams.PeriodEnd = optional.From(protoDateToTime(req.Budget.PeriodEnd))
 	}
 
-	if err := s.repo.Update(ctx, m); err != nil {
+	if err := s.repo.Update(ctx, m.ID, updateParams); err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedUpdateBudget}
+	}
+
+	// Refresh the model after update
+	m, err = s.repo.GetByID(ctx, m.ID)
+	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateBudget}
 	}
 
@@ -233,9 +242,17 @@ func (s *budgetServiceServer) CloseBudget(ctx context.Context, req *gen.CloseBud
 		return nil, &ServerError{Err: err, Status: statusFailedGetBudget}
 	}
 
-	m.IsClosed = true
+	updateParams := repository.UpdateBudgetParams{
+		IsClosed: optional.From(true),
+	}
 
-	if err := s.repo.Update(ctx, m); err != nil {
+	if err := s.repo.Update(ctx, m.ID, updateParams); err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedCloseBudget}
+	}
+
+	// Refresh the model after update
+	m, err = s.repo.GetByID(ctx, m.ID)
+	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusFailedCloseBudget}
 	}
 

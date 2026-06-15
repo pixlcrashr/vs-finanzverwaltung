@@ -12,17 +12,17 @@ tags:
   - name: AccountGroupAssignmentService
   - name: BudgetService
   - name: BudgetAccountValueService
+  - name: BudgetActualAccountValueService
   - name: BudgetRevisionService
   - name: BudgetRevisionAccountValueService
   - name: GroupService
-  - name: ImportSourceService
-  - name: ImportSourcePeriodService
+  - name: LedgerAccountService
+  - name: LedgerYearService
   - name: OrganizationService
   - name: ReportService
   - name: ReportTemplateService
   - name: TransactionService
-  - name: TransactionAccountService
-  - name: TransactionAccountAssignmentService
+  - name: TransactionAssignmentService
   - name: UserService
   - name: UserIdentityService
   - name: UserSettingsService
@@ -442,71 +442,6 @@ paths:
           type: boolean
       tags:
         - BudgetAccountValueService
-  /v1/{assignment.name_1}:
-    patch:
-      summary: Updates an existing assignment.
-      operationId: TransactionAccountAssignmentService_UpdateTransactionAccountAssignment
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1TransactionAccountAssignment'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: assignment.name_1
-          description: |-
-            The resource name of the assignment.
-            Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
-          in: path
-          required: true
-          type: string
-          pattern: organizations/[^/]+/transactions/[^/]+/assignments/[^/]+
-        - name: assignment
-          description: The assignment to update.
-          in: body
-          required: true
-          schema:
-            type: object
-            properties:
-              uid:
-                type: string
-                description: The UUID of the assignment.
-                readOnly: true
-              transaction:
-                type: string
-                title: |-
-                  The resource name of the parent transaction.
-                  Format: organizations/{organization}/transactions/{transaction}
-                readOnly: true
-              account_id:
-                type: string
-                description: UUID of the budget account this portion of the transaction is assigned to.
-              value:
-                $ref: '#/definitions/v1Decimal'
-                description: The decimal value assigned to this account.
-              update_time:
-                type: string
-                format: date-time
-                description: Last modification timestamp.
-                readOnly: true
-              create_time:
-                type: string
-                format: date-time
-                description: Creation timestamp.
-                readOnly: true
-              etag:
-                type: string
-                description: Entity tag for optimistic concurrency control.
-                readOnly: true
-            title: The assignment to update.
-            required:
-              - account_id
-              - value
-      tags:
-        - TransactionAccountAssignmentService
   /v1/{assignment.name}:
     patch:
       summary: Updates an existing assignment.
@@ -708,30 +643,30 @@ paths:
               - display_name
       tags:
         - GroupService
-  /v1/{import_source.name}:
+  /v1/{ledger_account.name}:
     patch:
-      summary: Updates an existing import source.
-      operationId: ImportSourceService_UpdateImportSource
+      summary: Updates an existing ledger account (e.g., display name).
+      operationId: LedgerAccountService_UpdateLedgerAccount
       responses:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/v1ImportSource'
+            $ref: '#/definitions/v1LedgerAccount'
         default:
           description: An unexpected error response.
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: import_source.name
+        - name: ledger_account.name
           description: |-
-            The resource name of the import source.
-            Format: organizations/{organization}/importSources/{import_source}
+            The resource name of the ledger account.
+            Format: organizations/{organization}/ledgerAccounts/{ledger_account}
           in: path
           required: true
           type: string
-          pattern: organizations/[^/]+/importSources/[^/]+
-        - name: import_source
-          description: The import source to update.
+          pattern: organizations/[^/]+/ledgerAccounts/[^/]+
+        - name: ledger_account
+          description: The ledger account to update.
           in: body
           required: true
           schema:
@@ -739,17 +674,20 @@ paths:
             properties:
               uid:
                 type: string
-                description: The UUID of the import source.
+                description: The UUID of the ledger account.
                 readOnly: true
+              code:
+                type: string
+                description: Unique account code (e.g., from the Kontenrahmen).
+              account_type:
+                $ref: '#/definitions/v1AccountType'
+                description: The type of account for transaction interpretation.
               display_name:
                 type: string
-                description: Human-readable import source name.
+                description: Human-readable name.
               display_description:
                 type: string
                 description: Optional free-text description.
-              period_start:
-                $ref: '#/definitions/typeDate'
-                description: Period start date for this import source.
               update_time:
                 type: string
                 format: date-time
@@ -764,21 +702,21 @@ paths:
                 type: string
                 description: Entity tag for optimistic concurrency control.
                 readOnly: true
-            title: The import source to update.
+            title: The ledger account to update.
             required:
-              - display_name
-              - period_start
+              - code
+              - account_type
       tags:
-        - ImportSourceService
+        - LedgerAccountService
   /v1/{name_10}:
     get:
-      summary: Gets a single organization by resource name.
-      operationId: OrganizationService_GetOrganization
+      summary: Gets a single ledger year by resource name.
+      operationId: LedgerYearService_GetLedgerYear
       responses:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/v1Organization'
+            $ref: '#/definitions/v1LedgerYear'
         default:
           description: An unexpected error response.
           schema:
@@ -786,62 +724,14 @@ paths:
       parameters:
         - name: name_10
           description: |-
-            The resource name of the organization.
-            Format: organizations/{organization}
+            The resource name of the ledger year.
+            Format: organizations/{organization}/ledgerYears/{ledger_year}
           in: path
           required: true
           type: string
-          pattern: organizations/[^/]+
+          pattern: organizations/[^/]+/ledgerYears/[^/]+
       tags:
-        - OrganizationService
-    delete:
-      summary: Permanently deletes a report template.
-      operationId: ReportTemplateService_DeleteReportTemplate
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            type: object
-            properties: {}
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_10
-          description: |-
-            The resource name of the report template.
-            Format: organizations/{organization}/reportTemplates/{report_template}
-          in: path
-          required: true
-          type: string
-          pattern: organizations/[^/]+/reportTemplates/[^/]+
-      tags:
-        - ReportTemplateService
-  /v1/{name_11}:
-    get:
-      summary: Gets report metadata by resource name.
-      operationId: ReportService_GetReport
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1Report'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_11
-          description: |-
-            The resource name of the report.
-            Format: organizations/{organization}/reports/{report}
-          in: path
-          required: true
-          type: string
-          pattern: organizations/[^/]+/reports/[^/]+
-      tags:
-        - ReportService
+        - LedgerYearService
     delete:
       summary: Permanently deletes a transaction.
       operationId: TransactionService_DeleteTransaction
@@ -856,7 +746,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: name_11
+        - name: name_10
           description: |-
             The resource name of the transaction.
             Format: organizations/{organization}/transactions/{transaction}
@@ -866,7 +756,55 @@ paths:
           pattern: organizations/[^/]+/transactions/[^/]+
       tags:
         - TransactionService
+  /v1/{name_11}:
+    get:
+      summary: Gets a single organization by resource name.
+      operationId: OrganizationService_GetOrganization
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1Organization'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_11
+          description: |-
+            The resource name of the organization.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
+      tags:
+        - OrganizationService
   /v1/{name_12}:
+    get:
+      summary: Gets report metadata by resource name.
+      operationId: ReportService_GetReport
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1Report'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_12
+          description: |-
+            The resource name of the report.
+            Format: organizations/{organization}/reports/{report}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/reports/[^/]+
+      tags:
+        - ReportService
+  /v1/{name_13}:
     get:
       summary: Gets a single report template by resource name.
       operationId: ReportTemplateService_GetReportTemplate
@@ -880,7 +818,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: name_12
+        - name: name_13
           description: |-
             The resource name of the report template.
             Format: organizations/{organization}/reportTemplates/{report_template}
@@ -890,31 +828,7 @@ paths:
           pattern: organizations/[^/]+/reportTemplates/[^/]+
       tags:
         - ReportTemplateService
-    delete:
-      summary: Permanently deletes a transaction account.
-      operationId: TransactionAccountService_DeleteTransactionAccount
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            type: object
-            properties: {}
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_12
-          description: |-
-            The resource name of the transaction account.
-            Format: organizations/{organization}/transactionAccounts/{transaction_account}
-          in: path
-          required: true
-          type: string
-          pattern: organizations/[^/]+/transactionAccounts/[^/]+
-      tags:
-        - TransactionAccountService
-  /v1/{name_13}:
+  /v1/{name_14}:
     get:
       summary: Gets a single transaction by resource name.
       operationId: TransactionService_GetTransaction
@@ -928,7 +842,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: name_13
+        - name: name_14
           description: |-
             The resource name of the transaction.
             Format: organizations/{organization}/transactions/{transaction}
@@ -938,63 +852,15 @@ paths:
           pattern: organizations/[^/]+/transactions/[^/]+
       tags:
         - TransactionService
-    delete:
-      summary: Permanently deletes an assignment.
-      operationId: TransactionAccountAssignmentService_DeleteTransactionAccountAssignment
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            type: object
-            properties: {}
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_13
-          description: |-
-            The resource name of the assignment.
-            Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
-          in: path
-          required: true
-          type: string
-          pattern: organizations/[^/]+/transactions/[^/]+/assignments/[^/]+
-      tags:
-        - TransactionAccountAssignmentService
-  /v1/{name_14}:
-    get:
-      summary: Gets a single transaction account by resource name.
-      operationId: TransactionAccountService_GetTransactionAccount
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1TransactionAccount'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_14
-          description: |-
-            The resource name of the transaction account.
-            Format: organizations/{organization}/transactionAccounts/{transaction_account}
-          in: path
-          required: true
-          type: string
-          pattern: organizations/[^/]+/transactionAccounts/[^/]+
-      tags:
-        - TransactionAccountService
   /v1/{name_15}:
     get:
-      summary: Gets a single assignment by resource name.
-      operationId: TransactionAccountAssignmentService_GetTransactionAccountAssignment
+      summary: Gets a single transaction assignment by resource name.
+      operationId: TransactionAssignmentService_GetTransactionAssignment
       responses:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/v1TransactionAccountAssignment'
+            $ref: '#/definitions/v1TransactionAssignment'
         default:
           description: An unexpected error response.
           schema:
@@ -1002,14 +868,14 @@ paths:
       parameters:
         - name: name_15
           description: |-
-            The resource name of the assignment.
+            The resource name of the transaction assignment.
             Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
           in: path
           required: true
           type: string
           pattern: organizations/[^/]+/transactions/[^/]+/assignments/[^/]+
       tags:
-        - TransactionAccountAssignmentService
+        - TransactionAssignmentService
   /v1/{name_16}:
     get:
       summary: Gets a single user by resource name.
@@ -1132,13 +998,13 @@ paths:
         - AccountGroupService
   /v1/{name_1}:close:
     post:
-      summary: Closes a period, preventing new imports.
-      operationId: ImportSourcePeriodService_CloseImportSourcePeriod
+      summary: Closes a ledger year, preventing new imports.
+      operationId: LedgerYearService_CloseLedgerYear
       responses:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/v1ImportSourcePeriod'
+            $ref: '#/definitions/v1LedgerYear'
         default:
           description: An unexpected error response.
           schema:
@@ -1146,19 +1012,19 @@ paths:
       parameters:
         - name: name_1
           description: |-
-            The resource name of the period to close.
-            Format: organizations/{organization}/importSources/{import_source}/periods/{period}
+            The resource name of the ledger year to close.
+            Format: organizations/{organization}/ledgerYears/{ledger_year}
           in: path
           required: true
           type: string
-          pattern: organizations/[^/]+/importSources/[^/]+/periods/[^/]+
+          pattern: organizations/[^/]+/ledgerYears/[^/]+
         - name: body
           in: body
           required: true
           schema:
-            $ref: '#/definitions/ImportSourcePeriodServiceCloseImportSourcePeriodBody'
+            $ref: '#/definitions/LedgerYearServiceCloseLedgerYearBody'
       tags:
-        - ImportSourcePeriodService
+        - LedgerYearService
   /v1/{name_2}:
     get:
       summary: Gets a single assignment by resource name.
@@ -1305,13 +1171,13 @@ paths:
         - BudgetAccountValueService
   /v1/{name_5}:
     get:
-      summary: Gets a single budget revision by resource name.
-      operationId: BudgetRevisionService_GetBudgetRevision
+      summary: Gets the computed actual value for a single account within a budget.
+      operationId: BudgetActualAccountValueService_GetBudgetActualAccountValue
       responses:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/v1BudgetRevision'
+            $ref: '#/definitions/v1BudgetActualAccountValue'
         default:
           description: An unexpected error response.
           schema:
@@ -1319,14 +1185,14 @@ paths:
       parameters:
         - name: name_5
           description: |-
-            The resource name of the budget revision.
-            Format: organizations/{organization}/budgets/{budget}/revisions/{revision}
+            The resource name of the budget actual account value.
+            Format: organizations/{organization}/budgets/{budget}/actualAccountValues/{account}
           in: path
           required: true
           type: string
-          pattern: organizations/[^/]+/budgets/[^/]+/revisions/[^/]+
+          pattern: organizations/[^/]+/budgets/[^/]+/actualAccountValues/[^/]+
       tags:
-        - BudgetRevisionService
+        - BudgetActualAccountValueService
     delete:
       summary: Permanently deletes a group.
       operationId: GroupService_DeleteGroup
@@ -1353,6 +1219,54 @@ paths:
         - GroupService
   /v1/{name_6}:
     get:
+      summary: Gets a single budget revision by resource name.
+      operationId: BudgetRevisionService_GetBudgetRevision
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1BudgetRevision'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_6
+          description: |-
+            The resource name of the budget revision.
+            Format: organizations/{organization}/budgets/{budget}/revisions/{revision}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/budgets/[^/]+/revisions/[^/]+
+      tags:
+        - BudgetRevisionService
+    delete:
+      summary: Permanently deletes a ledger account.
+      operationId: LedgerAccountService_DeleteLedgerAccount
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            type: object
+            properties: {}
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_6
+          description: |-
+            The resource name of the ledger account.
+            Format: organizations/{organization}/ledgerAccounts/{ledger_account}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/ledgerAccounts/[^/]+
+      tags:
+        - LedgerAccountService
+  /v1/{name_7}:
+    get:
       summary: Gets a single budget revision account value by resource name.
       operationId: BudgetRevisionAccountValueService_GetBudgetRevisionAccountValue
       responses:
@@ -1365,7 +1279,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: name_6
+        - name: name_7
           description: |-
             The resource name of the budget revision account value.
             Format: organizations/{organization}/budgets/{budget}/revisions/{revision}/accountValues/{account_value}
@@ -1375,102 +1289,6 @@ paths:
           pattern: organizations/[^/]+/budgets/[^/]+/revisions/[^/]+/accountValues/[^/]+
       tags:
         - BudgetRevisionAccountValueService
-    delete:
-      summary: Permanently deletes an import source.
-      operationId: ImportSourceService_DeleteImportSource
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            type: object
-            properties: {}
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_6
-          description: |-
-            The resource name of the import source.
-            Format: organizations/{organization}/importSources/{import_source}
-          in: path
-          required: true
-          type: string
-          pattern: organizations/[^/]+/importSources/[^/]+
-      tags:
-        - ImportSourceService
-  /v1/{name_7}:
-    get:
-      summary: Gets a single group by resource name.
-      operationId: GroupService_GetGroup
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1Group'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_7
-          description: |-
-            The resource name of the group.
-            Format: groups/{group}
-          in: path
-          required: true
-          type: string
-          pattern: groups/[^/]+
-      tags:
-        - GroupService
-    delete:
-      summary: Permanently deletes a period.
-      operationId: ImportSourcePeriodService_DeleteImportSourcePeriod
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            type: object
-            properties: {}
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_7
-          description: |-
-            The resource name of the period.
-            Format: organizations/{organization}/importSources/{import_source}/periods/{period}
-          in: path
-          required: true
-          type: string
-          pattern: organizations/[^/]+/importSources/[^/]+/periods/[^/]+
-      tags:
-        - ImportSourcePeriodService
-  /v1/{name_8}:
-    get:
-      summary: Gets a single import source by resource name.
-      operationId: ImportSourceService_GetImportSource
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1ImportSource'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_8
-          description: |-
-            The resource name of the import source.
-            Format: organizations/{organization}/importSources/{import_source}
-          in: path
-          required: true
-          type: string
-          pattern: organizations/[^/]+/importSources/[^/]+
-      tags:
-        - ImportSourceService
     delete:
       summary: Permanently deletes an organization.
       operationId: OrganizationService_DeleteOrganization
@@ -1485,7 +1303,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: name_8
+        - name: name_7
           description: |-
             The resource name of the organization.
             Format: organizations/{organization}
@@ -1495,30 +1313,30 @@ paths:
           pattern: organizations/[^/]+
       tags:
         - OrganizationService
-  /v1/{name_9}:
+  /v1/{name_8}:
     get:
-      summary: Gets a single period by resource name.
-      operationId: ImportSourcePeriodService_GetImportSourcePeriod
+      summary: Gets a single group by resource name.
+      operationId: GroupService_GetGroup
       responses:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/v1ImportSourcePeriod'
+            $ref: '#/definitions/v1Group'
         default:
           description: An unexpected error response.
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: name_9
+        - name: name_8
           description: |-
-            The resource name of the period.
-            Format: organizations/{organization}/importSources/{import_source}/periods/{period}
+            The resource name of the group.
+            Format: groups/{group}
           in: path
           required: true
           type: string
-          pattern: organizations/[^/]+/importSources/[^/]+/periods/[^/]+
+          pattern: groups/[^/]+
       tags:
-        - ImportSourcePeriodService
+        - GroupService
     delete:
       summary: Permanently deletes a report.
       operationId: ReportService_DeleteReport
@@ -1533,7 +1351,7 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
-        - name: name_9
+        - name: name_8
           description: |-
             The resource name of the report.
             Format: organizations/{organization}/reports/{report}
@@ -1543,6 +1361,54 @@ paths:
           pattern: organizations/[^/]+/reports/[^/]+
       tags:
         - ReportService
+  /v1/{name_9}:
+    get:
+      summary: Gets a single ledger account by resource name.
+      operationId: LedgerAccountService_GetLedgerAccount
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1LedgerAccount'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_9
+          description: |-
+            The resource name of the ledger account.
+            Format: organizations/{organization}/ledgerAccounts/{ledger_account}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/ledgerAccounts/[^/]+
+      tags:
+        - LedgerAccountService
+    delete:
+      summary: Permanently deletes a report template.
+      operationId: ReportTemplateService_DeleteReportTemplate
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            type: object
+            properties: {}
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_9
+          description: |-
+            The resource name of the report template.
+            Format: organizations/{organization}/reportTemplates/{report_template}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/reportTemplates/[^/]+
+      tags:
+        - ReportTemplateService
   /v1/{name}:
     get:
       summary: Gets a single account by resource name.
@@ -1779,6 +1645,9 @@ paths:
               display_name:
                 type: string
                 description: Human-readable organization name.
+              start_month:
+                $ref: '#/definitions/v1Month'
+                description: The start month of ledger years for this organization. It is assumed that the start date is the 1st of the month.
               update_time:
                 type: string
                 format: date-time
@@ -1796,6 +1665,7 @@ paths:
             title: The organization to update.
             required:
               - display_name
+              - start_month
       tags:
         - OrganizationService
   /v1/{parent_1}/accountValues:
@@ -1850,13 +1720,13 @@ paths:
         - BudgetRevisionAccountValueService
   /v1/{parent_1}/assignments:
     get:
-      summary: Lists assignments for a transaction.
-      operationId: TransactionAccountAssignmentService_ListTransactionAccountAssignments
+      summary: Lists transaction assignments with keyset pagination and optional filters.
+      operationId: TransactionAssignmentService_ListTransactionAssignments
       responses:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/v1ListTransactionAccountAssignmentsResponse'
+            $ref: '#/definitions/v1ListTransactionAssignmentsResponse'
         default:
           description: An unexpected error response.
           schema:
@@ -1879,61 +1749,25 @@ paths:
           type: integer
           format: int32
         - name: page_token
-          description: A page token from a previous ListTransactionAccountAssignments call.
+          description: A page token from a previous ListTransactionAssignments call.
           in: query
           required: false
           type: string
         - name: filter
           description: |-
             Filter expression conforming to AIP-160.
-            Supported fields: account_id, value.
-            Example: "account_id=\"<uuid>\"".
+            Supported fields: account.
+            Example: "account=\"organizations/*/accounts/*\"".
           in: query
           required: false
           type: string
         - name: order_by
-          description: Order by expression (e.g. "create_time desc").
+          description: Order by expression (e.g. "value desc", "create_time").
           in: query
           required: false
           type: string
       tags:
-        - TransactionAccountAssignmentService
-    post:
-      summary: Creates a new assignment.
-      operationId: TransactionAccountAssignmentService_CreateTransactionAccountAssignment
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1TransactionAccountAssignment'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: parent_1
-          description: |-
-            The parent transaction resource name.
-            Format: organizations/{organization}/transactions/{transaction}
-          in: path
-          required: true
-          type: string
-          pattern: organizations/[^/]+/transactions/[^/]+
-        - name: assignment
-          description: The assignment to create.
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/v1TransactionAccountAssignment'
-        - name: transaction_account_assignment_id
-          description: |-
-            The ID to use for the assignment. If not provided, a system-generated UUID
-            will be used. Must be unique within the parent transaction.
-          in: query
-          required: false
-          type: string
-      tags:
-        - TransactionAccountAssignmentService
+        - TransactionAssignmentService
   /v1/{parent}/accountGroups:
     get:
       summary: Lists account groups with pagination.
@@ -2267,6 +2101,56 @@ paths:
           type: string
       tags:
         - AccountService
+  /v1/{parent}/actualAccountValues:
+    get:
+      summary: Lists computed actual account values for a budget, with pagination.
+      operationId: BudgetActualAccountValueService_ListBudgetActualAccountValues
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListBudgetActualAccountValuesResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: parent
+          description: |-
+            The parent budget resource name.
+            Format: organizations/{organization}/budgets/{budget}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/budgets/[^/]+
+        - name: page_size
+          description: |-
+            Maximum number of actual account values to return. The service may return
+            fewer. If unspecified, at most 50 are returned. Maximum value is 200.
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: page_token
+          description: A page token from a previous ListBudgetActualAccountValues call.
+          in: query
+          required: false
+          type: string
+        - name: filter
+          description: |-
+            Filter expression conforming to AIP-160.
+            Supported fields: account_id.
+            Example: "account_id=\"<uuid>\"".
+          in: query
+          required: false
+          type: string
+        - name: order_by
+          description: Order by expression (e.g. "account_id", "value desc").
+          in: query
+          required: false
+          type: string
+      tags:
+        - BudgetActualAccountValueService
   /v1/{parent}/assignments:
     get:
       summary: Lists assignments for an account group.
@@ -2481,15 +2365,15 @@ paths:
           type: string
       tags:
         - UserIdentityService
-  /v1/{parent}/importSources:
+  /v1/{parent}/ledgerAccounts:
     get:
-      summary: Lists import sources with pagination.
-      operationId: ImportSourceService_ListImportSources
+      summary: Lists ledger accounts with pagination.
+      operationId: LedgerAccountService_ListLedgerAccounts
       responses:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/v1ListImportSourcesResponse'
+            $ref: '#/definitions/v1ListLedgerAccountsResponse'
         default:
           description: An unexpected error response.
           schema:
@@ -2505,40 +2389,46 @@ paths:
           pattern: organizations/[^/]+
         - name: page_size
           description: |-
-            Maximum number of import sources to return. The service may return fewer.
+            Maximum number of accounts to return. The service may return fewer.
             If unspecified, at most 20 are returned. Maximum value is 100.
           in: query
           required: false
           type: integer
           format: int32
         - name: page_token
-          description: A page token from a previous ListImportSources call.
+          description: A page token from a previous ListLedgerAccounts call.
           in: query
           required: false
           type: string
         - name: filter
           description: |-
             Filter expression conforming to AIP-160.
-            Supported fields: display_name.
-            Example: "display_name=\"BankXY\"".
+            Supported fields: code, account_type, display_name.
+            Example: "account_type=ASSET" or "code:\"1000\"".
           in: query
           required: false
           type: string
         - name: order_by
-          description: Order by expression (e.g. "display_name", "create_time desc").
+          description: Order by expression (e.g. "code", "display_name", "create_time desc").
           in: query
           required: false
           type: string
+        - name: show_deleted
+          description: Include archived/soft-deleted ledger accounts. Default is false.
+          in: query
+          required: false
+          type: boolean
       tags:
-        - ImportSourceService
-    post:
-      summary: Creates a new import source.
-      operationId: ImportSourceService_CreateImportSource
+        - LedgerAccountService
+  /v1/{parent}/ledgerYears:
+    get:
+      summary: Lists ledger years for an organization.
+      operationId: LedgerYearService_ListLedgerYears
       responses:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/v1ImportSource'
+            $ref: '#/definitions/v1ListLedgerYearsResponse'
         default:
           description: An unexpected error response.
           schema:
@@ -2552,53 +2442,16 @@ paths:
           required: true
           type: string
           pattern: organizations/[^/]+
-        - name: import_source
-          description: The import source to create.
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/v1ImportSource'
-        - name: import_source_id
-          description: |-
-            The ID to use for the import source. If not provided, a system-generated
-            UUID will be used. Must be unique within the parent organization.
-          in: query
-          required: false
-          type: string
-      tags:
-        - ImportSourceService
-  /v1/{parent}/periods:
-    get:
-      summary: Lists periods for an import source.
-      operationId: ImportSourcePeriodService_ListImportSourcePeriods
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1ListImportSourcePeriodsResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: parent
-          description: |-
-            The parent import source resource name.
-            Format: organizations/{organization}/importSources/{import_source}
-          in: path
-          required: true
-          type: string
-          pattern: organizations/[^/]+/importSources/[^/]+
         - name: page_size
           description: |-
-            Maximum number of periods to return. The service may return fewer.
+            Maximum number of ledger years to return. The service may return fewer.
             If unspecified, at most 20 are returned. Maximum value is 100.
           in: query
           required: false
           type: integer
           format: int32
         - name: page_token
-          description: A page token from a previous ListImportSourcePeriods call.
+          description: A page token from a previous ListLedgerYears call.
           in: query
           required: false
           type: string
@@ -2616,43 +2469,7 @@ paths:
           required: false
           type: string
       tags:
-        - ImportSourcePeriodService
-    post:
-      summary: Creates a new period.
-      operationId: ImportSourcePeriodService_CreateImportSourcePeriod
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1ImportSourcePeriod'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: parent
-          description: |-
-            The parent import source resource name.
-            Format: organizations/{organization}/importSources/{import_source}
-          in: path
-          required: true
-          type: string
-          pattern: organizations/[^/]+/importSources/[^/]+
-        - name: period
-          description: The period to create.
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/v1ImportSourcePeriod'
-        - name: import_source_period_id
-          description: |-
-            The ID to use for the period. If not provided, a system-generated UUID
-            will be used. Must be unique within the parent import source.
-          in: query
-          required: false
-          type: string
-      tags:
-        - ImportSourcePeriodService
+        - LedgerYearService
   /v1/{parent}/reportTemplates:
     get:
       summary: Lists report templates with pagination.
@@ -2909,92 +2726,6 @@ paths:
           type: string
       tags:
         - BudgetRevisionService
-  /v1/{parent}/transactionAccounts:
-    get:
-      summary: Lists transaction accounts with pagination.
-      operationId: TransactionAccountService_ListTransactionAccounts
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1ListTransactionAccountsResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: parent
-          description: |-
-            The parent organization resource name.
-            Format: organizations/{organization}
-          in: path
-          required: true
-          type: string
-          pattern: organizations/[^/]+
-        - name: page_size
-          description: |-
-            Maximum number of accounts to return. The service may return fewer.
-            If unspecified, at most 20 are returned. Maximum value is 100.
-          in: query
-          required: false
-          type: integer
-          format: int32
-        - name: page_token
-          description: A page token from a previous ListTransactionAccounts call.
-          in: query
-          required: false
-          type: string
-        - name: filter
-          description: |-
-            Filter expression conforming to AIP-160.
-            Supported fields: import_source_id, code, display_name.
-            Example: "import_source_id=\"<uuid>\"" or "code:\"IBAN\"".
-          in: query
-          required: false
-          type: string
-        - name: order_by
-          description: Order by expression (e.g. "code", "display_name", "create_time desc").
-          in: query
-          required: false
-          type: string
-      tags:
-        - TransactionAccountService
-    post:
-      summary: Creates a new transaction account.
-      operationId: TransactionAccountService_CreateTransactionAccount
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1TransactionAccount'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: parent
-          description: |-
-            The parent organization resource name.
-            Format: organizations/{organization}
-          in: path
-          required: true
-          type: string
-          pattern: organizations/[^/]+
-        - name: transaction_account
-          description: The transaction account to create.
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/v1TransactionAccount'
-        - name: transaction_account_id
-          description: |-
-            The ID to use for the transaction account. If not provided, a
-            system-generated UUID will be used. Must be unique within the parent organization.
-          in: query
-          required: false
-          type: string
-      tags:
-        - TransactionAccountService
   /v1/{parent}/transactions:
     get:
       summary: Lists transactions with keyset pagination and optional filters.
@@ -3186,6 +2917,14 @@ paths:
                 description: Entity tag for optimistic concurrency control.
                 readOnly: true
             title: The user settings to update.
+        - name: allow_missing
+          description: |-
+            If true and the resource does not exist, a new resource will be created.
+            In this case, the field mask is ignored.
+            https://google.aip.dev/134#create-or-update
+          in: query
+          required: false
+          type: boolean
       tags:
         - UserSettingsService
   /v1/{transaction.name}:
@@ -3221,12 +2960,16 @@ paths:
                 type: string
                 description: The UUID of the transaction.
                 readOnly: true
-              credit_transaction_account_id:
+              credit_ledger_account:
                 type: string
-                description: UUID of the credit transaction account.
-              debit_transaction_account_id:
+                title: |-
+                  Resource name of the credit ledger account.
+                  Format: organizations/{organization}/ledgerAccounts/{ledger_account}
+              debit_ledger_account:
                 type: string
-                description: UUID of the debit transaction account.
+                title: |-
+                  Resource name of the debit ledger account.
+                  Format: organizations/{organization}/ledgerAccounts/{ledger_account}
               amount:
                 $ref: '#/definitions/v1Decimal'
                 description: Transaction amount.
@@ -3263,78 +3006,13 @@ paths:
                 readOnly: true
             title: The transaction to update.
             required:
-              - credit_transaction_account_id
-              - debit_transaction_account_id
+              - credit_ledger_account
+              - debit_ledger_account
               - amount
               - booked_at
               - document_date
       tags:
         - TransactionService
-  /v1/{transaction_account.name}:
-    patch:
-      summary: Updates an existing transaction account.
-      operationId: TransactionAccountService_UpdateTransactionAccount
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1TransactionAccount'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: transaction_account.name
-          description: |-
-            The resource name of the transaction account.
-            Format: organizations/{organization}/transactionAccounts/{transaction_account}
-          in: path
-          required: true
-          type: string
-          pattern: organizations/[^/]+/transactionAccounts/[^/]+
-        - name: transaction_account
-          description: The transaction account to update.
-          in: body
-          required: true
-          schema:
-            type: object
-            properties:
-              uid:
-                type: string
-                description: The UUID of the transaction account.
-                readOnly: true
-              code:
-                type: string
-                description: Unique account code (e.g. IBAN or internal code).
-              import_source_id:
-                type: string
-                description: UUID of the import source this account belongs to.
-              display_name:
-                type: string
-                description: Human-readable name.
-              display_description:
-                type: string
-                description: Optional free-text description.
-              update_time:
-                type: string
-                format: date-time
-                description: Last modification timestamp.
-                readOnly: true
-              create_time:
-                type: string
-                format: date-time
-                description: Creation timestamp.
-                readOnly: true
-              etag:
-                type: string
-                description: Entity tag for optimistic concurrency control.
-                readOnly: true
-            title: The transaction account to update.
-            required:
-              - code
-              - import_source_id
-      tags:
-        - TransactionAccountService
 definitions:
   AccountServiceArchiveAccountBody:
     type: object
@@ -3353,7 +3031,7 @@ definitions:
       - requests
   BudgetServiceCloseBudgetBody:
     type: object
-  ImportSourcePeriodServiceCloseImportSourcePeriodBody:
+  LedgerYearServiceCloseLedgerYearBody:
     type: object
   UserServiceBatchCheckUserOrganizationPermissionsBody:
     type: object
@@ -3582,6 +3260,27 @@ definitions:
     description: AccountGroupAssignment associates an account with an account group.
     required:
       - account_id
+  v1AccountType:
+    type: string
+    enum:
+      - ACCOUNT_TYPE_UNSPECIFIED
+      - ACCOUNT_TYPE_ASSET
+      - ACCOUNT_TYPE_LIABILITY
+      - ACCOUNT_TYPE_EQUITY
+      - ACCOUNT_TYPE_REVENUE
+      - ACCOUNT_TYPE_EXPENSE
+      - ACCOUNT_TYPE_SYSTEM
+    default: ACCOUNT_TYPE_UNSPECIFIED
+    description: |-
+      AccountType defines the classification of a ledger account for transaction interpretation.
+
+       - ACCOUNT_TYPE_UNSPECIFIED: Default value. Not specified.
+       - ACCOUNT_TYPE_ASSET: Asset account (e.g., bank accounts, receivables).
+       - ACCOUNT_TYPE_LIABILITY: Liability account (e.g., loans, payables).
+       - ACCOUNT_TYPE_EQUITY: Equity account (e.g., capital, retained earnings). Treated as LIABILITY for calculations.
+       - ACCOUNT_TYPE_REVENUE: Revenue account (e.g., sales, interest income).
+       - ACCOUNT_TYPE_EXPENSE: Expense account (e.g., rent, salaries, utilities).
+       - ACCOUNT_TYPE_SYSTEM: System account for internal calculations. Special internal use only.
   v1BatchCheckUserOrganizationPermissionsResponse:
     type: object
     properties:
@@ -3700,6 +3399,36 @@ definitions:
     required:
       - account_id
       - value
+  v1BudgetActualAccountValue:
+    type: object
+    properties:
+      name:
+        type: string
+        title: |-
+          The resource name of the budget actual account value.
+          Format: organizations/{organization}/budgets/{budget}/actualAccountValues/{account}
+        readOnly: true
+      account:
+        type: string
+        description: The budget account whose actual value is represented.
+        readOnly: true
+      budget:
+        type: string
+        title: |-
+          The resource name of the parent budget.
+          Format: organizations/{organization}/budgets/{budget}
+        readOnly: true
+      value:
+        $ref: '#/definitions/v1Decimal'
+        description: |-
+          The computed actual monetary value for this account, derived from the sum
+          of all matching TransactionAccountAssignment values within the budget period.
+        readOnly: true
+    description: |-
+      BudgetActualAccountValue is a read-only, server-computed resource that
+      represents the actual monetary value for a single budget account within a
+      budget. The value is calculated by summing all TransactionAccountAssignment
+      values whose parent transactions fall within the budget's period.
   v1BudgetRevision:
     type: object
     properties:
@@ -3932,28 +3661,31 @@ definitions:
     required:
       - organization
       - permissions
-  v1ImportSource:
+  v1LedgerAccount:
     type: object
     properties:
       name:
         type: string
         title: |-
-          The resource name of the import source.
-          Format: organizations/{organization}/importSources/{import_source}
+          The resource name of the ledger account.
+          Format: organizations/{organization}/ledgerAccounts/{ledger_account}
         readOnly: true
       uid:
         type: string
-        description: The UUID of the import source.
+        description: The UUID of the ledger account.
         readOnly: true
+      code:
+        type: string
+        description: Unique account code (e.g., from the Kontenrahmen).
+      account_type:
+        $ref: '#/definitions/v1AccountType'
+        description: The type of account for transaction interpretation.
       display_name:
         type: string
-        description: Human-readable import source name.
+        description: Human-readable name.
       display_description:
         type: string
         description: Optional free-text description.
-      period_start:
-        $ref: '#/definitions/typeDate'
-        description: Period start date for this import source.
       update_time:
         type: string
         format: date-time
@@ -3968,36 +3700,32 @@ definitions:
         type: string
         description: Entity tag for optimistic concurrency control.
         readOnly: true
-    description: ImportSource represents an external data source from which transactions are imported.
+    description: |-
+      LedgerAccount represents an account from a "Kontenrahmen" used for bookkeeping.
+      Accounts are automatically created during data import but can be edited afterwards.
     required:
-      - display_name
-      - period_start
-  v1ImportSourcePeriod:
+      - code
+      - account_type
+  v1LedgerYear:
     type: object
     properties:
       name:
         type: string
         title: |-
-          The resource name of the period.
-          Format: organizations/{organization}/importSources/{import_source}/periods/{period}
+          The resource name of the ledger year.
+          Format: organizations/{organization}/ledgerYears/{ledger_year}
         readOnly: true
       uid:
         type: string
-        description: The UUID of the period.
-        readOnly: true
-      import_source:
-        type: string
-        title: |-
-          The resource name of the parent import source.
-          Format: organizations/{organization}/importSources/{import_source}
+        description: The UUID of the ledger year.
         readOnly: true
       year:
         type: integer
         format: int32
-        description: The fiscal year this period covers.
+        description: The fiscal year this ledger year covers.
       is_closed:
         type: boolean
-        description: Whether this period is closed for new imports.
+        description: Whether this year is closed for new imports.
         readOnly: true
       update_time:
         type: string
@@ -4013,7 +3741,7 @@ definitions:
         type: string
         description: Entity tag for optimistic concurrency control.
         readOnly: true
-    description: ImportSourcePeriod represents a fiscal year period within an import source.
+    description: LedgerYear represents a fiscal/economic year within an organization.
     required:
       - year
   v1ListAccountGroupAssignmentsResponse:
@@ -4082,6 +3810,22 @@ definitions:
         type: string
         format: int64
         description: Total number of account values matching the filter (may be an estimate).
+  v1ListBudgetActualAccountValuesResponse:
+    type: object
+    properties:
+      actual_account_values:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1BudgetActualAccountValue'
+        description: The actual account values returned.
+      next_page_token:
+        type: string
+        description: A token to retrieve the next page of results.
+      total_size:
+        type: string
+        format: int64
+        description: Total number of actual account values matching the filter (may be an estimate).
   v1ListBudgetRevisionAccountValuesResponse:
     type: object
     properties:
@@ -4146,38 +3890,38 @@ definitions:
         type: string
         format: int64
         description: Total number of groups matching the filter (may be an estimate).
-  v1ListImportSourcePeriodsResponse:
+  v1ListLedgerAccountsResponse:
     type: object
     properties:
-      periods:
+      ledger_accounts:
         type: array
         items:
           type: object
-          $ref: '#/definitions/v1ImportSourcePeriod'
-        description: The periods returned.
+          $ref: '#/definitions/v1LedgerAccount'
+        description: The ledger accounts returned.
       next_page_token:
         type: string
         description: A token to retrieve the next page of results.
       total_size:
         type: string
         format: int64
-        description: Total number of periods matching the filter (may be an estimate).
-  v1ListImportSourcesResponse:
+        description: Total number of accounts matching the filter (may be an estimate).
+  v1ListLedgerYearsResponse:
     type: object
     properties:
-      import_sources:
+      ledger_years:
         type: array
         items:
           type: object
-          $ref: '#/definitions/v1ImportSource'
-        description: The import sources returned.
+          $ref: '#/definitions/v1LedgerYear'
+        description: The ledger years returned.
       next_page_token:
         type: string
         description: A token to retrieve the next page of results.
       total_size:
         type: string
         format: int64
-        description: Total number of import sources matching the filter (may be an estimate).
+        description: Total number of ledger years matching the filter (may be an estimate).
   v1ListNestedAccountsResponse:
     type: object
     properties:
@@ -4236,15 +3980,15 @@ definitions:
         type: string
         format: int64
         description: Total number of reports matching the filter (may be an estimate).
-  v1ListTransactionAccountAssignmentsResponse:
+  v1ListTransactionAssignmentsResponse:
     type: object
     properties:
       assignments:
         type: array
         items:
           type: object
-          $ref: '#/definitions/v1TransactionAccountAssignment'
-        description: The assignments returned.
+          $ref: '#/definitions/v1TransactionAssignment'
+        description: The transaction assignments returned.
       next_page_token:
         type: string
         description: A token to retrieve the next page of results.
@@ -4252,22 +3996,6 @@ definitions:
         type: string
         format: int64
         description: Total number of assignments matching the filter (may be an estimate).
-  v1ListTransactionAccountsResponse:
-    type: object
-    properties:
-      transaction_accounts:
-        type: array
-        items:
-          type: object
-          $ref: '#/definitions/v1TransactionAccount'
-        description: The transaction accounts returned.
-      next_page_token:
-        type: string
-        description: A token to retrieve the next page of results.
-      total_size:
-        type: string
-        format: int64
-        description: Total number of accounts matching the filter (may be an estimate).
   v1ListTransactionsResponse:
     type: object
     properties:
@@ -4316,6 +4044,23 @@ definitions:
         type: string
         format: int64
         description: Total number of users matching the filter (may be an estimate).
+  v1Month:
+    type: string
+    enum:
+      - MONTH_UNSPECIFIED
+      - MONTH_JANUARY
+      - MONTH_FEBRUARY
+      - MONTH_MARCH
+      - MONTH_APRIL
+      - MONTH_MAY
+      - MONTH_JUNE
+      - MONTH_JULY
+      - MONTH_AUGUST
+      - MONTH_SEPTEMBER
+      - MONTH_OCTOBER
+      - MONTH_NOVEMBER
+      - MONTH_DECEMBER
+    default: MONTH_UNSPECIFIED
   v1NestedAccount:
     type: object
     properties:
@@ -4394,6 +4139,9 @@ definitions:
       display_name:
         type: string
         description: Human-readable organization name.
+      start_month:
+        $ref: '#/definitions/v1Month'
+        description: The start month of ledger years for this organization. It is assumed that the start date is the 1st of the month.
       update_time:
         type: string
         format: date-time
@@ -4411,6 +4159,7 @@ definitions:
     description: Organization is the top-level resource that owns all other resources.
     required:
       - display_name
+      - start_month
   v1Permission:
     type: string
     enum:
@@ -4557,12 +4306,16 @@ definitions:
         type: string
         description: The UUID of the transaction.
         readOnly: true
-      credit_transaction_account_id:
+      credit_ledger_account:
         type: string
-        description: UUID of the credit transaction account.
-      debit_transaction_account_id:
+        title: |-
+          Resource name of the credit ledger account.
+          Format: organizations/{organization}/ledgerAccounts/{ledger_account}
+      debit_ledger_account:
         type: string
-        description: UUID of the debit transaction account.
+        title: |-
+          Resource name of the debit ledger account.
+          Format: organizations/{organization}/ledgerAccounts/{ledger_account}
       amount:
         $ref: '#/definitions/v1Decimal'
         description: Transaction amount.
@@ -4599,81 +4352,37 @@ definitions:
         readOnly: true
     description: Transaction represents a financial transaction between two transaction accounts.
     required:
-      - credit_transaction_account_id
-      - debit_transaction_account_id
+      - credit_ledger_account
+      - debit_ledger_account
       - amount
       - booked_at
       - document_date
-  v1TransactionAccount:
+  v1TransactionAssignment:
     type: object
     properties:
       name:
         type: string
         title: |-
-          The resource name of the transaction account.
-          Format: organizations/{organization}/transactionAccounts/{transaction_account}
-        readOnly: true
-      uid:
-        type: string
-        description: The UUID of the transaction account.
-        readOnly: true
-      code:
-        type: string
-        description: Unique account code (e.g. IBAN or internal code).
-      import_source_id:
-        type: string
-        description: UUID of the import source this account belongs to.
-      display_name:
-        type: string
-        description: Human-readable name.
-      display_description:
-        type: string
-        description: Optional free-text description.
-      update_time:
-        type: string
-        format: date-time
-        description: Last modification timestamp.
-        readOnly: true
-      create_time:
-        type: string
-        format: date-time
-        description: Creation timestamp.
-        readOnly: true
-      etag:
-        type: string
-        description: Entity tag for optimistic concurrency control.
-        readOnly: true
-    description: |-
-      TransactionAccount is an external account from an import source
-      (e.g. a bank account) involved in transactions.
-    required:
-      - code
-      - import_source_id
-  v1TransactionAccountAssignment:
-    type: object
-    properties:
-      name:
-        type: string
-        title: |-
-          The resource name of the assignment.
+          The resource name of the transaction assignment.
           Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
         readOnly: true
       uid:
         type: string
-        description: The UUID of the assignment.
+        description: The UUID of the transaction assignment.
         readOnly: true
       transaction:
         type: string
         title: |-
-          The resource name of the parent transaction.
+          Resource name of the parent transaction.
           Format: organizations/{organization}/transactions/{transaction}
-        readOnly: true
-      account_id:
+      account:
         type: string
-        description: UUID of the budget account this portion of the transaction is assigned to.
+        title: |-
+          Resource name of the account this transaction is assigned to.
+          Format: organizations/{organization}/accounts/{account}
       value:
         $ref: '#/definitions/v1Decimal'
-        description: The decimal value assigned to this account.
+        description: The assigned value amount.
       update_time:
         type: string
         format: date-time
@@ -4684,15 +4393,12 @@ definitions:
         format: date-time
         description: Creation timestamp.
         readOnly: true
-      etag:
-        type: string
-        description: Entity tag for optimistic concurrency control.
-        readOnly: true
     description: |-
-      TransactionAccountAssignment maps a transaction to a budget account with a
-      partial monetary value (split booking).
+      TransactionAssignment represents the assignment of a transaction to a budget account.
+      This splits transaction amounts across accounts for budgeting purposes.
     required:
-      - account_id
+      - transaction
+      - account
       - value
   v1UpdateBudgetAccountValueRequest:
     type: object

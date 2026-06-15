@@ -10,6 +10,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
+	"github.com/theater-improrama/go-utils/optional"
 	"go.einride.tech/aip/ordering"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -181,10 +182,18 @@ func (s *accountGroupServiceServer) UpdateAccountGroup(ctx context.Context, req 
 		return nil, &ServerError{Err: err, Status: statusFailedGetAccountGroup}
 	}
 
-	m.DisplayName = req.AccountGroup.DisplayName
-	m.DisplayDescription = req.AccountGroup.DisplayDescription
+	updateParams := repository.UpdateAccountGroupParams{
+		DisplayName:        optional.From(req.AccountGroup.DisplayName),
+		DisplayDescription: optional.From(req.AccountGroup.DisplayDescription),
+	}
 
-	if err := s.repo.Update(ctx, m); err != nil {
+	if err := s.repo.Update(ctx, m.ID, updateParams); err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedUpdateAccountGroup}
+	}
+
+	// Refresh the model after update
+	m, err = s.repo.GetByID(ctx, m.ID)
+	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateAccountGroup}
 	}
 

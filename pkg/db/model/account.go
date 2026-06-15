@@ -21,13 +21,13 @@ type Account struct {
 	CreatedAt          time.Time     `gorm:"not null;default:now()"`
 
 	// Relations
-	Organization                  Organization                   `gorm:"foreignKey:OrganizationID"`
-	ParentAccount                 *Account                       `gorm:"foreignKey:ParentAccountID"`
-	ChildAccounts                 []Account                      `gorm:"foreignKey:ParentAccountID"`
-	AccountGroupAssignments       []AccountGroupAssignment       `gorm:"foreignKey:AccountID"`
-	BudgetRevisionAccountValues   []BudgetRevisionAccountValue   `gorm:"foreignKey:AccountID"`
-	BudgetAccountValues           []BudgetAccountValue           `gorm:"foreignKey:AccountID"`
-	TransactionAccountAssignments []TransactionAccountAssignment `gorm:"foreignKey:AccountID"`
+	Organization                Organization                 `gorm:"foreignKey:OrganizationID"`
+	ParentAccount               *Account                     `gorm:"foreignKey:ParentAccountID"`
+	ChildAccounts               []Account                    `gorm:"foreignKey:ParentAccountID"`
+	AccountGroupAssignments     []AccountGroupAssignment     `gorm:"foreignKey:AccountID"`
+	BudgetRevisionAccountValues []BudgetRevisionAccountValue `gorm:"foreignKey:AccountID"`
+	BudgetAccountValues         []BudgetAccountValue         `gorm:"foreignKey:AccountID"`
+	TransactionAssignments      []TransactionAssignment      `gorm:"foreignKey:AccountID"`
 }
 
 func (Account) TableName() string { return "accounts" }

@@ -1,0 +1,151 @@
+syntax = "proto3";
+
+package pixlcrashr.vsfv.v1;
+
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/field_info.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
+
+// LedgerYear represents a fiscal/economic year within an organization.
+message LedgerYear {
+  option (google.api.resource) = {
+    type: "vsfv.pixlcrashr.dev/LedgerYear"
+    pattern: "organizations/{organization}/ledgerYears/{ledger_year}"
+  };
+
+  // The resource name of the ledger year.
+  // Format: organizations/{organization}/ledgerYears/{ledger_year}
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The UUID of the ledger year.
+  string uid = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_info) = {format: UUID4}
+  ];
+
+  // The fiscal year this ledger year covers.
+  int32 year = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // Whether this year is closed for new imports.
+  bool is_closed = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Last modification timestamp.
+  google.protobuf.Timestamp update_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Creation timestamp.
+  google.protobuf.Timestamp create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Entity tag for optimistic concurrency control.
+  string etag = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message GetLedgerYearRequest {
+  // The resource name of the ledger year.
+  // Format: organizations/{organization}/ledgerYears/{ledger_year}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/LedgerYear"}
+  ];
+}
+
+message ListLedgerYearsRequest {
+  // The parent organization resource name.
+  // Format: organizations/{organization}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Organization"}
+  ];
+
+  // Maximum number of ledger years to return. The service may return fewer.
+  // If unspecified, at most 20 are returned. Maximum value is 100.
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // A page token from a previous ListLedgerYears call.
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter expression conforming to AIP-160.
+  // Supported fields: year, is_closed.
+  // Example: "is_closed=false" or "year=2025".
+  string filter = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order by expression (e.g. "year desc", "create_time").
+  string order_by = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ListLedgerYearsResponse {
+  // The ledger years returned.
+  repeated LedgerYear ledger_years = 1;
+
+  // A token to retrieve the next page of results.
+  string next_page_token = 2;
+
+  // Total number of ledger years matching the filter (may be an estimate).
+  int64 total_size = 3;
+}
+
+message CreateLedgerYearRequest {
+  // The parent organization resource name.
+  // Format: organizations/{organization}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Organization"}
+  ];
+
+  // The ledger year to create.
+  LedgerYear ledger_year = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The ID to use for the ledger year. If not provided, a system-generated UUID
+  // will be used. Must be unique within the parent organization.
+  string ledger_year_id = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message CloseLedgerYearRequest {
+  // The resource name of the ledger year to close.
+  // Format: organizations/{organization}/ledgerYears/{ledger_year}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/LedgerYear"}
+  ];
+}
+
+message DeleteLedgerYearRequest {
+  // The resource name of the ledger year.
+  // Format: organizations/{organization}/ledgerYears/{ledger_year}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/LedgerYear"}
+  ];
+}
+
+// LedgerYearService manages fiscal/economic years within an organization.
+service LedgerYearService {
+  option (google.api.default_host) = "vsfv.pixlcrashr.dev";
+
+  // Gets a single ledger year by resource name.
+  rpc GetLedgerYear(GetLedgerYearRequest) returns (LedgerYear) {
+    option (google.api.http) = {get: "/v1/{name=organizations/*/ledgerYears/*}"};
+    option (google.api.method_signature) = "name";
+  }
+
+  // Lists ledger years for an organization.
+  rpc ListLedgerYears(ListLedgerYearsRequest) returns (ListLedgerYearsResponse) {
+    option (google.api.http) = {get: "/v1/{parent=organizations/*}/ledgerYears"};
+    option (google.api.method_signature) = "parent";
+  }
+
+  // Closes a ledger year, preventing new imports.
+  rpc CloseLedgerYear(CloseLedgerYearRequest) returns (LedgerYear) {
+    option (google.api.http) = {
+      post: "/v1/{name=organizations/*/ledgerYears/*}:close"
+      body: "*"
+    };
+    option (google.api.method_signature) = "name";
+  }
+}

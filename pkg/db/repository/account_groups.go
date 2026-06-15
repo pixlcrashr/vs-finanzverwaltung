@@ -10,6 +10,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
+	"github.com/theater-improrama/go-utils/optional"
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
 )
@@ -207,9 +208,31 @@ func (r *AccountGroupRepository) Create(ctx context.Context, params CreateAccoun
 	return m, nil
 }
 
+// UpdateAccountGroupParams holds the fields that can be updated for an account group.
+type UpdateAccountGroupParams struct {
+	DisplayName        optional.Optional[string]
+	DisplayDescription optional.Optional[string]
+	CustomID           optional.Optional[string]
+}
+
 // Update updates fields of an existing account group matched by its primary key.
-func (r *AccountGroupRepository) Update(ctx context.Context, m *model.AccountGroup) error {
-	_, err := r.q.AccountGroup.WithContext(ctx).Where(r.q.AccountGroup.ID.Eq(m.ID)).Updates(m)
+func (r *AccountGroupRepository) Update(ctx context.Context, id uuid.UUID, params UpdateAccountGroupParams) error {
+	m, err := r.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if params.DisplayName.IsSet {
+		m.DisplayName = params.DisplayName.Value
+	}
+	if params.DisplayDescription.IsSet {
+		m.DisplayDescription = params.DisplayDescription.Value
+	}
+	if params.CustomID.IsSet {
+		m.CustomID = params.CustomID.Value
+	}
+
+	_, err = r.q.AccountGroup.WithContext(ctx).Where(r.q.AccountGroup.ID.Eq(m.ID)).Updates(m)
 	if err != nil {
 		return fmt.Errorf("update account group id=%s: %w", m.ID, err)
 	}

@@ -13,6 +13,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/api"
 	apiserv "github.com/pixlcrashr/vsfv/pkg/api/grpc"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services"
+	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db"
 )
 
@@ -35,7 +36,12 @@ incoming HTTP requests. It shuts down gracefully on SIGINT or SIGTERM.`,
 		}
 		defer sqlDB.Close()
 
-		svcSet := services.New(gormDB)
+		enforcer, err := authz.NewEnforcer(gormDB)
+		if err != nil {
+			return fmt.Errorf("creating casbin enforcer: %w", err)
+		}
+
+		svcSet := services.New(gormDB, enforcer)
 
 		grpcSrv, err := apiserv.NewGRPCServer(config.Server.GRPCAddress, svcSet)
 		if err != nil {

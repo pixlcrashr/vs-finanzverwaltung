@@ -107,7 +107,7 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 					BudgetAccountValues struct {
 						field.RelationField
 					}
-					TransactionAccountAssignments struct {
+					TransactionAssignments struct {
 						field.RelationField
 						Organization struct {
 							field.RelationField
@@ -117,28 +117,10 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 							Organization struct {
 								field.RelationField
 							}
-							CreditTransactionAccount struct {
+							CreditLedgerAccount struct {
 								field.RelationField
 								Organization struct {
 									field.RelationField
-								}
-								ImportSource struct {
-									field.RelationField
-									Organization struct {
-										field.RelationField
-									}
-									TransactionAccounts struct {
-										field.RelationField
-									}
-									ImportSourcePeriods struct {
-										field.RelationField
-										Organization struct {
-											field.RelationField
-										}
-										ImportSource struct {
-											field.RelationField
-										}
-									}
 								}
 								CreditTransactions struct {
 									field.RelationField
@@ -147,10 +129,10 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 									field.RelationField
 								}
 							}
-							DebitTransactionAccount struct {
+							DebitLedgerAccount struct {
 								field.RelationField
 							}
-							TransactionAccountAssignments struct {
+							TransactionAssignments struct {
 								field.RelationField
 							}
 						}
@@ -178,10 +160,13 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 			Budgets struct {
 				field.RelationField
 			}
-			ImportSourcePeriods struct {
+			LedgerYears struct {
 				field.RelationField
+				Organization struct {
+					field.RelationField
+				}
 			}
-			ImportSources struct {
+			LedgerAccounts struct {
 				field.RelationField
 			}
 			ReportTemplates struct {
@@ -199,10 +184,7 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 			Transactions struct {
 				field.RelationField
 			}
-			TransactionAccountAssignments struct {
-				field.RelationField
-			}
-			TransactionAccounts struct {
+			TransactionAssignments struct {
 				field.RelationField
 			}
 		}{
@@ -271,7 +253,7 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 					BudgetAccountValues struct {
 						field.RelationField
 					}
-					TransactionAccountAssignments struct {
+					TransactionAssignments struct {
 						field.RelationField
 						Organization struct {
 							field.RelationField
@@ -281,28 +263,10 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 							Organization struct {
 								field.RelationField
 							}
-							CreditTransactionAccount struct {
+							CreditLedgerAccount struct {
 								field.RelationField
 								Organization struct {
 									field.RelationField
-								}
-								ImportSource struct {
-									field.RelationField
-									Organization struct {
-										field.RelationField
-									}
-									TransactionAccounts struct {
-										field.RelationField
-									}
-									ImportSourcePeriods struct {
-										field.RelationField
-										Organization struct {
-											field.RelationField
-										}
-										ImportSource struct {
-											field.RelationField
-										}
-									}
 								}
 								CreditTransactions struct {
 									field.RelationField
@@ -311,10 +275,10 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 									field.RelationField
 								}
 							}
-							DebitTransactionAccount struct {
+							DebitLedgerAccount struct {
 								field.RelationField
 							}
-							TransactionAccountAssignments struct {
+							TransactionAssignments struct {
 								field.RelationField
 							}
 						}
@@ -401,7 +365,7 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 					BudgetAccountValues struct {
 						field.RelationField
 					}
-					TransactionAccountAssignments struct {
+					TransactionAssignments struct {
 						field.RelationField
 						Organization struct {
 							field.RelationField
@@ -411,28 +375,10 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 							Organization struct {
 								field.RelationField
 							}
-							CreditTransactionAccount struct {
+							CreditLedgerAccount struct {
 								field.RelationField
 								Organization struct {
 									field.RelationField
-								}
-								ImportSource struct {
-									field.RelationField
-									Organization struct {
-										field.RelationField
-									}
-									TransactionAccounts struct {
-										field.RelationField
-									}
-									ImportSourcePeriods struct {
-										field.RelationField
-										Organization struct {
-											field.RelationField
-										}
-										ImportSource struct {
-											field.RelationField
-										}
-									}
 								}
 								CreditTransactions struct {
 									field.RelationField
@@ -441,10 +387,10 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 									field.RelationField
 								}
 							}
-							DebitTransactionAccount struct {
+							DebitLedgerAccount struct {
 								field.RelationField
 							}
-							TransactionAccountAssignments struct {
+							TransactionAssignments struct {
 								field.RelationField
 							}
 						}
@@ -591,7 +537,7 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 					}{
 						RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.BudgetAccountValues", "model.BudgetAccountValue"),
 					},
-					TransactionAccountAssignments: struct {
+					TransactionAssignments: struct {
 						field.RelationField
 						Organization struct {
 							field.RelationField
@@ -601,28 +547,10 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 							Organization struct {
 								field.RelationField
 							}
-							CreditTransactionAccount struct {
+							CreditLedgerAccount struct {
 								field.RelationField
 								Organization struct {
 									field.RelationField
-								}
-								ImportSource struct {
-									field.RelationField
-									Organization struct {
-										field.RelationField
-									}
-									TransactionAccounts struct {
-										field.RelationField
-									}
-									ImportSourcePeriods struct {
-										field.RelationField
-										Organization struct {
-											field.RelationField
-										}
-										ImportSource struct {
-											field.RelationField
-										}
-									}
 								}
 								CreditTransactions struct {
 									field.RelationField
@@ -631,10 +559,10 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 									field.RelationField
 								}
 							}
-							DebitTransactionAccount struct {
+							DebitLedgerAccount struct {
 								field.RelationField
 							}
-							TransactionAccountAssignments struct {
+							TransactionAssignments struct {
 								field.RelationField
 							}
 						}
@@ -642,39 +570,21 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 							field.RelationField
 						}
 					}{
-						RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments", "model.TransactionAccountAssignment"),
+						RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAssignments", "model.TransactionAssignment"),
 						Organization: struct {
 							field.RelationField
 						}{
-							RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Organization", "model.Organization"),
+							RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAssignments.Organization", "model.Organization"),
 						},
 						Transaction: struct {
 							field.RelationField
 							Organization struct {
 								field.RelationField
 							}
-							CreditTransactionAccount struct {
+							CreditLedgerAccount struct {
 								field.RelationField
 								Organization struct {
 									field.RelationField
-								}
-								ImportSource struct {
-									field.RelationField
-									Organization struct {
-										field.RelationField
-									}
-									TransactionAccounts struct {
-										field.RelationField
-									}
-									ImportSourcePeriods struct {
-										field.RelationField
-										Organization struct {
-											field.RelationField
-										}
-										ImportSource struct {
-											field.RelationField
-										}
-									}
 								}
 								CreditTransactions struct {
 									field.RelationField
@@ -683,41 +593,23 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 									field.RelationField
 								}
 							}
-							DebitTransactionAccount struct {
+							DebitLedgerAccount struct {
 								field.RelationField
 							}
-							TransactionAccountAssignments struct {
+							TransactionAssignments struct {
 								field.RelationField
 							}
 						}{
-							RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction", "model.Transaction_"),
+							RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAssignments.Transaction", "model.Transaction_"),
 							Organization: struct {
 								field.RelationField
 							}{
-								RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.Organization", "model.Organization"),
+								RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAssignments.Transaction.Organization", "model.Organization"),
 							},
-							CreditTransactionAccount: struct {
+							CreditLedgerAccount: struct {
 								field.RelationField
 								Organization struct {
 									field.RelationField
-								}
-								ImportSource struct {
-									field.RelationField
-									Organization struct {
-										field.RelationField
-									}
-									TransactionAccounts struct {
-										field.RelationField
-									}
-									ImportSourcePeriods struct {
-										field.RelationField
-										Organization struct {
-											field.RelationField
-										}
-										ImportSource struct {
-											field.RelationField
-										}
-									}
 								}
 								CreditTransactions struct {
 									field.RelationField
@@ -726,89 +618,38 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 									field.RelationField
 								}
 							}{
-								RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount", "model.TransactionAccount"),
+								RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAssignments.Transaction.CreditLedgerAccount", "model.LedgerAccount"),
 								Organization: struct {
 									field.RelationField
 								}{
-									RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.Organization", "model.Organization"),
-								},
-								ImportSource: struct {
-									field.RelationField
-									Organization struct {
-										field.RelationField
-									}
-									TransactionAccounts struct {
-										field.RelationField
-									}
-									ImportSourcePeriods struct {
-										field.RelationField
-										Organization struct {
-											field.RelationField
-										}
-										ImportSource struct {
-											field.RelationField
-										}
-									}
-								}{
-									RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource", "model.ImportSource"),
-									Organization: struct {
-										field.RelationField
-									}{
-										RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.Organization", "model.Organization"),
-									},
-									TransactionAccounts: struct {
-										field.RelationField
-									}{
-										RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.TransactionAccounts", "model.TransactionAccount"),
-									},
-									ImportSourcePeriods: struct {
-										field.RelationField
-										Organization struct {
-											field.RelationField
-										}
-										ImportSource struct {
-											field.RelationField
-										}
-									}{
-										RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.ImportSourcePeriods", "model.ImportSourcePeriod"),
-										Organization: struct {
-											field.RelationField
-										}{
-											RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.ImportSourcePeriods.Organization", "model.Organization"),
-										},
-										ImportSource: struct {
-											field.RelationField
-										}{
-											RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.ImportSourcePeriods.ImportSource", "model.ImportSource"),
-										},
-									},
+									RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAssignments.Transaction.CreditLedgerAccount.Organization", "model.Organization"),
 								},
 								CreditTransactions: struct {
 									field.RelationField
 								}{
-									RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.CreditTransactions", "model.Transaction_"),
+									RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAssignments.Transaction.CreditLedgerAccount.CreditTransactions", "model.Transaction_"),
 								},
 								DebitTransactions: struct {
 									field.RelationField
 								}{
-									RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.CreditTransactionAccount.DebitTransactions", "model.Transaction_"),
+									RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAssignments.Transaction.CreditLedgerAccount.DebitTransactions", "model.Transaction_"),
 								},
 							},
-							DebitTransactionAccount: struct {
+							DebitLedgerAccount: struct {
 								field.RelationField
 							}{
-								RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.DebitTransactionAccount", "model.TransactionAccount"),
+								RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAssignments.Transaction.DebitLedgerAccount", "model.LedgerAccount"),
 							},
-							TransactionAccountAssignments: struct {
+							TransactionAssignments: struct {
 								field.RelationField
 							}{
-								RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Transaction.TransactionAccountAssignments", "model.TransactionAccountAssignment"),
+								RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAssignments.Transaction.TransactionAssignments", "model.TransactionAssignment"),
 							},
 						},
 						Account: struct {
 							field.RelationField
 						}{
-							RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAccountAssignments.Account", "model.Account"),
+							RelationField: field.NewRelation("BudgetRevisions.Organization.AccountGroupAssignments.Account.TransactionAssignments.Account", "model.Account"),
 						},
 					},
 				},
@@ -843,15 +684,23 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 			}{
 				RelationField: field.NewRelation("BudgetRevisions.Organization.Budgets", "model.Budget"),
 			},
-			ImportSourcePeriods: struct {
+			LedgerYears: struct {
 				field.RelationField
+				Organization struct {
+					field.RelationField
+				}
 			}{
-				RelationField: field.NewRelation("BudgetRevisions.Organization.ImportSourcePeriods", "model.ImportSourcePeriod"),
+				RelationField: field.NewRelation("BudgetRevisions.Organization.LedgerYears", "model.LedgerYear"),
+				Organization: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("BudgetRevisions.Organization.LedgerYears.Organization", "model.Organization"),
+				},
 			},
-			ImportSources: struct {
+			LedgerAccounts: struct {
 				field.RelationField
 			}{
-				RelationField: field.NewRelation("BudgetRevisions.Organization.ImportSources", "model.ImportSource"),
+				RelationField: field.NewRelation("BudgetRevisions.Organization.LedgerAccounts", "model.LedgerAccount"),
 			},
 			ReportTemplates: struct {
 				field.RelationField
@@ -884,15 +733,10 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 			}{
 				RelationField: field.NewRelation("BudgetRevisions.Organization.Transactions", "model.Transaction_"),
 			},
-			TransactionAccountAssignments: struct {
+			TransactionAssignments: struct {
 				field.RelationField
 			}{
-				RelationField: field.NewRelation("BudgetRevisions.Organization.TransactionAccountAssignments", "model.TransactionAccountAssignment"),
-			},
-			TransactionAccounts: struct {
-				field.RelationField
-			}{
-				RelationField: field.NewRelation("BudgetRevisions.Organization.TransactionAccounts", "model.TransactionAccount"),
+				RelationField: field.NewRelation("BudgetRevisions.Organization.TransactionAssignments", "model.TransactionAssignment"),
 			},
 		},
 		Budget: struct {
@@ -1097,7 +941,7 @@ type budgetHasManyBudgetRevisions struct {
 				BudgetAccountValues struct {
 					field.RelationField
 				}
-				TransactionAccountAssignments struct {
+				TransactionAssignments struct {
 					field.RelationField
 					Organization struct {
 						field.RelationField
@@ -1107,28 +951,10 @@ type budgetHasManyBudgetRevisions struct {
 						Organization struct {
 							field.RelationField
 						}
-						CreditTransactionAccount struct {
+						CreditLedgerAccount struct {
 							field.RelationField
 							Organization struct {
 								field.RelationField
-							}
-							ImportSource struct {
-								field.RelationField
-								Organization struct {
-									field.RelationField
-								}
-								TransactionAccounts struct {
-									field.RelationField
-								}
-								ImportSourcePeriods struct {
-									field.RelationField
-									Organization struct {
-										field.RelationField
-									}
-									ImportSource struct {
-										field.RelationField
-									}
-								}
 							}
 							CreditTransactions struct {
 								field.RelationField
@@ -1137,10 +963,10 @@ type budgetHasManyBudgetRevisions struct {
 								field.RelationField
 							}
 						}
-						DebitTransactionAccount struct {
+						DebitLedgerAccount struct {
 							field.RelationField
 						}
-						TransactionAccountAssignments struct {
+						TransactionAssignments struct {
 							field.RelationField
 						}
 					}
@@ -1168,10 +994,13 @@ type budgetHasManyBudgetRevisions struct {
 		Budgets struct {
 			field.RelationField
 		}
-		ImportSourcePeriods struct {
+		LedgerYears struct {
 			field.RelationField
+			Organization struct {
+				field.RelationField
+			}
 		}
-		ImportSources struct {
+		LedgerAccounts struct {
 			field.RelationField
 		}
 		ReportTemplates struct {
@@ -1189,10 +1018,7 @@ type budgetHasManyBudgetRevisions struct {
 		Transactions struct {
 			field.RelationField
 		}
-		TransactionAccountAssignments struct {
-			field.RelationField
-		}
-		TransactionAccounts struct {
+		TransactionAssignments struct {
 			field.RelationField
 		}
 	}

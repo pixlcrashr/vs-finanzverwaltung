@@ -1,0 +1,176 @@
+syntax = "proto3";
+
+package pixlcrashr.vsfv.v1;
+
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/field_info.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
+
+// AccountType defines the classification of a ledger account for transaction interpretation.
+enum AccountType {
+  // Default value. Not specified.
+  ACCOUNT_TYPE_UNSPECIFIED = 0;
+
+  // Asset account (e.g., bank accounts, receivables).
+  ACCOUNT_TYPE_ASSET = 1;
+
+  // Liability account (e.g., loans, payables).
+  ACCOUNT_TYPE_LIABILITY = 2;
+
+  // Equity account (e.g., capital, retained earnings). Treated as LIABILITY for calculations.
+  ACCOUNT_TYPE_EQUITY = 3;
+
+  // Revenue account (e.g., sales, interest income).
+  ACCOUNT_TYPE_REVENUE = 4;
+
+  // Expense account (e.g., rent, salaries, utilities).
+  ACCOUNT_TYPE_EXPENSE = 5;
+
+  // System account for internal calculations. Special internal use only.
+  ACCOUNT_TYPE_SYSTEM = 6;
+}
+
+// LedgerAccount represents an account from a "Kontenrahmen" used for bookkeeping.
+// Accounts are automatically created during data import but can be edited afterwards.
+message LedgerAccount {
+  option (google.api.resource) = {
+    type: "vsfv.pixlcrashr.dev/LedgerAccount"
+    pattern: "organizations/{organization}/ledgerAccounts/{ledger_account}"
+  };
+
+  // The resource name of the ledger account.
+  // Format: organizations/{organization}/ledgerAccounts/{ledger_account}
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The UUID of the ledger account.
+  string uid = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_info) = {format: UUID4}
+  ];
+
+  // Unique account code (e.g., from the Kontenrahmen).
+  string code = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // The type of account for transaction interpretation.
+  AccountType account_type = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // Human-readable name.
+  string display_name = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional free-text description.
+  string display_description = 6 [(google.api.field_behavior) = OPTIONAL];
+
+  // Last modification timestamp.
+  google.protobuf.Timestamp update_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Creation timestamp.
+  google.protobuf.Timestamp create_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Entity tag for optimistic concurrency control.
+  string etag = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message GetLedgerAccountRequest {
+  // The resource name of the ledger account.
+  // Format: organizations/{organization}/ledgerAccounts/{ledger_account}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/LedgerAccount"}
+  ];
+}
+
+message ListLedgerAccountsRequest {
+  // The parent organization resource name.
+  // Format: organizations/{organization}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Organization"}
+  ];
+
+  // Maximum number of accounts to return. The service may return fewer.
+  // If unspecified, at most 20 are returned. Maximum value is 100.
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // A page token from a previous ListLedgerAccounts call.
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter expression conforming to AIP-160.
+  // Supported fields: code, account_type, display_name.
+  // Example: "account_type=ASSET" or "code:\"1000\"".
+  string filter = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order by expression (e.g. "code", "display_name", "create_time desc").
+  string order_by = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // Include archived/soft-deleted ledger accounts. Default is false.
+  bool show_deleted = 6 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ListLedgerAccountsResponse {
+  // The ledger accounts returned.
+  repeated LedgerAccount ledger_accounts = 1;
+
+  // A token to retrieve the next page of results.
+  string next_page_token = 2;
+
+  // Total number of accounts matching the filter (may be an estimate).
+  int64 total_size = 3;
+}
+
+message UpdateLedgerAccountRequest {
+  // The ledger account to update.
+  LedgerAccount ledger_account = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The list of fields to update.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message DeleteLedgerAccountRequest {
+  // The resource name of the ledger account.
+  // Format: organizations/{organization}/ledgerAccounts/{ledger_account}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/LedgerAccount"}
+  ];
+}
+
+// LedgerAccountService manages ledger accounts for bookkeeping.
+// Accounts are auto-created during import; only Get, List, Update, Delete are exposed.
+service LedgerAccountService {
+  option (google.api.default_host) = "vsfv.pixlcrashr.dev";
+
+  // Gets a single ledger account by resource name.
+  rpc GetLedgerAccount(GetLedgerAccountRequest) returns (LedgerAccount) {
+    option (google.api.http) = {get: "/v1/{name=organizations/*/ledgerAccounts/*}"};
+    option (google.api.method_signature) = "name";
+  }
+
+  // Lists ledger accounts with pagination.
+  rpc ListLedgerAccounts(ListLedgerAccountsRequest) returns (ListLedgerAccountsResponse) {
+    option (google.api.http) = {get: "/v1/{parent=organizations/*}/ledgerAccounts"};
+    option (google.api.method_signature) = "parent";
+  }
+
+  // Updates an existing ledger account (e.g., display name).
+  rpc UpdateLedgerAccount(UpdateLedgerAccountRequest) returns (LedgerAccount) {
+    option (google.api.http) = {
+      patch: "/v1/{ledger_account.name=organizations/*/ledgerAccounts/*}"
+      body: "ledger_account"
+    };
+    option (google.api.method_signature) = "ledger_account,update_mask";
+  }
+
+  // Permanently deletes a ledger account.
+  rpc DeleteLedgerAccount(DeleteLedgerAccountRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/v1/{name=organizations/*/ledgerAccounts/*}"};
+    option (google.api.method_signature) = "name";
+  }
+}

@@ -203,9 +203,47 @@ func (r *AccountRepository) Create(ctx context.Context, params CreateAccountPara
 	return m, nil
 }
 
+// UpdateAccountParams holds the fields that can be updated for an account.
+type UpdateAccountParams struct {
+	ParentAccountID    optional.Optional[uuid.NullUUID]
+	DisplayName        optional.Optional[string]
+	DisplayCode        optional.Optional[string]
+	DisplayDescription optional.Optional[string]
+	IsContainer        optional.Optional[bool]
+	IsArchived         optional.Optional[bool]
+	CustomID           optional.Optional[string]
+}
+
 // Update updates fields of an existing account matched by its primary key.
-func (r *AccountRepository) Update(ctx context.Context, m *model.Account) error {
-	_, err := r.q.Account.WithContext(ctx).Where(r.q.Account.ID.Eq(m.ID)).Updates(m)
+func (r *AccountRepository) Update(ctx context.Context, id uuid.UUID, params UpdateAccountParams) error {
+	m, err := r.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if params.ParentAccountID.IsSet {
+		m.ParentAccountID = params.ParentAccountID.Value
+	}
+	if params.DisplayName.IsSet {
+		m.DisplayName = params.DisplayName.Value
+	}
+	if params.DisplayCode.IsSet {
+		m.DisplayCode = params.DisplayCode.Value
+	}
+	if params.DisplayDescription.IsSet {
+		m.DisplayDescription = params.DisplayDescription.Value
+	}
+	if params.IsContainer.IsSet {
+		m.IsContainer = params.IsContainer.Value
+	}
+	if params.IsArchived.IsSet {
+		m.IsArchived = params.IsArchived.Value
+	}
+	if params.CustomID.IsSet {
+		m.CustomID = params.CustomID.Value
+	}
+
+	_, err = r.q.Account.WithContext(ctx).Where(r.q.Account.ID.Eq(m.ID)).Updates(m)
 	if err != nil {
 		return fmt.Errorf("update account id=%s: %w", m.ID, err)
 	}
@@ -251,8 +289,8 @@ SELECT EXISTS (SELECT 1 FROM ancestors WHERE id = ?) AS has_cycle
 // row references the given account. Used to block creating children under accounts
 // that already have direct transaction assignments.
 func (r *AccountRepository) HasTransactionAssignments(ctx context.Context, accountID uuid.UUID) (bool, error) {
-	count, err := r.q.TransactionAccountAssignment.WithContext(ctx).
-		Where(r.q.TransactionAccountAssignment.AccountID.Eq(accountID)).
+	count, err := r.q.TransactionAssignment.WithContext(ctx).
+		Where(r.q.TransactionAssignment.AccountID.Eq(accountID)).
 		Count()
 	if err != nil {
 		return false, fmt.Errorf("has transaction assignments account_id=%s: %w", accountID, err)

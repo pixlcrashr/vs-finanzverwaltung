@@ -13,6 +13,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
+	"github.com/theater-improrama/go-utils/optional"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -37,10 +38,10 @@ type ListTransactionsParams struct {
 // transactionColumnMapper maps filter field names to database column names.
 func transactionColumnMapper(field string) (string, bool) {
 	switch field {
-	case "credit_transaction_account_id":
-		return "credit_transaction_account_id", true
-	case "debit_transaction_account_id":
-		return "debit_transaction_account_id", true
+	case "credit_ledger_account_id":
+		return "credit_ledger_account_id", true
+	case "debit_ledger_account_id":
+		return "debit_ledger_account_id", true
 	case "booked_at":
 		return "booked_at", true
 	default:
@@ -219,43 +220,43 @@ func (r *TransactionRepository) GetByID(ctx context.Context, id uuid.UUID) (*mod
 
 // CreateTransactionParams holds the fields required to create a transaction.
 type CreateTransactionParams struct {
-	OrganizationID             uuid.UUID
-	CreditTransactionAccountID uuid.UUID
-	DebitTransactionAccountID  uuid.UUID
-	Amount                     apd.Decimal
-	Description                string
-	Reference                  string
-	BookedAt                   time.Time
-	DocumentDate               time.Time
-	CustomID                   string
+	OrganizationID        uuid.UUID
+	CreditLedgerAccountID uuid.UUID
+	DebitLedgerAccountID  uuid.UUID
+	Amount                apd.Decimal
+	Description           string
+	Reference             string
+	BookedAt              time.Time
+	DocumentDate          time.Time
+	CustomID              string
 }
 
 // Create inserts a new transaction.
 func (r *TransactionRepository) Create(ctx context.Context, params CreateTransactionParams) (*model.Transaction_, error) {
-	creditCount, err := r.q.TransactionAccount.WithContext(ctx).Where(r.q.TransactionAccount.ID.Eq(params.CreditTransactionAccountID)).Count()
+	creditCount, err := r.q.LedgerAccount.WithContext(ctx).Where(r.q.LedgerAccount.ID.Eq(params.CreditLedgerAccountID)).Count()
 	if err != nil {
-		return nil, fmt.Errorf("create transaction: check credit account credit_account_id=%s: %w", params.CreditTransactionAccountID, err)
+		return nil, fmt.Errorf("create transaction: check credit account credit_ledger_account_id=%s: %w", params.CreditLedgerAccountID, err)
 	}
 	if creditCount == 0 {
-		return nil, errors.Join(ErrTransactionAccountNotFound, fmt.Errorf("credit_account_id=%s: %w", params.CreditTransactionAccountID, gorm.ErrRecordNotFound))
+		return nil, errors.Join(ErrLedgerAccountNotFound, fmt.Errorf("credit_ledger_account_id=%s: %w", params.CreditLedgerAccountID, gorm.ErrRecordNotFound))
 	}
-	debitCount, err := r.q.TransactionAccount.WithContext(ctx).Where(r.q.TransactionAccount.ID.Eq(params.DebitTransactionAccountID)).Count()
+	debitCount, err := r.q.LedgerAccount.WithContext(ctx).Where(r.q.LedgerAccount.ID.Eq(params.DebitLedgerAccountID)).Count()
 	if err != nil {
-		return nil, fmt.Errorf("create transaction: check debit account debit_account_id=%s: %w", params.DebitTransactionAccountID, err)
+		return nil, fmt.Errorf("create transaction: check debit account debit_ledger_account_id=%s: %w", params.DebitLedgerAccountID, err)
 	}
 	if debitCount == 0 {
-		return nil, errors.Join(ErrTransactionAccountNotFound, fmt.Errorf("debit_account_id=%s: %w", params.DebitTransactionAccountID, gorm.ErrRecordNotFound))
+		return nil, errors.Join(ErrLedgerAccountNotFound, fmt.Errorf("debit_ledger_account_id=%s: %w", params.DebitLedgerAccountID, gorm.ErrRecordNotFound))
 	}
 	m := &model.Transaction_{
-		OrganizationID:             params.OrganizationID,
-		CreditTransactionAccountID: params.CreditTransactionAccountID,
-		DebitTransactionAccountID:  params.DebitTransactionAccountID,
-		Amount:                     params.Amount,
-		Description:                params.Description,
-		Reference:                  params.Reference,
-		BookedAt:                   params.BookedAt,
-		DocumentDate:               params.DocumentDate,
-		CustomID:                   params.CustomID,
+		OrganizationID:        params.OrganizationID,
+		CreditLedgerAccountID: params.CreditLedgerAccountID,
+		DebitLedgerAccountID:  params.DebitLedgerAccountID,
+		Amount:                params.Amount,
+		Description:           params.Description,
+		Reference:             params.Reference,
+		BookedAt:              params.BookedAt,
+		DocumentDate:          params.DocumentDate,
+		CustomID:              params.CustomID,
 	}
 	if err := r.q.Transaction_.WithContext(ctx).Create(m); err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
@@ -266,9 +267,51 @@ func (r *TransactionRepository) Create(ctx context.Context, params CreateTransac
 	return m, nil
 }
 
+// UpdateTransactionParams holds the fields that can be updated for a transaction.
+type UpdateTransactionParams struct {
+	CreditLedgerAccountID optional.Optional[uuid.UUID]
+	DebitLedgerAccountID  optional.Optional[uuid.UUID]
+	Amount                optional.Optional[apd.Decimal]
+	Description           optional.Optional[string]
+	Reference             optional.Optional[string]
+	BookedAt              optional.Optional[time.Time]
+	DocumentDate          optional.Optional[time.Time]
+	CustomID              optional.Optional[string]
+}
+
 // Update updates fields of an existing transaction matched by its primary key.
-func (r *TransactionRepository) Update(ctx context.Context, m *model.Transaction_) error {
-	_, err := r.q.Transaction_.WithContext(ctx).Where(r.q.Transaction_.ID.Eq(m.ID)).Updates(m)
+func (r *TransactionRepository) Update(ctx context.Context, id uuid.UUID, params UpdateTransactionParams) error {
+	m, err := r.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if params.CreditLedgerAccountID.IsSet {
+		m.CreditLedgerAccountID = params.CreditLedgerAccountID.Value
+	}
+	if params.DebitLedgerAccountID.IsSet {
+		m.DebitLedgerAccountID = params.DebitLedgerAccountID.Value
+	}
+	if params.Amount.IsSet {
+		m.Amount = params.Amount.Value
+	}
+	if params.Description.IsSet {
+		m.Description = params.Description.Value
+	}
+	if params.Reference.IsSet {
+		m.Reference = params.Reference.Value
+	}
+	if params.BookedAt.IsSet {
+		m.BookedAt = params.BookedAt.Value
+	}
+	if params.DocumentDate.IsSet {
+		m.DocumentDate = params.DocumentDate.Value
+	}
+	if params.CustomID.IsSet {
+		m.CustomID = params.CustomID.Value
+	}
+
+	_, err = r.q.Transaction_.WithContext(ctx).Where(r.q.Transaction_.ID.Eq(m.ID)).Updates(m)
 	if err != nil {
 		return fmt.Errorf("update transaction id=%s: %w", m.ID, err)
 	}

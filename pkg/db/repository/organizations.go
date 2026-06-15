@@ -4,12 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
+	"github.com/theater-improrama/go-utils/optional"
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
 )
@@ -146,6 +148,7 @@ func (r *OrganizationRepository) ExistsByCustomID(ctx context.Context, customID 
 // CreateOrganizationParams holds the fields required to create an organization.
 type CreateOrganizationParams struct {
 	DisplayName string
+	StartMonth  time.Month
 	CustomID    string
 }
 
@@ -153,6 +156,7 @@ type CreateOrganizationParams struct {
 func (r *OrganizationRepository) Create(ctx context.Context, params CreateOrganizationParams) (*model.Organization, error) {
 	m := &model.Organization{
 		DisplayName: params.DisplayName,
+		StartMonth:  params.StartMonth,
 		CustomID:    params.CustomID,
 	}
 	if err := r.q.Organization.WithContext(ctx).Create(m); err != nil {
@@ -164,9 +168,31 @@ func (r *OrganizationRepository) Create(ctx context.Context, params CreateOrgani
 	return m, nil
 }
 
+// UpdateOrganizationParams holds the fields that can be updated for an organization.
+type UpdateOrganizationParams struct {
+	DisplayName optional.Optional[string]
+	StartMonth  optional.Optional[time.Month]
+	CustomID    optional.Optional[string]
+}
+
 // Update updates fields of an existing organization matched by its primary key.
-func (r *OrganizationRepository) Update(ctx context.Context, m *model.Organization) error {
-	_, err := r.q.Organization.WithContext(ctx).Where(r.q.Organization.ID.Eq(m.ID)).Updates(m)
+func (r *OrganizationRepository) Update(ctx context.Context, id uuid.UUID, params UpdateOrganizationParams) error {
+	m, err := r.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if params.DisplayName.IsSet {
+		m.DisplayName = params.DisplayName.Value
+	}
+	if params.StartMonth.IsSet {
+		m.StartMonth = params.StartMonth.Value
+	}
+	if params.CustomID.IsSet {
+		m.CustomID = params.CustomID.Value
+	}
+
+	_, err = r.q.Organization.WithContext(ctx).Where(r.q.Organization.ID.Eq(m.ID)).Updates(m)
 	if err != nil {
 		return fmt.Errorf("update organization id=%s: %w", m.ID, err)
 	}

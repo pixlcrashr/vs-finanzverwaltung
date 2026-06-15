@@ -16,6 +16,7 @@ import (
 	googlegrpc "google.golang.org/grpc"
 
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services"
+	"github.com/pixlcrashr/vsfv/pkg/authz"
 	pkgdb "github.com/pixlcrashr/vsfv/pkg/db"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 
@@ -36,6 +37,7 @@ var (
 	BudgetRevisionClient             gen.BudgetRevisionServiceClient
 	BudgetRevisionAccountValueClient gen.BudgetRevisionAccountValueServiceClient
 	BudgetAccountValueClient         gen.BudgetAccountValueServiceClient
+	BudgetActualAccountValueClient   gen.BudgetActualAccountValueServiceClient
 	ImportSourceClient               gen.ImportSourceServiceClient
 	TransactionAccountClient         gen.TransactionAccountServiceClient
 	TransactionClient                gen.TransactionServiceClient
@@ -63,7 +65,10 @@ var _ = BeforeSuite(func() {
 	gormDB.Logger = gormDB.Logger.LogMode(logger.Silent)
 	Expect(err).NotTo(HaveOccurred())
 
-	svc := services.New(gormDB)
+	enforcer, err := authz.NewEnforcer(gormDB)
+	Expect(err).NotTo(HaveOccurred())
+
+	svc := services.New(gormDB, enforcer)
 
 	lis = bufconn.Listen(bufSize)
 	s := googlegrpc.NewServer()
@@ -73,6 +78,7 @@ var _ = BeforeSuite(func() {
 	gen.RegisterBudgetRevisionServiceServer(s, svc.BudgetRevision)
 	gen.RegisterBudgetRevisionAccountValueServiceServer(s, svc.BudgetRevisionAccountValue)
 	gen.RegisterBudgetAccountValueServiceServer(s, svc.BudgetAccountValue)
+	gen.RegisterBudgetActualAccountValueServiceServer(s, svc.BudgetActualAccountValue)
 	gen.RegisterImportSourceServiceServer(s, svc.ImportSource)
 	gen.RegisterTransactionAccountServiceServer(s, svc.TransactionAccount)
 	gen.RegisterTransactionServiceServer(s, svc.Transaction)
@@ -93,6 +99,7 @@ var _ = BeforeSuite(func() {
 	BudgetRevisionClient = gen.NewBudgetRevisionServiceClient(conn)
 	BudgetRevisionAccountValueClient = gen.NewBudgetRevisionAccountValueServiceClient(conn)
 	BudgetAccountValueClient = gen.NewBudgetAccountValueServiceClient(conn)
+	BudgetActualAccountValueClient = gen.NewBudgetActualAccountValueServiceClient(conn)
 	ImportSourceClient = gen.NewImportSourceServiceClient(conn)
 	TransactionAccountClient = gen.NewTransactionAccountServiceClient(conn)
 	TransactionClient = gen.NewTransactionServiceClient(conn)

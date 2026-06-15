@@ -54,6 +54,11 @@ message UpdateUserSettingsRequest {
 
   // The list of fields to update.
   google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // If true and the resource does not exist, a new resource will be created.
+  // In this case, the field mask is ignored.
+  // https://google.aip.dev/134#create-or-update
+  bool allow_missing = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // ── Service ───────────────────────────────────────────────────────────────────

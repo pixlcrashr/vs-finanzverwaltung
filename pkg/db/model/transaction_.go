@@ -10,24 +10,24 @@ import (
 
 // Transaction_ has suffix due to naming conflicts when using Gorm DAOs.
 type Transaction_ struct {
-	ID                         uuid.UUID   `gorm:"type:uuid;primaryKey;uniqueIndex:idx_transactions_org_id,priority:1"`
-	CustomID                   string      `gorm:"uniqueIndex:idx_transactions_custom_id_org,priority:1"`
-	OrganizationID             uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_transactions_org_id,priority:2;uniqueIndex:idx_transactions_custom_id_org,priority:2"`
-	CreditTransactionAccountID uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_transactions_unique_entry,priority:1"`
-	DebitTransactionAccountID  uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_transactions_unique_entry,priority:2"`
-	Amount                     apd.Decimal `gorm:"type:decimal;not null;uniqueIndex:idx_transactions_unique_entry,priority:3"`
-	Description                string      `gorm:"not null;default:'';uniqueIndex:idx_transactions_unique_entry,priority:4"`
-	Reference                  string      `gorm:"not null;default:'';uniqueIndex:idx_transactions_unique_entry,priority:5"`
-	BookedAt                   time.Time   `gorm:"type:date;not null;default:now();uniqueIndex:idx_transactions_unique_entry,priority:6"`
-	DocumentDate               time.Time   `gorm:"type:date;not null;default:now();uniqueIndex:idx_transactions_unique_entry,priority:7"`
-	UpdatedAt                  time.Time   `gorm:"not null;default:now()"`
-	CreatedAt                  time.Time   `gorm:"not null;default:now()"`
+	ID                    uuid.UUID   `gorm:"type:uuid;primaryKey;uniqueIndex:idx_transactions_org_id,priority:1"`
+	CustomID              string      `gorm:"uniqueIndex:idx_transactions_custom_id_org,priority:1"`
+	OrganizationID        uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_transactions_org_id,priority:2;uniqueIndex:idx_transactions_custom_id_org,priority:2"`
+	CreditLedgerAccountID uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_transactions_unique_entry,priority:1"`
+	DebitLedgerAccountID  uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_transactions_unique_entry,priority:2"`
+	Amount                apd.Decimal `gorm:"type:decimal;not null;uniqueIndex:idx_transactions_unique_entry,priority:3"`
+	Description           string      `gorm:"not null;default:'';uniqueIndex:idx_transactions_unique_entry,priority:4"`
+	Reference             string      `gorm:"not null;default:'';uniqueIndex:idx_transactions_unique_entry,priority:5"`
+	BookedAt              time.Time   `gorm:"type:date;not null;default:now();uniqueIndex:idx_transactions_unique_entry,priority:6"`
+	DocumentDate          time.Time   `gorm:"type:date;not null;default:now();uniqueIndex:idx_transactions_unique_entry,priority:7"`
+	UpdatedAt             time.Time   `gorm:"not null;default:now()"`
+	CreatedAt             time.Time   `gorm:"not null;default:now()"`
 
 	// Relations
-	Organization                  Organization                   `gorm:"foreignKey:OrganizationID"`
-	CreditTransactionAccount      TransactionAccount             `gorm:"foreignKey:CreditTransactionAccountID"`
-	DebitTransactionAccount       TransactionAccount             `gorm:"foreignKey:DebitTransactionAccountID"`
-	TransactionAccountAssignments []TransactionAccountAssignment `gorm:"foreignKey:TransactionID"`
+	Organization           Organization            `gorm:"foreignKey:OrganizationID"`
+	CreditLedgerAccount    LedgerAccount           `gorm:"foreignKey:CreditLedgerAccountID"`
+	DebitLedgerAccount     LedgerAccount           `gorm:"foreignKey:DebitLedgerAccountID"`
+	TransactionAssignments []TransactionAssignment `gorm:"foreignKey:TransactionID"`
 }
 
 func (Transaction_) TableName() string { return "transactions" }

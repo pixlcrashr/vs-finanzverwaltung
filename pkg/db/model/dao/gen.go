@@ -16,26 +16,26 @@ import (
 )
 
 var (
-	Q                            = new(Query)
-	Account                      *account
-	AccountGroup                 *accountGroup
-	AccountGroupAssignment       *accountGroupAssignment
-	Budget                       *budget
-	BudgetAccountValue           *budgetAccountValue
-	BudgetRevision               *budgetRevision
-	BudgetRevisionAccountValue   *budgetRevisionAccountValue
-	CasbinRule                   *casbinRule
-	ImportSource                 *importSource
-	ImportSourcePeriod           *importSourcePeriod
-	Organization                 *organization
-	Report                       *report
-	ReportTemplate               *reportTemplate
-	TransactionAccount           *transactionAccount
-	TransactionAccountAssignment *transactionAccountAssignment
-	Transaction_                 *transaction_
-	User                         *user
-	UserGroup                    *userGroup
-	UserIdentity                 *userIdentity
+	Q                          = new(Query)
+	Account                    *account
+	AccountGroup               *accountGroup
+	AccountGroupAssignment     *accountGroupAssignment
+	Budget                     *budget
+	BudgetAccountValue         *budgetAccountValue
+	BudgetRevision             *budgetRevision
+	BudgetRevisionAccountValue *budgetRevisionAccountValue
+	CasbinRule                 *casbinRule
+	LedgerAccount              *ledgerAccount
+	LedgerYear                 *ledgerYear
+	Organization               *organization
+	Report                     *report
+	ReportTemplate             *reportTemplate
+	TransactionAssignment      *transactionAssignment
+	Transaction_               *transaction_
+	User                       *user
+	UserGroup                  *userGroup
+	UserIdentity               *userIdentity
+	UserSettings               *userSettings
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
@@ -48,92 +48,92 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	BudgetRevision = &Q.BudgetRevision
 	BudgetRevisionAccountValue = &Q.BudgetRevisionAccountValue
 	CasbinRule = &Q.CasbinRule
-	ImportSource = &Q.ImportSource
-	ImportSourcePeriod = &Q.ImportSourcePeriod
+	LedgerAccount = &Q.LedgerAccount
+	LedgerYear = &Q.LedgerYear
 	Organization = &Q.Organization
 	Report = &Q.Report
 	ReportTemplate = &Q.ReportTemplate
-	TransactionAccount = &Q.TransactionAccount
-	TransactionAccountAssignment = &Q.TransactionAccountAssignment
+	TransactionAssignment = &Q.TransactionAssignment
 	Transaction_ = &Q.Transaction_
 	User = &Q.User
 	UserGroup = &Q.UserGroup
 	UserIdentity = &Q.UserIdentity
+	UserSettings = &Q.UserSettings
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:                           db,
-		Account:                      newAccount(db, opts...),
-		AccountGroup:                 newAccountGroup(db, opts...),
-		AccountGroupAssignment:       newAccountGroupAssignment(db, opts...),
-		Budget:                       newBudget(db, opts...),
-		BudgetAccountValue:           newBudgetAccountValue(db, opts...),
-		BudgetRevision:               newBudgetRevision(db, opts...),
-		BudgetRevisionAccountValue:   newBudgetRevisionAccountValue(db, opts...),
-		CasbinRule:                   newCasbinRule(db, opts...),
-		ImportSource:                 newImportSource(db, opts...),
-		ImportSourcePeriod:           newImportSourcePeriod(db, opts...),
-		Organization:                 newOrganization(db, opts...),
-		Report:                       newReport(db, opts...),
-		ReportTemplate:               newReportTemplate(db, opts...),
-		TransactionAccount:           newTransactionAccount(db, opts...),
-		TransactionAccountAssignment: newTransactionAccountAssignment(db, opts...),
-		Transaction_:                 newTransaction_(db, opts...),
-		User:                         newUser(db, opts...),
-		UserGroup:                    newUserGroup(db, opts...),
-		UserIdentity:                 newUserIdentity(db, opts...),
+		db:                         db,
+		Account:                    newAccount(db, opts...),
+		AccountGroup:               newAccountGroup(db, opts...),
+		AccountGroupAssignment:     newAccountGroupAssignment(db, opts...),
+		Budget:                     newBudget(db, opts...),
+		BudgetAccountValue:         newBudgetAccountValue(db, opts...),
+		BudgetRevision:             newBudgetRevision(db, opts...),
+		BudgetRevisionAccountValue: newBudgetRevisionAccountValue(db, opts...),
+		CasbinRule:                 newCasbinRule(db, opts...),
+		LedgerAccount:              newLedgerAccount(db, opts...),
+		LedgerYear:                 newLedgerYear(db, opts...),
+		Organization:               newOrganization(db, opts...),
+		Report:                     newReport(db, opts...),
+		ReportTemplate:             newReportTemplate(db, opts...),
+		TransactionAssignment:      newTransactionAssignment(db, opts...),
+		Transaction_:               newTransaction_(db, opts...),
+		User:                       newUser(db, opts...),
+		UserGroup:                  newUserGroup(db, opts...),
+		UserIdentity:               newUserIdentity(db, opts...),
+		UserSettings:               newUserSettings(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	Account                      account
-	AccountGroup                 accountGroup
-	AccountGroupAssignment       accountGroupAssignment
-	Budget                       budget
-	BudgetAccountValue           budgetAccountValue
-	BudgetRevision               budgetRevision
-	BudgetRevisionAccountValue   budgetRevisionAccountValue
-	CasbinRule                   casbinRule
-	ImportSource                 importSource
-	ImportSourcePeriod           importSourcePeriod
-	Organization                 organization
-	Report                       report
-	ReportTemplate               reportTemplate
-	TransactionAccount           transactionAccount
-	TransactionAccountAssignment transactionAccountAssignment
-	Transaction_                 transaction_
-	User                         user
-	UserGroup                    userGroup
-	UserIdentity                 userIdentity
+	Account                    account
+	AccountGroup               accountGroup
+	AccountGroupAssignment     accountGroupAssignment
+	Budget                     budget
+	BudgetAccountValue         budgetAccountValue
+	BudgetRevision             budgetRevision
+	BudgetRevisionAccountValue budgetRevisionAccountValue
+	CasbinRule                 casbinRule
+	LedgerAccount              ledgerAccount
+	LedgerYear                 ledgerYear
+	Organization               organization
+	Report                     report
+	ReportTemplate             reportTemplate
+	TransactionAssignment      transactionAssignment
+	Transaction_               transaction_
+	User                       user
+	UserGroup                  userGroup
+	UserIdentity               userIdentity
+	UserSettings               userSettings
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:                           db,
-		Account:                      q.Account.clone(db),
-		AccountGroup:                 q.AccountGroup.clone(db),
-		AccountGroupAssignment:       q.AccountGroupAssignment.clone(db),
-		Budget:                       q.Budget.clone(db),
-		BudgetAccountValue:           q.BudgetAccountValue.clone(db),
-		BudgetRevision:               q.BudgetRevision.clone(db),
-		BudgetRevisionAccountValue:   q.BudgetRevisionAccountValue.clone(db),
-		CasbinRule:                   q.CasbinRule.clone(db),
-		ImportSource:                 q.ImportSource.clone(db),
-		ImportSourcePeriod:           q.ImportSourcePeriod.clone(db),
-		Organization:                 q.Organization.clone(db),
-		Report:                       q.Report.clone(db),
-		ReportTemplate:               q.ReportTemplate.clone(db),
-		TransactionAccount:           q.TransactionAccount.clone(db),
-		TransactionAccountAssignment: q.TransactionAccountAssignment.clone(db),
-		Transaction_:                 q.Transaction_.clone(db),
-		User:                         q.User.clone(db),
-		UserGroup:                    q.UserGroup.clone(db),
-		UserIdentity:                 q.UserIdentity.clone(db),
+		db:                         db,
+		Account:                    q.Account.clone(db),
+		AccountGroup:               q.AccountGroup.clone(db),
+		AccountGroupAssignment:     q.AccountGroupAssignment.clone(db),
+		Budget:                     q.Budget.clone(db),
+		BudgetAccountValue:         q.BudgetAccountValue.clone(db),
+		BudgetRevision:             q.BudgetRevision.clone(db),
+		BudgetRevisionAccountValue: q.BudgetRevisionAccountValue.clone(db),
+		CasbinRule:                 q.CasbinRule.clone(db),
+		LedgerAccount:              q.LedgerAccount.clone(db),
+		LedgerYear:                 q.LedgerYear.clone(db),
+		Organization:               q.Organization.clone(db),
+		Report:                     q.Report.clone(db),
+		ReportTemplate:             q.ReportTemplate.clone(db),
+		TransactionAssignment:      q.TransactionAssignment.clone(db),
+		Transaction_:               q.Transaction_.clone(db),
+		User:                       q.User.clone(db),
+		UserGroup:                  q.UserGroup.clone(db),
+		UserIdentity:               q.UserIdentity.clone(db),
+		UserSettings:               q.UserSettings.clone(db),
 	}
 }
 
@@ -147,72 +147,72 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:                           db,
-		Account:                      q.Account.replaceDB(db),
-		AccountGroup:                 q.AccountGroup.replaceDB(db),
-		AccountGroupAssignment:       q.AccountGroupAssignment.replaceDB(db),
-		Budget:                       q.Budget.replaceDB(db),
-		BudgetAccountValue:           q.BudgetAccountValue.replaceDB(db),
-		BudgetRevision:               q.BudgetRevision.replaceDB(db),
-		BudgetRevisionAccountValue:   q.BudgetRevisionAccountValue.replaceDB(db),
-		CasbinRule:                   q.CasbinRule.replaceDB(db),
-		ImportSource:                 q.ImportSource.replaceDB(db),
-		ImportSourcePeriod:           q.ImportSourcePeriod.replaceDB(db),
-		Organization:                 q.Organization.replaceDB(db),
-		Report:                       q.Report.replaceDB(db),
-		ReportTemplate:               q.ReportTemplate.replaceDB(db),
-		TransactionAccount:           q.TransactionAccount.replaceDB(db),
-		TransactionAccountAssignment: q.TransactionAccountAssignment.replaceDB(db),
-		Transaction_:                 q.Transaction_.replaceDB(db),
-		User:                         q.User.replaceDB(db),
-		UserGroup:                    q.UserGroup.replaceDB(db),
-		UserIdentity:                 q.UserIdentity.replaceDB(db),
+		db:                         db,
+		Account:                    q.Account.replaceDB(db),
+		AccountGroup:               q.AccountGroup.replaceDB(db),
+		AccountGroupAssignment:     q.AccountGroupAssignment.replaceDB(db),
+		Budget:                     q.Budget.replaceDB(db),
+		BudgetAccountValue:         q.BudgetAccountValue.replaceDB(db),
+		BudgetRevision:             q.BudgetRevision.replaceDB(db),
+		BudgetRevisionAccountValue: q.BudgetRevisionAccountValue.replaceDB(db),
+		CasbinRule:                 q.CasbinRule.replaceDB(db),
+		LedgerAccount:              q.LedgerAccount.replaceDB(db),
+		LedgerYear:                 q.LedgerYear.replaceDB(db),
+		Organization:               q.Organization.replaceDB(db),
+		Report:                     q.Report.replaceDB(db),
+		ReportTemplate:             q.ReportTemplate.replaceDB(db),
+		TransactionAssignment:      q.TransactionAssignment.replaceDB(db),
+		Transaction_:               q.Transaction_.replaceDB(db),
+		User:                       q.User.replaceDB(db),
+		UserGroup:                  q.UserGroup.replaceDB(db),
+		UserIdentity:               q.UserIdentity.replaceDB(db),
+		UserSettings:               q.UserSettings.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	Account                      IAccountDo
-	AccountGroup                 IAccountGroupDo
-	AccountGroupAssignment       IAccountGroupAssignmentDo
-	Budget                       IBudgetDo
-	BudgetAccountValue           IBudgetAccountValueDo
-	BudgetRevision               IBudgetRevisionDo
-	BudgetRevisionAccountValue   IBudgetRevisionAccountValueDo
-	CasbinRule                   ICasbinRuleDo
-	ImportSource                 IImportSourceDo
-	ImportSourcePeriod           IImportSourcePeriodDo
-	Organization                 IOrganizationDo
-	Report                       IReportDo
-	ReportTemplate               IReportTemplateDo
-	TransactionAccount           ITransactionAccountDo
-	TransactionAccountAssignment ITransactionAccountAssignmentDo
-	Transaction_                 ITransaction_Do
-	User                         IUserDo
-	UserGroup                    IUserGroupDo
-	UserIdentity                 IUserIdentityDo
+	Account                    IAccountDo
+	AccountGroup               IAccountGroupDo
+	AccountGroupAssignment     IAccountGroupAssignmentDo
+	Budget                     IBudgetDo
+	BudgetAccountValue         IBudgetAccountValueDo
+	BudgetRevision             IBudgetRevisionDo
+	BudgetRevisionAccountValue IBudgetRevisionAccountValueDo
+	CasbinRule                 ICasbinRuleDo
+	LedgerAccount              ILedgerAccountDo
+	LedgerYear                 ILedgerYearDo
+	Organization               IOrganizationDo
+	Report                     IReportDo
+	ReportTemplate             IReportTemplateDo
+	TransactionAssignment      ITransactionAssignmentDo
+	Transaction_               ITransaction_Do
+	User                       IUserDo
+	UserGroup                  IUserGroupDo
+	UserIdentity               IUserIdentityDo
+	UserSettings               IUserSettingsDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Account:                      q.Account.WithContext(ctx),
-		AccountGroup:                 q.AccountGroup.WithContext(ctx),
-		AccountGroupAssignment:       q.AccountGroupAssignment.WithContext(ctx),
-		Budget:                       q.Budget.WithContext(ctx),
-		BudgetAccountValue:           q.BudgetAccountValue.WithContext(ctx),
-		BudgetRevision:               q.BudgetRevision.WithContext(ctx),
-		BudgetRevisionAccountValue:   q.BudgetRevisionAccountValue.WithContext(ctx),
-		CasbinRule:                   q.CasbinRule.WithContext(ctx),
-		ImportSource:                 q.ImportSource.WithContext(ctx),
-		ImportSourcePeriod:           q.ImportSourcePeriod.WithContext(ctx),
-		Organization:                 q.Organization.WithContext(ctx),
-		Report:                       q.Report.WithContext(ctx),
-		ReportTemplate:               q.ReportTemplate.WithContext(ctx),
-		TransactionAccount:           q.TransactionAccount.WithContext(ctx),
-		TransactionAccountAssignment: q.TransactionAccountAssignment.WithContext(ctx),
-		Transaction_:                 q.Transaction_.WithContext(ctx),
-		User:                         q.User.WithContext(ctx),
-		UserGroup:                    q.UserGroup.WithContext(ctx),
-		UserIdentity:                 q.UserIdentity.WithContext(ctx),
+		Account:                    q.Account.WithContext(ctx),
+		AccountGroup:               q.AccountGroup.WithContext(ctx),
+		AccountGroupAssignment:     q.AccountGroupAssignment.WithContext(ctx),
+		Budget:                     q.Budget.WithContext(ctx),
+		BudgetAccountValue:         q.BudgetAccountValue.WithContext(ctx),
+		BudgetRevision:             q.BudgetRevision.WithContext(ctx),
+		BudgetRevisionAccountValue: q.BudgetRevisionAccountValue.WithContext(ctx),
+		CasbinRule:                 q.CasbinRule.WithContext(ctx),
+		LedgerAccount:              q.LedgerAccount.WithContext(ctx),
+		LedgerYear:                 q.LedgerYear.WithContext(ctx),
+		Organization:               q.Organization.WithContext(ctx),
+		Report:                     q.Report.WithContext(ctx),
+		ReportTemplate:             q.ReportTemplate.WithContext(ctx),
+		TransactionAssignment:      q.TransactionAssignment.WithContext(ctx),
+		Transaction_:               q.Transaction_.WithContext(ctx),
+		User:                       q.User.WithContext(ctx),
+		UserGroup:                  q.UserGroup.WithContext(ctx),
+		UserIdentity:               q.UserIdentity.WithContext(ctx),
+		UserSettings:               q.UserSettings.WithContext(ctx),
 	}
 }
 

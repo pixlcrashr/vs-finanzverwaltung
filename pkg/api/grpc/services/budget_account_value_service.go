@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-
 	"errors"
 
 	"github.com/cockroachdb/apd/v3"
@@ -12,6 +11,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
+	"github.com/theater-improrama/go-utils/optional"
 	"go.einride.tech/aip/ordering"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -256,13 +256,22 @@ func (s *budgetAccountValueServiceServer) UpdateBudgetAccountValue(ctx context.C
 		return BudgetAccountValueToProto(n.Organization, n.Budget, newM), nil
 	}
 
+	updateParams := repository.UpdateBudgetAccountValueParams{}
 	if req.AccountValue.Value != nil {
-		if _, _, err := m.Value.SetString(req.AccountValue.Value.Value); err != nil {
+		var val apd.Decimal
+		if _, _, err := val.SetString(req.AccountValue.Value.Value); err != nil {
 			return nil, &ServerError{Err: err, Status: statusInvalidValue}
 		}
+		updateParams.Value = optional.From(val)
 	}
 
-	if err := s.repo.Update(ctx, m); err != nil {
+	if err := s.repo.Update(ctx, m.ID, updateParams); err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedUpdateBudgetAccountValue}
+	}
+
+	// Refresh the model after update
+	m, err = s.repo.GetByID(ctx, m.ID)
+	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateBudgetAccountValue}
 	}
 

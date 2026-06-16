@@ -1,13 +1,19 @@
 /* tslint:disable */
+import { V1AccountType } from './v1account-type';
 
 /**
- * TransactionAccount is an external account from an import source
- * (e.g. a bank account) involved in transactions.
+ * LedgerAccount represents an account from a "Kontenrahmen" used for bookkeeping.
+ * Accounts are automatically created during data import but can be edited afterwards.
  */
-export interface V1TransactionAccount {
+export interface V1LedgerAccount {
 
   /**
-   * Unique account code (e.g. IBAN or internal code).
+   * The type of account for transaction interpretation.
+   */
+  account_type: V1AccountType;
+
+  /**
+   * Unique account code (e.g., from the Kontenrahmen).
    */
   code: string;
 
@@ -30,15 +36,10 @@ export interface V1TransactionAccount {
    * Entity tag for optimistic concurrency control.
    */
   etag?: string;
-
-  /**
-   * UUID of the import source this account belongs to.
-   */
-  import_source_id: string;
   name?: string;
 
   /**
-   * The UUID of the transaction account.
+   * The UUID of the ledger account.
    */
   uid?: string;
 

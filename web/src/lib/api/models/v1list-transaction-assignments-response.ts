@@ -1,11 +1,11 @@
 /* tslint:disable */
-import { V1TransactionAccountAssignment } from './v1transaction-account-assignment';
-export interface V1ListTransactionAccountAssignmentsResponse {
+import { V1TransactionAssignment } from './v1transaction-assignment';
+export interface V1ListTransactionAssignmentsResponse {
 
   /**
-   * The assignments returned.
+   * The transaction assignments returned.
    */
-  assignments?: Array<V1TransactionAccountAssignment>;
+  assignments?: Array<V1TransactionAssignment>;
 
   /**
    * A token to retrieve the next page of results.

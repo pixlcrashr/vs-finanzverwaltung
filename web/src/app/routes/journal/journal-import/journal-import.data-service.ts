@@ -2,11 +2,6 @@ import { Observable } from 'rxjs';
 
 export type JournalImportType = 'lexware' | 'datev';
 
-export interface ImportSourceOption {
-  id: string;
-  name: string;
-}
-
 export interface ImportTransaction {
   customId: string;
   receiptFrom: string;
@@ -34,12 +29,10 @@ export interface AccountOption {
 export interface UploadResult {
   success: boolean;
   transactions: ImportTransaction[];
-  sourceId: string;
   closedYearsCount: number;
 }
 
 export interface ImportSingleTransactionRequest {
-  sourceId: string;
   receiptFrom: string;
   bookedAt: string;
   amount: string;
@@ -51,8 +44,7 @@ export interface ImportSingleTransactionRequest {
 }
 
 export abstract class JournalImportDataService {
-  abstract getImportSources(organizationId: string): Observable<ImportSourceOption[]>;
   abstract getAvailableAccounts(organizationId: string): Observable<AccountOption[]>;
-  abstract uploadFile(organizationId: string, sourceId: string, type: JournalImportType, file: File): Observable<UploadResult>;
+  abstract uploadFile(organizationId: string, type: JournalImportType, file: File): Observable<UploadResult>;
   abstract importTransaction(organizationId: string, request: ImportSingleTransactionRequest): Observable<{ success: boolean }>;
 }

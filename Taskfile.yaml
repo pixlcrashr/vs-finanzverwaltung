@@ -29,6 +29,11 @@ tasks:
     dir: web
     cmds:
       - npm run build
+  web:generateApiV2:
+    desc: Generate API client
+    dir: web
+    cmds:
+      - npm run generate:apiV2
   build:
     desc: Full production build (web + Go with embedded assets)
     cmds:

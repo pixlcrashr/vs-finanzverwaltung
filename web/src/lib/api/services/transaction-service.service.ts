@@ -14,8 +14,8 @@ import { V1Decimal } from '../models/v1decimal';
   providedIn: 'root',
 })
 class TransactionServiceService extends __BaseService {
-  static readonly TransactionServiceDeleteTransactionPath = '/v1/{name_11}';
-  static readonly TransactionServiceGetTransactionPath = '/v1/{name_13}';
+  static readonly TransactionServiceDeleteTransactionPath = '/v1/{name_10}';
+  static readonly TransactionServiceGetTransactionPath = '/v1/{name_14}';
   static readonly TransactionServiceListTransactionsPath = '/v1/{parent}/transactions';
   static readonly TransactionServiceCreateTransactionPath = '/v1/{parent}/transactions';
   static readonly TransactionServiceUpdateTransactionPath = '/v1/{transaction.name}';
@@ -29,18 +29,18 @@ class TransactionServiceService extends __BaseService {
 
   /**
    * Permanently deletes a transaction.
-   * @param name_11 The resource name of the transaction.
+   * @param name_10 The resource name of the transaction.
    * Format: organizations/{organization}/transactions/{transaction}
    * @return A successful response.
    */
-  TransactionServiceDeleteTransactionResponse(name11: string): __Observable<__StrictHttpResponse<{}>> {
+  TransactionServiceDeleteTransactionResponse(name10: string): __Observable<__StrictHttpResponse<{}>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
 
     let req = new HttpRequest<any>(
       'DELETE',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name11))}`,
+      this.rootUrl + `/v1/${encodeURIComponent(String(name10))}`,
       __body,
       {
         headers: __headers,
@@ -57,30 +57,30 @@ class TransactionServiceService extends __BaseService {
   }
   /**
    * Permanently deletes a transaction.
-   * @param name_11 The resource name of the transaction.
+   * @param name_10 The resource name of the transaction.
    * Format: organizations/{organization}/transactions/{transaction}
    * @return A successful response.
    */
-  TransactionServiceDeleteTransaction(name11: string): __Observable<{}> {
-    return this.TransactionServiceDeleteTransactionResponse(name11).pipe(
+  TransactionServiceDeleteTransaction(name10: string): __Observable<{}> {
+    return this.TransactionServiceDeleteTransactionResponse(name10).pipe(
       __map(_r => _r.body as {})
     );
   }
 
   /**
    * Gets a single transaction by resource name.
-   * @param name_13 The resource name of the transaction.
+   * @param name_14 The resource name of the transaction.
    * Format: organizations/{organization}/transactions/{transaction}
    * @return A successful response.
    */
-  TransactionServiceGetTransactionResponse(name13: string): __Observable<__StrictHttpResponse<V1Transaction>> {
+  TransactionServiceGetTransactionResponse(name14: string): __Observable<__StrictHttpResponse<V1Transaction>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
 
     let req = new HttpRequest<any>(
       'GET',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name13))}`,
+      this.rootUrl + `/v1/${encodeURIComponent(String(name14))}`,
       __body,
       {
         headers: __headers,
@@ -97,12 +97,12 @@ class TransactionServiceService extends __BaseService {
   }
   /**
    * Gets a single transaction by resource name.
-   * @param name_13 The resource name of the transaction.
+   * @param name_14 The resource name of the transaction.
    * Format: organizations/{organization}/transactions/{transaction}
    * @return A successful response.
    */
-  TransactionServiceGetTransaction(name13: string): __Observable<V1Transaction> {
-    return this.TransactionServiceGetTransactionResponse(name13).pipe(
+  TransactionServiceGetTransaction(name14: string): __Observable<V1Transaction> {
+    return this.TransactionServiceGetTransactionResponse(name14).pipe(
       __map(_r => _r.body as V1Transaction)
     );
   }
@@ -366,7 +366,7 @@ module TransactionServiceService {
     /**
      * The transaction to update.
      */
-    transaction: {uid?: string, credit_transaction_account_id: string, debit_transaction_account_id: string, amount: V1Decimal, description?: string, reference?: string, booked_at: string, document_date: string, document_id?: string, update_time?: string, create_time?: string, etag?: string};
+    transaction: {uid?: string, credit_ledger_account: string, debit_ledger_account: string, amount: V1Decimal, description?: string, reference?: string, booked_at: string, document_date: string, document_id?: string, update_time?: string, create_time?: string, etag?: string};
   }
 }
 

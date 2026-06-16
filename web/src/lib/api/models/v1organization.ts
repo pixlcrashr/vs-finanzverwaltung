@@ -1,4 +1,5 @@
 /* tslint:disable */
+import { V1Month } from './v1month';
 
 /**
  * Organization is the top-level resource that owns all other resources.
@@ -20,6 +21,11 @@ export interface V1Organization {
    */
   etag?: string;
   name?: string;
+
+  /**
+   * The start month of ledger years for this organization. It is assumed that the start date is the 1st of the month.
+   */
+  start_month: V1Month;
 
   /**
    * The UUID of the organization.

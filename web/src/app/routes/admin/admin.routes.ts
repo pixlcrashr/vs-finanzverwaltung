@@ -4,9 +4,6 @@ import { UserEditDataService } from './users/user-edit.data-service';
 import { GroupListDataService } from './groups/group-list.data-service';
 import { GroupNewDataService } from './groups/group-new.data-service';
 import { GroupEditDataService } from './groups/group-edit.data-service';
-import { ImportSourceListDataService } from './import-sources/import-source-list.data-service';
-import { ImportSourceEditDataService } from './import-sources/import-source-edit.data-service';
-import { ClosePeriodDialogDataService } from '../../shared/dialogs/close-period-dialog/close-period-dialog.data-service';
 import { OrganizationListDataService } from './organizations/organization-list.data-service';
 import { OrganizationEditDataService } from './organizations/organization-edit.data-service';
 import { environment } from '../../../environments/environment';
@@ -45,27 +42,6 @@ export const ADMIN_ROUTES: Routes = [
     loadComponent: () => import('./groups/group-edit.component').then((m) => m.GroupEditComponent),
     providers: [
       { provide: GroupEditDataService, useClass: environment.dataServices.groupEdit },
-    ],
-  },
-  {
-    path: 'importSources',
-    loadComponent: () =>
-      import('./import-sources/import-source-list.component').then(
-        (m) => m.ImportSourceListComponent
-      ),
-    providers: [
-      { provide: ImportSourceListDataService, useClass: environment.dataServices.importSourceList },
-    ],
-  },
-  {
-    path: 'importSources/:id/edit',
-    loadComponent: () =>
-      import('./import-sources/import-source-edit.component').then(
-        (m) => m.ImportSourceEditComponent
-      ),
-    providers: [
-      { provide: ImportSourceEditDataService, useClass: environment.dataServices.importSourceEdit },
-      { provide: ClosePeriodDialogDataService, useClass: environment.dataServices.closePeriodDialog },
     ],
   },
   {

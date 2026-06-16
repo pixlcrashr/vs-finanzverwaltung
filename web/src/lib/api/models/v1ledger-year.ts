@@ -1,9 +1,9 @@
 /* tslint:disable */
 
 /**
- * ImportSourcePeriod represents a fiscal year period within an import source.
+ * LedgerYear represents a fiscal/economic year within an organization.
  */
-export interface V1ImportSourcePeriod {
+export interface V1LedgerYear {
 
   /**
    * Creation timestamp.
@@ -14,16 +14,15 @@ export interface V1ImportSourcePeriod {
    * Entity tag for optimistic concurrency control.
    */
   etag?: string;
-  import_source?: string;
 
   /**
-   * Whether this period is closed for new imports.
+   * Whether this year is closed for new imports.
    */
   is_closed?: boolean;
   name?: string;
 
   /**
-   * The UUID of the period.
+   * The UUID of the ledger year.
    */
   uid?: string;
 
@@ -33,7 +32,7 @@ export interface V1ImportSourcePeriod {
   update_time?: string;
 
   /**
-   * The fiscal year this period covers.
+   * The fiscal year this ledger year covers.
    */
   year: number;
 }

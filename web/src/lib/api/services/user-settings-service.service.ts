@@ -71,6 +71,10 @@ class UserSettingsServiceService extends __BaseService {
    *
    * - `settings`: The user settings to update.
    *
+   * - `allow_missing`: If true and the resource does not exist, a new resource will be created.
+   *   In this case, the field mask is ignored.
+   *   https://google.aip.dev/134#create-or-update
+   *
    * @return A successful response.
    */
   UserSettingsServiceUpdateUserSettingsResponse(params: UserSettingsServiceService.UserSettingsServiceUpdateUserSettingsParams): __Observable<__StrictHttpResponse<V1UserSettings>> {
@@ -79,6 +83,7 @@ class UserSettingsServiceService extends __BaseService {
     let __body: any = null;
 
     __body = params.settings;
+    if (params.allowMissing != null) __params = __params.set('allow_missing', params.allowMissing.toString());
     let req = new HttpRequest<any>(
       'PATCH',
       this.rootUrl + `/v1/${encodeURIComponent(String(params.settingsName))}`,
@@ -104,6 +109,10 @@ class UserSettingsServiceService extends __BaseService {
    *   Format: users/{user}/settings
    *
    * - `settings`: The user settings to update.
+   *
+   * - `allow_missing`: If true and the resource does not exist, a new resource will be created.
+   *   In this case, the field mask is ignored.
+   *   https://google.aip.dev/134#create-or-update
    *
    * @return A successful response.
    */
@@ -131,6 +140,13 @@ module UserSettingsServiceService {
      * The user settings to update.
      */
     settings: {locale?: string, theme?: string, update_time?: string, etag?: string};
+
+    /**
+     * If true and the resource does not exist, a new resource will be created.
+     * In this case, the field mask is ignored.
+     * https://google.aip.dev/134#create-or-update
+     */
+    allowMissing?: boolean;
   }
 }
 

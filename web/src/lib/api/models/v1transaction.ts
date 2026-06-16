@@ -20,16 +20,8 @@ export interface V1Transaction {
    * Creation timestamp.
    */
   create_time?: string;
-
-  /**
-   * UUID of the credit transaction account.
-   */
-  credit_transaction_account_id: string;
-
-  /**
-   * UUID of the debit transaction account.
-   */
-  debit_transaction_account_id: string;
+  credit_ledger_account: string;
+  debit_ledger_account: string;
 
   /**
    * Human-readable transaction description.

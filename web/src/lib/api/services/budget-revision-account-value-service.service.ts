@@ -13,7 +13,7 @@ import { V1ListBudgetRevisionAccountValuesResponse } from '../models/v1list-budg
   providedIn: 'root',
 })
 class BudgetRevisionAccountValueServiceService extends __BaseService {
-  static readonly BudgetRevisionAccountValueServiceGetBudgetRevisionAccountValuePath = '/v1/{name_6}';
+  static readonly BudgetRevisionAccountValueServiceGetBudgetRevisionAccountValuePath = '/v1/{name_7}';
   static readonly BudgetRevisionAccountValueServiceListBudgetRevisionAccountValuesPath = '/v1/{parent_1}/accountValues';
 
   constructor(
@@ -25,18 +25,18 @@ class BudgetRevisionAccountValueServiceService extends __BaseService {
 
   /**
    * Gets a single budget revision account value by resource name.
-   * @param name_6 The resource name of the budget revision account value.
+   * @param name_7 The resource name of the budget revision account value.
    * Format: organizations/{organization}/budgets/{budget}/revisions/{revision}/accountValues/{account_value}
    * @return A successful response.
    */
-  BudgetRevisionAccountValueServiceGetBudgetRevisionAccountValueResponse(name6: string): __Observable<__StrictHttpResponse<V1BudgetRevisionAccountValue>> {
+  BudgetRevisionAccountValueServiceGetBudgetRevisionAccountValueResponse(name7: string): __Observable<__StrictHttpResponse<V1BudgetRevisionAccountValue>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
 
     let req = new HttpRequest<any>(
       'GET',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name6))}`,
+      this.rootUrl + `/v1/${encodeURIComponent(String(name7))}`,
       __body,
       {
         headers: __headers,
@@ -53,12 +53,12 @@ class BudgetRevisionAccountValueServiceService extends __BaseService {
   }
   /**
    * Gets a single budget revision account value by resource name.
-   * @param name_6 The resource name of the budget revision account value.
+   * @param name_7 The resource name of the budget revision account value.
    * Format: organizations/{organization}/budgets/{budget}/revisions/{revision}/accountValues/{account_value}
    * @return A successful response.
    */
-  BudgetRevisionAccountValueServiceGetBudgetRevisionAccountValue(name6: string): __Observable<V1BudgetRevisionAccountValue> {
-    return this.BudgetRevisionAccountValueServiceGetBudgetRevisionAccountValueResponse(name6).pipe(
+  BudgetRevisionAccountValueServiceGetBudgetRevisionAccountValue(name7: string): __Observable<V1BudgetRevisionAccountValue> {
+    return this.BudgetRevisionAccountValueServiceGetBudgetRevisionAccountValueResponse(name7).pipe(
       __map(_r => _r.body as V1BudgetRevisionAccountValue)
     );
   }

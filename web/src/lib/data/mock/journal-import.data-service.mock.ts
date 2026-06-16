@@ -3,7 +3,6 @@ import { Observable, of, delay } from 'rxjs';
 import { faker } from '@faker-js/faker';
 import {
   JournalImportDataService,
-  ImportSourceOption,
   ImportTransaction,
   ImportSingleTransactionRequest,
   AccountOption,
@@ -13,15 +12,6 @@ import {
 
 @Injectable()
 export class MockJournalImportDataService extends JournalImportDataService {
-  getImportSources(organizationId: string): Observable<ImportSourceOption[]> {
-    return of([
-      { id: faker.string.uuid(), name: 'Sparkasse' },
-      { id: faker.string.uuid(), name: 'Volksbank' },
-      { id: faker.string.uuid(), name: 'Deutsche Bank' },
-      { id: faker.string.uuid(), name: 'Commerzbank' },
-    ]).pipe(delay(200));
-  }
-
   getAvailableAccounts(organizationId: string): Observable<AccountOption[]> {
     return of([
       { id: faker.string.uuid(), name: '1-01 | Mitgliedsbeiträge', isArchived: false },
@@ -33,7 +23,7 @@ export class MockJournalImportDataService extends JournalImportDataService {
     ]).pipe(delay(200));
   }
 
-  uploadFile(organizationId: string, sourceId: string, type: JournalImportType, file: File): Observable<UploadResult> {
+  uploadFile(organizationId: string, type: JournalImportType, file: File): Observable<UploadResult> {
     const count = type === 'lexware'
       ? faker.number.int({ min: 5, max: 15 })
       : faker.number.int({ min: 3, max: 10 });
@@ -54,7 +44,6 @@ export class MockJournalImportDataService extends JournalImportDataService {
     return of({
       success: true,
       transactions,
-      sourceId,
       closedYearsCount: 0,
     }).pipe(delay(1000));
   }

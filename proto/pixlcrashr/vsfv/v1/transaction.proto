@@ -11,6 +11,7 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 import "pixlcrashr/vsfv/v1/decimal.proto";
+import "pixlcrashr/vsfv/v1/ledger_account.proto";
 
 option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
 option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
@@ -32,11 +33,19 @@ message Transaction {
     (google.api.field_info) = {format: UUID4}
   ];
 
-  // UUID of the credit transaction account.
-  string credit_transaction_account_id = 3 [(google.api.field_behavior) = REQUIRED];
+  // Resource name of the credit ledger account.
+  // Format: organizations/{organization}/ledgerAccounts/{ledger_account}
+  string credit_ledger_account = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/LedgerAccount"}
+  ];
 
-  // UUID of the debit transaction account.
-  string debit_transaction_account_id = 4 [(google.api.field_behavior) = REQUIRED];
+  // Resource name of the debit ledger account.
+  // Format: organizations/{organization}/ledgerAccounts/{ledger_account}
+  string debit_ledger_account = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/LedgerAccount"}
+  ];
 
   // Transaction amount.
   Decimal amount = 5 [(google.api.field_behavior) = REQUIRED];

@@ -81,6 +81,7 @@ func (r *BudgetRevisionAccountValueRepository) List(ctx context.Context, params 
 	if err := db.Find(&ms).Error; err != nil {
 		return nil, 0, fmt.Errorf("list budget revision account values budget_revision_id=%s: %w", params.BudgetRevisionID, err)
 	}
+
 	return ms, total, nil
 }
 
@@ -93,5 +94,6 @@ func (r *BudgetRevisionAccountValueRepository) GetByID(ctx context.Context, id u
 		}
 		return nil, fmt.Errorf("get budget revision account value id=%s: %w", id, err)
 	}
+
 	return m, nil
 }

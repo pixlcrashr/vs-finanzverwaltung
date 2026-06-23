@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+package pixlcrashr.vsfv.v1;
+
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "pixlcrashr/vsfv/v1/decimal.proto";
+
+option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
+option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
+
+// BudgetActualAccountValue is a read-only, server-computed resource that
+// represents the actual monetary value for a single budget account within a
+// budget. The value is calculated by summing all TransactionAccountAssignment
+// values whose parent transactions fall within the budget's period.
+message BudgetActualAccountValue {
+  option (google.api.resource) = {
+    type: "vsfv.pixlcrashr.dev/BudgetActualAccountValue"
+    pattern: "organizations/{organization}/budgets/{budget}/actualAccountValues/{account}"
+  };
+
+  // The resource name of the budget actual account value.
+  // Format: organizations/{organization}/budgets/{budget}/actualAccountValues/{account}
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The budget account whose actual value is represented.
+  string account = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Account"}
+  ];
+
+  // The resource name of the parent budget.
+  // Format: organizations/{organization}/budgets/{budget}
+  string budget = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Budget"}
+  ];
+
+  // The computed actual monetary value for this account, derived from the sum
+  // of all matching TransactionAccountAssignment values within the budget period.
+  Decimal value = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message GetBudgetActualAccountValueRequest {
+  // The resource name of the budget actual account value.
+  // Format: organizations/{organization}/budgets/{budget}/actualAccountValues/{account}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/BudgetActualAccountValue"}
+  ];
+}
+
+message ListBudgetActualAccountValuesRequest {
+  // The parent budget resource name.
+  // Format: organizations/{organization}/budgets/{budget}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Budget"}
+  ];
+
+  // Maximum number of actual account values to return. The service may return
+  // fewer. If unspecified, at most 50 are returned. Maximum value is 200.
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // A page token from a previous ListBudgetActualAccountValues call.
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter expression conforming to AIP-160.
+  // Supported fields: account_id.
+  // Example: "account_id=\"<uuid>\"".
+  string filter = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order by expression (e.g. "account_id", "value desc").
+  string order_by = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ListBudgetActualAccountValuesResponse {
+  // The actual account values returned.
+  repeated BudgetActualAccountValue actual_account_values = 1;
+
+  // A token to retrieve the next page of results.
+  string next_page_token = 2;
+
+  // Total number of actual account values matching the filter (may be an estimate).
+  int64 total_size = 3;
+}
+
+// BudgetActualAccountValueService provides read-only access to the computed
+// actual monetary values per budget account. Values are derived from the sum of
+// TransactionAccountAssignment values for transactions within the budget period.
+// All resources in this service are server-computed and immutable.
+service BudgetActualAccountValueService {
+  option (google.api.default_host) = "vsfv.pixlcrashr.dev";
+
+  // Gets the computed actual value for a single account within a budget.
+  rpc GetBudgetActualAccountValue(GetBudgetActualAccountValueRequest) returns (BudgetActualAccountValue) {
+    option (google.api.http) = {get: "/v1/{name=organizations/*/budgets/*/actualAccountValues/*}"};
+    option (google.api.method_signature) = "name";
+  }
+
+  // Lists computed actual account values for a budget, with pagination.
+  rpc ListBudgetActualAccountValues(ListBudgetActualAccountValuesRequest) returns (ListBudgetActualAccountValuesResponse) {
+    option (google.api.http) = {get: "/v1/{parent=organizations/*/budgets/*}/actualAccountValues"};
+    option (google.api.method_signature) = "parent";
+  }
+}

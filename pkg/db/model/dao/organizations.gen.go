@@ -30,6 +30,7 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 	_organization.ID = field.NewField(tableName, "id")
 	_organization.CustomID = field.NewString(tableName, "custom_id")
 	_organization.DisplayName = field.NewString(tableName, "display_name")
+	_organization.StartMonth = field.NewInt(tableName, "start_month")
 	_organization.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_organization.CreatedAt = field.NewTime(tableName, "created_at")
 	_organization.AccountGroupAssignments = organizationHasManyAccountGroupAssignments{
@@ -109,7 +110,7 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 				BudgetAccountValues struct {
 					field.RelationField
 				}
-				TransactionAccountAssignments struct {
+				TransactionAssignments struct {
 					field.RelationField
 					Organization struct {
 						field.RelationField
@@ -119,28 +120,10 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 						Organization struct {
 							field.RelationField
 						}
-						CreditTransactionAccount struct {
+						CreditLedgerAccount struct {
 							field.RelationField
 							Organization struct {
 								field.RelationField
-							}
-							ImportSource struct {
-								field.RelationField
-								Organization struct {
-									field.RelationField
-								}
-								TransactionAccounts struct {
-									field.RelationField
-								}
-								ImportSourcePeriods struct {
-									field.RelationField
-									Organization struct {
-										field.RelationField
-									}
-									ImportSource struct {
-										field.RelationField
-									}
-								}
 							}
 							CreditTransactions struct {
 								field.RelationField
@@ -149,10 +132,10 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 								field.RelationField
 							}
 						}
-						DebitTransactionAccount struct {
+						DebitLedgerAccount struct {
 							field.RelationField
 						}
-						TransactionAccountAssignments struct {
+						TransactionAssignments struct {
 							field.RelationField
 						}
 					}
@@ -173,10 +156,13 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 			Budgets struct {
 				field.RelationField
 			}
-			ImportSourcePeriods struct {
+			LedgerYears struct {
 				field.RelationField
+				Organization struct {
+					field.RelationField
+				}
 			}
-			ImportSources struct {
+			LedgerAccounts struct {
 				field.RelationField
 			}
 			ReportTemplates struct {
@@ -194,10 +180,7 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 			Transactions struct {
 				field.RelationField
 			}
-			TransactionAccountAssignments struct {
-				field.RelationField
-			}
-			TransactionAccounts struct {
+			TransactionAssignments struct {
 				field.RelationField
 			}
 		}{
@@ -287,7 +270,7 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 				BudgetAccountValues struct {
 					field.RelationField
 				}
-				TransactionAccountAssignments struct {
+				TransactionAssignments struct {
 					field.RelationField
 					Organization struct {
 						field.RelationField
@@ -297,28 +280,10 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 						Organization struct {
 							field.RelationField
 						}
-						CreditTransactionAccount struct {
+						CreditLedgerAccount struct {
 							field.RelationField
 							Organization struct {
 								field.RelationField
-							}
-							ImportSource struct {
-								field.RelationField
-								Organization struct {
-									field.RelationField
-								}
-								TransactionAccounts struct {
-									field.RelationField
-								}
-								ImportSourcePeriods struct {
-									field.RelationField
-									Organization struct {
-										field.RelationField
-									}
-									ImportSource struct {
-										field.RelationField
-									}
-								}
 							}
 							CreditTransactions struct {
 								field.RelationField
@@ -327,10 +292,10 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 								field.RelationField
 							}
 						}
-						DebitTransactionAccount struct {
+						DebitLedgerAccount struct {
 							field.RelationField
 						}
-						TransactionAccountAssignments struct {
+						TransactionAssignments struct {
 							field.RelationField
 						}
 					}
@@ -519,7 +484,7 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 				}{
 					RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.BudgetAccountValues", "model.BudgetAccountValue"),
 				},
-				TransactionAccountAssignments: struct {
+				TransactionAssignments: struct {
 					field.RelationField
 					Organization struct {
 						field.RelationField
@@ -529,28 +494,10 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 						Organization struct {
 							field.RelationField
 						}
-						CreditTransactionAccount struct {
+						CreditLedgerAccount struct {
 							field.RelationField
 							Organization struct {
 								field.RelationField
-							}
-							ImportSource struct {
-								field.RelationField
-								Organization struct {
-									field.RelationField
-								}
-								TransactionAccounts struct {
-									field.RelationField
-								}
-								ImportSourcePeriods struct {
-									field.RelationField
-									Organization struct {
-										field.RelationField
-									}
-									ImportSource struct {
-										field.RelationField
-									}
-								}
 							}
 							CreditTransactions struct {
 								field.RelationField
@@ -559,10 +506,10 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 								field.RelationField
 							}
 						}
-						DebitTransactionAccount struct {
+						DebitLedgerAccount struct {
 							field.RelationField
 						}
-						TransactionAccountAssignments struct {
+						TransactionAssignments struct {
 							field.RelationField
 						}
 					}
@@ -570,39 +517,21 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 						field.RelationField
 					}
 				}{
-					RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAccountAssignments", "model.TransactionAccountAssignment"),
+					RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAssignments", "model.TransactionAssignment"),
 					Organization: struct {
 						field.RelationField
 					}{
-						RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAccountAssignments.Organization", "model.Organization"),
+						RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAssignments.Organization", "model.Organization"),
 					},
 					Transaction: struct {
 						field.RelationField
 						Organization struct {
 							field.RelationField
 						}
-						CreditTransactionAccount struct {
+						CreditLedgerAccount struct {
 							field.RelationField
 							Organization struct {
 								field.RelationField
-							}
-							ImportSource struct {
-								field.RelationField
-								Organization struct {
-									field.RelationField
-								}
-								TransactionAccounts struct {
-									field.RelationField
-								}
-								ImportSourcePeriods struct {
-									field.RelationField
-									Organization struct {
-										field.RelationField
-									}
-									ImportSource struct {
-										field.RelationField
-									}
-								}
 							}
 							CreditTransactions struct {
 								field.RelationField
@@ -611,41 +540,23 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 								field.RelationField
 							}
 						}
-						DebitTransactionAccount struct {
+						DebitLedgerAccount struct {
 							field.RelationField
 						}
-						TransactionAccountAssignments struct {
+						TransactionAssignments struct {
 							field.RelationField
 						}
 					}{
-						RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAccountAssignments.Transaction", "model.Transaction_"),
+						RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAssignments.Transaction", "model.Transaction_"),
 						Organization: struct {
 							field.RelationField
 						}{
-							RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAccountAssignments.Transaction.Organization", "model.Organization"),
+							RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAssignments.Transaction.Organization", "model.Organization"),
 						},
-						CreditTransactionAccount: struct {
+						CreditLedgerAccount: struct {
 							field.RelationField
 							Organization struct {
 								field.RelationField
-							}
-							ImportSource struct {
-								field.RelationField
-								Organization struct {
-									field.RelationField
-								}
-								TransactionAccounts struct {
-									field.RelationField
-								}
-								ImportSourcePeriods struct {
-									field.RelationField
-									Organization struct {
-										field.RelationField
-									}
-									ImportSource struct {
-										field.RelationField
-									}
-								}
 							}
 							CreditTransactions struct {
 								field.RelationField
@@ -654,89 +565,38 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 								field.RelationField
 							}
 						}{
-							RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAccountAssignments.Transaction.CreditTransactionAccount", "model.TransactionAccount"),
+							RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAssignments.Transaction.CreditLedgerAccount", "model.LedgerAccount"),
 							Organization: struct {
 								field.RelationField
 							}{
-								RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAccountAssignments.Transaction.CreditTransactionAccount.Organization", "model.Organization"),
-							},
-							ImportSource: struct {
-								field.RelationField
-								Organization struct {
-									field.RelationField
-								}
-								TransactionAccounts struct {
-									field.RelationField
-								}
-								ImportSourcePeriods struct {
-									field.RelationField
-									Organization struct {
-										field.RelationField
-									}
-									ImportSource struct {
-										field.RelationField
-									}
-								}
-							}{
-								RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource", "model.ImportSource"),
-								Organization: struct {
-									field.RelationField
-								}{
-									RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.Organization", "model.Organization"),
-								},
-								TransactionAccounts: struct {
-									field.RelationField
-								}{
-									RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.TransactionAccounts", "model.TransactionAccount"),
-								},
-								ImportSourcePeriods: struct {
-									field.RelationField
-									Organization struct {
-										field.RelationField
-									}
-									ImportSource struct {
-										field.RelationField
-									}
-								}{
-									RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.ImportSourcePeriods", "model.ImportSourcePeriod"),
-									Organization: struct {
-										field.RelationField
-									}{
-										RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.ImportSourcePeriods.Organization", "model.Organization"),
-									},
-									ImportSource: struct {
-										field.RelationField
-									}{
-										RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAccountAssignments.Transaction.CreditTransactionAccount.ImportSource.ImportSourcePeriods.ImportSource", "model.ImportSource"),
-									},
-								},
+								RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAssignments.Transaction.CreditLedgerAccount.Organization", "model.Organization"),
 							},
 							CreditTransactions: struct {
 								field.RelationField
 							}{
-								RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAccountAssignments.Transaction.CreditTransactionAccount.CreditTransactions", "model.Transaction_"),
+								RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAssignments.Transaction.CreditLedgerAccount.CreditTransactions", "model.Transaction_"),
 							},
 							DebitTransactions: struct {
 								field.RelationField
 							}{
-								RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAccountAssignments.Transaction.CreditTransactionAccount.DebitTransactions", "model.Transaction_"),
+								RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAssignments.Transaction.CreditLedgerAccount.DebitTransactions", "model.Transaction_"),
 							},
 						},
-						DebitTransactionAccount: struct {
+						DebitLedgerAccount: struct {
 							field.RelationField
 						}{
-							RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAccountAssignments.Transaction.DebitTransactionAccount", "model.TransactionAccount"),
+							RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAssignments.Transaction.DebitLedgerAccount", "model.LedgerAccount"),
 						},
-						TransactionAccountAssignments: struct {
+						TransactionAssignments: struct {
 							field.RelationField
 						}{
-							RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAccountAssignments.Transaction.TransactionAccountAssignments", "model.TransactionAccountAssignment"),
+							RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAssignments.Transaction.TransactionAssignments", "model.TransactionAssignment"),
 						},
 					},
 					Account: struct {
 						field.RelationField
 					}{
-						RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAccountAssignments.Account", "model.Account"),
+						RelationField: field.NewRelation("AccountGroupAssignments.Organization.Accounts.TransactionAssignments.Account", "model.Account"),
 					},
 				},
 			},
@@ -760,15 +620,23 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 			}{
 				RelationField: field.NewRelation("AccountGroupAssignments.Organization.Budgets", "model.Budget"),
 			},
-			ImportSourcePeriods: struct {
+			LedgerYears: struct {
 				field.RelationField
+				Organization struct {
+					field.RelationField
+				}
 			}{
-				RelationField: field.NewRelation("AccountGroupAssignments.Organization.ImportSourcePeriods", "model.ImportSourcePeriod"),
+				RelationField: field.NewRelation("AccountGroupAssignments.Organization.LedgerYears", "model.LedgerYear"),
+				Organization: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("AccountGroupAssignments.Organization.LedgerYears.Organization", "model.Organization"),
+				},
 			},
-			ImportSources: struct {
+			LedgerAccounts: struct {
 				field.RelationField
 			}{
-				RelationField: field.NewRelation("AccountGroupAssignments.Organization.ImportSources", "model.ImportSource"),
+				RelationField: field.NewRelation("AccountGroupAssignments.Organization.LedgerAccounts", "model.LedgerAccount"),
 			},
 			ReportTemplates: struct {
 				field.RelationField
@@ -801,15 +669,10 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 			}{
 				RelationField: field.NewRelation("AccountGroupAssignments.Organization.Transactions", "model.Transaction_"),
 			},
-			TransactionAccountAssignments: struct {
+			TransactionAssignments: struct {
 				field.RelationField
 			}{
-				RelationField: field.NewRelation("AccountGroupAssignments.Organization.TransactionAccountAssignments", "model.TransactionAccountAssignment"),
-			},
-			TransactionAccounts: struct {
-				field.RelationField
-			}{
-				RelationField: field.NewRelation("AccountGroupAssignments.Organization.TransactionAccounts", "model.TransactionAccount"),
+				RelationField: field.NewRelation("AccountGroupAssignments.Organization.TransactionAssignments", "model.TransactionAssignment"),
 			},
 		},
 		AccountGroup: struct {
@@ -860,16 +723,16 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 		RelationField: field.NewRelation("Budgets", "model.Budget"),
 	}
 
-	_organization.ImportSourcePeriods = organizationHasManyImportSourcePeriods{
+	_organization.LedgerYears = organizationHasManyLedgerYears{
 		db: db.Session(&gorm.Session{}),
 
-		RelationField: field.NewRelation("ImportSourcePeriods", "model.ImportSourcePeriod"),
+		RelationField: field.NewRelation("LedgerYears", "model.LedgerYear"),
 	}
 
-	_organization.ImportSources = organizationHasManyImportSources{
+	_organization.LedgerAccounts = organizationHasManyLedgerAccounts{
 		db: db.Session(&gorm.Session{}),
 
-		RelationField: field.NewRelation("ImportSources", "model.ImportSource"),
+		RelationField: field.NewRelation("LedgerAccounts", "model.LedgerAccount"),
 	}
 
 	_organization.ReportTemplates = organizationHasManyReportTemplates{
@@ -890,16 +753,10 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 		RelationField: field.NewRelation("Transactions", "model.Transaction_"),
 	}
 
-	_organization.TransactionAccountAssignments = organizationHasManyTransactionAccountAssignments{
+	_organization.TransactionAssignments = organizationHasManyTransactionAssignments{
 		db: db.Session(&gorm.Session{}),
 
-		RelationField: field.NewRelation("TransactionAccountAssignments", "model.TransactionAccountAssignment"),
-	}
-
-	_organization.TransactionAccounts = organizationHasManyTransactionAccounts{
-		db: db.Session(&gorm.Session{}),
-
-		RelationField: field.NewRelation("TransactionAccounts", "model.TransactionAccount"),
+		RelationField: field.NewRelation("TransactionAssignments", "model.TransactionAssignment"),
 	}
 
 	_organization.fillFieldMap()
@@ -914,6 +771,7 @@ type organization struct {
 	ID                      field.Field
 	CustomID                field.String
 	DisplayName             field.String
+	StartMonth              field.Int
 	UpdatedAt               field.Time
 	CreatedAt               field.Time
 	AccountGroupAssignments organizationHasManyAccountGroupAssignments
@@ -930,9 +788,9 @@ type organization struct {
 
 	Budgets organizationHasManyBudgets
 
-	ImportSourcePeriods organizationHasManyImportSourcePeriods
+	LedgerYears organizationHasManyLedgerYears
 
-	ImportSources organizationHasManyImportSources
+	LedgerAccounts organizationHasManyLedgerAccounts
 
 	ReportTemplates organizationHasManyReportTemplates
 
@@ -940,9 +798,7 @@ type organization struct {
 
 	Transactions organizationHasManyTransactions
 
-	TransactionAccountAssignments organizationHasManyTransactionAccountAssignments
-
-	TransactionAccounts organizationHasManyTransactionAccounts
+	TransactionAssignments organizationHasManyTransactionAssignments
 
 	fieldMap map[string]field.Expr
 }
@@ -962,6 +818,7 @@ func (o *organization) updateTableName(table string) *organization {
 	o.ID = field.NewField(table, "id")
 	o.CustomID = field.NewString(table, "custom_id")
 	o.DisplayName = field.NewString(table, "display_name")
+	o.StartMonth = field.NewInt(table, "start_month")
 	o.UpdatedAt = field.NewTime(table, "updated_at")
 	o.CreatedAt = field.NewTime(table, "created_at")
 
@@ -996,6 +853,7 @@ func (o *organization) fillFieldMap() {
 	o.fieldMap["id"] = o.ID
 	o.fieldMap["custom_id"] = o.CustomID
 	o.fieldMap["display_name"] = o.DisplayName
+	o.fieldMap["start_month"] = o.StartMonth
 	o.fieldMap["updated_at"] = o.UpdatedAt
 	o.fieldMap["created_at"] = o.CreatedAt
 
@@ -1017,20 +875,18 @@ func (o organization) clone(db *gorm.DB) organization {
 	o.BudgetAccountValues.db.Statement.ConnPool = db.Statement.ConnPool
 	o.Budgets.db = db.Session(&gorm.Session{Initialized: true})
 	o.Budgets.db.Statement.ConnPool = db.Statement.ConnPool
-	o.ImportSourcePeriods.db = db.Session(&gorm.Session{Initialized: true})
-	o.ImportSourcePeriods.db.Statement.ConnPool = db.Statement.ConnPool
-	o.ImportSources.db = db.Session(&gorm.Session{Initialized: true})
-	o.ImportSources.db.Statement.ConnPool = db.Statement.ConnPool
+	o.LedgerYears.db = db.Session(&gorm.Session{Initialized: true})
+	o.LedgerYears.db.Statement.ConnPool = db.Statement.ConnPool
+	o.LedgerAccounts.db = db.Session(&gorm.Session{Initialized: true})
+	o.LedgerAccounts.db.Statement.ConnPool = db.Statement.ConnPool
 	o.ReportTemplates.db = db.Session(&gorm.Session{Initialized: true})
 	o.ReportTemplates.db.Statement.ConnPool = db.Statement.ConnPool
 	o.Reports.db = db.Session(&gorm.Session{Initialized: true})
 	o.Reports.db.Statement.ConnPool = db.Statement.ConnPool
 	o.Transactions.db = db.Session(&gorm.Session{Initialized: true})
 	o.Transactions.db.Statement.ConnPool = db.Statement.ConnPool
-	o.TransactionAccountAssignments.db = db.Session(&gorm.Session{Initialized: true})
-	o.TransactionAccountAssignments.db.Statement.ConnPool = db.Statement.ConnPool
-	o.TransactionAccounts.db = db.Session(&gorm.Session{Initialized: true})
-	o.TransactionAccounts.db.Statement.ConnPool = db.Statement.ConnPool
+	o.TransactionAssignments.db = db.Session(&gorm.Session{Initialized: true})
+	o.TransactionAssignments.db.Statement.ConnPool = db.Statement.ConnPool
 	return o
 }
 
@@ -1043,13 +899,12 @@ func (o organization) replaceDB(db *gorm.DB) organization {
 	o.BudgetRevisionAccountValues.db = db.Session(&gorm.Session{})
 	o.BudgetAccountValues.db = db.Session(&gorm.Session{})
 	o.Budgets.db = db.Session(&gorm.Session{})
-	o.ImportSourcePeriods.db = db.Session(&gorm.Session{})
-	o.ImportSources.db = db.Session(&gorm.Session{})
+	o.LedgerYears.db = db.Session(&gorm.Session{})
+	o.LedgerAccounts.db = db.Session(&gorm.Session{})
 	o.ReportTemplates.db = db.Session(&gorm.Session{})
 	o.Reports.db = db.Session(&gorm.Session{})
 	o.Transactions.db = db.Session(&gorm.Session{})
-	o.TransactionAccountAssignments.db = db.Session(&gorm.Session{})
-	o.TransactionAccounts.db = db.Session(&gorm.Session{})
+	o.TransactionAssignments.db = db.Session(&gorm.Session{})
 	return o
 }
 
@@ -1131,7 +986,7 @@ type organizationHasManyAccountGroupAssignments struct {
 			BudgetAccountValues struct {
 				field.RelationField
 			}
-			TransactionAccountAssignments struct {
+			TransactionAssignments struct {
 				field.RelationField
 				Organization struct {
 					field.RelationField
@@ -1141,28 +996,10 @@ type organizationHasManyAccountGroupAssignments struct {
 					Organization struct {
 						field.RelationField
 					}
-					CreditTransactionAccount struct {
+					CreditLedgerAccount struct {
 						field.RelationField
 						Organization struct {
 							field.RelationField
-						}
-						ImportSource struct {
-							field.RelationField
-							Organization struct {
-								field.RelationField
-							}
-							TransactionAccounts struct {
-								field.RelationField
-							}
-							ImportSourcePeriods struct {
-								field.RelationField
-								Organization struct {
-									field.RelationField
-								}
-								ImportSource struct {
-									field.RelationField
-								}
-							}
 						}
 						CreditTransactions struct {
 							field.RelationField
@@ -1171,10 +1008,10 @@ type organizationHasManyAccountGroupAssignments struct {
 							field.RelationField
 						}
 					}
-					DebitTransactionAccount struct {
+					DebitLedgerAccount struct {
 						field.RelationField
 					}
-					TransactionAccountAssignments struct {
+					TransactionAssignments struct {
 						field.RelationField
 					}
 				}
@@ -1195,10 +1032,13 @@ type organizationHasManyAccountGroupAssignments struct {
 		Budgets struct {
 			field.RelationField
 		}
-		ImportSourcePeriods struct {
+		LedgerYears struct {
 			field.RelationField
+			Organization struct {
+				field.RelationField
+			}
 		}
-		ImportSources struct {
+		LedgerAccounts struct {
 			field.RelationField
 		}
 		ReportTemplates struct {
@@ -1216,10 +1056,7 @@ type organizationHasManyAccountGroupAssignments struct {
 		Transactions struct {
 			field.RelationField
 		}
-		TransactionAccountAssignments struct {
-			field.RelationField
-		}
-		TransactionAccounts struct {
+		TransactionAssignments struct {
 			field.RelationField
 		}
 	}
@@ -1792,13 +1629,13 @@ func (a organizationHasManyBudgetsTx) Unscoped() *organizationHasManyBudgetsTx {
 	return &a
 }
 
-type organizationHasManyImportSourcePeriods struct {
+type organizationHasManyLedgerYears struct {
 	db *gorm.DB
 
 	field.RelationField
 }
 
-func (a organizationHasManyImportSourcePeriods) Where(conds ...field.Expr) *organizationHasManyImportSourcePeriods {
+func (a organizationHasManyLedgerYears) Where(conds ...field.Expr) *organizationHasManyLedgerYears {
 	if len(conds) == 0 {
 		return &a
 	}
@@ -1811,32 +1648,32 @@ func (a organizationHasManyImportSourcePeriods) Where(conds ...field.Expr) *orga
 	return &a
 }
 
-func (a organizationHasManyImportSourcePeriods) WithContext(ctx context.Context) *organizationHasManyImportSourcePeriods {
+func (a organizationHasManyLedgerYears) WithContext(ctx context.Context) *organizationHasManyLedgerYears {
 	a.db = a.db.WithContext(ctx)
 	return &a
 }
 
-func (a organizationHasManyImportSourcePeriods) Session(session *gorm.Session) *organizationHasManyImportSourcePeriods {
+func (a organizationHasManyLedgerYears) Session(session *gorm.Session) *organizationHasManyLedgerYears {
 	a.db = a.db.Session(session)
 	return &a
 }
 
-func (a organizationHasManyImportSourcePeriods) Model(m *model.Organization) *organizationHasManyImportSourcePeriodsTx {
-	return &organizationHasManyImportSourcePeriodsTx{a.db.Model(m).Association(a.Name())}
+func (a organizationHasManyLedgerYears) Model(m *model.Organization) *organizationHasManyLedgerYearsTx {
+	return &organizationHasManyLedgerYearsTx{a.db.Model(m).Association(a.Name())}
 }
 
-func (a organizationHasManyImportSourcePeriods) Unscoped() *organizationHasManyImportSourcePeriods {
+func (a organizationHasManyLedgerYears) Unscoped() *organizationHasManyLedgerYears {
 	a.db = a.db.Unscoped()
 	return &a
 }
 
-type organizationHasManyImportSourcePeriodsTx struct{ tx *gorm.Association }
+type organizationHasManyLedgerYearsTx struct{ tx *gorm.Association }
 
-func (a organizationHasManyImportSourcePeriodsTx) Find() (result []*model.ImportSourcePeriod, err error) {
+func (a organizationHasManyLedgerYearsTx) Find() (result []*model.LedgerYear, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a organizationHasManyImportSourcePeriodsTx) Append(values ...*model.ImportSourcePeriod) (err error) {
+func (a organizationHasManyLedgerYearsTx) Append(values ...*model.LedgerYear) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1844,7 +1681,7 @@ func (a organizationHasManyImportSourcePeriodsTx) Append(values ...*model.Import
 	return a.tx.Append(targetValues...)
 }
 
-func (a organizationHasManyImportSourcePeriodsTx) Replace(values ...*model.ImportSourcePeriod) (err error) {
+func (a organizationHasManyLedgerYearsTx) Replace(values ...*model.LedgerYear) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1852,7 +1689,7 @@ func (a organizationHasManyImportSourcePeriodsTx) Replace(values ...*model.Impor
 	return a.tx.Replace(targetValues...)
 }
 
-func (a organizationHasManyImportSourcePeriodsTx) Delete(values ...*model.ImportSourcePeriod) (err error) {
+func (a organizationHasManyLedgerYearsTx) Delete(values ...*model.LedgerYear) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1860,26 +1697,26 @@ func (a organizationHasManyImportSourcePeriodsTx) Delete(values ...*model.Import
 	return a.tx.Delete(targetValues...)
 }
 
-func (a organizationHasManyImportSourcePeriodsTx) Clear() error {
+func (a organizationHasManyLedgerYearsTx) Clear() error {
 	return a.tx.Clear()
 }
 
-func (a organizationHasManyImportSourcePeriodsTx) Count() int64 {
+func (a organizationHasManyLedgerYearsTx) Count() int64 {
 	return a.tx.Count()
 }
 
-func (a organizationHasManyImportSourcePeriodsTx) Unscoped() *organizationHasManyImportSourcePeriodsTx {
+func (a organizationHasManyLedgerYearsTx) Unscoped() *organizationHasManyLedgerYearsTx {
 	a.tx = a.tx.Unscoped()
 	return &a
 }
 
-type organizationHasManyImportSources struct {
+type organizationHasManyLedgerAccounts struct {
 	db *gorm.DB
 
 	field.RelationField
 }
 
-func (a organizationHasManyImportSources) Where(conds ...field.Expr) *organizationHasManyImportSources {
+func (a organizationHasManyLedgerAccounts) Where(conds ...field.Expr) *organizationHasManyLedgerAccounts {
 	if len(conds) == 0 {
 		return &a
 	}
@@ -1892,32 +1729,32 @@ func (a organizationHasManyImportSources) Where(conds ...field.Expr) *organizati
 	return &a
 }
 
-func (a organizationHasManyImportSources) WithContext(ctx context.Context) *organizationHasManyImportSources {
+func (a organizationHasManyLedgerAccounts) WithContext(ctx context.Context) *organizationHasManyLedgerAccounts {
 	a.db = a.db.WithContext(ctx)
 	return &a
 }
 
-func (a organizationHasManyImportSources) Session(session *gorm.Session) *organizationHasManyImportSources {
+func (a organizationHasManyLedgerAccounts) Session(session *gorm.Session) *organizationHasManyLedgerAccounts {
 	a.db = a.db.Session(session)
 	return &a
 }
 
-func (a organizationHasManyImportSources) Model(m *model.Organization) *organizationHasManyImportSourcesTx {
-	return &organizationHasManyImportSourcesTx{a.db.Model(m).Association(a.Name())}
+func (a organizationHasManyLedgerAccounts) Model(m *model.Organization) *organizationHasManyLedgerAccountsTx {
+	return &organizationHasManyLedgerAccountsTx{a.db.Model(m).Association(a.Name())}
 }
 
-func (a organizationHasManyImportSources) Unscoped() *organizationHasManyImportSources {
+func (a organizationHasManyLedgerAccounts) Unscoped() *organizationHasManyLedgerAccounts {
 	a.db = a.db.Unscoped()
 	return &a
 }
 
-type organizationHasManyImportSourcesTx struct{ tx *gorm.Association }
+type organizationHasManyLedgerAccountsTx struct{ tx *gorm.Association }
 
-func (a organizationHasManyImportSourcesTx) Find() (result []*model.ImportSource, err error) {
+func (a organizationHasManyLedgerAccountsTx) Find() (result []*model.LedgerAccount, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a organizationHasManyImportSourcesTx) Append(values ...*model.ImportSource) (err error) {
+func (a organizationHasManyLedgerAccountsTx) Append(values ...*model.LedgerAccount) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1925,7 +1762,7 @@ func (a organizationHasManyImportSourcesTx) Append(values ...*model.ImportSource
 	return a.tx.Append(targetValues...)
 }
 
-func (a organizationHasManyImportSourcesTx) Replace(values ...*model.ImportSource) (err error) {
+func (a organizationHasManyLedgerAccountsTx) Replace(values ...*model.LedgerAccount) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1933,7 +1770,7 @@ func (a organizationHasManyImportSourcesTx) Replace(values ...*model.ImportSourc
 	return a.tx.Replace(targetValues...)
 }
 
-func (a organizationHasManyImportSourcesTx) Delete(values ...*model.ImportSource) (err error) {
+func (a organizationHasManyLedgerAccountsTx) Delete(values ...*model.LedgerAccount) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -1941,15 +1778,15 @@ func (a organizationHasManyImportSourcesTx) Delete(values ...*model.ImportSource
 	return a.tx.Delete(targetValues...)
 }
 
-func (a organizationHasManyImportSourcesTx) Clear() error {
+func (a organizationHasManyLedgerAccountsTx) Clear() error {
 	return a.tx.Clear()
 }
 
-func (a organizationHasManyImportSourcesTx) Count() int64 {
+func (a organizationHasManyLedgerAccountsTx) Count() int64 {
 	return a.tx.Count()
 }
 
-func (a organizationHasManyImportSourcesTx) Unscoped() *organizationHasManyImportSourcesTx {
+func (a organizationHasManyLedgerAccountsTx) Unscoped() *organizationHasManyLedgerAccountsTx {
 	a.tx = a.tx.Unscoped()
 	return &a
 }
@@ -2197,13 +2034,13 @@ func (a organizationHasManyTransactionsTx) Unscoped() *organizationHasManyTransa
 	return &a
 }
 
-type organizationHasManyTransactionAccountAssignments struct {
+type organizationHasManyTransactionAssignments struct {
 	db *gorm.DB
 
 	field.RelationField
 }
 
-func (a organizationHasManyTransactionAccountAssignments) Where(conds ...field.Expr) *organizationHasManyTransactionAccountAssignments {
+func (a organizationHasManyTransactionAssignments) Where(conds ...field.Expr) *organizationHasManyTransactionAssignments {
 	if len(conds) == 0 {
 		return &a
 	}
@@ -2216,32 +2053,32 @@ func (a organizationHasManyTransactionAccountAssignments) Where(conds ...field.E
 	return &a
 }
 
-func (a organizationHasManyTransactionAccountAssignments) WithContext(ctx context.Context) *organizationHasManyTransactionAccountAssignments {
+func (a organizationHasManyTransactionAssignments) WithContext(ctx context.Context) *organizationHasManyTransactionAssignments {
 	a.db = a.db.WithContext(ctx)
 	return &a
 }
 
-func (a organizationHasManyTransactionAccountAssignments) Session(session *gorm.Session) *organizationHasManyTransactionAccountAssignments {
+func (a organizationHasManyTransactionAssignments) Session(session *gorm.Session) *organizationHasManyTransactionAssignments {
 	a.db = a.db.Session(session)
 	return &a
 }
 
-func (a organizationHasManyTransactionAccountAssignments) Model(m *model.Organization) *organizationHasManyTransactionAccountAssignmentsTx {
-	return &organizationHasManyTransactionAccountAssignmentsTx{a.db.Model(m).Association(a.Name())}
+func (a organizationHasManyTransactionAssignments) Model(m *model.Organization) *organizationHasManyTransactionAssignmentsTx {
+	return &organizationHasManyTransactionAssignmentsTx{a.db.Model(m).Association(a.Name())}
 }
 
-func (a organizationHasManyTransactionAccountAssignments) Unscoped() *organizationHasManyTransactionAccountAssignments {
+func (a organizationHasManyTransactionAssignments) Unscoped() *organizationHasManyTransactionAssignments {
 	a.db = a.db.Unscoped()
 	return &a
 }
 
-type organizationHasManyTransactionAccountAssignmentsTx struct{ tx *gorm.Association }
+type organizationHasManyTransactionAssignmentsTx struct{ tx *gorm.Association }
 
-func (a organizationHasManyTransactionAccountAssignmentsTx) Find() (result []*model.TransactionAccountAssignment, err error) {
+func (a organizationHasManyTransactionAssignmentsTx) Find() (result []*model.TransactionAssignment, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a organizationHasManyTransactionAccountAssignmentsTx) Append(values ...*model.TransactionAccountAssignment) (err error) {
+func (a organizationHasManyTransactionAssignmentsTx) Append(values ...*model.TransactionAssignment) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -2249,7 +2086,7 @@ func (a organizationHasManyTransactionAccountAssignmentsTx) Append(values ...*mo
 	return a.tx.Append(targetValues...)
 }
 
-func (a organizationHasManyTransactionAccountAssignmentsTx) Replace(values ...*model.TransactionAccountAssignment) (err error) {
+func (a organizationHasManyTransactionAssignmentsTx) Replace(values ...*model.TransactionAssignment) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -2257,7 +2094,7 @@ func (a organizationHasManyTransactionAccountAssignmentsTx) Replace(values ...*m
 	return a.tx.Replace(targetValues...)
 }
 
-func (a organizationHasManyTransactionAccountAssignmentsTx) Delete(values ...*model.TransactionAccountAssignment) (err error) {
+func (a organizationHasManyTransactionAssignmentsTx) Delete(values ...*model.TransactionAssignment) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -2265,96 +2102,15 @@ func (a organizationHasManyTransactionAccountAssignmentsTx) Delete(values ...*mo
 	return a.tx.Delete(targetValues...)
 }
 
-func (a organizationHasManyTransactionAccountAssignmentsTx) Clear() error {
+func (a organizationHasManyTransactionAssignmentsTx) Clear() error {
 	return a.tx.Clear()
 }
 
-func (a organizationHasManyTransactionAccountAssignmentsTx) Count() int64 {
+func (a organizationHasManyTransactionAssignmentsTx) Count() int64 {
 	return a.tx.Count()
 }
 
-func (a organizationHasManyTransactionAccountAssignmentsTx) Unscoped() *organizationHasManyTransactionAccountAssignmentsTx {
-	a.tx = a.tx.Unscoped()
-	return &a
-}
-
-type organizationHasManyTransactionAccounts struct {
-	db *gorm.DB
-
-	field.RelationField
-}
-
-func (a organizationHasManyTransactionAccounts) Where(conds ...field.Expr) *organizationHasManyTransactionAccounts {
-	if len(conds) == 0 {
-		return &a
-	}
-
-	exprs := make([]clause.Expression, 0, len(conds))
-	for _, cond := range conds {
-		exprs = append(exprs, cond.BeCond().(clause.Expression))
-	}
-	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
-	return &a
-}
-
-func (a organizationHasManyTransactionAccounts) WithContext(ctx context.Context) *organizationHasManyTransactionAccounts {
-	a.db = a.db.WithContext(ctx)
-	return &a
-}
-
-func (a organizationHasManyTransactionAccounts) Session(session *gorm.Session) *organizationHasManyTransactionAccounts {
-	a.db = a.db.Session(session)
-	return &a
-}
-
-func (a organizationHasManyTransactionAccounts) Model(m *model.Organization) *organizationHasManyTransactionAccountsTx {
-	return &organizationHasManyTransactionAccountsTx{a.db.Model(m).Association(a.Name())}
-}
-
-func (a organizationHasManyTransactionAccounts) Unscoped() *organizationHasManyTransactionAccounts {
-	a.db = a.db.Unscoped()
-	return &a
-}
-
-type organizationHasManyTransactionAccountsTx struct{ tx *gorm.Association }
-
-func (a organizationHasManyTransactionAccountsTx) Find() (result []*model.TransactionAccount, err error) {
-	return result, a.tx.Find(&result)
-}
-
-func (a organizationHasManyTransactionAccountsTx) Append(values ...*model.TransactionAccount) (err error) {
-	targetValues := make([]interface{}, len(values))
-	for i, v := range values {
-		targetValues[i] = v
-	}
-	return a.tx.Append(targetValues...)
-}
-
-func (a organizationHasManyTransactionAccountsTx) Replace(values ...*model.TransactionAccount) (err error) {
-	targetValues := make([]interface{}, len(values))
-	for i, v := range values {
-		targetValues[i] = v
-	}
-	return a.tx.Replace(targetValues...)
-}
-
-func (a organizationHasManyTransactionAccountsTx) Delete(values ...*model.TransactionAccount) (err error) {
-	targetValues := make([]interface{}, len(values))
-	for i, v := range values {
-		targetValues[i] = v
-	}
-	return a.tx.Delete(targetValues...)
-}
-
-func (a organizationHasManyTransactionAccountsTx) Clear() error {
-	return a.tx.Clear()
-}
-
-func (a organizationHasManyTransactionAccountsTx) Count() int64 {
-	return a.tx.Count()
-}
-
-func (a organizationHasManyTransactionAccountsTx) Unscoped() *organizationHasManyTransactionAccountsTx {
+func (a organizationHasManyTransactionAssignmentsTx) Unscoped() *organizationHasManyTransactionAssignmentsTx {
 	a.tx = a.tx.Unscoped()
 	return &a
 }

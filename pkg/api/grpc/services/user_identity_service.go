@@ -1,0 +1,94 @@
+package services
+
+import (
+	"context"
+	"errors"
+
+	"github.com/google/uuid"
+	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
+	"github.com/pixlcrashr/vsfv/pkg/db/repository"
+	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
+
+var (
+	statusInvalidUserIdentityName     = status.New(codes.InvalidArgument, "invalid user identity name")
+	statusInvalidParentUserName       = status.New(codes.InvalidArgument, "invalid parent user name")
+	statusUserIdentityNotFound        = status.New(codes.NotFound, "user identity not found")
+	statusFailedGetUserIdentity       = status.New(codes.Internal, "failed to get user identity")
+	statusFailedListUserIdentities    = status.New(codes.Internal, "failed to list user identities")
+)
+
+type userIdentityServiceServer struct {
+	gen.UnimplementedUserIdentityServiceServer
+	repo *repository.UserIdentityRepository
+}
+
+func newUserIdentityServiceServer(repo *repository.UserIdentityRepository) gen.UserIdentityServiceServer {
+	return &userIdentityServiceServer{repo: repo}
+}
+
+func (s *userIdentityServiceServer) GetUserIdentity(ctx context.Context, req *gen.GetUserIdentityRequest) (*gen.UserIdentity, error) {
+	var n gen.UserIdentityResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidUserIdentityName}
+	}
+
+	userID, err := uuid.Parse(n.User)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidUserIdentityName}
+	}
+
+	m, err := s.repo.GetByCustomID(ctx, userID, n.Identity)
+	if err != nil {
+		if errors.Is(err, repository.ErrUserIdentityNotFound) {
+			return nil, &ServerError{Err: err, Status: statusUserIdentityNotFound}
+		}
+		return nil, &ServerError{Err: err, Status: statusFailedGetUserIdentity}
+	}
+
+	return UserIdentityToProto(n.User, m), nil
+}
+
+func (s *userIdentityServiceServer) ListUserIdentities(ctx context.Context, req *gen.ListUserIdentitiesRequest) (*gen.ListUserIdentitiesResponse, error) {
+	var pn gen.UserResourceName
+	if err := pn.UnmarshalString(req.Parent); err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidParentUserName}
+	}
+
+	userID, err := uuid.Parse(pn.User)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidParentUserName}
+	}
+
+	offset, err := pagetoken.Decode(req.PageToken)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidPageToken}
+	}
+
+	pageSize := normalizePageSize(req.PageSize)
+
+	params := repository.ListUserIdentitiesParams{
+		UserID:   userID,
+		Page:     int(offset/int64(pageSize)) + 1,
+		PageSize: pageSize,
+	}
+
+	ms, total, err := s.repo.List(ctx, params)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedListUserIdentities}
+	}
+
+	resp := &gen.ListUserIdentitiesResponse{TotalSize: total}
+	for _, m := range ms {
+		resp.Identities = append(resp.Identities, UserIdentityToProto(pn.User, m))
+	}
+
+	nextOffset := offset + int64(len(ms))
+	if nextOffset < total {
+		resp.NextPageToken = pagetoken.Encode(nextOffset)
+	}
+
+	return resp, nil
+}

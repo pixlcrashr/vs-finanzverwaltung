@@ -2,16 +2,15 @@ package services
 
 import (
 	"context"
-
 	"errors"
 
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
-
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
+	"github.com/theater-improrama/go-utils/optional"
 	"go.einride.tech/aip/ordering"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -177,10 +176,18 @@ func (s *reportTemplateServiceServer) UpdateReportTemplate(ctx context.Context, 
 		return nil, &ServerError{Err: err, Status: statusFailedGetReportTemplate}
 	}
 
-	m.DisplayName = req.ReportTemplate.DisplayName
-	m.Template = req.ReportTemplate.Template
+	updateParams := repository.UpdateReportTemplateParams{
+		DisplayName: optional.From(req.ReportTemplate.DisplayName),
+		Template:    optional.From(req.ReportTemplate.Template),
+	}
 
-	if err := s.repo.Update(ctx, m); err != nil {
+	if err := s.repo.Update(ctx, m.ID, updateParams); err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedUpdateReportTemplate}
+	}
+
+	// Refresh the model after update
+	m, err = s.repo.GetByID(ctx, m.ID)
+	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateReportTemplate}
 	}
 

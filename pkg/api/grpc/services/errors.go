@@ -25,11 +25,14 @@ var (
 	// used by import_source_period, transaction_account services
 	statusImportSourceNotFound = status.New(codes.NotFound, "import source not found")
 
-	// used by transaction, transaction_account_assignment services
-	statusTransactionNotFound        = status.New(codes.NotFound, "transaction not found")
-	statusTransactionAccountNotFound = status.New(codes.NotFound, "transaction account not found")
+	// used by transaction, transaction_assignment services
+	statusTransactionNotFound                    = status.New(codes.NotFound, "transaction not found")
+	statusLedgerAccountNotFound                  = status.New(codes.NotFound, "ledger account not found")
+	statusInvalidCreditLedgerAccountID           = status.New(codes.InvalidArgument, "invalid credit_transaction_account_id")
+	statusInvalidDebitLedgerAccountID            = status.New(codes.InvalidArgument, "invalid debit_transaction_account_id")
+	statusInvalidOrganizationInLedgerAccountName = status.New(codes.InvalidArgument, "invalid organization in ledger account name")
 
-	// used by account_group_assignment, transaction_account_assignment services
+	// used by account_group_assignment, transaction_assignment services
 	statusAssignmentRequired      = status.New(codes.InvalidArgument, "assignment is required")
 	statusInvalidAssignmentName   = status.New(codes.InvalidArgument, "invalid assignment name")
 	statusAssignmentNotFound      = status.New(codes.NotFound, "assignment not found")

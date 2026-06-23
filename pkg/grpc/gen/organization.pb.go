@@ -35,6 +35,8 @@ type Organization struct {
 	Uid string `protobuf:"bytes,2,opt,name=uid,proto3" json:"uid,omitempty"`
 	// Human-readable organization name.
 	DisplayName string `protobuf:"bytes,3,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
+	// The start month of ledger years for this organization. It is assumed that the start date is the 1st of the month.
+	StartMonth Month `protobuf:"varint,7,opt,name=start_month,json=startMonth,proto3,enum=pixlcrashr.vsfv.v1.Month" json:"start_month,omitempty"`
 	// Last modification timestamp.
 	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
 	// Creation timestamp.
@@ -94,6 +96,13 @@ func (x *Organization) GetDisplayName() string {
 		return x.DisplayName
 	}
 	return ""
+}
+
+func (x *Organization) GetStartMonth() Month {
+	if x != nil {
+		return x.StartMonth
+	}
+	return Month_MONTH_UNSPECIFIED
 }
 
 func (x *Organization) GetUpdateTime() *timestamppb.Timestamp {
@@ -550,11 +559,13 @@ var File_pixlcrashr_vsfv_v1_organization_proto protoreflect.FileDescriptor
 
 const file_pixlcrashr_vsfv_v1_organization_proto_rawDesc = "" +
 	"\n" +
-	"%pixlcrashr/vsfv/v1/organization.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd0\x02\n" +
+	"%pixlcrashr/vsfv/v1/organization.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1fpixlcrashr/vsfv/v1/common.proto\"\x91\x03\n" +
 	"\fOrganization\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x03R\x04name\x12\x1d\n" +
 	"\x03uid\x18\x02 \x01(\tB\v\xe0A\x03\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12&\n" +
-	"\fdisplay_name\x18\x03 \x01(\tB\x03\xe0A\x02R\vdisplayName\x12@\n" +
+	"\fdisplay_name\x18\x03 \x01(\tB\x03\xe0A\x02R\vdisplayName\x12?\n" +
+	"\vstart_month\x18\a \x01(\x0e2\x19.pixlcrashr.vsfv.v1.MonthB\x03\xe0A\x02R\n" +
+	"startMonth\x12@\n" +
 	"\vupdate_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"updateTime\x12@\n" +
 	"\vcreate_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
@@ -621,34 +632,36 @@ var file_pixlcrashr_vsfv_v1_organization_proto_goTypes = []any{
 	(*CheckOrganizationIdRequest)(nil),  // 6: pixlcrashr.vsfv.v1.CheckOrganizationIdRequest
 	(*CheckOrganizationIdResponse)(nil), // 7: pixlcrashr.vsfv.v1.CheckOrganizationIdResponse
 	(*DeleteOrganizationRequest)(nil),   // 8: pixlcrashr.vsfv.v1.DeleteOrganizationRequest
-	(*timestamppb.Timestamp)(nil),       // 9: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),       // 10: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),               // 11: google.protobuf.Empty
+	(Month)(0),                          // 9: pixlcrashr.vsfv.v1.Month
+	(*timestamppb.Timestamp)(nil),       // 10: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),       // 11: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),               // 12: google.protobuf.Empty
 }
 var file_pixlcrashr_vsfv_v1_organization_proto_depIdxs = []int32{
-	9,  // 0: pixlcrashr.vsfv.v1.Organization.update_time:type_name -> google.protobuf.Timestamp
-	9,  // 1: pixlcrashr.vsfv.v1.Organization.create_time:type_name -> google.protobuf.Timestamp
-	0,  // 2: pixlcrashr.vsfv.v1.ListOrganizationsResponse.organizations:type_name -> pixlcrashr.vsfv.v1.Organization
-	0,  // 3: pixlcrashr.vsfv.v1.CreateOrganizationRequest.organization:type_name -> pixlcrashr.vsfv.v1.Organization
-	0,  // 4: pixlcrashr.vsfv.v1.UpdateOrganizationRequest.organization:type_name -> pixlcrashr.vsfv.v1.Organization
-	10, // 5: pixlcrashr.vsfv.v1.UpdateOrganizationRequest.update_mask:type_name -> google.protobuf.FieldMask
-	1,  // 6: pixlcrashr.vsfv.v1.OrganizationService.GetOrganization:input_type -> pixlcrashr.vsfv.v1.GetOrganizationRequest
-	2,  // 7: pixlcrashr.vsfv.v1.OrganizationService.ListOrganizations:input_type -> pixlcrashr.vsfv.v1.ListOrganizationsRequest
-	4,  // 8: pixlcrashr.vsfv.v1.OrganizationService.CreateOrganization:input_type -> pixlcrashr.vsfv.v1.CreateOrganizationRequest
-	5,  // 9: pixlcrashr.vsfv.v1.OrganizationService.UpdateOrganization:input_type -> pixlcrashr.vsfv.v1.UpdateOrganizationRequest
-	8,  // 10: pixlcrashr.vsfv.v1.OrganizationService.DeleteOrganization:input_type -> pixlcrashr.vsfv.v1.DeleteOrganizationRequest
-	6,  // 11: pixlcrashr.vsfv.v1.OrganizationService.CheckOrganizationId:input_type -> pixlcrashr.vsfv.v1.CheckOrganizationIdRequest
-	0,  // 12: pixlcrashr.vsfv.v1.OrganizationService.GetOrganization:output_type -> pixlcrashr.vsfv.v1.Organization
-	3,  // 13: pixlcrashr.vsfv.v1.OrganizationService.ListOrganizations:output_type -> pixlcrashr.vsfv.v1.ListOrganizationsResponse
-	0,  // 14: pixlcrashr.vsfv.v1.OrganizationService.CreateOrganization:output_type -> pixlcrashr.vsfv.v1.Organization
-	0,  // 15: pixlcrashr.vsfv.v1.OrganizationService.UpdateOrganization:output_type -> pixlcrashr.vsfv.v1.Organization
-	11, // 16: pixlcrashr.vsfv.v1.OrganizationService.DeleteOrganization:output_type -> google.protobuf.Empty
-	7,  // 17: pixlcrashr.vsfv.v1.OrganizationService.CheckOrganizationId:output_type -> pixlcrashr.vsfv.v1.CheckOrganizationIdResponse
-	12, // [12:18] is the sub-list for method output_type
-	6,  // [6:12] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	9,  // 0: pixlcrashr.vsfv.v1.Organization.start_month:type_name -> pixlcrashr.vsfv.v1.Month
+	10, // 1: pixlcrashr.vsfv.v1.Organization.update_time:type_name -> google.protobuf.Timestamp
+	10, // 2: pixlcrashr.vsfv.v1.Organization.create_time:type_name -> google.protobuf.Timestamp
+	0,  // 3: pixlcrashr.vsfv.v1.ListOrganizationsResponse.organizations:type_name -> pixlcrashr.vsfv.v1.Organization
+	0,  // 4: pixlcrashr.vsfv.v1.CreateOrganizationRequest.organization:type_name -> pixlcrashr.vsfv.v1.Organization
+	0,  // 5: pixlcrashr.vsfv.v1.UpdateOrganizationRequest.organization:type_name -> pixlcrashr.vsfv.v1.Organization
+	11, // 6: pixlcrashr.vsfv.v1.UpdateOrganizationRequest.update_mask:type_name -> google.protobuf.FieldMask
+	1,  // 7: pixlcrashr.vsfv.v1.OrganizationService.GetOrganization:input_type -> pixlcrashr.vsfv.v1.GetOrganizationRequest
+	2,  // 8: pixlcrashr.vsfv.v1.OrganizationService.ListOrganizations:input_type -> pixlcrashr.vsfv.v1.ListOrganizationsRequest
+	4,  // 9: pixlcrashr.vsfv.v1.OrganizationService.CreateOrganization:input_type -> pixlcrashr.vsfv.v1.CreateOrganizationRequest
+	5,  // 10: pixlcrashr.vsfv.v1.OrganizationService.UpdateOrganization:input_type -> pixlcrashr.vsfv.v1.UpdateOrganizationRequest
+	8,  // 11: pixlcrashr.vsfv.v1.OrganizationService.DeleteOrganization:input_type -> pixlcrashr.vsfv.v1.DeleteOrganizationRequest
+	6,  // 12: pixlcrashr.vsfv.v1.OrganizationService.CheckOrganizationId:input_type -> pixlcrashr.vsfv.v1.CheckOrganizationIdRequest
+	0,  // 13: pixlcrashr.vsfv.v1.OrganizationService.GetOrganization:output_type -> pixlcrashr.vsfv.v1.Organization
+	3,  // 14: pixlcrashr.vsfv.v1.OrganizationService.ListOrganizations:output_type -> pixlcrashr.vsfv.v1.ListOrganizationsResponse
+	0,  // 15: pixlcrashr.vsfv.v1.OrganizationService.CreateOrganization:output_type -> pixlcrashr.vsfv.v1.Organization
+	0,  // 16: pixlcrashr.vsfv.v1.OrganizationService.UpdateOrganization:output_type -> pixlcrashr.vsfv.v1.Organization
+	12, // 17: pixlcrashr.vsfv.v1.OrganizationService.DeleteOrganization:output_type -> google.protobuf.Empty
+	7,  // 18: pixlcrashr.vsfv.v1.OrganizationService.CheckOrganizationId:output_type -> pixlcrashr.vsfv.v1.CheckOrganizationIdResponse
+	13, // [13:19] is the sub-list for method output_type
+	7,  // [7:13] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_pixlcrashr_vsfv_v1_organization_proto_init() }
@@ -656,6 +669,7 @@ func file_pixlcrashr_vsfv_v1_organization_proto_init() {
 	if File_pixlcrashr_vsfv_v1_organization_proto != nil {
 		return
 	}
+	file_pixlcrashr_vsfv_v1_common_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

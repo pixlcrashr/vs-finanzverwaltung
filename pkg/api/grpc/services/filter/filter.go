@@ -104,33 +104,41 @@ var (
 	budgetAccountValueDecls = mustDecls(
 		filtering.DeclareIdent("account_id", filtering.TypeString),
 	)
-	importSourceDecls = mustDecls(
-		filtering.DeclareIdent("display_name", filtering.TypeString),
+	budgetActualAccountValueDecls = mustDecls(
+		filtering.DeclareIdent("account_id", filtering.TypeString),
 	)
 	organizationDecls = mustDecls(
 		filtering.DeclareIdent("display_name", filtering.TypeString),
 	)
-	importSourcePeriodDecls = mustDecls(
+	ledgerYearDecls = mustDecls(
 		filtering.DeclareIdent("year", filtering.TypeInt),
 		filtering.DeclareIdent("is_closed", filtering.TypeBool),
 	)
 	transactionDecls = mustDecls(
-		filtering.DeclareIdent("credit_transaction_account_id", filtering.TypeString),
-		filtering.DeclareIdent("debit_transaction_account_id", filtering.TypeString),
+		filtering.DeclareIdent("credit_ledger_account_id", filtering.TypeString),
+		filtering.DeclareIdent("debit_ledger_account_id", filtering.TypeString),
 		filtering.DeclareIdent("booked_at", filtering.TypeString),
 	)
-	transactionAccountDecls = mustDecls(
-		filtering.DeclareIdent("import_source_id", filtering.TypeString),
+	ledgerAccountDecls = mustDecls(
 		filtering.DeclareIdent("code", filtering.TypeString),
+		filtering.DeclareIdent("account_type", filtering.TypeString),
 		filtering.DeclareIdent("display_name", filtering.TypeString),
 	)
-	transactionAccountAssignmentDecls = mustDecls(
+	transactionAssignmentDecls = mustDecls(
 		filtering.DeclareIdent("account_id", filtering.TypeString),
 	)
 	reportTemplateDecls = mustDecls(
 		filtering.DeclareIdent("display_name", filtering.TypeString),
 	)
 	reportDecls = mustDecls(
+		filtering.DeclareIdent("display_name", filtering.TypeString),
+	)
+	userDecls = mustDecls(
+		filtering.DeclareIdent("display_name", filtering.TypeString),
+		filtering.DeclareIdent("email", filtering.TypeString),
+		filtering.DeclareIdent("is_active", filtering.TypeBool),
+	)
+	userGroupDecls = mustDecls(
 		filtering.DeclareIdent("display_name", filtering.TypeString),
 	)
 )
@@ -373,6 +381,17 @@ func ParseBudgetAccountValueFilter(raw string) (cond.Cond, error) {
 	return buildCond(f.CheckedExpr.GetExpr(), 0)
 }
 
+// ── BudgetActualAccountValue ──────────────────────────────────────────────────
+
+// ParseBudgetActualAccountValueFilter parses an AIP-160 filter string into an abstract condition chain.
+func ParseBudgetActualAccountValueFilter(raw string) (cond.Cond, error) {
+	f, err := parseWith(raw, budgetActualAccountValueDecls)
+	if err != nil || f == nil {
+		return nil, err
+	}
+	return buildCond(f.CheckedExpr.GetExpr(), 0)
+}
+
 // ── Organization ─────────────────────────────────────────────────────────────
 
 // ParseOrganizationFilter parses an AIP-160 filter string into an abstract condition chain.
@@ -384,22 +403,11 @@ func ParseOrganizationFilter(raw string) (cond.Cond, error) {
 	return buildCond(f.CheckedExpr.GetExpr(), 0)
 }
 
-// ── ImportSource ─────────────────────────────────────────────────────────────
+// ── LedgerYear ─────────────────────────────────────────────────────────────
 
-// ParseImportSourceFilter parses an AIP-160 filter string into an abstract condition chain.
-func ParseImportSourceFilter(raw string) (cond.Cond, error) {
-	f, err := parseWith(raw, importSourceDecls)
-	if err != nil || f == nil {
-		return nil, err
-	}
-	return buildCond(f.CheckedExpr.GetExpr(), 0)
-}
-
-// ── ImportSourcePeriod ───────────────────────────────────────────────────────
-
-// ParseImportSourcePeriodFilter parses an AIP-160 filter string into an abstract condition chain.
-func ParseImportSourcePeriodFilter(raw string) (cond.Cond, error) {
-	f, err := parseWith(raw, importSourcePeriodDecls)
+// ParseLedgerYearFilter parses an AIP-160 filter string into an abstract condition chain.
+func ParseLedgerYearFilter(raw string) (cond.Cond, error) {
+	f, err := parseWith(raw, ledgerYearDecls)
 	if err != nil || f == nil {
 		return nil, err
 	}
@@ -417,22 +425,22 @@ func ParseTransactionFilter(raw string) (cond.Cond, error) {
 	return buildCond(f.CheckedExpr.GetExpr(), 0)
 }
 
-// ── TransactionAccount ───────────────────────────────────────────────────────
+// ── LedgerAccount ───────────────────────────────────────────────────────
 
-// ParseTransactionAccountFilter parses an AIP-160 filter string into an abstract condition chain.
-func ParseTransactionAccountFilter(raw string) (cond.Cond, error) {
-	f, err := parseWith(raw, transactionAccountDecls)
+// ParseLedgerAccountFilter parses an AIP-160 filter string into an abstract condition chain.
+func ParseLedgerAccountFilter(raw string) (cond.Cond, error) {
+	f, err := parseWith(raw, ledgerAccountDecls)
 	if err != nil || f == nil {
 		return nil, err
 	}
 	return buildCond(f.CheckedExpr.GetExpr(), 0)
 }
 
-// ── TransactionAccountAssignment ─────────────────────────────────────────────
+// ── TransactionAssignment ─────────────────────────────────────────────
 
-// ParseTransactionAccountAssignmentFilter parses an AIP-160 filter string into an abstract condition chain.
-func ParseTransactionAccountAssignmentFilter(raw string) (cond.Cond, error) {
-	f, err := parseWith(raw, transactionAccountAssignmentDecls)
+// ParseTransactionAssignmentFilter parses an AIP-160 filter string into an abstract condition chain.
+func ParseTransactionAssignmentFilter(raw string) (cond.Cond, error) {
+	f, err := parseWith(raw, transactionAssignmentDecls)
 	if err != nil || f == nil {
 		return nil, err
 	}
@@ -455,6 +463,28 @@ func ParseReportTemplateFilter(raw string) (cond.Cond, error) {
 // ParseReportFilter parses an AIP-160 filter string into an abstract condition chain.
 func ParseReportFilter(raw string) (cond.Cond, error) {
 	f, err := parseWith(raw, reportDecls)
+	if err != nil || f == nil {
+		return nil, err
+	}
+	return buildCond(f.CheckedExpr.GetExpr(), 0)
+}
+
+// ── User ──────────────────────────────────────────────────────────────────────
+
+// ParseUserFilter parses an AIP-160 filter string into an abstract condition chain.
+func ParseUserFilter(raw string) (cond.Cond, error) {
+	f, err := parseWith(raw, userDecls)
+	if err != nil || f == nil {
+		return nil, err
+	}
+	return buildCond(f.CheckedExpr.GetExpr(), 0)
+}
+
+// ── UserGroup (Group) ────────────────────────────────────────────────────────
+
+// ParseUserGroupFilter parses an AIP-160 filter string into an abstract condition chain.
+func ParseUserGroupFilter(raw string) (cond.Cond, error) {
+	f, err := parseWith(raw, userGroupDecls)
 	if err != nil || f == nil {
 		return nil, err
 	}

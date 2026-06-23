@@ -10,6 +10,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
+	"github.com/theater-improrama/go-utils/optional"
 	"gorm.io/gorm"
 )
 
@@ -151,8 +152,26 @@ func (r *BudgetAccountValueRepository) Create(ctx context.Context, params Create
 	return m, nil
 }
 
+// UpdateBudgetAccountValueParams holds the fields that can be updated for a budget account value.
+type UpdateBudgetAccountValueParams struct {
+	Value    optional.Optional[apd.Decimal]
+	CustomID optional.Optional[string]
+}
+
 // Update saves changes to an existing budget account value.
-func (r *BudgetAccountValueRepository) Update(ctx context.Context, m *model.BudgetAccountValue) error {
+func (r *BudgetAccountValueRepository) Update(ctx context.Context, id uuid.UUID, params UpdateBudgetAccountValueParams) error {
+	m, err := r.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if params.Value.IsSet {
+		m.Value = params.Value.Value
+	}
+	if params.CustomID.IsSet {
+		m.CustomID = params.CustomID.Value
+	}
+
 	if err := r.db.WithContext(ctx).Save(m).Error; err != nil {
 		return fmt.Errorf("update budget account value id=%s: %w", m.ID, err)
 	}

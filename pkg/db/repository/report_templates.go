@@ -10,6 +10,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
+	"github.com/theater-improrama/go-utils/optional"
 	"gorm.io/gorm"
 )
 
@@ -143,9 +144,31 @@ func (r *ReportTemplateRepository) Create(ctx context.Context, params CreateRepo
 	return m, nil
 }
 
+// UpdateReportTemplateParams holds the fields that can be updated for a report template.
+type UpdateReportTemplateParams struct {
+	DisplayName optional.Optional[string]
+	Template    optional.Optional[string]
+	CustomID    optional.Optional[string]
+}
+
 // Update updates fields of an existing report template.
-func (r *ReportTemplateRepository) Update(ctx context.Context, m *model.ReportTemplate) error {
-	_, err := r.q.ReportTemplate.WithContext(ctx).Where(r.q.ReportTemplate.ID.Eq(m.ID)).Updates(m)
+func (r *ReportTemplateRepository) Update(ctx context.Context, id uuid.UUID, params UpdateReportTemplateParams) error {
+	m, err := r.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if params.DisplayName.IsSet {
+		m.DisplayName = params.DisplayName.Value
+	}
+	if params.Template.IsSet {
+		m.Template = params.Template.Value
+	}
+	if params.CustomID.IsSet {
+		m.CustomID = params.CustomID.Value
+	}
+
+	_, err = r.q.ReportTemplate.WithContext(ctx).Where(r.q.ReportTemplate.ID.Eq(m.ID)).Updates(m)
 	if err != nil {
 		return fmt.Errorf("update report template id=%s: %w", m.ID, err)
 	}

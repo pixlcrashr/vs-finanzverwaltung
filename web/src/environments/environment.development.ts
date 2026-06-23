@@ -24,15 +24,16 @@ import { MockUserEditDataService } from '../lib/data/mock/user-edit.data-service
 import { MockGroupListDataService } from '../lib/data/mock/group-list.data-service.mock';
 import { MockGroupEditDataService } from '../lib/data/mock/group-edit.data-service.mock';
 import { MockGroupNewDataService } from '../lib/data/mock/group-new.data-service.mock';
-import { MockImportSourceListDataService } from '../lib/data/mock/import-source-list.data-service.mock';
-import { MockImportSourceEditDataService } from '../lib/data/mock/import-source-edit.data-service.mock';
+import { MockLedgerAccountListDataService } from '../lib/data/mock/ledger-account-list.data-service.mock';
+import { MockLedgerAccountEditDataService } from '../lib/data/mock/ledger-account-edit.data-service.mock';
+import { MockLedgerYearListDataService } from '../lib/data/mock/ledger-year-list.data-service.mock';
+import { MockOrganizationSettingsDataService } from '../lib/data/mock/organization-settings.data-service.mock';
 import { MockCreateAccountGroupDialogDataService } from '../lib/data/mock/create-account-group-dialog.data-service.mock';
 import { MockAddAccountToGroupDialogDataService } from '../lib/data/mock/add-account-to-group-dialog.data-service.mock';
 import { MockCreateBudgetDialogDataService } from '../lib/data/mock/create-budget-dialog.data-service.mock';
 import { MockCloseBudgetDialogDataService } from '../lib/data/mock/close-budget-dialog.data-service.mock';
 import { MockCreateAccountDialogDataService } from '../lib/data/mock/create-account-dialog.data-service.mock';
 import { MockCreateReportDialogDataService } from '../lib/data/mock/create-report-dialog.data-service.mock';
-import { MockClosePeriodDialogDataService } from '../lib/data/mock/close-period-dialog.data-service.mock';
 import { MockAddReceiptDialogDataService } from '../lib/data/mock/add-receipt-dialog.data-service.mock';
 import { MockOrganizationListDataService } from '../lib/data/mock/organization-list.data-service.mock';
 import { MockOrganizationEditDataService } from '../lib/data/mock/organization-edit.data-service.mock';
@@ -71,8 +72,10 @@ export const environment = {
     groupList: MockGroupListDataService,
     groupEdit: MockGroupEditDataService,
     groupNew: MockGroupNewDataService,
-    importSourceList: MockImportSourceListDataService,
-    importSourceEdit: MockImportSourceEditDataService,
+    ledgerAccountList: MockLedgerAccountListDataService,
+    ledgerAccountEdit: MockLedgerAccountEditDataService,
+    ledgerYearList: MockLedgerYearListDataService,
+    organizationSettings: MockOrganizationSettingsDataService,
     // Dialog data services
     createAccountGroupDialog: MockCreateAccountGroupDialogDataService,
     addAccountToGroupDialog: MockAddAccountToGroupDialogDataService,
@@ -80,7 +83,6 @@ export const environment = {
     closeBudgetDialog: MockCloseBudgetDialogDataService,
     createAccountDialog: MockCreateAccountDialogDataService,
     createReportDialog: MockCreateReportDialogDataService,
-    closePeriodDialog: MockClosePeriodDialogDataService,
     addReceiptDialog: MockAddReceiptDialogDataService,
     organizationList: MockOrganizationListDataService,
     organizationEdit: MockOrganizationEditDataService,

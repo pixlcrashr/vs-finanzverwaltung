@@ -11,6 +11,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
+	"github.com/theater-improrama/go-utils/optional"
 	"gorm.io/gorm"
 )
 
@@ -188,9 +189,43 @@ func (r *BudgetRepository) Create(ctx context.Context, params CreateBudgetParams
 	return m, nil
 }
 
+// UpdateBudgetParams holds the fields that can be updated for a budget.
+type UpdateBudgetParams struct {
+	DisplayName        optional.Optional[string]
+	DisplayDescription optional.Optional[string]
+	PeriodStart        optional.Optional[time.Time]
+	PeriodEnd          optional.Optional[time.Time]
+	IsClosed           optional.Optional[bool]
+	CustomID           optional.Optional[string]
+}
+
 // Update updates fields of an existing budget matched by its primary key.
-func (r *BudgetRepository) Update(ctx context.Context, m *model.Budget) error {
-	_, err := r.q.Budget.WithContext(ctx).Where(r.q.Budget.ID.Eq(m.ID)).Updates(m)
+func (r *BudgetRepository) Update(ctx context.Context, id uuid.UUID, params UpdateBudgetParams) error {
+	m, err := r.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if params.DisplayName.IsSet {
+		m.DisplayName = params.DisplayName.Value
+	}
+	if params.DisplayDescription.IsSet {
+		m.DisplayDescription = params.DisplayDescription.Value
+	}
+	if params.PeriodStart.IsSet {
+		m.PeriodStart = params.PeriodStart.Value
+	}
+	if params.PeriodEnd.IsSet {
+		m.PeriodEnd = params.PeriodEnd.Value
+	}
+	if params.IsClosed.IsSet {
+		m.IsClosed = params.IsClosed.Value
+	}
+	if params.CustomID.IsSet {
+		m.CustomID = params.CustomID.Value
+	}
+
+	_, err = r.q.Budget.WithContext(ctx).Where(r.q.Budget.ID.Eq(m.ID)).Updates(m)
 	if err != nil {
 		return fmt.Errorf("update budget id=%s: %w", m.ID, err)
 	}

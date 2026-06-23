@@ -25,15 +25,16 @@ import { HttpUserEditDataService } from '../lib/data/http/user-edit.data-service
 import { HttpGroupListDataService } from '../lib/data/http/group-list.data-service.http';
 import { HttpGroupEditDataService } from '../lib/data/http/group-edit.data-service.http';
 import { HttpGroupNewDataService } from '../lib/data/http/group-new.data-service.http';
-import { HttpImportSourceListDataService } from '../lib/data/http/import-source-list.data-service.http';
-import { HttpImportSourceEditDataService } from '../lib/data/http/import-source-edit.data-service.http';
+import { HttpLedgerAccountListDataService } from '../lib/data/http/ledger-account-list.data-service.http';
+import { HttpLedgerAccountEditDataService } from '../lib/data/http/ledger-account-edit.data-service.http';
+import { HttpLedgerYearListDataService } from '../lib/data/http/ledger-year-list.data-service.http';
+import { HttpOrganizationSettingsDataService } from '../lib/data/http/organization-settings.data-service.http';
 import { HttpCreateAccountGroupDialogDataService } from '../lib/data/http/create-account-group-dialog.data-service.http';
 import { HttpAddAccountToGroupDialogDataService } from '../lib/data/http/add-account-to-group-dialog.data-service.http';
 import { HttpCreateBudgetDialogDataService } from '../lib/data/http/create-budget-dialog.data-service.http';
 import { HttpCloseBudgetDialogDataService } from '../lib/data/http/close-budget-dialog.data-service.http';
 import { HttpCreateAccountDialogDataService } from '../lib/data/http/create-account-dialog.data-service.http';
 import { HttpCreateReportDialogDataService } from '../lib/data/http/create-report-dialog.data-service.http';
-import { HttpClosePeriodDialogDataService } from '../lib/data/http/close-period-dialog.data-service.http';
 // Add Receipt Dialog - using mock until HTTP implementation exists
 import { MockAddReceiptDialogDataService } from '../lib/data/mock/add-receipt-dialog.data-service.mock';
 import { HttpOrganizationListDataService } from '../lib/data/http/organization-list.data-service.http';
@@ -73,8 +74,10 @@ export const environment = {
     groupList: HttpGroupListDataService,
     groupEdit: HttpGroupEditDataService,
     groupNew: HttpGroupNewDataService,
-    importSourceList: HttpImportSourceListDataService,
-    importSourceEdit: HttpImportSourceEditDataService,
+    ledgerAccountList: HttpLedgerAccountListDataService,
+    ledgerAccountEdit: HttpLedgerAccountEditDataService,
+    ledgerYearList: HttpLedgerYearListDataService,
+    organizationSettings: HttpOrganizationSettingsDataService,
     // Dialog data services
     createAccountGroupDialog: HttpCreateAccountGroupDialogDataService,
     addAccountToGroupDialog: HttpAddAccountToGroupDialogDataService,
@@ -82,7 +85,6 @@ export const environment = {
     closeBudgetDialog: HttpCloseBudgetDialogDataService,
     createAccountDialog: HttpCreateAccountDialogDataService,
     createReportDialog: HttpCreateReportDialogDataService,
-    closePeriodDialog: HttpClosePeriodDialogDataService,
     addReceiptDialog: MockAddReceiptDialogDataService,
     organizationList: HttpOrganizationListDataService,
     organizationEdit: HttpOrganizationEditDataService,

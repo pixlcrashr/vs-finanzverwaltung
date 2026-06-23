@@ -87,6 +87,23 @@ export const routes: Routes = [
         runGuardsAndResolvers: 'paramsOrQueryParamsChange',
         loadChildren: () => import('./routes/matrix/matrix.routes').then((m) => m.MATRIX_ROUTES),
       },
+      // Ledger routes
+      {
+        path: 'organizations/:orgId/ledgerAccounts',
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
+        loadChildren: () => import('./routes/ledger/ledger.routes').then((m) => m.LEDGER_ROUTES),
+      },
+      {
+        path: 'organizations/:orgId/ledgerYears',
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
+        loadChildren: () => import('./routes/ledger/ledger.routes').then((m) => m.LEDGER_ROUTES),
+      },
+      // Organization settings
+      {
+        path: 'organizations/:orgId/settings',
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
+        loadChildren: () => import('./routes/settings/settings.routes').then((m) => m.SETTINGS_ROUTES),
+      },
     ],
   },
 ];

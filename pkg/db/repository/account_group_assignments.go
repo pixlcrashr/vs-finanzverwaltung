@@ -10,6 +10,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
+	"github.com/theater-improrama/go-utils/optional"
 	"gorm.io/gorm"
 )
 
@@ -152,8 +153,31 @@ func (r *AccountGroupAssignmentRepository) Create(ctx context.Context, params Cr
 	return m, nil
 }
 
-func (r *AccountGroupAssignmentRepository) Update(ctx context.Context, m *model.AccountGroupAssignment) error {
-	_, err := r.q.AccountGroupAssignment.WithContext(ctx).Where(r.q.AccountGroupAssignment.ID.Eq(m.ID)).Updates(m)
+// UpdateAccountGroupAssignmentParams holds the fields that can be updated for an account group assignment.
+type UpdateAccountGroupAssignmentParams struct {
+	AccountID optional.Optional[uuid.UUID]
+	Negate    optional.Optional[bool]
+	CustomID  optional.Optional[string]
+}
+
+// Update updates fields of an existing account group assignment.
+func (r *AccountGroupAssignmentRepository) Update(ctx context.Context, id uuid.UUID, params UpdateAccountGroupAssignmentParams) error {
+	m, err := r.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if params.AccountID.IsSet {
+		m.AccountID = params.AccountID.Value
+	}
+	if params.Negate.IsSet {
+		m.Negate = params.Negate.Value
+	}
+	if params.CustomID.IsSet {
+		m.CustomID = params.CustomID.Value
+	}
+
+	_, err = r.q.AccountGroupAssignment.WithContext(ctx).Where(r.q.AccountGroupAssignment.ID.Eq(m.ID)).Updates(m)
 	if err != nil {
 		return fmt.Errorf("update account group assignment id=%s: %w", m.ID, err)
 	}

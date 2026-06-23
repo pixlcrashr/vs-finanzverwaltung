@@ -17,7 +17,6 @@ import {
 } from '../../../shared/components';
 import {
   JournalImportDataService,
-  ImportSourceOption,
   ImportTransaction,
   AccountOption,
   AccountAssignment,
@@ -47,7 +46,7 @@ interface TransactionRow {
     <app-page-content-layout [breadcrumbs]="breadcrumbs">
       <div layout-content>
         @if (loading()) {
-          <app-loading-spinner [fullPage]="true" i18n-text text="Importquellen werden geladen..." />
+          <app-loading-spinner [fullPage]="true" i18n-text text="Wird geladen..." />
         } @else {
           <div class="mx-auto w-full max-w-7xl space-y-3">
             @if (!transactions()) {
@@ -84,25 +83,6 @@ interface TransactionRow {
                         Der DATEV Buchungsstapel muss als CSV im Standardformat vorliegen.
                       </p>
                     }
-                  </div>
-
-                  <div>
-                    <label
-                      for="source"
-                      class="block text-xs font-medium text-gray-700 mb-1"
-                    >
-                      <ng-container i18n>Importquelle</ng-container>
-                    </label>
-                    <select
-                      id="source"
-                      [(ngModel)]="selectedSourceId"
-                      class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option i18n value="">Bitte wählen...</option>
-                      @for (source of sources(); track source.id) {
-                        <option [value]="source.id">{{ source.name }}</option>
-                      }
-                    </select>
                   </div>
 
                   <div>
@@ -317,7 +297,6 @@ export class JournalImportComponent implements OnInit {
 
   readonly loading = signal(true);
   readonly uploading = signal(false);
-  readonly sources = signal<ImportSourceOption[]>([]);
   readonly accounts = signal<AccountOption[]>([]);
   readonly selectedFile = signal<File | null>(null);
   readonly transactions = signal<TransactionRow[] | null>(null);
@@ -331,9 +310,7 @@ export class JournalImportComponent implements OnInit {
     (this.transactions() ?? []).filter(r => !r.imported && !r.ignored)
   );
 
-  private sourceId = '';
   selectedType: '' | JournalImportType = '';
-  selectedSourceId = '';
 
   readonly breadcrumbs: BreadcrumbItem[] = [
     { label: $localize`Journal`, path: '' },
@@ -345,21 +322,8 @@ export class JournalImportComponent implements OnInit {
   ngOnInit(): void {
     this.orgId = this.getOrgId();
     this.breadcrumbs[0].path = `/organizations/${this.orgId}/journal`;
-    this.loadSources();
+    this.loading.set(false);
     this.loadAccounts();
-  }
-
-  private loadSources(): void {
-    this.dataService.getImportSources(this.orgId).subscribe({
-      next: (sources) => {
-        this.sources.set(sources);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.notifications.error($localize`Fehler beim Laden der Importquellen`);
-        this.loading.set(false);
-      },
-    });
   }
 
   private loadAccounts(): void {
@@ -376,7 +340,7 @@ export class JournalImportComponent implements OnInit {
   }
 
   canUpload(): boolean {
-    return !!this.selectedType && !!this.selectedSourceId && !!this.selectedFile();
+    return !!this.selectedType && !!this.selectedFile();
   }
 
   uploadFile(): void {
@@ -386,13 +350,11 @@ export class JournalImportComponent implements OnInit {
 
     this.dataService.uploadFile(
       this.orgId,
-      this.selectedSourceId,
       this.selectedType as JournalImportType,
       this.selectedFile()!,
     ).subscribe({
       next: (result) => {
         this.uploading.set(false);
-        this.sourceId = result.sourceId;
         this.closedYearsCount.set(result.closedYearsCount);
         this.transactions.set(
           result.transactions.map(t => ({
@@ -452,7 +414,6 @@ export class JournalImportComponent implements OnInit {
     row.importing = true;
 
     this.dataService.importTransaction(this.orgId, {
-      sourceId: this.sourceId,
       receiptFrom: row.transaction.receiptFrom,
       bookedAt: row.transaction.bookedAt,
       amount: row.transaction.amount,
@@ -487,8 +448,6 @@ export class JournalImportComponent implements OnInit {
     this.transactions.set(null);
     this.selectedFile.set(null);
     this.selectedType = '';
-    this.selectedSourceId = '';
-    this.sourceId = '';
     this.closedYearsCount.set(0);
   }
 

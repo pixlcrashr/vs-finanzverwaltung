@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-
 	"errors"
 
 	"github.com/google/uuid"
@@ -10,6 +9,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
+	"github.com/theater-improrama/go-utils/optional"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -121,23 +121,31 @@ func (s *transactionServiceServer) CreateTransaction(ctx context.Context, req *g
 
 	t := req.Transaction
 
-	creditID, err := uuid.Parse(t.CreditTransactionAccountId)
+	var creditResourceName gen.LedgerAccountResourceName
+	if err := creditResourceName.UnmarshalString(t.CreditLedgerAccount); err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidCreditLedgerAccountID}
+	}
+	creditID, err := uuid.Parse(creditResourceName.LedgerAccount)
 	if err != nil {
-		return nil, &ServerError{Err: err, Status: statusInvalidCreditTransactionAccountID}
+		return nil, &ServerError{Err: err, Status: statusInvalidCreditLedgerAccountID}
 	}
 
-	debitID, err := uuid.Parse(t.DebitTransactionAccountId)
+	var debitResourceName gen.LedgerAccountResourceName
+	if err := debitResourceName.UnmarshalString(t.DebitLedgerAccount); err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidDebitLedgerAccountID}
+	}
+	debitID, err := uuid.Parse(debitResourceName.LedgerAccount)
 	if err != nil {
-		return nil, &ServerError{Err: err, Status: statusInvalidDebitTransactionAccountID}
+		return nil, &ServerError{Err: err, Status: statusInvalidDebitLedgerAccountID}
 	}
 
 	params := repository.CreateTransactionParams{
-		OrganizationID:             orgID,
-		CreditTransactionAccountID: creditID,
-		DebitTransactionAccountID:  debitID,
-		Description:                t.Description,
-		Reference:                  t.Reference,
-		CustomID:                   req.TransactionId,
+		OrganizationID:        orgID,
+		CreditLedgerAccountID: creditID,
+		DebitLedgerAccountID:  debitID,
+		Description:           t.Description,
+		Reference:             t.Reference,
+		CustomID:              req.TransactionId,
 	}
 	if t.BookedAt != nil {
 		params.BookedAt = t.BookedAt.AsTime()
@@ -153,8 +161,8 @@ func (s *transactionServiceServer) CreateTransaction(ctx context.Context, req *g
 			return nil, &ServerError{Err: err, Status: statusTransactionAlreadyExists}
 		}
 
-		if errors.Is(err, repository.ErrTransactionAccountNotFound) {
-			return nil, &ServerError{Err: err, Status: statusTransactionAccountNotFound}
+		if errors.Is(err, repository.ErrLedgerAccountNotFound) {
+			return nil, &ServerError{Err: err, Status: statusLedgerAccountNotFound}
 		}
 
 		return nil, &ServerError{Err: err, Status: statusFailedCreateTransaction}
@@ -189,18 +197,26 @@ func (s *transactionServiceServer) UpdateTransaction(ctx context.Context, req *g
 	}
 
 	t := req.Transaction
-	m.Description = t.Description
-	m.Reference = t.Reference
+	updateParams := repository.UpdateTransactionParams{
+		Description: optional.From(t.Description),
+		Reference:   optional.From(t.Reference),
+	}
 
 	if t.BookedAt != nil {
-		m.BookedAt = t.BookedAt.AsTime()
+		updateParams.BookedAt = optional.From(t.BookedAt.AsTime())
 	}
 
 	if t.DocumentDate != nil {
-		m.DocumentDate = t.DocumentDate.AsTime()
+		updateParams.DocumentDate = optional.From(t.DocumentDate.AsTime())
 	}
 
-	if err := s.repo.Update(ctx, m); err != nil {
+	if err := s.repo.Update(ctx, m.ID, updateParams); err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedUpdateTransaction}
+	}
+
+	// Refresh the model after update
+	m, err = s.repo.GetByID(ctx, m.ID)
+	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateTransaction}
 	}
 

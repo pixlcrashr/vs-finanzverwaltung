@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
@@ -10,6 +11,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
+	"github.com/theater-improrama/go-utils/optional"
 	"go.einride.tech/aip/ordering"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -109,6 +111,7 @@ func (s *organizationServiceServer) CreateOrganization(ctx context.Context, req 
 
 	m, err := s.repo.Create(ctx, repository.CreateOrganizationParams{
 		DisplayName: req.Organization.DisplayName,
+		StartMonth:  time.Month(req.Organization.StartMonth),
 		CustomID:    req.OrganizationId,
 	})
 	if err != nil {
@@ -147,9 +150,18 @@ func (s *organizationServiceServer) UpdateOrganization(ctx context.Context, req 
 		return nil, &ServerError{Err: err, Status: statusFailedGetOrganization}
 	}
 
-	m.DisplayName = req.Organization.DisplayName
+	updateParams := repository.UpdateOrganizationParams{
+		DisplayName: optional.From(req.Organization.DisplayName),
+		StartMonth:  optional.From(time.Month(req.Organization.StartMonth)),
+	}
 
-	if err := s.repo.Update(ctx, m); err != nil {
+	if err := s.repo.Update(ctx, m.ID, updateParams); err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedUpdateOrganization}
+	}
+
+	// Refresh the model after update
+	m, err = s.repo.GetByID(ctx, m.ID)
+	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateOrganization}
 	}
 

@@ -96,10 +96,40 @@ import { MainLayoutDataService } from './main-layout.data-service';
 
           <div class="mt-4">
             <p i18n class="px-2 mb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+              Finanzbuchhaltung
+            </p>
+            <ul class="space-y-0.5">
+              @for (item of bookkeepingMenuItems(); track item.name) {
+                <li>
+                  <a [routerLink]="item.path" [class]="menuItemClasses(item)">
+                    {{ item.name }}
+                  </a>
+                </li>
+              }
+            </ul>
+          </div>
+
+          <div class="mt-4">
+            <p i18n class="px-2 mb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-500">
               Haushalt
             </p>
             <ul class="space-y-0.5">
               @for (item of householdMenuItems(); track item.name) {
+                <li>
+                  <a [routerLink]="item.path" [class]="menuItemClasses(item)">
+                    {{ item.name }}
+                  </a>
+                </li>
+              }
+            </ul>
+          </div>
+
+          <div class="mt-4">
+            <p i18n class="px-2 mb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+              Organisation
+            </p>
+            <ul class="space-y-0.5">
+              @for (item of orgSettingsMenuItems(); track item.name) {
                 <li>
                   <a [routerLink]="item.path" [class]="menuItemClasses(item)">
                     {{ item.name }}
@@ -235,8 +265,24 @@ export class MainLayoutComponent implements OnInit {
     { name: $localize`Organisationen`, path: '/admin/organizations' },
     { name: $localize`Benutzer`, path: '/admin/users' },
     { name: $localize`Gruppen`, path: '/admin/groups' },
-    { name: $localize`Importquellen`, path: '/admin/importSources' },
   ]);
+
+  readonly bookkeepingMenuItems = computed<MenuItem[]>(() => {
+    const orgId = this.orgIdFromRoute();
+    if (!orgId) return [];
+    return [
+      { name: $localize`Ledger Konten`, path: `/organizations/${orgId}/ledgerAccounts` },
+      { name: $localize`Geschäftsjahre`, path: `/organizations/${orgId}/ledgerYears` },
+    ];
+  });
+
+  readonly orgSettingsMenuItems = computed<MenuItem[]>(() => {
+    const orgId = this.orgIdFromRoute();
+    if (!orgId) return [];
+    return [
+      { name: $localize`Einstellungen`, path: `/organizations/${orgId}/settings` },
+    ];
+  });
 
   constructor() {
     this.initializeTheme();

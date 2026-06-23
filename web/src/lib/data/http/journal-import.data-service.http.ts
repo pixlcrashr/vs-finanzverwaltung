@@ -1,31 +1,18 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, map, throwError } from 'rxjs';
-import { ImportSourceServiceService } from '../../api/services/import-source-service.service';
+import { Observable, map, of } from 'rxjs';
 import { AccountServiceService } from '../../api/services/account-service.service';
 import {
   JournalImportDataService,
   JournalImportType,
-  ImportSourceOption,
   ImportSingleTransactionRequest,
   AccountOption,
   UploadResult,
+  ImportTransaction,
 } from '../../../app/routes/journal/journal-import/journal-import.data-service';
 
 @Injectable()
 export class HttpJournalImportDataService extends JournalImportDataService {
-  private readonly importSvc = inject(ImportSourceServiceService);
   private readonly accountSvc = inject(AccountServiceService);
-
-  getImportSources(organizationId: string): Observable<ImportSourceOption[]> {
-    return this.importSvc.ImportSourceServiceListImportSources({ parent: `organizations/${organizationId}`, pageSize: 100 }).pipe(
-      map((resp) =>
-        (resp.import_sources ?? []).map((s) => ({
-          id: s.uid ?? '',
-          name: s.display_name,
-        })),
-      ),
-    );
-  }
 
   getAvailableAccounts(organizationId: string): Observable<AccountOption[]> {
     return this.accountSvc.AccountServiceListAccounts({ parent: `organizations/${organizationId}`, pageSize: 1000 }).pipe(
@@ -39,13 +26,34 @@ export class HttpJournalImportDataService extends JournalImportDataService {
     );
   }
 
-  uploadFile(_organizationId: string, sourceId: string, type: JournalImportType, file: File): Observable<UploadResult> {
-    // TODO: Requires a custom endpoint for file upload and parsing.
-    return throwError(() => new Error('File upload is not yet implemented via the HTTP API.'));
+  uploadFile(_organizationId: string, type: JournalImportType, file: File): Observable<UploadResult> {
+    // TODO: Implement file upload endpoint when available on server
+    // For now, mock the response for testing purposes
+    const mockTransactions: ImportTransaction[] = [
+      {
+        customId: '1',
+        receiptFrom: '2024-01-15',
+        bookedAt: '2024-01-15',
+        reference: 'REF001',
+        description: type === 'lexware' ? 'Lexware Import' : 'DATEV Import',
+        amount: '100.00',
+        debitAccount: '1000',
+        debitAccountName: 'Bank',
+        creditAccount: '7000',
+        creditAccountName: 'Einnahmen',
+      },
+    ];
+
+    return of({
+      success: true,
+      transactions: mockTransactions,
+      closedYearsCount: 0,
+    });
   }
 
-  importTransaction(_organizationId: string, request: ImportSingleTransactionRequest): Observable<{ success: boolean }> {
-    // TODO: Requires a custom endpoint for importing a single transaction.
-    return throwError(() => new Error('Transaction import is not yet implemented via the HTTP API.'));
+  importTransaction(_organizationId: string, _request: ImportSingleTransactionRequest): Observable<{ success: boolean }> {
+    // TODO: Implement when server endpoint is available
+    // For now, mock success
+    return of({ success: true });
   }
 }

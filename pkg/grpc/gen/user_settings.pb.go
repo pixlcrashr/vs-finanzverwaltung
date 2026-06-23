@@ -158,7 +158,11 @@ type UpdateUserSettingsRequest struct {
 	// The user settings to update.
 	Settings *UserSettings `protobuf:"bytes,1,opt,name=settings,proto3" json:"settings,omitempty"`
 	// The list of fields to update.
-	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	UpdateMask *fieldmaskpb.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	// If true and the resource does not exist, a new resource will be created.
+	// In this case, the field mask is ignored.
+	// https://google.aip.dev/134#create-or-update
+	AllowMissing  bool `protobuf:"varint,3,opt,name=allow_missing,json=allowMissing,proto3" json:"allow_missing,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -207,6 +211,13 @@ func (x *UpdateUserSettingsRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+func (x *UpdateUserSettingsRequest) GetAllowMissing() bool {
+	if x != nil {
+		return x.AllowMissing
+	}
+	return false
+}
+
 var File_pixlcrashr_vsfv_v1_user_settings_proto protoreflect.FileDescriptor
 
 const file_pixlcrashr_vsfv_v1_user_settings_proto_rawDesc = "" +
@@ -222,11 +233,12 @@ const file_pixlcrashr_vsfv_v1_user_settings_proto_rawDesc = "" +
 	" vsfv.pixlcrashr.dev/UserSettings\x12\x15users/{user}/settings2\bsettings\"V\n" +
 	"\x16GetUserSettingsRequest\x12<\n" +
 	"\x04name\x18\x01 \x01(\tB(\xe0A\x02\xfaA\"\n" +
-	" vsfv.pixlcrashr.dev/UserSettingsR\x04name\"\xa0\x01\n" +
+	" vsfv.pixlcrashr.dev/UserSettingsR\x04name\"\xca\x01\n" +
 	"\x19UpdateUserSettingsRequest\x12A\n" +
 	"\bsettings\x18\x01 \x01(\v2 .pixlcrashr.vsfv.v1.UserSettingsB\x03\xe0A\x02R\bsettings\x12@\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
-	"updateMask2\xf2\x02\n" +
+	"updateMask\x12(\n" +
+	"\rallow_missing\x18\x03 \x01(\bB\x03\xe0A\x01R\fallowMissing2\xf2\x02\n" +
 	"\x13UserSettingsService\x12\x8b\x01\n" +
 	"\x0fGetUserSettings\x12*.pixlcrashr.vsfv.v1.GetUserSettingsRequest\x1a .pixlcrashr.vsfv.v1.UserSettings\"*\xdaA\x04name\x82\xd3\xe4\x93\x02\x1d\x12\x1b/v1/{name=users/*/settings}\x12\xb4\x01\n" +
 	"\x12UpdateUserSettings\x12-.pixlcrashr.vsfv.v1.UpdateUserSettingsRequest\x1a .pixlcrashr.vsfv.v1.UserSettings\"M\xdaA\x14settings,update_mask\x82\xd3\xe4\x93\x020:\bsettings2$/v1/{settings.name=users/*/settings}\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xbe\x01\n" +

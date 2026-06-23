@@ -11,6 +11,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
+	"github.com/theater-improrama/go-utils/optional"
 	"go.einride.tech/aip/ordering"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -290,12 +291,20 @@ func (s *accountServiceServer) UpdateAccount(ctx context.Context, req *gen.Updat
 		return nil, &ServerError{Err: err, Status: statusFailedGetAccount}
 	}
 
-	m.DisplayName = req.Account.DisplayName
-	m.DisplayCode = req.Account.DisplayCode
-	m.DisplayDescription = req.Account.DisplayDescription
-	m.IsContainer = req.Account.IsContainer
+	updateParams := repository.UpdateAccountParams{
+		DisplayName:        optional.From(req.Account.DisplayName),
+		DisplayCode:        optional.From(req.Account.DisplayCode),
+		DisplayDescription: optional.From(req.Account.DisplayDescription),
+		IsContainer:        optional.From(req.Account.IsContainer),
+	}
 
-	if err := s.repo.Update(ctx, m); err != nil {
+	if err := s.repo.Update(ctx, m.ID, updateParams); err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedUpdateAccount}
+	}
+
+	// Refresh the model after update
+	m, err = s.repo.GetByID(ctx, m.ID)
+	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateAccount}
 	}
 
@@ -324,9 +333,17 @@ func (s *accountServiceServer) ArchiveAccount(ctx context.Context, req *gen.Arch
 		return nil, &ServerError{Err: err, Status: statusFailedGetAccount}
 	}
 
-	m.IsArchived = true
+	updateParams := repository.UpdateAccountParams{
+		IsArchived: optional.From(true),
+	}
 
-	if err := s.repo.Update(ctx, m); err != nil {
+	if err := s.repo.Update(ctx, m.ID, updateParams); err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedArchiveAccount}
+	}
+
+	// Refresh the model after update
+	m, err = s.repo.GetByID(ctx, m.ID)
+	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusFailedArchiveAccount}
 	}
 

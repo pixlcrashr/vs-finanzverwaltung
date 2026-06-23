@@ -238,39 +238,29 @@ func seed(db *gorm.DB) error {
 		}
 	}
 
-	// ── Import Sources ───────────────────────────────────────────────────────
-	src1 := &model.ImportSource{OrganizationID: org1.ID, DisplayName: "Volksbank CSV 2024", DisplayDescription: "Kontoauszug Volksbank", PeriodStart: date(2024, 1, 1)}
-	src2 := &model.ImportSource{OrganizationID: org1.ID, DisplayName: "Kasse 2025", DisplayDescription: "Kassenbuch", PeriodStart: date(2025, 1, 1)}
-	src3 := &model.ImportSource{OrganizationID: org2.ID, DisplayName: "Datev Export 2025", DisplayDescription: "DATEV-Buchungsexport", PeriodStart: date(2025, 1, 1)}
-	for _, v := range []any{src1, src2, src3} {
-		if err := cr(db, v); err != nil {
-			return err
-		}
-	}
-
-	// ── Import Source Periods ────────────────────────────────────────────────
+	// ── Ledger Years ────────────────────────────────────────────────
 	for _, v := range []any{
-		&model.ImportSourcePeriod{OrganizationID: org1.ID, ImportSourceID: src1.ID, Year: 2024},
-		&model.ImportSourcePeriod{OrganizationID: org1.ID, ImportSourceID: src2.ID, Year: 2025},
-		&model.ImportSourcePeriod{OrganizationID: org2.ID, ImportSourceID: src3.ID, Year: 2025},
+		&model.LedgerYear{OrganizationID: org1.ID, Year: 2024},
+		&model.LedgerYear{OrganizationID: org1.ID, Year: 2025},
+		&model.LedgerYear{OrganizationID: org2.ID, Year: 2025},
 	} {
 		if err := cr(db, v); err != nil {
 			return err
 		}
 	}
 
-	// ── Transaction Accounts ─────────────────────────────────────────────────
-	// org1 – linked to Volksbank CSV import source
-	ta1 := &model.TransactionAccount{OrganizationID: org1.ID, ImportSourceID: src1.ID, Code: "1000", DisplayName: "Kasse"}
-	ta2 := &model.TransactionAccount{OrganizationID: org1.ID, ImportSourceID: src1.ID, Code: "1200", DisplayName: "Girokonto"}
-	ta3 := &model.TransactionAccount{OrganizationID: org1.ID, ImportSourceID: src1.ID, Code: "4000", DisplayName: "Mitgliedsbeiträge"}
-	ta4 := &model.TransactionAccount{OrganizationID: org1.ID, ImportSourceID: src1.ID, Code: "4100", DisplayName: "Veranstaltungserlöse"}
-	ta5 := &model.TransactionAccount{OrganizationID: org1.ID, ImportSourceID: src1.ID, Code: "6000", DisplayName: "Raummiete"}
-	// org2 – linked to Datev export
-	ta6 := &model.TransactionAccount{OrganizationID: org2.ID, ImportSourceID: src3.ID, Code: "1210", DisplayName: "Geschäftskonto"}
-	ta7 := &model.TransactionAccount{OrganizationID: org2.ID, ImportSourceID: src3.ID, Code: "8000", DisplayName: "Erlöse Aufträge"}
-	ta8 := &model.TransactionAccount{OrganizationID: org2.ID, ImportSourceID: src3.ID, Code: "5000", DisplayName: "Materialaufwand"}
-	ta9 := &model.TransactionAccount{OrganizationID: org2.ID, ImportSourceID: src3.ID, Code: "6200", DisplayName: "Löhne und Gehälter"}
+	// ── Ledger Accounts ─────────────────────────────────────────────────
+	// org1
+	ta1 := &model.LedgerAccount{OrganizationID: org1.ID, Code: "1000", AccountType: model.AccountTypeAsset, DisplayName: "Kasse"}
+	ta2 := &model.LedgerAccount{OrganizationID: org1.ID, Code: "1200", AccountType: model.AccountTypeAsset, DisplayName: "Girokonto"}
+	ta3 := &model.LedgerAccount{OrganizationID: org1.ID, Code: "4000", AccountType: model.AccountTypeRevenue, DisplayName: "Mitgliedsbeiträge"}
+	ta4 := &model.LedgerAccount{OrganizationID: org1.ID, Code: "4100", AccountType: model.AccountTypeRevenue, DisplayName: "Veranstaltungserlöse"}
+	ta5 := &model.LedgerAccount{OrganizationID: org1.ID, Code: "6000", AccountType: model.AccountTypeExpense, DisplayName: "Raummiete"}
+	// org2
+	ta6 := &model.LedgerAccount{OrganizationID: org2.ID, Code: "1210", AccountType: model.AccountTypeAsset, DisplayName: "Geschäftskonto"}
+	ta7 := &model.LedgerAccount{OrganizationID: org2.ID, Code: "8000", AccountType: model.AccountTypeRevenue, DisplayName: "Erlöse Aufträge"}
+	ta8 := &model.LedgerAccount{OrganizationID: org2.ID, Code: "5000", AccountType: model.AccountTypeExpense, DisplayName: "Materialaufwand"}
+	ta9 := &model.LedgerAccount{OrganizationID: org2.ID, Code: "6200", AccountType: model.AccountTypeExpense, DisplayName: "Löhne und Gehälter"}
 	for _, v := range []any{ta1, ta2, ta3, ta4, ta5, ta6, ta7, ta8, ta9} {
 		if err := cr(db, v); err != nil {
 			return err
@@ -281,27 +271,27 @@ func seed(db *gorm.DB) error {
 	// org1 transactions (association)
 	txOrg1 := []*model.Transaction_{
 		{
-			OrganizationID: org1.ID, CreditTransactionAccountID: ta2.ID, DebitTransactionAccountID: ta3.ID,
+			OrganizationID: org1.ID, CreditLedgerAccountID: ta2.ID, DebitLedgerAccountID: ta3.ID,
 			Amount: dec("240.00"), Description: "Mitgliedsbeiträge Januar", Reference: "MB-2024-01",
 			BookedAt: date(2024, 1, 5), DocumentDate: date(2024, 1, 5),
 		},
 		{
-			OrganizationID: org1.ID, CreditTransactionAccountID: ta2.ID, DebitTransactionAccountID: ta4.ID,
+			OrganizationID: org1.ID, CreditLedgerAccountID: ta2.ID, DebitLedgerAccountID: ta4.ID,
 			Amount: dec("1850.00"), Description: "Einnahmen Neujahrsfeier", Reference: "VE-2024-01",
 			BookedAt: date(2024, 1, 20), DocumentDate: date(2024, 1, 19),
 		},
 		{
-			OrganizationID: org1.ID, CreditTransactionAccountID: ta5.ID, DebitTransactionAccountID: ta2.ID,
+			OrganizationID: org1.ID, CreditLedgerAccountID: ta5.ID, DebitLedgerAccountID: ta2.ID,
 			Amount: dec("600.00"), Description: "Miete Februar", Reference: "MIETE-2024-02",
 			BookedAt: date(2024, 2, 1), DocumentDate: date(2024, 2, 1),
 		},
 		{
-			OrganizationID: org1.ID, CreditTransactionAccountID: ta2.ID, DebitTransactionAccountID: ta3.ID,
+			OrganizationID: org1.ID, CreditLedgerAccountID: ta2.ID, DebitLedgerAccountID: ta3.ID,
 			Amount: dec("240.00"), Description: "Mitgliedsbeiträge Februar", Reference: "MB-2024-02",
 			BookedAt: date(2024, 2, 5), DocumentDate: date(2024, 2, 5),
 		},
 		{
-			OrganizationID: org1.ID, CreditTransactionAccountID: ta1.ID, DebitTransactionAccountID: ta2.ID,
+			OrganizationID: org1.ID, CreditLedgerAccountID: ta1.ID, DebitLedgerAccountID: ta2.ID,
 			Amount: dec("300.00"), Description: "Barabhebung für Veranstaltung", Reference: "BAR-2024-01",
 			BookedAt: date(2024, 3, 10), DocumentDate: date(2024, 3, 10),
 		},
@@ -309,32 +299,32 @@ func seed(db *gorm.DB) error {
 	// org2 transactions (craft company)
 	txOrg2 := []*model.Transaction_{
 		{
-			OrganizationID: org2.ID, CreditTransactionAccountID: ta7.ID, DebitTransactionAccountID: ta6.ID,
+			OrganizationID: org2.ID, CreditLedgerAccountID: ta7.ID, DebitLedgerAccountID: ta6.ID,
 			Amount: dec("8500.00"), Description: "Rechnung Auftrag K-2025-01", Reference: "RE-2025-001",
 			BookedAt: date(2025, 1, 10), DocumentDate: date(2025, 1, 8),
 		},
 		{
-			OrganizationID: org2.ID, CreditTransactionAccountID: ta8.ID, DebitTransactionAccountID: ta6.ID,
+			OrganizationID: org2.ID, CreditLedgerAccountID: ta8.ID, DebitLedgerAccountID: ta6.ID,
 			Amount: dec("3200.00"), Description: "Materialeinkauf Stahl", Reference: "EK-2025-001",
 			BookedAt: date(2025, 1, 14), DocumentDate: date(2025, 1, 12),
 		},
 		{
-			OrganizationID: org2.ID, CreditTransactionAccountID: ta9.ID, DebitTransactionAccountID: ta6.ID,
+			OrganizationID: org2.ID, CreditLedgerAccountID: ta9.ID, DebitLedgerAccountID: ta6.ID,
 			Amount: dec("11000.00"), Description: "Lohnzahlung Januar", Reference: "LOHN-2025-01",
 			BookedAt: date(2025, 1, 28), DocumentDate: date(2025, 1, 28),
 		},
 		{
-			OrganizationID: org2.ID, CreditTransactionAccountID: ta7.ID, DebitTransactionAccountID: ta6.ID,
+			OrganizationID: org2.ID, CreditLedgerAccountID: ta7.ID, DebitLedgerAccountID: ta6.ID,
 			Amount: dec("12400.00"), Description: "Rechnung Auftrag K-2025-02", Reference: "RE-2025-002",
 			BookedAt: date(2025, 2, 7), DocumentDate: date(2025, 2, 5),
 		},
 		{
-			OrganizationID: org2.ID, CreditTransactionAccountID: ta8.ID, DebitTransactionAccountID: ta6.ID,
+			OrganizationID: org2.ID, CreditLedgerAccountID: ta8.ID, DebitLedgerAccountID: ta6.ID,
 			Amount: dec("4750.00"), Description: "Materialeinkauf Holz und Schrauben", Reference: "EK-2025-002",
 			BookedAt: date(2025, 2, 11), DocumentDate: date(2025, 2, 10),
 		},
 		{
-			OrganizationID: org2.ID, CreditTransactionAccountID: ta9.ID, DebitTransactionAccountID: ta6.ID,
+			OrganizationID: org2.ID, CreditLedgerAccountID: ta9.ID, DebitLedgerAccountID: ta6.ID,
 			Amount: dec("11000.00"), Description: "Lohnzahlung Februar", Reference: "LOHN-2025-02",
 			BookedAt: date(2025, 2, 27), DocumentDate: date(2025, 2, 27),
 		},
@@ -368,7 +358,7 @@ func seed(db *gorm.DB) error {
 				break
 			}
 		}
-		if err := cr(db, &model.TransactionAccountAssignment{
+		if err := cr(db, &model.TransactionAssignment{
 			OrganizationID: org1.ID, TransactionID: txID, AccountID: acctID, Value: txn.Amount,
 		}); err != nil {
 			return err
@@ -392,7 +382,7 @@ func seed(db *gorm.DB) error {
 				break
 			}
 		}
-		if err := cr(db, &model.TransactionAccountAssignment{
+		if err := cr(db, &model.TransactionAssignment{
 			OrganizationID: org2.ID, TransactionID: txID, AccountID: acctID, Value: txn.Amount,
 		}); err != nil {
 			return err

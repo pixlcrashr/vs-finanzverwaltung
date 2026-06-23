@@ -33,10 +33,12 @@ type Transaction struct {
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// The UUID of the transaction.
 	Uid string `protobuf:"bytes,2,opt,name=uid,proto3" json:"uid,omitempty"`
-	// UUID of the credit transaction account.
-	CreditTransactionAccountId string `protobuf:"bytes,3,opt,name=credit_transaction_account_id,json=creditTransactionAccountId,proto3" json:"credit_transaction_account_id,omitempty"`
-	// UUID of the debit transaction account.
-	DebitTransactionAccountId string `protobuf:"bytes,4,opt,name=debit_transaction_account_id,json=debitTransactionAccountId,proto3" json:"debit_transaction_account_id,omitempty"`
+	// Resource name of the credit ledger account.
+	// Format: organizations/{organization}/ledgerAccounts/{ledger_account}
+	CreditLedgerAccount string `protobuf:"bytes,3,opt,name=credit_ledger_account,json=creditLedgerAccount,proto3" json:"credit_ledger_account,omitempty"`
+	// Resource name of the debit ledger account.
+	// Format: organizations/{organization}/ledgerAccounts/{ledger_account}
+	DebitLedgerAccount string `protobuf:"bytes,4,opt,name=debit_ledger_account,json=debitLedgerAccount,proto3" json:"debit_ledger_account,omitempty"`
 	// Transaction amount.
 	Amount *Decimal `protobuf:"bytes,5,opt,name=amount,proto3" json:"amount,omitempty"`
 	// Human-readable transaction description.
@@ -103,16 +105,16 @@ func (x *Transaction) GetUid() string {
 	return ""
 }
 
-func (x *Transaction) GetCreditTransactionAccountId() string {
+func (x *Transaction) GetCreditLedgerAccount() string {
 	if x != nil {
-		return x.CreditTransactionAccountId
+		return x.CreditLedgerAccount
 	}
 	return ""
 }
 
-func (x *Transaction) GetDebitTransactionAccountId() string {
+func (x *Transaction) GetDebitLedgerAccount() string {
 	if x != nil {
-		return x.DebitTransactionAccountId
+		return x.DebitLedgerAccount
 	}
 	return ""
 }
@@ -544,12 +546,14 @@ var File_pixlcrashr_vsfv_v1_transaction_proto protoreflect.FileDescriptor
 
 const file_pixlcrashr_vsfv_v1_transaction_proto_rawDesc = "" +
 	"\n" +
-	"$pixlcrashr/vsfv/v1/transaction.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a pixlcrashr/vsfv/v1/decimal.proto\"\xfd\x05\n" +
+	"$pixlcrashr/vsfv/v1/transaction.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a pixlcrashr/vsfv/v1/decimal.proto\x1a'pixlcrashr/vsfv/v1/ledger_account.proto\"\xab\x06\n" +
 	"\vTransaction\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x03R\x04name\x12\x1d\n" +
-	"\x03uid\x18\x02 \x01(\tB\v\xe0A\x03\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12F\n" +
-	"\x1dcredit_transaction_account_id\x18\x03 \x01(\tB\x03\xe0A\x02R\x1acreditTransactionAccountId\x12D\n" +
-	"\x1cdebit_transaction_account_id\x18\x04 \x01(\tB\x03\xe0A\x02R\x19debitTransactionAccountId\x128\n" +
+	"\x03uid\x18\x02 \x01(\tB\v\xe0A\x03\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12]\n" +
+	"\x15credit_ledger_account\x18\x03 \x01(\tB)\xe0A\x02\xfaA#\n" +
+	"!vsfv.pixlcrashr.dev/LedgerAccountR\x13creditLedgerAccount\x12[\n" +
+	"\x14debit_ledger_account\x18\x04 \x01(\tB)\xe0A\x02\xfaA#\n" +
+	"!vsfv.pixlcrashr.dev/LedgerAccountR\x12debitLedgerAccount\x128\n" +
 	"\x06amount\x18\x05 \x01(\v2\x1b.pixlcrashr.vsfv.v1.DecimalB\x03\xe0A\x02R\x06amount\x12%\n" +
 	"\vdescription\x18\x06 \x01(\tB\x03\xe0A\x01R\vdescription\x12!\n" +
 	"\treference\x18\a \x01(\tB\x03\xe0A\x01R\treference\x12<\n" +
@@ -659,6 +663,7 @@ func file_pixlcrashr_vsfv_v1_transaction_proto_init() {
 		return
 	}
 	file_pixlcrashr_vsfv_v1_decimal_proto_init()
+	file_pixlcrashr_vsfv_v1_ledger_account_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

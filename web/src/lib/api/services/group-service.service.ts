@@ -18,7 +18,7 @@ class GroupServiceService extends __BaseService {
   static readonly GroupServiceCreateGroupPath = '/v1/groups';
   static readonly GroupServiceUpdateGroupPath = '/v1/{group.name}';
   static readonly GroupServiceDeleteGroupPath = '/v1/{name_5}';
-  static readonly GroupServiceGetGroupPath = '/v1/{name_7}';
+  static readonly GroupServiceGetGroupPath = '/v1/{name_8}';
 
   constructor(
     config: __Configuration,
@@ -234,18 +234,18 @@ class GroupServiceService extends __BaseService {
 
   /**
    * Gets a single group by resource name.
-   * @param name_7 The resource name of the group.
+   * @param name_8 The resource name of the group.
    * Format: groups/{group}
    * @return A successful response.
    */
-  GroupServiceGetGroupResponse(name7: string): __Observable<__StrictHttpResponse<V1Group>> {
+  GroupServiceGetGroupResponse(name8: string): __Observable<__StrictHttpResponse<V1Group>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
 
     let req = new HttpRequest<any>(
       'GET',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name7))}`,
+      this.rootUrl + `/v1/${encodeURIComponent(String(name8))}`,
       __body,
       {
         headers: __headers,
@@ -262,12 +262,12 @@ class GroupServiceService extends __BaseService {
   }
   /**
    * Gets a single group by resource name.
-   * @param name_7 The resource name of the group.
+   * @param name_8 The resource name of the group.
    * Format: groups/{group}
    * @return A successful response.
    */
-  GroupServiceGetGroup(name7: string): __Observable<V1Group> {
-    return this.GroupServiceGetGroupResponse(name7).pipe(
+  GroupServiceGetGroup(name8: string): __Observable<V1Group> {
+    return this.GroupServiceGetGroupResponse(name8).pipe(
       __map(_r => _r.body as V1Group)
     );
   }

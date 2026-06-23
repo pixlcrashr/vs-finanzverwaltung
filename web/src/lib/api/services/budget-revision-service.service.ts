@@ -13,7 +13,7 @@ import { V1ListBudgetRevisionsResponse } from '../models/v1list-budget-revisions
   providedIn: 'root',
 })
 class BudgetRevisionServiceService extends __BaseService {
-  static readonly BudgetRevisionServiceGetBudgetRevisionPath = '/v1/{name_5}';
+  static readonly BudgetRevisionServiceGetBudgetRevisionPath = '/v1/{name_6}';
   static readonly BudgetRevisionServiceListBudgetRevisionsPath = '/v1/{parent}/revisions';
   static readonly BudgetRevisionServiceCreateBudgetRevisionPath = '/v1/{parent}/revisions';
 
@@ -26,18 +26,18 @@ class BudgetRevisionServiceService extends __BaseService {
 
   /**
    * Gets a single budget revision by resource name.
-   * @param name_5 The resource name of the budget revision.
+   * @param name_6 The resource name of the budget revision.
    * Format: organizations/{organization}/budgets/{budget}/revisions/{revision}
    * @return A successful response.
    */
-  BudgetRevisionServiceGetBudgetRevisionResponse(name5: string): __Observable<__StrictHttpResponse<V1BudgetRevision>> {
+  BudgetRevisionServiceGetBudgetRevisionResponse(name6: string): __Observable<__StrictHttpResponse<V1BudgetRevision>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
 
     let req = new HttpRequest<any>(
       'GET',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name5))}`,
+      this.rootUrl + `/v1/${encodeURIComponent(String(name6))}`,
       __body,
       {
         headers: __headers,
@@ -54,12 +54,12 @@ class BudgetRevisionServiceService extends __BaseService {
   }
   /**
    * Gets a single budget revision by resource name.
-   * @param name_5 The resource name of the budget revision.
+   * @param name_6 The resource name of the budget revision.
    * Format: organizations/{organization}/budgets/{budget}/revisions/{revision}
    * @return A successful response.
    */
-  BudgetRevisionServiceGetBudgetRevision(name5: string): __Observable<V1BudgetRevision> {
-    return this.BudgetRevisionServiceGetBudgetRevisionResponse(name5).pipe(
+  BudgetRevisionServiceGetBudgetRevision(name6: string): __Observable<V1BudgetRevision> {
+    return this.BudgetRevisionServiceGetBudgetRevisionResponse(name6).pipe(
       __map(_r => _r.body as V1BudgetRevision)
     );
   }

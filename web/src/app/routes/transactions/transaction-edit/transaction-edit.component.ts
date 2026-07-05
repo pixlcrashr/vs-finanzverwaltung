@@ -17,7 +17,7 @@ import {
   NotificationService,
 } from '../../../shared/components';
 import { formatDateShort, formatCurrency } from '../../../shared/utils';
-import { Transaction, TransactionAccountAssignment, Account } from '../../../shared/models';
+import { Transaction } from '../../../shared/models';
 import { TransactionEditDataService } from './transaction-edit.data-service';
 
 @Component({
@@ -168,9 +168,6 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                         <th i18n class="text-right py-2 px-3 text-xs font-medium text-gray-500">
                           Betrag
                         </th>
-                        <th i18n class="text-right py-2 px-3 text-xs font-medium text-gray-500">
-                          Aktionen
-                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -182,16 +179,6 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                           <td class="py-3 px-3 text-right text-sm text-gray-900">
                             {{ formatAmount(assignment.value) }}
                           </td>
-                          <td class="py-3 px-3 text-right">
-                            <button
-                              type="button"
-                              class="text-xs text-red-600 hover:underline"
-                              [disabled]="removing()"
-                              (click)="removeAssignment(assignment)"
-                            >
-                              <ng-container i18n>Entfernen</ng-container>
-                            </button>
-                          </td>
                         </tr>
                       }
                     </tbody>
@@ -202,51 +189,6 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                   Keine Kontenzuordnungen vorhanden.
                 </p>
               }
-
-              <!-- Add Assignment Form -->
-              <div class="border-t border-gray-200 pt-4">
-                <h3 i18n class="text-xs font-medium text-gray-900 mb-3">
-                  Neue Zuordnung hinzufügen
-                </h3>
-                <div class="flex flex-col sm:flex-row gap-2">
-                  <select
-                    [(ngModel)]="selectedAccountId"
-                    class="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option i18n value="">Konto auswählen...</option>
-                    @for (account of availableAccounts(); track account.id) {
-                      <option [value]="account.id">
-                        {{ account.code }} {{ account.name }}
-                      </option>
-                    }
-                  </select>
-                  <input
-                    type="number"
-                    [(ngModel)]="assignmentValue"
-                    placeholder="Betrag"
-                    step="0.01"
-                    min="0"
-                    class="w-full sm:w-32 px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <app-button
-                    variant="primary"
-                    [disabled]="adding() || !selectedAccountId || !assignmentValue"
-                    (clicked)="addAssignment()"
-                  >
-                    <ng-container i18n>{{ adding() ? 'Hinzufügen...' : 'Hinzufügen' }}</ng-container>
-                  </app-button>
-                </div>
-                @if (remainingAmount() > 0) {
-                  <button
-                    type="button"
-                    class="mt-2 text-xs text-blue-600 hover:underline"
-                    (click)="fillRemainingAmount()"
-                    i18n
-                  >
-                    Restbetrag übernehmen ({{ formatAmount(remainingAmount().toFixed(2)) }})
-                  </button>
-                }
-              </div>
             </div>
 
             <!-- Metadata -->
@@ -269,14 +211,9 @@ export class TransactionEditComponent implements OnInit {
 
   readonly loading = signal(true);
   readonly saving = signal(false);
-  readonly adding = signal(false);
-  readonly removing = signal(false);
   readonly transaction = signal<Transaction | null>(null);
-  readonly availableAccounts = signal<Account[]>([]);
 
   description = '';
-  selectedAccountId = '';
-  assignmentValue: number | null = null;
 
   readonly breadcrumbs: BreadcrumbItem[] = [
     { label: $localize`Journal`, path: '' },
@@ -317,21 +254,12 @@ export class TransactionEditComponent implements OnInit {
     return Math.abs(this.assignmentPercentage() - 100) < 0.01;
   });
 
-  readonly remainingAmount = computed(() => {
-    const tx = this.transaction();
-    if (!tx) return 0;
-    const total = parseFloat(tx.amount);
-    const assigned = parseFloat(this.assignedTotal());
-    return Math.max(0, total - assigned);
-  });
-
   ngOnInit(): void {
     this.orgId = this.getOrgId();
     this.breadcrumbs[0].path = `/organizations/${this.orgId}/journal`;
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.loadTransaction(id);
-      this.loadAvailableAccounts();
     }
   }
 
@@ -345,14 +273,6 @@ export class TransactionEditComponent implements OnInit {
       error: () => {
         this.notifications.error($localize`Fehler beim Laden der Buchung`);
         this.loading.set(false);
-      },
-    });
-  }
-
-  private loadAvailableAccounts(): void {
-    this.dataService.listAvailableAccounts(this.orgId).subscribe({
-      next: (accounts) => {
-        this.availableAccounts.set(accounts);
       },
     });
   }
@@ -372,58 +292,6 @@ export class TransactionEditComponent implements OnInit {
         this.saving.set(false);
       },
     });
-  }
-
-  addAssignment(): void {
-    const tx = this.transaction();
-    if (!tx || !this.selectedAccountId || !this.assignmentValue) return;
-
-    this.adding.set(true);
-    const value = this.assignmentValue.toFixed(2);
-
-    this.dataService.addAssignment(this.orgId, tx.id, this.selectedAccountId, value).subscribe({
-      next: () => {
-        // Reload transaction to get updated assignments
-        this.dataService.getTransaction(this.orgId, tx.id).subscribe({
-          next: (updated) => {
-            this.transaction.set(updated);
-            this.selectedAccountId = '';
-            this.assignmentValue = null;
-            this.adding.set(false);
-          },
-        });
-      },
-      error: () => {
-        this.notifications.error($localize`Fehler beim Hinzufügen des Kontos`);
-        this.adding.set(false);
-      },
-    });
-  }
-
-  removeAssignment(assignment: TransactionAccountAssignment): void {
-    const tx = this.transaction();
-    if (!tx) return;
-
-    this.removing.set(true);
-    this.dataService.removeAssignment(this.orgId, tx.id, assignment.id).subscribe({
-      next: () => {
-        // Reload transaction to get updated assignments
-        this.dataService.getTransaction(this.orgId, tx.id).subscribe({
-          next: (updated) => {
-            this.transaction.set(updated);
-            this.removing.set(false);
-          },
-        });
-      },
-      error: () => {
-        this.notifications.error($localize`Fehler beim Entfernen des Kontos`);
-        this.removing.set(false);
-      },
-    });
-  }
-
-  fillRemainingAmount(): void {
-    this.assignmentValue = this.remainingAmount();
   }
 
   formatDate(date: Date): string {

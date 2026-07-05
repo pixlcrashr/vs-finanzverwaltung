@@ -4,13 +4,10 @@ import {
   V1AccountGroupAssignment as ApiAccountGroupAssignment,
   V1Budget as ApiBudget,
   V1BudgetRevision as ApiBudgetRevision,
-  V1ImportSource as ApiImportSource,
-  V1ImportSourcePeriod as ApiImportSourcePeriod,
   V1Report as ApiReport,
   V1ReportTemplate as ApiReportTemplate,
   V1Transaction as ApiTransaction,
-  V1TransactionAccount as ApiTransactionAccount,
-  V1TransactionAccountAssignment as ApiTransactionAccountAssignment,
+  V1TransactionAssignment as ApiTransactionAssignment,
 } from '../../api/models';
 
 import {
@@ -20,12 +17,10 @@ import {
   Budget,
   BudgetRevision,
   BudgetTag,
-  ImportSource,
-  ImportSourcePeriod,
   Report,
   ReportTemplate,
   Transaction,
-  TransactionAccountAssignment,
+  TransactionAssignment,
 } from '../../../app/shared/models';
 
 export function toDateOnly(date: Date): string {
@@ -153,28 +148,6 @@ export function mapApiBudgetTag(r: ApiBudgetRevision): BudgetTag {
   };
 }
 
-export function mapApiImportSource(
-  s: ApiImportSource,
-  periods: ImportSourcePeriod[],
-): ImportSource {
-  return {
-    id: s.uid ?? '',
-    name: s.display_name,
-    description: s.display_description ?? '',
-    periodStart: typeDateToDate(s.period_start),
-    periods,
-  };
-}
-
-export function mapApiImportSourcePeriod(p: ApiImportSourcePeriod): ImportSourcePeriod {
-  return {
-    id: p.uid ?? '',
-    year: p.year,
-    isClosed: p.is_closed ?? false,
-    closedAt: p.is_closed ? new Date(p.update_time ?? '') : null,
-  };
-}
-
 export function mapApiReportTemplate(t: ApiReportTemplate): ReportTemplate {
   return {
     id: t.uid ?? '',
@@ -200,13 +173,17 @@ export function mapApiReport(
   };
 }
 
+function extractUidFromResourceName(resourceName: string): string {
+  return resourceName.split('/').pop() ?? '';
+}
+
 export function mapApiTransaction(
   t: ApiTransaction,
   debitAccountCode: string,
   debitAccountName: string,
   creditAccountCode: string,
   creditAccountName: string,
-  assignments: TransactionAccountAssignment[],
+  assignments: TransactionAssignment[],
 ): Transaction {
   return {
     id: t.uid ?? '',
@@ -214,10 +191,10 @@ export function mapApiTransaction(
     bookedAt: new Date(t.booked_at),
     updatedAt: new Date(t.update_time ?? ''),
     amount: t.amount?.value ?? '',
-    debitAccountId: t.debit_transaction_account_id,
+    debitLedgerAccountId: extractUidFromResourceName(t.debit_ledger_account),
     debitAccountCode,
     debitAccountName,
-    creditAccountId: t.credit_transaction_account_id,
+    creditLedgerAccountId: extractUidFromResourceName(t.credit_ledger_account),
     creditAccountCode,
     creditAccountName,
     description: t.description ?? '',
@@ -226,14 +203,14 @@ export function mapApiTransaction(
   };
 }
 
-export function mapApiTransactionAccountAssignment(
-  a: ApiTransactionAccountAssignment,
+export function mapApiTransactionAssignment(
+  a: ApiTransactionAssignment,
   accountCode: string,
   accountName: string,
-): TransactionAccountAssignment {
+): TransactionAssignment {
   return {
     id: a.uid ?? '',
-    accountId: a.account_id,
+    accountId: extractUidFromResourceName(a.account),
     accountCode,
     accountName,
     value: a.value?.value ?? '',

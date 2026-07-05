@@ -1,26 +1,22 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, combineLatest, map, switchMap } from 'rxjs';
 import { TransactionServiceService } from '../../api/services/transaction-service.service';
-import { TransactionAccountAssignmentServiceService } from '../../api/services/transaction-account-assignment-service.service';
-import { TransactionAccountServiceService } from '../../api/services/transaction-account-service.service';
+import { TransactionAssignmentServiceService } from '../../api/services/transaction-assignment-service.service';
+import { LedgerAccountServiceService } from '../../api/services/ledger-account-service.service';
 import { AccountServiceService } from '../../api/services/account-service.service';
 import { Transaction, Account } from '../../../app/shared/models';
 import { TransactionEditDataService } from '../../../app/routes/transactions/transaction-edit/transaction-edit.data-service';
-import { mapApiAccount, mapApiTransaction, mapApiTransactionAccountAssignment } from './_mappers';
+import { mapApiAccount, mapApiTransaction, mapApiTransactionAssignment } from './_mappers';
 
 @Injectable()
 export class HttpTransactionEditDataService extends TransactionEditDataService {
   private readonly txnSvc = inject(TransactionServiceService);
-  private readonly assignmentSvc = inject(TransactionAccountAssignmentServiceService);
-  private readonly txnAccountSvc = inject(TransactionAccountServiceService);
+  private readonly assignmentSvc = inject(TransactionAssignmentServiceService);
+  private readonly ledgerAccountSvc = inject(LedgerAccountServiceService);
   private readonly accountSvc = inject(AccountServiceService);
 
   private txnName(organizationId: string, uid: string): string {
     return `organizations/${organizationId}/transactions/${uid}`;
-  }
-
-  private assignmentName(organizationId: string, txnId: string, assignmentId: string): string {
-    return `${this.txnName(organizationId, txnId)}/assignments/${assignmentId}`;
   }
 
   getTransaction(organizationId: string, id: string): Observable<Transaction> {
@@ -28,24 +24,28 @@ export class HttpTransactionEditDataService extends TransactionEditDataService {
     const parent = `organizations/${organizationId}`;
     return combineLatest([
       this.txnSvc.TransactionServiceGetTransaction(txnName),
-      this.assignmentSvc.TransactionAccountAssignmentServiceListTransactionAccountAssignments({ parent1: txnName, pageSize: 100 }),
-      this.txnAccountSvc.TransactionAccountServiceListTransactionAccounts({ parent, pageSize: 100 }),
+      this.assignmentSvc.TransactionAssignmentServiceListTransactionAssignments({ parent1: txnName, pageSize: 100 }),
+      this.ledgerAccountSvc.LedgerAccountServiceListLedgerAccounts({ parent, pageSize: 100 }),
       this.accountSvc.AccountServiceListAccounts({ parent, pageSize: 100, showDeleted: false }),
     ]).pipe(
-      map(([txn, assignmentsResp, txnAccountsResp, accountsResp]) => {
-        const txnAccountsMap = new Map(
-          (txnAccountsResp.transaction_accounts ?? []).map((a) => [a.uid ?? '', a]),
+      map(([txn, assignmentsResp, ledgerAccountsResp, accountsResp]) => {
+        const ledgerAccountsMap = new Map(
+          (ledgerAccountsResp.ledger_accounts ?? []).map((a) => [a.uid ?? '', a]),
         );
         const accountsMap = new Map(
           (accountsResp.accounts ?? []).map((a) => [a.uid ?? '', a]),
         );
 
-        const debitTxnAccount = txnAccountsMap.get(txn.debit_transaction_account_id ?? '');
-        const creditTxnAccount = txnAccountsMap.get(txn.credit_transaction_account_id ?? '');
+        const debitUid = txn.debit_ledger_account?.split('/').pop() ?? '';
+        const creditUid = txn.credit_ledger_account?.split('/').pop() ?? '';
+
+        const debitLedgerAccount = ledgerAccountsMap.get(debitUid);
+        const creditLedgerAccount = ledgerAccountsMap.get(creditUid);
 
         const assignments = (assignmentsResp.assignments ?? []).map((a) => {
-          const acct = accountsMap.get(a.account_id);
-          return mapApiTransactionAccountAssignment(
+          const accountUid = a.account?.split('/').pop() ?? '';
+          const acct = accountsMap.get(accountUid);
+          return mapApiTransactionAssignment(
             a,
             acct?.display_code ?? '',
             acct?.display_name ?? '',
@@ -54,10 +54,10 @@ export class HttpTransactionEditDataService extends TransactionEditDataService {
 
         return mapApiTransaction(
           txn,
-          debitTxnAccount?.code ?? '',
-          debitTxnAccount?.display_name ?? '',
-          creditTxnAccount?.code ?? '',
-          creditTxnAccount?.display_name ?? '',
+          debitLedgerAccount?.code ?? '',
+          debitLedgerAccount?.display_name ?? '',
+          creditLedgerAccount?.code ?? '',
+          creditLedgerAccount?.display_name ?? '',
           assignments,
         );
       }),
@@ -72,8 +72,8 @@ export class HttpTransactionEditDataService extends TransactionEditDataService {
           transactionName: name,
           transaction: {
             ...existing,
-            credit_transaction_account_id: existing.credit_transaction_account_id,
-            debit_transaction_account_id: existing.debit_transaction_account_id,
+            credit_ledger_account: existing.credit_ledger_account,
+            debit_ledger_account: existing.debit_ledger_account,
             amount: existing.amount,
             booked_at: existing.booked_at,
             document_date: existing.document_date,
@@ -89,18 +89,5 @@ export class HttpTransactionEditDataService extends TransactionEditDataService {
     return this.accountSvc.AccountServiceListAccounts({ parent: `organizations/${organizationId}`, pageSize: 100, showDeleted: false }).pipe(
       map((resp) => (resp.accounts ?? []).map(mapApiAccount)),
     );
-  }
-
-  addAssignment(organizationId: string, transactionId: string, accountId: string, value: string): Observable<void> {
-    return this.assignmentSvc.TransactionAccountAssignmentServiceCreateTransactionAccountAssignment({
-      parent1: this.txnName(organizationId, transactionId),
-      assignment: { account_id: accountId, value: { value } },
-    }).pipe(map(() => undefined));
-  }
-
-  removeAssignment(organizationId: string, transactionId: string, assignmentId: string): Observable<void> {
-    return this.assignmentSvc.TransactionAccountAssignmentServiceDeleteTransactionAccountAssignment(
-      this.assignmentName(organizationId, transactionId, assignmentId),
-    ).pipe(map(() => undefined));
   }
 }

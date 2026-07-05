@@ -16,7 +16,7 @@ export class HttpCreateOrganizationDialogDataService extends CreateOrganizationD
 
   createOrganization(name: string, description: string, organizationId?: string): Observable<CreatedOrganization> {
     return this.svc.OrganizationServiceCreateOrganization({
-      organization: { display_name: name },
+      organization: { display_name: name, start_month: 'MONTH_JANUARY' },
       organizationId: organizationId
     }).pipe(
       map((o) => ({

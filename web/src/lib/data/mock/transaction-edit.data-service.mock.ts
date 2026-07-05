@@ -12,10 +12,10 @@ export class MockTransactionEditDataService extends TransactionEditDataService {
     bookedAt: new Date(),
     updatedAt: new Date(),
     amount: '1500.00',
-    debitAccountId: faker.string.uuid(),
+    debitLedgerAccountId: faker.string.uuid(),
     debitAccountCode: '1100',
     debitAccountName: 'Bank',
-    creditAccountId: faker.string.uuid(),
+    creditLedgerAccountId: faker.string.uuid(),
     creditAccountCode: '3100',
     creditAccountName: 'Mitgliedsbeiträge',
     description: 'Mitgliedsbeitrag Q1',
@@ -55,24 +55,6 @@ export class MockTransactionEditDataService extends TransactionEditDataService {
       this.createAccount('2.2.2', 'IT-Ausstattung'),
       this.createAccount('2.3.1', 'Veranstaltungsräume'),
     ]).pipe(delay(200));
-  }
-
-  addAssignment(organizationId: string, transactionId: string, accountId: string, value: string): Observable<void> {
-    this.transaction.accountAssignments.push({
-      id: faker.string.uuid(),
-      accountId,
-      accountCode: '2.1.3',
-      accountName: 'Neues Konto',
-      value,
-    });
-    return of(undefined).pipe(delay(300));
-  }
-
-  removeAssignment(organizationId: string, transactionId: string, assignmentId: string): Observable<void> {
-    this.transaction.accountAssignments = this.transaction.accountAssignments.filter(
-      (a) => a.id !== assignmentId
-    );
-    return of(undefined).pipe(delay(300));
   }
 
   private createAccount(code: string, name: string): Account {

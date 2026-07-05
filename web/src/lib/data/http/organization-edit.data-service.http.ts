@@ -24,7 +24,7 @@ export class HttpOrganizationEditDataService extends OrganizationEditDataService
   updateOrganization(id: string, input: UpdateOrganizationInput): Observable<Organization> {
     return this.svc.OrganizationServiceUpdateOrganization({
       organizationName: this.orgName(id),
-      organization: { display_name: input.name },
+      organization: { display_name: input.name, start_month: 'MONTH_JANUARY' },
     }).pipe(map((o) => ({ id: o.uid ?? '', name: o.display_name, description: '' })));
   }
 

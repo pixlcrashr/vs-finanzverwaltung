@@ -4,18 +4,18 @@ export interface Transaction {
   bookedAt: Date;
   updatedAt: Date;
   amount: string;
-  debitAccountId: string;
+  debitLedgerAccountId: string;
   debitAccountCode: string;
   debitAccountName: string;
-  creditAccountId: string;
+  creditLedgerAccountId: string;
   creditAccountCode: string;
   creditAccountName: string;
   description: string;
   assignedAccountId: string | null;
-  accountAssignments: TransactionAccountAssignment[];
+  accountAssignments: TransactionAssignment[];
 }
 
-export interface TransactionAccountAssignment {
+export interface TransactionAssignment {
   id: string;
   accountId: string;
   accountCode: string;

@@ -38,7 +38,7 @@ import { ReimbursementListDataService } from './reimbursement-list.data-service'
   ],
   template: `
     <app-page-content-layout [breadcrumbs]="breadcrumbs">
-      <a layout-header-actions routerLink="/reimbursements/new">
+      <a layout-header-actions routerLink="./new">
         <app-button><ng-container i18n>Neue Kostenerstattung</ng-container></app-button>
       </a>
 
@@ -50,7 +50,7 @@ import { ReimbursementListDataService } from './reimbursement-list.data-service'
             i18n-title title="Keine Kostenerstattungen vorhanden"
             i18n-description description="Reiche deine erste Kostenerstattung ein."
           >
-            <a routerLink="/reimbursements/new">
+            <a routerLink="./new">
               <app-button><ng-container i18n>Kostenerstattung einreichen</ng-container></app-button>
             </a>
           </app-empty-state>
@@ -136,7 +136,7 @@ import { ReimbursementListDataService } from './reimbursement-list.data-service'
                         </td>
                         <td class="px-3 py-2 text-right text-xs">
                           <a
-                            [routerLink]="['/reimbursements', reimbursement.id]"
+                            [routerLink]="[reimbursement.id]"
                             class="text-xs text-blue-600 hover:underline"
                           >
                             <ng-container i18n>Anzeigen</ng-container>

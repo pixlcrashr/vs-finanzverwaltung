@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, combineLatest, map } from 'rxjs';
 import { TransactionServiceService } from '../../api/services/transaction-service.service';
-import { TransactionAccountServiceService } from '../../api/services/transaction-account-service.service';
+import { LedgerAccountServiceService } from '../../api/services/ledger-account-service.service';
 import {
   JournalListDataService,
   JournalEntry,
@@ -13,7 +13,7 @@ import {
 @Injectable()
 export class HttpJournalListDataService extends JournalListDataService {
   private readonly txnSvc = inject(TransactionServiceService);
-  private readonly txnAccountSvc = inject(TransactionAccountServiceService);
+  private readonly ledgerAccountSvc = inject(LedgerAccountServiceService);
 
   listTransactions(
     organizationId: string,
@@ -24,16 +24,18 @@ export class HttpJournalListDataService extends JournalListDataService {
     const parent = `organizations/${organizationId}`;
     return combineLatest([
       this.txnSvc.TransactionServiceListTransactions({ parent, pageSize }),
-      this.txnAccountSvc.TransactionAccountServiceListTransactionAccounts({ parent, pageSize: 100 }),
+      this.ledgerAccountSvc.LedgerAccountServiceListLedgerAccounts({ parent, pageSize: 100 }),
     ]).pipe(
-      map(([txnResp, txnAccountsResp]) => {
-        const txnAccountsMap = new Map(
-          (txnAccountsResp.transaction_accounts ?? []).map((a) => [a.uid ?? '', a]),
+      map(([txnResp, ledgerAccountsResp]) => {
+        const ledgerAccountsMap = new Map(
+          (ledgerAccountsResp.ledger_accounts ?? []).map((a) => [a.uid ?? '', a]),
         );
 
         const entries: JournalEntry[] = (txnResp.transactions ?? []).map((t) => {
-          const debitAcct = txnAccountsMap.get(t.debit_transaction_account_id ?? '');
-          const creditAcct = txnAccountsMap.get(t.credit_transaction_account_id ?? '');
+          const debitUid = t.debit_ledger_account?.split('/').pop() ?? '';
+          const creditUid = t.credit_ledger_account?.split('/').pop() ?? '';
+          const debitAcct = ledgerAccountsMap.get(debitUid);
+          const creditAcct = ledgerAccountsMap.get(creditUid);
 
           return {
             id: t.uid ?? '',

@@ -51,7 +51,7 @@ func (s *userSettingsServiceServer) GetUserSettings(ctx context.Context, req *ge
 		return nil, &ServerError{Err: err, Status: statusFailedGetUserSettings}
 	}
 
-	return UserSettingsToProto(n.User, m), nil
+	return UserSettingsToProto(n.UserResourceName(), m), nil
 }
 
 func (s *userSettingsServiceServer) UpdateUserSettings(ctx context.Context, req *gen.UpdateUserSettingsRequest) (*gen.UserSettings, error) {
@@ -74,5 +74,5 @@ func (s *userSettingsServiceServer) UpdateUserSettings(ctx context.Context, req 
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateUserSettings}
 	}
 
-	return UserSettingsToProto(n.User, m), nil
+	return UserSettingsToProto(n.UserResourceName(), m), nil
 }

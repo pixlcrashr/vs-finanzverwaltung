@@ -58,7 +58,7 @@ func (s *accountGroupServiceServer) GetAccountGroup(ctx context.Context, req *ge
 		return nil, &ServerError{Err: err, Status: statusFailedGetAccountGroup}
 	}
 
-	return AccountGroupToProto(n.Organization, m), nil
+	return AccountGroupToProto(n.OrganizationResourceName(), m), nil
 }
 
 func (s *accountGroupServiceServer) ListAccountGroups(ctx context.Context, req *gen.ListAccountGroupsRequest) (*gen.ListAccountGroupsResponse, error) {
@@ -108,7 +108,7 @@ func (s *accountGroupServiceServer) ListAccountGroups(ctx context.Context, req *
 
 	resp := &gen.ListAccountGroupsResponse{TotalSize: total}
 	for _, m := range ms {
-		resp.AccountGroups = append(resp.AccountGroups, AccountGroupToProto(orgN.Organization, m))
+		resp.AccountGroups = append(resp.AccountGroups, AccountGroupToProto(orgN, m))
 	}
 
 	nextOffset := offset + int64(len(ms))
@@ -153,7 +153,7 @@ func (s *accountGroupServiceServer) CreateAccountGroup(ctx context.Context, req 
 		return nil, &ServerError{Err: err, Status: statusFailedCreateAccountGroup}
 	}
 
-	return AccountGroupToProto(pn.Organization, m), nil
+	return AccountGroupToProto(pn, m), nil
 }
 
 func (s *accountGroupServiceServer) UpdateAccountGroup(ctx context.Context, req *gen.UpdateAccountGroupRequest) (*gen.AccountGroup, error) {
@@ -197,7 +197,7 @@ func (s *accountGroupServiceServer) UpdateAccountGroup(ctx context.Context, req 
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateAccountGroup}
 	}
 
-	return AccountGroupToProto(n.Organization, m), nil
+	return AccountGroupToProto(n.OrganizationResourceName(), m), nil
 }
 
 func (s *accountGroupServiceServer) DeleteAccountGroup(ctx context.Context, req *gen.DeleteAccountGroupRequest) (*emptypb.Empty, error) {

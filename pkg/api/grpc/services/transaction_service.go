@@ -30,11 +30,12 @@ var (
 
 type transactionServiceServer struct {
 	gen.UnimplementedTransactionServiceServer
-	repo *repository.TransactionRepository
+	repo              *repository.TransactionRepository
+	ledgerAccountRepo *repository.LedgerAccountRepository
 }
 
-func newTransactionServiceServer(repo *repository.TransactionRepository) gen.TransactionServiceServer {
-	return &transactionServiceServer{repo: repo}
+func newTransactionServiceServer(repo *repository.TransactionRepository, ledgerAccountRepo *repository.LedgerAccountRepository) gen.TransactionServiceServer {
+	return &transactionServiceServer{repo: repo, ledgerAccountRepo: ledgerAccountRepo}
 }
 
 func (s *transactionServiceServer) GetTransaction(ctx context.Context, req *gen.GetTransactionRequest) (*gen.Transaction, error) {
@@ -58,7 +59,17 @@ func (s *transactionServiceServer) GetTransaction(ctx context.Context, req *gen.
 		return nil, &ServerError{Err: err, Status: statusFailedGetTransaction}
 	}
 
-	return TransactionToProto(n.Organization, n.Transaction, m), nil
+	creditLA, err := s.ledgerAccountRepo.GetByID(ctx, m.CreditLedgerAccountID)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedGetTransaction}
+	}
+
+	debitLA, err := s.ledgerAccountRepo.GetByID(ctx, m.DebitLedgerAccountID)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedGetTransaction}
+	}
+
+	return TransactionToProto(n.OrganizationResourceName(), m, creditLA, debitLA), nil
 }
 
 func (s *transactionServiceServer) ListTransactions(ctx context.Context, req *gen.ListTransactionsRequest) (*gen.ListTransactionsResponse, error) {
@@ -93,7 +104,17 @@ func (s *transactionServiceServer) ListTransactions(ctx context.Context, req *ge
 
 	resp := &gen.ListTransactionsResponse{}
 	for _, m := range ms {
-		resp.Transactions = append(resp.Transactions, TransactionToProto(pn.Organization, m.CustomID, m))
+		creditLA, err := s.ledgerAccountRepo.GetByID(ctx, m.CreditLedgerAccountID)
+		if err != nil {
+			return nil, &ServerError{Err: err, Status: statusFailedListTransactions}
+		}
+
+		debitLA, err := s.ledgerAccountRepo.GetByID(ctx, m.DebitLedgerAccountID)
+		if err != nil {
+			return nil, &ServerError{Err: err, Status: statusFailedListTransactions}
+		}
+
+		resp.Transactions = append(resp.Transactions, TransactionToProto(pn, m, creditLA, debitLA))
 	}
 
 	if len(ms) == pageSize {
@@ -168,7 +189,17 @@ func (s *transactionServiceServer) CreateTransaction(ctx context.Context, req *g
 		return nil, &ServerError{Err: err, Status: statusFailedCreateTransaction}
 	}
 
-	return TransactionToProto(n.Organization, req.TransactionId, m), nil
+	creditLA, err := s.ledgerAccountRepo.GetByID(ctx, m.CreditLedgerAccountID)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedCreateTransaction}
+	}
+
+	debitLA, err := s.ledgerAccountRepo.GetByID(ctx, m.DebitLedgerAccountID)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedCreateTransaction}
+	}
+
+	return TransactionToProto(n, m, creditLA, debitLA), nil
 }
 
 func (s *transactionServiceServer) UpdateTransaction(ctx context.Context, req *gen.UpdateTransactionRequest) (*gen.Transaction, error) {
@@ -220,7 +251,17 @@ func (s *transactionServiceServer) UpdateTransaction(ctx context.Context, req *g
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateTransaction}
 	}
 
-	return TransactionToProto(n.Organization, n.Transaction, m), nil
+	creditLA, err := s.ledgerAccountRepo.GetByID(ctx, m.CreditLedgerAccountID)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedUpdateTransaction}
+	}
+
+	debitLA, err := s.ledgerAccountRepo.GetByID(ctx, m.DebitLedgerAccountID)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedUpdateTransaction}
+	}
+
+	return TransactionToProto(n.OrganizationResourceName(), m, creditLA, debitLA), nil
 }
 
 func (s *transactionServiceServer) DeleteTransaction(ctx context.Context, req *gen.DeleteTransactionRequest) (*emptypb.Empty, error) {

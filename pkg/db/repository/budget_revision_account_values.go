@@ -54,7 +54,7 @@ func (r *BudgetRevisionAccountValueRepository) List(ctx context.Context, params 
 	}
 
 	db := r.db.WithContext(ctx).Table("budget_revision_account_values").
-		Where("budget_tag_id = ?", params.BudgetRevisionID)
+		Where("budget_revision_id = ?", params.BudgetRevisionID)
 
 	db = cond.Apply(db, params.Cond, budgetRevisionAccountValueColumnMapper)
 

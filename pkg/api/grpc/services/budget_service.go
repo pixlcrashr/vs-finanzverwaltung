@@ -62,7 +62,7 @@ func (s *budgetServiceServer) GetBudget(ctx context.Context, req *gen.GetBudgetR
 		return nil, &ServerError{Err: err, Status: statusFailedGetBudget}
 	}
 
-	return BudgetToProto(n.Organization, m), nil
+	return BudgetToProto(n.OrganizationResourceName(), m), nil
 }
 
 func (s *budgetServiceServer) ListBudgets(ctx context.Context, req *gen.ListBudgetsRequest) (*gen.ListBudgetsResponse, error) {
@@ -112,7 +112,7 @@ func (s *budgetServiceServer) ListBudgets(ctx context.Context, req *gen.ListBudg
 
 	resp := &gen.ListBudgetsResponse{TotalSize: total}
 	for _, m := range ms {
-		resp.Budgets = append(resp.Budgets, BudgetToProto(pn.Organization, m))
+		resp.Budgets = append(resp.Budgets, BudgetToProto(pn, m))
 	}
 	nextOffset := offset + int64(len(ms))
 	if nextOffset < total {
@@ -165,7 +165,7 @@ func (s *budgetServiceServer) CreateBudget(ctx context.Context, req *gen.CreateB
 		return nil, &ServerError{Err: err, Status: statusFailedCreateBudget}
 	}
 
-	return BudgetToProto(n.Organization, m), nil
+	return BudgetToProto(n, m), nil
 }
 
 func (s *budgetServiceServer) UpdateBudget(ctx context.Context, req *gen.UpdateBudgetRequest) (*gen.Budget, error) {
@@ -217,7 +217,7 @@ func (s *budgetServiceServer) UpdateBudget(ctx context.Context, req *gen.UpdateB
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateBudget}
 	}
 
-	return BudgetToProto(n.Organization, m), nil
+	return BudgetToProto(n.OrganizationResourceName(), m), nil
 }
 
 func (s *budgetServiceServer) CloseBudget(ctx context.Context, req *gen.CloseBudgetRequest) (*gen.Budget, error) {
@@ -256,7 +256,7 @@ func (s *budgetServiceServer) CloseBudget(ctx context.Context, req *gen.CloseBud
 		return nil, &ServerError{Err: err, Status: statusFailedCloseBudget}
 	}
 
-	return BudgetToProto(n.Organization, m), nil
+	return BudgetToProto(n.OrganizationResourceName(), m), nil
 }
 
 func (s *budgetServiceServer) DeleteBudget(ctx context.Context, req *gen.DeleteBudgetRequest) (*emptypb.Empty, error) {

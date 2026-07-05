@@ -13,11 +13,11 @@ import (
 )
 
 var (
-	statusInvalidUserIdentityName     = status.New(codes.InvalidArgument, "invalid user identity name")
-	statusInvalidParentUserName       = status.New(codes.InvalidArgument, "invalid parent user name")
-	statusUserIdentityNotFound        = status.New(codes.NotFound, "user identity not found")
-	statusFailedGetUserIdentity       = status.New(codes.Internal, "failed to get user identity")
-	statusFailedListUserIdentities    = status.New(codes.Internal, "failed to list user identities")
+	statusInvalidUserIdentityName  = status.New(codes.InvalidArgument, "invalid user identity name")
+	statusInvalidParentUserName    = status.New(codes.InvalidArgument, "invalid parent user name")
+	statusUserIdentityNotFound     = status.New(codes.NotFound, "user identity not found")
+	statusFailedGetUserIdentity    = status.New(codes.Internal, "failed to get user identity")
+	statusFailedListUserIdentities = status.New(codes.Internal, "failed to list user identities")
 )
 
 type userIdentityServiceServer struct {
@@ -48,7 +48,7 @@ func (s *userIdentityServiceServer) GetUserIdentity(ctx context.Context, req *ge
 		return nil, &ServerError{Err: err, Status: statusFailedGetUserIdentity}
 	}
 
-	return UserIdentityToProto(n.User, m), nil
+	return UserIdentityToProto(n.UserResourceName(), m), nil
 }
 
 func (s *userIdentityServiceServer) ListUserIdentities(ctx context.Context, req *gen.ListUserIdentitiesRequest) (*gen.ListUserIdentitiesResponse, error) {
@@ -82,7 +82,7 @@ func (s *userIdentityServiceServer) ListUserIdentities(ctx context.Context, req 
 
 	resp := &gen.ListUserIdentitiesResponse{TotalSize: total}
 	for _, m := range ms {
-		resp.Identities = append(resp.Identities, UserIdentityToProto(pn.User, m))
+		resp.Identities = append(resp.Identities, UserIdentityToProto(pn, m))
 	}
 
 	nextOffset := offset + int64(len(ms))

@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
+	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
@@ -68,7 +69,7 @@ func (s *transactionAssignmentServiceServer) GetTransactionAssignment(ctx contex
 		return nil, &ServerError{Err: err, Status: statusFailedGetTransactionAssignment}
 	}
 
-	return TransactionAssignmentToProto(n.Organization, n.Transaction, a.CustomID, m), nil
+	return TransactionAssignmentToProto(n.TransactionResourceName(), m, a), nil
 }
 
 func (s *transactionAssignmentServiceServer) ListTransactionAssignments(ctx context.Context, req *gen.ListTransactionAssignmentsRequest) (*gen.ListTransactionAssignmentsResponse, error) {
@@ -118,7 +119,7 @@ func (s *transactionAssignmentServiceServer) ListTransactionAssignments(ctx cont
 
 	resp := &gen.ListTransactionAssignmentsResponse{TotalSize: total}
 	for _, m := range ms {
-		resp.Assignments = append(resp.Assignments, TransactionAssignmentToProto(pn.Organization, pn.Transaction, m.AccountID.String(), m)) // TODO: very unimportant: replace with custom ID of account
+		resp.Assignments = append(resp.Assignments, TransactionAssignmentToProto(pn, m, &model.Account{CustomID: m.AccountID.String()})) // TODO: very unimportant: replace with custom ID of account
 	}
 
 	nextOffset := offset + int64(len(ms))
@@ -183,7 +184,7 @@ func (s *transactionAssignmentServiceServer) CreateTransactionAssignment(ctx con
 		return nil, &ServerError{Err: err, Status: statusFailedCreateTransactionAssignment}
 	}
 
-	return TransactionAssignmentToProto(pn.Organization, pn.Transaction, a.CustomID, m), nil
+	return TransactionAssignmentToProto(pn, m, a), nil
 }
 
 func (s *transactionAssignmentServiceServer) UpdateTransactionAssignment(ctx context.Context, req *gen.UpdateTransactionAssignmentRequest) (*gen.TransactionAssignment, error) {
@@ -239,7 +240,7 @@ func (s *transactionAssignmentServiceServer) UpdateTransactionAssignment(ctx con
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateTransactionAssignment}
 	}
 
-	return TransactionAssignmentToProto(n.Organization, n.Transaction, n.Assignment, m), nil
+	return TransactionAssignmentToProto(n.TransactionResourceName(), m, &model.Account{CustomID: m.AccountID.String()}), nil
 }
 
 func (s *transactionAssignmentServiceServer) DeleteTransactionAssignment(ctx context.Context, req *gen.DeleteTransactionAssignmentRequest) (*emptypb.Empty, error) {

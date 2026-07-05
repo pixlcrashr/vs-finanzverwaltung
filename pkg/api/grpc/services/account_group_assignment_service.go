@@ -51,7 +51,7 @@ func (s *accountGroupAssignmentServiceServer) GetAccountGroupAssignment(ctx cont
 		return nil, &ServerError{Err: err, Status: statusFailedGetAssignment}
 	}
 
-	return AccountGroupAssignmentToProto(n.Organization, n.AccountGroup, m), nil
+	return AccountGroupAssignmentToProto(n.AccountGroupResourceName(), m), nil
 }
 
 func (s *accountGroupAssignmentServiceServer) ListAccountGroupAssignments(ctx context.Context, req *gen.ListAccountGroupAssignmentsRequest) (*gen.ListAccountGroupAssignmentsResponse, error) {
@@ -101,7 +101,7 @@ func (s *accountGroupAssignmentServiceServer) ListAccountGroupAssignments(ctx co
 
 	resp := &gen.ListAccountGroupAssignmentsResponse{TotalSize: total}
 	for _, m := range ms {
-		resp.Assignments = append(resp.Assignments, AccountGroupAssignmentToProto(pn.Organization, pn.AccountGroup, m))
+		resp.Assignments = append(resp.Assignments, AccountGroupAssignmentToProto(pn, m))
 	}
 
 	nextOffset := offset + int64(len(ms))
@@ -155,7 +155,7 @@ func (s *accountGroupAssignmentServiceServer) CreateAccountGroupAssignment(ctx c
 		return nil, &ServerError{Err: err, Status: statusFailedCreateAssignment}
 	}
 
-	return AccountGroupAssignmentToProto(pn.Organization, pn.AccountGroup, m), nil
+	return AccountGroupAssignmentToProto(pn, m), nil
 }
 
 func (s *accountGroupAssignmentServiceServer) UpdateAccountGroupAssignment(ctx context.Context, req *gen.UpdateAccountGroupAssignmentRequest) (*gen.AccountGroupAssignment, error) {
@@ -197,7 +197,7 @@ func (s *accountGroupAssignmentServiceServer) UpdateAccountGroupAssignment(ctx c
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateAssignment}
 	}
 
-	return AccountGroupAssignmentToProto(n.Organization, n.AccountGroup, m), nil
+	return AccountGroupAssignmentToProto(n.AccountGroupResourceName(), m), nil
 }
 
 func (s *accountGroupAssignmentServiceServer) DeleteAccountGroupAssignment(ctx context.Context, req *gen.DeleteAccountGroupAssignmentRequest) (*emptypb.Empty, error) {

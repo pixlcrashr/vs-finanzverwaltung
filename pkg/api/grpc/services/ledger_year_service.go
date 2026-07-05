@@ -18,16 +18,16 @@ import (
 )
 
 var (
-	statusLedgerYearRequired            = status.New(codes.InvalidArgument, "ledger_year is required")
-	statusInvalidLedgerYearName         = status.New(codes.InvalidArgument, "invalid ledger year name")
-	statusInvalidParentOrganization     = status.New(codes.InvalidArgument, "invalid parent organization")
-	statusLedgerYearNotFound            = status.New(codes.NotFound, "ledger year not found")
-	statusLedgerYearAlreadyExists       = status.New(codes.AlreadyExists, "ledger year with this ID already exists")
-	statusFailedGetLedgerYear           = status.New(codes.Internal, "failed to get ledger year")
-	statusFailedListLedgerYears         = status.New(codes.Internal, "failed to list ledger years")
-	statusFailedCreateLedgerYear        = status.New(codes.Internal, "failed to create ledger year")
-	statusFailedCloseLedgerYear         = status.New(codes.Internal, "failed to close ledger year")
-	statusFailedDeleteLedgerYear        = status.New(codes.Internal, "failed to delete ledger year")
+	statusLedgerYearRequired        = status.New(codes.InvalidArgument, "ledger_year is required")
+	statusInvalidLedgerYearName     = status.New(codes.InvalidArgument, "invalid ledger year name")
+	statusInvalidParentOrganization = status.New(codes.InvalidArgument, "invalid parent organization")
+	statusLedgerYearNotFound        = status.New(codes.NotFound, "ledger year not found")
+	statusLedgerYearAlreadyExists   = status.New(codes.AlreadyExists, "ledger year with this ID already exists")
+	statusFailedGetLedgerYear       = status.New(codes.Internal, "failed to get ledger year")
+	statusFailedListLedgerYears     = status.New(codes.Internal, "failed to list ledger years")
+	statusFailedCreateLedgerYear    = status.New(codes.Internal, "failed to create ledger year")
+	statusFailedCloseLedgerYear     = status.New(codes.Internal, "failed to close ledger year")
+	statusFailedDeleteLedgerYear    = status.New(codes.Internal, "failed to delete ledger year")
 )
 
 type ledgerYearServiceServer struct {
@@ -60,7 +60,7 @@ func (s *ledgerYearServiceServer) GetLedgerYear(ctx context.Context, req *gen.Ge
 		return nil, &ServerError{Err: err, Status: statusFailedGetLedgerYear}
 	}
 
-	return LedgerYearToProto(n.Organization, n.LedgerYear, m), nil
+	return LedgerYearToProto(n.OrganizationResourceName(), m), nil
 }
 
 func (s *ledgerYearServiceServer) ListLedgerYears(ctx context.Context, req *gen.ListLedgerYearsRequest) (*gen.ListLedgerYearsResponse, error) {
@@ -110,7 +110,7 @@ func (s *ledgerYearServiceServer) ListLedgerYears(ctx context.Context, req *gen.
 
 	resp := &gen.ListLedgerYearsResponse{TotalSize: total}
 	for _, m := range ms {
-		resp.LedgerYears = append(resp.LedgerYears, LedgerYearToProto(pn.Organization, m.CustomID, m))
+		resp.LedgerYears = append(resp.LedgerYears, LedgerYearToProto(pn, m))
 	}
 
 	nextOffset := offset + int64(len(ms))
@@ -155,7 +155,7 @@ func (s *ledgerYearServiceServer) CreateLedgerYear(ctx context.Context, req *gen
 		return nil, &ServerError{Err: err, Status: statusFailedCreateLedgerYear}
 	}
 
-	return LedgerYearToProto(pn.Organization, req.LedgerYearId, m), nil
+	return LedgerYearToProto(pn, m), nil
 }
 
 func (s *ledgerYearServiceServer) CloseLedgerYear(ctx context.Context, req *gen.CloseLedgerYearRequest) (*gen.LedgerYear, error) {
@@ -193,7 +193,7 @@ func (s *ledgerYearServiceServer) CloseLedgerYear(ctx context.Context, req *gen.
 		return nil, &ServerError{Err: err, Status: statusFailedCloseLedgerYear}
 	}
 
-	return LedgerYearToProto(n.Organization, n.LedgerYear, m), nil
+	return LedgerYearToProto(n.OrganizationResourceName(), m), nil
 }
 
 func (s *ledgerYearServiceServer) DeleteLedgerYear(ctx context.Context, req *gen.DeleteLedgerYearRequest) (*emptypb.Empty, error) {

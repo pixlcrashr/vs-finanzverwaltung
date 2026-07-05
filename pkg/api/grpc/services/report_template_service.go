@@ -59,7 +59,7 @@ func (s *reportTemplateServiceServer) GetReportTemplate(ctx context.Context, req
 		return nil, &ServerError{Err: err, Status: statusFailedGetReportTemplate}
 	}
 
-	return ReportTemplateToProto(n.Organization, n.ReportTemplate, m), nil
+	return ReportTemplateToProto(n.OrganizationResourceName(), m), nil
 }
 
 func (s *reportTemplateServiceServer) ListReportTemplates(ctx context.Context, req *gen.ListReportTemplatesRequest) (*gen.ListReportTemplatesResponse, error) {
@@ -103,7 +103,7 @@ func (s *reportTemplateServiceServer) ListReportTemplates(ctx context.Context, r
 
 	resp := &gen.ListReportTemplatesResponse{TotalSize: total}
 	for _, m := range ms {
-		resp.ReportTemplates = append(resp.ReportTemplates, ReportTemplateToProto(pn.Organization, m.CustomID, m))
+		resp.ReportTemplates = append(resp.ReportTemplates, ReportTemplateToProto(pn, m))
 	}
 
 	nextOffset := offset + int64(len(ms))
@@ -148,7 +148,7 @@ func (s *reportTemplateServiceServer) CreateReportTemplate(ctx context.Context, 
 		return nil, &ServerError{Err: err, Status: statusFailedCreateReportTemplate}
 	}
 
-	return ReportTemplateToProto(pn.Organization, req.ReportTemplateId, m), nil
+	return ReportTemplateToProto(pn, m), nil
 }
 
 func (s *reportTemplateServiceServer) UpdateReportTemplate(ctx context.Context, req *gen.UpdateReportTemplateRequest) (*gen.ReportTemplate, error) {
@@ -191,7 +191,7 @@ func (s *reportTemplateServiceServer) UpdateReportTemplate(ctx context.Context, 
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateReportTemplate}
 	}
 
-	return ReportTemplateToProto(n.Organization, n.ReportTemplate, m), nil
+	return ReportTemplateToProto(n.OrganizationResourceName(), m), nil
 }
 
 func (s *reportTemplateServiceServer) DeleteReportTemplate(ctx context.Context, req *gen.DeleteReportTemplateRequest) (*emptypb.Empty, error) {

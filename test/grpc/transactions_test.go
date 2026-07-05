@@ -5,20 +5,22 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/pixlcrashr/vsfv/pkg/db/model"
+	"github.com/pixlcrashr/vsfv/pkg/db/repository"
+	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
-
-	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 )
 
 var _ = Describe("TransactionService", func() {
 	var ctx context.Context
 	var orgName string
-	var creditAccountID string
-	var debitAccountID string
+	var creditLedgerAccountName string
+	var debitLedgerAccountName string
 
 	BeforeEach(func() {
 		ctx = context.Background()
@@ -28,37 +30,30 @@ var _ = Describe("TransactionService", func() {
 		Expect(err).NotTo(HaveOccurred())
 		orgName = org.Name
 
-		// Create import source
-		importSource, err := ImportSourceClient.CreateImportSource(ctx, &gen.CreateImportSourceRequest{
-			Parent: orgName,
-			ImportSource: &gen.ImportSource{
-				DisplayName: "Test Import Source",
-			},
-		})
+		var orgRN gen.OrganizationResourceName
+		Expect(orgRN.UnmarshalString(orgName)).To(Succeed())
+
+		orgUID, err := uuid.Parse(org.Uid)
 		Expect(err).NotTo(HaveOccurred())
 
-		// Create two transaction accounts as prerequisites
-		creditAccount, err := TransactionAccountClient.CreateTransactionAccount(ctx, &gen.CreateTransactionAccountRequest{
-			Parent: orgName,
-			TransactionAccount: &gen.TransactionAccount{
-				Code:           "CREDIT-ACC",
-				ImportSourceId: importSource.Uid,
-				DisplayName:    "Credit Account",
-			},
+		// Create two ledger accounts as prerequisites (no Create RPC, use repo directly)
+		creditAccount, err := LedgerAccountRepo.Create(ctx, repository.CreateLedgerAccountParams{
+			OrganizationID: orgUID,
+			Code:           "CREDIT-ACC",
+			AccountType:    model.AccountTypeAsset,
+			DisplayName:    "Credit Account",
 		})
 		Expect(err).NotTo(HaveOccurred())
-		creditAccountID = creditAccount.Uid
+		creditLedgerAccountName = orgRN.LedgerAccountResourceName(creditAccount.CustomID).String()
 
-		debitAccount, err := TransactionAccountClient.CreateTransactionAccount(ctx, &gen.CreateTransactionAccountRequest{
-			Parent: orgName,
-			TransactionAccount: &gen.TransactionAccount{
-				Code:           "DEBIT-ACC",
-				ImportSourceId: importSource.Uid,
-				DisplayName:    "Debit Account",
-			},
+		debitAccount, err := LedgerAccountRepo.Create(ctx, repository.CreateLedgerAccountParams{
+			OrganizationID: orgUID,
+			Code:           "DEBIT-ACC",
+			AccountType:    model.AccountTypeExpense,
+			DisplayName:    "Debit Account",
 		})
 		Expect(err).NotTo(HaveOccurred())
-		debitAccountID = debitAccount.Uid
+		debitLedgerAccountName = orgRN.LedgerAccountResourceName(debitAccount.CustomID).String()
 	})
 
 	Describe("CreateTransaction", func() {
@@ -66,19 +61,19 @@ var _ = Describe("TransactionService", func() {
 			resp, err := TransactionClient.CreateTransaction(ctx, &gen.CreateTransactionRequest{
 				Parent: orgName,
 				Transaction: &gen.Transaction{
-					CreditTransactionAccountId: creditAccountID,
-					DebitTransactionAccountId:  debitAccountID,
-					Description:                "Test transaction",
-					Reference:                  "REF-001",
-					BookedAt:                   timestamppb.New(time.Now()),
-					DocumentDate:               timestamppb.New(time.Now()),
+					CreditLedgerAccount: creditLedgerAccountName,
+					DebitLedgerAccount:  debitLedgerAccountName,
+					Description:         "Test transaction",
+					Reference:           "REF-001",
+					BookedAt:            timestamppb.New(time.Now()),
+					DocumentDate:        timestamppb.New(time.Now()),
 				},
 			})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(resp.Name).NotTo(BeEmpty())
 			Expect(resp.Uid).NotTo(BeEmpty())
-			Expect(resp.CreditTransactionAccountId).To(Equal(creditAccountID))
-			Expect(resp.DebitTransactionAccountId).To(Equal(debitAccountID))
+			Expect(resp.CreditLedgerAccount).To(Equal(creditLedgerAccountName))
+			Expect(resp.DebitLedgerAccount).To(Equal(debitLedgerAccountName))
 			Expect(resp.Description).To(Equal("Test transaction"))
 			Expect(resp.Reference).To(Equal("REF-001"))
 			Expect(resp.CreateTime).NotTo(BeNil())
@@ -89,9 +84,9 @@ var _ = Describe("TransactionService", func() {
 			resp, err := TransactionClient.CreateTransaction(ctx, &gen.CreateTransactionRequest{
 				Parent: orgName,
 				Transaction: &gen.Transaction{
-					CreditTransactionAccountId: creditAccountID,
-					DebitTransactionAccountId:  debitAccountID,
-					Description:                "Simple transaction",
+					CreditLedgerAccount: creditLedgerAccountName,
+					DebitLedgerAccount:  debitLedgerAccountName,
+					Description:         "Simple transaction",
 				},
 			})
 			Expect(err).NotTo(HaveOccurred())
@@ -106,24 +101,24 @@ var _ = Describe("TransactionService", func() {
 			Expect(status.Code(err)).To(Equal(codes.InvalidArgument))
 		})
 
-		It("returns InvalidArgument when credit_transaction_account_id is invalid", func() {
+		It("returns InvalidArgument when credit_ledger_account is invalid", func() {
 			_, err := TransactionClient.CreateTransaction(ctx, &gen.CreateTransactionRequest{
 				Parent: orgName,
 				Transaction: &gen.Transaction{
-					CreditTransactionAccountId: "invalid-uuid",
-					DebitTransactionAccountId:  debitAccountID,
+					CreditLedgerAccount: "invalid-name",
+					DebitLedgerAccount:  debitLedgerAccountName,
 				},
 			})
 			Expect(err).To(HaveOccurred())
 			Expect(status.Code(err)).To(Equal(codes.InvalidArgument))
 		})
 
-		It("returns InvalidArgument when debit_transaction_account_id is invalid", func() {
+		It("returns InvalidArgument when debit_ledger_account is invalid", func() {
 			_, err := TransactionClient.CreateTransaction(ctx, &gen.CreateTransactionRequest{
 				Parent: orgName,
 				Transaction: &gen.Transaction{
-					CreditTransactionAccountId: creditAccountID,
-					DebitTransactionAccountId:  "invalid-uuid",
+					CreditLedgerAccount: creditLedgerAccountName,
+					DebitLedgerAccount:  "invalid-name",
 				},
 			})
 			Expect(err).To(HaveOccurred())
@@ -139,10 +134,10 @@ var _ = Describe("TransactionService", func() {
 			created, err = TransactionClient.CreateTransaction(ctx, &gen.CreateTransactionRequest{
 				Parent: orgName,
 				Transaction: &gen.Transaction{
-					CreditTransactionAccountId: creditAccountID,
-					DebitTransactionAccountId:  debitAccountID,
-					Description:                "Get Test Transaction",
-					Reference:                  "GET-REF",
+					CreditLedgerAccount: creditLedgerAccountName,
+					DebitLedgerAccount:  debitLedgerAccountName,
+					Description:         "Get Test Transaction",
+					Reference:           "GET-REF",
 				},
 			})
 			Expect(err).NotTo(HaveOccurred())
@@ -178,11 +173,11 @@ var _ = Describe("TransactionService", func() {
 				_, err := TransactionClient.CreateTransaction(ctx, &gen.CreateTransactionRequest{
 					Parent: orgName,
 					Transaction: &gen.Transaction{
-						CreditTransactionAccountId: creditAccountID,
-						DebitTransactionAccountId:  debitAccountID,
-						Description:                fmt.Sprintf("List Test Transaction %d", i),
-						Reference:                  fmt.Sprintf("LIST-REF-%d", i),
-						BookedAt:                   timestamppb.New(time.Now().Add(time.Duration(i) * time.Hour)),
+						CreditLedgerAccount: creditLedgerAccountName,
+						DebitLedgerAccount:  debitLedgerAccountName,
+						Description:         fmt.Sprintf("List Test Transaction %d", i),
+						Reference:           fmt.Sprintf("LIST-REF-%d", i),
+						BookedAt:            timestamppb.New(time.Now().Add(time.Duration(i) * time.Hour)),
 					},
 				})
 				Expect(err).NotTo(HaveOccurred())
@@ -236,10 +231,10 @@ var _ = Describe("TransactionService", func() {
 			created, err = TransactionClient.CreateTransaction(ctx, &gen.CreateTransactionRequest{
 				Parent: orgName,
 				Transaction: &gen.Transaction{
-					CreditTransactionAccountId: creditAccountID,
-					DebitTransactionAccountId:  debitAccountID,
-					Description:                "Before Update",
-					Reference:                  "BEFORE-REF",
+					CreditLedgerAccount: creditLedgerAccountName,
+					DebitLedgerAccount:  debitLedgerAccountName,
+					Description:         "Before Update",
+					Reference:           "BEFORE-REF",
 				},
 			})
 			Expect(err).NotTo(HaveOccurred())
@@ -300,9 +295,9 @@ var _ = Describe("TransactionService", func() {
 			created, err = TransactionClient.CreateTransaction(ctx, &gen.CreateTransactionRequest{
 				Parent: orgName,
 				Transaction: &gen.Transaction{
-					CreditTransactionAccountId: creditAccountID,
-					DebitTransactionAccountId:  debitAccountID,
-					Description:                "To Delete",
+					CreditLedgerAccount: creditLedgerAccountName,
+					DebitLedgerAccount:  debitLedgerAccountName,
+					Description:         "To Delete",
 				},
 			})
 			Expect(err).NotTo(HaveOccurred())

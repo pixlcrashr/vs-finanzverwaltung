@@ -18,7 +18,9 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services"
 	"github.com/pixlcrashr/vsfv/pkg/authz"
 	pkgdb "github.com/pixlcrashr/vsfv/pkg/db"
+	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
+	"gorm.io/gorm"
 
 	_ "github.com/lib/pq"
 )
@@ -31,6 +33,9 @@ const (
 var (
 	lis                              *bufconn.Listener
 	conn                             *grpc.ClientConn
+	gormDB                           *gorm.DB
+	LedgerAccountRepo                *repository.LedgerAccountRepository
+	TransactionAssignmentRepo        *repository.TransactionAssignmentRepository
 	OrgClient                        gen.OrganizationServiceClient
 	AccountClient                    gen.AccountServiceClient
 	BudgetClient                     gen.BudgetServiceClient
@@ -38,8 +43,9 @@ var (
 	BudgetRevisionAccountValueClient gen.BudgetRevisionAccountValueServiceClient
 	BudgetAccountValueClient         gen.BudgetAccountValueServiceClient
 	BudgetActualAccountValueClient   gen.BudgetActualAccountValueServiceClient
-	ImportSourceClient               gen.ImportSourceServiceClient
-	TransactionAccountClient         gen.TransactionAccountServiceClient
+	LedgerAccountClient              gen.LedgerAccountServiceClient
+	LedgerYearClient                 gen.LedgerYearServiceClient
+	TransactionAssignmentClient      gen.TransactionAssignmentServiceClient
 	TransactionClient                gen.TransactionServiceClient
 )
 
@@ -61,9 +67,10 @@ var _ = BeforeSuite(func() {
 	err = pkgdb.Run(sqlDB)
 	Expect(err).NotTo(HaveOccurred())
 
-	gormDB, err := pkgdb.Connect(testDSN)
+	var err2 error
+	gormDB, err2 = pkgdb.Connect(testDSN)
 	gormDB.Logger = gormDB.Logger.LogMode(logger.Silent)
-	Expect(err).NotTo(HaveOccurred())
+	Expect(err2).NotTo(HaveOccurred())
 
 	enforcer, err := authz.NewEnforcer(gormDB)
 	Expect(err).NotTo(HaveOccurred())
@@ -79,9 +86,10 @@ var _ = BeforeSuite(func() {
 	gen.RegisterBudgetRevisionAccountValueServiceServer(s, svc.BudgetRevisionAccountValue)
 	gen.RegisterBudgetAccountValueServiceServer(s, svc.BudgetAccountValue)
 	gen.RegisterBudgetActualAccountValueServiceServer(s, svc.BudgetActualAccountValue)
-	gen.RegisterImportSourceServiceServer(s, svc.ImportSource)
-	gen.RegisterTransactionAccountServiceServer(s, svc.TransactionAccount)
+	gen.RegisterLedgerYearServiceServer(s, svc.LedgerYear)
+	gen.RegisterLedgerAccountServiceServer(s, svc.LedgerAccount)
 	gen.RegisterTransactionServiceServer(s, svc.Transaction)
+	gen.RegisterTransactionAssignmentServiceServer(s, svc.TransactionAssignment)
 	go func() { _ = s.Serve(lis) }()
 
 	conn, err = grpc.NewClient(
@@ -93,6 +101,9 @@ var _ = BeforeSuite(func() {
 	)
 	Expect(err).NotTo(HaveOccurred())
 
+	LedgerAccountRepo = repository.NewLedgerAccountRepository(gormDB)
+	TransactionAssignmentRepo = repository.NewTransactionAssignmentRepository(gormDB)
+
 	OrgClient = gen.NewOrganizationServiceClient(conn)
 	AccountClient = gen.NewAccountServiceClient(conn)
 	BudgetClient = gen.NewBudgetServiceClient(conn)
@@ -100,8 +111,9 @@ var _ = BeforeSuite(func() {
 	BudgetRevisionAccountValueClient = gen.NewBudgetRevisionAccountValueServiceClient(conn)
 	BudgetAccountValueClient = gen.NewBudgetAccountValueServiceClient(conn)
 	BudgetActualAccountValueClient = gen.NewBudgetActualAccountValueServiceClient(conn)
-	ImportSourceClient = gen.NewImportSourceServiceClient(conn)
-	TransactionAccountClient = gen.NewTransactionAccountServiceClient(conn)
+	LedgerAccountClient = gen.NewLedgerAccountServiceClient(conn)
+	LedgerYearClient = gen.NewLedgerYearServiceClient(conn)
+	TransactionAssignmentClient = gen.NewTransactionAssignmentServiceClient(conn)
 	TransactionClient = gen.NewTransactionServiceClient(conn)
 
 	DeferCleanup(func() {

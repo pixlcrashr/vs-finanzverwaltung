@@ -59,7 +59,7 @@ func (s *reportServiceServer) GetReport(ctx context.Context, req *gen.GetReportR
 		return nil, &ServerError{Err: err, Status: statusFailedGetReport}
 	}
 
-	return ReportToProto(n.Organization, n.Report, m), nil
+	return ReportToProto(n.OrganizationResourceName(), m), nil
 }
 
 func (s *reportServiceServer) ListReports(ctx context.Context, req *gen.ListReportsRequest) (*gen.ListReportsResponse, error) {
@@ -103,7 +103,7 @@ func (s *reportServiceServer) ListReports(ctx context.Context, req *gen.ListRepo
 
 	resp := &gen.ListReportsResponse{TotalSize: total}
 	for _, m := range ms {
-		resp.Reports = append(resp.Reports, ReportToProto(pn.Organization, m.CustomID, m))
+		resp.Reports = append(resp.Reports, ReportToProto(pn, m))
 	}
 
 	nextOffset := offset + int64(len(ms))
@@ -147,7 +147,7 @@ func (s *reportServiceServer) CreateReport(ctx context.Context, req *gen.CreateR
 		return nil, &ServerError{Err: err, Status: statusFailedCreateReport}
 	}
 
-	return ReportToProto(pn.Organization, req.ReportId, m), nil
+	return ReportToProto(pn, m), nil
 }
 
 func (s *reportServiceServer) DeleteReport(ctx context.Context, req *gen.DeleteReportRequest) (*emptypb.Empty, error) {

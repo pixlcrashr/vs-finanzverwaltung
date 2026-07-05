@@ -103,7 +103,7 @@ func (s *budgetAccountValueServiceServer) CreateBudgetAccountValue(ctx context.C
 		return nil, &ServerError{Err: err, Status: statusFailedCreateBudgetAccountValue}
 	}
 
-	return BudgetAccountValueToProto(pn.Organization, pn.Budget, m), nil
+	return BudgetAccountValueToProto(pn, m), nil
 }
 
 func (s *budgetAccountValueServiceServer) GetBudgetAccountValue(ctx context.Context, req *gen.GetBudgetAccountValueRequest) (*gen.BudgetAccountValue, error) {
@@ -127,7 +127,7 @@ func (s *budgetAccountValueServiceServer) GetBudgetAccountValue(ctx context.Cont
 		return nil, &ServerError{Err: err, Status: statusFailedGetBudgetAccountValue}
 	}
 
-	return BudgetAccountValueToProto(n.Organization, n.Budget, m), nil
+	return BudgetAccountValueToProto(n.BudgetResourceName(), m), nil
 }
 
 func (s *budgetAccountValueServiceServer) ListBudgetAccountValues(ctx context.Context, req *gen.ListBudgetAccountValuesRequest) (*gen.ListBudgetAccountValuesResponse, error) {
@@ -182,7 +182,7 @@ func (s *budgetAccountValueServiceServer) ListBudgetAccountValues(ctx context.Co
 
 	resp := &gen.ListBudgetAccountValuesResponse{TotalSize: total}
 	for _, m := range ms {
-		resp.AccountValues = append(resp.AccountValues, BudgetAccountValueToProto(pn.Organization, pn.Budget, m))
+		resp.AccountValues = append(resp.AccountValues, BudgetAccountValueToProto(pn, m))
 	}
 
 	nextOffset := offset + int64(len(ms))
@@ -253,7 +253,7 @@ func (s *budgetAccountValueServiceServer) UpdateBudgetAccountValue(ctx context.C
 			return nil, &ServerError{Err: err, Status: statusFailedCreateBudgetAccountValue}
 		}
 
-		return BudgetAccountValueToProto(n.Organization, n.Budget, newM), nil
+		return BudgetAccountValueToProto(n.BudgetResourceName(), newM), nil
 	}
 
 	updateParams := repository.UpdateBudgetAccountValueParams{}
@@ -275,7 +275,7 @@ func (s *budgetAccountValueServiceServer) UpdateBudgetAccountValue(ctx context.C
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateBudgetAccountValue}
 	}
 
-	return BudgetAccountValueToProto(n.Organization, n.Budget, m), nil
+	return BudgetAccountValueToProto(n.BudgetResourceName(), m), nil
 }
 
 func (s *budgetAccountValueServiceServer) BatchUpdateBudgetAccountValues(ctx context.Context, req *gen.BatchUpdateBudgetAccountValuesRequest) (*gen.BatchUpdateBudgetAccountValuesResponse, error) {
@@ -337,7 +337,7 @@ func (s *budgetAccountValueServiceServer) BatchUpdateBudgetAccountValues(ctx con
 
 	resp := &gen.BatchUpdateBudgetAccountValuesResponse{}
 	for _, m := range ms {
-		resp.AccountValues = append(resp.AccountValues, BudgetAccountValueToProto(pn.Organization, pn.Budget, m))
+		resp.AccountValues = append(resp.AccountValues, BudgetAccountValueToProto(pn, m))
 	}
 
 	return resp, nil

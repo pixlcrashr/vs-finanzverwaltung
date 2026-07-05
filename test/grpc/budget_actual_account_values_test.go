@@ -4,19 +4,23 @@ import (
 	"context"
 	"time"
 
+	"github.com/cockroachdb/apd/v3"
+	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/pixlcrashr/vsfv/pkg/db/model"
+	"github.com/pixlcrashr/vsfv/pkg/db/repository"
+	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"google.golang.org/genproto/googleapis/type/date"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
-
-	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 )
 
 var _ = Describe("BudgetActualAccountValueService", func() {
 	var ctx context.Context
 	var orgName string
+	var orgUid string
 	var budget *gen.Budget
 	var account *gen.Account
 
@@ -28,6 +32,7 @@ var _ = Describe("BudgetActualAccountValueService", func() {
 		})
 		Expect(err).NotTo(HaveOccurred())
 		orgName = org.Name
+		orgUid = org.Uid
 
 		// Create a budget with a defined period
 		budget, err = BudgetClient.CreateBudget(ctx, &gen.CreateBudgetRequest{
@@ -49,64 +54,82 @@ var _ = Describe("BudgetActualAccountValueService", func() {
 	})
 
 	Describe("GetBudgetActualAccountValue", func() {
-		It("returns zero value for an account with no transactions", func() {
-			actualValueName := budget.Name + "/actualAccountValues/" + account.Uid
-			resp, err := BudgetActualAccountValueClient.GetBudgetActualAccountValue(ctx, &gen.GetBudgetActualAccountValueRequest{
+		It("returns NotFound for an account with no transaction assignments", func() {
+			var budgetRN gen.BudgetResourceName
+			Expect(budgetRN.UnmarshalString(budget.Name)).To(Succeed())
+			var accRN gen.AccountResourceName
+			Expect(accRN.UnmarshalString(account.Name)).To(Succeed())
+			actualValueName := budgetRN.BudgetActualAccountValueResourceName(accRN.Account).String()
+			_, err := BudgetActualAccountValueClient.GetBudgetActualAccountValue(ctx, &gen.GetBudgetActualAccountValueRequest{
 				Name: actualValueName,
 			})
-			Expect(err).NotTo(HaveOccurred())
-			Expect(resp.Name).To(Equal(actualValueName))
-			Expect(resp.Account).To(Equal(account.Name))
-			Expect(resp.Budget).To(Equal(budget.Name))
-			Expect(resp.Value).NotTo(BeNil())
-			Expect(resp.Value.Value).To(Equal("0"))
+			Expect(err).To(HaveOccurred())
+			Expect(status.Code(err)).To(Equal(codes.NotFound))
 		})
 
 		It("computes actual value from transactions within budget period", func() {
-			// Create import source and transaction accounts
-			importSource, err := ImportSourceClient.CreateImportSource(ctx, &gen.CreateImportSourceRequest{
-				Parent: orgName,
-				ImportSource: &gen.ImportSource{
-					DisplayName: "Test Import Source",
-				},
-			})
+			orgUUID, err := uuid.Parse(orgUid)
 			Expect(err).NotTo(HaveOccurred())
 
-			creditTxAccount, err := TransactionAccountClient.CreateTransactionAccount(ctx, &gen.CreateTransactionAccountRequest{
-				Parent: orgName,
-				TransactionAccount: &gen.TransactionAccount{
-					Code:           "CREDIT-001",
-					ImportSourceId: importSource.Uid,
-					DisplayName:    "Credit Account",
-				},
+			var orgRN gen.OrganizationResourceName
+			Expect(orgRN.UnmarshalString(orgName)).To(Succeed())
+
+			// Create ledger accounts (no Create RPC, use repo directly)
+			creditAccount, err := LedgerAccountRepo.Create(ctx, repository.CreateLedgerAccountParams{
+				OrganizationID: orgUUID,
+				Code:           "CREDIT-001",
+				AccountType:    model.AccountTypeRevenue,
+				DisplayName:    "Credit Account",
 			})
 			Expect(err).NotTo(HaveOccurred())
+			creditLedgerAccountName := orgRN.LedgerAccountResourceName(creditAccount.CustomID).String()
 
-			debitTxAccount, err := TransactionAccountClient.CreateTransactionAccount(ctx, &gen.CreateTransactionAccountRequest{
-				Parent: orgName,
-				TransactionAccount: &gen.TransactionAccount{
-					Code:           "DEBIT-001",
-					ImportSourceId: importSource.Uid,
-					DisplayName:    "Debit Account",
-				},
+			debitAccount, err := LedgerAccountRepo.Create(ctx, repository.CreateLedgerAccountParams{
+				OrganizationID: orgUUID,
+				Code:           "DEBIT-001",
+				AccountType:    model.AccountTypeAsset,
+				DisplayName:    "Debit Account",
 			})
 			Expect(err).NotTo(HaveOccurred())
+			debitLedgerAccountName := orgRN.LedgerAccountResourceName(debitAccount.CustomID).String()
 
-			// Create a transaction within the budget period with an assignment to our account
-			_, err = TransactionClient.CreateTransaction(ctx, &gen.CreateTransactionRequest{
+			// Create a transaction within the budget period
+			txResp, err := TransactionClient.CreateTransaction(ctx, &gen.CreateTransactionRequest{
 				Parent: orgName,
 				Transaction: &gen.Transaction{
-					CreditTransactionAccountId: creditTxAccount.Uid,
-					DebitTransactionAccountId:  debitTxAccount.Uid,
-					Description:                "Test transaction within period",
-					BookedAt:                   timestamppb.New(time.Date(2024, 6, 15, 10, 0, 0, 0, time.UTC)),
-					DocumentDate:               timestamppb.New(time.Date(2024, 6, 15, 0, 0, 0, 0, time.UTC)),
+					CreditLedgerAccount: creditLedgerAccountName,
+					DebitLedgerAccount:  debitLedgerAccountName,
+					Description:         "Test transaction within period",
+					BookedAt:            timestamppb.New(time.Date(2024, 6, 15, 10, 0, 0, 0, time.UTC)),
+					DocumentDate:        timestamppb.New(time.Date(2024, 6, 15, 0, 0, 0, 0, time.UTC)),
 				},
 			})
 			Expect(err).NotTo(HaveOccurred())
 
-			// The actual value should be computed from the transaction
-			actualValueName := budget.Name + "/actualAccountValues/" + account.Uid
+			// Create a transaction assignment linking the transaction to our account
+			txUID, err := uuid.Parse(txResp.Uid)
+			Expect(err).NotTo(HaveOccurred())
+			accountUID, err := uuid.Parse(account.Uid)
+			Expect(err).NotTo(HaveOccurred())
+
+			var assignmentValue apd.Decimal
+			_, _, err = assignmentValue.SetString("100")
+			Expect(err).NotTo(HaveOccurred())
+
+			_, err = TransactionAssignmentRepo.Create(ctx, repository.CreateTransactionAssignmentParams{
+				OrganizationID: orgUUID,
+				TransactionID:  txUID,
+				AccountID:      accountUID,
+				Value:          assignmentValue,
+			})
+			Expect(err).NotTo(HaveOccurred())
+
+			// The actual value should be computed from the transaction assignment
+			var budgetRN gen.BudgetResourceName
+			Expect(budgetRN.UnmarshalString(budget.Name)).To(Succeed())
+			var accRN gen.AccountResourceName
+			Expect(accRN.UnmarshalString(account.Name)).To(Succeed())
+			actualValueName := budgetRN.BudgetActualAccountValueResourceName(accRN.Account).String()
 			resp, err := BudgetActualAccountValueClient.GetBudgetActualAccountValue(ctx, &gen.GetBudgetActualAccountValueRequest{
 				Name: actualValueName,
 			})
@@ -119,7 +142,7 @@ var _ = Describe("BudgetActualAccountValueService", func() {
 
 		It("returns NotFound for a non-existent budget", func() {
 			_, err := BudgetActualAccountValueClient.GetBudgetActualAccountValue(ctx, &gen.GetBudgetActualAccountValueRequest{
-				Name: "organizations/00000000-0000-0000-0000-000000000000/budgets/00000000-0000-0000-0000-000000000000/actualAccountValues/" + account.Uid,
+				Name: "organizations/00000000-0000-0000-0000-000000000000/budgets/00000000-0000-0000-0000-000000000000/actualAccountValues/00000000-0000-0000-0000-000000000000",
 			})
 			Expect(err).To(HaveOccurred())
 			Expect(status.Code(err)).To(Equal(codes.NotFound))
@@ -149,8 +172,63 @@ var _ = Describe("BudgetActualAccountValueService", func() {
 	})
 
 	Describe("ListBudgetActualAccountValues", func() {
-		It("lists actual values for all accounts in a budget", func() {
-			// Create multiple accounts
+		// Helper: create a transaction + assignment for an account within the budget period
+		setupAssignment := func(acc *gen.Account) {
+			orgUUID, err := uuid.Parse(orgUid)
+			Expect(err).NotTo(HaveOccurred())
+
+			var orgRN gen.OrganizationResourceName
+			Expect(orgRN.UnmarshalString(orgName)).To(Succeed())
+
+			creditAccount, err := LedgerAccountRepo.Create(ctx, repository.CreateLedgerAccountParams{
+				OrganizationID: orgUUID,
+				Code:           "CREDIT-" + acc.Uid[:8],
+				AccountType:    model.AccountTypeRevenue,
+				DisplayName:    "Credit Account for " + acc.DisplayName,
+			})
+			Expect(err).NotTo(HaveOccurred())
+			creditLedgerAccountName := orgRN.LedgerAccountResourceName(creditAccount.CustomID).String()
+
+			debitAccount, err := LedgerAccountRepo.Create(ctx, repository.CreateLedgerAccountParams{
+				OrganizationID: orgUUID,
+				Code:           "DEBIT-" + acc.Uid[:8],
+				AccountType:    model.AccountTypeAsset,
+				DisplayName:    "Debit Account for " + acc.DisplayName,
+			})
+			Expect(err).NotTo(HaveOccurred())
+			debitLedgerAccountName := orgRN.LedgerAccountResourceName(debitAccount.CustomID).String()
+
+			txResp, err := TransactionClient.CreateTransaction(ctx, &gen.CreateTransactionRequest{
+				Parent: orgName,
+				Transaction: &gen.Transaction{
+					CreditLedgerAccount: creditLedgerAccountName,
+					DebitLedgerAccount:  debitLedgerAccountName,
+					Description:         "Transaction for " + acc.DisplayName,
+					BookedAt:            timestamppb.New(time.Date(2024, 6, 15, 10, 0, 0, 0, time.UTC)),
+					DocumentDate:        timestamppb.New(time.Date(2024, 6, 15, 0, 0, 0, 0, time.UTC)),
+				},
+			})
+			Expect(err).NotTo(HaveOccurred())
+
+			txUID, err := uuid.Parse(txResp.Uid)
+			Expect(err).NotTo(HaveOccurred())
+			accountUID, err := uuid.Parse(acc.Uid)
+			Expect(err).NotTo(HaveOccurred())
+
+			var val apd.Decimal
+			_, _, err = val.SetString("100")
+			Expect(err).NotTo(HaveOccurred())
+
+			_, err = TransactionAssignmentRepo.Create(ctx, repository.CreateTransactionAssignmentParams{
+				OrganizationID: orgUUID,
+				TransactionID:  txUID,
+				AccountID:      accountUID,
+				Value:          val,
+			})
+			Expect(err).NotTo(HaveOccurred())
+		}
+
+		It("lists actual values for accounts with transaction assignments", func() {
 			account2, err := AccountClient.CreateAccount(ctx, &gen.CreateAccountRequest{
 				Parent:  orgName,
 				Account: &gen.Account{DisplayName: "Second Account"},
@@ -163,24 +241,26 @@ var _ = Describe("BudgetActualAccountValueService", func() {
 			})
 			Expect(err).NotTo(HaveOccurred())
 
-			// List actual account values for the budget
+			// Create transaction assignments for all three accounts
+			setupAssignment(account)
+			setupAssignment(account2)
+			setupAssignment(account3)
+
 			resp, err := BudgetActualAccountValueClient.ListBudgetActualAccountValues(ctx, &gen.ListBudgetActualAccountValuesRequest{
 				Parent:   budget.Name,
 				PageSize: 100,
 			})
 			Expect(err).NotTo(HaveOccurred())
-			Expect(len(resp.ActualAccountValues)).To(BeNumerically(">=", 3))
+			Expect(len(resp.ActualAccountValues)).To(Equal(3))
 
-			// Verify all accounts are present
-			accountIDs := make([]string, 0, len(resp.ActualAccountValues))
+			accountNames := make([]string, 0, len(resp.ActualAccountValues))
 			for _, av := range resp.ActualAccountValues {
-				accountIDs = append(accountIDs, av.Account)
+				accountNames = append(accountNames, av.Account)
 			}
-			Expect(accountIDs).To(ContainElements(account.Name, account2.Name, account3.Name))
+			Expect(accountNames).To(ContainElements(account.Name, account2.Name, account3.Name))
 		})
 
-		It("returns empty list when budget has no accounts", func() {
-			// Create a new budget without any accounts
+		It("returns empty list when budget has no transaction assignments", func() {
 			emptyBudget, err := BudgetClient.CreateBudget(ctx, &gen.CreateBudgetRequest{
 				Parent: orgName,
 				Budget: &gen.Budget{
@@ -201,13 +281,14 @@ var _ = Describe("BudgetActualAccountValueService", func() {
 		})
 
 		It("respects page_size and returns a next_page_token when more results exist", func() {
-			// Create multiple accounts
+			// Create 5 accounts with transaction assignments
 			for i := 0; i < 5; i++ {
-				_, err := AccountClient.CreateAccount(ctx, &gen.CreateAccountRequest{
+				acc, err := AccountClient.CreateAccount(ctx, &gen.CreateAccountRequest{
 					Parent:  orgName,
 					Account: &gen.Account{DisplayName: "Account " + string(rune('A'+i))},
 				})
 				Expect(err).NotTo(HaveOccurred())
+				setupAssignment(acc)
 			}
 
 			resp, err := BudgetActualAccountValueClient.ListBudgetActualAccountValues(ctx, &gen.ListBudgetActualAccountValuesRequest{
@@ -220,13 +301,14 @@ var _ = Describe("BudgetActualAccountValueService", func() {
 		})
 
 		It("traverses all pages via page tokens", func() {
-			// Create multiple accounts
+			// Create 5 accounts with transaction assignments
 			for i := 0; i < 5; i++ {
-				_, err := AccountClient.CreateAccount(ctx, &gen.CreateAccountRequest{
+				acc, err := AccountClient.CreateAccount(ctx, &gen.CreateAccountRequest{
 					Parent:  orgName,
-					Account: &gen.Account{DisplayName: "Account " + string(rune('A'+i))},
+					Account: &gen.Account{DisplayName: "Page Account " + string(rune('A'+i))},
 				})
 				Expect(err).NotTo(HaveOccurred())
+				setupAssignment(acc)
 			}
 
 			var all []*gen.BudgetActualAccountValue
@@ -248,15 +330,18 @@ var _ = Describe("BudgetActualAccountValueService", func() {
 		})
 
 		It("filters by account_id", func() {
-			// Create another account
 			account2, err := AccountClient.CreateAccount(ctx, &gen.CreateAccountRequest{
 				Parent:  orgName,
 				Account: &gen.Account{DisplayName: "Filter Account"},
 			})
 			Expect(err).NotTo(HaveOccurred())
 
-			// List with filter for specific account
-			filter := "account=\"" + account2.Name + "\""
+			// Create assignments for both accounts
+			setupAssignment(account)
+			setupAssignment(account2)
+
+			// Filter by the second account's UUID
+			filter := "account_id=\"" + account2.Uid + "\""
 			resp, err := BudgetActualAccountValueClient.ListBudgetActualAccountValues(ctx, &gen.ListBudgetActualAccountValuesRequest{
 				Parent: budget.Name,
 				Filter: filter,

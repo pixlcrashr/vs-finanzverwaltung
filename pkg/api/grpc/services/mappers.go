@@ -52,9 +52,9 @@ func OrganizationToProto(m *model.Organization) *gen.Organization {
 }
 
 // AccountToProto maps a model.Account to its proto representation.
-func AccountToProto(organizationCustomID string, m *model.Account) *gen.Account {
+func AccountToProto(orgRN gen.OrganizationResourceName, m *model.Account, pM *model.Account) *gen.Account {
 	p := &gen.Account{
-		Name:               gen.AccountResourceName{Organization: organizationCustomID, Account: m.CustomID}.String(),
+		Name:               orgRN.AccountResourceName(m.CustomID).String(),
 		Uid:                m.ID.String(),
 		DisplayName:        m.DisplayName,
 		DisplayCode:        m.DisplayCode,
@@ -64,24 +64,16 @@ func AccountToProto(organizationCustomID string, m *model.Account) *gen.Account 
 		UpdateTime:         ts(m.UpdatedAt),
 		CreateTime:         ts(m.CreatedAt),
 	}
-	if m.ParentAccountID.Valid {
-		parent := m.ParentAccount
-		if parent == nil {
-			// If ParentAccount is not loaded, we can't construct the name.
-			// This should be rare; caller should ensure ParentAccount is preloaded
-			// or use the ID-based lookup as fallback for now.
-			p.ParentAccount = ""
-		} else {
-			p.ParentAccount = gen.AccountResourceName{Organization: organizationCustomID, Account: parent.CustomID}.String()
-		}
+	if m.ParentAccountID.Valid && pM != nil {
+		p.ParentAccount = orgRN.AccountResourceName(pM.CustomID).String()
 	}
 	return p
 }
 
 // NestedAccountToProto maps model.Account to gen.NestedAccount (without children; caller fills them).
-func NestedAccountToProto(organizationCustomID string, m *model.Account) *gen.NestedAccount {
+func NestedAccountToProto(orgRN gen.OrganizationResourceName, m *model.Account, pM *model.Account) *gen.NestedAccount {
 	p := &gen.NestedAccount{
-		Name:               gen.AccountResourceName{Organization: organizationCustomID, Account: m.CustomID}.String(),
+		Name:               orgRN.AccountResourceName(m.CustomID).String(),
 		Uid:                m.ID.String(),
 		DisplayName:        m.DisplayName,
 		DisplayCode:        m.DisplayCode,
@@ -91,21 +83,16 @@ func NestedAccountToProto(organizationCustomID string, m *model.Account) *gen.Ne
 		UpdateTime:         ts(m.UpdatedAt),
 		CreateTime:         ts(m.CreatedAt),
 	}
-	if m.ParentAccountID.Valid {
-		parent := m.ParentAccount
-		if parent == nil {
-			p.ParentAccount = ""
-		} else {
-			p.ParentAccount = gen.AccountResourceName{Organization: organizationCustomID, Account: parent.CustomID}.String()
-		}
+	if m.ParentAccountID.Valid && pM != nil {
+		p.ParentAccount = orgRN.AccountResourceName(pM.CustomID).String()
 	}
 	return p
 }
 
 // AccountGroupToProto maps a model.AccountGroup to its proto representation.
-func AccountGroupToProto(organizationCustomID string, m *model.AccountGroup) *gen.AccountGroup {
+func AccountGroupToProto(orgRN gen.OrganizationResourceName, m *model.AccountGroup) *gen.AccountGroup {
 	return &gen.AccountGroup{
-		Name:               gen.AccountGroupResourceName{Organization: organizationCustomID, AccountGroup: m.CustomID}.String(),
+		Name:               orgRN.AccountGroupResourceName(m.CustomID).String(),
 		Uid:                m.ID.String(),
 		DisplayName:        m.DisplayName,
 		DisplayDescription: m.DisplayDescription,
@@ -115,11 +102,11 @@ func AccountGroupToProto(organizationCustomID string, m *model.AccountGroup) *ge
 }
 
 // AccountGroupAssignmentToProto maps a model.AccountGroupAssignment to its proto representation.
-func AccountGroupAssignmentToProto(organizationCustomID string, accountGroupCustomID string, m *model.AccountGroupAssignment) *gen.AccountGroupAssignment {
+func AccountGroupAssignmentToProto(groupRN gen.AccountGroupResourceName, m *model.AccountGroupAssignment) *gen.AccountGroupAssignment {
 	return &gen.AccountGroupAssignment{
-		Name:         gen.AccountGroupAssignmentResourceName{Organization: organizationCustomID, AccountGroup: accountGroupCustomID, Assignment: m.CustomID}.String(),
+		Name:         groupRN.AccountGroupAssignmentResourceName(m.CustomID).String(),
 		Uid:          m.ID.String(),
-		AccountGroup: gen.AccountGroupResourceName{Organization: organizationCustomID, AccountGroup: accountGroupCustomID}.String(),
+		AccountGroup: groupRN.String(),
 		AccountId:    m.AccountID.String(),
 		Negate:       m.Negate,
 		UpdateTime:   ts(m.UpdatedAt),
@@ -128,9 +115,9 @@ func AccountGroupAssignmentToProto(organizationCustomID string, accountGroupCust
 }
 
 // BudgetToProto maps a model.Budget to its proto representation.
-func BudgetToProto(organizationCustomID string, m *model.Budget) *gen.Budget {
+func BudgetToProto(orgRN gen.OrganizationResourceName, m *model.Budget) *gen.Budget {
 	return &gen.Budget{
-		Name:               gen.BudgetResourceName{Organization: organizationCustomID, Budget: m.CustomID}.String(),
+		Name:               orgRN.BudgetResourceName(m.CustomID).String(),
 		Uid:                m.ID.String(),
 		DisplayName:        m.DisplayName,
 		DisplayDescription: m.DisplayDescription,
@@ -143,11 +130,11 @@ func BudgetToProto(organizationCustomID string, m *model.Budget) *gen.Budget {
 }
 
 // BudgetAccountValueToProto maps model.BudgetAccountValue to gen.BudgetAccountValue.
-func BudgetAccountValueToProto(organizationCustomID, budgetCustomID string, m *model.BudgetAccountValue) *gen.BudgetAccountValue {
+func BudgetAccountValueToProto(budgetRN gen.BudgetResourceName, m *model.BudgetAccountValue) *gen.BudgetAccountValue {
 	return &gen.BudgetAccountValue{
-		Name:       gen.BudgetAccountValueResourceName{Organization: organizationCustomID, Budget: budgetCustomID, AccountValue: m.CustomID}.String(),
+		Name:       budgetRN.BudgetAccountValueResourceName(m.CustomID).String(),
 		Uid:        m.ID.String(),
-		Budget:     gen.BudgetResourceName{Organization: organizationCustomID, Budget: budgetCustomID}.String(),
+		Budget:     budgetRN.String(),
 		AccountId:  m.AccountID.String(),
 		Value:      &gen.Decimal{Value: decimalStr(m.Value.String())},
 		UpdateTime: ts(m.UpdatedAt),
@@ -156,11 +143,11 @@ func BudgetAccountValueToProto(organizationCustomID, budgetCustomID string, m *m
 }
 
 // BudgetRevisionToProto maps model.BudgetRevision to gen.BudgetRevision.
-func BudgetRevisionToProto(organizationCustomID, budgetCustomID string, m *model.BudgetRevision) *gen.BudgetRevision {
+func BudgetRevisionToProto(budgetRN gen.BudgetResourceName, m *model.BudgetRevision) *gen.BudgetRevision {
 	return &gen.BudgetRevision{
-		Name:               gen.BudgetRevisionResourceName{Organization: organizationCustomID, Budget: budgetCustomID, Revision: m.CustomID}.String(),
+		Name:               budgetRN.BudgetRevisionResourceName(m.CustomID).String(),
 		Uid:                m.ID.String(),
-		Budget:             gen.BudgetResourceName{Organization: organizationCustomID, Budget: budgetCustomID}.String(),
+		Budget:             budgetRN.String(),
 		DisplayName:        m.DisplayName,
 		DisplayDescription: m.DisplayDescription,
 		Date:               dateProto(m.Date),
@@ -169,11 +156,11 @@ func BudgetRevisionToProto(organizationCustomID, budgetCustomID string, m *model
 }
 
 // BudgetRevisionAccountValueToProto maps model.BudgetRevisionAccountValue to gen.BudgetRevisionAccountValue.
-func BudgetRevisionAccountValueToProto(organizationCustomID, budgetCustomID, revisionCustomID string, m *model.BudgetRevisionAccountValue) *gen.BudgetRevisionAccountValue {
+func BudgetRevisionAccountValueToProto(revisionRN gen.BudgetRevisionResourceName, m *model.BudgetRevisionAccountValue) *gen.BudgetRevisionAccountValue {
 	return &gen.BudgetRevisionAccountValue{
-		Name:       gen.BudgetRevisionAccountValueResourceName{Organization: organizationCustomID, Budget: budgetCustomID, Revision: revisionCustomID, AccountValue: m.CustomID}.String(),
+		Name:       revisionRN.BudgetRevisionAccountValueResourceName(m.CustomID).String(),
 		Uid:        m.ID.String(),
-		Revision:   gen.BudgetRevisionResourceName{Organization: organizationCustomID, Budget: budgetCustomID, Revision: revisionCustomID}.String(),
+		Revision:   revisionRN.String(),
 		AccountId:  m.AccountID.String(),
 		Value:      &gen.Decimal{Value: decimalStr(m.Value.String())},
 		CreateTime: ts(m.CreatedAt),
@@ -181,9 +168,9 @@ func BudgetRevisionAccountValueToProto(organizationCustomID, budgetCustomID, rev
 }
 
 // LedgerYearToProto maps a model.LedgerYear to its proto representation.
-func LedgerYearToProto(organizationCustomID, ledgerYearCustomID string, m *model.LedgerYear) *gen.LedgerYear {
+func LedgerYearToProto(orgRN gen.OrganizationResourceName, m *model.LedgerYear) *gen.LedgerYear {
 	return &gen.LedgerYear{
-		Name:       gen.LedgerYearResourceName{Organization: organizationCustomID, LedgerYear: ledgerYearCustomID}.String(),
+		Name:       orgRN.LedgerYearResourceName(m.CustomID).String(),
 		Uid:        m.ID.String(),
 		Year:       int32(m.Year),
 		IsClosed:   m.IsClosed,
@@ -193,12 +180,12 @@ func LedgerYearToProto(organizationCustomID, ledgerYearCustomID string, m *model
 }
 
 // TransactionToProto maps a model.Transaction_ to its proto representation.
-func TransactionToProto(organizationCustomID, transactionCustomID string, m *model.Transaction_) *gen.Transaction {
+func TransactionToProto(orgRN gen.OrganizationResourceName, m *model.Transaction_, creditLA *model.LedgerAccount, debitLA *model.LedgerAccount) *gen.Transaction {
 	p := &gen.Transaction{
-		Name:                gen.TransactionResourceName{Organization: organizationCustomID, Transaction: transactionCustomID}.String(),
+		Name:                orgRN.TransactionResourceName(m.CustomID).String(),
 		Uid:                 m.ID.String(),
-		CreditLedgerAccount: gen.LedgerAccountResourceName{Organization: organizationCustomID, LedgerAccount: m.CreditLedgerAccountID.String()}.String(),
-		DebitLedgerAccount:  gen.LedgerAccountResourceName{Organization: organizationCustomID, LedgerAccount: m.DebitLedgerAccountID.String()}.String(),
+		CreditLedgerAccount: orgRN.LedgerAccountResourceName(creditLA.CustomID).String(),
+		DebitLedgerAccount:  orgRN.LedgerAccountResourceName(debitLA.CustomID).String(),
 		Amount:              &gen.Decimal{Value: decimalStr(m.Amount.String())},
 		Description:         m.Description,
 		Reference:           m.Reference,
@@ -211,9 +198,9 @@ func TransactionToProto(organizationCustomID, transactionCustomID string, m *mod
 }
 
 // LedgerAccountToProto maps a model.LedgerAccount to its proto representation.
-func LedgerAccountToProto(organizationCustomID, ledgerAccountCustomID string, m *model.LedgerAccount) *gen.LedgerAccount {
+func LedgerAccountToProto(orgRN gen.OrganizationResourceName, m *model.LedgerAccount) *gen.LedgerAccount {
 	return &gen.LedgerAccount{
-		Name:               gen.LedgerAccountResourceName{Organization: organizationCustomID, LedgerAccount: ledgerAccountCustomID}.String(),
+		Name:               orgRN.LedgerAccountResourceName(m.CustomID).String(),
 		Uid:                m.ID.String(),
 		Code:               m.Code,
 		AccountType:        gen.AccountType(m.AccountType),
@@ -225,12 +212,12 @@ func LedgerAccountToProto(organizationCustomID, ledgerAccountCustomID string, m 
 }
 
 // TransactionAssignmentToProto maps a model.TransactionAssignment to its proto representation.
-func TransactionAssignmentToProto(organizationCustomID, transactionCustomID, accountCustomID string, m *model.TransactionAssignment) *gen.TransactionAssignment {
+func TransactionAssignmentToProto(txRN gen.TransactionResourceName, m *model.TransactionAssignment, account *model.Account) *gen.TransactionAssignment {
 	return &gen.TransactionAssignment{
-		Name:        gen.TransactionAssignmentResourceName{Organization: organizationCustomID, Transaction: transactionCustomID, Assignment: m.ID.String()}.String(),
+		Name:        txRN.TransactionAssignmentResourceName(m.ID.String()).String(),
 		Uid:         m.ID.String(),
-		Transaction: gen.TransactionResourceName{Organization: organizationCustomID, Transaction: transactionCustomID}.String(),
-		Account:     gen.AccountResourceName{Organization: organizationCustomID, Account: accountCustomID}.String(),
+		Transaction: txRN.String(),
+		Account:     gen.AccountResourceName{Organization: txRN.Organization, Account: account.CustomID}.String(),
 		Value:       &gen.Decimal{Value: decimalStr(m.Value.String())},
 		UpdateTime:  ts(m.UpdatedAt),
 		CreateTime:  ts(m.CreatedAt),
@@ -238,9 +225,9 @@ func TransactionAssignmentToProto(organizationCustomID, transactionCustomID, acc
 }
 
 // ReportTemplateToProto maps a model.ReportTemplate to its proto representation.
-func ReportTemplateToProto(organizationCustomID, reportTemplateCustomID string, m *model.ReportTemplate) *gen.ReportTemplate {
+func ReportTemplateToProto(orgRN gen.OrganizationResourceName, m *model.ReportTemplate) *gen.ReportTemplate {
 	return &gen.ReportTemplate{
-		Name:        gen.ReportTemplateResourceName{Organization: organizationCustomID, ReportTemplate: reportTemplateCustomID}.String(),
+		Name:        orgRN.ReportTemplateResourceName(m.CustomID).String(),
 		Uid:         m.ID.String(),
 		DisplayName: m.DisplayName,
 		Template:    m.Template,
@@ -252,9 +239,9 @@ func ReportTemplateToProto(organizationCustomID, reportTemplateCustomID string, 
 // ReportToProto maps a model.Report to its proto representation.
 // Note: model.Report does not persist the template ID after generation;
 // report_template_id is intentionally left empty here.
-func ReportToProto(organizationCustomID, reportCustomID string, m *model.Report) *gen.Report {
+func ReportToProto(orgRN gen.OrganizationResourceName, m *model.Report) *gen.Report {
 	return &gen.Report{
-		Name:        gen.ReportResourceName{Organization: organizationCustomID, Report: reportCustomID}.String(),
+		Name:        orgRN.ReportResourceName(m.CustomID).String(),
 		Uid:         m.ID.String(),
 		DisplayName: m.DisplayName,
 		CreateTime:  ts(m.CreatedAt),
@@ -275,9 +262,9 @@ func UserToProto(m *model.User) *gen.User {
 }
 
 // UserIdentityToProto maps a model.UserIdentity to its proto representation.
-func UserIdentityToProto(userID string, m *model.UserIdentity) *gen.UserIdentity {
+func UserIdentityToProto(userRN gen.UserResourceName, m *model.UserIdentity) *gen.UserIdentity {
 	return &gen.UserIdentity{
-		Name:            gen.UserIdentityResourceName{User: userID, Identity: m.CustomID}.String(),
+		Name:            userRN.UserIdentityResourceName(m.CustomID).String(),
 		Uid:             m.ID.String(),
 		Provider:        m.Provider,
 		ProviderSubject: m.ProviderUserID,
@@ -288,9 +275,9 @@ func UserIdentityToProto(userID string, m *model.UserIdentity) *gen.UserIdentity
 }
 
 // UserSettingsToProto maps a model.UserSettings to its proto representation.
-func UserSettingsToProto(userID string, m *model.UserSettings) *gen.UserSettings {
+func UserSettingsToProto(userRN gen.UserResourceName, m *model.UserSettings) *gen.UserSettings {
 	return &gen.UserSettings{
-		Name:       gen.UserSettingsResourceName{User: userID}.String(),
+		Name:       userRN.UserSettingsResourceName().String(),
 		Locale:     m.Locale,
 		Theme:      m.Theme,
 		UpdateTime: ts(m.UpdatedAt),
@@ -312,11 +299,11 @@ func UserGroupToProto(m *model.UserGroup, policies []*gen.GroupOrganizationPolic
 
 // BudgetActualAccountValueToProto maps a computed ActualAccountValue to its
 // proto representation.
-func BudgetActualAccountValueToProto(organizationCustomID, budgetCustomID string, m *repository.ActualAccountValue) *gen.BudgetActualAccountValue {
+func BudgetActualAccountValueToProto(budgetRN gen.BudgetResourceName, m *repository.ActualAccountValue) *gen.BudgetActualAccountValue {
 	return &gen.BudgetActualAccountValue{
-		Name:    gen.BudgetActualAccountValueResourceName{Organization: organizationCustomID, Budget: budgetCustomID, Account: m.AccountCustomID}.String(),
-		Account: gen.AccountResourceName{Organization: organizationCustomID, Account: m.AccountCustomID}.String(),
-		Budget:  gen.BudgetResourceName{Organization: organizationCustomID, Budget: budgetCustomID}.String(),
+		Name:    budgetRN.BudgetActualAccountValueResourceName(m.AccountCustomID).String(),
+		Account: gen.AccountResourceName{Organization: budgetRN.Organization, Account: m.AccountCustomID}.String(),
+		Budget:  budgetRN.String(),
 		Value:   &gen.Decimal{Value: decimalStr(m.Value.String())},
 	}
 }

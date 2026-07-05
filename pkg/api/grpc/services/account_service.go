@@ -67,7 +67,14 @@ func (s *accountServiceServer) GetAccount(ctx context.Context, req *gen.GetAccou
 		return nil, &ServerError{Err: err, Status: statusFailedGetAccount}
 	}
 
-	return AccountToProto(n.Organization, m), nil
+	var parentM *model.Account
+	if m.ParentAccountID.Valid {
+		parentM, err = s.repo.GetByID(ctx, m.ParentAccountID.UUID)
+		if err != nil {
+			return nil, &ServerError{Err: err, Status: statusFailedGetParentAccount}
+		}
+	}
+	return AccountToProto(gen.OrganizationResourceName{Organization: n.Organization}, m, parentM), nil
 }
 
 func (s *accountServiceServer) ListAccounts(ctx context.Context, req *gen.ListAccountsRequest) (*gen.ListAccountsResponse, error) {
@@ -117,7 +124,7 @@ func (s *accountServiceServer) ListAccounts(ctx context.Context, req *gen.ListAc
 
 	resp := &gen.ListAccountsResponse{TotalSize: total}
 	for _, m := range ms {
-		resp.Accounts = append(resp.Accounts, AccountToProto(pn.Organization, m))
+		resp.Accounts = append(resp.Accounts, AccountToProto(pn, m, nil))
 	}
 
 	nextOffset := offset + int64(len(ms))
@@ -158,7 +165,7 @@ func (s *accountServiceServer) ListNestedAccounts(ctx context.Context, req *gen.
 	}
 
 	return &gen.ListNestedAccountsResponse{
-		Accounts: buildNestedTree(pn.Organization, ms, uuid.NullUUID{}),
+		Accounts: buildNestedTree(pn, ms, uuid.NullUUID{}),
 	}, nil
 }
 
@@ -188,8 +195,8 @@ func (s *accountServiceServer) GetNestedAccount(ctx context.Context, req *gen.Ge
 		return nil, &ServerError{Err: err, Status: statusFailedListAccounts}
 	}
 
-	rootNested := NestedAccountToProto(n.Organization, root)
-	rootNested.Children = buildNestedTree(n.Organization, ms, uuid.NullUUID{Valid: true, UUID: root.ID})
+	rootNested := NestedAccountToProto(n.OrganizationResourceName(), root, nil)
+	rootNested.Children = buildNestedTree(n.OrganizationResourceName(), ms, uuid.NullUUID{Valid: true, UUID: root.ID})
 
 	return &gen.GetNestedAccountResponse{Account: rootNested}, nil
 }
@@ -211,6 +218,7 @@ func (s *accountServiceServer) CreateAccount(ctx context.Context, req *gen.Creat
 	}
 
 	parentAccountID := uuid.NullUUID{}
+	var parent *model.Account
 
 	if req.Account.ParentAccount != "" {
 		var pn gen.AccountResourceName
@@ -225,7 +233,7 @@ func (s *accountServiceServer) CreateAccount(ctx context.Context, req *gen.Creat
 		}
 
 		// Use CustomID (pn.Account) instead of parsing as UUID
-		parent, err := s.repo.GetByCustomID(ctx, parentOrgID, pn.Account)
+		parent, err = s.repo.GetByCustomID(ctx, parentOrgID, pn.Account)
 		if err != nil {
 			if errors.Is(err, repository.ErrAccountNotFound) {
 				return nil, &ServerError{Err: err, Status: statusParentAccountNotFound}
@@ -262,7 +270,7 @@ func (s *accountServiceServer) CreateAccount(ctx context.Context, req *gen.Creat
 		return nil, &ServerError{Err: err, Status: statusFailedCreateAccount}
 	}
 
-	return AccountToProto(n.Organization, m), nil
+	return AccountToProto(n, m, parent), nil
 }
 
 func (s *accountServiceServer) UpdateAccount(ctx context.Context, req *gen.UpdateAccountRequest) (*gen.Account, error) {
@@ -308,7 +316,14 @@ func (s *accountServiceServer) UpdateAccount(ctx context.Context, req *gen.Updat
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateAccount}
 	}
 
-	return AccountToProto(n.Organization, m), nil
+	var parentM *model.Account
+	if m.ParentAccountID.Valid {
+		parentM, err = s.repo.GetByID(ctx, m.ParentAccountID.UUID)
+		if err != nil {
+			return nil, &ServerError{Err: err, Status: statusFailedGetParentAccount}
+		}
+	}
+	return AccountToProto(gen.OrganizationResourceName{Organization: n.Organization}, m, parentM), nil
 }
 
 func (s *accountServiceServer) ArchiveAccount(ctx context.Context, req *gen.ArchiveAccountRequest) (*gen.Account, error) {
@@ -347,7 +362,14 @@ func (s *accountServiceServer) ArchiveAccount(ctx context.Context, req *gen.Arch
 		return nil, &ServerError{Err: err, Status: statusFailedArchiveAccount}
 	}
 
-	return AccountToProto(n.Organization, m), nil
+	var parentM *model.Account
+	if m.ParentAccountID.Valid {
+		parentM, err = s.repo.GetByID(ctx, m.ParentAccountID.UUID)
+		if err != nil {
+			return nil, &ServerError{Err: err, Status: statusFailedGetParentAccount}
+		}
+	}
+	return AccountToProto(gen.OrganizationResourceName{Organization: n.Organization}, m, parentM), nil
 }
 
 func (s *accountServiceServer) DeleteAccount(ctx context.Context, req *gen.DeleteAccountRequest) (*emptypb.Empty, error) {
@@ -385,13 +407,23 @@ func (s *accountServiceServer) DeleteAccount(ctx context.Context, req *gen.Delet
 
 // buildNestedTree recursively assembles NestedAccount trees.
 // parentID selects which accounts to treat as roots (empty = top-level roots).
-func buildNestedTree(organizationCustomID string, all []*model.Account, parentID uuid.NullUUID) []*gen.NestedAccount {
+func buildNestedTree(orgRN gen.OrganizationResourceName, all []*model.Account, parentID uuid.NullUUID) []*gen.NestedAccount {
 	var result []*gen.NestedAccount
+
+	var parentM *model.Account
+	if parentID.Valid {
+		for _, a := range all {
+			if a.ID == parentID.UUID {
+				parentM = a
+				break
+			}
+		}
+	}
 
 	for _, m := range all {
 		if m.ParentAccountID == parentID {
-			n := NestedAccountToProto(organizationCustomID, m)
-			n.Children = buildNestedTree(organizationCustomID, all, uuid.NullUUID{Valid: true, UUID: m.ID})
+			n := NestedAccountToProto(orgRN, m, parentM)
+			n.Children = buildNestedTree(orgRN, all, uuid.NullUUID{Valid: true, UUID: m.ID})
 			result = append(result, n)
 		}
 	}

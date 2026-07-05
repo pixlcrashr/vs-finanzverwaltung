@@ -19,13 +19,13 @@ import (
 )
 
 var (
-	statusLedgerAccountRequired            = status.New(codes.InvalidArgument, "ledger_account is required")
-	statusInvalidLedgerAccountName         = status.New(codes.InvalidArgument, "invalid ledger account name")
-	statusLedgerAccountAlreadyExists       = status.New(codes.AlreadyExists, "ledger account with this ID already exists")
-	statusFailedGetLedgerAccount           = status.New(codes.Internal, "failed to get ledger account")
-	statusFailedListLedgerAccounts         = status.New(codes.Internal, "failed to list ledger accounts")
-	statusFailedUpdateLedgerAccount        = status.New(codes.Internal, "failed to update ledger account")
-	statusFailedDeleteLedgerAccount        = status.New(codes.Internal, "failed to delete ledger account")
+	statusLedgerAccountRequired      = status.New(codes.InvalidArgument, "ledger_account is required")
+	statusInvalidLedgerAccountName   = status.New(codes.InvalidArgument, "invalid ledger account name")
+	statusLedgerAccountAlreadyExists = status.New(codes.AlreadyExists, "ledger account with this ID already exists")
+	statusFailedGetLedgerAccount     = status.New(codes.Internal, "failed to get ledger account")
+	statusFailedListLedgerAccounts   = status.New(codes.Internal, "failed to list ledger accounts")
+	statusFailedUpdateLedgerAccount  = status.New(codes.Internal, "failed to update ledger account")
+	statusFailedDeleteLedgerAccount  = status.New(codes.Internal, "failed to delete ledger account")
 )
 
 type ledgerAccountServiceServer struct {
@@ -59,7 +59,7 @@ func (s *ledgerAccountServiceServer) GetLedgerAccount(ctx context.Context, req *
 		return nil, &ServerError{Err: err, Status: statusFailedGetLedgerAccount}
 	}
 
-	return LedgerAccountToProto(n.Organization, n.LedgerAccount, m), nil
+	return LedgerAccountToProto(n.OrganizationResourceName(), m), nil
 }
 
 func (s *ledgerAccountServiceServer) ListLedgerAccounts(ctx context.Context, req *gen.ListLedgerAccountsRequest) (*gen.ListLedgerAccountsResponse, error) {
@@ -103,7 +103,7 @@ func (s *ledgerAccountServiceServer) ListLedgerAccounts(ctx context.Context, req
 
 	resp := &gen.ListLedgerAccountsResponse{TotalSize: total}
 	for _, m := range ms {
-		resp.LedgerAccounts = append(resp.LedgerAccounts, LedgerAccountToProto(pn.Organization, m.CustomID, m))
+		resp.LedgerAccounts = append(resp.LedgerAccounts, LedgerAccountToProto(pn, m))
 	}
 
 	nextOffset := offset + int64(len(ms))
@@ -157,7 +157,7 @@ func (s *ledgerAccountServiceServer) UpdateLedgerAccount(ctx context.Context, re
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateLedgerAccount}
 	}
 
-	return LedgerAccountToProto(n.Organization, n.LedgerAccount, m), nil
+	return LedgerAccountToProto(n.OrganizationResourceName(), m), nil
 }
 
 func (s *ledgerAccountServiceServer) DeleteLedgerAccount(ctx context.Context, req *gen.DeleteLedgerAccountRequest) (*emptypb.Empty, error) {

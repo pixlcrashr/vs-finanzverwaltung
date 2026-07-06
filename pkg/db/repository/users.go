@@ -10,6 +10,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -102,6 +103,46 @@ func (r *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.User
 			return nil, errors.Join(ErrUserNotFound, fmt.Errorf("id=%s: %w", id, err))
 		}
 		return nil, fmt.Errorf("get user id=%s: %w", id, err)
+	}
+	return m, nil
+}
+
+func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*model.User, error) {
+	m, err := r.q.User.WithContext(ctx).Where(r.q.User.Email.Eq(email)).First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Join(ErrUserNotFound, fmt.Errorf("email=%s: %w", email, err))
+		}
+		return nil, fmt.Errorf("get user email=%s: %w", email, err)
+	}
+	return m, nil
+}
+
+type CreateUserWithPasswordParams struct {
+	Email    string
+	Name     string
+	Password string
+	Picture  *string
+}
+
+func (r *UserRepository) CreateWithPassword(ctx context.Context, params CreateUserWithPasswordParams) (*model.User, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(params.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, fmt.Errorf("hash password: %w", err)
+	}
+	hashStr := string(hash)
+
+	m := &model.User{
+		Email:        params.Email,
+		Name:         params.Name,
+		PasswordHash: &hashStr,
+		Picture:      params.Picture,
+	}
+	if err := r.q.User.WithContext(ctx).Create(m); err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return nil, fmt.Errorf("create user email=%s: already exists: %w", params.Email, err)
+		}
+		return nil, fmt.Errorf("create user: %w", err)
 	}
 	return m, nil
 }

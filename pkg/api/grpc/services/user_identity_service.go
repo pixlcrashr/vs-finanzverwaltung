@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
+	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"google.golang.org/grpc/codes"
@@ -22,17 +23,22 @@ var (
 
 type userIdentityServiceServer struct {
 	gen.UnimplementedUserIdentityServiceServer
-	repo *repository.UserIdentityRepository
+	repo     *repository.UserIdentityRepository
+	enforcer *authz.Enforcer
 }
 
-func newUserIdentityServiceServer(repo *repository.UserIdentityRepository) gen.UserIdentityServiceServer {
-	return &userIdentityServiceServer{repo: repo}
+func newUserIdentityServiceServer(repo *repository.UserIdentityRepository, enforcer *authz.Enforcer) gen.UserIdentityServiceServer {
+	return &userIdentityServiceServer{repo: repo, enforcer: enforcer}
 }
 
 func (s *userIdentityServiceServer) GetUserIdentity(ctx context.Context, req *gen.GetUserIdentityRequest) (*gen.UserIdentity, error) {
 	var n gen.UserIdentityResourceName
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidUserIdentityName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead, authz.GlobalDomain); err != nil {
+		return nil, authError(err)
 	}
 
 	userID, err := uuid.Parse(n.User)
@@ -55,6 +61,10 @@ func (s *userIdentityServiceServer) ListUserIdentities(ctx context.Context, req 
 	var pn gen.UserResourceName
 	if err := pn.UnmarshalString(req.Parent); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParentUserName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead, authz.GlobalDomain); err != nil {
+		return nil, authError(err)
 	}
 
 	userID, err := uuid.Parse(pn.User)

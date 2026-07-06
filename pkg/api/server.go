@@ -11,10 +11,12 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/etag"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
+	"github.com/ory/fosite"
 	"gorm.io/gorm"
 
 	apiserv "github.com/pixlcrashr/vsfv/pkg/api/grpc"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services"
+	"github.com/pixlcrashr/vsfv/pkg/auth"
 	"github.com/pixlcrashr/vsfv/pkg/cfg"
 	"github.com/pixlcrashr/vsfv/web"
 )
@@ -29,7 +31,7 @@ type Server struct {
 // svc is the shared service set used by both the grpc-gateway JSON API and the
 // Huma REST API.  db is still required for the Huma routes that have not yet
 // been migrated to the service layer.
-func New(db *gorm.DB, svc *services.Services, version string, corsCfg cfg.CORS) *Server {
+func New(db *gorm.DB, svc *services.Services, version string, corsCfg cfg.CORS, authSrv *auth.Server, gitlabHandler *auth.GitLabHandler) *Server {
 	app := fiber.New(fiber.Config{
 		// Disable default startup banner — the serve command prints its own.
 		DisableStartupMessage: true,
@@ -53,7 +55,21 @@ func New(db *gorm.DB, svc *services.Services, version string, corsCfg cfg.CORS) 
 
 	s := &Server{app: app, API: api}
 	RegisterRoutes(s.API, db)
-	apiserv.RegisterRoutes(app, svc)
+
+	// Build auth middleware for gRPC gateway routes
+	var authMiddleware func(http.Handler) http.Handler
+	if authSrv != nil {
+		authMiddleware = auth.HTTPMiddleware(authSrv.OAuth2(), func() fosite.Session {
+			return auth.NewSession(nil)
+		})
+	}
+
+	apiserv.RegisterRoutes(app, svc, authMiddleware)
+
+	// Register OAuth2/OIDC auth routes
+	if authSrv != nil {
+		auth.RegisterRoutes(app, authSrv, gitlabHandler)
+	}
 
 	// Serve embedded Angular app (non-API routes only)
 	if webFS := web.FS(); webFS != nil {

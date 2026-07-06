@@ -20,6 +20,7 @@ var (
 	Account                    *account
 	AccountGroup               *accountGroup
 	AccountGroupAssignment     *accountGroupAssignment
+	AuthSession                *authSession
 	Budget                     *budget
 	BudgetAccountValue         *budgetAccountValue
 	BudgetRevision             *budgetRevision
@@ -27,6 +28,8 @@ var (
 	CasbinRule                 *casbinRule
 	LedgerAccount              *ledgerAccount
 	LedgerYear                 *ledgerYear
+	OAuth2Client               *oAuth2Client
+	OAuth2Token                *oAuth2Token
 	Organization               *organization
 	Report                     *report
 	ReportTemplate             *reportTemplate
@@ -43,6 +46,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	Account = &Q.Account
 	AccountGroup = &Q.AccountGroup
 	AccountGroupAssignment = &Q.AccountGroupAssignment
+	AuthSession = &Q.AuthSession
 	Budget = &Q.Budget
 	BudgetAccountValue = &Q.BudgetAccountValue
 	BudgetRevision = &Q.BudgetRevision
@@ -50,6 +54,8 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	CasbinRule = &Q.CasbinRule
 	LedgerAccount = &Q.LedgerAccount
 	LedgerYear = &Q.LedgerYear
+	OAuth2Client = &Q.OAuth2Client
+	OAuth2Token = &Q.OAuth2Token
 	Organization = &Q.Organization
 	Report = &Q.Report
 	ReportTemplate = &Q.ReportTemplate
@@ -67,6 +73,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		Account:                    newAccount(db, opts...),
 		AccountGroup:               newAccountGroup(db, opts...),
 		AccountGroupAssignment:     newAccountGroupAssignment(db, opts...),
+		AuthSession:                newAuthSession(db, opts...),
 		Budget:                     newBudget(db, opts...),
 		BudgetAccountValue:         newBudgetAccountValue(db, opts...),
 		BudgetRevision:             newBudgetRevision(db, opts...),
@@ -74,6 +81,8 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		CasbinRule:                 newCasbinRule(db, opts...),
 		LedgerAccount:              newLedgerAccount(db, opts...),
 		LedgerYear:                 newLedgerYear(db, opts...),
+		OAuth2Client:               newOAuth2Client(db, opts...),
+		OAuth2Token:                newOAuth2Token(db, opts...),
 		Organization:               newOrganization(db, opts...),
 		Report:                     newReport(db, opts...),
 		ReportTemplate:             newReportTemplate(db, opts...),
@@ -92,6 +101,7 @@ type Query struct {
 	Account                    account
 	AccountGroup               accountGroup
 	AccountGroupAssignment     accountGroupAssignment
+	AuthSession                authSession
 	Budget                     budget
 	BudgetAccountValue         budgetAccountValue
 	BudgetRevision             budgetRevision
@@ -99,6 +109,8 @@ type Query struct {
 	CasbinRule                 casbinRule
 	LedgerAccount              ledgerAccount
 	LedgerYear                 ledgerYear
+	OAuth2Client               oAuth2Client
+	OAuth2Token                oAuth2Token
 	Organization               organization
 	Report                     report
 	ReportTemplate             reportTemplate
@@ -118,6 +130,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		Account:                    q.Account.clone(db),
 		AccountGroup:               q.AccountGroup.clone(db),
 		AccountGroupAssignment:     q.AccountGroupAssignment.clone(db),
+		AuthSession:                q.AuthSession.clone(db),
 		Budget:                     q.Budget.clone(db),
 		BudgetAccountValue:         q.BudgetAccountValue.clone(db),
 		BudgetRevision:             q.BudgetRevision.clone(db),
@@ -125,6 +138,8 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		CasbinRule:                 q.CasbinRule.clone(db),
 		LedgerAccount:              q.LedgerAccount.clone(db),
 		LedgerYear:                 q.LedgerYear.clone(db),
+		OAuth2Client:               q.OAuth2Client.clone(db),
+		OAuth2Token:                q.OAuth2Token.clone(db),
 		Organization:               q.Organization.clone(db),
 		Report:                     q.Report.clone(db),
 		ReportTemplate:             q.ReportTemplate.clone(db),
@@ -151,6 +166,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		Account:                    q.Account.replaceDB(db),
 		AccountGroup:               q.AccountGroup.replaceDB(db),
 		AccountGroupAssignment:     q.AccountGroupAssignment.replaceDB(db),
+		AuthSession:                q.AuthSession.replaceDB(db),
 		Budget:                     q.Budget.replaceDB(db),
 		BudgetAccountValue:         q.BudgetAccountValue.replaceDB(db),
 		BudgetRevision:             q.BudgetRevision.replaceDB(db),
@@ -158,6 +174,8 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		CasbinRule:                 q.CasbinRule.replaceDB(db),
 		LedgerAccount:              q.LedgerAccount.replaceDB(db),
 		LedgerYear:                 q.LedgerYear.replaceDB(db),
+		OAuth2Client:               q.OAuth2Client.replaceDB(db),
+		OAuth2Token:                q.OAuth2Token.replaceDB(db),
 		Organization:               q.Organization.replaceDB(db),
 		Report:                     q.Report.replaceDB(db),
 		ReportTemplate:             q.ReportTemplate.replaceDB(db),
@@ -174,6 +192,7 @@ type queryCtx struct {
 	Account                    IAccountDo
 	AccountGroup               IAccountGroupDo
 	AccountGroupAssignment     IAccountGroupAssignmentDo
+	AuthSession                IAuthSessionDo
 	Budget                     IBudgetDo
 	BudgetAccountValue         IBudgetAccountValueDo
 	BudgetRevision             IBudgetRevisionDo
@@ -181,6 +200,8 @@ type queryCtx struct {
 	CasbinRule                 ICasbinRuleDo
 	LedgerAccount              ILedgerAccountDo
 	LedgerYear                 ILedgerYearDo
+	OAuth2Client               IOAuth2ClientDo
+	OAuth2Token                IOAuth2TokenDo
 	Organization               IOrganizationDo
 	Report                     IReportDo
 	ReportTemplate             IReportTemplateDo
@@ -197,6 +218,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		Account:                    q.Account.WithContext(ctx),
 		AccountGroup:               q.AccountGroup.WithContext(ctx),
 		AccountGroupAssignment:     q.AccountGroupAssignment.WithContext(ctx),
+		AuthSession:                q.AuthSession.WithContext(ctx),
 		Budget:                     q.Budget.WithContext(ctx),
 		BudgetAccountValue:         q.BudgetAccountValue.WithContext(ctx),
 		BudgetRevision:             q.BudgetRevision.WithContext(ctx),
@@ -204,6 +226,8 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		CasbinRule:                 q.CasbinRule.WithContext(ctx),
 		LedgerAccount:              q.LedgerAccount.WithContext(ctx),
 		LedgerYear:                 q.LedgerYear.WithContext(ctx),
+		OAuth2Client:               q.OAuth2Client.WithContext(ctx),
+		OAuth2Token:                q.OAuth2Token.WithContext(ctx),
 		Organization:               q.Organization.WithContext(ctx),
 		Report:                     q.Report.WithContext(ctx),
 		ReportTemplate:             q.ReportTemplate.WithContext(ctx),

@@ -9,6 +9,7 @@ import (
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
 
+	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
@@ -31,11 +32,12 @@ var (
 
 type reportServiceServer struct {
 	gen.UnimplementedReportServiceServer
-	repo *repository.ReportRepository
+	repo     *repository.ReportRepository
+	enforcer *authz.Enforcer
 }
 
-func newReportServiceServer(repo *repository.ReportRepository) gen.ReportServiceServer {
-	return &reportServiceServer{repo: repo}
+func newReportServiceServer(repo *repository.ReportRepository, enforcer *authz.Enforcer) gen.ReportServiceServer {
+	return &reportServiceServer{repo: repo, enforcer: enforcer}
 }
 
 func (s *reportServiceServer) GetReport(ctx context.Context, req *gen.GetReportRequest) (*gen.Report, error) {
@@ -43,6 +45,10 @@ func (s *reportServiceServer) GetReport(ctx context.Context, req *gen.GetReportR
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidReportName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceReports, authz.ActionRead, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	id, err := uuid.Parse(n.Report)
@@ -67,6 +73,10 @@ func (s *reportServiceServer) ListReports(ctx context.Context, req *gen.ListRepo
 
 	if err := pn.UnmarshalString(req.Parent); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceReports, authz.ActionRead, pn.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	c, err := svcfilter.ParseReportFilter(req.Filter)
@@ -125,6 +135,10 @@ func (s *reportServiceServer) CreateReport(ctx context.Context, req *gen.CreateR
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceReports, authz.ActionCreate, pn.Organization); err != nil {
+		return nil, authError(err)
+	}
+
 	orgID, err := uuid.Parse(pn.Organization)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
@@ -155,6 +169,10 @@ func (s *reportServiceServer) DeleteReport(ctx context.Context, req *gen.DeleteR
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidReportName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceReports, authz.ActionDelete, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	id, err := uuid.Parse(n.Report)

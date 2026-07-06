@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
+	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
@@ -32,11 +33,12 @@ var (
 
 type ledgerYearServiceServer struct {
 	gen.UnimplementedLedgerYearServiceServer
-	repo *repository.LedgerYearRepository
+	repo     *repository.LedgerYearRepository
+	enforcer *authz.Enforcer
 }
 
-func newLedgerYearServiceServer(repo *repository.LedgerYearRepository) gen.LedgerYearServiceServer {
-	return &ledgerYearServiceServer{repo: repo}
+func newLedgerYearServiceServer(repo *repository.LedgerYearRepository, enforcer *authz.Enforcer) gen.LedgerYearServiceServer {
+	return &ledgerYearServiceServer{repo: repo, enforcer: enforcer}
 }
 
 func (s *ledgerYearServiceServer) GetLedgerYear(ctx context.Context, req *gen.GetLedgerYearRequest) (*gen.LedgerYear, error) {
@@ -44,6 +46,10 @@ func (s *ledgerYearServiceServer) GetLedgerYear(ctx context.Context, req *gen.Ge
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidLedgerYearName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceJournal, authz.ActionRead, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	yearID, err := uuid.Parse(n.LedgerYear)
@@ -68,6 +74,10 @@ func (s *ledgerYearServiceServer) ListLedgerYears(ctx context.Context, req *gen.
 
 	if err := pn.UnmarshalString(req.Parent); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParentOrganization}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceJournal, authz.ActionRead, pn.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	orgID, err := uuid.Parse(pn.Organization)
@@ -128,6 +138,10 @@ func (s *ledgerYearServiceServer) CreateLedgerYear(ctx context.Context, req *gen
 		return nil, &ServerError{Err: err, Status: statusInvalidParentOrganization}
 	}
 
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceJournal, authz.ActionCreate, pn.Organization); err != nil {
+		return nil, authError(err)
+	}
+
 	orgID, err := uuid.Parse(pn.Organization)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParentOrganization}
@@ -163,6 +177,10 @@ func (s *ledgerYearServiceServer) CloseLedgerYear(ctx context.Context, req *gen.
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidLedgerYearName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceJournal, authz.ActionUpdate, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	yearID, err := uuid.Parse(n.LedgerYear)
@@ -201,6 +219,10 @@ func (s *ledgerYearServiceServer) DeleteLedgerYear(ctx context.Context, req *gen
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidLedgerYearName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceJournal, authz.ActionDelete, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	yearID, err := uuid.Parse(n.LedgerYear)

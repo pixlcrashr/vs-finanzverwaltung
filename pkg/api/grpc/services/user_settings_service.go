@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"google.golang.org/grpc/codes"
@@ -20,17 +21,22 @@ var (
 
 type userSettingsServiceServer struct {
 	gen.UnimplementedUserSettingsServiceServer
-	repo *repository.UserSettingsRepository
+	repo     *repository.UserSettingsRepository
+	enforcer *authz.Enforcer
 }
 
-func newUserSettingsServiceServer(repo *repository.UserSettingsRepository) gen.UserSettingsServiceServer {
-	return &userSettingsServiceServer{repo: repo}
+func newUserSettingsServiceServer(repo *repository.UserSettingsRepository, enforcer *authz.Enforcer) gen.UserSettingsServiceServer {
+	return &userSettingsServiceServer{repo: repo, enforcer: enforcer}
 }
 
 func (s *userSettingsServiceServer) GetUserSettings(ctx context.Context, req *gen.GetUserSettingsRequest) (*gen.UserSettings, error) {
 	var n gen.UserSettingsResourceName
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidUserSettingsName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceSettings, authz.ActionRead, authz.GlobalDomain); err != nil {
+		return nil, authError(err)
 	}
 
 	userID, err := uuid.Parse(n.User)
@@ -62,6 +68,10 @@ func (s *userSettingsServiceServer) UpdateUserSettings(ctx context.Context, req 
 	var n gen.UserSettingsResourceName
 	if err := n.UnmarshalString(req.Settings.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidUserSettingsName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceSettings, authz.ActionUpdate, authz.GlobalDomain); err != nil {
+		return nil, authError(err)
 	}
 
 	userID, err := uuid.Parse(n.User)

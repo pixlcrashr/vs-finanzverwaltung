@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
+	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
@@ -38,11 +39,12 @@ var (
 
 type accountServiceServer struct {
 	gen.UnimplementedAccountServiceServer
-	repo *repository.AccountRepository
+	repo     *repository.AccountRepository
+	enforcer *authz.Enforcer
 }
 
-func newAccountServiceServer(repo *repository.AccountRepository) gen.AccountServiceServer {
-	return &accountServiceServer{repo: repo}
+func newAccountServiceServer(repo *repository.AccountRepository, enforcer *authz.Enforcer) gen.AccountServiceServer {
+	return &accountServiceServer{repo: repo, enforcer: enforcer}
 }
 
 func (s *accountServiceServer) GetAccount(ctx context.Context, req *gen.GetAccountRequest) (*gen.Account, error) {
@@ -50,6 +52,10 @@ func (s *accountServiceServer) GetAccount(ctx context.Context, req *gen.GetAccou
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionRead, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	orgID, err := uuid.Parse(n.Organization)
@@ -82,6 +88,10 @@ func (s *accountServiceServer) ListAccounts(ctx context.Context, req *gen.ListAc
 
 	if err := pn.UnmarshalString(req.Parent); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionRead, pn.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	orgID, err := uuid.Parse(pn.Organization)
@@ -142,6 +152,10 @@ func (s *accountServiceServer) ListNestedAccounts(ctx context.Context, req *gen.
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionRead, pn.Organization); err != nil {
+		return nil, authError(err)
+	}
+
 	orgID, err := uuid.Parse(pn.Organization)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
@@ -174,6 +188,10 @@ func (s *accountServiceServer) GetNestedAccount(ctx context.Context, req *gen.Ge
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionRead, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	orgID, err := uuid.Parse(n.Organization)
@@ -210,6 +228,10 @@ func (s *accountServiceServer) CreateAccount(ctx context.Context, req *gen.Creat
 
 	if err := n.UnmarshalString(req.Parent); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionCreate, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	orgID, err := uuid.Parse(n.Organization)
@@ -284,6 +306,10 @@ func (s *accountServiceServer) UpdateAccount(ctx context.Context, req *gen.Updat
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountName}
 	}
 
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionUpdate, n.Organization); err != nil {
+		return nil, authError(err)
+	}
+
 	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidOrganizationInAccountName}
@@ -333,6 +359,10 @@ func (s *accountServiceServer) ArchiveAccount(ctx context.Context, req *gen.Arch
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountName}
 	}
 
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionUpdate, n.Organization); err != nil {
+		return nil, authError(err)
+	}
+
 	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidOrganizationInAccountName}
@@ -377,6 +407,10 @@ func (s *accountServiceServer) DeleteAccount(ctx context.Context, req *gen.Delet
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionDelete, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	orgID, err := uuid.Parse(n.Organization)

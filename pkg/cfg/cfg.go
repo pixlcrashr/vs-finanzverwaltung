@@ -3,6 +3,7 @@ package cfg
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/spf13/viper"
 )
@@ -19,6 +20,7 @@ type Config struct {
 type Server struct {
 	Address     string `mapstructure:"addr"`
 	GRPCAddress string `mapstructure:"grpc-addr"`
+	PublicURL   string `mapstructure:"public-url"`
 }
 
 type Database struct {
@@ -26,14 +28,28 @@ type Database struct {
 }
 
 type Auth struct {
-	Secret string      `mapstructure:"secret"`
-	GitLab GitLabOAuth `mapstructure:"gitlab"`
+	Secret        string        `mapstructure:"secret"`
+	TokenTTL      time.Duration `mapstructure:"token-ttl"`
+	RefreshTTL    time.Duration `mapstructure:"refresh-ttl"`
+	SessionTTL    time.Duration `mapstructure:"session-ttl"`
+	JWKS          JWKSConfig    `mapstructure:"jwks"`
+	PasswordLogin PasswordLogin `mapstructure:"password-login"`
+	GitLab        GitLabOAuth   `mapstructure:"gitlab"`
+}
+
+type PasswordLogin struct {
+	Enabled bool `mapstructure:"enabled"`
 }
 
 type GitLabOAuth struct {
+	Enabled      bool   `mapstructure:"enabled"`
 	ClientID     string `mapstructure:"client-id"`
 	ClientSecret string `mapstructure:"client-secret"`
 	Issuer       string `mapstructure:"issuer"`
+}
+
+type JWKSConfig struct {
+	KeyFiles []string `mapstructure:"key-files"`
 }
 
 type Html2Pdf struct {
@@ -81,6 +97,14 @@ func Load(cfgFile string) (*Config, error) {
 	viper.SetDefault("cors.expose-headers", []string{})
 	viper.SetDefault("cors.allow-credentials", false)
 	viper.SetDefault("cors.max-age", 300)
+
+	viper.SetDefault("server.public-url", "http://127.0.0.1:8080")
+	viper.SetDefault("auth.token-ttl", time.Hour)
+	viper.SetDefault("auth.refresh-ttl", 720*time.Hour)
+	viper.SetDefault("auth.session-ttl", 24*time.Hour)
+	viper.SetDefault("auth.password-login.enabled", true)
+	viper.SetDefault("auth.gitlab.enabled", false)
+	viper.SetDefault("auth.jwks.key-files", []string{})
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {

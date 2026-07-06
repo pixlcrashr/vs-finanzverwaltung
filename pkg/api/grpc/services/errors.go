@@ -1,6 +1,9 @@
 package services
 
 import (
+	"errors"
+
+	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -11,6 +14,10 @@ var (
 	statusInvalidParent    = status.New(codes.InvalidArgument, "invalid parent")
 	statusInvalidFilter    = status.New(codes.InvalidArgument, "invalid filter")
 	statusInvalidOrderBy   = status.New(codes.InvalidArgument, "invalid order_by")
+
+	// Auth statuses
+	statusUnauthenticated  = status.New(codes.Unauthenticated, "authentication required")
+	statusPermissionDenied = status.New(codes.PermissionDenied, "permission denied")
 
 	// used by account_group, account, budget, import_source, transaction_account, report_template, report services
 	statusOrganizationNotFound = status.New(codes.NotFound, "organization not found")
@@ -81,4 +88,13 @@ func normalizePageSize(requested int32) int {
 	}
 
 	return n
+}
+
+// authError converts an authz.Check error into a ServerError with the
+// appropriate gRPC status code.
+func authError(err error) *ServerError {
+	if errors.Is(err, authz.ErrUnauthenticated) {
+		return &ServerError{Err: err, Status: statusUnauthenticated}
+	}
+	return &ServerError{Err: err, Status: statusPermissionDenied}
 }

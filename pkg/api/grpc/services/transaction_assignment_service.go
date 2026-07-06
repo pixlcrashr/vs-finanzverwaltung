@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
+	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
@@ -37,10 +38,11 @@ type transactionAssignmentServiceServer struct {
 	repo             *repository.TransactionAssignmentRepository
 	accountRepo      *repository.AccountRepository
 	organizationRepo *repository.OrganizationRepository
+	enforcer         *authz.Enforcer
 }
 
-func newTransactionAssignmentServiceServer(repo *repository.TransactionAssignmentRepository, accountRepo *repository.AccountRepository) gen.TransactionAssignmentServiceServer {
-	return &transactionAssignmentServiceServer{repo: repo, accountRepo: accountRepo}
+func newTransactionAssignmentServiceServer(repo *repository.TransactionAssignmentRepository, accountRepo *repository.AccountRepository, enforcer *authz.Enforcer) gen.TransactionAssignmentServiceServer {
+	return &transactionAssignmentServiceServer{repo: repo, accountRepo: accountRepo, enforcer: enforcer}
 }
 
 func (s *transactionAssignmentServiceServer) GetTransactionAssignment(ctx context.Context, req *gen.GetTransactionAssignmentRequest) (*gen.TransactionAssignment, error) {
@@ -48,6 +50,10 @@ func (s *transactionAssignmentServiceServer) GetTransactionAssignment(ctx contex
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidTransactionAssignmentName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionRead, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	assignmentID, err := uuid.Parse(n.Assignment)
@@ -77,6 +83,10 @@ func (s *transactionAssignmentServiceServer) ListTransactionAssignments(ctx cont
 
 	if err := pn.UnmarshalString(req.Parent); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParentTransaction}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionRead, pn.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	transID, err := uuid.Parse(pn.Transaction)
@@ -135,6 +145,10 @@ func (s *transactionAssignmentServiceServer) CreateTransactionAssignment(ctx con
 
 	if err := pn.UnmarshalString(req.Parent); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParentTransaction}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionCreate, pn.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	transID, err := uuid.Parse(pn.Transaction)
@@ -198,6 +212,10 @@ func (s *transactionAssignmentServiceServer) UpdateTransactionAssignment(ctx con
 		return nil, &ServerError{Err: err, Status: statusInvalidTransactionAssignmentName}
 	}
 
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionUpdate, n.Organization); err != nil {
+		return nil, authError(err)
+	}
+
 	assignmentID, err := uuid.Parse(n.Assignment)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidTransactionAssignmentName}
@@ -248,6 +266,10 @@ func (s *transactionAssignmentServiceServer) DeleteTransactionAssignment(ctx con
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidTransactionAssignmentName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionDelete, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	assignmentID, err := uuid.Parse(n.Assignment)

@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
+	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
@@ -31,11 +32,12 @@ var (
 
 type accountGroupServiceServer struct {
 	gen.UnimplementedAccountGroupServiceServer
-	repo *repository.AccountGroupRepository
+	repo     *repository.AccountGroupRepository
+	enforcer *authz.Enforcer
 }
 
-func newAccountGroupServiceServer(repo *repository.AccountGroupRepository) gen.AccountGroupServiceServer {
-	return &accountGroupServiceServer{repo: repo}
+func newAccountGroupServiceServer(repo *repository.AccountGroupRepository, enforcer *authz.Enforcer) gen.AccountGroupServiceServer {
+	return &accountGroupServiceServer{repo: repo, enforcer: enforcer}
 }
 
 func (s *accountGroupServiceServer) GetAccountGroup(ctx context.Context, req *gen.GetAccountGroupRequest) (*gen.AccountGroup, error) {
@@ -43,6 +45,10 @@ func (s *accountGroupServiceServer) GetAccountGroup(ctx context.Context, req *ge
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountGroupName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionRead, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	m, err := s.repo.GetByResourceName(ctx, n.Organization, n.AccountGroup)
@@ -66,6 +72,10 @@ func (s *accountGroupServiceServer) ListAccountGroups(ctx context.Context, req *
 
 	if err := orgN.UnmarshalString(req.Parent); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionRead, orgN.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	orgID, err := uuid.Parse(orgN.Organization)
@@ -130,6 +140,10 @@ func (s *accountGroupServiceServer) CreateAccountGroup(ctx context.Context, req 
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionCreate, pn.Organization); err != nil {
+		return nil, authError(err)
+	}
+
 	orgID, err := uuid.Parse(pn.Organization)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
@@ -165,6 +179,10 @@ func (s *accountGroupServiceServer) UpdateAccountGroup(ctx context.Context, req 
 
 	if err := n.UnmarshalString(req.AccountGroup.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountGroupName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionUpdate, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	orgID, err := uuid.Parse(n.Organization)
@@ -205,6 +223,10 @@ func (s *accountGroupServiceServer) DeleteAccountGroup(ctx context.Context, req 
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountGroupName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionDelete, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	orgID, err := uuid.Parse(n.Organization)

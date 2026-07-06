@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
+	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
@@ -26,13 +27,15 @@ type budgetActualAccountValueServiceServer struct {
 	gen.UnimplementedBudgetActualAccountValueServiceServer
 	repo       *repository.BudgetActualAccountValueRepository
 	budgetRepo *repository.BudgetRepository
+	enforcer   *authz.Enforcer
 }
 
 func newBudgetActualAccountValueServiceServer(
 	repo *repository.BudgetActualAccountValueRepository,
 	budgetRepo *repository.BudgetRepository,
+	enforcer *authz.Enforcer,
 ) gen.BudgetActualAccountValueServiceServer {
-	return &budgetActualAccountValueServiceServer{repo: repo, budgetRepo: budgetRepo}
+	return &budgetActualAccountValueServiceServer{repo: repo, budgetRepo: budgetRepo, enforcer: enforcer}
 }
 
 func (s *budgetActualAccountValueServiceServer) GetBudgetActualAccountValue(ctx context.Context, req *gen.GetBudgetActualAccountValueRequest) (*gen.BudgetActualAccountValue, error) {
@@ -40,6 +43,10 @@ func (s *budgetActualAccountValueServiceServer) GetBudgetActualAccountValue(ctx 
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidActualAccountValueName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	orgID, err := uuid.Parse(n.Organization)
@@ -71,6 +78,10 @@ func (s *budgetActualAccountValueServiceServer) ListBudgetActualAccountValues(ct
 
 	if err := pn.UnmarshalString(req.Parent); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetForActual}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, pn.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	orgID, err := uuid.Parse(pn.Organization)

@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
+	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
@@ -39,11 +40,12 @@ var (
 
 type budgetAccountValueServiceServer struct {
 	gen.UnimplementedBudgetAccountValueServiceServer
-	repo *repository.BudgetAccountValueRepository
+	repo     *repository.BudgetAccountValueRepository
+	enforcer *authz.Enforcer
 }
 
-func newBudgetAccountValueServiceServer(repo *repository.BudgetAccountValueRepository) gen.BudgetAccountValueServiceServer {
-	return &budgetAccountValueServiceServer{repo: repo}
+func newBudgetAccountValueServiceServer(repo *repository.BudgetAccountValueRepository, enforcer *authz.Enforcer) gen.BudgetAccountValueServiceServer {
+	return &budgetAccountValueServiceServer{repo: repo, enforcer: enforcer}
 }
 
 func (s *budgetAccountValueServiceServer) CreateBudgetAccountValue(ctx context.Context, req *gen.CreateBudgetAccountValueRequest) (*gen.BudgetAccountValue, error) {
@@ -55,6 +57,10 @@ func (s *budgetAccountValueServiceServer) CreateBudgetAccountValue(ctx context.C
 
 	if err := pn.UnmarshalString(req.Parent); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionCreate, pn.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	orgID, err := uuid.Parse(pn.Organization)
@@ -113,6 +119,10 @@ func (s *budgetAccountValueServiceServer) GetBudgetAccountValue(ctx context.Cont
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountValueName}
 	}
 
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, n.Organization); err != nil {
+		return nil, authError(err)
+	}
+
 	id, err := uuid.Parse(n.AccountValue)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountValueName}
@@ -135,6 +145,10 @@ func (s *budgetAccountValueServiceServer) ListBudgetAccountValues(ctx context.Co
 
 	if err := pn.UnmarshalString(req.Parent); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, pn.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	orgID, err := uuid.Parse(pn.Organization)
@@ -202,6 +216,10 @@ func (s *budgetAccountValueServiceServer) UpdateBudgetAccountValue(ctx context.C
 
 	if err := n.UnmarshalString(req.AccountValue.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountValueName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionUpdate, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	id, err := uuid.Parse(n.AccountValue)
@@ -285,6 +303,10 @@ func (s *budgetAccountValueServiceServer) BatchUpdateBudgetAccountValues(ctx con
 		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetName}
 	}
 
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionUpdate, pn.Organization); err != nil {
+		return nil, authError(err)
+	}
+
 	orgID, err := uuid.Parse(pn.Organization)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetName}
@@ -348,6 +370,10 @@ func (s *budgetAccountValueServiceServer) DeleteBudgetAccountValue(ctx context.C
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountValueName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionDelete, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	id, err := uuid.Parse(n.AccountValue)

@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
+	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
@@ -23,11 +24,12 @@ var (
 
 type accountGroupAssignmentServiceServer struct {
 	gen.UnimplementedAccountGroupAssignmentServiceServer
-	repo *repository.AccountGroupAssignmentRepository
+	repo     *repository.AccountGroupAssignmentRepository
+	enforcer *authz.Enforcer
 }
 
-func newAccountGroupAssignmentServiceServer(repo *repository.AccountGroupAssignmentRepository) gen.AccountGroupAssignmentServiceServer {
-	return &accountGroupAssignmentServiceServer{repo: repo}
+func newAccountGroupAssignmentServiceServer(repo *repository.AccountGroupAssignmentRepository, enforcer *authz.Enforcer) gen.AccountGroupAssignmentServiceServer {
+	return &accountGroupAssignmentServiceServer{repo: repo, enforcer: enforcer}
 }
 
 func (s *accountGroupAssignmentServiceServer) GetAccountGroupAssignment(ctx context.Context, req *gen.GetAccountGroupAssignmentRequest) (*gen.AccountGroupAssignment, error) {
@@ -35,6 +37,10 @@ func (s *accountGroupAssignmentServiceServer) GetAccountGroupAssignment(ctx cont
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidAssignmentName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionRead, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	assignID, err := uuid.Parse(n.Assignment)
@@ -59,6 +65,10 @@ func (s *accountGroupAssignmentServiceServer) ListAccountGroupAssignments(ctx co
 
 	if err := pn.UnmarshalString(req.Parent); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParentAccountGroupName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionRead, pn.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	groupID, err := uuid.Parse(pn.AccountGroup)
@@ -119,6 +129,10 @@ func (s *accountGroupAssignmentServiceServer) CreateAccountGroupAssignment(ctx c
 		return nil, &ServerError{Err: err, Status: statusInvalidParentAccountGroupName}
 	}
 
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionCreate, pn.Organization); err != nil {
+		return nil, authError(err)
+	}
+
 	groupID, err := uuid.Parse(pn.AccountGroup)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParentAccountGroupName}
@@ -169,6 +183,10 @@ func (s *accountGroupAssignmentServiceServer) UpdateAccountGroupAssignment(ctx c
 		return nil, &ServerError{Err: err, Status: statusInvalidAssignmentName}
 	}
 
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionUpdate, n.Organization); err != nil {
+		return nil, authError(err)
+	}
+
 	assignID, err := uuid.Parse(n.Assignment)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidAssignmentName}
@@ -205,6 +223,10 @@ func (s *accountGroupAssignmentServiceServer) DeleteAccountGroupAssignment(ctx c
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidAssignmentName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionDelete, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	assignID, err := uuid.Parse(n.Assignment)

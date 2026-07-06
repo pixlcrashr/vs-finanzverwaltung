@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
+	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
@@ -25,11 +26,12 @@ var (
 
 type budgetRevisionAccountValueServiceServer struct {
 	gen.UnimplementedBudgetRevisionAccountValueServiceServer
-	repo *repository.BudgetRevisionAccountValueRepository
+	repo     *repository.BudgetRevisionAccountValueRepository
+	enforcer *authz.Enforcer
 }
 
-func newBudgetRevisionAccountValueServiceServer(repo *repository.BudgetRevisionAccountValueRepository) gen.BudgetRevisionAccountValueServiceServer {
-	return &budgetRevisionAccountValueServiceServer{repo: repo}
+func newBudgetRevisionAccountValueServiceServer(repo *repository.BudgetRevisionAccountValueRepository, enforcer *authz.Enforcer) gen.BudgetRevisionAccountValueServiceServer {
+	return &budgetRevisionAccountValueServiceServer{repo: repo, enforcer: enforcer}
 }
 
 func (s *budgetRevisionAccountValueServiceServer) GetBudgetRevisionAccountValue(ctx context.Context, req *gen.GetBudgetRevisionAccountValueRequest) (*gen.BudgetRevisionAccountValue, error) {
@@ -37,6 +39,10 @@ func (s *budgetRevisionAccountValueServiceServer) GetBudgetRevisionAccountValue(
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidBudgetRevisionAccountValueName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	id, err := uuid.Parse(n.AccountValue)
@@ -61,6 +67,10 @@ func (s *budgetRevisionAccountValueServiceServer) ListBudgetRevisionAccountValue
 
 	if err := pn.UnmarshalString(req.Parent); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParentRevisionName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, pn.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	revisionID, err := uuid.Parse(pn.Revision)

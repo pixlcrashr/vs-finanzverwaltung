@@ -31,6 +31,7 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 	_user.Email = field.NewString(tableName, "email")
 	_user.Name = field.NewString(tableName, "name")
 	_user.Picture = field.NewString(tableName, "picture")
+	_user.PasswordHash = field.NewString(tableName, "password_hash")
 	_user.CreatedAt = field.NewTime(tableName, "created_at")
 	_user.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_user.UserIdentities = userHasManyUserIdentities{
@@ -65,6 +66,7 @@ type user struct {
 	Email          field.String
 	Name           field.String
 	Picture        field.String
+	PasswordHash   field.String
 	CreatedAt      field.Time
 	UpdatedAt      field.Time
 	UserIdentities userHasManyUserIdentities
@@ -88,6 +90,7 @@ func (u *user) updateTableName(table string) *user {
 	u.Email = field.NewString(table, "email")
 	u.Name = field.NewString(table, "name")
 	u.Picture = field.NewString(table, "picture")
+	u.PasswordHash = field.NewString(table, "password_hash")
 	u.CreatedAt = field.NewTime(table, "created_at")
 	u.UpdatedAt = field.NewTime(table, "updated_at")
 
@@ -114,11 +117,12 @@ func (u *user) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *user) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 7)
+	u.fieldMap = make(map[string]field.Expr, 8)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["email"] = u.Email
 	u.fieldMap["name"] = u.Name
 	u.fieldMap["picture"] = u.Picture
+	u.fieldMap["password_hash"] = u.PasswordHash
 	u.fieldMap["created_at"] = u.CreatedAt
 	u.fieldMap["updated_at"] = u.UpdatedAt
 

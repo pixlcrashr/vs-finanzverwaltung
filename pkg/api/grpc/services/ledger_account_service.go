@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
+	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
@@ -30,11 +31,12 @@ var (
 
 type ledgerAccountServiceServer struct {
 	gen.UnimplementedLedgerAccountServiceServer
-	repo *repository.LedgerAccountRepository
+	repo     *repository.LedgerAccountRepository
+	enforcer *authz.Enforcer
 }
 
-func newLedgerAccountServiceServer(repo *repository.LedgerAccountRepository) gen.LedgerAccountServiceServer {
-	return &ledgerAccountServiceServer{repo: repo}
+func newLedgerAccountServiceServer(repo *repository.LedgerAccountRepository, enforcer *authz.Enforcer) gen.LedgerAccountServiceServer {
+	return &ledgerAccountServiceServer{repo: repo, enforcer: enforcer}
 }
 
 func (s *ledgerAccountServiceServer) GetLedgerAccount(ctx context.Context, req *gen.GetLedgerAccountRequest) (*gen.LedgerAccount, error) {
@@ -42,6 +44,10 @@ func (s *ledgerAccountServiceServer) GetLedgerAccount(ctx context.Context, req *
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidLedgerAccountName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceJournal, authz.ActionRead, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	orgID, err := uuid.Parse(n.Organization)
@@ -67,6 +73,10 @@ func (s *ledgerAccountServiceServer) ListLedgerAccounts(ctx context.Context, req
 
 	if err := pn.UnmarshalString(req.Parent); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceJournal, authz.ActionRead, pn.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	c, err := svcfilter.ParseLedgerAccountFilter(req.Filter)
@@ -125,6 +135,10 @@ func (s *ledgerAccountServiceServer) UpdateLedgerAccount(ctx context.Context, re
 		return nil, &ServerError{Err: err, Status: statusInvalidLedgerAccountName}
 	}
 
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceJournal, authz.ActionUpdate, n.Organization); err != nil {
+		return nil, authError(err)
+	}
+
 	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidOrganizationInLedgerAccountName}
@@ -165,6 +179,10 @@ func (s *ledgerAccountServiceServer) DeleteLedgerAccount(ctx context.Context, re
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidLedgerAccountName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceJournal, authz.ActionDelete, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	orgID, err := uuid.Parse(n.Organization)

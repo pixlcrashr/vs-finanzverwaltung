@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
+	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
@@ -29,15 +30,18 @@ type budgetRevisionServiceServer struct {
 	gen.UnimplementedBudgetRevisionServiceServer
 	repo       *repository.BudgetRevisionRepository
 	budgetRepo *repository.BudgetRepository
+	enforcer   *authz.Enforcer
 }
 
 func newBudgetRevisionServiceServer(
 	repo *repository.BudgetRevisionRepository,
 	budgetRepo *repository.BudgetRepository,
+	enforcer *authz.Enforcer,
 ) gen.BudgetRevisionServiceServer {
 	return &budgetRevisionServiceServer{
 		repo:       repo,
 		budgetRepo: budgetRepo,
+		enforcer:   enforcer,
 	}
 }
 
@@ -46,6 +50,10 @@ func (s *budgetRevisionServiceServer) GetBudgetRevision(ctx context.Context, req
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidBudgetRevisionName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	revisionID, err := uuid.Parse(n.Revision)
@@ -70,6 +78,10 @@ func (s *budgetRevisionServiceServer) ListBudgetRevisions(ctx context.Context, r
 
 	if err := pn.UnmarshalString(req.Parent); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetRevisionName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, pn.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	budgetID, err := uuid.Parse(pn.Budget)
@@ -121,6 +133,10 @@ func (s *budgetRevisionServiceServer) CreateBudgetRevision(ctx context.Context, 
 
 	if err := pn.UnmarshalString(req.Parent); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetRevisionName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionCreate, pn.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	budgetID, err := uuid.Parse(pn.Budget)

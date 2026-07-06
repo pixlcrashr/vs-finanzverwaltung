@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
+	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
@@ -33,11 +34,12 @@ var (
 
 type organizationServiceServer struct {
 	gen.UnimplementedOrganizationServiceServer
-	repo *repository.OrganizationRepository
+	repo     *repository.OrganizationRepository
+	enforcer *authz.Enforcer
 }
 
-func newOrganizationServiceServer(repo *repository.OrganizationRepository) gen.OrganizationServiceServer {
-	return &organizationServiceServer{repo: repo}
+func newOrganizationServiceServer(repo *repository.OrganizationRepository, enforcer *authz.Enforcer) gen.OrganizationServiceServer {
+	return &organizationServiceServer{repo: repo, enforcer: enforcer}
 }
 
 func (s *organizationServiceServer) GetOrganization(ctx context.Context, req *gen.GetOrganizationRequest) (*gen.Organization, error) {
@@ -45,6 +47,10 @@ func (s *organizationServiceServer) GetOrganization(ctx context.Context, req *ge
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidOrganizationName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceOrganizations, authz.ActionRead, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	m, err := s.repo.GetByResourceName(ctx, n.Organization)
@@ -60,6 +66,10 @@ func (s *organizationServiceServer) GetOrganization(ctx context.Context, req *ge
 }
 
 func (s *organizationServiceServer) ListOrganizations(ctx context.Context, req *gen.ListOrganizationsRequest) (*gen.ListOrganizationsResponse, error) {
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceOrganizations, authz.ActionRead, authz.GlobalDomain); err != nil {
+		return nil, authError(err)
+	}
+
 	c, err := svcfilter.ParseOrganizationFilter(req.Filter)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidFilter}
@@ -109,6 +119,10 @@ func (s *organizationServiceServer) CreateOrganization(ctx context.Context, req 
 		return nil, &ServerError{Status: statusOrganizationRequired}
 	}
 
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceOrganizations, authz.ActionCreate, authz.GlobalDomain); err != nil {
+		return nil, authError(err)
+	}
+
 	m, err := s.repo.Create(ctx, repository.CreateOrganizationParams{
 		DisplayName: req.Organization.DisplayName,
 		StartMonth:  time.Month(req.Organization.StartMonth),
@@ -134,6 +148,10 @@ func (s *organizationServiceServer) UpdateOrganization(ctx context.Context, req 
 
 	if err := n.UnmarshalString(req.Organization.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidOrganizationName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceOrganizations, authz.ActionUpdate, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	id, err := uuid.Parse(n.Organization)
@@ -173,6 +191,10 @@ func (s *organizationServiceServer) CheckOrganizationId(ctx context.Context, req
 		return nil, &ServerError{Status: statusOrganizationIDRequired}
 	}
 
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceOrganizations, authz.ActionRead, authz.GlobalDomain); err != nil {
+		return nil, authError(err)
+	}
+
 	exists, err := s.repo.ExistsByCustomID(ctx, req.OrganizationId)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusFailedCheckOrganization}
@@ -186,6 +208,10 @@ func (s *organizationServiceServer) DeleteOrganization(ctx context.Context, req 
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidOrganizationName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceOrganizations, authz.ActionDelete, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	id, err := uuid.Parse(n.Organization)

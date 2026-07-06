@@ -8,12 +8,13 @@ import (
 )
 
 type User struct {
-	ID             uuid.UUID `gorm:"type:uuid;primaryKey"`
-	Email          string    `gorm:"not null;uniqueIndex;index:idx_users_email"`
-	Name           string    `gorm:"not null"`
-	Picture        *string   `gorm:"default:null"`
-	CreatedAt      time.Time `gorm:"not null;default:now()"`
-	UpdatedAt      time.Time `gorm:"not null;default:now()"`
+	ID           uuid.UUID `gorm:"type:uuid;primaryKey"`
+	Email        string    `gorm:"not null;uniqueIndex;index:idx_users_email"`
+	Name         string    `gorm:"not null"`
+	Picture      *string   `gorm:"default:null"`
+	PasswordHash *string   `gorm:"default:null"`
+	CreatedAt    time.Time `gorm:"not null;default:now()"`
+	UpdatedAt    time.Time `gorm:"not null;default:now()"`
 
 	// Relations
 	UserIdentities []UserIdentity `gorm:"foreignKey:UserID"`

@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
+	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
@@ -31,11 +32,12 @@ var (
 
 type reportTemplateServiceServer struct {
 	gen.UnimplementedReportTemplateServiceServer
-	repo *repository.ReportTemplateRepository
+	repo     *repository.ReportTemplateRepository
+	enforcer *authz.Enforcer
 }
 
-func newReportTemplateServiceServer(repo *repository.ReportTemplateRepository) gen.ReportTemplateServiceServer {
-	return &reportTemplateServiceServer{repo: repo}
+func newReportTemplateServiceServer(repo *repository.ReportTemplateRepository, enforcer *authz.Enforcer) gen.ReportTemplateServiceServer {
+	return &reportTemplateServiceServer{repo: repo, enforcer: enforcer}
 }
 
 func (s *reportTemplateServiceServer) GetReportTemplate(ctx context.Context, req *gen.GetReportTemplateRequest) (*gen.ReportTemplate, error) {
@@ -43,6 +45,10 @@ func (s *reportTemplateServiceServer) GetReportTemplate(ctx context.Context, req
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidReportTemplateName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceReportTemplates, authz.ActionRead, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	id, err := uuid.Parse(n.ReportTemplate)
@@ -67,6 +73,10 @@ func (s *reportTemplateServiceServer) ListReportTemplates(ctx context.Context, r
 
 	if err := pn.UnmarshalString(req.Parent); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceReportTemplates, authz.ActionRead, pn.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	c, err := svcfilter.ParseReportTemplateFilter(req.Filter)
@@ -125,6 +135,10 @@ func (s *reportTemplateServiceServer) CreateReportTemplate(ctx context.Context, 
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceReportTemplates, authz.ActionCreate, pn.Organization); err != nil {
+		return nil, authError(err)
+	}
+
 	orgID, err := uuid.Parse(pn.Organization)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
@@ -160,6 +174,10 @@ func (s *reportTemplateServiceServer) UpdateReportTemplate(ctx context.Context, 
 
 	if err := n.UnmarshalString(req.ReportTemplate.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidReportTemplateName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceReportTemplates, authz.ActionUpdate, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	id, err := uuid.Parse(n.ReportTemplate)
@@ -199,6 +217,10 @@ func (s *reportTemplateServiceServer) DeleteReportTemplate(ctx context.Context, 
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidReportTemplateName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceReportTemplates, authz.ActionDelete, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	id, err := uuid.Parse(n.ReportTemplate)

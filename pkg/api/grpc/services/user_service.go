@@ -43,6 +43,10 @@ func (s *userServiceServer) GetUser(ctx context.Context, req *gen.GetUserRequest
 		return nil, &ServerError{Err: err, Status: statusInvalidUserName}
 	}
 
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead, authz.GlobalDomain); err != nil {
+		return nil, authError(err)
+	}
+
 	id, err := uuid.Parse(n.User)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidUserName}
@@ -60,6 +64,10 @@ func (s *userServiceServer) GetUser(ctx context.Context, req *gen.GetUserRequest
 }
 
 func (s *userServiceServer) ListUsers(ctx context.Context, req *gen.ListUsersRequest) (*gen.ListUsersResponse, error) {
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead, authz.GlobalDomain); err != nil {
+		return nil, authError(err)
+	}
+
 	c, err := filter.ParseUserFilter(req.Filter)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidFilter}
@@ -105,6 +113,10 @@ func (s *userServiceServer) ListUsers(ctx context.Context, req *gen.ListUsersReq
 }
 
 func (s *userServiceServer) CheckUserOrganizationPermissions(ctx context.Context, req *gen.CheckUserOrganizationPermissionsRequest) (*gen.CheckUserOrganizationPermissionsResponse, error) {
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead, authz.GlobalDomain); err != nil {
+		return nil, authError(err)
+	}
+
 	var un gen.UserResourceName
 	if err := un.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidUserName}
@@ -131,6 +143,10 @@ func (s *userServiceServer) CheckUserOrganizationPermissions(ctx context.Context
 }
 
 func (s *userServiceServer) BatchCheckUserOrganizationPermissions(ctx context.Context, req *gen.BatchCheckUserOrganizationPermissionsRequest) (*gen.BatchCheckUserOrganizationPermissionsResponse, error) {
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead, authz.GlobalDomain); err != nil {
+		return nil, authError(err)
+	}
+
 	var un gen.UserResourceName
 	if err := un.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidUserName}

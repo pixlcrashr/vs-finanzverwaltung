@@ -13,8 +13,10 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/api"
 	apiserv "github.com/pixlcrashr/vsfv/pkg/api/grpc"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services"
+	"github.com/pixlcrashr/vsfv/pkg/auth"
 	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db"
+	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 )
 
 var serveCmd = &cobra.Command{
@@ -43,12 +45,33 @@ incoming HTTP requests. It shuts down gracefully on SIGINT or SIGTERM.`,
 
 		svcSet := services.New(gormDB, enforcer)
 
+		// Create repositories for auth
+		userRepo := repository.NewUserRepository(gormDB)
+		identityRepo := repository.NewUserIdentityRepository(gormDB)
+		clientRepo := repository.NewOAuth2ClientRepository(gormDB)
+		tokenRepo := repository.NewOAuth2TokenRepository(gormDB)
+		sessionRepo := repository.NewAuthSessionRepository(gormDB)
+
+		// Seed default OAuth2 client
+		if err := auth.SeedDefaultClient(context.Background(), clientRepo, config.Server.PublicURL); err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: failed to seed default OAuth2 client: %v\n", err)
+		}
+
+		// Create auth server
+		authSrv, err := auth.NewServer(gormDB, config.Auth, config.Server.PublicURL, userRepo, clientRepo, tokenRepo, sessionRepo)
+		if err != nil {
+			return fmt.Errorf("creating auth server: %w", err)
+		}
+
+		// Create GitLab handler
+		gitlabHandler := auth.NewGitLabHandler(config.Auth, userRepo, identityRepo, authSrv.SessionManager())
+
 		grpcSrv, err := apiserv.NewGRPCServer(config.Server.GRPCAddress, svcSet)
 		if err != nil {
 			return fmt.Errorf("creating gRPC server: %w", err)
 		}
 
-		srv := api.New(gormDB, svcSet, config.App.Version, config.CORS)
+		srv := api.New(gormDB, svcSet, config.App.Version, config.CORS, authSrv, gitlabHandler)
 
 		fmt.Printf("Organisation: %s\n", config.App.OrganisationName)
 		fmt.Printf("Listening on %s (HTTP)\n", config.Server.Address)

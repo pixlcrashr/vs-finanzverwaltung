@@ -15,8 +15,9 @@ import (
 
 // RegisterRoutes registers the grpc-gateway HTTP/JSON transcoded routes onto
 // the given Fiber app. All gRPC service implementations are wired in-process
-// (no TCP gRPC listener is required).
-func RegisterRoutes(app *fiber.App, svc *services.Services) {
+// (no TCP gRPC listener is required). If authMiddleware is non-nil, it is
+// applied to all /api/v1/* routes for Bearer token authentication.
+func RegisterRoutes(app *fiber.App, svc *services.Services, authMiddleware func(http.Handler) http.Handler) {
 	mux := runtime.NewServeMux(
 		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
 			MarshalOptions: protojson.MarshalOptions{
@@ -51,7 +52,12 @@ func RegisterRoutes(app *fiber.App, svc *services.Services) {
 	mustRegister(gen.RegisterUserIdentityServiceHandlerServer(ctx, mux, svc.UserIdentity))
 	mustRegister(gen.RegisterGroupServiceHandlerServer(ctx, mux, svc.Group))
 
-	app.All("/api/v1/*", adaptor.HTTPHandler(http.StripPrefix("/api", http.Handler(mux))))
+	handler := http.StripPrefix("/api", http.Handler(mux))
+	if authMiddleware != nil {
+		handler = authMiddleware(handler)
+	}
+
+	app.All("/api/v1/*", adaptor.HTTPHandler(handler))
 }
 
 func mustRegister(err error) {

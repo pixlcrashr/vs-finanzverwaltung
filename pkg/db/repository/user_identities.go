@@ -79,3 +79,24 @@ func (r *UserIdentityRepository) GetByCustomID(ctx context.Context, userID uuid.
 	}
 	return m, nil
 }
+
+func (r *UserIdentityRepository) GetByProvider(ctx context.Context, provider string, providerUserID string) (*model.UserIdentity, error) {
+	m, err := r.q.UserIdentity.WithContext(ctx).Where(
+		r.q.UserIdentity.Provider.Eq(provider),
+		r.q.UserIdentity.ProviderUserID.Eq(providerUserID),
+	).First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Join(ErrUserIdentityNotFound, fmt.Errorf("provider=%s provider_user_id=%s: %w", provider, providerUserID, err))
+		}
+		return nil, fmt.Errorf("get user identity provider=%s provider_user_id=%s: %w", provider, providerUserID, err)
+	}
+	return m, nil
+}
+
+func (r *UserIdentityRepository) Create(ctx context.Context, m *model.UserIdentity) error {
+	if err := r.q.UserIdentity.WithContext(ctx).Create(m); err != nil {
+		return fmt.Errorf("create user identity: %w", err)
+	}
+	return nil
+}

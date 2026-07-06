@@ -39,6 +39,9 @@ var Models = []any{
 	&model.UserSettings{},
 	&model.UserGroup{},
 	&model.CasbinRule{},
+	&model.OAuth2Client{},
+	&model.OAuth2Token{},
+	&model.AuthSession{},
 }
 
 func AutoMigrate(db *gorm.DB) error {

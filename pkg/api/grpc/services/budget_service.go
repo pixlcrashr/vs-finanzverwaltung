@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
+	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
@@ -33,11 +34,12 @@ var (
 
 type budgetServiceServer struct {
 	gen.UnimplementedBudgetServiceServer
-	repo *repository.BudgetRepository
+	repo     *repository.BudgetRepository
+	enforcer *authz.Enforcer
 }
 
-func newBudgetServiceServer(repo *repository.BudgetRepository) gen.BudgetServiceServer {
-	return &budgetServiceServer{repo: repo}
+func newBudgetServiceServer(repo *repository.BudgetRepository, enforcer *authz.Enforcer) gen.BudgetServiceServer {
+	return &budgetServiceServer{repo: repo, enforcer: enforcer}
 }
 
 func (s *budgetServiceServer) GetBudget(ctx context.Context, req *gen.GetBudgetRequest) (*gen.Budget, error) {
@@ -45,6 +47,10 @@ func (s *budgetServiceServer) GetBudget(ctx context.Context, req *gen.GetBudgetR
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidBudgetName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	orgID, err := uuid.Parse(n.Organization)
@@ -70,6 +76,10 @@ func (s *budgetServiceServer) ListBudgets(ctx context.Context, req *gen.ListBudg
 
 	if err := pn.UnmarshalString(req.Parent); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, pn.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	orgID, err := uuid.Parse(pn.Organization)
@@ -132,6 +142,10 @@ func (s *budgetServiceServer) CreateBudget(ctx context.Context, req *gen.CreateB
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionCreate, n.Organization); err != nil {
+		return nil, authError(err)
+	}
+
 	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
@@ -177,6 +191,10 @@ func (s *budgetServiceServer) UpdateBudget(ctx context.Context, req *gen.UpdateB
 
 	if err := n.UnmarshalString(req.Budget.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidBudgetName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionUpdate, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	orgID, err := uuid.Parse(n.Organization)
@@ -227,6 +245,10 @@ func (s *budgetServiceServer) CloseBudget(ctx context.Context, req *gen.CloseBud
 		return nil, &ServerError{Err: err, Status: statusInvalidBudgetName}
 	}
 
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionUpdate, n.Organization); err != nil {
+		return nil, authError(err)
+	}
+
 	orgID, err := uuid.Parse(n.Organization)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidOrganizationInBudgetName}
@@ -264,6 +286,10 @@ func (s *budgetServiceServer) DeleteBudget(ctx context.Context, req *gen.DeleteB
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidBudgetName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionDelete, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	orgID, err := uuid.Parse(n.Organization)

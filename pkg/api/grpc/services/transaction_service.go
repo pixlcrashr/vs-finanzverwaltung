@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
+	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/theater-improrama/go-utils/optional"
@@ -32,10 +33,11 @@ type transactionServiceServer struct {
 	gen.UnimplementedTransactionServiceServer
 	repo              *repository.TransactionRepository
 	ledgerAccountRepo *repository.LedgerAccountRepository
+	enforcer          *authz.Enforcer
 }
 
-func newTransactionServiceServer(repo *repository.TransactionRepository, ledgerAccountRepo *repository.LedgerAccountRepository) gen.TransactionServiceServer {
-	return &transactionServiceServer{repo: repo, ledgerAccountRepo: ledgerAccountRepo}
+func newTransactionServiceServer(repo *repository.TransactionRepository, ledgerAccountRepo *repository.LedgerAccountRepository, enforcer *authz.Enforcer) gen.TransactionServiceServer {
+	return &transactionServiceServer{repo: repo, ledgerAccountRepo: ledgerAccountRepo, enforcer: enforcer}
 }
 
 func (s *transactionServiceServer) GetTransaction(ctx context.Context, req *gen.GetTransactionRequest) (*gen.Transaction, error) {
@@ -43,6 +45,10 @@ func (s *transactionServiceServer) GetTransaction(ctx context.Context, req *gen.
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidTransactionName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionRead, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	id, err := uuid.Parse(n.Transaction)
@@ -77,6 +83,10 @@ func (s *transactionServiceServer) ListTransactions(ctx context.Context, req *ge
 
 	if err := pn.UnmarshalString(req.Parent); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionRead, pn.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	c, err := svcfilter.ParseTransactionFilter(req.Filter)
@@ -133,6 +143,10 @@ func (s *transactionServiceServer) CreateTransaction(ctx context.Context, req *g
 
 	if err := n.UnmarshalString(req.Parent); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionCreate, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	orgID, err := uuid.Parse(n.Organization)
@@ -213,6 +227,10 @@ func (s *transactionServiceServer) UpdateTransaction(ctx context.Context, req *g
 		return nil, &ServerError{Err: err, Status: statusInvalidTransactionName}
 	}
 
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionUpdate, n.Organization); err != nil {
+		return nil, authError(err)
+	}
+
 	id, err := uuid.Parse(n.Transaction)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidTransactionName}
@@ -269,6 +287,10 @@ func (s *transactionServiceServer) DeleteTransaction(ctx context.Context, req *g
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidTransactionName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionDelete, n.Organization); err != nil {
+		return nil, authError(err)
 	}
 
 	id, err := uuid.Parse(n.Transaction)

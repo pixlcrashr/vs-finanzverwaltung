@@ -6,6 +6,7 @@ import (
 
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
+	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
@@ -31,17 +32,22 @@ var (
 
 type groupServiceServer struct {
 	gen.UnimplementedGroupServiceServer
-	repo *repository.UserGroupRepository
+	repo     *repository.UserGroupRepository
+	enforcer *authz.Enforcer
 }
 
-func newGroupServiceServer(repo *repository.UserGroupRepository) gen.GroupServiceServer {
-	return &groupServiceServer{repo: repo}
+func newGroupServiceServer(repo *repository.UserGroupRepository, enforcer *authz.Enforcer) gen.GroupServiceServer {
+	return &groupServiceServer{repo: repo, enforcer: enforcer}
 }
 
 func (s *groupServiceServer) GetGroup(ctx context.Context, req *gen.GetGroupRequest) (*gen.Group, error) {
 	var n gen.GroupResourceName
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidGroupName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceGroups, authz.ActionRead, authz.GlobalDomain); err != nil {
+		return nil, authError(err)
 	}
 
 	m, err := s.repo.GetByCustomID(ctx, n.Group)
@@ -61,6 +67,10 @@ func (s *groupServiceServer) GetGroup(ctx context.Context, req *gen.GetGroupRequ
 }
 
 func (s *groupServiceServer) ListGroups(ctx context.Context, req *gen.ListGroupsRequest) (*gen.ListGroupsResponse, error) {
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceGroups, authz.ActionRead, authz.GlobalDomain); err != nil {
+		return nil, authError(err)
+	}
+
 	c, err := filter.ParseUserGroupFilter(req.Filter)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidFilter}
@@ -114,6 +124,10 @@ func (s *groupServiceServer) CreateGroup(ctx context.Context, req *gen.CreateGro
 		return nil, &ServerError{Status: statusGroupRequired}
 	}
 
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceGroups, authz.ActionCreate, authz.GlobalDomain); err != nil {
+		return nil, authError(err)
+	}
+
 	orgPolicies := s.parseOrgPolicies(req.Group.OrganizationPolicies)
 
 	params := repository.CreateUserGroupParams{
@@ -147,6 +161,10 @@ func (s *groupServiceServer) UpdateGroup(ctx context.Context, req *gen.UpdateGro
 	var n gen.GroupResourceName
 	if err := n.UnmarshalString(req.Group.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidGroupName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceGroups, authz.ActionUpdate, authz.GlobalDomain); err != nil {
+		return nil, authError(err)
 	}
 
 	m, err := s.repo.GetByCustomID(ctx, n.Group)
@@ -192,6 +210,10 @@ func (s *groupServiceServer) DeleteGroup(ctx context.Context, req *gen.DeleteGro
 	var n gen.GroupResourceName
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidGroupName}
+	}
+
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceGroups, authz.ActionDelete, authz.GlobalDomain); err != nil {
+		return nil, authError(err)
 	}
 
 	m, err := s.repo.GetByCustomID(ctx, n.Group)

@@ -19,6 +19,16 @@ func Connect(dsn string) (*gorm.DB, error) {
 	return db, nil
 }
 
+func ConnectSilent(dsn string) (*gorm.DB, error) {
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
+	}
+	return db, nil
+}
+
 var Models = []any{
 	&model.AccountGroupAssignment{},
 	&model.AccountGroup{},

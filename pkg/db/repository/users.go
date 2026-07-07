@@ -118,6 +118,23 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*model.U
 	return m, nil
 }
 
+func (r *UserRepository) GetByName(ctx context.Context, name string, isCaseInsensitive bool) (*model.User, error) {
+	var m *model.User
+	var err error
+	if isCaseInsensitive {
+		err = r.db.WithContext(ctx).Where("LOWER(name) = LOWER(?)", name).First(&m).Error
+	} else {
+		m, err = r.q.User.WithContext(ctx).Where(r.q.User.Name.Eq(name)).First()
+	}
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Join(ErrUserNotFound, fmt.Errorf("name=%s: %w", name, err))
+		}
+		return nil, fmt.Errorf("get user name=%s: %w", name, err)
+	}
+	return m, nil
+}
+
 type CreateUserWithPasswordParams struct {
 	Email    string
 	Name     string

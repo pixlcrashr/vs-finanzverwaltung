@@ -9,12 +9,11 @@ import (
 )
 
 type Config struct {
-	Server   Server   `mapstructure:"server"`
-	Database Database `mapstructure:"database"`
-	Auth     Auth     `mapstructure:"auth"`
-	Html2Pdf Html2Pdf `mapstructure:"html2pdf"`
-	App      App      `mapstructure:"app"`
-	CORS     CORS     `mapstructure:"cors"`
+	Server    Server    `mapstructure:"server"`
+	Database  Database  `mapstructure:"database"`
+	Auth      Auth      `mapstructure:"auth"`
+	Gotenberg Gotenberg `mapstructure:"gotenberg"`
+	CORS      CORS      `mapstructure:"cors"`
 }
 
 type Server struct {
@@ -52,13 +51,8 @@ type JWKSConfig struct {
 	KeyFiles []string `mapstructure:"key-files"`
 }
 
-type Html2Pdf struct {
+type Gotenberg struct {
 	URL string `mapstructure:"url"`
-}
-
-type App struct {
-	OrganisationName string `mapstructure:"organisation-name"`
-	Version          string `mapstructure:"version"`
 }
 
 type CORS struct {
@@ -88,8 +82,7 @@ func Load(cfgFile string) (*Config, error) {
 
 	viper.SetDefault("server.addr", "127.0.0.1:8080")
 	viper.SetDefault("server.grpc-addr", "127.0.0.1:9090")
-	viper.SetDefault("html2pdf.url", "http://127.0.0.1:8082")
-	viper.SetDefault("app.version", "dev")
+	viper.SetDefault("gotenberg.url", "http://127.0.0.1:3000")
 	viper.SetDefault("cors.enabled", false)
 	viper.SetDefault("cors.allow-origins", []string{"*"})
 	viper.SetDefault("cors.allow-methods", []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"})

@@ -19,7 +19,9 @@ import (
 // KeyManager holds the private and public JWKS used for signing and publishing
 // OIDC tokens (ID tokens).
 type KeyManager struct {
-	// privateJWKS contains the private keys; passed to fosite for signing.
+	// signingKey is the first private key, passed to fosite for signing.
+	signingKey interface{}
+	// privateJWKS contains the private keys.
 	privateJWKS *jose.JSONWebKeySet
 	// publicJWKS contains only public keys; served at /.well-known/jwks.json.
 	publicJWKS *jose.JSONWebKeySet
@@ -29,47 +31,75 @@ type KeyManager struct {
 
 // LoadKeys reads PEM files from the config and builds a KeyManager.
 func LoadKeys(jwksCfg cfg.JWKSConfig) (*KeyManager, error) {
-	if len(jwksCfg.KeyFiles) == 0 {
-		return nil, fmt.Errorf("no JWKS key files configured (auth.jwks.key-files is empty)")
-	}
-
 	privateJWKS := &jose.JSONWebKeySet{}
 	publicJWKS := &jose.JSONWebKeySet{}
 	algSet := map[string]bool{}
 
-	for _, path := range jwksCfg.KeyFiles {
-		pemData, err := os.ReadFile(path)
+	if len(jwksCfg.KeyFiles) == 0 {
+		// Auto-generate one RSA 2048 and one EC P-256 key.
+		rsaKey, err := rsa.GenerateKey(rand.Reader, 2048)
 		if err != nil {
-			return nil, fmt.Errorf("reading key file %s: %w", path, err)
+			return nil, fmt.Errorf("generating RSA key: %w", err)
 		}
 
-		key, err := parsePEMKey(pemData)
+		ecKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 		if err != nil {
-			return nil, fmt.Errorf("parsing key file %s: %w", path, err)
+			return nil, fmt.Errorf("generating EC key: %w", err)
 		}
 
-		alg, err := algorithmForKey(key)
-		if err != nil {
-			return nil, fmt.Errorf("determining algorithm for key file %s: %w", path, err)
+		for _, key := range []interface{}{rsaKey, ecKey} {
+			alg, err := algorithmForKey(key)
+			if err != nil {
+				return nil, fmt.Errorf("determining algorithm for generated key: %w", err)
+			}
+
+			kid, err := keyIDForKey(key, alg)
+			if err != nil {
+				return nil, fmt.Errorf("computing key ID for generated key: %w", err)
+			}
+
+			privJWK := jose.JSONWebKey{
+				Key:       key,
+				KeyID:     kid,
+				Algorithm: alg,
+				Use:       "sig",
+			}
+			privateJWKS.Keys = append(privateJWKS.Keys, privJWK)
+			publicJWKS.Keys = append(publicJWKS.Keys, privJWK.Public())
+			algSet[alg] = true
 		}
+	} else {
+		for _, path := range jwksCfg.KeyFiles {
+			pemData, err := os.ReadFile(path)
+			if err != nil {
+				return nil, fmt.Errorf("reading key file %s: %w", path, err)
+			}
 
-		kid, err := keyIDForKey(key, alg)
-		if err != nil {
-			return nil, fmt.Errorf("computing key ID for file %s: %w", path, err)
+			key, err := parsePEMKey(pemData)
+			if err != nil {
+				return nil, fmt.Errorf("parsing key file %s: %w", path, err)
+			}
+
+			alg, err := algorithmForKey(key)
+			if err != nil {
+				return nil, fmt.Errorf("determining algorithm for key file %s: %w", path, err)
+			}
+
+			kid, err := keyIDForKey(key, alg)
+			if err != nil {
+				return nil, fmt.Errorf("computing key ID for file %s: %w", path, err)
+			}
+
+			privJWK := jose.JSONWebKey{
+				Key:       key,
+				KeyID:     kid,
+				Algorithm: alg,
+				Use:       "sig",
+			}
+			privateJWKS.Keys = append(privateJWKS.Keys, privJWK)
+			publicJWKS.Keys = append(publicJWKS.Keys, privJWK.Public())
+			algSet[alg] = true
 		}
-
-		privJWK := jose.JSONWebKey{
-			Key:       key,
-			KeyID:     kid,
-			Algorithm: alg,
-			Use:       "sig",
-		}
-		privateJWKS.Keys = append(privateJWKS.Keys, privJWK)
-
-		pubJWK := privJWK.Public()
-		publicJWKS.Keys = append(publicJWKS.Keys, pubJWK)
-
-		algSet[alg] = true
 	}
 
 	var algs []string
@@ -78,6 +108,7 @@ func LoadKeys(jwksCfg cfg.JWKSConfig) (*KeyManager, error) {
 	}
 
 	return &KeyManager{
+		signingKey:        privateJWKS.Keys[0].Key,
 		privateJWKS:       privateJWKS,
 		publicJWKS:        publicJWKS,
 		signingAlgorithms: algs,
@@ -87,6 +118,11 @@ func LoadKeys(jwksCfg cfg.JWKSConfig) (*KeyManager, error) {
 // PrivateJWKS returns the JSONWebKeySet containing private keys.
 func (km *KeyManager) PrivateJWKS() *jose.JSONWebKeySet {
 	return km.privateJWKS
+}
+
+// SigningKey returns the raw private key used for signing tokens.
+func (km *KeyManager) SigningKey() interface{} {
+	return km.signingKey
 }
 
 // PublicJWKS returns the JSONWebKeySet containing only public keys.

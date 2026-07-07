@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"time"
@@ -141,7 +142,7 @@ func serializeRequester(req fosite.Requester) (formData string, sessionData stri
 	return formData, sessionData, nil
 }
 
-func deserializeRequester(m *model.OAuth2Token, session fosite.Session) (fosite.Requester, error) {
+func deserializeRequester(s *Storage, m *model.OAuth2Token, session fosite.Session) (fosite.Requester, error) {
 	form, err := url.ParseQuery(m.FormData)
 	if err != nil {
 		return nil, fmt.Errorf("parse form data: %w", err)
@@ -153,7 +154,7 @@ func deserializeRequester(m *model.OAuth2Token, session fosite.Session) (fosite.
 		}
 	}
 
-	client, err := s.getClientSafe(m.ClientID)
+	client, err := s.GetClient(context.Background(), m.ClientID)
 	if err != nil {
 		return nil, err
 	}
@@ -167,14 +168,6 @@ func deserializeRequester(m *model.OAuth2Token, session fosite.Session) (fosite.
 		Form:           form,
 		Session:        session,
 	}, nil
-}
-
-// getClientSafe is a helper that won't be used directly since Storage methods
-// have access to s.clientRepo. We use a package-level approach instead.
-var s *Storage
-
-func (s *Storage) getClientSafe(clientID string) (fosite.Client, error) {
-	return s.GetClient(context.Background(), clientID)
 }
 
 // --- AccessTokenStorage ---
@@ -208,9 +201,12 @@ func (s *Storage) CreateAccessTokenSession(ctx context.Context, signature string
 func (s *Storage) GetAccessTokenSession(ctx context.Context, signature string, session fosite.Session) (fosite.Requester, error) {
 	m, err := s.tokenRepo.GetBySignature(ctx, signature, requestTypeAccessToken)
 	if err != nil {
+		if errors.Is(err, repository.ErrOAuth2TokenNotFound) {
+			return nil, fosite.ErrNotFound.WithDebug(err.Error())
+		}
 		return nil, err
 	}
-	return deserializeRequester(m, session)
+	return deserializeRequester(s, m, session)
 }
 
 func (s *Storage) DeleteAccessTokenSession(ctx context.Context, signature string) error {
@@ -219,7 +215,7 @@ func (s *Storage) DeleteAccessTokenSession(ctx context.Context, signature string
 
 // --- RefreshTokenStorage ---
 
-func (s *Storage) CreateRefreshTokenSession(ctx context.Context, signature string, req fosite.Requester) error {
+func (s *Storage) CreateRefreshTokenSession(ctx context.Context, signature string, accessSignature string, req fosite.Requester) error {
 	formData, sessionData, err := serializeRequester(req)
 	if err != nil {
 		return err
@@ -248,9 +244,12 @@ func (s *Storage) CreateRefreshTokenSession(ctx context.Context, signature strin
 func (s *Storage) GetRefreshTokenSession(ctx context.Context, signature string, session fosite.Session) (fosite.Requester, error) {
 	m, err := s.tokenRepo.GetBySignature(ctx, signature, requestTypeRefreshToken)
 	if err != nil {
+		if errors.Is(err, repository.ErrOAuth2TokenNotFound) {
+			return nil, fosite.ErrNotFound.WithDebug(err.Error())
+		}
 		return nil, err
 	}
-	return deserializeRequester(m, session)
+	return deserializeRequester(s, m, session)
 }
 
 func (s *Storage) DeleteRefreshTokenSession(ctx context.Context, signature string) error {
@@ -288,9 +287,12 @@ func (s *Storage) CreateAuthorizeCodeSession(ctx context.Context, code string, r
 func (s *Storage) GetAuthorizeCodeSession(ctx context.Context, code string, session fosite.Session) (fosite.Requester, error) {
 	m, err := s.tokenRepo.GetBySignature(ctx, code, requestTypeAuthorizeCode)
 	if err != nil {
+		if errors.Is(err, repository.ErrOAuth2TokenNotFound) {
+			return nil, fosite.ErrNotFound.WithDebug(err.Error())
+		}
 		return nil, err
 	}
-	return deserializeRequester(m, session)
+	return deserializeRequester(s, m, session)
 }
 
 func (s *Storage) InvalidateAuthorizeCodeSession(ctx context.Context, code string) error {
@@ -306,11 +308,13 @@ func (s *Storage) CreatePKCERequestSession(ctx context.Context, code string, req
 	}
 
 	_, err = s.tokenRepo.Create(ctx, repository.CreateOAuth2TokenParams{
-		Signature:   code,
-		RequestType: requestTypePKCERequest,
-		ClientID:    req.GetClient().GetID(),
-		FormData:    formData,
-		SessionData: sessionData,
+		Signature:    code,
+		RequestType:  requestTypePKCERequest,
+		ClientID:     req.GetClient().GetID(),
+		Scope:        pq.StringArray(req.GetRequestedScopes()),
+		GrantedScope: pq.StringArray(req.GetGrantedScopes()),
+		FormData:     formData,
+		SessionData:  sessionData,
 	})
 	return err
 }
@@ -318,9 +322,12 @@ func (s *Storage) CreatePKCERequestSession(ctx context.Context, code string, req
 func (s *Storage) GetPKCERequestSession(ctx context.Context, code string, session fosite.Session) (fosite.Requester, error) {
 	m, err := s.tokenRepo.GetBySignature(ctx, code, requestTypePKCERequest)
 	if err != nil {
+		if errors.Is(err, repository.ErrOAuth2TokenNotFound) {
+			return nil, fosite.ErrNotFound.WithDebug(err.Error())
+		}
 		return nil, err
 	}
-	return deserializeRequester(m, session)
+	return deserializeRequester(s, m, session)
 }
 
 func (s *Storage) DeletePKCERequestSession(ctx context.Context, code string) error {
@@ -336,11 +343,13 @@ func (s *Storage) CreateOpenIDConnectSession(ctx context.Context, authorizeCode 
 	}
 
 	_, err = s.tokenRepo.Create(ctx, repository.CreateOAuth2TokenParams{
-		Signature:   authorizeCode,
-		RequestType: requestTypeOIDCSession,
-		ClientID:    req.GetClient().GetID(),
-		FormData:    formData,
-		SessionData: sessionData,
+		Signature:    authorizeCode,
+		RequestType:  requestTypeOIDCSession,
+		ClientID:     req.GetClient().GetID(),
+		Scope:        pq.StringArray(req.GetRequestedScopes()),
+		GrantedScope: pq.StringArray(req.GetGrantedScopes()),
+		FormData:     formData,
+		SessionData:  sessionData,
 	})
 	return err
 }
@@ -348,9 +357,12 @@ func (s *Storage) CreateOpenIDConnectSession(ctx context.Context, authorizeCode 
 func (s *Storage) GetOpenIDConnectSession(ctx context.Context, authorizeCode string, req fosite.Requester) (fosite.Requester, error) {
 	m, err := s.tokenRepo.GetBySignature(ctx, authorizeCode, requestTypeOIDCSession)
 	if err != nil {
+		if errors.Is(err, repository.ErrOAuth2TokenNotFound) {
+			return nil, fosite.ErrNotFound.WithDebug(err.Error())
+		}
 		return nil, err
 	}
-	return deserializeRequester(m, req.GetSession())
+	return deserializeRequester(s, m, req.GetSession())
 }
 
 func (s *Storage) DeleteOpenIDConnectSession(ctx context.Context, authorizeCode string) error {
@@ -422,7 +434,10 @@ func (s *Storage) MarkJWTUsedForTime(ctx context.Context, jti string, exp time.T
 func (s *Storage) Authenticate(ctx context.Context, name string, secret string) (subject string, err error) {
 	user, err := s.userRepo.GetByEmail(ctx, name)
 	if err != nil {
-		return "", fosite.ErrNotFound.WithDebug("user not found")
+		user, err = s.userRepo.GetByName(ctx, name, true)
+		if err != nil {
+			return "", fosite.ErrNotFound.WithDebug("user not found")
+		}
 	}
 
 	if user.PasswordHash == nil {

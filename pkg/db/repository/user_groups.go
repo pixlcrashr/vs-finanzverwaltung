@@ -19,6 +19,7 @@ import (
 var (
 	ErrUserGroupNotFound      = errors.New("user group not found")
 	ErrUserGroupAlreadyExists = errors.New("user group already exists")
+	ErrUserGroupIsSystem      = errors.New("user group is a system group and cannot be modified")
 )
 
 var UserGroupOrderFieldMapper = order.FieldMapper{
@@ -162,6 +163,10 @@ func (r *UserGroupRepository) Update(ctx context.Context, id uuid.UUID, params U
 		return err
 	}
 
+	if m.IsSystem {
+		return errors.Join(ErrUserGroupIsSystem, fmt.Errorf("id=%s", id))
+	}
+
 	if params.DisplayName.IsSet {
 		m.Name = params.DisplayName.Value
 	}
@@ -184,6 +189,15 @@ func (r *UserGroupRepository) Update(ctx context.Context, id uuid.UUID, params U
 }
 
 func (r *UserGroupRepository) Delete(ctx context.Context, id uuid.UUID) error {
+	m, err := r.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if m.IsSystem {
+		return errors.Join(ErrUserGroupIsSystem, fmt.Errorf("id=%s", id))
+	}
+
 	result, err := r.q.UserGroup.WithContext(ctx).Where(r.q.UserGroup.ID.Eq(id)).Delete()
 	if err != nil {
 		return fmt.Errorf("delete user group id=%s: %w", id, err)

@@ -43,6 +43,11 @@ incoming HTTP requests. It shuts down gracefully on SIGINT or SIGTERM.`,
 			return fmt.Errorf("creating casbin enforcer: %w", err)
 		}
 
+		// Seed admin system group and sync its wildcard policy
+		if err := authz.SeedAdminGroup(context.Background(), gormDB, enforcer); err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: failed to seed admin group: %v\n", err)
+		}
+
 		svcSet := services.New(gormDB, enforcer)
 
 		// Create repositories for auth
@@ -71,9 +76,8 @@ incoming HTTP requests. It shuts down gracefully on SIGINT or SIGTERM.`,
 			return fmt.Errorf("creating gRPC server: %w", err)
 		}
 
-		srv := api.New(gormDB, svcSet, config.App.Version, config.CORS, authSrv, gitlabHandler)
+		srv := api.New(gormDB, svcSet, "dev", config.CORS, authSrv, gitlabHandler)
 
-		fmt.Printf("Organisation: %s\n", config.App.OrganisationName)
 		fmt.Printf("Listening on %s (HTTP)\n", config.Server.Address)
 		fmt.Printf("Listening on %s (gRPC)\n", grpcSrv.Addr())
 

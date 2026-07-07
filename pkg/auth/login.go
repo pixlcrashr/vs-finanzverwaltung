@@ -11,7 +11,7 @@ import (
 )
 
 type loginRequest struct {
-	Email    string `json:"email"`
+	Login    string `json:"login"`
 	Password string `json:"password"`
 }
 
@@ -25,13 +25,17 @@ func (s *Server) LoginHandler(c *fiber.Ctx) error {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "invalid_request", "error_description": "cannot parse request body"})
 	}
 
-	if req.Email == "" || req.Password == "" {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "invalid_request", "error_description": "email and password are required"})
+	if req.Login == "" || req.Password == "" {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "invalid_request", "error_description": "login and password are required"})
 	}
 
-	user, err := s.userRepo.GetByEmail(c.Context(), req.Email)
+	// Try email first, then name
+	user, err := s.userRepo.GetByEmail(c.Context(), req.Login)
 	if err != nil {
-		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "invalid_credentials", "error_description": "invalid email or password"})
+		user, err = s.userRepo.GetByName(c.Context(), req.Login, true)
+		if err != nil {
+			return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "invalid_credentials", "error_description": "invalid login or password"})
+		}
 	}
 
 	if user.PasswordHash == nil {
@@ -39,7 +43,7 @@ func (s *Server) LoginHandler(c *fiber.Ctx) error {
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(*user.PasswordHash), []byte(req.Password)); err != nil {
-		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "invalid_credentials", "error_description": "invalid email or password"})
+		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "invalid_credentials", "error_description": "invalid login or password"})
 	}
 
 	sess, err := s.sessionMgr.CreateSession(c.Context(), user.ID)

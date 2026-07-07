@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/ory/fosite"
 	"github.com/ory/fosite/compose"
+	"github.com/ory/fosite/handler/openid"
 	"github.com/pixlcrashr/vsfv/pkg/cfg"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
@@ -55,7 +56,7 @@ func NewServer(
 		SendDebugMessagesToClients: true,
 	}
 
-	oauth2 := compose.ComposeAllEnabled(fositeConfig, storage, km.PrivateJWKS())
+	oauth2 := compose.ComposeAllEnabled(fositeConfig, storage, km.SigningKey())
 
 	return &Server{
 		oauth2:     oauth2,
@@ -243,13 +244,12 @@ func (s *Server) JWKSHandler(c *fiber.Ctx) error {
 // --- Session / User helpers ---
 
 func NewSession(user *model.User) fosite.Session {
-	s := &fosite.DefaultSession{
-		Extra: map[string]interface{}{},
-	}
+	s := openid.NewDefaultSession()
 	if user != nil {
 		s.Subject = user.ID.String()
 		s.Username = user.Email
-		s.Extra = map[string]interface{}{
+		s.Claims.Subject = user.ID.String()
+		s.Claims.Extra = map[string]interface{}{
 			"email":   user.Email,
 			"name":    user.Name,
 			"picture": derefString(user.Picture),

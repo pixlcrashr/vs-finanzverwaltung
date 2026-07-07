@@ -1,6 +1,10 @@
 server:
   # Address and port the HTTP server listens on.
   addr: "127.0.0.1:8080"
+  # Address and port for the gRPC server (reserved for future use).
+  grpc-addr: "127.0.0.1:9090"
+  # Public-facing URL of the server. Used as the OAuth2 issuer and for redirect URIs.
+  public-url: "http://127.0.0.1:8080"
 
 database:
   # PostgreSQL connection string.
@@ -9,21 +13,30 @@ database:
 auth:
   # Random secret used to sign session tokens. Generate with: openssl rand -hex 32
   secret: "change-me"
+  # Access token lifetime. Defaults to 1h.
+  token-ttl: "1h"
+  # Refresh token lifetime. Defaults to 720h (30 days).
+  refresh-ttl: "720h"
+  # Auth session lifetime (browser login session). Defaults to 24h.
+  session-ttl: "24h"
+  # JWKS key files for signing JWTs. Leave empty to auto-generate keys.
+  jwks:
+    key-files: []
+  # Password-based login (email + password). Defaults to enabled.
+  password-login:
+    enabled: true
   gitlab:
+    # Enable GitLab OAuth2 login. Defaults to false.
+    enabled: false
     # GitLab OAuth2 application credentials.
     client-id: "your-gitlab-client-id"
     client-secret: "your-gitlab-client-secret"
     # Base URL of the GitLab instance used as the OAuth2 issuer.
     issuer: "https://gitlab.com"
 
-html2pdf:
-  # URL of the html2pdf conversion service.
-  url: "http://127.0.0.1:8082"
-
-app:
-  organisation-name: "Your Organisation Name"
-  # Displayed in API responses and the OpenAPI spec. Defaults to "dev".
-  version: "1.0.0"
+gotenberg:
+  # URL of the Gotenberg HTTP server for PDF conversion.
+  url: "http://127.0.0.1:3000"
 
 cors:
   # Enable CORS middleware. Defaults to false.
@@ -45,6 +58,8 @@ cors:
     - "Content-Type"
     - "Accept"
     - "Authorization"
+  # Response headers exposed to the client. Defaults to empty.
+  expose-headers: []
   # Whether to allow credentials (cookies, auth headers).
   allow-credentials: false
   # Preflight cache duration in seconds.

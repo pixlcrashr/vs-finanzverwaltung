@@ -12,12 +12,8 @@ auth:
     client-secret: "dev-client-secret"
     issuer: "https://gitlab.com"
 
-html2pdf:
-  url: "http://127.0.0.1:8082"
-
-app:
-  organisation-name: "Dev Organisation"
-  version: "dev"
+gotenberg:
+  url: "http://127.0.0.1:3000"
 
 cors:
   enabled: true

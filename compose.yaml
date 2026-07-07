@@ -24,21 +24,21 @@ services:
       GITLAB_CLIENT_SECRET: ${GITLAB_CLIENT_SECRET}
       GITLAB_ISSUER: ${GITLAB_ISSUER}
       ORGANISATION_NAME: ${ORGANISATION_NAME}
-      HTML2PDF_URL: http://html2pdf:8082
+      GOTENBERG_URL: http://gotenberg:3000
     depends_on:
       app-migrate:
         condition: service_completed_successfully
-      html2pdf:
+      gotenberg:
         condition: service_started
     ports:
       - 127.0.0.1:3000:3000
     networks:
       - internal
-  html2pdf:
-    image: improrama/html2pdf-server:v1.2.0
+  gotenberg:
+    image: gotenberg/gotenberg:8
     restart: unless-stopped
     expose:
-      - 8082
+      - 3000
     networks:
       - internal
 

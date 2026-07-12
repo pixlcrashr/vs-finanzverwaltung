@@ -59,3 +59,49 @@ export function requireAnyPermission(...permissions: V1Permission[]): CanActivat
     );
   };
 }
+
+export function requireAllGlobalPermissions(...requiredPermissions: V1Permission[]): CanActivateFn {
+  return () => {
+    if (requiredPermissions.length === 0) {
+      return true;
+    }
+
+    const authService = inject(AuthorizationService);
+    const router = inject(Router);
+
+    const user = authService.currentUser();
+    if (!user) {
+      return router.createUrlTree(['/']);
+    }
+
+    return authService.checkGlobalPermissions(user, requiredPermissions).pipe(
+      map((result) => {
+        const allGranted = requiredPermissions.every((p) => result[p]);
+        return allGranted || router.createUrlTree(['/']);
+      }),
+    );
+  };
+}
+
+export function requireAnyGlobalPermission(...permissions: V1Permission[]): CanActivateFn {
+  return () => {
+    if (permissions.length === 0) {
+      return true;
+    }
+
+    const authService = inject(AuthorizationService);
+    const router = inject(Router);
+
+    const user = authService.currentUser();
+    if (!user) {
+      return router.createUrlTree(['/']);
+    }
+
+    return authService.checkGlobalPermissions(user, permissions).pipe(
+      map((result) => {
+        const anyGranted = permissions.some((p) => result[p]);
+        return anyGranted || router.createUrlTree(['/']);
+      }),
+    );
+  };
+}

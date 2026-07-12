@@ -943,11 +943,27 @@
                 </li>
               
                 <li>
+                  <a href="#pixlcrashr.vsfv.v1.BatchCheckUserPermissionsRequest"><span class="badge">M</span>BatchCheckUserPermissionsRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.BatchCheckUserPermissionsResponse"><span class="badge">M</span>BatchCheckUserPermissionsResponse</a>
+                </li>
+              
+                <li>
                   <a href="#pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsRequest"><span class="badge">M</span>CheckUserOrganizationPermissionsRequest</a>
                 </li>
               
                 <li>
                   <a href="#pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsResponse"><span class="badge">M</span>CheckUserOrganizationPermissionsResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.CheckUserPermissionsRequest"><span class="badge">M</span>CheckUserPermissionsRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.CheckUserPermissionsResponse"><span class="badge">M</span>CheckUserPermissionsResponse</a>
                 </li>
               
                 <li>
@@ -8609,6 +8625,55 @@ in the same order. </p></td>
 
         
       
+        <h3 id="pixlcrashr.vsfv.v1.BatchCheckUserPermissionsRequest">BatchCheckUserPermissionsRequest</h3>
+        <p>BatchCheckUserPermissionsRequest checks global permissions for multiple</p><p>users in one call (AIP-231 batch pattern).</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>requests</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.CheckUserPermissionsRequest">CheckUserPermissionsRequest</a></td>
+                  <td>repeated</td>
+                  <td><p>Individual per-user check requests. Maximum 100 entries per call. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.BatchCheckUserPermissionsResponse">BatchCheckUserPermissionsResponse</h3>
+        <p>BatchCheckUserPermissionsResponse returns one result entry per requested</p><p>user, in the same order as the request.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>results</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.CheckUserPermissionsResponse">CheckUserPermissionsResponse</a></td>
+                  <td>repeated</td>
+                  <td><p>One result per entry in BatchCheckUserPermissionsRequest.requests,
+in the same order. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
         <h3 id="pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsRequest">CheckUserOrganizationPermissionsRequest</h3>
         <p>CheckUserOrganizationPermissionsRequest checks which of the requested</p><p>permissions a user holds within a single organization.</p>
 
@@ -8667,6 +8732,63 @@ Only the permissions listed here are evaluated and returned. </p></td>
                   <td><p>The organization that was evaluated.
 Format: organizations/{organization} </p></td>
                 </tr>
+              
+                <tr>
+                  <td>permitted</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.Permission">Permission</a></td>
+                  <td>repeated</td>
+                  <td><p>The subset of the requested permissions that the user holds. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.CheckUserPermissionsRequest">CheckUserPermissionsRequest</h3>
+        <p>CheckUserPermissionsRequest checks which of the requested global</p><p>permissions a user holds, without scoping to any organization.</p><p>Only global resources (users, groups, settings, organizations) are</p><p>evaluated; org-scoped permissions will always be absent from the result.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the user.
+Format: users/{user} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>permissions</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.Permission">Permission</a></td>
+                  <td>repeated</td>
+                  <td><p>The permissions to evaluate. At least one must be provided.
+Only the permissions listed here are evaluated and returned. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.CheckUserPermissionsResponse">CheckUserPermissionsResponse</h3>
+        <p>CheckUserPermissionsResponse reports which of the requested</p><p>permissions the user actually holds.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
               
                 <tr>
                   <td>permitted</td>
@@ -8926,6 +9048,32 @@ Authorization:
   Domain: global</p></td>
               </tr>
             
+              <tr>
+                <td>CheckUserPermissions</td>
+                <td><a href="#pixlcrashr.vsfv.v1.CheckUserPermissionsRequest">CheckUserPermissionsRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.CheckUserPermissionsResponse">CheckUserPermissionsResponse</a></td>
+                <td><p>Checks which of the requested global permissions a user holds, without
+scoping to any organization (custom method, AIP-136).
+Only global resources (users, groups, settings, organizations) are
+evaluated; org-scoped permissions will always be absent from the result.
+Authorization:
+  Scope: users:read
+  Permission: PERMISSION_USERS_READ
+  Domain: global</p></td>
+              </tr>
+            
+              <tr>
+                <td>BatchCheckUserPermissions</td>
+                <td><a href="#pixlcrashr.vsfv.v1.BatchCheckUserPermissionsRequest">BatchCheckUserPermissionsRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.BatchCheckUserPermissionsResponse">BatchCheckUserPermissionsResponse</a></td>
+                <td><p>Checks global permissions for multiple users in one call
+(batch custom method, AIP-231).
+Authorization:
+  Scope: users:read
+  Permission: PERMISSION_USERS_READ
+  Domain: global</p></td>
+              </tr>
+            
           </tbody>
         </table>
 
@@ -8980,6 +9128,26 @@ Authorization:
                 <td>BatchCheckUserOrganizationPermissions</td>
                 <td>POST</td>
                 <td>/v1/{name=users/*}:batchCheckOrganizationPermissions</td>
+                <td>*</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>CheckUserPermissions</td>
+                <td>POST</td>
+                <td>/v1/{name=users/*}:checkPermissions</td>
+                <td>*</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>BatchCheckUserPermissions</td>
+                <td>POST</td>
+                <td>/v1/users:batchCheckPermissions</td>
                 <td>*</td>
               </tr>
               

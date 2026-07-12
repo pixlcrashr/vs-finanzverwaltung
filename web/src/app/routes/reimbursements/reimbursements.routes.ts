@@ -17,7 +17,13 @@ export const REIMBURSEMENTS_ROUTES: Routes = [
     resolve: {
       permissions: resolvePermissions(
         V1Permission.PERMISSION_REIMBURSEMENTS_READ,
-        V1Permission.PERMISSION_REIMBURSEMENTS_READ_OWN
+        V1Permission.PERMISSION_REIMBURSEMENTS_READ_OWN,
+        V1Permission.PERMISSION_REIMBURSEMENTS_CREATE,
+        V1Permission.PERMISSION_REIMBURSEMENTS_UPDATE,
+        V1Permission.PERMISSION_REIMBURSEMENTS_UPDATE_OWN,
+        V1Permission.PERMISSION_REIMBURSEMENTS_COMMENT,
+        V1Permission.PERMISSION_REIMBURSEMENTS_COMMENT_OWN,
+        V1Permission.PERMISSION_REIMBURSEMENTS_ARCHIVE
       ),
     },
     loadComponent: () =>
@@ -54,7 +60,13 @@ export const REIMBURSEMENTS_ROUTES: Routes = [
     resolve: {
       permissions: resolvePermissions(
         V1Permission.PERMISSION_REIMBURSEMENTS_READ,
-        V1Permission.PERMISSION_REIMBURSEMENTS_READ_OWN
+        V1Permission.PERMISSION_REIMBURSEMENTS_READ_OWN,
+        V1Permission.PERMISSION_REIMBURSEMENTS_CREATE,
+        V1Permission.PERMISSION_REIMBURSEMENTS_UPDATE,
+        V1Permission.PERMISSION_REIMBURSEMENTS_UPDATE_OWN,
+        V1Permission.PERMISSION_REIMBURSEMENTS_COMMENT,
+        V1Permission.PERMISSION_REIMBURSEMENTS_COMMENT_OWN,
+        V1Permission.PERMISSION_REIMBURSEMENTS_ARCHIVE
       ),
     },
     loadComponent: () =>

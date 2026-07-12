@@ -180,6 +180,66 @@ func (s *userServiceServer) BatchCheckUserOrganizationPermissions(ctx context.Co
 	return resp, nil
 }
 
+func (s *userServiceServer) CheckUserPermissions(ctx context.Context, req *gen.CheckUserPermissionsRequest) (*gen.CheckUserPermissionsResponse, error) {
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead, authz.GlobalDomain); err != nil {
+		return nil, authError(err)
+	}
+
+	var un gen.UserResourceName
+	if err := un.UnmarshalString(req.Name); err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidUserName}
+	}
+
+	if len(req.Permissions) == 0 {
+		return nil, &ServerError{Status: statusNoPermissions}
+	}
+
+	permitted, err := s.checkPermissions(un.User, "", req.Permissions)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedCheckPerms}
+	}
+
+	return &gen.CheckUserPermissionsResponse{
+		Permitted: permitted,
+	}, nil
+}
+
+func (s *userServiceServer) BatchCheckUserPermissions(ctx context.Context, req *gen.BatchCheckUserPermissionsRequest) (*gen.BatchCheckUserPermissionsResponse, error) {
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead, authz.GlobalDomain); err != nil {
+		return nil, authError(err)
+	}
+
+	if len(req.Requests) > 100 {
+		return nil, &ServerError{Status: statusTooManyBatchEntries}
+	}
+
+	resp := &gen.BatchCheckUserPermissionsResponse{
+		Results: make([]*gen.CheckUserPermissionsResponse, 0, len(req.Requests)),
+	}
+
+	for _, r := range req.Requests {
+		var un gen.UserResourceName
+		if err := un.UnmarshalString(r.Name); err != nil {
+			return nil, &ServerError{Err: err, Status: statusInvalidUserName}
+		}
+
+		if len(r.Permissions) == 0 {
+			return nil, &ServerError{Status: statusNoPermissions}
+		}
+
+		permitted, err := s.checkPermissions(un.User, "", r.Permissions)
+		if err != nil {
+			return nil, &ServerError{Err: err, Status: statusFailedCheckPerms}
+		}
+
+		resp.Results = append(resp.Results, &gen.CheckUserPermissionsResponse{
+			Permitted: permitted,
+		})
+	}
+
+	return resp, nil
+}
+
 // checkPermissions evaluates the requested permissions against casbin.
 // Global permissions (users, groups, settings) are checked with an empty
 // domain; org-scoped permissions use the organization custom ID as domain.

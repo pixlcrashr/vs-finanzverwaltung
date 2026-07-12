@@ -23,6 +23,8 @@ import {
 import { formatDateShort } from '../../../shared/utils';
 import { ReportTemplate } from '../../../shared/models';
 import { ReportTemplateListDataService } from './report-template-list.data-service';
+import { HasPermissionPipe } from '../../../../lib/authz/has-permission.pipe';
+import { V1Permission } from '../../../../lib/api/models';
 
 @Component({
   selector: 'app-report-template-list',
@@ -32,16 +34,19 @@ import { ReportTemplateListDataService } from './report-template-list.data-servi
     PageContentLayoutComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
+    HasPermissionPipe,
   ],
   template: `
     <app-page-content-layout [breadcrumbs]="breadcrumbs">
-      <a
-        layout-header-actions
-        [routerLink]="['/organizations', orgId, 'reportTemplates', 'new']"
-        class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
-      >
-        <ng-container i18n>Neue Vorlage</ng-container>
-      </a>
+      @if (V1Permission.PERMISSION_REPORT_TEMPLATES_CREATE | hasPermission) {
+        <a
+          layout-header-actions
+          [routerLink]="['/organizations', orgId, 'reportTemplates', 'new']"
+          class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
+        >
+          <ng-container i18n>Neue Vorlage</ng-container>
+        </a>
+      }
 
       <div layout-content class="flex flex-1 justify-center">
         @if (loading()) {
@@ -51,12 +56,14 @@ import { ReportTemplateListDataService } from './report-template-list.data-servi
             i18n-title title="Keine Vorlagen vorhanden"
             i18n-description description="Erstelle deine erste Berichtsvorlage."
           >
-            <a
-              [routerLink]="['/organizations', orgId, 'reportTemplates', 'new']"
-              class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
-            >
-              <ng-container i18n>Erste Vorlage erstellen</ng-container>
-            </a>
+            @if (V1Permission.PERMISSION_REPORT_TEMPLATES_CREATE | hasPermission) {
+              <a
+                [routerLink]="['/organizations', orgId, 'reportTemplates', 'new']"
+                class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
+              >
+                <ng-container i18n>Erste Vorlage erstellen</ng-container>
+              </a>
+            }
           </app-empty-state>
         } @else {
           <div class="w-full max-w-3xl">
@@ -100,19 +107,23 @@ import { ReportTemplateListDataService } from './report-template-list.data-servi
                         <td class="px-3 py-2 text-xs text-gray-900">{{ formatDate(template.updatedAt) }}</td>
                         <td class="px-3 py-2 text-right text-xs">
                           <div class="flex items-center justify-end gap-2">
-                            <a
-                              [routerLink]="['/organizations', orgId, 'reportTemplates', template.id, 'edit']"
-                              class="text-xs text-blue-600 hover:underline"
-                            >
-                              <ng-container i18n>Bearbeiten</ng-container>
-                            </a>
-                            <button
-                              type="button"
-                              class="text-xs text-red-600 hover:underline"
-                              (click)="openDeleteDialog(template)"
-                            >
-                              <ng-container i18n>Löschen</ng-container>
-                            </button>
+                            @if (V1Permission.PERMISSION_REPORT_TEMPLATES_UPDATE | hasPermission) {
+                              <a
+                                [routerLink]="['/organizations', orgId, 'reportTemplates', template.id, 'edit']"
+                                class="text-xs text-blue-600 hover:underline"
+                              >
+                                <ng-container i18n>Bearbeiten</ng-container>
+                              </a>
+                            }
+                            @if (V1Permission.PERMISSION_REPORT_TEMPLATES_DELETE | hasPermission) {
+                              <button
+                                type="button"
+                                class="text-xs text-red-600 hover:underline"
+                                (click)="openDeleteDialog(template)"
+                              >
+                                <ng-container i18n>Löschen</ng-container>
+                              </button>
+                            }
                           </div>
                         </td>
                       </tr>
@@ -137,6 +148,7 @@ export class ReportTemplateListComponent {
 
   readonly loading = signal(true);
   readonly templates = signal<ReportTemplate[]>([]);
+  readonly V1Permission = V1Permission;
 
   readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Berichtsvorlagen` }];
 

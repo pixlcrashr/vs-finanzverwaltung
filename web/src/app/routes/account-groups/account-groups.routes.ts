@@ -11,11 +11,19 @@ import {
 import { environment } from '../../../environments/environment';
 import { requireAllPermissions, requireAnyPermission } from '../../../lib/authz/permission.guard';
 import { V1Permission } from '../../../lib/api/models';
+import { resolvePermissions } from '../../../lib/authz/permission.resolver';
 
 export const ACCOUNT_GROUPS_ROUTES: Routes = [
   {
     path: '',
     canActivate: [requireAllPermissions(V1Permission.PERMISSION_ACCOUNTS_READ, V1Permission.PERMISSION_ACCOUNT_GROUPS_READ)],
+    resolve: {
+      permissions: resolvePermissions(
+        V1Permission.PERMISSION_ACCOUNT_GROUPS_CREATE,
+        V1Permission.PERMISSION_ACCOUNT_GROUPS_UPDATE,
+        V1Permission.PERMISSION_ACCOUNT_GROUPS_DELETE,
+      ),
+    },
     loadComponent: () =>
       import('./account-group-list/account-group-list.component').then(
         (m) => m.AccountGroupListComponent
@@ -27,6 +35,13 @@ export const ACCOUNT_GROUPS_ROUTES: Routes = [
   },
   {
     path: ':id',
+    canActivate: [requireAnyPermission(V1Permission.PERMISSION_ACCOUNT_GROUPS_READ, V1Permission.PERMISSION_ACCOUNT_GROUPS_UPDATE)],
+    resolve: {
+      permissions: resolvePermissions(
+        V1Permission.PERMISSION_ACCOUNT_GROUPS_UPDATE,
+        V1Permission.PERMISSION_ACCOUNT_GROUPS_DELETE,
+      ),
+    },
     loadComponent: () =>
       import('./account-group-edit/account-group-edit.component').then(
         (m) => m.AccountGroupEditComponent
@@ -38,6 +53,7 @@ export const ACCOUNT_GROUPS_ROUTES: Routes = [
   },
   {
     path: ':id/stats',
+    canActivate: [requireAllPermissions(V1Permission.PERMISSION_ACCOUNT_GROUPS_READ, V1Permission.PERMISSION_BUDGETS_READ)],
     loadComponent: () =>
       import('./account-group-stats/account-group-stats.component').then(
         (m) => m.AccountGroupStatsComponent

@@ -4,12 +4,15 @@ export { BudgetServiceCloseBudgetBody } from './models/budget-service-close-budg
 export { LedgerYearServiceCloseLedgerYearBody } from './models/ledger-year-service-close-ledger-year-body';
 export { UserServiceBatchCheckUserOrganizationPermissionsBody } from './models/user-service-batch-check-user-organization-permissions-body';
 export { UserServiceCheckUserOrganizationPermissionsBody } from './models/user-service-check-user-organization-permissions-body';
+export { UserServiceCheckUserPermissionsBody } from './models/user-service-check-user-permissions-body';
 export { TypeDate } from './models/type-date';
 export { V1Account } from './models/v1account';
 export { V1AccountGroup } from './models/v1account-group';
 export { V1AccountGroupAssignment } from './models/v1account-group-assignment';
 export { V1AccountType } from './models/v1account-type';
 export { V1BatchCheckUserOrganizationPermissionsResponse } from './models/v1batch-check-user-organization-permissions-response';
+export { V1BatchCheckUserPermissionsRequest } from './models/v1batch-check-user-permissions-request';
+export { V1BatchCheckUserPermissionsResponse } from './models/v1batch-check-user-permissions-response';
 export { V1BatchUpdateBudgetAccountValuesResponse } from './models/v1batch-update-budget-account-values-response';
 export { V1Budget } from './models/v1budget';
 export { V1BudgetAccountValue } from './models/v1budget-account-value';
@@ -20,6 +23,8 @@ export { V1CheckOrganizationIdRequest } from './models/v1check-organization-id-r
 export { V1CheckOrganizationIdResponse } from './models/v1check-organization-id-response';
 export { V1CheckUserOrganizationPermissionsRequest } from './models/v1check-user-organization-permissions-request';
 export { V1CheckUserOrganizationPermissionsResponse } from './models/v1check-user-organization-permissions-response';
+export { V1CheckUserPermissionsRequest } from './models/v1check-user-permissions-request';
+export { V1CheckUserPermissionsResponse } from './models/v1check-user-permissions-response';
 export { V1Decimal } from './models/v1decimal';
 export { V1GetNestedAccountResponse } from './models/v1get-nested-account-response';
 export { V1Group } from './models/v1group';

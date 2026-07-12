@@ -8,12 +8,14 @@ import { MatrixValueStoreService } from './matrix-value-store.service';
 import { MatrixData, MatrixDataProviderService } from './matrix-data-provider.service';
 import { MatrixDataService, MatrixBudgetValueUpdate } from './matrix.data-service';
 import { LoadingSpinnerComponent } from '../../shared/components';
+import { HasPermissionPipe } from '../../../lib/authz/has-permission.pipe';
+import { V1Permission } from '../../../lib/api/models';
 
 
 
 @Component({
   selector: 'app-matrix',
-  imports: [MatrixHeader, MatrixContent, LoadingSpinnerComponent],
+  imports: [MatrixHeader, MatrixContent, LoadingSpinnerComponent, HasPermissionPipe],
   providers: [MatrixValueStoreService, MatrixDataProviderService],
   template: `
     <div class="flex flex-col h-full w-full min-w-[700px]">
@@ -24,6 +26,7 @@ import { LoadingSpinnerComponent } from '../../shared/components';
         [isLoading]="isLoading()"
         [isSaving]="isSaving()"
         [hasPendingChanges]="hasPendingChanges()"
+        [canSave]="V1Permission.PERMISSION_MATRIX_UPDATE | hasPermission"
         [(selectedBudgetIds)]="selectedBudgetIds"
         [(selectedTagIds)]="selectedTagIds"
         [(selectedAccountIds)]="selectedAccountIds"
@@ -58,6 +61,7 @@ export class Matrix {
   isLoading = signal(true);
   isSaving = signal(false);
   hasLoadedData = signal(false);
+  readonly V1Permission = V1Permission;
 
   matrixData = signal<MatrixData>({
     columns: [],

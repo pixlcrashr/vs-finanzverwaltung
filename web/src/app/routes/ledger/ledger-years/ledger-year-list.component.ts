@@ -18,11 +18,13 @@ import {
   LedgerYearListDataService,
   LedgerYearListItem,
 } from './ledger-year-list.data-service';
+import { HasPermissionPipe } from '../../../../lib/authz/has-permission.pipe';
+import { V1Permission } from '../../../../lib/api/models';
 
 @Component({
   selector: 'app-ledger-year-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [PageContentLayoutComponent, LoadingSpinnerComponent, EmptyStateComponent, ButtonComponent],
+  imports: [PageContentLayoutComponent, LoadingSpinnerComponent, EmptyStateComponent, ButtonComponent, HasPermissionPipe],
   template: `
     <app-page-content-layout [breadcrumbs]="breadcrumbs">
       <div layout-content class="flex flex-1 justify-center">
@@ -59,15 +61,17 @@ import {
                       <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
                         <ng-container i18n>Offen</ng-container>
                       </span>
-                      <app-button
-                        variant="secondary"
-                        size="sm"
-                        [disabled]="closingYear() === year.id"
-                        [loading]="closingYear() === year.id"
-                        (clicked)="closeYear(year)"
-                      >
-                        <ng-container i18n>Schließen</ng-container>
-                      </app-button>
+                      @if (V1Permission.PERMISSION_LEDGER_YEAR_CLOSE | hasPermission) {
+                        <app-button
+                          variant="secondary"
+                          size="sm"
+                          [disabled]="closingYear() === year.id"
+                          [loading]="closingYear() === year.id"
+                          (clicked)="closeYear(year)"
+                        >
+                          <ng-container i18n>Schließen</ng-container>
+                        </app-button>
+                      }
                     }
                   </div>
                 </div>
@@ -87,6 +91,7 @@ export class LedgerYearListComponent implements OnInit {
   readonly loading = signal(true);
   readonly years = signal<LedgerYearListItem[]>([]);
   readonly closingYear = signal<string | null>(null);
+  readonly V1Permission = V1Permission;
 
   readonly orgId = signal<string>('');
 

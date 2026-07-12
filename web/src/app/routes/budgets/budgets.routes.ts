@@ -20,7 +20,8 @@ export const BUDGETS_ROUTES: Routes = [
       permissions: resolvePermissions(
         V1Permission.PERMISSION_BUDGETS_CREATE,
         V1Permission.PERMISSION_BUDGETS_UPDATE,
-        V1Permission.PERMISSION_BUDGETS_DELETE
+        V1Permission.PERMISSION_BUDGETS_DELETE,
+        V1Permission.PERMISSION_BUDGETS_CLOSE
       ),
     },
     loadComponent: () =>
@@ -37,7 +38,8 @@ export const BUDGETS_ROUTES: Routes = [
       permissions: resolvePermissions(
         V1Permission.PERMISSION_BUDGETS_CREATE,
         V1Permission.PERMISSION_BUDGETS_UPDATE,
-        V1Permission.PERMISSION_BUDGETS_DELETE
+        V1Permission.PERMISSION_BUDGETS_DELETE,
+        V1Permission.PERMISSION_BUDGETS_CLOSE
       ),
     },
     loadComponent: () =>

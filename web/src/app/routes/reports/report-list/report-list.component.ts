@@ -30,6 +30,8 @@ import {
 import { formatDateShort } from '../../../shared/utils';
 import { Report } from '../../../shared/models';
 import { ReportListDataService } from './report-list.data-service';
+import { HasPermissionPipe } from '../../../../lib/authz/has-permission.pipe';
+import { V1Permission } from '../../../../lib/api/models';
 
 @Component({
   selector: 'app-report-list',
@@ -40,12 +42,15 @@ import { ReportListDataService } from './report-list.data-service';
     ButtonComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
+    HasPermissionPipe,
   ],
   template: `
     <app-page-content-layout [breadcrumbs]="breadcrumbs">
-      <app-button layout-header-actions variant="primary" (clicked)="openCreateDialog()">
-        <ng-container i18n>Neuen Bericht erstellen</ng-container>
-      </app-button>
+      @if (V1Permission.PERMISSION_REPORTS_CREATE | hasPermission) {
+        <app-button layout-header-actions variant="primary" (clicked)="openCreateDialog()">
+          <ng-container i18n>Neuen Bericht erstellen</ng-container>
+        </app-button>
+      }
 
       <div layout-content class="flex flex-1 justify-center">
         @if (loading()) {
@@ -58,9 +63,11 @@ import { ReportListDataService } from './report-list.data-service';
                 i18n-title title="Keine Berichte vorhanden"
                 i18n-description description="Erstellen Sie einen neuen Bericht aus einer Vorlage."
               >
-                <app-button variant="primary" (clicked)="openCreateDialog()">
-                  <ng-container i18n>Ersten Bericht erstellen</ng-container>
-                </app-button>
+                @if (V1Permission.PERMISSION_REPORTS_CREATE | hasPermission) {
+                  <app-button variant="primary" (clicked)="openCreateDialog()">
+                    <ng-container i18n>Ersten Bericht erstellen</ng-container>
+                  </app-button>
+                }
               </app-empty-state>
             } @else {
               <div class="bg-white rounded-lg border border-gray-200">
@@ -105,13 +112,15 @@ import { ReportListDataService } from './report-list.data-service';
                               >
                                 <ng-container i18n>Ansehen</ng-container>
                               </a>
-                              <button
-                                type="button"
-                                class="text-xs text-red-600 hover:underline"
-                                (click)="openDeleteDialog(report)"
-                              >
-                                <ng-container i18n>Löschen</ng-container>
-                              </button>
+                              @if (V1Permission.PERMISSION_REPORTS_DELETE | hasPermission) {
+                                <button
+                                  type="button"
+                                  class="text-xs text-red-600 hover:underline"
+                                  (click)="openDeleteDialog(report)"
+                                >
+                                  <ng-container i18n>Löschen</ng-container>
+                                </button>
+                              }
                             </div>
                           </td>
                         </tr>
@@ -137,6 +146,7 @@ export class ReportListComponent {
 
   readonly loading = signal(true);
   readonly reports = signal<Report[]>([]);
+  readonly V1Permission = V1Permission;
 
   readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Berichte` }];
 

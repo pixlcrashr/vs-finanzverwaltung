@@ -23,6 +23,8 @@ const (
 	UserService_ListUsers_FullMethodName                             = "/pixlcrashr.vsfv.v1.UserService/ListUsers"
 	UserService_CheckUserOrganizationPermissions_FullMethodName      = "/pixlcrashr.vsfv.v1.UserService/CheckUserOrganizationPermissions"
 	UserService_BatchCheckUserOrganizationPermissions_FullMethodName = "/pixlcrashr.vsfv.v1.UserService/BatchCheckUserOrganizationPermissions"
+	UserService_CheckUserPermissions_FullMethodName                  = "/pixlcrashr.vsfv.v1.UserService/CheckUserPermissions"
+	UserService_BatchCheckUserPermissions_FullMethodName             = "/pixlcrashr.vsfv.v1.UserService/BatchCheckUserPermissions"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -62,6 +64,24 @@ type UserServiceClient interface {
 	//	Permission: PERMISSION_USERS_READ
 	//	Domain: global
 	BatchCheckUserOrganizationPermissions(ctx context.Context, in *BatchCheckUserOrganizationPermissionsRequest, opts ...grpc.CallOption) (*BatchCheckUserOrganizationPermissionsResponse, error)
+	// Checks which of the requested global permissions a user holds, without
+	// scoping to any organization (custom method, AIP-136).
+	// Only global resources (users, groups, settings, organizations) are
+	// evaluated; org-scoped permissions will always be absent from the result.
+	// Authorization:
+	//
+	//	Scope: users:read
+	//	Permission: PERMISSION_USERS_READ
+	//	Domain: global
+	CheckUserPermissions(ctx context.Context, in *CheckUserPermissionsRequest, opts ...grpc.CallOption) (*CheckUserPermissionsResponse, error)
+	// Checks global permissions for multiple users in one call
+	// (batch custom method, AIP-231).
+	// Authorization:
+	//
+	//	Scope: users:read
+	//	Permission: PERMISSION_USERS_READ
+	//	Domain: global
+	BatchCheckUserPermissions(ctx context.Context, in *BatchCheckUserPermissionsRequest, opts ...grpc.CallOption) (*BatchCheckUserPermissionsResponse, error)
 }
 
 type userServiceClient struct {
@@ -112,6 +132,26 @@ func (c *userServiceClient) BatchCheckUserOrganizationPermissions(ctx context.Co
 	return out, nil
 }
 
+func (c *userServiceClient) CheckUserPermissions(ctx context.Context, in *CheckUserPermissionsRequest, opts ...grpc.CallOption) (*CheckUserPermissionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CheckUserPermissionsResponse)
+	err := c.cc.Invoke(ctx, UserService_CheckUserPermissions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) BatchCheckUserPermissions(ctx context.Context, in *BatchCheckUserPermissionsRequest, opts ...grpc.CallOption) (*BatchCheckUserPermissionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BatchCheckUserPermissionsResponse)
+	err := c.cc.Invoke(ctx, UserService_BatchCheckUserPermissions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations should embed UnimplementedUserServiceServer
 // for forward compatibility.
@@ -149,6 +189,24 @@ type UserServiceServer interface {
 	//	Permission: PERMISSION_USERS_READ
 	//	Domain: global
 	BatchCheckUserOrganizationPermissions(context.Context, *BatchCheckUserOrganizationPermissionsRequest) (*BatchCheckUserOrganizationPermissionsResponse, error)
+	// Checks which of the requested global permissions a user holds, without
+	// scoping to any organization (custom method, AIP-136).
+	// Only global resources (users, groups, settings, organizations) are
+	// evaluated; org-scoped permissions will always be absent from the result.
+	// Authorization:
+	//
+	//	Scope: users:read
+	//	Permission: PERMISSION_USERS_READ
+	//	Domain: global
+	CheckUserPermissions(context.Context, *CheckUserPermissionsRequest) (*CheckUserPermissionsResponse, error)
+	// Checks global permissions for multiple users in one call
+	// (batch custom method, AIP-231).
+	// Authorization:
+	//
+	//	Scope: users:read
+	//	Permission: PERMISSION_USERS_READ
+	//	Domain: global
+	BatchCheckUserPermissions(context.Context, *BatchCheckUserPermissionsRequest) (*BatchCheckUserPermissionsResponse, error)
 }
 
 // UnimplementedUserServiceServer should be embedded to have
@@ -169,6 +227,12 @@ func (UnimplementedUserServiceServer) CheckUserOrganizationPermissions(context.C
 }
 func (UnimplementedUserServiceServer) BatchCheckUserOrganizationPermissions(context.Context, *BatchCheckUserOrganizationPermissionsRequest) (*BatchCheckUserOrganizationPermissionsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method BatchCheckUserOrganizationPermissions not implemented")
+}
+func (UnimplementedUserServiceServer) CheckUserPermissions(context.Context, *CheckUserPermissionsRequest) (*CheckUserPermissionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CheckUserPermissions not implemented")
+}
+func (UnimplementedUserServiceServer) BatchCheckUserPermissions(context.Context, *BatchCheckUserPermissionsRequest) (*BatchCheckUserPermissionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method BatchCheckUserPermissions not implemented")
 }
 func (UnimplementedUserServiceServer) testEmbeddedByValue() {}
 
@@ -262,6 +326,42 @@ func _UserService_BatchCheckUserOrganizationPermissions_Handler(srv interface{},
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_CheckUserPermissions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckUserPermissionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).CheckUserPermissions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_CheckUserPermissions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).CheckUserPermissions(ctx, req.(*CheckUserPermissionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_BatchCheckUserPermissions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatchCheckUserPermissionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).BatchCheckUserPermissions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_BatchCheckUserPermissions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).BatchCheckUserPermissions(ctx, req.(*BatchCheckUserPermissionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -284,6 +384,14 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "BatchCheckUserOrganizationPermissions",
 			Handler:    _UserService_BatchCheckUserOrganizationPermissions_Handler,
+		},
+		{
+			MethodName: "CheckUserPermissions",
+			Handler:    _UserService_CheckUserPermissions_Handler,
+		},
+		{
+			MethodName: "BatchCheckUserPermissions",
+			Handler:    _UserService_BatchCheckUserPermissions_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

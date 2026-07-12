@@ -18,11 +18,13 @@ import {
   OrganizationSettingsDataService,
   OrganizationSettings,
 } from './organization-settings.data-service';
+import { HasPermissionPipe } from '../../../lib/authz/has-permission.pipe';
+import { V1Permission } from '../../../lib/api/models';
 
 @Component({
   selector: 'app-organization-settings',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, PageContentLayoutComponent, ButtonComponent, LoadingSpinnerComponent],
+  imports: [FormsModule, PageContentLayoutComponent, ButtonComponent, LoadingSpinnerComponent, HasPermissionPipe],
   template: `
     <app-page-content-layout [breadcrumbs]="breadcrumbs">
       <div layout-content>
@@ -101,13 +103,15 @@ import {
 
               <!-- Actions -->
               <div class="flex justify-end gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <app-button
-                  [disabled]="saving()"
-                  [loading]="saving()"
-                  (clicked)="save()"
-                >
-                  <ng-container i18n>Speichern</ng-container>
-                </app-button>
+                @if (V1Permission.PERMISSION_SETTINGS_UPDATE | hasPermission) {
+                  <app-button
+                    [disabled]="saving()"
+                    [loading]="saving()"
+                    (clicked)="save()"
+                  >
+                    <ng-container i18n>Speichern</ng-container>
+                  </app-button>
+                }
               </div>
             </div>
           </div>
@@ -124,6 +128,7 @@ export class OrganizationSettingsComponent implements OnInit {
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly settings = signal<OrganizationSettings | null>(null);
+  readonly V1Permission = V1Permission;
 
   name = '';
   description = '';

@@ -30,6 +30,8 @@ import {
 import { Budget } from '../../../shared/models';
 import { formatDateShort } from '../../../shared/utils';
 import { BudgetListDataService } from './budget-list.data-service';
+import { HasPermissionPipe } from '../../../../lib/authz/has-permission.pipe';
+import { V1Permission } from '../../../../lib/api/models';
 
 @Component({
   selector: 'app-budget-list',
@@ -41,10 +43,13 @@ import { BudgetListDataService } from './budget-list.data-service';
     StatusBadgeComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
+    HasPermissionPipe,
   ],
   template: `
     <app-page-content-layout [breadcrumbs]="breadcrumbs">
-      <app-button layout-header-actions (clicked)="openCreateDialog()"><ng-container i18n>Hinzufügen</ng-container></app-button>
+      @if (V1Permission.PERMISSION_BUDGETS_CREATE | hasPermission) {
+        <app-button layout-header-actions (clicked)="openCreateDialog()"><ng-container i18n>Hinzufügen</ng-container></app-button>
+      }
 
       <div layout-content class="flex flex-1 justify-center">
         @if (loading()) {
@@ -54,7 +59,9 @@ import { BudgetListDataService } from './budget-list.data-service';
             i18n-title title="Keine Haushaltspläne vorhanden"
             i18n-description description="Erstelle deinen ersten Haushaltsplan, um mit der Budgetplanung zu beginnen."
           >
-            <app-button (clicked)="openCreateDialog()"><ng-container i18n>Haushaltsplan erstellen</ng-container></app-button>
+            @if (V1Permission.PERMISSION_BUDGETS_CREATE | hasPermission) {
+              <app-button (clicked)="openCreateDialog()"><ng-container i18n>Haushaltsplan erstellen</ng-container></app-button>
+            }
           </app-empty-state>
         } @else {
           <div class="w-full max-w-3xl">
@@ -111,12 +118,14 @@ import { BudgetListDataService } from './budget-list.data-service';
                           >
                             <ng-container i18n>Bearbeiten</ng-container>
                           </a>
-                          <button
-                            (click)="confirmDelete(budget)"
-                            class="text-xs text-red-600 hover:underline"
-                          >
-                            <ng-container i18n>Entfernen</ng-container>
-                          </button>
+                          @if (V1Permission.PERMISSION_BUDGETS_DELETE | hasPermission) {
+                            <button
+                              (click)="confirmDelete(budget)"
+                              class="text-xs text-red-600 hover:underline"
+                            >
+                              <ng-container i18n>Entfernen</ng-container>
+                            </button>
+                          }
                         </div>
                       </td>
                     </tr>
@@ -141,6 +150,7 @@ export class BudgetListComponent {
 
   readonly loading = signal(true);
   readonly budgets = signal<Budget[]>([]);
+  readonly V1Permission = V1Permission;
 
   readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Haushaltspläne` }];
 

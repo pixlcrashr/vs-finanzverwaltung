@@ -147,6 +147,45 @@ message BatchCheckUserOrganizationPermissionsResponse {
   repeated CheckUserOrganizationPermissionsResponse results = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
+// CheckUserPermissionsRequest checks which of the requested global
+// permissions a user holds, without scoping to any organization.
+// Only global resources (users, groups, settings, organizations) are
+// evaluated; org-scoped permissions will always be absent from the result.
+message CheckUserPermissionsRequest {
+  // The resource name of the user.
+  // Format: users/{user}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/User"}
+  ];
+
+  // The permissions to evaluate. At least one must be provided.
+  // Only the permissions listed here are evaluated and returned.
+  repeated Permission permissions = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// CheckUserPermissionsResponse reports which of the requested
+// permissions the user actually holds.
+message CheckUserPermissionsResponse {
+  // The subset of the requested permissions that the user holds.
+  repeated Permission permitted = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// BatchCheckUserPermissionsRequest checks global permissions for multiple
+// users in one call (AIP-231 batch pattern).
+message BatchCheckUserPermissionsRequest {
+  // Individual per-user check requests. Maximum 100 entries per call.
+  repeated CheckUserPermissionsRequest requests = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// BatchCheckUserPermissionsResponse returns one result entry per requested
+// user, in the same order as the request.
+message BatchCheckUserPermissionsResponse {
+  // One result per entry in BatchCheckUserPermissionsRequest.requests,
+  // in the same order.
+  repeated CheckUserPermissionsResponse results = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
 // ── Service ───────────────────────────────────────────────────────────────────
 
 // UserService provides a read-only administrative view of users.
@@ -199,5 +238,34 @@ service UserService {
       body: "*"
     };
     option (google.api.method_signature) = "name,requests";
+  }
+
+  // Checks which of the requested global permissions a user holds, without
+  // scoping to any organization (custom method, AIP-136).
+  // Only global resources (users, groups, settings, organizations) are
+  // evaluated; org-scoped permissions will always be absent from the result.
+  // Authorization:
+  //   Scope: users:read
+  //   Permission: PERMISSION_USERS_READ
+  //   Domain: global
+  rpc CheckUserPermissions(CheckUserPermissionsRequest) returns (CheckUserPermissionsResponse) {
+    option (google.api.http) = {
+      post: "/v1/{name=users/*}:checkPermissions"
+      body: "*"
+    };
+    option (google.api.method_signature) = "name,permissions";
+  }
+
+  // Checks global permissions for multiple users in one call
+  // (batch custom method, AIP-231).
+  // Authorization:
+  //   Scope: users:read
+  //   Permission: PERMISSION_USERS_READ
+  //   Domain: global
+  rpc BatchCheckUserPermissions(BatchCheckUserPermissionsRequest) returns (BatchCheckUserPermissionsResponse) {
+    option (google.api.http) = {
+      post: "/v1/users:batchCheckPermissions"
+      body: "*"
+    };
   }
 }

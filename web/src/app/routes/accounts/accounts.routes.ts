@@ -13,7 +13,7 @@ export const ACCOUNTS_ROUTES: Routes = [
     path: '',
     canActivate: [requireAllPermissions(V1Permission.PERMISSION_ACCOUNTS_READ)],
     resolve: {
-      permissions: resolvePermissions(V1Permission.PERMISSION_ACCOUNTS_CREATE, V1Permission.PERMISSION_ACCOUNTS_UPDATE)
+      permissions: resolvePermissions(V1Permission.PERMISSION_ACCOUNTS_CREATE, V1Permission.PERMISSION_ACCOUNTS_UPDATE, V1Permission.PERMISSION_ACCOUNTS_DELETE, V1Permission.PERMISSION_ACCOUNTS_ARCHIVE)
     },
     loadComponent: () =>
       import('./account-list/account-list.component').then((m) => m.AccountListComponent),

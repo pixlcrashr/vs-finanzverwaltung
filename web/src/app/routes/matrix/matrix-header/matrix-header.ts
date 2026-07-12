@@ -305,7 +305,7 @@ export interface ExportButtonClickArgs {
         </button>
 
         <!-- Save Button (Only in Edit Mode) -->
-        @if (isEditMode()) {
+        @if (isEditMode() && canSave()) {
           <button
             type="button"
             class="px-2 py-1 text-xs rounded border border-green-600 dark:border-green-500
@@ -361,6 +361,7 @@ export class MatrixHeader {
   isLoading = input<boolean>(false);
   isSaving = input<boolean>(false);
   hasPendingChanges = input<boolean>(false);
+  canSave = input<boolean>(true);
 
   selectedBudgetIds = model<string[]>([]);
   selectedTagIds = model<string[]>([]);

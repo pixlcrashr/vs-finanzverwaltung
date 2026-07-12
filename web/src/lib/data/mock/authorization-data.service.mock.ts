@@ -47,4 +47,29 @@ export class MockAuthorizationDataService extends AuthorizationDataService {
     }
     return of(result).pipe(delay(200));
   }
+
+  checkGlobalPermissions(
+    user: string,
+    permissions: V1Permission[],
+  ): Observable<Record<string, boolean>> {
+    const result: Record<string, boolean> = {};
+    for (const p of permissions) {
+      result[p] = this.heldPermissions.has(p);
+    }
+    return of(result).pipe(delay(200));
+  }
+
+  batchCheckGlobalPermissions(
+    requests: { user: string; permissions: V1Permission[] }[],
+  ): Observable<Record<string, Record<string, boolean>>> {
+    const out: Record<string, Record<string, boolean>> = {};
+    for (const req of requests) {
+      const perms: Record<string, boolean> = {};
+      for (const p of req.permissions) {
+        perms[p] = this.heldPermissions.has(p);
+      }
+      out[req.user] = perms;
+    }
+    return of(out).pipe(delay(200));
+  }
 }

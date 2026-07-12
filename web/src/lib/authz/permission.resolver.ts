@@ -25,3 +25,20 @@ export function resolvePermissions(...permissions: V1Permission[]): ResolveFn<Re
     return authService.checkPermissions(user, `organizations/${orgId}`, permissions);
   };
 }
+
+export function resolveGlobalPermissions(...permissions: V1Permission[]): ResolveFn<Record<string, boolean>> {
+  return () => {
+    if (permissions.length === 0) {
+      return of({});
+    }
+
+    const authService = inject(AuthorizationService);
+
+    const user = authService.currentUser();
+    if (!user) {
+      return of({});
+    }
+
+    return authService.checkGlobalPermissions(user, permissions);
+  };
+}

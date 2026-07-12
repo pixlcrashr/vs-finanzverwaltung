@@ -24,6 +24,8 @@ import {
   JournalEntryFilters,
   JournalAssignmentStatus,
 } from './journal-list.data-service';
+import { HasPermissionPipe } from '../../../../lib/authz/has-permission.pipe';
+import { V1Permission } from '../../../../lib/api/models';
 
 @Component({
   selector: 'app-journal-list',
@@ -35,16 +37,19 @@ import {
     ButtonComponent,
     StatusBadgeComponent,
     EmptyStateComponent,
+    HasPermissionPipe,
   ],
   template: `
     <app-page-content-layout [breadcrumbs]="breadcrumbs">
-      <a
-        layout-header-actions
-        [routerLink]="['/organizations', orgId, 'journal', 'import']"
-        class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
-      >
-        <ng-container i18n>Import</ng-container>
-      </a>
+      @if (V1Permission.PERMISSION_JOURNAL_IMPORT | hasPermission) {
+        <a
+          layout-header-actions
+          [routerLink]="['/organizations', orgId, 'journal', 'import']"
+          class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
+        >
+          <ng-container i18n>Import</ng-container>
+        </a>
+      }
 
       <div layout-content class="flex flex-1 justify-center">
           <div class="w-full space-y-3">
@@ -144,12 +149,14 @@ import {
                       <ng-container i18n>Filter zurücksetzen</ng-container>
                     </app-button>
                   } @else {
-                    <a
-                      [routerLink]="['/organizations', orgId, 'journal', 'import']"
-                      class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
-                    >
-                      <ng-container i18n>Buchungen importieren</ng-container>
-                    </a>
+                    @if (V1Permission.PERMISSION_JOURNAL_IMPORT | hasPermission) {
+                      <a
+                        [routerLink]="['/organizations', orgId, 'journal', 'import']"
+                        class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
+                      >
+                        <ng-container i18n>Buchungen importieren</ng-container>
+                      </a>
+                    }
                   }
                 </app-empty-state>
               } @else {
@@ -312,6 +319,7 @@ export class JournalListComponent {
   readonly currentPage = signal(0);
   readonly pageSize = 20;
   readonly hasMore = computed(() => this.entries().length < this.total());
+  readonly V1Permission = V1Permission;
 
   readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Journal` }];
 

@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "VSFV: serve (debug)",
+      "name": "Backend: serve (debug)",
       "type": "go",
       "request": "launch",
       "mode": "debug",
@@ -14,7 +14,7 @@
       "cwd": "${workspaceFolder}"
     },
     {
-      "name": "Web: Serve Mock (Chrome)",
+      "name": "Frontend: Serve Mock (Chrome)",
       "type": "chrome",
       "request": "launch",
       "preLaunchTask": "web:serve:mock",
@@ -23,7 +23,7 @@
       "sourceMaps": true
     },
     {
-      "name": "Web: Serve API (Chrome)",
+      "name": "Frontend: Serve API (Chrome)",
       "type": "chrome",
       "request": "launch",
       "preLaunchTask": "web:serve:api",
@@ -32,7 +32,7 @@
       "sourceMaps": true
     },
     {
-      "name": "Web: Test (Chrome)",
+      "name": "Frontend: Test (Chrome)",
       "type": "chrome",
       "request": "launch",
       "preLaunchTask": "web:test",
@@ -41,12 +41,12 @@
   ],
   "compounds": [
     {
-      "name": "Web: Serve Mock + Debug",
-      "configurations": ["Web: Serve Mock (Chrome)"]
+      "name": "Frontend: Serve Mock + Debug",
+      "configurations": ["Frontend: Serve Mock (Chrome)"],
     },
     {
-      "name": "Web: Serve API + Debug",
-      "configurations": ["Web: Serve API (Chrome)"]
+      "name": "Frontend: Serve API + Debug",
+      "configurations": ["Frontend: Serve API (Chrome)"]
     }
   ]
 }

@@ -74,7 +74,12 @@ produces:
 paths:
   /v1/groups:
     get:
-      summary: Lists groups with pagination.
+      summary: |-
+        Lists groups with pagination.
+        Authorization:
+          Scope: groups:read
+          Permission: PERMISSION_GROUPS_READ
+          Domain: global
       operationId: GroupService_ListGroups
       responses:
         "200":
@@ -114,7 +119,12 @@ paths:
       tags:
         - GroupService
     post:
-      summary: Creates a new group.
+      summary: |-
+        Creates a new group.
+        Authorization:
+          Scope: groups:write
+          Permission: PERMISSION_GROUPS_CREATE
+          Domain: global
       operationId: GroupService_CreateGroup
       responses:
         "200":
@@ -143,7 +153,12 @@ paths:
         - GroupService
   /v1/organizations:
     get:
-      summary: Lists organizations with pagination.
+      summary: |-
+        Lists organizations with pagination.
+        Authorization:
+          Scope: organizations:read
+          Permission: PERMISSION_ORGANIZATIONS_READ
+          Domain: global
       operationId: OrganizationService_ListOrganizations
       responses:
         "200":
@@ -184,7 +199,12 @@ paths:
       tags:
         - OrganizationService
     post:
-      summary: Creates a new organization.
+      summary: |-
+        Creates a new organization.
+        Authorization:
+          Scope: organizations:write
+          Permission: PERMISSION_ORGANIZATIONS_CREATE
+          Domain: global
       operationId: OrganizationService_CreateOrganization
       responses:
         "200":
@@ -213,7 +233,12 @@ paths:
         - OrganizationService
   /v1/organizations:checkId:
     post:
-      summary: Checks whether an organization ID (slug) is available for use.
+      summary: |-
+        Checks whether an organization ID (slug) is available for use.
+        Authorization:
+          Scope: organizations:read
+          Permission: PERMISSION_ORGANIZATIONS_READ
+          Domain: global
       operationId: OrganizationService_CheckOrganizationId
       responses:
         "200":
@@ -234,7 +259,12 @@ paths:
         - OrganizationService
   /v1/users:
     get:
-      summary: Lists users with pagination.
+      summary: |-
+        Lists users with pagination.
+        Authorization:
+          Scope: users:read
+          Permission: PERMISSION_USERS_READ
+          Domain: global
       operationId: UserService_ListUsers
       responses:
         "200":
@@ -275,7 +305,12 @@ paths:
         - UserService
   /v1/{account.name}:
     patch:
-      summary: Updates an existing account.
+      summary: |-
+        Updates an existing account.
+        Authorization:
+          Scope: accounts:write
+          Permission: PERMISSION_ACCOUNTS_UPDATE
+          Domain: organization-scoped
       operationId: AccountService_UpdateAccount
       responses:
         "200":
@@ -351,7 +386,12 @@ paths:
         - AccountService
   /v1/{account_group.name}:
     patch:
-      summary: Updates an existing account group.
+      summary: |-
+        Updates an existing account group.
+        Authorization:
+          Scope: accountGroups:write
+          Permission: PERMISSION_ACCOUNT_GROUPS_UPDATE
+          Domain: organization-scoped
       operationId: AccountGroupService_UpdateAccountGroup
       responses:
         "200":
@@ -409,7 +449,12 @@ paths:
         - AccountGroupService
   /v1/{account_value.name}:
     patch:
-      summary: Updates an existing budget account value.
+      summary: |-
+        Updates an existing budget account value.
+        Authorization:
+          Scope: budgets:write
+          Permission: PERMISSION_BUDGETS_UPDATE
+          Domain: organization-scoped
       operationId: BudgetAccountValueService_UpdateBudgetAccountValue
       responses:
         "200":
@@ -481,7 +526,12 @@ paths:
         - BudgetAccountValueService
   /v1/{assignment.name}:
     patch:
-      summary: Updates an existing assignment.
+      summary: |-
+        Updates an existing assignment.
+        Authorization:
+          Scope: accountGroups:write
+          Permission: PERMISSION_ACCOUNT_GROUPS_UPDATE
+          Domain: organization-scoped
       operationId: AccountGroupAssignmentService_UpdateAccountGroupAssignment
       responses:
         "200":
@@ -545,7 +595,12 @@ paths:
         - AccountGroupAssignmentService
   /v1/{budget.name}:
     patch:
-      summary: Updates an existing budget.
+      summary: |-
+        Updates an existing budget.
+        Authorization:
+          Scope: budgets:write
+          Permission: PERMISSION_BUDGETS_UPDATE
+          Domain: organization-scoped
       operationId: BudgetService_UpdateBudget
       responses:
         "200":
@@ -615,7 +670,12 @@ paths:
         - BudgetService
   /v1/{group.name}:
     patch:
-      summary: Updates an existing group.
+      summary: |-
+        Updates an existing group.
+        Authorization:
+          Scope: groups:write
+          Permission: PERMISSION_GROUPS_UPDATE
+          Domain: global
       operationId: GroupService_UpdateGroup
       responses:
         "200":
@@ -682,7 +742,12 @@ paths:
         - GroupService
   /v1/{ledger_account.name}:
     patch:
-      summary: Updates an existing ledger account (e.g., display name).
+      summary: |-
+        Updates an existing ledger account (e.g., display name).
+        Authorization:
+          Scope: ledgerAccount:write
+          Permission: PERMISSION_LEDGER_ACCOUNT_UPDATE
+          Domain: organization-scoped
       operationId: LedgerAccountService_UpdateLedgerAccount
       responses:
         "200":
@@ -747,7 +812,12 @@ paths:
         - LedgerAccountService
   /v1/{name_10}:
     get:
-      summary: Gets a single ledger year by resource name.
+      summary: |-
+        Gets a single ledger year by resource name.
+        Authorization:
+          Scope: ledgerYear:read
+          Permission: PERMISSION_LEDGER_YEAR_READ
+          Domain: organization-scoped
       operationId: LedgerYearService_GetLedgerYear
       responses:
         "200":
@@ -770,7 +840,12 @@ paths:
       tags:
         - LedgerYearService
     delete:
-      summary: Permanently deletes a transaction.
+      summary: |-
+        Permanently deletes a transaction.
+        Authorization:
+          Scope: transactions:write
+          Permission: PERMISSION_TRANSACTIONS_DELETE
+          Domain: organization-scoped
       operationId: TransactionService_DeleteTransaction
       responses:
         "200":
@@ -795,7 +870,12 @@ paths:
         - TransactionService
   /v1/{name_11}:
     get:
-      summary: Gets a single organization by resource name.
+      summary: |-
+        Gets a single organization by resource name.
+        Authorization:
+          Scope: organizations:read
+          Permission: PERMISSION_ORGANIZATIONS_READ
+          Domain: global
       operationId: OrganizationService_GetOrganization
       responses:
         "200":
@@ -819,7 +899,12 @@ paths:
         - OrganizationService
   /v1/{name_12}:
     get:
-      summary: Gets report metadata by resource name.
+      summary: |-
+        Gets report metadata by resource name.
+        Authorization:
+          Scope: reports:read
+          Permission: PERMISSION_REPORTS_READ
+          Domain: organization-scoped
       operationId: ReportService_GetReport
       responses:
         "200":
@@ -843,7 +928,12 @@ paths:
         - ReportService
   /v1/{name_13}:
     get:
-      summary: Gets a single report template by resource name.
+      summary: |-
+        Gets a single report template by resource name.
+        Authorization:
+          Scope: reportTemplates:read
+          Permission: PERMISSION_REPORT_TEMPLATES_READ
+          Domain: organization-scoped
       operationId: ReportTemplateService_GetReportTemplate
       responses:
         "200":
@@ -867,7 +957,12 @@ paths:
         - ReportTemplateService
   /v1/{name_14}:
     get:
-      summary: Gets a single transaction by resource name.
+      summary: |-
+        Gets a single transaction by resource name.
+        Authorization:
+          Scope: transactions:read
+          Permission: PERMISSION_TRANSACTIONS_READ
+          Domain: organization-scoped
       operationId: TransactionService_GetTransaction
       responses:
         "200":
@@ -891,7 +986,12 @@ paths:
         - TransactionService
   /v1/{name_15}:
     get:
-      summary: Gets a single transaction assignment by resource name.
+      summary: |-
+        Gets a single transaction assignment by resource name.
+        Authorization:
+          Scope: transactions:read
+          Permission: PERMISSION_TRANSACTIONS_READ
+          Domain: organization-scoped
       operationId: TransactionAssignmentService_GetTransactionAssignment
       responses:
         "200":
@@ -915,7 +1015,12 @@ paths:
         - TransactionAssignmentService
   /v1/{name_16}:
     get:
-      summary: Gets a single user by resource name.
+      summary: |-
+        Gets a single user by resource name.
+        Authorization:
+          Scope: users:read
+          Permission: PERMISSION_USERS_READ
+          Domain: global
       operationId: UserService_GetUser
       responses:
         "200":
@@ -939,7 +1044,12 @@ paths:
         - UserService
   /v1/{name_17}:
     get:
-      summary: Gets a single identity record.
+      summary: |-
+        Gets a single identity record.
+        Authorization:
+          Scope: users:read
+          Permission: PERMISSION_USERS_READ
+          Domain: global
       operationId: UserIdentityService_GetUserIdentity
       responses:
         "200":
@@ -963,7 +1073,12 @@ paths:
         - UserIdentityService
   /v1/{name_18}:
     get:
-      summary: Gets the settings for a user.
+      summary: |-
+        Gets the settings for a user.
+        Authorization:
+          Scope: settings:read
+          Permission: PERMISSION_SETTINGS_READ
+          Domain: global
       operationId: UserSettingsService_GetUserSettings
       responses:
         "200":
@@ -987,7 +1102,12 @@ paths:
         - UserSettingsService
   /v1/{name_1}:
     get:
-      summary: Gets a single account group by resource name.
+      summary: |-
+        Gets a single account group by resource name.
+        Authorization:
+          Scope: accountGroups:read
+          Permission: PERMISSION_ACCOUNT_GROUPS_READ
+          Domain: organization-scoped
       operationId: AccountGroupService_GetAccountGroup
       responses:
         "200":
@@ -1010,7 +1130,12 @@ paths:
       tags:
         - AccountGroupService
     delete:
-      summary: Permanently deletes an account group.
+      summary: |-
+        Permanently deletes an account group.
+        Authorization:
+          Scope: accountGroups:write
+          Permission: PERMISSION_ACCOUNT_GROUPS_DELETE
+          Domain: organization-scoped
       operationId: AccountGroupService_DeleteAccountGroup
       responses:
         "200":
@@ -1035,7 +1160,12 @@ paths:
         - AccountGroupService
   /v1/{name_1}:close:
     post:
-      summary: Closes a ledger year, preventing new imports.
+      summary: |-
+        Closes a ledger year, preventing new imports.
+        Authorization:
+          Scope: ledgerYear:write
+          Permission: PERMISSION_LEDGER_YEAR_CLOSE
+          Domain: organization-scoped
       operationId: LedgerYearService_CloseLedgerYear
       responses:
         "200":
@@ -1064,7 +1194,12 @@ paths:
         - LedgerYearService
   /v1/{name_2}:
     get:
-      summary: Gets a single assignment by resource name.
+      summary: |-
+        Gets a single assignment by resource name.
+        Authorization:
+          Scope: accountGroups:read
+          Permission: PERMISSION_ACCOUNT_GROUPS_READ
+          Domain: organization-scoped
       operationId: AccountGroupAssignmentService_GetAccountGroupAssignment
       responses:
         "200":
@@ -1087,7 +1222,12 @@ paths:
       tags:
         - AccountGroupAssignmentService
     delete:
-      summary: Permanently deletes an assignment.
+      summary: |-
+        Permanently deletes an assignment.
+        Authorization:
+          Scope: accountGroups:write
+          Permission: PERMISSION_ACCOUNT_GROUPS_DELETE
+          Domain: organization-scoped
       operationId: AccountGroupAssignmentService_DeleteAccountGroupAssignment
       responses:
         "200":
@@ -1112,7 +1252,12 @@ paths:
         - AccountGroupAssignmentService
   /v1/{name_3}:
     get:
-      summary: Gets a single budget by resource name.
+      summary: |-
+        Gets a single budget by resource name.
+        Authorization:
+          Scope: budgets:read
+          Permission: PERMISSION_BUDGETS_READ
+          Domain: organization-scoped
       operationId: BudgetService_GetBudget
       responses:
         "200":
@@ -1135,7 +1280,12 @@ paths:
       tags:
         - BudgetService
     delete:
-      summary: Permanently deletes a budget.
+      summary: |-
+        Permanently deletes a budget.
+        Authorization:
+          Scope: budgets:write
+          Permission: PERMISSION_BUDGETS_DELETE
+          Domain: organization-scoped
       operationId: BudgetService_DeleteBudget
       responses:
         "200":
@@ -1160,7 +1310,12 @@ paths:
         - BudgetService
   /v1/{name_4}:
     get:
-      summary: Gets a single budget account value by resource name.
+      summary: |-
+        Gets a single budget account value by resource name.
+        Authorization:
+          Scope: budgets:read
+          Permission: PERMISSION_BUDGETS_READ
+          Domain: organization-scoped
       operationId: BudgetAccountValueService_GetBudgetAccountValue
       responses:
         "200":
@@ -1183,7 +1338,12 @@ paths:
       tags:
         - BudgetAccountValueService
     delete:
-      summary: Permanently deletes a budget account value.
+      summary: |-
+        Permanently deletes a budget account value.
+        Authorization:
+          Scope: budgets:write
+          Permission: PERMISSION_BUDGETS_DELETE
+          Domain: organization-scoped
       operationId: BudgetAccountValueService_DeleteBudgetAccountValue
       responses:
         "200":
@@ -1208,7 +1368,12 @@ paths:
         - BudgetAccountValueService
   /v1/{name_5}:
     get:
-      summary: Gets the computed actual value for a single account within a budget.
+      summary: |-
+        Gets the computed actual value for a single account within a budget.
+        Authorization:
+          Scope: budgets:read
+          Permission: PERMISSION_BUDGETS_READ
+          Domain: organization-scoped
       operationId: BudgetActualAccountValueService_GetBudgetActualAccountValue
       responses:
         "200":
@@ -1231,7 +1396,12 @@ paths:
       tags:
         - BudgetActualAccountValueService
     delete:
-      summary: Permanently deletes a group.
+      summary: |-
+        Permanently deletes a group.
+        Authorization:
+          Scope: groups:write
+          Permission: PERMISSION_GROUPS_DELETE
+          Domain: global
       operationId: GroupService_DeleteGroup
       responses:
         "200":
@@ -1256,7 +1426,12 @@ paths:
         - GroupService
   /v1/{name_6}:
     get:
-      summary: Gets a single budget revision by resource name.
+      summary: |-
+        Gets a single budget revision by resource name.
+        Authorization:
+          Scope: budgets:read
+          Permission: PERMISSION_BUDGETS_READ
+          Domain: organization-scoped
       operationId: BudgetRevisionService_GetBudgetRevision
       responses:
         "200":
@@ -1279,7 +1454,12 @@ paths:
       tags:
         - BudgetRevisionService
     delete:
-      summary: Permanently deletes a ledger account.
+      summary: |-
+        Permanently deletes a ledger account.
+        Authorization:
+          Scope: ledgerAccount:write
+          Permission: PERMISSION_LEDGER_ACCOUNT_DELETE
+          Domain: organization-scoped
       operationId: LedgerAccountService_DeleteLedgerAccount
       responses:
         "200":
@@ -1304,7 +1484,12 @@ paths:
         - LedgerAccountService
   /v1/{name_7}:
     get:
-      summary: Gets a single budget revision account value by resource name.
+      summary: |-
+        Gets a single budget revision account value by resource name.
+        Authorization:
+          Scope: budgets:read
+          Permission: PERMISSION_BUDGETS_READ
+          Domain: organization-scoped
       operationId: BudgetRevisionAccountValueService_GetBudgetRevisionAccountValue
       responses:
         "200":
@@ -1327,7 +1512,12 @@ paths:
       tags:
         - BudgetRevisionAccountValueService
     delete:
-      summary: Permanently deletes an organization.
+      summary: |-
+        Permanently deletes an organization.
+        Authorization:
+          Scope: organizations:write
+          Permission: PERMISSION_ORGANIZATIONS_DELETE
+          Domain: global
       operationId: OrganizationService_DeleteOrganization
       responses:
         "200":
@@ -1352,7 +1542,12 @@ paths:
         - OrganizationService
   /v1/{name_8}:
     get:
-      summary: Gets a single group by resource name.
+      summary: |-
+        Gets a single group by resource name.
+        Authorization:
+          Scope: groups:read
+          Permission: PERMISSION_GROUPS_READ
+          Domain: global
       operationId: GroupService_GetGroup
       responses:
         "200":
@@ -1375,7 +1570,12 @@ paths:
       tags:
         - GroupService
     delete:
-      summary: Permanently deletes a report.
+      summary: |-
+        Permanently deletes a report.
+        Authorization:
+          Scope: reports:write
+          Permission: PERMISSION_REPORTS_DELETE
+          Domain: organization-scoped
       operationId: ReportService_DeleteReport
       responses:
         "200":
@@ -1400,7 +1600,12 @@ paths:
         - ReportService
   /v1/{name_9}:
     get:
-      summary: Gets a single ledger account by resource name.
+      summary: |-
+        Gets a single ledger account by resource name.
+        Authorization:
+          Scope: ledgerAccount:read
+          Permission: PERMISSION_LEDGER_ACCOUNT_READ
+          Domain: organization-scoped
       operationId: LedgerAccountService_GetLedgerAccount
       responses:
         "200":
@@ -1423,7 +1628,12 @@ paths:
       tags:
         - LedgerAccountService
     delete:
-      summary: Permanently deletes a report template.
+      summary: |-
+        Permanently deletes a report template.
+        Authorization:
+          Scope: reportTemplates:write
+          Permission: PERMISSION_REPORT_TEMPLATES_DELETE
+          Domain: organization-scoped
       operationId: ReportTemplateService_DeleteReportTemplate
       responses:
         "200":
@@ -1448,7 +1658,12 @@ paths:
         - ReportTemplateService
   /v1/{name}:
     get:
-      summary: Gets a single account by resource name.
+      summary: |-
+        Gets a single account by resource name.
+        Authorization:
+          Scope: accounts:read
+          Permission: PERMISSION_ACCOUNTS_READ
+          Domain: organization-scoped
       operationId: AccountService_GetAccount
       responses:
         "200":
@@ -1471,7 +1686,12 @@ paths:
       tags:
         - AccountService
     delete:
-      summary: Permanently deletes an account.
+      summary: |-
+        Permanently deletes an account.
+        Authorization:
+          Scope: accounts:write
+          Permission: PERMISSION_ACCOUNTS_DELETE
+          Domain: organization-scoped
       operationId: AccountService_DeleteAccount
       responses:
         "200":
@@ -1496,7 +1716,12 @@ paths:
         - AccountService
   /v1/{name}:archive:
     post:
-      summary: Archives an account (soft-delete).
+      summary: |-
+        Archives an account (soft-delete).
+        Authorization:
+          Scope: accounts:write
+          Permission: PERMISSION_ACCOUNTS_ARCHIVE
+          Domain: organization-scoped
       operationId: AccountService_ArchiveAccount
       responses:
         "200":
@@ -1528,6 +1753,10 @@ paths:
       summary: |-
         Checks permissions for a user across multiple organizations in one call
         (batch custom method, AIP-231).
+        Authorization:
+          Scope: users:read
+          Permission: PERMISSION_USERS_READ
+          Domain: global
       operationId: UserService_BatchCheckUserOrganizationPermissions
       responses:
         "200":
@@ -1559,6 +1788,10 @@ paths:
       summary: |-
         Checks which of the requested permissions a user holds within a single
         organization (custom method, AIP-136).
+        Authorization:
+          Scope: users:read
+          Permission: PERMISSION_USERS_READ
+          Domain: global
       operationId: UserService_CheckUserOrganizationPermissions
       responses:
         "200":
@@ -1587,7 +1820,12 @@ paths:
         - UserService
   /v1/{name}:close:
     post:
-      summary: Closes a budget, marking it as no longer active.
+      summary: |-
+        Closes a budget, marking it as no longer active.
+        Authorization:
+          Scope: budgets:write
+          Permission: PERMISSION_BUDGETS_CLOSE
+          Domain: organization-scoped
       operationId: BudgetService_CloseBudget
       responses:
         "200":
@@ -1616,7 +1854,12 @@ paths:
         - BudgetService
   /v1/{name}:getNested:
     get:
-      summary: Gets a single account's full nested subtree (custom method).
+      summary: |-
+        Gets a single account's full nested subtree (custom method).
+        Authorization:
+          Scope: accounts:read
+          Permission: PERMISSION_ACCOUNTS_READ
+          Domain: organization-scoped
       operationId: AccountService_GetNestedAccount
       responses:
         "200":
@@ -1648,7 +1891,12 @@ paths:
         - AccountService
   /v1/{organization.name}:
     patch:
-      summary: Updates an existing organization.
+      summary: |-
+        Updates an existing organization.
+        Authorization:
+          Scope: organizations:write
+          Permission: PERMISSION_ORGANIZATIONS_UPDATE
+          Domain: global
       operationId: OrganizationService_UpdateOrganization
       responses:
         "200":
@@ -1707,7 +1955,12 @@ paths:
         - OrganizationService
   /v1/{parent_1}/accountValues:
     get:
-      summary: Lists the account values captured in a revision, with pagination.
+      summary: |-
+        Lists the account values captured in a revision, with pagination.
+        Authorization:
+          Scope: budgets:read
+          Permission: PERMISSION_BUDGETS_READ
+          Domain: organization-scoped
       operationId: BudgetRevisionAccountValueService_ListBudgetRevisionAccountValues
       responses:
         "200":
@@ -1757,7 +2010,12 @@ paths:
         - BudgetRevisionAccountValueService
   /v1/{parent_1}/assignments:
     get:
-      summary: Lists transaction assignments with keyset pagination and optional filters.
+      summary: |-
+        Lists transaction assignments with keyset pagination and optional filters.
+        Authorization:
+          Scope: transactions:read
+          Permission: PERMISSION_TRANSACTIONS_READ
+          Domain: organization-scoped
       operationId: TransactionAssignmentService_ListTransactionAssignments
       responses:
         "200":
@@ -1807,7 +2065,12 @@ paths:
         - TransactionAssignmentService
   /v1/{parent}/accountGroups:
     get:
-      summary: Lists account groups with pagination.
+      summary: |-
+        Lists account groups with pagination.
+        Authorization:
+          Scope: accountGroups:read
+          Permission: PERMISSION_ACCOUNT_GROUPS_READ
+          Domain: organization-scoped
       operationId: AccountGroupService_ListAccountGroups
       responses:
         "200":
@@ -1856,7 +2119,12 @@ paths:
       tags:
         - AccountGroupService
     post:
-      summary: Creates a new account group.
+      summary: |-
+        Creates a new account group.
+        Authorization:
+          Scope: accountGroups:write
+          Permission: PERMISSION_ACCOUNT_GROUPS_CREATE
+          Domain: organization-scoped
       operationId: AccountGroupService_CreateAccountGroup
       responses:
         "200":
@@ -1893,7 +2161,12 @@ paths:
         - AccountGroupService
   /v1/{parent}/accountValues:
     get:
-      summary: Lists account values for a budget.
+      summary: |-
+        Lists account values for a budget.
+        Authorization:
+          Scope: budgets:read
+          Permission: PERMISSION_BUDGETS_READ
+          Domain: organization-scoped
       operationId: BudgetAccountValueService_ListBudgetAccountValues
       responses:
         "200":
@@ -1942,7 +2215,12 @@ paths:
       tags:
         - BudgetAccountValueService
     post:
-      summary: Creates a new budget account value.
+      summary: |-
+        Creates a new budget account value.
+        Authorization:
+          Scope: budgets:write
+          Permission: PERMISSION_BUDGETS_CREATE
+          Domain: organization-scoped
       operationId: BudgetAccountValueService_CreateBudgetAccountValue
       responses:
         "200":
@@ -1982,6 +2260,10 @@ paths:
       summary: |-
         Atomically upserts multiple account values for a budget.
         Existing values for listed account IDs are updated; missing ones are created.
+        Authorization:
+          Scope: budgets:write
+          Permission: PERMISSION_BUDGETS_UPDATE
+          Domain: organization-scoped
       operationId: BudgetAccountValueService_BatchUpdateBudgetAccountValues
       responses:
         "200":
@@ -2012,7 +2294,12 @@ paths:
         - BudgetAccountValueService
   /v1/{parent}/accounts:
     get:
-      summary: Lists accounts with pagination.
+      summary: |-
+        Lists accounts with pagination.
+        Authorization:
+          Scope: accounts:read
+          Permission: PERMISSION_ACCOUNTS_READ
+          Domain: organization-scoped
       operationId: AccountService_ListAccounts
       responses:
         "200":
@@ -2071,7 +2358,12 @@ paths:
       tags:
         - AccountService
     post:
-      summary: Creates a new account.
+      summary: |-
+        Creates a new account.
+        Authorization:
+          Scope: accounts:write
+          Permission: PERMISSION_ACCOUNTS_CREATE
+          Domain: organization-scoped
       operationId: AccountService_CreateAccount
       responses:
         "200":
@@ -2108,7 +2400,12 @@ paths:
         - AccountService
   /v1/{parent}/accounts:listNested:
     get:
-      summary: Lists all root accounts with their full nested subtrees (custom method).
+      summary: |-
+        Lists all root accounts with their full nested subtrees (custom method).
+        Authorization:
+          Scope: accounts:read
+          Permission: PERMISSION_ACCOUNTS_READ
+          Domain: organization-scoped
       operationId: AccountService_ListNestedAccounts
       responses:
         "200":
@@ -2140,7 +2437,12 @@ paths:
         - AccountService
   /v1/{parent}/actualAccountValues:
     get:
-      summary: Lists computed actual account values for a budget, with pagination.
+      summary: |-
+        Lists computed actual account values for a budget, with pagination.
+        Authorization:
+          Scope: budgets:read
+          Permission: PERMISSION_BUDGETS_READ
+          Domain: organization-scoped
       operationId: BudgetActualAccountValueService_ListBudgetActualAccountValues
       responses:
         "200":
@@ -2190,7 +2492,12 @@ paths:
         - BudgetActualAccountValueService
   /v1/{parent}/assignments:
     get:
-      summary: Lists assignments for an account group.
+      summary: |-
+        Lists assignments for an account group.
+        Authorization:
+          Scope: accountGroups:read
+          Permission: PERMISSION_ACCOUNT_GROUPS_READ
+          Domain: organization-scoped
       operationId: AccountGroupAssignmentService_ListAccountGroupAssignments
       responses:
         "200":
@@ -2239,7 +2546,12 @@ paths:
       tags:
         - AccountGroupAssignmentService
     post:
-      summary: Creates a new assignment.
+      summary: |-
+        Creates a new assignment.
+        Authorization:
+          Scope: accountGroups:write
+          Permission: PERMISSION_ACCOUNT_GROUPS_CREATE
+          Domain: organization-scoped
       operationId: AccountGroupAssignmentService_CreateAccountGroupAssignment
       responses:
         "200":
@@ -2276,7 +2588,12 @@ paths:
         - AccountGroupAssignmentService
   /v1/{parent}/budgets:
     get:
-      summary: Lists budgets with pagination.
+      summary: |-
+        Lists budgets with pagination.
+        Authorization:
+          Scope: budgets:read
+          Permission: PERMISSION_BUDGETS_READ
+          Domain: organization-scoped
       operationId: BudgetService_ListBudgets
       responses:
         "200":
@@ -2330,7 +2647,12 @@ paths:
       tags:
         - BudgetService
     post:
-      summary: Creates a new budget.
+      summary: |-
+        Creates a new budget.
+        Authorization:
+          Scope: budgets:write
+          Permission: PERMISSION_BUDGETS_CREATE
+          Domain: organization-scoped
       operationId: BudgetService_CreateBudget
       responses:
         "200":
@@ -2367,7 +2689,12 @@ paths:
         - BudgetService
   /v1/{parent}/identities:
     get:
-      summary: Lists all identity records for a user.
+      summary: |-
+        Lists all identity records for a user.
+        Authorization:
+          Scope: users:read
+          Permission: PERMISSION_USERS_READ
+          Domain: global
       operationId: UserIdentityService_ListUserIdentities
       responses:
         "200":
@@ -2404,7 +2731,12 @@ paths:
         - UserIdentityService
   /v1/{parent}/ledgerAccounts:
     get:
-      summary: Lists ledger accounts with pagination.
+      summary: |-
+        Lists ledger accounts with pagination.
+        Authorization:
+          Scope: ledgerAccount:read
+          Permission: PERMISSION_LEDGER_ACCOUNT_READ
+          Domain: organization-scoped
       operationId: LedgerAccountService_ListLedgerAccounts
       responses:
         "200":
@@ -2459,7 +2791,12 @@ paths:
         - LedgerAccountService
   /v1/{parent}/ledgerYears:
     get:
-      summary: Lists ledger years for an organization.
+      summary: |-
+        Lists ledger years for an organization.
+        Authorization:
+          Scope: ledgerYear:read
+          Permission: PERMISSION_LEDGER_YEAR_READ
+          Domain: organization-scoped
       operationId: LedgerYearService_ListLedgerYears
       responses:
         "200":
@@ -2509,7 +2846,12 @@ paths:
         - LedgerYearService
   /v1/{parent}/reportTemplates:
     get:
-      summary: Lists report templates with pagination.
+      summary: |-
+        Lists report templates with pagination.
+        Authorization:
+          Scope: reportTemplates:read
+          Permission: PERMISSION_REPORT_TEMPLATES_READ
+          Domain: organization-scoped
       operationId: ReportTemplateService_ListReportTemplates
       responses:
         "200":
@@ -2558,7 +2900,12 @@ paths:
       tags:
         - ReportTemplateService
     post:
-      summary: Creates a new report template.
+      summary: |-
+        Creates a new report template.
+        Authorization:
+          Scope: reportTemplates:write
+          Permission: PERMISSION_REPORT_TEMPLATES_CREATE
+          Domain: organization-scoped
       operationId: ReportTemplateService_CreateReportTemplate
       responses:
         "200":
@@ -2595,7 +2942,12 @@ paths:
         - ReportTemplateService
   /v1/{parent}/reports:
     get:
-      summary: Lists reports with pagination.
+      summary: |-
+        Lists reports with pagination.
+        Authorization:
+          Scope: reports:read
+          Permission: PERMISSION_REPORTS_READ
+          Domain: organization-scoped
       operationId: ReportService_ListReports
       responses:
         "200":
@@ -2644,7 +2996,12 @@ paths:
       tags:
         - ReportService
     post:
-      summary: Creates a new report by rendering a template.
+      summary: |-
+        Creates a new report by rendering a template.
+        Authorization:
+          Scope: reports:write
+          Permission: PERMISSION_REPORTS_CREATE
+          Domain: organization-scoped
       operationId: ReportService_CreateReport
       responses:
         "200":
@@ -2681,7 +3038,12 @@ paths:
         - ReportService
   /v1/{parent}/revisions:
     get:
-      summary: Lists revisions for a budget in reverse chronological order.
+      summary: |-
+        Lists revisions for a budget in reverse chronological order.
+        Authorization:
+          Scope: budgets:read
+          Permission: PERMISSION_BUDGETS_READ
+          Domain: organization-scoped
       operationId: BudgetRevisionService_ListBudgetRevisions
       responses:
         "200":
@@ -2727,6 +3089,10 @@ paths:
       summary: |-
         Creates a new revision by capturing the current state of all
         BudgetAccountValues for the given budget.
+        Authorization:
+          Scope: budgets:write
+          Permission: PERMISSION_BUDGETS_CREATE
+          Domain: organization-scoped
       operationId: BudgetRevisionService_CreateBudgetRevision
       responses:
         "200":
@@ -2765,7 +3131,12 @@ paths:
         - BudgetRevisionService
   /v1/{parent}/transactions:
     get:
-      summary: Lists transactions with keyset pagination and optional filters.
+      summary: |-
+        Lists transactions with keyset pagination and optional filters.
+        Authorization:
+          Scope: transactions:read
+          Permission: PERMISSION_TRANSACTIONS_READ
+          Domain: organization-scoped
       operationId: TransactionService_ListTransactions
       responses:
         "200":
@@ -2815,7 +3186,12 @@ paths:
       tags:
         - TransactionService
     post:
-      summary: Creates a new transaction.
+      summary: |-
+        Creates a new transaction.
+        Authorization:
+          Scope: transactions:write
+          Permission: PERMISSION_TRANSACTIONS_CREATE (note: not yet defined in permission.proto)
+          Domain: organization-scoped
       operationId: TransactionService_CreateTransaction
       responses:
         "200":
@@ -2852,7 +3228,12 @@ paths:
         - TransactionService
   /v1/{report_template.name}:
     patch:
-      summary: Updates an existing report template.
+      summary: |-
+        Updates an existing report template.
+        Authorization:
+          Scope: reportTemplates:write
+          Permission: PERMISSION_REPORT_TEMPLATES_UPDATE
+          Domain: organization-scoped
       operationId: ReportTemplateService_UpdateReportTemplate
       responses:
         "200":
@@ -2911,7 +3292,12 @@ paths:
         - ReportTemplateService
   /v1/{settings.name}:
     patch:
-      summary: Updates the settings for a user.
+      summary: |-
+        Updates the settings for a user.
+        Authorization:
+          Scope: settings:write
+          Permission: PERMISSION_SETTINGS_UPDATE
+          Domain: global
       operationId: UserSettingsService_UpdateUserSettings
       responses:
         "200":
@@ -2966,7 +3352,12 @@ paths:
         - UserSettingsService
   /v1/{transaction.name}:
     patch:
-      summary: Updates an existing transaction.
+      summary: |-
+        Updates an existing transaction.
+        Authorization:
+          Scope: transactions:write
+          Permission: PERMISSION_TRANSACTIONS_UPDATE
+          Domain: organization-scoped
       operationId: TransactionService_UpdateTransaction
       responses:
         "200":
@@ -4206,6 +4597,7 @@ definitions:
       - PERMISSION_ACCOUNTS_CREATE
       - PERMISSION_ACCOUNTS_UPDATE
       - PERMISSION_ACCOUNTS_DELETE
+      - PERMISSION_ACCOUNTS_ARCHIVE
       - PERMISSION_ACCOUNT_GROUPS_READ
       - PERMISSION_ACCOUNT_GROUPS_CREATE
       - PERMISSION_ACCOUNT_GROUPS_UPDATE
@@ -4214,8 +4606,16 @@ definitions:
       - PERMISSION_BUDGETS_CREATE
       - PERMISSION_BUDGETS_UPDATE
       - PERMISSION_BUDGETS_DELETE
+      - PERMISSION_BUDGETS_CLOSE
       - PERMISSION_JOURNAL_READ
       - PERMISSION_JOURNAL_IMPORT
+      - PERMISSION_LEDGER_ACCOUNT_READ
+      - PERMISSION_LEDGER_ACCOUNT_UPDATE
+      - PERMISSION_LEDGER_ACCOUNT_DELETE
+      - PERMISSION_LEDGER_YEAR_READ
+      - PERMISSION_LEDGER_YEAR_CREATE
+      - PERMISSION_LEDGER_YEAR_CLOSE
+      - PERMISSION_LEDGER_YEAR_DELETE
       - PERMISSION_TRANSACTIONS_READ
       - PERMISSION_TRANSACTIONS_UPDATE
       - PERMISSION_TRANSACTIONS_DELETE
@@ -4239,6 +4639,19 @@ definitions:
       - PERMISSION_GROUPS_DELETE
       - PERMISSION_SETTINGS_READ
       - PERMISSION_SETTINGS_UPDATE
+      - PERMISSION_ORGANIZATIONS_READ
+      - PERMISSION_ORGANIZATIONS_UPDATE
+      - PERMISSION_ORGANIZATIONS_ARCHIVE
+      - PERMISSION_ORGANIZATIONS_CREATE
+      - PERMISSION_ORGANIZATIONS_DELETE
+      - PERMISSION_REIMBURSEMENTS_READ
+      - PERMISSION_REIMBURSEMENTS_CREATE
+      - PERMISSION_REIMBURSEMENTS_COMMENT
+      - PERMISSION_REIMBURSEMENTS_UPDATE
+      - PERMISSION_REIMBURSEMENTS_ARCHIVE
+      - PERMISSION_REIMBURSEMENTS_READ_OWN
+      - PERMISSION_REIMBURSEMENTS_COMMENT_OWN
+      - PERMISSION_REIMBURSEMENTS_UPDATE_OWN
     default: PERMISSION_UNSPECIFIED
     description: |-
       Permission enumerates every discrete access right in the system.
@@ -4250,6 +4663,8 @@ definitions:
        - PERMISSION_ACCOUNT_GROUPS_READ: Account Groups
        - PERMISSION_BUDGETS_READ: Budgets / Plans
        - PERMISSION_JOURNAL_READ: Journal
+       - PERMISSION_LEDGER_ACCOUNT_READ: Ledger Accounts
+       - PERMISSION_LEDGER_YEAR_READ: Ledger Years
        - PERMISSION_TRANSACTIONS_READ: Transactions
        - PERMISSION_MATRIX_READ: Matrix
        - PERMISSION_REPORTS_READ: Reports
@@ -4258,6 +4673,8 @@ definitions:
        - PERMISSION_USERS_READ: Users
        - PERMISSION_GROUPS_READ: Groups
        - PERMISSION_SETTINGS_READ: Settings
+       - PERMISSION_ORGANIZATIONS_READ: Organizations
+       - PERMISSION_REIMBURSEMENTS_READ: Reimbursements
   v1Report:
     type: object
     properties:

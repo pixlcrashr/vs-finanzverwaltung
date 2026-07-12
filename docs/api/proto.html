@@ -1645,56 +1645,88 @@ Format: organizations/{organization}/accounts/{account} </p></td>
                 <td>GetAccount</td>
                 <td><a href="#pixlcrashr.vsfv.v1.GetAccountRequest">GetAccountRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.Account">Account</a></td>
-                <td><p>Gets a single account by resource name.</p></td>
+                <td><p>Gets a single account by resource name.
+Authorization:
+  Scope: accounts:read
+  Permission: PERMISSION_ACCOUNTS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>ListAccounts</td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListAccountsRequest">ListAccountsRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListAccountsResponse">ListAccountsResponse</a></td>
-                <td><p>Lists accounts with pagination.</p></td>
+                <td><p>Lists accounts with pagination.
+Authorization:
+  Scope: accounts:read
+  Permission: PERMISSION_ACCOUNTS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>ListNestedAccounts</td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListNestedAccountsRequest">ListNestedAccountsRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListNestedAccountsResponse">ListNestedAccountsResponse</a></td>
-                <td><p>Lists all root accounts with their full nested subtrees (custom method).</p></td>
+                <td><p>Lists all root accounts with their full nested subtrees (custom method).
+Authorization:
+  Scope: accounts:read
+  Permission: PERMISSION_ACCOUNTS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>GetNestedAccount</td>
                 <td><a href="#pixlcrashr.vsfv.v1.GetNestedAccountRequest">GetNestedAccountRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.GetNestedAccountResponse">GetNestedAccountResponse</a></td>
-                <td><p>Gets a single account&#39;s full nested subtree (custom method).</p></td>
+                <td><p>Gets a single account&#39;s full nested subtree (custom method).
+Authorization:
+  Scope: accounts:read
+  Permission: PERMISSION_ACCOUNTS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>CreateAccount</td>
                 <td><a href="#pixlcrashr.vsfv.v1.CreateAccountRequest">CreateAccountRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.Account">Account</a></td>
-                <td><p>Creates a new account.</p></td>
+                <td><p>Creates a new account.
+Authorization:
+  Scope: accounts:write
+  Permission: PERMISSION_ACCOUNTS_CREATE
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>UpdateAccount</td>
                 <td><a href="#pixlcrashr.vsfv.v1.UpdateAccountRequest">UpdateAccountRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.Account">Account</a></td>
-                <td><p>Updates an existing account.</p></td>
+                <td><p>Updates an existing account.
+Authorization:
+  Scope: accounts:write
+  Permission: PERMISSION_ACCOUNTS_UPDATE
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>ArchiveAccount</td>
                 <td><a href="#pixlcrashr.vsfv.v1.ArchiveAccountRequest">ArchiveAccountRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.Account">Account</a></td>
-                <td><p>Archives an account (soft-delete).</p></td>
+                <td><p>Archives an account (soft-delete).
+Authorization:
+  Scope: accounts:write
+  Permission: PERMISSION_ACCOUNTS_ARCHIVE
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>DeleteAccount</td>
                 <td><a href="#pixlcrashr.vsfv.v1.DeleteAccountRequest">DeleteAccountRequest</a></td>
                 <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
-                <td><p>Permanently deletes an account.</p></td>
+                <td><p>Permanently deletes an account.
+Authorization:
+  Scope: accounts:write
+  Permission: PERMISSION_ACCOUNTS_DELETE
+  Domain: organization-scoped</p></td>
               </tr>
             
           </tbody>
@@ -2107,35 +2139,55 @@ Example: &#34;display_name=\&#34;Overhead\&#34;&#34;. </p></td>
                 <td>GetAccountGroup</td>
                 <td><a href="#pixlcrashr.vsfv.v1.GetAccountGroupRequest">GetAccountGroupRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.AccountGroup">AccountGroup</a></td>
-                <td><p>Gets a single account group by resource name.</p></td>
+                <td><p>Gets a single account group by resource name.
+Authorization:
+  Scope: accountGroups:read
+  Permission: PERMISSION_ACCOUNT_GROUPS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>ListAccountGroups</td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListAccountGroupsRequest">ListAccountGroupsRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListAccountGroupsResponse">ListAccountGroupsResponse</a></td>
-                <td><p>Lists account groups with pagination.</p></td>
+                <td><p>Lists account groups with pagination.
+Authorization:
+  Scope: accountGroups:read
+  Permission: PERMISSION_ACCOUNT_GROUPS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>CreateAccountGroup</td>
                 <td><a href="#pixlcrashr.vsfv.v1.CreateAccountGroupRequest">CreateAccountGroupRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.AccountGroup">AccountGroup</a></td>
-                <td><p>Creates a new account group.</p></td>
+                <td><p>Creates a new account group.
+Authorization:
+  Scope: accountGroups:write
+  Permission: PERMISSION_ACCOUNT_GROUPS_CREATE
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>UpdateAccountGroup</td>
                 <td><a href="#pixlcrashr.vsfv.v1.UpdateAccountGroupRequest">UpdateAccountGroupRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.AccountGroup">AccountGroup</a></td>
-                <td><p>Updates an existing account group.</p></td>
+                <td><p>Updates an existing account group.
+Authorization:
+  Scope: accountGroups:write
+  Permission: PERMISSION_ACCOUNT_GROUPS_UPDATE
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>DeleteAccountGroup</td>
                 <td><a href="#pixlcrashr.vsfv.v1.DeleteAccountGroupRequest">DeleteAccountGroupRequest</a></td>
                 <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
-                <td><p>Permanently deletes an account group.</p></td>
+                <td><p>Permanently deletes an account group.
+Authorization:
+  Scope: accountGroups:write
+  Permission: PERMISSION_ACCOUNT_GROUPS_DELETE
+  Domain: organization-scoped</p></td>
               </tr>
             
           </tbody>
@@ -2526,35 +2578,55 @@ Example: &#34;negate=true&#34; or &#34;account_id=\&#34;&lt;uuid&gt;\&#34;&#34;.
                 <td>GetAccountGroupAssignment</td>
                 <td><a href="#pixlcrashr.vsfv.v1.GetAccountGroupAssignmentRequest">GetAccountGroupAssignmentRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.AccountGroupAssignment">AccountGroupAssignment</a></td>
-                <td><p>Gets a single assignment by resource name.</p></td>
+                <td><p>Gets a single assignment by resource name.
+Authorization:
+  Scope: accountGroups:read
+  Permission: PERMISSION_ACCOUNT_GROUPS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>ListAccountGroupAssignments</td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListAccountGroupAssignmentsRequest">ListAccountGroupAssignmentsRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListAccountGroupAssignmentsResponse">ListAccountGroupAssignmentsResponse</a></td>
-                <td><p>Lists assignments for an account group.</p></td>
+                <td><p>Lists assignments for an account group.
+Authorization:
+  Scope: accountGroups:read
+  Permission: PERMISSION_ACCOUNT_GROUPS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>CreateAccountGroupAssignment</td>
                 <td><a href="#pixlcrashr.vsfv.v1.CreateAccountGroupAssignmentRequest">CreateAccountGroupAssignmentRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.AccountGroupAssignment">AccountGroupAssignment</a></td>
-                <td><p>Creates a new assignment.</p></td>
+                <td><p>Creates a new assignment.
+Authorization:
+  Scope: accountGroups:write
+  Permission: PERMISSION_ACCOUNT_GROUPS_CREATE
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>UpdateAccountGroupAssignment</td>
                 <td><a href="#pixlcrashr.vsfv.v1.UpdateAccountGroupAssignmentRequest">UpdateAccountGroupAssignmentRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.AccountGroupAssignment">AccountGroupAssignment</a></td>
-                <td><p>Updates an existing assignment.</p></td>
+                <td><p>Updates an existing assignment.
+Authorization:
+  Scope: accountGroups:write
+  Permission: PERMISSION_ACCOUNT_GROUPS_UPDATE
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>DeleteAccountGroupAssignment</td>
                 <td><a href="#pixlcrashr.vsfv.v1.DeleteAccountGroupAssignmentRequest">DeleteAccountGroupAssignmentRequest</a></td>
                 <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
-                <td><p>Permanently deletes an assignment.</p></td>
+                <td><p>Permanently deletes an assignment.
+Authorization:
+  Scope: accountGroups:write
+  Permission: PERMISSION_ACCOUNT_GROUPS_DELETE
+  Domain: organization-scoped</p></td>
               </tr>
             
           </tbody>
@@ -2990,42 +3062,66 @@ Example: &#34;is_closed=false&#34; or &#34;display_name=\&#34;FY2025\&#34;&#34;.
                 <td>GetBudget</td>
                 <td><a href="#pixlcrashr.vsfv.v1.GetBudgetRequest">GetBudgetRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.Budget">Budget</a></td>
-                <td><p>Gets a single budget by resource name.</p></td>
+                <td><p>Gets a single budget by resource name.
+Authorization:
+  Scope: budgets:read
+  Permission: PERMISSION_BUDGETS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>ListBudgets</td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListBudgetsRequest">ListBudgetsRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListBudgetsResponse">ListBudgetsResponse</a></td>
-                <td><p>Lists budgets with pagination.</p></td>
+                <td><p>Lists budgets with pagination.
+Authorization:
+  Scope: budgets:read
+  Permission: PERMISSION_BUDGETS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>CreateBudget</td>
                 <td><a href="#pixlcrashr.vsfv.v1.CreateBudgetRequest">CreateBudgetRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.Budget">Budget</a></td>
-                <td><p>Creates a new budget.</p></td>
+                <td><p>Creates a new budget.
+Authorization:
+  Scope: budgets:write
+  Permission: PERMISSION_BUDGETS_CREATE
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>UpdateBudget</td>
                 <td><a href="#pixlcrashr.vsfv.v1.UpdateBudgetRequest">UpdateBudgetRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.Budget">Budget</a></td>
-                <td><p>Updates an existing budget.</p></td>
+                <td><p>Updates an existing budget.
+Authorization:
+  Scope: budgets:write
+  Permission: PERMISSION_BUDGETS_UPDATE
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>CloseBudget</td>
                 <td><a href="#pixlcrashr.vsfv.v1.CloseBudgetRequest">CloseBudgetRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.Budget">Budget</a></td>
-                <td><p>Closes a budget, marking it as no longer active.</p></td>
+                <td><p>Closes a budget, marking it as no longer active.
+Authorization:
+  Scope: budgets:write
+  Permission: PERMISSION_BUDGETS_CLOSE
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>DeleteBudget</td>
                 <td><a href="#pixlcrashr.vsfv.v1.DeleteBudgetRequest">DeleteBudgetRequest</a></td>
                 <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
-                <td><p>Permanently deletes a budget.</p></td>
+                <td><p>Permanently deletes a budget.
+Authorization:
+  Scope: budgets:write
+  Permission: PERMISSION_BUDGETS_DELETE
+  Domain: organization-scoped</p></td>
               </tr>
             
           </tbody>
@@ -3531,35 +3627,55 @@ created. In this situation, update_mask is ignored. </p></td>
                 <td>GetBudgetAccountValue</td>
                 <td><a href="#pixlcrashr.vsfv.v1.GetBudgetAccountValueRequest">GetBudgetAccountValueRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.BudgetAccountValue">BudgetAccountValue</a></td>
-                <td><p>Gets a single budget account value by resource name.</p></td>
+                <td><p>Gets a single budget account value by resource name.
+Authorization:
+  Scope: budgets:read
+  Permission: PERMISSION_BUDGETS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>ListBudgetAccountValues</td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListBudgetAccountValuesRequest">ListBudgetAccountValuesRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListBudgetAccountValuesResponse">ListBudgetAccountValuesResponse</a></td>
-                <td><p>Lists account values for a budget.</p></td>
+                <td><p>Lists account values for a budget.
+Authorization:
+  Scope: budgets:read
+  Permission: PERMISSION_BUDGETS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>CreateBudgetAccountValue</td>
                 <td><a href="#pixlcrashr.vsfv.v1.CreateBudgetAccountValueRequest">CreateBudgetAccountValueRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.BudgetAccountValue">BudgetAccountValue</a></td>
-                <td><p>Creates a new budget account value.</p></td>
+                <td><p>Creates a new budget account value.
+Authorization:
+  Scope: budgets:write
+  Permission: PERMISSION_BUDGETS_CREATE
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>UpdateBudgetAccountValue</td>
                 <td><a href="#pixlcrashr.vsfv.v1.UpdateBudgetAccountValueRequest">UpdateBudgetAccountValueRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.BudgetAccountValue">BudgetAccountValue</a></td>
-                <td><p>Updates an existing budget account value.</p></td>
+                <td><p>Updates an existing budget account value.
+Authorization:
+  Scope: budgets:write
+  Permission: PERMISSION_BUDGETS_UPDATE
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>DeleteBudgetAccountValue</td>
                 <td><a href="#pixlcrashr.vsfv.v1.DeleteBudgetAccountValueRequest">DeleteBudgetAccountValueRequest</a></td>
                 <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
-                <td><p>Permanently deletes a budget account value.</p></td>
+                <td><p>Permanently deletes a budget account value.
+Authorization:
+  Scope: budgets:write
+  Permission: PERMISSION_BUDGETS_DELETE
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
@@ -3567,7 +3683,11 @@ created. In this situation, update_mask is ignored. </p></td>
                 <td><a href="#pixlcrashr.vsfv.v1.BatchUpdateBudgetAccountValuesRequest">BatchUpdateBudgetAccountValuesRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.BatchUpdateBudgetAccountValuesResponse">BatchUpdateBudgetAccountValuesResponse</a></td>
                 <td><p>Atomically upserts multiple account values for a budget.
-Existing values for listed account IDs are updated; missing ones are created.</p></td>
+Existing values for listed account IDs are updated; missing ones are created.
+Authorization:
+  Scope: budgets:write
+  Permission: PERMISSION_BUDGETS_UPDATE
+  Domain: organization-scoped</p></td>
               </tr>
             
           </tbody>
@@ -3845,14 +3965,22 @@ Example: &#34;account_id=\&#34;&lt;uuid&gt;\&#34;&#34;. </p></td>
                 <td>GetBudgetActualAccountValue</td>
                 <td><a href="#pixlcrashr.vsfv.v1.GetBudgetActualAccountValueRequest">GetBudgetActualAccountValueRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.BudgetActualAccountValue">BudgetActualAccountValue</a></td>
-                <td><p>Gets the computed actual value for a single account within a budget.</p></td>
+                <td><p>Gets the computed actual value for a single account within a budget.
+Authorization:
+  Scope: budgets:read
+  Permission: PERMISSION_BUDGETS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>ListBudgetActualAccountValues</td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListBudgetActualAccountValuesRequest">ListBudgetActualAccountValuesRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListBudgetActualAccountValuesResponse">ListBudgetActualAccountValuesResponse</a></td>
-                <td><p>Lists computed actual account values for a budget, with pagination.</p></td>
+                <td><p>Lists computed actual account values for a budget, with pagination.
+Authorization:
+  Scope: budgets:read
+  Permission: PERMISSION_BUDGETS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
           </tbody>
@@ -4150,14 +4278,22 @@ Example: &#34;create_time desc&#34;, &#34;display_name&#34;. </p></td>
                 <td>GetBudgetRevision</td>
                 <td><a href="#pixlcrashr.vsfv.v1.GetBudgetRevisionRequest">GetBudgetRevisionRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.BudgetRevision">BudgetRevision</a></td>
-                <td><p>Gets a single budget revision by resource name.</p></td>
+                <td><p>Gets a single budget revision by resource name.
+Authorization:
+  Scope: budgets:read
+  Permission: PERMISSION_BUDGETS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>ListBudgetRevisions</td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListBudgetRevisionsRequest">ListBudgetRevisionsRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListBudgetRevisionsResponse">ListBudgetRevisionsResponse</a></td>
-                <td><p>Lists revisions for a budget in reverse chronological order.</p></td>
+                <td><p>Lists revisions for a budget in reverse chronological order.
+Authorization:
+  Scope: budgets:read
+  Permission: PERMISSION_BUDGETS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
@@ -4165,7 +4301,11 @@ Example: &#34;create_time desc&#34;, &#34;display_name&#34;. </p></td>
                 <td><a href="#pixlcrashr.vsfv.v1.CreateBudgetRevisionRequest">CreateBudgetRevisionRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.BudgetRevision">BudgetRevision</a></td>
                 <td><p>Creates a new revision by capturing the current state of all
-BudgetAccountValues for the given budget.</p></td>
+BudgetAccountValues for the given budget.
+Authorization:
+  Scope: budgets:write
+  Permission: PERMISSION_BUDGETS_CREATE
+  Domain: organization-scoped</p></td>
               </tr>
             
           </tbody>
@@ -4434,14 +4574,22 @@ Example: &#34;account_id=\&#34;&lt;uuid&gt;\&#34;&#34;. </p></td>
                 <td>GetBudgetRevisionAccountValue</td>
                 <td><a href="#pixlcrashr.vsfv.v1.GetBudgetRevisionAccountValueRequest">GetBudgetRevisionAccountValueRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.BudgetRevisionAccountValue">BudgetRevisionAccountValue</a></td>
-                <td><p>Gets a single budget revision account value by resource name.</p></td>
+                <td><p>Gets a single budget revision account value by resource name.
+Authorization:
+  Scope: budgets:read
+  Permission: PERMISSION_BUDGETS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>ListBudgetRevisionAccountValues</td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListBudgetRevisionAccountValuesRequest">ListBudgetRevisionAccountValuesRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListBudgetRevisionAccountValuesResponse">ListBudgetRevisionAccountValuesResponse</a></td>
-                <td><p>Lists the account values captured in a revision, with pagination.</p></td>
+                <td><p>Lists the account values captured in a revision, with pagination.
+Authorization:
+  Scope: budgets:read
+  Permission: PERMISSION_BUDGETS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
           </tbody>
@@ -4644,6 +4792,12 @@ Example: &#34;account_id=\&#34;&lt;uuid&gt;\&#34;&#34;. </p></td>
               </tr>
             
               <tr>
+                <td>PERMISSION_ACCOUNTS_ARCHIVE</td>
+                <td>14</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
                 <td>PERMISSION_ACCOUNT_GROUPS_READ</td>
                 <td>20</td>
                 <td><p>Account Groups</p></td>
@@ -4692,6 +4846,12 @@ Example: &#34;account_id=\&#34;&lt;uuid&gt;\&#34;&#34;. </p></td>
               </tr>
             
               <tr>
+                <td>PERMISSION_BUDGETS_CLOSE</td>
+                <td>34</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
                 <td>PERMISSION_JOURNAL_READ</td>
                 <td>40</td>
                 <td><p>Journal</p></td>
@@ -4704,20 +4864,62 @@ Example: &#34;account_id=\&#34;&lt;uuid&gt;\&#34;&#34;. </p></td>
               </tr>
             
               <tr>
-                <td>PERMISSION_TRANSACTIONS_READ</td>
-                <td>50</td>
-                <td><p>Transactions</p></td>
+                <td>PERMISSION_LEDGER_ACCOUNT_READ</td>
+                <td>45</td>
+                <td><p>Ledger Accounts</p></td>
               </tr>
             
               <tr>
-                <td>PERMISSION_TRANSACTIONS_UPDATE</td>
+                <td>PERMISSION_LEDGER_ACCOUNT_UPDATE</td>
+                <td>46</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>PERMISSION_LEDGER_ACCOUNT_DELETE</td>
+                <td>47</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>PERMISSION_LEDGER_YEAR_READ</td>
+                <td>50</td>
+                <td><p>Ledger Years</p></td>
+              </tr>
+            
+              <tr>
+                <td>PERMISSION_LEDGER_YEAR_CREATE</td>
                 <td>51</td>
                 <td><p></p></td>
               </tr>
             
               <tr>
-                <td>PERMISSION_TRANSACTIONS_DELETE</td>
+                <td>PERMISSION_LEDGER_YEAR_CLOSE</td>
                 <td>52</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>PERMISSION_LEDGER_YEAR_DELETE</td>
+                <td>53</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>PERMISSION_TRANSACTIONS_READ</td>
+                <td>55</td>
+                <td><p>Transactions</p></td>
+              </tr>
+            
+              <tr>
+                <td>PERMISSION_TRANSACTIONS_UPDATE</td>
+                <td>56</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>PERMISSION_TRANSACTIONS_DELETE</td>
+                <td>57</td>
                 <td><p></p></td>
               </tr>
             
@@ -4838,6 +5040,84 @@ Example: &#34;account_id=\&#34;&lt;uuid&gt;\&#34;&#34;. </p></td>
               <tr>
                 <td>PERMISSION_SETTINGS_UPDATE</td>
                 <td>121</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>PERMISSION_ORGANIZATIONS_READ</td>
+                <td>130</td>
+                <td><p>Organizations</p></td>
+              </tr>
+            
+              <tr>
+                <td>PERMISSION_ORGANIZATIONS_UPDATE</td>
+                <td>131</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>PERMISSION_ORGANIZATIONS_ARCHIVE</td>
+                <td>132</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>PERMISSION_ORGANIZATIONS_CREATE</td>
+                <td>133</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>PERMISSION_ORGANIZATIONS_DELETE</td>
+                <td>134</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>PERMISSION_REIMBURSEMENTS_READ</td>
+                <td>140</td>
+                <td><p>Reimbursements</p></td>
+              </tr>
+            
+              <tr>
+                <td>PERMISSION_REIMBURSEMENTS_CREATE</td>
+                <td>141</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>PERMISSION_REIMBURSEMENTS_COMMENT</td>
+                <td>142</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>PERMISSION_REIMBURSEMENTS_UPDATE</td>
+                <td>143</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>PERMISSION_REIMBURSEMENTS_ARCHIVE</td>
+                <td>144</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>PERMISSION_REIMBURSEMENTS_READ_OWN</td>
+                <td>145</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>PERMISSION_REIMBURSEMENTS_COMMENT_OWN</td>
+                <td>146</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>PERMISSION_REIMBURSEMENTS_UPDATE_OWN</td>
+                <td>147</td>
                 <td><p></p></td>
               </tr>
             
@@ -5180,35 +5460,55 @@ Supported fields: display_name. </p></td>
                 <td>GetGroup</td>
                 <td><a href="#pixlcrashr.vsfv.v1.GetGroupRequest">GetGroupRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.Group">Group</a></td>
-                <td><p>Gets a single group by resource name.</p></td>
+                <td><p>Gets a single group by resource name.
+Authorization:
+  Scope: groups:read
+  Permission: PERMISSION_GROUPS_READ
+  Domain: global</p></td>
               </tr>
             
               <tr>
                 <td>ListGroups</td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListGroupsRequest">ListGroupsRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListGroupsResponse">ListGroupsResponse</a></td>
-                <td><p>Lists groups with pagination.</p></td>
+                <td><p>Lists groups with pagination.
+Authorization:
+  Scope: groups:read
+  Permission: PERMISSION_GROUPS_READ
+  Domain: global</p></td>
               </tr>
             
               <tr>
                 <td>CreateGroup</td>
                 <td><a href="#pixlcrashr.vsfv.v1.CreateGroupRequest">CreateGroupRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.Group">Group</a></td>
-                <td><p>Creates a new group.</p></td>
+                <td><p>Creates a new group.
+Authorization:
+  Scope: groups:write
+  Permission: PERMISSION_GROUPS_CREATE
+  Domain: global</p></td>
               </tr>
             
               <tr>
                 <td>UpdateGroup</td>
                 <td><a href="#pixlcrashr.vsfv.v1.UpdateGroupRequest">UpdateGroupRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.Group">Group</a></td>
-                <td><p>Updates an existing group.</p></td>
+                <td><p>Updates an existing group.
+Authorization:
+  Scope: groups:write
+  Permission: PERMISSION_GROUPS_UPDATE
+  Domain: global</p></td>
               </tr>
             
               <tr>
                 <td>DeleteGroup</td>
                 <td><a href="#pixlcrashr.vsfv.v1.DeleteGroupRequest">DeleteGroupRequest</a></td>
                 <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
-                <td><p>Permanently deletes a group.</p></td>
+                <td><p>Permanently deletes a group.
+Authorization:
+  Scope: groups:write
+  Permission: PERMISSION_GROUPS_DELETE
+  Domain: global</p></td>
               </tr>
             
           </tbody>
@@ -5625,28 +5925,44 @@ Example: &#34;account_type=ASSET&#34; or &#34;code:\&#34;1000\&#34;&#34;. </p></
                 <td>GetLedgerAccount</td>
                 <td><a href="#pixlcrashr.vsfv.v1.GetLedgerAccountRequest">GetLedgerAccountRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.LedgerAccount">LedgerAccount</a></td>
-                <td><p>Gets a single ledger account by resource name.</p></td>
+                <td><p>Gets a single ledger account by resource name.
+Authorization:
+  Scope: ledgerAccount:read
+  Permission: PERMISSION_LEDGER_ACCOUNT_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>ListLedgerAccounts</td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListLedgerAccountsRequest">ListLedgerAccountsRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListLedgerAccountsResponse">ListLedgerAccountsResponse</a></td>
-                <td><p>Lists ledger accounts with pagination.</p></td>
+                <td><p>Lists ledger accounts with pagination.
+Authorization:
+  Scope: ledgerAccount:read
+  Permission: PERMISSION_LEDGER_ACCOUNT_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>UpdateLedgerAccount</td>
                 <td><a href="#pixlcrashr.vsfv.v1.UpdateLedgerAccountRequest">UpdateLedgerAccountRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.LedgerAccount">LedgerAccount</a></td>
-                <td><p>Updates an existing ledger account (e.g., display name).</p></td>
+                <td><p>Updates an existing ledger account (e.g., display name).
+Authorization:
+  Scope: ledgerAccount:write
+  Permission: PERMISSION_LEDGER_ACCOUNT_UPDATE
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>DeleteLedgerAccount</td>
                 <td><a href="#pixlcrashr.vsfv.v1.DeleteLedgerAccountRequest">DeleteLedgerAccountRequest</a></td>
                 <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
-                <td><p>Permanently deletes a ledger account.</p></td>
+                <td><p>Permanently deletes a ledger account.
+Authorization:
+  Scope: ledgerAccount:write
+  Permission: PERMISSION_LEDGER_ACCOUNT_DELETE
+  Domain: organization-scoped</p></td>
               </tr>
             
           </tbody>
@@ -6013,21 +6329,33 @@ Example: &#34;is_closed=false&#34; or &#34;year=2025&#34;. </p></td>
                 <td>GetLedgerYear</td>
                 <td><a href="#pixlcrashr.vsfv.v1.GetLedgerYearRequest">GetLedgerYearRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.LedgerYear">LedgerYear</a></td>
-                <td><p>Gets a single ledger year by resource name.</p></td>
+                <td><p>Gets a single ledger year by resource name.
+Authorization:
+  Scope: ledgerYear:read
+  Permission: PERMISSION_LEDGER_YEAR_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>ListLedgerYears</td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListLedgerYearsRequest">ListLedgerYearsRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListLedgerYearsResponse">ListLedgerYearsResponse</a></td>
-                <td><p>Lists ledger years for an organization.</p></td>
+                <td><p>Lists ledger years for an organization.
+Authorization:
+  Scope: ledgerYear:read
+  Permission: PERMISSION_LEDGER_YEAR_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>CloseLedgerYear</td>
                 <td><a href="#pixlcrashr.vsfv.v1.CloseLedgerYearRequest">CloseLedgerYearRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.LedgerYear">LedgerYear</a></td>
-                <td><p>Closes a ledger year, preventing new imports.</p></td>
+                <td><p>Closes a ledger year, preventing new imports.
+Authorization:
+  Scope: ledgerYear:write
+  Permission: PERMISSION_LEDGER_YEAR_CLOSE
+  Domain: organization-scoped</p></td>
               </tr>
             
           </tbody>
@@ -6422,42 +6750,66 @@ Format: organizations/{organization} </p></td>
                 <td>GetOrganization</td>
                 <td><a href="#pixlcrashr.vsfv.v1.GetOrganizationRequest">GetOrganizationRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.Organization">Organization</a></td>
-                <td><p>Gets a single organization by resource name.</p></td>
+                <td><p>Gets a single organization by resource name.
+Authorization:
+  Scope: organizations:read
+  Permission: PERMISSION_ORGANIZATIONS_READ
+  Domain: global</p></td>
               </tr>
             
               <tr>
                 <td>ListOrganizations</td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListOrganizationsRequest">ListOrganizationsRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListOrganizationsResponse">ListOrganizationsResponse</a></td>
-                <td><p>Lists organizations with pagination.</p></td>
+                <td><p>Lists organizations with pagination.
+Authorization:
+  Scope: organizations:read
+  Permission: PERMISSION_ORGANIZATIONS_READ
+  Domain: global</p></td>
               </tr>
             
               <tr>
                 <td>CreateOrganization</td>
                 <td><a href="#pixlcrashr.vsfv.v1.CreateOrganizationRequest">CreateOrganizationRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.Organization">Organization</a></td>
-                <td><p>Creates a new organization.</p></td>
+                <td><p>Creates a new organization.
+Authorization:
+  Scope: organizations:write
+  Permission: PERMISSION_ORGANIZATIONS_CREATE
+  Domain: global</p></td>
               </tr>
             
               <tr>
                 <td>UpdateOrganization</td>
                 <td><a href="#pixlcrashr.vsfv.v1.UpdateOrganizationRequest">UpdateOrganizationRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.Organization">Organization</a></td>
-                <td><p>Updates an existing organization.</p></td>
+                <td><p>Updates an existing organization.
+Authorization:
+  Scope: organizations:write
+  Permission: PERMISSION_ORGANIZATIONS_UPDATE
+  Domain: global</p></td>
               </tr>
             
               <tr>
                 <td>DeleteOrganization</td>
                 <td><a href="#pixlcrashr.vsfv.v1.DeleteOrganizationRequest">DeleteOrganizationRequest</a></td>
                 <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
-                <td><p>Permanently deletes an organization.</p></td>
+                <td><p>Permanently deletes an organization.
+Authorization:
+  Scope: organizations:write
+  Permission: PERMISSION_ORGANIZATIONS_DELETE
+  Domain: global</p></td>
               </tr>
             
               <tr>
                 <td>CheckOrganizationId</td>
                 <td><a href="#pixlcrashr.vsfv.v1.CheckOrganizationIdRequest">CheckOrganizationIdRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.CheckOrganizationIdResponse">CheckOrganizationIdResponse</a></td>
-                <td><p>Checks whether an organization ID (slug) is available for use.</p></td>
+                <td><p>Checks whether an organization ID (slug) is available for use.
+Authorization:
+  Scope: organizations:read
+  Permission: PERMISSION_ORGANIZATIONS_READ
+  Domain: global</p></td>
               </tr>
             
           </tbody>
@@ -6812,28 +7164,44 @@ Format: organizations/{organization}/reports/{report} </p></td>
                 <td>GetReport</td>
                 <td><a href="#pixlcrashr.vsfv.v1.GetReportRequest">GetReportRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.Report">Report</a></td>
-                <td><p>Gets report metadata by resource name.</p></td>
+                <td><p>Gets report metadata by resource name.
+Authorization:
+  Scope: reports:read
+  Permission: PERMISSION_REPORTS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>ListReports</td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListReportsRequest">ListReportsRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListReportsResponse">ListReportsResponse</a></td>
-                <td><p>Lists reports with pagination.</p></td>
+                <td><p>Lists reports with pagination.
+Authorization:
+  Scope: reports:read
+  Permission: PERMISSION_REPORTS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>CreateReport</td>
                 <td><a href="#pixlcrashr.vsfv.v1.CreateReportRequest">CreateReportRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.Report">Report</a></td>
-                <td><p>Creates a new report by rendering a template.</p></td>
+                <td><p>Creates a new report by rendering a template.
+Authorization:
+  Scope: reports:write
+  Permission: PERMISSION_REPORTS_CREATE
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>DeleteReport</td>
                 <td><a href="#pixlcrashr.vsfv.v1.DeleteReportRequest">DeleteReportRequest</a></td>
                 <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
-                <td><p>Permanently deletes a report.</p></td>
+                <td><p>Permanently deletes a report.
+Authorization:
+  Scope: reports:write
+  Permission: PERMISSION_REPORTS_DELETE
+  Domain: organization-scoped</p></td>
               </tr>
             
           </tbody>
@@ -7206,35 +7574,55 @@ Format: organizations/{organization}/reportTemplates/{report_template} </p></td>
                 <td>GetReportTemplate</td>
                 <td><a href="#pixlcrashr.vsfv.v1.GetReportTemplateRequest">GetReportTemplateRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ReportTemplate">ReportTemplate</a></td>
-                <td><p>Gets a single report template by resource name.</p></td>
+                <td><p>Gets a single report template by resource name.
+Authorization:
+  Scope: reportTemplates:read
+  Permission: PERMISSION_REPORT_TEMPLATES_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>ListReportTemplates</td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListReportTemplatesRequest">ListReportTemplatesRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListReportTemplatesResponse">ListReportTemplatesResponse</a></td>
-                <td><p>Lists report templates with pagination.</p></td>
+                <td><p>Lists report templates with pagination.
+Authorization:
+  Scope: reportTemplates:read
+  Permission: PERMISSION_REPORT_TEMPLATES_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>CreateReportTemplate</td>
                 <td><a href="#pixlcrashr.vsfv.v1.CreateReportTemplateRequest">CreateReportTemplateRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ReportTemplate">ReportTemplate</a></td>
-                <td><p>Creates a new report template.</p></td>
+                <td><p>Creates a new report template.
+Authorization:
+  Scope: reportTemplates:write
+  Permission: PERMISSION_REPORT_TEMPLATES_CREATE
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>UpdateReportTemplate</td>
                 <td><a href="#pixlcrashr.vsfv.v1.UpdateReportTemplateRequest">UpdateReportTemplateRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ReportTemplate">ReportTemplate</a></td>
-                <td><p>Updates an existing report template.</p></td>
+                <td><p>Updates an existing report template.
+Authorization:
+  Scope: reportTemplates:write
+  Permission: PERMISSION_REPORT_TEMPLATES_UPDATE
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>DeleteReportTemplate</td>
                 <td><a href="#pixlcrashr.vsfv.v1.DeleteReportTemplateRequest">DeleteReportTemplateRequest</a></td>
                 <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
-                <td><p>Permanently deletes a report template.</p></td>
+                <td><p>Permanently deletes a report template.
+Authorization:
+  Scope: reportTemplates:write
+  Permission: PERMISSION_REPORT_TEMPLATES_DELETE
+  Domain: organization-scoped</p></td>
               </tr>
             
           </tbody>
@@ -7662,35 +8050,55 @@ Format: organizations/{organization}/ledgerAccounts/{ledger_account} </p></td>
                 <td>GetTransaction</td>
                 <td><a href="#pixlcrashr.vsfv.v1.GetTransactionRequest">GetTransactionRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.Transaction">Transaction</a></td>
-                <td><p>Gets a single transaction by resource name.</p></td>
+                <td><p>Gets a single transaction by resource name.
+Authorization:
+  Scope: transactions:read
+  Permission: PERMISSION_TRANSACTIONS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>ListTransactions</td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListTransactionsRequest">ListTransactionsRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListTransactionsResponse">ListTransactionsResponse</a></td>
-                <td><p>Lists transactions with keyset pagination and optional filters.</p></td>
+                <td><p>Lists transactions with keyset pagination and optional filters.
+Authorization:
+  Scope: transactions:read
+  Permission: PERMISSION_TRANSACTIONS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>CreateTransaction</td>
                 <td><a href="#pixlcrashr.vsfv.v1.CreateTransactionRequest">CreateTransactionRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.Transaction">Transaction</a></td>
-                <td><p>Creates a new transaction.</p></td>
+                <td><p>Creates a new transaction.
+Authorization:
+  Scope: transactions:write
+  Permission: PERMISSION_TRANSACTIONS_CREATE (note: not yet defined in permission.proto)
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>UpdateTransaction</td>
                 <td><a href="#pixlcrashr.vsfv.v1.UpdateTransactionRequest">UpdateTransactionRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.Transaction">Transaction</a></td>
-                <td><p>Updates an existing transaction.</p></td>
+                <td><p>Updates an existing transaction.
+Authorization:
+  Scope: transactions:write
+  Permission: PERMISSION_TRANSACTIONS_UPDATE
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>DeleteTransaction</td>
                 <td><a href="#pixlcrashr.vsfv.v1.DeleteTransactionRequest">DeleteTransactionRequest</a></td>
                 <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
-                <td><p>Permanently deletes a transaction.</p></td>
+                <td><p>Permanently deletes a transaction.
+Authorization:
+  Scope: transactions:write
+  Permission: PERMISSION_TRANSACTIONS_DELETE
+  Domain: organization-scoped</p></td>
               </tr>
             
           </tbody>
@@ -8075,14 +8483,22 @@ Format: organizations/{organization}/accounts/{account} </p></td>
                 <td>GetTransactionAssignment</td>
                 <td><a href="#pixlcrashr.vsfv.v1.GetTransactionAssignmentRequest">GetTransactionAssignmentRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.TransactionAssignment">TransactionAssignment</a></td>
-                <td><p>Gets a single transaction assignment by resource name.</p></td>
+                <td><p>Gets a single transaction assignment by resource name.
+Authorization:
+  Scope: transactions:read
+  Permission: PERMISSION_TRANSACTIONS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
               <tr>
                 <td>ListTransactionAssignments</td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListTransactionAssignmentsRequest">ListTransactionAssignmentsRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListTransactionAssignmentsResponse">ListTransactionAssignmentsResponse</a></td>
-                <td><p>Lists transaction assignments with keyset pagination and optional filters.</p></td>
+                <td><p>Lists transaction assignments with keyset pagination and optional filters.
+Authorization:
+  Scope: transactions:read
+  Permission: PERMISSION_TRANSACTIONS_READ
+  Domain: organization-scoped</p></td>
               </tr>
             
           </tbody>
@@ -8468,14 +8884,22 @@ Format: users/{user} </p></td>
                 <td>GetUser</td>
                 <td><a href="#pixlcrashr.vsfv.v1.GetUserRequest">GetUserRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.User">User</a></td>
-                <td><p>Gets a single user by resource name.</p></td>
+                <td><p>Gets a single user by resource name.
+Authorization:
+  Scope: users:read
+  Permission: PERMISSION_USERS_READ
+  Domain: global</p></td>
               </tr>
             
               <tr>
                 <td>ListUsers</td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListUsersRequest">ListUsersRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListUsersResponse">ListUsersResponse</a></td>
-                <td><p>Lists users with pagination.</p></td>
+                <td><p>Lists users with pagination.
+Authorization:
+  Scope: users:read
+  Permission: PERMISSION_USERS_READ
+  Domain: global</p></td>
               </tr>
             
               <tr>
@@ -8483,7 +8907,11 @@ Format: users/{user} </p></td>
                 <td><a href="#pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsRequest">CheckUserOrganizationPermissionsRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsResponse">CheckUserOrganizationPermissionsResponse</a></td>
                 <td><p>Checks which of the requested permissions a user holds within a single
-organization (custom method, AIP-136).</p></td>
+organization (custom method, AIP-136).
+Authorization:
+  Scope: users:read
+  Permission: PERMISSION_USERS_READ
+  Domain: global</p></td>
               </tr>
             
               <tr>
@@ -8491,7 +8919,11 @@ organization (custom method, AIP-136).</p></td>
                 <td><a href="#pixlcrashr.vsfv.v1.BatchCheckUserOrganizationPermissionsRequest">BatchCheckUserOrganizationPermissionsRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.BatchCheckUserOrganizationPermissionsResponse">BatchCheckUserOrganizationPermissionsResponse</a></td>
                 <td><p>Checks permissions for a user across multiple organizations in one call
-(batch custom method, AIP-231).</p></td>
+(batch custom method, AIP-231).
+Authorization:
+  Scope: users:read
+  Permission: PERMISSION_USERS_READ
+  Domain: global</p></td>
               </tr>
             
           </tbody>
@@ -8760,14 +9192,22 @@ This is the provider&#39;s stable user ID, not a credential. </p></td>
                 <td>GetUserIdentity</td>
                 <td><a href="#pixlcrashr.vsfv.v1.GetUserIdentityRequest">GetUserIdentityRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.UserIdentity">UserIdentity</a></td>
-                <td><p>Gets a single identity record.</p></td>
+                <td><p>Gets a single identity record.
+Authorization:
+  Scope: users:read
+  Permission: PERMISSION_USERS_READ
+  Domain: global</p></td>
               </tr>
             
               <tr>
                 <td>ListUserIdentities</td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListUserIdentitiesRequest">ListUserIdentitiesRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListUserIdentitiesResponse">ListUserIdentitiesResponse</a></td>
-                <td><p>Lists all identity records for a user.</p></td>
+                <td><p>Lists all identity records for a user.
+Authorization:
+  Scope: users:read
+  Permission: PERMISSION_USERS_READ
+  Domain: global</p></td>
               </tr>
             
           </tbody>
@@ -8956,14 +9396,22 @@ Format: users/{user}/settings </p></td>
                 <td>GetUserSettings</td>
                 <td><a href="#pixlcrashr.vsfv.v1.GetUserSettingsRequest">GetUserSettingsRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.UserSettings">UserSettings</a></td>
-                <td><p>Gets the settings for a user.</p></td>
+                <td><p>Gets the settings for a user.
+Authorization:
+  Scope: settings:read
+  Permission: PERMISSION_SETTINGS_READ
+  Domain: global</p></td>
               </tr>
             
               <tr>
                 <td>UpdateUserSettings</td>
                 <td><a href="#pixlcrashr.vsfv.v1.UpdateUserSettingsRequest">UpdateUserSettingsRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.UserSettings">UserSettings</a></td>
-                <td><p>Updates the settings for a user.</p></td>
+                <td><p>Updates the settings for a user.
+Authorization:
+  Scope: settings:write
+  Permission: PERMISSION_SETTINGS_UPDATE
+  Domain: global</p></td>
               </tr>
             
           </tbody>

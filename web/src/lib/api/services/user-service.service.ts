@@ -13,6 +13,11 @@ import { V1BatchCheckUserOrganizationPermissionsResponse } from '../models/v1bat
 import { UserServiceBatchCheckUserOrganizationPermissionsBody } from '../models/user-service-batch-check-user-organization-permissions-body';
 import { V1CheckUserOrganizationPermissionsResponse } from '../models/v1check-user-organization-permissions-response';
 import { UserServiceCheckUserOrganizationPermissionsBody } from '../models/user-service-check-user-organization-permissions-body';
+
+/**
+ * UserService provides a read-only administrative view of users.
+ * Users are created exclusively through the SSO/OAuth2 flow.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -31,6 +36,10 @@ class UserServiceService extends __BaseService {
 
   /**
    * Lists users with pagination.
+   * Authorization:
+   *   Scope: users:read
+   *   Permission: PERMISSION_USERS_READ
+   *   Domain: global
    * @param params The `UserServiceService.UserServiceListUsersParams` containing the following parameters:
    *
    * - `page_token`: A page token from a previous ListUsers call.
@@ -72,6 +81,10 @@ class UserServiceService extends __BaseService {
   }
   /**
    * Lists users with pagination.
+   * Authorization:
+   *   Scope: users:read
+   *   Permission: PERMISSION_USERS_READ
+   *   Domain: global
    * @param params The `UserServiceService.UserServiceListUsersParams` containing the following parameters:
    *
    * - `page_token`: A page token from a previous ListUsers call.
@@ -94,6 +107,10 @@ class UserServiceService extends __BaseService {
 
   /**
    * Gets a single user by resource name.
+   * Authorization:
+   *   Scope: users:read
+   *   Permission: PERMISSION_USERS_READ
+   *   Domain: global
    * @param name_16 The resource name of the user.
    * Format: users/{user}
    * @return A successful response.
@@ -122,6 +139,10 @@ class UserServiceService extends __BaseService {
   }
   /**
    * Gets a single user by resource name.
+   * Authorization:
+   *   Scope: users:read
+   *   Permission: PERMISSION_USERS_READ
+   *   Domain: global
    * @param name_16 The resource name of the user.
    * Format: users/{user}
    * @return A successful response.
@@ -135,6 +156,10 @@ class UserServiceService extends __BaseService {
   /**
    * Checks permissions for a user across multiple organizations in one call
    * (batch custom method, AIP-231).
+   * Authorization:
+   *   Scope: users:read
+   *   Permission: PERMISSION_USERS_READ
+   *   Domain: global
    * @param params The `UserServiceService.UserServiceBatchCheckUserOrganizationPermissionsParams` containing the following parameters:
    *
    * - `name`: The resource name of the user.
@@ -170,6 +195,10 @@ class UserServiceService extends __BaseService {
   /**
    * Checks permissions for a user across multiple organizations in one call
    * (batch custom method, AIP-231).
+   * Authorization:
+   *   Scope: users:read
+   *   Permission: PERMISSION_USERS_READ
+   *   Domain: global
    * @param params The `UserServiceService.UserServiceBatchCheckUserOrganizationPermissionsParams` containing the following parameters:
    *
    * - `name`: The resource name of the user.
@@ -188,6 +217,10 @@ class UserServiceService extends __BaseService {
   /**
    * Checks which of the requested permissions a user holds within a single
    * organization (custom method, AIP-136).
+   * Authorization:
+   *   Scope: users:read
+   *   Permission: PERMISSION_USERS_READ
+   *   Domain: global
    * @param params The `UserServiceService.UserServiceCheckUserOrganizationPermissionsParams` containing the following parameters:
    *
    * - `name`: The resource name of the user.
@@ -223,6 +256,10 @@ class UserServiceService extends __BaseService {
   /**
    * Checks which of the requested permissions a user holds within a single
    * organization (custom method, AIP-136).
+   * Authorization:
+   *   Scope: users:read
+   *   Permission: PERMISSION_USERS_READ
+   *   Domain: global
    * @param params The `UserServiceService.UserServiceCheckUserOrganizationPermissionsParams` containing the following parameters:
    *
    * - `name`: The resource name of the user.

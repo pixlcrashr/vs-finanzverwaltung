@@ -12,6 +12,10 @@ import { V1Decimal } from '../models/v1decimal';
 import { V1ListBudgetAccountValuesResponse } from '../models/v1list-budget-account-values-response';
 import { V1BatchUpdateBudgetAccountValuesResponse } from '../models/v1batch-update-budget-account-values-response';
 import { BudgetAccountValueServiceBatchUpdateBudgetAccountValuesBody } from '../models/budget-account-value-service-batch-update-budget-account-values-body';
+
+/**
+ * BudgetAccountValueService manages per-account value assignments within a budget.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -32,6 +36,10 @@ class BudgetAccountValueServiceService extends __BaseService {
 
   /**
    * Updates an existing budget account value.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: PERMISSION_BUDGETS_UPDATE
+   *   Domain: organization-scoped
    * @param params The `BudgetAccountValueServiceService.BudgetAccountValueServiceUpdateBudgetAccountValueParams` containing the following parameters:
    *
    * - `account_value.name`: The resource name of the budget account value.
@@ -70,6 +78,10 @@ class BudgetAccountValueServiceService extends __BaseService {
   }
   /**
    * Updates an existing budget account value.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: PERMISSION_BUDGETS_UPDATE
+   *   Domain: organization-scoped
    * @param params The `BudgetAccountValueServiceService.BudgetAccountValueServiceUpdateBudgetAccountValueParams` containing the following parameters:
    *
    * - `account_value.name`: The resource name of the budget account value.
@@ -90,6 +102,10 @@ class BudgetAccountValueServiceService extends __BaseService {
 
   /**
    * Gets a single budget account value by resource name.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: PERMISSION_BUDGETS_READ
+   *   Domain: organization-scoped
    * @param name_4 The resource name of the budget account value.
    * Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
    * @return A successful response.
@@ -118,6 +134,10 @@ class BudgetAccountValueServiceService extends __BaseService {
   }
   /**
    * Gets a single budget account value by resource name.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: PERMISSION_BUDGETS_READ
+   *   Domain: organization-scoped
    * @param name_4 The resource name of the budget account value.
    * Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
    * @return A successful response.
@@ -130,6 +150,10 @@ class BudgetAccountValueServiceService extends __BaseService {
 
   /**
    * Permanently deletes a budget account value.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: PERMISSION_BUDGETS_DELETE
+   *   Domain: organization-scoped
    * @param name_4 The resource name of the budget account value.
    * Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
    * @return A successful response.
@@ -158,6 +182,10 @@ class BudgetAccountValueServiceService extends __BaseService {
   }
   /**
    * Permanently deletes a budget account value.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: PERMISSION_BUDGETS_DELETE
+   *   Domain: organization-scoped
    * @param name_4 The resource name of the budget account value.
    * Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
    * @return A successful response.
@@ -170,6 +198,10 @@ class BudgetAccountValueServiceService extends __BaseService {
 
   /**
    * Lists account values for a budget.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: PERMISSION_BUDGETS_READ
+   *   Domain: organization-scoped
    * @param params The `BudgetAccountValueServiceService.BudgetAccountValueServiceListBudgetAccountValuesParams` containing the following parameters:
    *
    * - `parent`: The parent budget resource name.
@@ -216,6 +248,10 @@ class BudgetAccountValueServiceService extends __BaseService {
   }
   /**
    * Lists account values for a budget.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: PERMISSION_BUDGETS_READ
+   *   Domain: organization-scoped
    * @param params The `BudgetAccountValueServiceService.BudgetAccountValueServiceListBudgetAccountValuesParams` containing the following parameters:
    *
    * - `parent`: The parent budget resource name.
@@ -242,6 +278,10 @@ class BudgetAccountValueServiceService extends __BaseService {
 
   /**
    * Creates a new budget account value.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: PERMISSION_BUDGETS_CREATE
+   *   Domain: organization-scoped
    * @param params The `BudgetAccountValueServiceService.BudgetAccountValueServiceCreateBudgetAccountValueParams` containing the following parameters:
    *
    * - `parent`: The parent budget resource name.
@@ -280,6 +320,10 @@ class BudgetAccountValueServiceService extends __BaseService {
   }
   /**
    * Creates a new budget account value.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: PERMISSION_BUDGETS_CREATE
+   *   Domain: organization-scoped
    * @param params The `BudgetAccountValueServiceService.BudgetAccountValueServiceCreateBudgetAccountValueParams` containing the following parameters:
    *
    * - `parent`: The parent budget resource name.
@@ -301,6 +345,10 @@ class BudgetAccountValueServiceService extends __BaseService {
   /**
    * Atomically upserts multiple account values for a budget.
    * Existing values for listed account IDs are updated; missing ones are created.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: PERMISSION_BUDGETS_UPDATE
+   *   Domain: organization-scoped
    * @param params The `BudgetAccountValueServiceService.BudgetAccountValueServiceBatchUpdateBudgetAccountValuesParams` containing the following parameters:
    *
    * - `parent`: The parent resource shared by all budget account values being updated.
@@ -338,6 +386,10 @@ class BudgetAccountValueServiceService extends __BaseService {
   /**
    * Atomically upserts multiple account values for a budget.
    * Existing values for listed account IDs are updated; missing ones are created.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: PERMISSION_BUDGETS_UPDATE
+   *   Domain: organization-scoped
    * @param params The `BudgetAccountValueServiceService.BudgetAccountValueServiceBatchUpdateBudgetAccountValuesParams` containing the following parameters:
    *
    * - `parent`: The parent resource shared by all budget account values being updated.

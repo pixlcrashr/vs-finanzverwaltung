@@ -10,6 +10,11 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 import { V1LedgerAccount } from '../models/v1ledger-account';
 import { V1AccountType } from '../models/v1account-type';
 import { V1ListLedgerAccountsResponse } from '../models/v1list-ledger-accounts-response';
+
+/**
+ * LedgerAccountService manages ledger accounts for bookkeeping.
+ * Accounts are auto-created during import; only Get, List, Update, Delete are exposed.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -28,6 +33,10 @@ class LedgerAccountServiceService extends __BaseService {
 
   /**
    * Updates an existing ledger account (e.g., display name).
+   * Authorization:
+   *   Scope: ledgerAccount:write
+   *   Permission: PERMISSION_LEDGER_ACCOUNT_UPDATE
+   *   Domain: organization-scoped
    * @param params The `LedgerAccountServiceService.LedgerAccountServiceUpdateLedgerAccountParams` containing the following parameters:
    *
    * - `ledger_account.name`: The resource name of the ledger account.
@@ -62,6 +71,10 @@ class LedgerAccountServiceService extends __BaseService {
   }
   /**
    * Updates an existing ledger account (e.g., display name).
+   * Authorization:
+   *   Scope: ledgerAccount:write
+   *   Permission: PERMISSION_LEDGER_ACCOUNT_UPDATE
+   *   Domain: organization-scoped
    * @param params The `LedgerAccountServiceService.LedgerAccountServiceUpdateLedgerAccountParams` containing the following parameters:
    *
    * - `ledger_account.name`: The resource name of the ledger account.
@@ -79,6 +92,10 @@ class LedgerAccountServiceService extends __BaseService {
 
   /**
    * Permanently deletes a ledger account.
+   * Authorization:
+   *   Scope: ledgerAccount:write
+   *   Permission: PERMISSION_LEDGER_ACCOUNT_DELETE
+   *   Domain: organization-scoped
    * @param name_6 The resource name of the ledger account.
    * Format: organizations/{organization}/ledgerAccounts/{ledger_account}
    * @return A successful response.
@@ -107,6 +124,10 @@ class LedgerAccountServiceService extends __BaseService {
   }
   /**
    * Permanently deletes a ledger account.
+   * Authorization:
+   *   Scope: ledgerAccount:write
+   *   Permission: PERMISSION_LEDGER_ACCOUNT_DELETE
+   *   Domain: organization-scoped
    * @param name_6 The resource name of the ledger account.
    * Format: organizations/{organization}/ledgerAccounts/{ledger_account}
    * @return A successful response.
@@ -119,6 +140,10 @@ class LedgerAccountServiceService extends __BaseService {
 
   /**
    * Gets a single ledger account by resource name.
+   * Authorization:
+   *   Scope: ledgerAccount:read
+   *   Permission: PERMISSION_LEDGER_ACCOUNT_READ
+   *   Domain: organization-scoped
    * @param name_9 The resource name of the ledger account.
    * Format: organizations/{organization}/ledgerAccounts/{ledger_account}
    * @return A successful response.
@@ -147,6 +172,10 @@ class LedgerAccountServiceService extends __BaseService {
   }
   /**
    * Gets a single ledger account by resource name.
+   * Authorization:
+   *   Scope: ledgerAccount:read
+   *   Permission: PERMISSION_LEDGER_ACCOUNT_READ
+   *   Domain: organization-scoped
    * @param name_9 The resource name of the ledger account.
    * Format: organizations/{organization}/ledgerAccounts/{ledger_account}
    * @return A successful response.
@@ -159,6 +188,10 @@ class LedgerAccountServiceService extends __BaseService {
 
   /**
    * Lists ledger accounts with pagination.
+   * Authorization:
+   *   Scope: ledgerAccount:read
+   *   Permission: PERMISSION_LEDGER_ACCOUNT_READ
+   *   Domain: organization-scoped
    * @param params The `LedgerAccountServiceService.LedgerAccountServiceListLedgerAccountsParams` containing the following parameters:
    *
    * - `parent`: The parent organization resource name.
@@ -208,6 +241,10 @@ class LedgerAccountServiceService extends __BaseService {
   }
   /**
    * Lists ledger accounts with pagination.
+   * Authorization:
+   *   Scope: ledgerAccount:read
+   *   Permission: PERMISSION_LEDGER_ACCOUNT_READ
+   *   Domain: organization-scoped
    * @param params The `LedgerAccountServiceService.LedgerAccountServiceListLedgerAccountsParams` containing the following parameters:
    *
    * - `parent`: The parent organization resource name.

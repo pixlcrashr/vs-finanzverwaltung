@@ -12,6 +12,10 @@ import { V1Organization } from '../models/v1organization';
 import { V1CheckOrganizationIdResponse } from '../models/v1check-organization-id-response';
 import { V1CheckOrganizationIdRequest } from '../models/v1check-organization-id-request';
 import { V1Month } from '../models/v1month';
+
+/**
+ * OrganizationService manages organizations.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -32,6 +36,10 @@ class OrganizationServiceService extends __BaseService {
 
   /**
    * Lists organizations with pagination.
+   * Authorization:
+   *   Scope: organizations:read
+   *   Permission: PERMISSION_ORGANIZATIONS_READ
+   *   Domain: global
    * @param params The `OrganizationServiceService.OrganizationServiceListOrganizationsParams` containing the following parameters:
    *
    * - `page_token`: A page token from a previous ListOrganizations call.
@@ -74,6 +82,10 @@ class OrganizationServiceService extends __BaseService {
   }
   /**
    * Lists organizations with pagination.
+   * Authorization:
+   *   Scope: organizations:read
+   *   Permission: PERMISSION_ORGANIZATIONS_READ
+   *   Domain: global
    * @param params The `OrganizationServiceService.OrganizationServiceListOrganizationsParams` containing the following parameters:
    *
    * - `page_token`: A page token from a previous ListOrganizations call.
@@ -97,6 +109,10 @@ class OrganizationServiceService extends __BaseService {
 
   /**
    * Creates a new organization.
+   * Authorization:
+   *   Scope: organizations:write
+   *   Permission: PERMISSION_ORGANIZATIONS_CREATE
+   *   Domain: global
    * @param params The `OrganizationServiceService.OrganizationServiceCreateOrganizationParams` containing the following parameters:
    *
    * - `organization`: The organization to create.
@@ -131,6 +147,10 @@ class OrganizationServiceService extends __BaseService {
   }
   /**
    * Creates a new organization.
+   * Authorization:
+   *   Scope: organizations:write
+   *   Permission: PERMISSION_ORGANIZATIONS_CREATE
+   *   Domain: global
    * @param params The `OrganizationServiceService.OrganizationServiceCreateOrganizationParams` containing the following parameters:
    *
    * - `organization`: The organization to create.
@@ -148,6 +168,10 @@ class OrganizationServiceService extends __BaseService {
 
   /**
    * Checks whether an organization ID (slug) is available for use.
+   * Authorization:
+   *   Scope: organizations:read
+   *   Permission: PERMISSION_ORGANIZATIONS_READ
+   *   Domain: global
    * @param body undefined
    * @return A successful response.
    */
@@ -175,6 +199,10 @@ class OrganizationServiceService extends __BaseService {
   }
   /**
    * Checks whether an organization ID (slug) is available for use.
+   * Authorization:
+   *   Scope: organizations:read
+   *   Permission: PERMISSION_ORGANIZATIONS_READ
+   *   Domain: global
    * @param body undefined
    * @return A successful response.
    */
@@ -186,6 +214,10 @@ class OrganizationServiceService extends __BaseService {
 
   /**
    * Gets a single organization by resource name.
+   * Authorization:
+   *   Scope: organizations:read
+   *   Permission: PERMISSION_ORGANIZATIONS_READ
+   *   Domain: global
    * @param name_11 The resource name of the organization.
    * Format: organizations/{organization}
    * @return A successful response.
@@ -214,6 +246,10 @@ class OrganizationServiceService extends __BaseService {
   }
   /**
    * Gets a single organization by resource name.
+   * Authorization:
+   *   Scope: organizations:read
+   *   Permission: PERMISSION_ORGANIZATIONS_READ
+   *   Domain: global
    * @param name_11 The resource name of the organization.
    * Format: organizations/{organization}
    * @return A successful response.
@@ -226,6 +262,10 @@ class OrganizationServiceService extends __BaseService {
 
   /**
    * Permanently deletes an organization.
+   * Authorization:
+   *   Scope: organizations:write
+   *   Permission: PERMISSION_ORGANIZATIONS_DELETE
+   *   Domain: global
    * @param name_7 The resource name of the organization.
    * Format: organizations/{organization}
    * @return A successful response.
@@ -254,6 +294,10 @@ class OrganizationServiceService extends __BaseService {
   }
   /**
    * Permanently deletes an organization.
+   * Authorization:
+   *   Scope: organizations:write
+   *   Permission: PERMISSION_ORGANIZATIONS_DELETE
+   *   Domain: global
    * @param name_7 The resource name of the organization.
    * Format: organizations/{organization}
    * @return A successful response.
@@ -266,6 +310,10 @@ class OrganizationServiceService extends __BaseService {
 
   /**
    * Updates an existing organization.
+   * Authorization:
+   *   Scope: organizations:write
+   *   Permission: PERMISSION_ORGANIZATIONS_UPDATE
+   *   Domain: global
    * @param params The `OrganizationServiceService.OrganizationServiceUpdateOrganizationParams` containing the following parameters:
    *
    * - `organization.name`: The resource name of the organization.
@@ -300,6 +348,10 @@ class OrganizationServiceService extends __BaseService {
   }
   /**
    * Updates an existing organization.
+   * Authorization:
+   *   Scope: organizations:write
+   *   Permission: PERMISSION_ORGANIZATIONS_UPDATE
+   *   Domain: global
    * @param params The `OrganizationServiceService.OrganizationServiceUpdateOrganizationParams` containing the following parameters:
    *
    * - `organization.name`: The resource name of the organization.

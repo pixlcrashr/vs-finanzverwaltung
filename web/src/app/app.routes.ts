@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 import { MainLayoutDataService } from './shared/layout/main-layout/main-layout.data-service';
 import { environment } from '../environments/environment';
 
+
+
 export const routes: Routes = [
   // Main layout with left sidebar - single instance for all routes
   {

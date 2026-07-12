@@ -9,6 +9,11 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 
 import { V1Report } from '../models/v1report';
 import { V1ListReportsResponse } from '../models/v1list-reports-response';
+
+/**
+ * ReportService manages generated report instances.
+ * Note: report file download is handled exclusively by the Huma HTTP API.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -27,6 +32,10 @@ class ReportServiceService extends __BaseService {
 
   /**
    * Gets report metadata by resource name.
+   * Authorization:
+   *   Scope: reports:read
+   *   Permission: PERMISSION_REPORTS_READ
+   *   Domain: organization-scoped
    * @param name_12 The resource name of the report.
    * Format: organizations/{organization}/reports/{report}
    * @return A successful response.
@@ -55,6 +64,10 @@ class ReportServiceService extends __BaseService {
   }
   /**
    * Gets report metadata by resource name.
+   * Authorization:
+   *   Scope: reports:read
+   *   Permission: PERMISSION_REPORTS_READ
+   *   Domain: organization-scoped
    * @param name_12 The resource name of the report.
    * Format: organizations/{organization}/reports/{report}
    * @return A successful response.
@@ -67,6 +80,10 @@ class ReportServiceService extends __BaseService {
 
   /**
    * Permanently deletes a report.
+   * Authorization:
+   *   Scope: reports:write
+   *   Permission: PERMISSION_REPORTS_DELETE
+   *   Domain: organization-scoped
    * @param name_8 The resource name of the report.
    * Format: organizations/{organization}/reports/{report}
    * @return A successful response.
@@ -95,6 +112,10 @@ class ReportServiceService extends __BaseService {
   }
   /**
    * Permanently deletes a report.
+   * Authorization:
+   *   Scope: reports:write
+   *   Permission: PERMISSION_REPORTS_DELETE
+   *   Domain: organization-scoped
    * @param name_8 The resource name of the report.
    * Format: organizations/{organization}/reports/{report}
    * @return A successful response.
@@ -107,6 +128,10 @@ class ReportServiceService extends __BaseService {
 
   /**
    * Lists reports with pagination.
+   * Authorization:
+   *   Scope: reports:read
+   *   Permission: PERMISSION_REPORTS_READ
+   *   Domain: organization-scoped
    * @param params The `ReportServiceService.ReportServiceListReportsParams` containing the following parameters:
    *
    * - `parent`: The parent organization resource name.
@@ -153,6 +178,10 @@ class ReportServiceService extends __BaseService {
   }
   /**
    * Lists reports with pagination.
+   * Authorization:
+   *   Scope: reports:read
+   *   Permission: PERMISSION_REPORTS_READ
+   *   Domain: organization-scoped
    * @param params The `ReportServiceService.ReportServiceListReportsParams` containing the following parameters:
    *
    * - `parent`: The parent organization resource name.
@@ -179,6 +208,10 @@ class ReportServiceService extends __BaseService {
 
   /**
    * Creates a new report by rendering a template.
+   * Authorization:
+   *   Scope: reports:write
+   *   Permission: PERMISSION_REPORTS_CREATE
+   *   Domain: organization-scoped
    * @param params The `ReportServiceService.ReportServiceCreateReportParams` containing the following parameters:
    *
    * - `report`: The report to create.
@@ -217,6 +250,10 @@ class ReportServiceService extends __BaseService {
   }
   /**
    * Creates a new report by rendering a template.
+   * Authorization:
+   *   Scope: reports:write
+   *   Permission: PERMISSION_REPORTS_CREATE
+   *   Domain: organization-scoped
    * @param params The `ReportServiceService.ReportServiceCreateReportParams` containing the following parameters:
    *
    * - `report`: The report to create.

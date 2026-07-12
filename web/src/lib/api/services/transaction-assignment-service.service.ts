@@ -9,6 +9,10 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 
 import { V1TransactionAssignment } from '../models/v1transaction-assignment';
 import { V1ListTransactionAssignmentsResponse } from '../models/v1list-transaction-assignments-response';
+
+/**
+ * TransactionAssignmentService manages transaction assignments to budget accounts.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -25,6 +29,10 @@ class TransactionAssignmentServiceService extends __BaseService {
 
   /**
    * Gets a single transaction assignment by resource name.
+   * Authorization:
+   *   Scope: transactions:read
+   *   Permission: PERMISSION_TRANSACTIONS_READ
+   *   Domain: organization-scoped
    * @param name_15 The resource name of the transaction assignment.
    * Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
    * @return A successful response.
@@ -53,6 +61,10 @@ class TransactionAssignmentServiceService extends __BaseService {
   }
   /**
    * Gets a single transaction assignment by resource name.
+   * Authorization:
+   *   Scope: transactions:read
+   *   Permission: PERMISSION_TRANSACTIONS_READ
+   *   Domain: organization-scoped
    * @param name_15 The resource name of the transaction assignment.
    * Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
    * @return A successful response.
@@ -65,6 +77,10 @@ class TransactionAssignmentServiceService extends __BaseService {
 
   /**
    * Lists transaction assignments with keyset pagination and optional filters.
+   * Authorization:
+   *   Scope: transactions:read
+   *   Permission: PERMISSION_TRANSACTIONS_READ
+   *   Domain: organization-scoped
    * @param params The `TransactionAssignmentServiceService.TransactionAssignmentServiceListTransactionAssignmentsParams` containing the following parameters:
    *
    * - `parent_1`: The parent transaction resource name.
@@ -79,7 +95,7 @@ class TransactionAssignmentServiceService extends __BaseService {
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: account.
-   *   Example: "account=\"organizations/​*​/accounts/​*​\"".
+   *   Example: "account=\"organizations/*/accounts/*\"".
    *
    * @return A successful response.
    */
@@ -111,6 +127,10 @@ class TransactionAssignmentServiceService extends __BaseService {
   }
   /**
    * Lists transaction assignments with keyset pagination and optional filters.
+   * Authorization:
+   *   Scope: transactions:read
+   *   Permission: PERMISSION_TRANSACTIONS_READ
+   *   Domain: organization-scoped
    * @param params The `TransactionAssignmentServiceService.TransactionAssignmentServiceListTransactionAssignmentsParams` containing the following parameters:
    *
    * - `parent_1`: The parent transaction resource name.
@@ -125,7 +145,7 @@ class TransactionAssignmentServiceService extends __BaseService {
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: account.
-   *   Example: "account=\"organizations/​*​/accounts/​*​\"".
+   *   Example: "account=\"organizations/*/accounts/*\"".
    *
    * @return A successful response.
    */
@@ -168,7 +188,7 @@ module TransactionAssignmentServiceService {
     /**
      * Filter expression conforming to AIP-160.
      * Supported fields: account.
-     * Example: "account=\"organizations/​*​/accounts/​*​\"".
+     * Example: "account=\"organizations/*/accounts/*\"".
      */
     filter?: string;
   }

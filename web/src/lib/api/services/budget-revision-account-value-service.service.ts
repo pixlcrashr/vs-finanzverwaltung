@@ -9,6 +9,12 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 
 import { V1BudgetRevisionAccountValue } from '../models/v1budget-revision-account-value';
 import { V1ListBudgetRevisionAccountValuesResponse } from '../models/v1list-budget-revision-account-values-response';
+
+/**
+ * BudgetRevisionAccountValueService provides read-only access to the
+ * per-account values captured within a BudgetRevision. All resources in this
+ * service are immutable and server-managed.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -25,6 +31,10 @@ class BudgetRevisionAccountValueServiceService extends __BaseService {
 
   /**
    * Gets a single budget revision account value by resource name.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: PERMISSION_BUDGETS_READ
+   *   Domain: organization-scoped
    * @param name_7 The resource name of the budget revision account value.
    * Format: organizations/{organization}/budgets/{budget}/revisions/{revision}/accountValues/{account_value}
    * @return A successful response.
@@ -53,6 +63,10 @@ class BudgetRevisionAccountValueServiceService extends __BaseService {
   }
   /**
    * Gets a single budget revision account value by resource name.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: PERMISSION_BUDGETS_READ
+   *   Domain: organization-scoped
    * @param name_7 The resource name of the budget revision account value.
    * Format: organizations/{organization}/budgets/{budget}/revisions/{revision}/accountValues/{account_value}
    * @return A successful response.
@@ -65,6 +79,10 @@ class BudgetRevisionAccountValueServiceService extends __BaseService {
 
   /**
    * Lists the account values captured in a revision, with pagination.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: PERMISSION_BUDGETS_READ
+   *   Domain: organization-scoped
    * @param params The `BudgetRevisionAccountValueServiceService.BudgetRevisionAccountValueServiceListBudgetRevisionAccountValuesParams` containing the following parameters:
    *
    * - `parent_1`: The parent revision resource name.
@@ -111,6 +129,10 @@ class BudgetRevisionAccountValueServiceService extends __BaseService {
   }
   /**
    * Lists the account values captured in a revision, with pagination.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: PERMISSION_BUDGETS_READ
+   *   Domain: organization-scoped
    * @param params The `BudgetRevisionAccountValueServiceService.BudgetRevisionAccountValueServiceListBudgetRevisionAccountValuesParams` containing the following parameters:
    *
    * - `parent_1`: The parent revision resource name.

@@ -10,6 +10,10 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 import { V1LedgerYear } from '../models/v1ledger-year';
 import { LedgerYearServiceCloseLedgerYearBody } from '../models/ledger-year-service-close-ledger-year-body';
 import { V1ListLedgerYearsResponse } from '../models/v1list-ledger-years-response';
+
+/**
+ * LedgerYearService manages fiscal/economic years within an organization.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -27,6 +31,10 @@ class LedgerYearServiceService extends __BaseService {
 
   /**
    * Gets a single ledger year by resource name.
+   * Authorization:
+   *   Scope: ledgerYear:read
+   *   Permission: PERMISSION_LEDGER_YEAR_READ
+   *   Domain: organization-scoped
    * @param name_10 The resource name of the ledger year.
    * Format: organizations/{organization}/ledgerYears/{ledger_year}
    * @return A successful response.
@@ -55,6 +63,10 @@ class LedgerYearServiceService extends __BaseService {
   }
   /**
    * Gets a single ledger year by resource name.
+   * Authorization:
+   *   Scope: ledgerYear:read
+   *   Permission: PERMISSION_LEDGER_YEAR_READ
+   *   Domain: organization-scoped
    * @param name_10 The resource name of the ledger year.
    * Format: organizations/{organization}/ledgerYears/{ledger_year}
    * @return A successful response.
@@ -67,6 +79,10 @@ class LedgerYearServiceService extends __BaseService {
 
   /**
    * Closes a ledger year, preventing new imports.
+   * Authorization:
+   *   Scope: ledgerYear:write
+   *   Permission: PERMISSION_LEDGER_YEAR_CLOSE
+   *   Domain: organization-scoped
    * @param params The `LedgerYearServiceService.LedgerYearServiceCloseLedgerYearParams` containing the following parameters:
    *
    * - `name_1`: The resource name of the ledger year to close.
@@ -101,6 +117,10 @@ class LedgerYearServiceService extends __BaseService {
   }
   /**
    * Closes a ledger year, preventing new imports.
+   * Authorization:
+   *   Scope: ledgerYear:write
+   *   Permission: PERMISSION_LEDGER_YEAR_CLOSE
+   *   Domain: organization-scoped
    * @param params The `LedgerYearServiceService.LedgerYearServiceCloseLedgerYearParams` containing the following parameters:
    *
    * - `name_1`: The resource name of the ledger year to close.
@@ -118,6 +138,10 @@ class LedgerYearServiceService extends __BaseService {
 
   /**
    * Lists ledger years for an organization.
+   * Authorization:
+   *   Scope: ledgerYear:read
+   *   Permission: PERMISSION_LEDGER_YEAR_READ
+   *   Domain: organization-scoped
    * @param params The `LedgerYearServiceService.LedgerYearServiceListLedgerYearsParams` containing the following parameters:
    *
    * - `parent`: The parent organization resource name.
@@ -164,6 +188,10 @@ class LedgerYearServiceService extends __BaseService {
   }
   /**
    * Lists ledger years for an organization.
+   * Authorization:
+   *   Scope: ledgerYear:read
+   *   Permission: PERMISSION_LEDGER_YEAR_READ
+   *   Domain: organization-scoped
    * @param params The `LedgerYearServiceService.LedgerYearServiceListLedgerYearsParams` containing the following parameters:
    *
    * - `parent`: The parent organization resource name.

@@ -10,6 +10,10 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 import { V1ListGroupsResponse } from '../models/v1list-groups-response';
 import { V1Group } from '../models/v1group';
 import { V1GroupOrganizationPolicy } from '../models/v1group-organization-policy';
+
+/**
+ * GroupService manages groups and their per-organization permission policies.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -29,6 +33,10 @@ class GroupServiceService extends __BaseService {
 
   /**
    * Lists groups with pagination.
+   * Authorization:
+   *   Scope: groups:read
+   *   Permission: PERMISSION_GROUPS_READ
+   *   Domain: global
    * @param params The `GroupServiceService.GroupServiceListGroupsParams` containing the following parameters:
    *
    * - `page_token`: A page token from a previous ListGroups call.
@@ -70,6 +78,10 @@ class GroupServiceService extends __BaseService {
   }
   /**
    * Lists groups with pagination.
+   * Authorization:
+   *   Scope: groups:read
+   *   Permission: PERMISSION_GROUPS_READ
+   *   Domain: global
    * @param params The `GroupServiceService.GroupServiceListGroupsParams` containing the following parameters:
    *
    * - `page_token`: A page token from a previous ListGroups call.
@@ -92,6 +104,10 @@ class GroupServiceService extends __BaseService {
 
   /**
    * Creates a new group.
+   * Authorization:
+   *   Scope: groups:write
+   *   Permission: PERMISSION_GROUPS_CREATE
+   *   Domain: global
    * @param params The `GroupServiceService.GroupServiceCreateGroupParams` containing the following parameters:
    *
    * - `group`: The group to create.
@@ -126,6 +142,10 @@ class GroupServiceService extends __BaseService {
   }
   /**
    * Creates a new group.
+   * Authorization:
+   *   Scope: groups:write
+   *   Permission: PERMISSION_GROUPS_CREATE
+   *   Domain: global
    * @param params The `GroupServiceService.GroupServiceCreateGroupParams` containing the following parameters:
    *
    * - `group`: The group to create.
@@ -143,6 +163,10 @@ class GroupServiceService extends __BaseService {
 
   /**
    * Updates an existing group.
+   * Authorization:
+   *   Scope: groups:write
+   *   Permission: PERMISSION_GROUPS_UPDATE
+   *   Domain: global
    * @param params The `GroupServiceService.GroupServiceUpdateGroupParams` containing the following parameters:
    *
    * - `group.name`: The resource name of the group.
@@ -177,6 +201,10 @@ class GroupServiceService extends __BaseService {
   }
   /**
    * Updates an existing group.
+   * Authorization:
+   *   Scope: groups:write
+   *   Permission: PERMISSION_GROUPS_UPDATE
+   *   Domain: global
    * @param params The `GroupServiceService.GroupServiceUpdateGroupParams` containing the following parameters:
    *
    * - `group.name`: The resource name of the group.
@@ -194,6 +222,10 @@ class GroupServiceService extends __BaseService {
 
   /**
    * Permanently deletes a group.
+   * Authorization:
+   *   Scope: groups:write
+   *   Permission: PERMISSION_GROUPS_DELETE
+   *   Domain: global
    * @param name_5 The resource name of the group.
    * Format: groups/{group}
    * @return A successful response.
@@ -222,6 +254,10 @@ class GroupServiceService extends __BaseService {
   }
   /**
    * Permanently deletes a group.
+   * Authorization:
+   *   Scope: groups:write
+   *   Permission: PERMISSION_GROUPS_DELETE
+   *   Domain: global
    * @param name_5 The resource name of the group.
    * Format: groups/{group}
    * @return A successful response.
@@ -234,6 +270,10 @@ class GroupServiceService extends __BaseService {
 
   /**
    * Gets a single group by resource name.
+   * Authorization:
+   *   Scope: groups:read
+   *   Permission: PERMISSION_GROUPS_READ
+   *   Domain: global
    * @param name_8 The resource name of the group.
    * Format: groups/{group}
    * @return A successful response.
@@ -262,6 +302,10 @@ class GroupServiceService extends __BaseService {
   }
   /**
    * Gets a single group by resource name.
+   * Authorization:
+   *   Scope: groups:read
+   *   Permission: PERMISSION_GROUPS_READ
+   *   Domain: global
    * @param name_8 The resource name of the group.
    * Format: groups/{group}
    * @return A successful response.

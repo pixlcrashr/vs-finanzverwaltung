@@ -9,6 +9,10 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 
 import { V1AccountGroupAssignment } from '../models/v1account-group-assignment';
 import { V1ListAccountGroupAssignmentsResponse } from '../models/v1list-account-group-assignments-response';
+
+/**
+ * AccountGroupAssignmentService manages account memberships within account groups.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -28,6 +32,10 @@ class AccountGroupAssignmentServiceService extends __BaseService {
 
   /**
    * Updates an existing assignment.
+   * Authorization:
+   *   Scope: accountGroups:write
+   *   Permission: PERMISSION_ACCOUNT_GROUPS_UPDATE
+   *   Domain: organization-scoped
    * @param params The `AccountGroupAssignmentServiceService.AccountGroupAssignmentServiceUpdateAccountGroupAssignmentParams` containing the following parameters:
    *
    * - `assignment.name`: The resource name of the assignment.
@@ -62,6 +70,10 @@ class AccountGroupAssignmentServiceService extends __BaseService {
   }
   /**
    * Updates an existing assignment.
+   * Authorization:
+   *   Scope: accountGroups:write
+   *   Permission: PERMISSION_ACCOUNT_GROUPS_UPDATE
+   *   Domain: organization-scoped
    * @param params The `AccountGroupAssignmentServiceService.AccountGroupAssignmentServiceUpdateAccountGroupAssignmentParams` containing the following parameters:
    *
    * - `assignment.name`: The resource name of the assignment.
@@ -79,6 +91,10 @@ class AccountGroupAssignmentServiceService extends __BaseService {
 
   /**
    * Gets a single assignment by resource name.
+   * Authorization:
+   *   Scope: accountGroups:read
+   *   Permission: PERMISSION_ACCOUNT_GROUPS_READ
+   *   Domain: organization-scoped
    * @param name_2 The resource name of the assignment.
    * Format: organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}
    * @return A successful response.
@@ -107,6 +123,10 @@ class AccountGroupAssignmentServiceService extends __BaseService {
   }
   /**
    * Gets a single assignment by resource name.
+   * Authorization:
+   *   Scope: accountGroups:read
+   *   Permission: PERMISSION_ACCOUNT_GROUPS_READ
+   *   Domain: organization-scoped
    * @param name_2 The resource name of the assignment.
    * Format: organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}
    * @return A successful response.
@@ -119,6 +139,10 @@ class AccountGroupAssignmentServiceService extends __BaseService {
 
   /**
    * Permanently deletes an assignment.
+   * Authorization:
+   *   Scope: accountGroups:write
+   *   Permission: PERMISSION_ACCOUNT_GROUPS_DELETE
+   *   Domain: organization-scoped
    * @param name_2 The resource name of the assignment.
    * Format: organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}
    * @return A successful response.
@@ -147,6 +171,10 @@ class AccountGroupAssignmentServiceService extends __BaseService {
   }
   /**
    * Permanently deletes an assignment.
+   * Authorization:
+   *   Scope: accountGroups:write
+   *   Permission: PERMISSION_ACCOUNT_GROUPS_DELETE
+   *   Domain: organization-scoped
    * @param name_2 The resource name of the assignment.
    * Format: organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}
    * @return A successful response.
@@ -159,6 +187,10 @@ class AccountGroupAssignmentServiceService extends __BaseService {
 
   /**
    * Lists assignments for an account group.
+   * Authorization:
+   *   Scope: accountGroups:read
+   *   Permission: PERMISSION_ACCOUNT_GROUPS_READ
+   *   Domain: organization-scoped
    * @param params The `AccountGroupAssignmentServiceService.AccountGroupAssignmentServiceListAccountGroupAssignmentsParams` containing the following parameters:
    *
    * - `parent`: The parent account group resource name.
@@ -205,6 +237,10 @@ class AccountGroupAssignmentServiceService extends __BaseService {
   }
   /**
    * Lists assignments for an account group.
+   * Authorization:
+   *   Scope: accountGroups:read
+   *   Permission: PERMISSION_ACCOUNT_GROUPS_READ
+   *   Domain: organization-scoped
    * @param params The `AccountGroupAssignmentServiceService.AccountGroupAssignmentServiceListAccountGroupAssignmentsParams` containing the following parameters:
    *
    * - `parent`: The parent account group resource name.
@@ -231,6 +267,10 @@ class AccountGroupAssignmentServiceService extends __BaseService {
 
   /**
    * Creates a new assignment.
+   * Authorization:
+   *   Scope: accountGroups:write
+   *   Permission: PERMISSION_ACCOUNT_GROUPS_CREATE
+   *   Domain: organization-scoped
    * @param params The `AccountGroupAssignmentServiceService.AccountGroupAssignmentServiceCreateAccountGroupAssignmentParams` containing the following parameters:
    *
    * - `parent`: The parent account group resource name.
@@ -269,6 +309,10 @@ class AccountGroupAssignmentServiceService extends __BaseService {
   }
   /**
    * Creates a new assignment.
+   * Authorization:
+   *   Scope: accountGroups:write
+   *   Permission: PERMISSION_ACCOUNT_GROUPS_CREATE
+   *   Domain: organization-scoped
    * @param params The `AccountGroupAssignmentServiceService.AccountGroupAssignmentServiceCreateAccountGroupAssignmentParams` containing the following parameters:
    *
    * - `parent`: The parent account group resource name.

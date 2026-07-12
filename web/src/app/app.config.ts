@@ -15,6 +15,7 @@ import { CreateAccountDialogDataService } from './shared/dialogs/create-account-
 import { CreateReportDialogDataService } from './shared/dialogs/create-report-dialog/create-report-dialog.data-service';
 import { AddReceiptDialogDataService } from './shared/dialogs/add-receipt-dialog/add-receipt-dialog.data-service';
 import { CreateOrganizationDialogDataService } from './shared/dialogs/create-organization-dialog/create-organization-dialog.data-service';
+import { AuthorizationDataService } from '../lib/authz/authorization.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -31,5 +32,6 @@ export const appConfig: ApplicationConfig = {
     { provide: CreateReportDialogDataService, useClass: environment.dataServices.createReportDialog },
     { provide: AddReceiptDialogDataService, useClass: environment.dataServices.addReceiptDialog },
     { provide: CreateOrganizationDialogDataService, useClass: environment.dataServices.createOrganizationDialog },
+    { provide: AuthorizationDataService, useClass: environment.dataServices.authorizationData },
   ],
 };

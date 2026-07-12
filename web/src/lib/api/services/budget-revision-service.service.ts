@@ -9,6 +9,12 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 
 import { V1BudgetRevision } from '../models/v1budget-revision';
 import { V1ListBudgetRevisionsResponse } from '../models/v1list-budget-revisions-response';
+
+/**
+ * BudgetRevisionService manages read-only revision history for budgets.
+ * Revisions are created on demand and capture the full set of
+ * BudgetAccountValues at the time of creation. Revisions are immutable.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -26,6 +32,10 @@ class BudgetRevisionServiceService extends __BaseService {
 
   /**
    * Gets a single budget revision by resource name.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: PERMISSION_BUDGETS_READ
+   *   Domain: organization-scoped
    * @param name_6 The resource name of the budget revision.
    * Format: organizations/{organization}/budgets/{budget}/revisions/{revision}
    * @return A successful response.
@@ -54,6 +64,10 @@ class BudgetRevisionServiceService extends __BaseService {
   }
   /**
    * Gets a single budget revision by resource name.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: PERMISSION_BUDGETS_READ
+   *   Domain: organization-scoped
    * @param name_6 The resource name of the budget revision.
    * Format: organizations/{organization}/budgets/{budget}/revisions/{revision}
    * @return A successful response.
@@ -66,6 +80,10 @@ class BudgetRevisionServiceService extends __BaseService {
 
   /**
    * Lists revisions for a budget in reverse chronological order.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: PERMISSION_BUDGETS_READ
+   *   Domain: organization-scoped
    * @param params The `BudgetRevisionServiceService.BudgetRevisionServiceListBudgetRevisionsParams` containing the following parameters:
    *
    * - `parent`: The parent budget resource name.
@@ -108,6 +126,10 @@ class BudgetRevisionServiceService extends __BaseService {
   }
   /**
    * Lists revisions for a budget in reverse chronological order.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: PERMISSION_BUDGETS_READ
+   *   Domain: organization-scoped
    * @param params The `BudgetRevisionServiceService.BudgetRevisionServiceListBudgetRevisionsParams` containing the following parameters:
    *
    * - `parent`: The parent budget resource name.
@@ -132,6 +154,10 @@ class BudgetRevisionServiceService extends __BaseService {
   /**
    * Creates a new revision by capturing the current state of all
    * BudgetAccountValues for the given budget.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: PERMISSION_BUDGETS_CREATE
+   *   Domain: organization-scoped
    * @param params The `BudgetRevisionServiceService.BudgetRevisionServiceCreateBudgetRevisionParams` containing the following parameters:
    *
    * - `revision`: The revision to create. Only display_name and display_description are
@@ -172,6 +198,10 @@ class BudgetRevisionServiceService extends __BaseService {
   /**
    * Creates a new revision by capturing the current state of all
    * BudgetAccountValues for the given budget.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: PERMISSION_BUDGETS_CREATE
+   *   Domain: organization-scoped
    * @param params The `BudgetRevisionServiceService.BudgetRevisionServiceCreateBudgetRevisionParams` containing the following parameters:
    *
    * - `revision`: The revision to create. Only display_name and display_description are

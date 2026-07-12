@@ -11,6 +11,10 @@ import { V1Budget } from '../models/v1budget';
 import { TypeDate } from '../models/type-date';
 import { BudgetServiceCloseBudgetBody } from '../models/budget-service-close-budget-body';
 import { V1ListBudgetsResponse } from '../models/v1list-budgets-response';
+
+/**
+ * BudgetService manages financial budgets.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -31,6 +35,10 @@ class BudgetServiceService extends __BaseService {
 
   /**
    * Updates an existing budget.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: PERMISSION_BUDGETS_UPDATE
+   *   Domain: organization-scoped
    * @param params The `BudgetServiceService.BudgetServiceUpdateBudgetParams` containing the following parameters:
    *
    * - `budget.name`: The resource name of the budget.
@@ -65,6 +73,10 @@ class BudgetServiceService extends __BaseService {
   }
   /**
    * Updates an existing budget.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: PERMISSION_BUDGETS_UPDATE
+   *   Domain: organization-scoped
    * @param params The `BudgetServiceService.BudgetServiceUpdateBudgetParams` containing the following parameters:
    *
    * - `budget.name`: The resource name of the budget.
@@ -82,6 +94,10 @@ class BudgetServiceService extends __BaseService {
 
   /**
    * Gets a single budget by resource name.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: PERMISSION_BUDGETS_READ
+   *   Domain: organization-scoped
    * @param name_3 The resource name of the budget.
    * Format: organizations/{organization}/budgets/{budget}
    * @return A successful response.
@@ -110,6 +126,10 @@ class BudgetServiceService extends __BaseService {
   }
   /**
    * Gets a single budget by resource name.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: PERMISSION_BUDGETS_READ
+   *   Domain: organization-scoped
    * @param name_3 The resource name of the budget.
    * Format: organizations/{organization}/budgets/{budget}
    * @return A successful response.
@@ -122,6 +142,10 @@ class BudgetServiceService extends __BaseService {
 
   /**
    * Permanently deletes a budget.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: PERMISSION_BUDGETS_DELETE
+   *   Domain: organization-scoped
    * @param name_3 The resource name of the budget.
    * Format: organizations/{organization}/budgets/{budget}
    * @return A successful response.
@@ -150,6 +174,10 @@ class BudgetServiceService extends __BaseService {
   }
   /**
    * Permanently deletes a budget.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: PERMISSION_BUDGETS_DELETE
+   *   Domain: organization-scoped
    * @param name_3 The resource name of the budget.
    * Format: organizations/{organization}/budgets/{budget}
    * @return A successful response.
@@ -162,6 +190,10 @@ class BudgetServiceService extends __BaseService {
 
   /**
    * Closes a budget, marking it as no longer active.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: PERMISSION_BUDGETS_CLOSE
+   *   Domain: organization-scoped
    * @param params The `BudgetServiceService.BudgetServiceCloseBudgetParams` containing the following parameters:
    *
    * - `name`: The resource name of the budget to close.
@@ -196,6 +228,10 @@ class BudgetServiceService extends __BaseService {
   }
   /**
    * Closes a budget, marking it as no longer active.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: PERMISSION_BUDGETS_CLOSE
+   *   Domain: organization-scoped
    * @param params The `BudgetServiceService.BudgetServiceCloseBudgetParams` containing the following parameters:
    *
    * - `name`: The resource name of the budget to close.
@@ -213,6 +249,10 @@ class BudgetServiceService extends __BaseService {
 
   /**
    * Lists budgets with pagination.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: PERMISSION_BUDGETS_READ
+   *   Domain: organization-scoped
    * @param params The `BudgetServiceService.BudgetServiceListBudgetsParams` containing the following parameters:
    *
    * - `parent`: The parent organization resource name.
@@ -262,6 +302,10 @@ class BudgetServiceService extends __BaseService {
   }
   /**
    * Lists budgets with pagination.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: PERMISSION_BUDGETS_READ
+   *   Domain: organization-scoped
    * @param params The `BudgetServiceService.BudgetServiceListBudgetsParams` containing the following parameters:
    *
    * - `parent`: The parent organization resource name.
@@ -290,6 +334,10 @@ class BudgetServiceService extends __BaseService {
 
   /**
    * Creates a new budget.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: PERMISSION_BUDGETS_CREATE
+   *   Domain: organization-scoped
    * @param params The `BudgetServiceService.BudgetServiceCreateBudgetParams` containing the following parameters:
    *
    * - `parent`: The parent organization resource name.
@@ -328,6 +376,10 @@ class BudgetServiceService extends __BaseService {
   }
   /**
    * Creates a new budget.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: PERMISSION_BUDGETS_CREATE
+   *   Domain: organization-scoped
    * @param params The `BudgetServiceService.BudgetServiceCreateBudgetParams` containing the following parameters:
    *
    * - `parent`: The parent organization resource name.

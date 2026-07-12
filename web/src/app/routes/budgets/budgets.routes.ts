@@ -8,10 +8,21 @@ import {
   CloseBudgetDialogDataService,
 } from '../../shared/dialogs/close-budget-dialog/close-budget-dialog.data-service';
 import { environment } from '../../../environments/environment';
+import { requireAllPermissions } from '../../../lib/authz/permission.guard';
+import { V1Permission } from '../../../lib/api/models';
+import { resolvePermissions } from '../../../lib/authz/permission.resolver';
 
 export const BUDGETS_ROUTES: Routes = [
   {
     path: '',
+    canActivate: [requireAllPermissions(V1Permission.PERMISSION_BUDGETS_READ)],
+    resolve: {
+      permissions: resolvePermissions(
+        V1Permission.PERMISSION_BUDGETS_CREATE,
+        V1Permission.PERMISSION_BUDGETS_UPDATE,
+        V1Permission.PERMISSION_BUDGETS_DELETE
+      ),
+    },
     loadComponent: () =>
       import('./budget-list/budget-list.component').then((m) => m.BudgetListComponent),
     providers: [
@@ -21,6 +32,14 @@ export const BUDGETS_ROUTES: Routes = [
   },
   {
     path: ':id',
+    canActivate: [requireAllPermissions(V1Permission.PERMISSION_BUDGETS_READ)],
+    resolve: {
+      permissions: resolvePermissions(
+        V1Permission.PERMISSION_BUDGETS_CREATE,
+        V1Permission.PERMISSION_BUDGETS_UPDATE,
+        V1Permission.PERMISSION_BUDGETS_DELETE
+      ),
+    },
     loadComponent: () =>
       import('./budget-edit/budget-edit.component').then((m) => m.BudgetEditComponent),
     providers: [

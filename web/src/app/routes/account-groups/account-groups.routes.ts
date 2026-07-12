@@ -9,10 +9,13 @@ import {
   AddAccountToGroupDialogDataService,
 } from '../../shared/dialogs/add-account-to-group-dialog/add-account-to-group-dialog.data-service';
 import { environment } from '../../../environments/environment';
+import { requireAllPermissions, requireAnyPermission } from '../../../lib/authz/permission.guard';
+import { V1Permission } from '../../../lib/api/models';
 
 export const ACCOUNT_GROUPS_ROUTES: Routes = [
   {
     path: '',
+    canActivate: [requireAllPermissions(V1Permission.PERMISSION_ACCOUNTS_READ, V1Permission.PERMISSION_ACCOUNT_GROUPS_READ)],
     loadComponent: () =>
       import('./account-group-list/account-group-list.component').then(
         (m) => m.AccountGroupListComponent

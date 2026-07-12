@@ -9,6 +9,10 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 
 import { V1ReportTemplate } from '../models/v1report-template';
 import { V1ListReportTemplatesResponse } from '../models/v1list-report-templates-response';
+
+/**
+ * ReportTemplateService manages Handlebars templates used for report generation.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -28,6 +32,10 @@ class ReportTemplateServiceService extends __BaseService {
 
   /**
    * Gets a single report template by resource name.
+   * Authorization:
+   *   Scope: reportTemplates:read
+   *   Permission: PERMISSION_REPORT_TEMPLATES_READ
+   *   Domain: organization-scoped
    * @param name_13 The resource name of the report template.
    * Format: organizations/{organization}/reportTemplates/{report_template}
    * @return A successful response.
@@ -56,6 +64,10 @@ class ReportTemplateServiceService extends __BaseService {
   }
   /**
    * Gets a single report template by resource name.
+   * Authorization:
+   *   Scope: reportTemplates:read
+   *   Permission: PERMISSION_REPORT_TEMPLATES_READ
+   *   Domain: organization-scoped
    * @param name_13 The resource name of the report template.
    * Format: organizations/{organization}/reportTemplates/{report_template}
    * @return A successful response.
@@ -68,6 +80,10 @@ class ReportTemplateServiceService extends __BaseService {
 
   /**
    * Permanently deletes a report template.
+   * Authorization:
+   *   Scope: reportTemplates:write
+   *   Permission: PERMISSION_REPORT_TEMPLATES_DELETE
+   *   Domain: organization-scoped
    * @param name_9 The resource name of the report template.
    * Format: organizations/{organization}/reportTemplates/{report_template}
    * @return A successful response.
@@ -96,6 +112,10 @@ class ReportTemplateServiceService extends __BaseService {
   }
   /**
    * Permanently deletes a report template.
+   * Authorization:
+   *   Scope: reportTemplates:write
+   *   Permission: PERMISSION_REPORT_TEMPLATES_DELETE
+   *   Domain: organization-scoped
    * @param name_9 The resource name of the report template.
    * Format: organizations/{organization}/reportTemplates/{report_template}
    * @return A successful response.
@@ -108,6 +128,10 @@ class ReportTemplateServiceService extends __BaseService {
 
   /**
    * Lists report templates with pagination.
+   * Authorization:
+   *   Scope: reportTemplates:read
+   *   Permission: PERMISSION_REPORT_TEMPLATES_READ
+   *   Domain: organization-scoped
    * @param params The `ReportTemplateServiceService.ReportTemplateServiceListReportTemplatesParams` containing the following parameters:
    *
    * - `parent`: The parent organization resource name.
@@ -154,6 +178,10 @@ class ReportTemplateServiceService extends __BaseService {
   }
   /**
    * Lists report templates with pagination.
+   * Authorization:
+   *   Scope: reportTemplates:read
+   *   Permission: PERMISSION_REPORT_TEMPLATES_READ
+   *   Domain: organization-scoped
    * @param params The `ReportTemplateServiceService.ReportTemplateServiceListReportTemplatesParams` containing the following parameters:
    *
    * - `parent`: The parent organization resource name.
@@ -180,6 +208,10 @@ class ReportTemplateServiceService extends __BaseService {
 
   /**
    * Creates a new report template.
+   * Authorization:
+   *   Scope: reportTemplates:write
+   *   Permission: PERMISSION_REPORT_TEMPLATES_CREATE
+   *   Domain: organization-scoped
    * @param params The `ReportTemplateServiceService.ReportTemplateServiceCreateReportTemplateParams` containing the following parameters:
    *
    * - `report_template`: The report template to create.
@@ -218,6 +250,10 @@ class ReportTemplateServiceService extends __BaseService {
   }
   /**
    * Creates a new report template.
+   * Authorization:
+   *   Scope: reportTemplates:write
+   *   Permission: PERMISSION_REPORT_TEMPLATES_CREATE
+   *   Domain: organization-scoped
    * @param params The `ReportTemplateServiceService.ReportTemplateServiceCreateReportTemplateParams` containing the following parameters:
    *
    * - `report_template`: The report template to create.
@@ -238,6 +274,10 @@ class ReportTemplateServiceService extends __BaseService {
 
   /**
    * Updates an existing report template.
+   * Authorization:
+   *   Scope: reportTemplates:write
+   *   Permission: PERMISSION_REPORT_TEMPLATES_UPDATE
+   *   Domain: organization-scoped
    * @param params The `ReportTemplateServiceService.ReportTemplateServiceUpdateReportTemplateParams` containing the following parameters:
    *
    * - `report_template.name`: The resource name of the report template.
@@ -272,6 +312,10 @@ class ReportTemplateServiceService extends __BaseService {
   }
   /**
    * Updates an existing report template.
+   * Authorization:
+   *   Scope: reportTemplates:write
+   *   Permission: PERMISSION_REPORT_TEMPLATES_UPDATE
+   *   Domain: organization-scoped
    * @param params The `ReportTemplateServiceService.ReportTemplateServiceUpdateReportTemplateParams` containing the following parameters:
    *
    * - `report_template.name`: The resource name of the report template.

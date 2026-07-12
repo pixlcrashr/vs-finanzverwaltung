@@ -9,6 +9,10 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 
 import { V1AccountGroup } from '../models/v1account-group';
 import { V1ListAccountGroupsResponse } from '../models/v1list-account-groups-response';
+
+/**
+ * AccountGroupService manages named groupings of budget accounts.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -28,6 +32,10 @@ class AccountGroupServiceService extends __BaseService {
 
   /**
    * Updates an existing account group.
+   * Authorization:
+   *   Scope: accountGroups:write
+   *   Permission: PERMISSION_ACCOUNT_GROUPS_UPDATE
+   *   Domain: organization-scoped
    * @param params The `AccountGroupServiceService.AccountGroupServiceUpdateAccountGroupParams` containing the following parameters:
    *
    * - `account_group.name`: The resource name of the account group.
@@ -62,6 +70,10 @@ class AccountGroupServiceService extends __BaseService {
   }
   /**
    * Updates an existing account group.
+   * Authorization:
+   *   Scope: accountGroups:write
+   *   Permission: PERMISSION_ACCOUNT_GROUPS_UPDATE
+   *   Domain: organization-scoped
    * @param params The `AccountGroupServiceService.AccountGroupServiceUpdateAccountGroupParams` containing the following parameters:
    *
    * - `account_group.name`: The resource name of the account group.
@@ -79,6 +91,10 @@ class AccountGroupServiceService extends __BaseService {
 
   /**
    * Gets a single account group by resource name.
+   * Authorization:
+   *   Scope: accountGroups:read
+   *   Permission: PERMISSION_ACCOUNT_GROUPS_READ
+   *   Domain: organization-scoped
    * @param name_1 The resource name of the account group.
    * Format: organizations/{organization}/accountGroups/{account_group}
    * @return A successful response.
@@ -107,6 +123,10 @@ class AccountGroupServiceService extends __BaseService {
   }
   /**
    * Gets a single account group by resource name.
+   * Authorization:
+   *   Scope: accountGroups:read
+   *   Permission: PERMISSION_ACCOUNT_GROUPS_READ
+   *   Domain: organization-scoped
    * @param name_1 The resource name of the account group.
    * Format: organizations/{organization}/accountGroups/{account_group}
    * @return A successful response.
@@ -119,6 +139,10 @@ class AccountGroupServiceService extends __BaseService {
 
   /**
    * Permanently deletes an account group.
+   * Authorization:
+   *   Scope: accountGroups:write
+   *   Permission: PERMISSION_ACCOUNT_GROUPS_DELETE
+   *   Domain: organization-scoped
    * @param name_1 The resource name of the account group.
    * Format: organizations/{organization}/accountGroups/{account_group}
    * @return A successful response.
@@ -147,6 +171,10 @@ class AccountGroupServiceService extends __BaseService {
   }
   /**
    * Permanently deletes an account group.
+   * Authorization:
+   *   Scope: accountGroups:write
+   *   Permission: PERMISSION_ACCOUNT_GROUPS_DELETE
+   *   Domain: organization-scoped
    * @param name_1 The resource name of the account group.
    * Format: organizations/{organization}/accountGroups/{account_group}
    * @return A successful response.
@@ -159,6 +187,10 @@ class AccountGroupServiceService extends __BaseService {
 
   /**
    * Lists account groups with pagination.
+   * Authorization:
+   *   Scope: accountGroups:read
+   *   Permission: PERMISSION_ACCOUNT_GROUPS_READ
+   *   Domain: organization-scoped
    * @param params The `AccountGroupServiceService.AccountGroupServiceListAccountGroupsParams` containing the following parameters:
    *
    * - `parent`: The parent organization resource name.
@@ -205,6 +237,10 @@ class AccountGroupServiceService extends __BaseService {
   }
   /**
    * Lists account groups with pagination.
+   * Authorization:
+   *   Scope: accountGroups:read
+   *   Permission: PERMISSION_ACCOUNT_GROUPS_READ
+   *   Domain: organization-scoped
    * @param params The `AccountGroupServiceService.AccountGroupServiceListAccountGroupsParams` containing the following parameters:
    *
    * - `parent`: The parent organization resource name.
@@ -231,6 +267,10 @@ class AccountGroupServiceService extends __BaseService {
 
   /**
    * Creates a new account group.
+   * Authorization:
+   *   Scope: accountGroups:write
+   *   Permission: PERMISSION_ACCOUNT_GROUPS_CREATE
+   *   Domain: organization-scoped
    * @param params The `AccountGroupServiceService.AccountGroupServiceCreateAccountGroupParams` containing the following parameters:
    *
    * - `parent`: The parent organization resource name.
@@ -269,6 +309,10 @@ class AccountGroupServiceService extends __BaseService {
   }
   /**
    * Creates a new account group.
+   * Authorization:
+   *   Scope: accountGroups:write
+   *   Permission: PERMISSION_ACCOUNT_GROUPS_CREATE
+   *   Domain: organization-scoped
    * @param params The `AccountGroupServiceService.AccountGroupServiceCreateAccountGroupParams` containing the following parameters:
    *
    * - `parent`: The parent organization resource name.

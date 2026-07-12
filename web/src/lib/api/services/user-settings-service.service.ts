@@ -8,6 +8,10 @@ import { Observable as __Observable } from 'rxjs';
 import { map as __map, filter as __filter } from 'rxjs/operators';
 
 import { V1UserSettings } from '../models/v1user-settings';
+
+/**
+ * UserSettingsService manages per-user application preferences.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -24,6 +28,10 @@ class UserSettingsServiceService extends __BaseService {
 
   /**
    * Gets the settings for a user.
+   * Authorization:
+   *   Scope: settings:read
+   *   Permission: PERMISSION_SETTINGS_READ
+   *   Domain: global
    * @param name_18 The resource name of the user settings.
    * Format: users/{user}/settings
    * @return A successful response.
@@ -52,6 +60,10 @@ class UserSettingsServiceService extends __BaseService {
   }
   /**
    * Gets the settings for a user.
+   * Authorization:
+   *   Scope: settings:read
+   *   Permission: PERMISSION_SETTINGS_READ
+   *   Domain: global
    * @param name_18 The resource name of the user settings.
    * Format: users/{user}/settings
    * @return A successful response.
@@ -64,6 +76,10 @@ class UserSettingsServiceService extends __BaseService {
 
   /**
    * Updates the settings for a user.
+   * Authorization:
+   *   Scope: settings:write
+   *   Permission: PERMISSION_SETTINGS_UPDATE
+   *   Domain: global
    * @param params The `UserSettingsServiceService.UserSettingsServiceUpdateUserSettingsParams` containing the following parameters:
    *
    * - `settings.name`: The resource name of the user settings.
@@ -103,6 +119,10 @@ class UserSettingsServiceService extends __BaseService {
   }
   /**
    * Updates the settings for a user.
+   * Authorization:
+   *   Scope: settings:write
+   *   Permission: PERMISSION_SETTINGS_UPDATE
+   *   Domain: global
    * @param params The `UserSettingsServiceService.UserSettingsServiceUpdateUserSettingsParams` containing the following parameters:
    *
    * - `settings.name`: The resource name of the user settings.

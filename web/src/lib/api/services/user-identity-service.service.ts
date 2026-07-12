@@ -9,6 +9,11 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 
 import { V1UserIdentity } from '../models/v1user-identity';
 import { V1ListUserIdentitiesResponse } from '../models/v1list-user-identities-response';
+
+/**
+ * UserIdentityService provides a read-only view of the OAuth2 / SSO
+ * connections linked to a user. No credentials are ever returned.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -25,6 +30,10 @@ class UserIdentityServiceService extends __BaseService {
 
   /**
    * Gets a single identity record.
+   * Authorization:
+   *   Scope: users:read
+   *   Permission: PERMISSION_USERS_READ
+   *   Domain: global
    * @param name_17 The resource name of the identity.
    * Format: users/{user}/identities/{identity}
    * @return A successful response.
@@ -53,6 +62,10 @@ class UserIdentityServiceService extends __BaseService {
   }
   /**
    * Gets a single identity record.
+   * Authorization:
+   *   Scope: users:read
+   *   Permission: PERMISSION_USERS_READ
+   *   Domain: global
    * @param name_17 The resource name of the identity.
    * Format: users/{user}/identities/{identity}
    * @return A successful response.
@@ -65,6 +78,10 @@ class UserIdentityServiceService extends __BaseService {
 
   /**
    * Lists all identity records for a user.
+   * Authorization:
+   *   Scope: users:read
+   *   Permission: PERMISSION_USERS_READ
+   *   Domain: global
    * @param params The `UserIdentityServiceService.UserIdentityServiceListUserIdentitiesParams` containing the following parameters:
    *
    * - `parent`: The parent user resource name.
@@ -103,6 +120,10 @@ class UserIdentityServiceService extends __BaseService {
   }
   /**
    * Lists all identity records for a user.
+   * Authorization:
+   *   Scope: users:read
+   *   Permission: PERMISSION_USERS_READ
+   *   Domain: global
    * @param params The `UserIdentityServiceService.UserIdentityServiceListUserIdentitiesParams` containing the following parameters:
    *
    * - `parent`: The parent user resource name.

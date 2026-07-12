@@ -10,6 +10,10 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 import { V1Transaction } from '../models/v1transaction';
 import { V1ListTransactionsResponse } from '../models/v1list-transactions-response';
 import { V1Decimal } from '../models/v1decimal';
+
+/**
+ * TransactionService manages financial transactions.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -29,6 +33,10 @@ class TransactionServiceService extends __BaseService {
 
   /**
    * Permanently deletes a transaction.
+   * Authorization:
+   *   Scope: transactions:write
+   *   Permission: PERMISSION_TRANSACTIONS_DELETE
+   *   Domain: organization-scoped
    * @param name_10 The resource name of the transaction.
    * Format: organizations/{organization}/transactions/{transaction}
    * @return A successful response.
@@ -57,6 +65,10 @@ class TransactionServiceService extends __BaseService {
   }
   /**
    * Permanently deletes a transaction.
+   * Authorization:
+   *   Scope: transactions:write
+   *   Permission: PERMISSION_TRANSACTIONS_DELETE
+   *   Domain: organization-scoped
    * @param name_10 The resource name of the transaction.
    * Format: organizations/{organization}/transactions/{transaction}
    * @return A successful response.
@@ -69,6 +81,10 @@ class TransactionServiceService extends __BaseService {
 
   /**
    * Gets a single transaction by resource name.
+   * Authorization:
+   *   Scope: transactions:read
+   *   Permission: PERMISSION_TRANSACTIONS_READ
+   *   Domain: organization-scoped
    * @param name_14 The resource name of the transaction.
    * Format: organizations/{organization}/transactions/{transaction}
    * @return A successful response.
@@ -97,6 +113,10 @@ class TransactionServiceService extends __BaseService {
   }
   /**
    * Gets a single transaction by resource name.
+   * Authorization:
+   *   Scope: transactions:read
+   *   Permission: PERMISSION_TRANSACTIONS_READ
+   *   Domain: organization-scoped
    * @param name_14 The resource name of the transaction.
    * Format: organizations/{organization}/transactions/{transaction}
    * @return A successful response.
@@ -109,6 +129,10 @@ class TransactionServiceService extends __BaseService {
 
   /**
    * Lists transactions with keyset pagination and optional filters.
+   * Authorization:
+   *   Scope: transactions:read
+   *   Permission: PERMISSION_TRANSACTIONS_READ
+   *   Domain: organization-scoped
    * @param params The `TransactionServiceService.TransactionServiceListTransactionsParams` containing the following parameters:
    *
    * - `parent`: The parent organization resource name.
@@ -156,6 +180,10 @@ class TransactionServiceService extends __BaseService {
   }
   /**
    * Lists transactions with keyset pagination and optional filters.
+   * Authorization:
+   *   Scope: transactions:read
+   *   Permission: PERMISSION_TRANSACTIONS_READ
+   *   Domain: organization-scoped
    * @param params The `TransactionServiceService.TransactionServiceListTransactionsParams` containing the following parameters:
    *
    * - `parent`: The parent organization resource name.
@@ -183,6 +211,10 @@ class TransactionServiceService extends __BaseService {
 
   /**
    * Creates a new transaction.
+   * Authorization:
+   *   Scope: transactions:write
+   *   Permission: PERMISSION_TRANSACTIONS_CREATE (note: not yet defined in permission.proto)
+   *   Domain: organization-scoped
    * @param params The `TransactionServiceService.TransactionServiceCreateTransactionParams` containing the following parameters:
    *
    * - `transaction`: The transaction to create.
@@ -221,6 +253,10 @@ class TransactionServiceService extends __BaseService {
   }
   /**
    * Creates a new transaction.
+   * Authorization:
+   *   Scope: transactions:write
+   *   Permission: PERMISSION_TRANSACTIONS_CREATE (note: not yet defined in permission.proto)
+   *   Domain: organization-scoped
    * @param params The `TransactionServiceService.TransactionServiceCreateTransactionParams` containing the following parameters:
    *
    * - `transaction`: The transaction to create.
@@ -241,6 +277,10 @@ class TransactionServiceService extends __BaseService {
 
   /**
    * Updates an existing transaction.
+   * Authorization:
+   *   Scope: transactions:write
+   *   Permission: PERMISSION_TRANSACTIONS_UPDATE
+   *   Domain: organization-scoped
    * @param params The `TransactionServiceService.TransactionServiceUpdateTransactionParams` containing the following parameters:
    *
    * - `transaction.name`: The resource name of the transaction.
@@ -275,6 +315,10 @@ class TransactionServiceService extends __BaseService {
   }
   /**
    * Updates an existing transaction.
+   * Authorization:
+   *   Scope: transactions:write
+   *   Permission: PERMISSION_TRANSACTIONS_UPDATE
+   *   Domain: organization-scoped
    * @param params The `TransactionServiceService.TransactionServiceUpdateTransactionParams` containing the following parameters:
    *
    * - `transaction.name`: The resource name of the transaction.

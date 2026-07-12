@@ -9,6 +9,13 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 
 import { V1BudgetActualAccountValue } from '../models/v1budget-actual-account-value';
 import { V1ListBudgetActualAccountValuesResponse } from '../models/v1list-budget-actual-account-values-response';
+
+/**
+ * BudgetActualAccountValueService provides read-only access to the computed
+ * actual monetary values per budget account. Values are derived from the sum of
+ * TransactionAccountAssignment values for transactions within the budget period.
+ * All resources in this service are server-computed and immutable.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -25,6 +32,10 @@ class BudgetActualAccountValueServiceService extends __BaseService {
 
   /**
    * Gets the computed actual value for a single account within a budget.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: PERMISSION_BUDGETS_READ
+   *   Domain: organization-scoped
    * @param name_5 The resource name of the budget actual account value.
    * Format: organizations/{organization}/budgets/{budget}/actualAccountValues/{account}
    * @return A successful response.
@@ -53,6 +64,10 @@ class BudgetActualAccountValueServiceService extends __BaseService {
   }
   /**
    * Gets the computed actual value for a single account within a budget.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: PERMISSION_BUDGETS_READ
+   *   Domain: organization-scoped
    * @param name_5 The resource name of the budget actual account value.
    * Format: organizations/{organization}/budgets/{budget}/actualAccountValues/{account}
    * @return A successful response.
@@ -65,6 +80,10 @@ class BudgetActualAccountValueServiceService extends __BaseService {
 
   /**
    * Lists computed actual account values for a budget, with pagination.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: PERMISSION_BUDGETS_READ
+   *   Domain: organization-scoped
    * @param params The `BudgetActualAccountValueServiceService.BudgetActualAccountValueServiceListBudgetActualAccountValuesParams` containing the following parameters:
    *
    * - `parent`: The parent budget resource name.
@@ -111,6 +130,10 @@ class BudgetActualAccountValueServiceService extends __BaseService {
   }
   /**
    * Lists computed actual account values for a budget, with pagination.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: PERMISSION_BUDGETS_READ
+   *   Domain: organization-scoped
    * @param params The `BudgetActualAccountValueServiceService.BudgetActualAccountValueServiceListBudgetActualAccountValuesParams` containing the following parameters:
    *
    * - `parent`: The parent budget resource name.

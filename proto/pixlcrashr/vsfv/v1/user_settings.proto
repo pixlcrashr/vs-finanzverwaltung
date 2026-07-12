@@ -68,12 +68,20 @@ service UserSettingsService {
   option (google.api.default_host) = "vsfv.pixlcrashr.dev";
 
   // Gets the settings for a user.
+  // Authorization:
+  //   Scope: settings:read
+  //   Permission: PERMISSION_SETTINGS_READ
+  //   Domain: global
   rpc GetUserSettings(GetUserSettingsRequest) returns (UserSettings) {
     option (google.api.http) = {get: "/v1/{name=users/*/settings}"};
     option (google.api.method_signature) = "name";
   }
 
   // Updates the settings for a user.
+  // Authorization:
+  //   Scope: settings:write
+  //   Permission: PERMISSION_SETTINGS_UPDATE
+  //   Domain: global
   rpc UpdateUserSettings(UpdateUserSettingsRequest) returns (UserSettings) {
     option (google.api.http) = {
       patch: "/v1/{settings.name=users/*/settings}"

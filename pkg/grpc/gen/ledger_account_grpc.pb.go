@@ -34,12 +34,32 @@ const (
 // Accounts are auto-created during import; only Get, List, Update, Delete are exposed.
 type LedgerAccountServiceClient interface {
 	// Gets a single ledger account by resource name.
+	// Authorization:
+	//
+	//	Scope: ledgerAccount:read
+	//	Permission: PERMISSION_LEDGER_ACCOUNT_READ
+	//	Domain: organization-scoped
 	GetLedgerAccount(ctx context.Context, in *GetLedgerAccountRequest, opts ...grpc.CallOption) (*LedgerAccount, error)
 	// Lists ledger accounts with pagination.
+	// Authorization:
+	//
+	//	Scope: ledgerAccount:read
+	//	Permission: PERMISSION_LEDGER_ACCOUNT_READ
+	//	Domain: organization-scoped
 	ListLedgerAccounts(ctx context.Context, in *ListLedgerAccountsRequest, opts ...grpc.CallOption) (*ListLedgerAccountsResponse, error)
 	// Updates an existing ledger account (e.g., display name).
+	// Authorization:
+	//
+	//	Scope: ledgerAccount:write
+	//	Permission: PERMISSION_LEDGER_ACCOUNT_UPDATE
+	//	Domain: organization-scoped
 	UpdateLedgerAccount(ctx context.Context, in *UpdateLedgerAccountRequest, opts ...grpc.CallOption) (*LedgerAccount, error)
 	// Permanently deletes a ledger account.
+	// Authorization:
+	//
+	//	Scope: ledgerAccount:write
+	//	Permission: PERMISSION_LEDGER_ACCOUNT_DELETE
+	//	Domain: organization-scoped
 	DeleteLedgerAccount(ctx context.Context, in *DeleteLedgerAccountRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -99,12 +119,32 @@ func (c *ledgerAccountServiceClient) DeleteLedgerAccount(ctx context.Context, in
 // Accounts are auto-created during import; only Get, List, Update, Delete are exposed.
 type LedgerAccountServiceServer interface {
 	// Gets a single ledger account by resource name.
+	// Authorization:
+	//
+	//	Scope: ledgerAccount:read
+	//	Permission: PERMISSION_LEDGER_ACCOUNT_READ
+	//	Domain: organization-scoped
 	GetLedgerAccount(context.Context, *GetLedgerAccountRequest) (*LedgerAccount, error)
 	// Lists ledger accounts with pagination.
+	// Authorization:
+	//
+	//	Scope: ledgerAccount:read
+	//	Permission: PERMISSION_LEDGER_ACCOUNT_READ
+	//	Domain: organization-scoped
 	ListLedgerAccounts(context.Context, *ListLedgerAccountsRequest) (*ListLedgerAccountsResponse, error)
 	// Updates an existing ledger account (e.g., display name).
+	// Authorization:
+	//
+	//	Scope: ledgerAccount:write
+	//	Permission: PERMISSION_LEDGER_ACCOUNT_UPDATE
+	//	Domain: organization-scoped
 	UpdateLedgerAccount(context.Context, *UpdateLedgerAccountRequest) (*LedgerAccount, error)
 	// Permanently deletes a ledger account.
+	// Authorization:
+	//
+	//	Scope: ledgerAccount:write
+	//	Permission: PERMISSION_LEDGER_ACCOUNT_DELETE
+	//	Domain: organization-scoped
 	DeleteLedgerAccount(context.Context, *DeleteLedgerAccountRequest) (*emptypb.Empty, error)
 }
 

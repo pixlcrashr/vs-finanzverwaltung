@@ -120,12 +120,20 @@ service BudgetRevisionService {
   option (google.api.default_host) = "vsfv.pixlcrashr.dev";
 
   // Gets a single budget revision by resource name.
+  // Authorization:
+  //   Scope: budgets:read
+  //   Permission: PERMISSION_BUDGETS_READ
+  //   Domain: organization-scoped
   rpc GetBudgetRevision(GetBudgetRevisionRequest) returns (BudgetRevision) {
     option (google.api.http) = {get: "/v1/{name=organizations/*/budgets/*/revisions/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists revisions for a budget in reverse chronological order.
+  // Authorization:
+  //   Scope: budgets:read
+  //   Permission: PERMISSION_BUDGETS_READ
+  //   Domain: organization-scoped
   rpc ListBudgetRevisions(ListBudgetRevisionsRequest) returns (ListBudgetRevisionsResponse) {
     option (google.api.http) = {get: "/v1/{parent=organizations/*/budgets/*}/revisions"};
     option (google.api.method_signature) = "parent";
@@ -133,6 +141,10 @@ service BudgetRevisionService {
 
   // Creates a new revision by capturing the current state of all
   // BudgetAccountValues for the given budget.
+  // Authorization:
+  //   Scope: budgets:write
+  //   Permission: PERMISSION_BUDGETS_CREATE
+  //   Domain: organization-scoped
   rpc CreateBudgetRevision(CreateBudgetRevisionRequest) returns (BudgetRevision) {
     option (google.api.http) = {
       post: "/v1/{parent=organizations/*/budgets/*}/revisions"

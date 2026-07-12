@@ -96,12 +96,20 @@ service UserIdentityService {
   option (google.api.default_host) = "vsfv.pixlcrashr.dev";
 
   // Gets a single identity record.
+  // Authorization:
+  //   Scope: users:read
+  //   Permission: PERMISSION_USERS_READ
+  //   Domain: global
   rpc GetUserIdentity(GetUserIdentityRequest) returns (UserIdentity) {
     option (google.api.http) = {get: "/v1/{name=users/*/identities/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists all identity records for a user.
+  // Authorization:
+  //   Scope: users:read
+  //   Permission: PERMISSION_USERS_READ
+  //   Domain: global
   rpc ListUserIdentities(ListUserIdentitiesRequest) returns (ListUserIdentitiesResponse) {
     option (google.api.http) = {get: "/v1/{parent=users/*}/identities"};
     option (google.api.method_signature) = "parent";

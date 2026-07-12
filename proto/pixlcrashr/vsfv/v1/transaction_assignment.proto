@@ -139,12 +139,20 @@ service TransactionAssignmentService {
   option (google.api.default_host) = "vsfv.pixlcrashr.dev";
 
   // Gets a single transaction assignment by resource name.
+  // Authorization:
+  //   Scope: transactions:read
+  //   Permission: PERMISSION_TRANSACTIONS_READ
+  //   Domain: organization-scoped
   rpc GetTransactionAssignment(GetTransactionAssignmentRequest) returns (TransactionAssignment) {
     option (google.api.http) = {get: "/v1/{name=organizations/*/transactions/*/assignments/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists transaction assignments with keyset pagination and optional filters.
+  // Authorization:
+  //   Scope: transactions:read
+  //   Permission: PERMISSION_TRANSACTIONS_READ
+  //   Domain: organization-scoped
   rpc ListTransactionAssignments(ListTransactionAssignmentsRequest) returns (ListTransactionAssignmentsResponse) {
     option (google.api.http) = {get: "/v1/{parent=organizations/*/transactions/*}/assignments"};
     option (google.api.method_signature) = "parent";

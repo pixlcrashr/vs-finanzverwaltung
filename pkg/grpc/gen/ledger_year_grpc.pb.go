@@ -31,10 +31,25 @@ const (
 // LedgerYearService manages fiscal/economic years within an organization.
 type LedgerYearServiceClient interface {
 	// Gets a single ledger year by resource name.
+	// Authorization:
+	//
+	//	Scope: ledgerYear:read
+	//	Permission: PERMISSION_LEDGER_YEAR_READ
+	//	Domain: organization-scoped
 	GetLedgerYear(ctx context.Context, in *GetLedgerYearRequest, opts ...grpc.CallOption) (*LedgerYear, error)
 	// Lists ledger years for an organization.
+	// Authorization:
+	//
+	//	Scope: ledgerYear:read
+	//	Permission: PERMISSION_LEDGER_YEAR_READ
+	//	Domain: organization-scoped
 	ListLedgerYears(ctx context.Context, in *ListLedgerYearsRequest, opts ...grpc.CallOption) (*ListLedgerYearsResponse, error)
 	// Closes a ledger year, preventing new imports.
+	// Authorization:
+	//
+	//	Scope: ledgerYear:write
+	//	Permission: PERMISSION_LEDGER_YEAR_CLOSE
+	//	Domain: organization-scoped
 	CloseLedgerYear(ctx context.Context, in *CloseLedgerYearRequest, opts ...grpc.CallOption) (*LedgerYear, error)
 }
 
@@ -83,10 +98,25 @@ func (c *ledgerYearServiceClient) CloseLedgerYear(ctx context.Context, in *Close
 // LedgerYearService manages fiscal/economic years within an organization.
 type LedgerYearServiceServer interface {
 	// Gets a single ledger year by resource name.
+	// Authorization:
+	//
+	//	Scope: ledgerYear:read
+	//	Permission: PERMISSION_LEDGER_YEAR_READ
+	//	Domain: organization-scoped
 	GetLedgerYear(context.Context, *GetLedgerYearRequest) (*LedgerYear, error)
 	// Lists ledger years for an organization.
+	// Authorization:
+	//
+	//	Scope: ledgerYear:read
+	//	Permission: PERMISSION_LEDGER_YEAR_READ
+	//	Domain: organization-scoped
 	ListLedgerYears(context.Context, *ListLedgerYearsRequest) (*ListLedgerYearsResponse, error)
 	// Closes a ledger year, preventing new imports.
+	// Authorization:
+	//
+	//	Scope: ledgerYear:write
+	//	Permission: PERMISSION_LEDGER_YEAR_CLOSE
+	//	Domain: organization-scoped
 	CloseLedgerYear(context.Context, *CloseLedgerYearRequest) (*LedgerYear, error)
 }
 

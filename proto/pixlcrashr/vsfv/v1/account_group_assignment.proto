@@ -136,18 +136,30 @@ service AccountGroupAssignmentService {
   option (google.api.default_host) = "vsfv.pixlcrashr.dev";
 
   // Gets a single assignment by resource name.
+  // Authorization:
+  //   Scope: accountGroups:read
+  //   Permission: PERMISSION_ACCOUNT_GROUPS_READ
+  //   Domain: organization-scoped
   rpc GetAccountGroupAssignment(GetAccountGroupAssignmentRequest) returns (AccountGroupAssignment) {
     option (google.api.http) = {get: "/v1/{name=organizations/*/accountGroups/*/assignments/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists assignments for an account group.
+  // Authorization:
+  //   Scope: accountGroups:read
+  //   Permission: PERMISSION_ACCOUNT_GROUPS_READ
+  //   Domain: organization-scoped
   rpc ListAccountGroupAssignments(ListAccountGroupAssignmentsRequest) returns (ListAccountGroupAssignmentsResponse) {
     option (google.api.http) = {get: "/v1/{parent=organizations/*/accountGroups/*}/assignments"};
     option (google.api.method_signature) = "parent";
   }
 
   // Creates a new assignment.
+  // Authorization:
+  //   Scope: accountGroups:write
+  //   Permission: PERMISSION_ACCOUNT_GROUPS_CREATE
+  //   Domain: organization-scoped
   rpc CreateAccountGroupAssignment(CreateAccountGroupAssignmentRequest) returns (AccountGroupAssignment) {
     option (google.api.http) = {
       post: "/v1/{parent=organizations/*/accountGroups/*}/assignments"
@@ -157,6 +169,10 @@ service AccountGroupAssignmentService {
   }
 
   // Updates an existing assignment.
+  // Authorization:
+  //   Scope: accountGroups:write
+  //   Permission: PERMISSION_ACCOUNT_GROUPS_UPDATE
+  //   Domain: organization-scoped
   rpc UpdateAccountGroupAssignment(UpdateAccountGroupAssignmentRequest) returns (AccountGroupAssignment) {
     option (google.api.http) = {
       patch: "/v1/{assignment.name=organizations/*/accountGroups/*/assignments/*}"
@@ -166,6 +182,10 @@ service AccountGroupAssignmentService {
   }
 
   // Permanently deletes an assignment.
+  // Authorization:
+  //   Scope: accountGroups:write
+  //   Permission: PERMISSION_ACCOUNT_GROUPS_DELETE
+  //   Domain: organization-scoped
   rpc DeleteAccountGroupAssignment(DeleteAccountGroupAssignmentRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/{name=organizations/*/accountGroups/*/assignments/*}"};
     option (google.api.method_signature) = "name";

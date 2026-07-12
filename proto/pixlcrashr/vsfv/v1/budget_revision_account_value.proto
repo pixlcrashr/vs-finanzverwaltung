@@ -109,12 +109,20 @@ service BudgetRevisionAccountValueService {
   option (google.api.default_host) = "vsfv.pixlcrashr.dev";
 
   // Gets a single budget revision account value by resource name.
+  // Authorization:
+  //   Scope: budgets:read
+  //   Permission: PERMISSION_BUDGETS_READ
+  //   Domain: organization-scoped
   rpc GetBudgetRevisionAccountValue(GetBudgetRevisionAccountValueRequest) returns (BudgetRevisionAccountValue) {
     option (google.api.http) = {get: "/v1/{name=organizations/*/budgets/*/revisions/*/accountValues/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists the account values captured in a revision, with pagination.
+  // Authorization:
+  //   Scope: budgets:read
+  //   Permission: PERMISSION_BUDGETS_READ
+  //   Domain: organization-scoped
   rpc ListBudgetRevisionAccountValues(ListBudgetRevisionAccountValuesRequest) returns (ListBudgetRevisionAccountValuesResponse) {
     option (google.api.http) = {get: "/v1/{parent=organizations/*/budgets/*/revisions/*}/accountValues"};
     option (google.api.method_signature) = "parent";

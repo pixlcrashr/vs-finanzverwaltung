@@ -129,18 +129,30 @@ service LedgerYearService {
   option (google.api.default_host) = "vsfv.pixlcrashr.dev";
 
   // Gets a single ledger year by resource name.
+  // Authorization:
+  //   Scope: ledgerYear:read
+  //   Permission: PERMISSION_LEDGER_YEAR_READ
+  //   Domain: organization-scoped
   rpc GetLedgerYear(GetLedgerYearRequest) returns (LedgerYear) {
     option (google.api.http) = {get: "/v1/{name=organizations/*/ledgerYears/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists ledger years for an organization.
+  // Authorization:
+  //   Scope: ledgerYear:read
+  //   Permission: PERMISSION_LEDGER_YEAR_READ
+  //   Domain: organization-scoped
   rpc ListLedgerYears(ListLedgerYearsRequest) returns (ListLedgerYearsResponse) {
     option (google.api.http) = {get: "/v1/{parent=organizations/*}/ledgerYears"};
     option (google.api.method_signature) = "parent";
   }
 
   // Closes a ledger year, preventing new imports.
+  // Authorization:
+  //   Scope: ledgerYear:write
+  //   Permission: PERMISSION_LEDGER_YEAR_CLOSE
+  //   Domain: organization-scoped
   rpc CloseLedgerYear(CloseLedgerYearRequest) returns (LedgerYear) {
     option (google.api.http) = {
       post: "/v1/{name=organizations/*/ledgerYears/*}:close"

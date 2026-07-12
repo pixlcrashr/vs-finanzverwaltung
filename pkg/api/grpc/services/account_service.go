@@ -359,7 +359,7 @@ func (s *accountServiceServer) ArchiveAccount(ctx context.Context, req *gen.Arch
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionUpdate, n.Organization); err != nil {
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionArchive, n.Organization); err != nil {
 		return nil, authError(err)
 	}
 

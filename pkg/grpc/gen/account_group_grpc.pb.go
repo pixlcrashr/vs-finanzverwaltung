@@ -34,14 +34,39 @@ const (
 // AccountGroupService manages named groupings of budget accounts.
 type AccountGroupServiceClient interface {
 	// Gets a single account group by resource name.
+	// Authorization:
+	//
+	//	Scope: accountGroups:read
+	//	Permission: PERMISSION_ACCOUNT_GROUPS_READ
+	//	Domain: organization-scoped
 	GetAccountGroup(ctx context.Context, in *GetAccountGroupRequest, opts ...grpc.CallOption) (*AccountGroup, error)
 	// Lists account groups with pagination.
+	// Authorization:
+	//
+	//	Scope: accountGroups:read
+	//	Permission: PERMISSION_ACCOUNT_GROUPS_READ
+	//	Domain: organization-scoped
 	ListAccountGroups(ctx context.Context, in *ListAccountGroupsRequest, opts ...grpc.CallOption) (*ListAccountGroupsResponse, error)
 	// Creates a new account group.
+	// Authorization:
+	//
+	//	Scope: accountGroups:write
+	//	Permission: PERMISSION_ACCOUNT_GROUPS_CREATE
+	//	Domain: organization-scoped
 	CreateAccountGroup(ctx context.Context, in *CreateAccountGroupRequest, opts ...grpc.CallOption) (*AccountGroup, error)
 	// Updates an existing account group.
+	// Authorization:
+	//
+	//	Scope: accountGroups:write
+	//	Permission: PERMISSION_ACCOUNT_GROUPS_UPDATE
+	//	Domain: organization-scoped
 	UpdateAccountGroup(ctx context.Context, in *UpdateAccountGroupRequest, opts ...grpc.CallOption) (*AccountGroup, error)
 	// Permanently deletes an account group.
+	// Authorization:
+	//
+	//	Scope: accountGroups:write
+	//	Permission: PERMISSION_ACCOUNT_GROUPS_DELETE
+	//	Domain: organization-scoped
 	DeleteAccountGroup(ctx context.Context, in *DeleteAccountGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -110,14 +135,39 @@ func (c *accountGroupServiceClient) DeleteAccountGroup(ctx context.Context, in *
 // AccountGroupService manages named groupings of budget accounts.
 type AccountGroupServiceServer interface {
 	// Gets a single account group by resource name.
+	// Authorization:
+	//
+	//	Scope: accountGroups:read
+	//	Permission: PERMISSION_ACCOUNT_GROUPS_READ
+	//	Domain: organization-scoped
 	GetAccountGroup(context.Context, *GetAccountGroupRequest) (*AccountGroup, error)
 	// Lists account groups with pagination.
+	// Authorization:
+	//
+	//	Scope: accountGroups:read
+	//	Permission: PERMISSION_ACCOUNT_GROUPS_READ
+	//	Domain: organization-scoped
 	ListAccountGroups(context.Context, *ListAccountGroupsRequest) (*ListAccountGroupsResponse, error)
 	// Creates a new account group.
+	// Authorization:
+	//
+	//	Scope: accountGroups:write
+	//	Permission: PERMISSION_ACCOUNT_GROUPS_CREATE
+	//	Domain: organization-scoped
 	CreateAccountGroup(context.Context, *CreateAccountGroupRequest) (*AccountGroup, error)
 	// Updates an existing account group.
+	// Authorization:
+	//
+	//	Scope: accountGroups:write
+	//	Permission: PERMISSION_ACCOUNT_GROUPS_UPDATE
+	//	Domain: organization-scoped
 	UpdateAccountGroup(context.Context, *UpdateAccountGroupRequest) (*AccountGroup, error)
 	// Permanently deletes an account group.
+	// Authorization:
+	//
+	//	Scope: accountGroups:write
+	//	Permission: PERMISSION_ACCOUNT_GROUPS_DELETE
+	//	Domain: organization-scoped
 	DeleteAccountGroup(context.Context, *DeleteAccountGroupRequest) (*emptypb.Empty, error)
 }
 

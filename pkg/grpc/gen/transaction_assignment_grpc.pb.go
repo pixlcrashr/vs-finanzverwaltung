@@ -30,8 +30,18 @@ const (
 // TransactionAssignmentService manages transaction assignments to budget accounts.
 type TransactionAssignmentServiceClient interface {
 	// Gets a single transaction assignment by resource name.
+	// Authorization:
+	//
+	//	Scope: transactions:read
+	//	Permission: PERMISSION_TRANSACTIONS_READ
+	//	Domain: organization-scoped
 	GetTransactionAssignment(ctx context.Context, in *GetTransactionAssignmentRequest, opts ...grpc.CallOption) (*TransactionAssignment, error)
 	// Lists transaction assignments with keyset pagination and optional filters.
+	// Authorization:
+	//
+	//	Scope: transactions:read
+	//	Permission: PERMISSION_TRANSACTIONS_READ
+	//	Domain: organization-scoped
 	ListTransactionAssignments(ctx context.Context, in *ListTransactionAssignmentsRequest, opts ...grpc.CallOption) (*ListTransactionAssignmentsResponse, error)
 }
 
@@ -70,8 +80,18 @@ func (c *transactionAssignmentServiceClient) ListTransactionAssignments(ctx cont
 // TransactionAssignmentService manages transaction assignments to budget accounts.
 type TransactionAssignmentServiceServer interface {
 	// Gets a single transaction assignment by resource name.
+	// Authorization:
+	//
+	//	Scope: transactions:read
+	//	Permission: PERMISSION_TRANSACTIONS_READ
+	//	Domain: organization-scoped
 	GetTransactionAssignment(context.Context, *GetTransactionAssignmentRequest) (*TransactionAssignment, error)
 	// Lists transaction assignments with keyset pagination and optional filters.
+	// Authorization:
+	//
+	//	Scope: transactions:read
+	//	Permission: PERMISSION_TRANSACTIONS_READ
+	//	Domain: organization-scoped
 	ListTransactionAssignments(context.Context, *ListTransactionAssignmentsRequest) (*ListTransactionAssignmentsResponse, error)
 }
 

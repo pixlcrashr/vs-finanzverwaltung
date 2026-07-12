@@ -32,8 +32,18 @@ const (
 // service are immutable and server-managed.
 type BudgetRevisionAccountValueServiceClient interface {
 	// Gets a single budget revision account value by resource name.
+	// Authorization:
+	//
+	//	Scope: budgets:read
+	//	Permission: PERMISSION_BUDGETS_READ
+	//	Domain: organization-scoped
 	GetBudgetRevisionAccountValue(ctx context.Context, in *GetBudgetRevisionAccountValueRequest, opts ...grpc.CallOption) (*BudgetRevisionAccountValue, error)
 	// Lists the account values captured in a revision, with pagination.
+	// Authorization:
+	//
+	//	Scope: budgets:read
+	//	Permission: PERMISSION_BUDGETS_READ
+	//	Domain: organization-scoped
 	ListBudgetRevisionAccountValues(ctx context.Context, in *ListBudgetRevisionAccountValuesRequest, opts ...grpc.CallOption) (*ListBudgetRevisionAccountValuesResponse, error)
 }
 
@@ -74,8 +84,18 @@ func (c *budgetRevisionAccountValueServiceClient) ListBudgetRevisionAccountValue
 // service are immutable and server-managed.
 type BudgetRevisionAccountValueServiceServer interface {
 	// Gets a single budget revision account value by resource name.
+	// Authorization:
+	//
+	//	Scope: budgets:read
+	//	Permission: PERMISSION_BUDGETS_READ
+	//	Domain: organization-scoped
 	GetBudgetRevisionAccountValue(context.Context, *GetBudgetRevisionAccountValueRequest) (*BudgetRevisionAccountValue, error)
 	// Lists the account values captured in a revision, with pagination.
+	// Authorization:
+	//
+	//	Scope: budgets:read
+	//	Permission: PERMISSION_BUDGETS_READ
+	//	Domain: organization-scoped
 	ListBudgetRevisionAccountValues(context.Context, *ListBudgetRevisionAccountValuesRequest) (*ListBudgetRevisionAccountValuesResponse, error)
 }
 

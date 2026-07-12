@@ -120,18 +120,30 @@ service ReportService {
   option (google.api.default_host) = "vsfv.pixlcrashr.dev";
 
   // Gets report metadata by resource name.
+  // Authorization:
+  //   Scope: reports:read
+  //   Permission: PERMISSION_REPORTS_READ
+  //   Domain: organization-scoped
   rpc GetReport(GetReportRequest) returns (Report) {
     option (google.api.http) = {get: "/v1/{name=organizations/*/reports/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists reports with pagination.
+  // Authorization:
+  //   Scope: reports:read
+  //   Permission: PERMISSION_REPORTS_READ
+  //   Domain: organization-scoped
   rpc ListReports(ListReportsRequest) returns (ListReportsResponse) {
     option (google.api.http) = {get: "/v1/{parent=organizations/*}/reports"};
     option (google.api.method_signature) = "parent";
   }
 
   // Creates a new report by rendering a template.
+  // Authorization:
+  //   Scope: reports:write
+  //   Permission: PERMISSION_REPORTS_CREATE
+  //   Domain: organization-scoped
   rpc CreateReport(CreateReportRequest) returns (Report) {
     option (google.api.http) = {
       post: "/v1/{parent=organizations/*}/reports"
@@ -141,6 +153,10 @@ service ReportService {
   }
 
   // Permanently deletes a report.
+  // Authorization:
+  //   Scope: reports:write
+  //   Permission: PERMISSION_REPORTS_DELETE
+  //   Domain: organization-scoped
   rpc DeleteReport(DeleteReportRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/{name=organizations/*/reports/*}"};
     option (google.api.method_signature) = "name";

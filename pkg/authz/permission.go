@@ -15,6 +15,8 @@ const (
 	ResourceAccountGroups   = "accountGroups"
 	ResourceBudgets         = "budgets"
 	ResourceJournal         = "journal"
+	ResourceLedgerAccount   = "ledgerAccount"
+	ResourceLedgerYear      = "ledgerYear"
 	ResourceTransactions    = "transactions"
 	ResourceMatrix          = "matrix"
 	ResourceReports         = "reports"
@@ -23,25 +25,34 @@ const (
 	ResourceUsers           = "users"
 	ResourceGroups          = "groups"
 	ResourceSettings        = "settings"
+	ResourceOrganizations   = "organizations"
+	ResourceReimbursements  = "reimbursements"
 )
 
 // Actions used in casbin policies.
 const (
-	ActionCreate = "create"
-	ActionRead   = "read"
-	ActionUpdate = "update"
-	ActionDelete = "delete"
-	ActionImport = "import"
+	ActionCreate     = "create"
+	ActionRead       = "read"
+	ActionUpdate     = "update"
+	ActionDelete     = "delete"
+	ActionImport     = "import"
+	ActionArchive    = "archive"
+	ActionClose      = "close"
+	ActionComment    = "comment"
+	ActionReadOwn    = "read_own"
+	ActionCommentOwn = "comment_own"
+	ActionUpdateOwn  = "update_own"
 )
 
 // Permissions maps each proto Permission enum value to a casbin resource/action pair.
 var Permissions = map[gen.Permission]Permission{
 	gen.Permission_PERMISSION_DASHBOARD_READ: {ResourceDashboard, ActionRead},
 
-	gen.Permission_PERMISSION_ACCOUNTS_READ:   {ResourceAccounts, ActionRead},
-	gen.Permission_PERMISSION_ACCOUNTS_CREATE: {ResourceAccounts, ActionCreate},
-	gen.Permission_PERMISSION_ACCOUNTS_UPDATE: {ResourceAccounts, ActionUpdate},
-	gen.Permission_PERMISSION_ACCOUNTS_DELETE: {ResourceAccounts, ActionDelete},
+	gen.Permission_PERMISSION_ACCOUNTS_READ:    {ResourceAccounts, ActionRead},
+	gen.Permission_PERMISSION_ACCOUNTS_CREATE:  {ResourceAccounts, ActionCreate},
+	gen.Permission_PERMISSION_ACCOUNTS_UPDATE:  {ResourceAccounts, ActionUpdate},
+	gen.Permission_PERMISSION_ACCOUNTS_DELETE:  {ResourceAccounts, ActionDelete},
+	gen.Permission_PERMISSION_ACCOUNTS_ARCHIVE: {ResourceAccounts, ActionArchive},
 
 	gen.Permission_PERMISSION_ACCOUNT_GROUPS_READ:   {ResourceAccountGroups, ActionRead},
 	gen.Permission_PERMISSION_ACCOUNT_GROUPS_CREATE: {ResourceAccountGroups, ActionCreate},
@@ -52,9 +63,19 @@ var Permissions = map[gen.Permission]Permission{
 	gen.Permission_PERMISSION_BUDGETS_CREATE: {ResourceBudgets, ActionCreate},
 	gen.Permission_PERMISSION_BUDGETS_UPDATE: {ResourceBudgets, ActionUpdate},
 	gen.Permission_PERMISSION_BUDGETS_DELETE: {ResourceBudgets, ActionDelete},
+	gen.Permission_PERMISSION_BUDGETS_CLOSE:  {ResourceBudgets, ActionClose},
 
 	gen.Permission_PERMISSION_JOURNAL_READ:   {ResourceJournal, ActionRead},
 	gen.Permission_PERMISSION_JOURNAL_IMPORT: {ResourceJournal, ActionImport},
+
+	gen.Permission_PERMISSION_LEDGER_ACCOUNT_READ:   {ResourceLedgerAccount, ActionRead},
+	gen.Permission_PERMISSION_LEDGER_ACCOUNT_UPDATE: {ResourceLedgerAccount, ActionUpdate},
+	gen.Permission_PERMISSION_LEDGER_ACCOUNT_DELETE: {ResourceLedgerAccount, ActionDelete},
+
+	gen.Permission_PERMISSION_LEDGER_YEAR_READ:   {ResourceLedgerYear, ActionRead},
+	gen.Permission_PERMISSION_LEDGER_YEAR_CREATE: {ResourceLedgerYear, ActionCreate},
+	gen.Permission_PERMISSION_LEDGER_YEAR_CLOSE:  {ResourceLedgerYear, ActionClose},
+	gen.Permission_PERMISSION_LEDGER_YEAR_DELETE: {ResourceLedgerYear, ActionDelete},
 
 	gen.Permission_PERMISSION_TRANSACTIONS_READ:   {ResourceTransactions, ActionRead},
 	gen.Permission_PERMISSION_TRANSACTIONS_UPDATE: {ResourceTransactions, ActionUpdate},
@@ -86,6 +107,21 @@ var Permissions = map[gen.Permission]Permission{
 
 	gen.Permission_PERMISSION_SETTINGS_READ:   {ResourceSettings, ActionRead},
 	gen.Permission_PERMISSION_SETTINGS_UPDATE: {ResourceSettings, ActionUpdate},
+
+	gen.Permission_PERMISSION_ORGANIZATIONS_READ:    {ResourceOrganizations, ActionRead},
+	gen.Permission_PERMISSION_ORGANIZATIONS_UPDATE:  {ResourceOrganizations, ActionUpdate},
+	gen.Permission_PERMISSION_ORGANIZATIONS_ARCHIVE: {ResourceOrganizations, ActionArchive},
+	gen.Permission_PERMISSION_ORGANIZATIONS_CREATE:  {ResourceOrganizations, ActionCreate},
+	gen.Permission_PERMISSION_ORGANIZATIONS_DELETE:  {ResourceOrganizations, ActionDelete},
+
+	gen.Permission_PERMISSION_REIMBURSEMENTS_READ:        {ResourceReimbursements, ActionRead},
+	gen.Permission_PERMISSION_REIMBURSEMENTS_CREATE:      {ResourceReimbursements, ActionCreate},
+	gen.Permission_PERMISSION_REIMBURSEMENTS_COMMENT:     {ResourceReimbursements, ActionComment},
+	gen.Permission_PERMISSION_REIMBURSEMENTS_UPDATE:      {ResourceReimbursements, ActionUpdate},
+	gen.Permission_PERMISSION_REIMBURSEMENTS_ARCHIVE:     {ResourceReimbursements, ActionArchive},
+	gen.Permission_PERMISSION_REIMBURSEMENTS_READ_OWN:    {ResourceReimbursements, ActionReadOwn},
+	gen.Permission_PERMISSION_REIMBURSEMENTS_COMMENT_OWN: {ResourceReimbursements, ActionCommentOwn},
+	gen.Permission_PERMISSION_REIMBURSEMENTS_UPDATE_OWN:  {ResourceReimbursements, ActionUpdateOwn},
 }
 
 // GlobalDomain is the casbin domain value used for permissions that are not
@@ -95,9 +131,10 @@ const GlobalDomain = ""
 // GlobalResources lists resources whose permissions are system-wide rather
 // than organization-scoped. Policies for these resources use GlobalDomain.
 var GlobalResources = map[string]bool{
-	ResourceUsers:    true,
-	ResourceGroups:   true,
-	ResourceSettings: true,
+	ResourceUsers:         true,
+	ResourceGroups:        true,
+	ResourceSettings:      true,
+	ResourceOrganizations: true,
 }
 
 // IsGlobalPermission reports whether the given proto permission is system-wide

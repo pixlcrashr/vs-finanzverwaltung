@@ -48,7 +48,7 @@ func (s *ledgerYearServiceServer) GetLedgerYear(ctx context.Context, req *gen.Ge
 		return nil, &ServerError{Err: err, Status: statusInvalidLedgerYearName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceJournal, authz.ActionRead, n.Organization); err != nil {
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceLedgerYear, authz.ActionRead, n.Organization); err != nil {
 		return nil, authError(err)
 	}
 
@@ -76,7 +76,7 @@ func (s *ledgerYearServiceServer) ListLedgerYears(ctx context.Context, req *gen.
 		return nil, &ServerError{Err: err, Status: statusInvalidParentOrganization}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceJournal, authz.ActionRead, pn.Organization); err != nil {
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceLedgerYear, authz.ActionRead, pn.Organization); err != nil {
 		return nil, authError(err)
 	}
 
@@ -138,7 +138,7 @@ func (s *ledgerYearServiceServer) CreateLedgerYear(ctx context.Context, req *gen
 		return nil, &ServerError{Err: err, Status: statusInvalidParentOrganization}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceJournal, authz.ActionCreate, pn.Organization); err != nil {
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceLedgerYear, authz.ActionCreate, pn.Organization); err != nil {
 		return nil, authError(err)
 	}
 
@@ -179,7 +179,7 @@ func (s *ledgerYearServiceServer) CloseLedgerYear(ctx context.Context, req *gen.
 		return nil, &ServerError{Err: err, Status: statusInvalidLedgerYearName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceJournal, authz.ActionUpdate, n.Organization); err != nil {
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceLedgerYear, authz.ActionClose, n.Organization); err != nil {
 		return nil, authError(err)
 	}
 
@@ -221,7 +221,7 @@ func (s *ledgerYearServiceServer) DeleteLedgerYear(ctx context.Context, req *gen
 		return nil, &ServerError{Err: err, Status: statusInvalidLedgerYearName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceJournal, authz.ActionDelete, n.Organization); err != nil {
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceLedgerYear, authz.ActionDelete, n.Organization); err != nil {
 		return nil, authError(err)
 	}
 

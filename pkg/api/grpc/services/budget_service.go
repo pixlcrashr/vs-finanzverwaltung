@@ -245,7 +245,7 @@ func (s *budgetServiceServer) CloseBudget(ctx context.Context, req *gen.CloseBud
 		return nil, &ServerError{Err: err, Status: statusInvalidBudgetName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionUpdate, n.Organization); err != nil {
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionClose, n.Organization); err != nil {
 		return nil, authError(err)
 	}
 

@@ -166,18 +166,30 @@ service BudgetAccountValueService {
   option (google.api.default_host) = "vsfv.pixlcrashr.dev";
 
   // Gets a single budget account value by resource name.
+  // Authorization:
+  //   Scope: budgets:read
+  //   Permission: PERMISSION_BUDGETS_READ
+  //   Domain: organization-scoped
   rpc GetBudgetAccountValue(GetBudgetAccountValueRequest) returns (BudgetAccountValue) {
     option (google.api.http) = {get: "/v1/{name=organizations/*/budgets/*/accountValues/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists account values for a budget.
+  // Authorization:
+  //   Scope: budgets:read
+  //   Permission: PERMISSION_BUDGETS_READ
+  //   Domain: organization-scoped
   rpc ListBudgetAccountValues(ListBudgetAccountValuesRequest) returns (ListBudgetAccountValuesResponse) {
     option (google.api.http) = {get: "/v1/{parent=organizations/*/budgets/*}/accountValues"};
     option (google.api.method_signature) = "parent";
   }
 
   // Creates a new budget account value.
+  // Authorization:
+  //   Scope: budgets:write
+  //   Permission: PERMISSION_BUDGETS_CREATE
+  //   Domain: organization-scoped
   rpc CreateBudgetAccountValue(CreateBudgetAccountValueRequest) returns (BudgetAccountValue) {
     option (google.api.http) = {
       post: "/v1/{parent=organizations/*/budgets/*}/accountValues"
@@ -187,6 +199,10 @@ service BudgetAccountValueService {
   }
 
   // Updates an existing budget account value.
+  // Authorization:
+  //   Scope: budgets:write
+  //   Permission: PERMISSION_BUDGETS_UPDATE
+  //   Domain: organization-scoped
   rpc UpdateBudgetAccountValue(UpdateBudgetAccountValueRequest) returns (BudgetAccountValue) {
     option (google.api.http) = {
       patch: "/v1/{account_value.name=organizations/*/budgets/*/accountValues/*}"
@@ -196,6 +212,10 @@ service BudgetAccountValueService {
   }
 
   // Permanently deletes a budget account value.
+  // Authorization:
+  //   Scope: budgets:write
+  //   Permission: PERMISSION_BUDGETS_DELETE
+  //   Domain: organization-scoped
   rpc DeleteBudgetAccountValue(DeleteBudgetAccountValueRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/{name=organizations/*/budgets/*/accountValues/*}"};
     option (google.api.method_signature) = "name";
@@ -203,6 +223,10 @@ service BudgetAccountValueService {
 
   // Atomically upserts multiple account values for a budget.
   // Existing values for listed account IDs are updated; missing ones are created.
+  // Authorization:
+  //   Scope: budgets:write
+  //   Permission: PERMISSION_BUDGETS_UPDATE
+  //   Domain: organization-scoped
   rpc BatchUpdateBudgetAccountValues(BatchUpdateBudgetAccountValuesRequest) returns (BatchUpdateBudgetAccountValuesResponse) {
     option (google.api.http) = {
       post: "/v1/{parent=organizations/*/budgets/*}/accountValues:batchUpdate"

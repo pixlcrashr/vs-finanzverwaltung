@@ -33,8 +33,18 @@ const (
 // All resources in this service are server-computed and immutable.
 type BudgetActualAccountValueServiceClient interface {
 	// Gets the computed actual value for a single account within a budget.
+	// Authorization:
+	//
+	//	Scope: budgets:read
+	//	Permission: PERMISSION_BUDGETS_READ
+	//	Domain: organization-scoped
 	GetBudgetActualAccountValue(ctx context.Context, in *GetBudgetActualAccountValueRequest, opts ...grpc.CallOption) (*BudgetActualAccountValue, error)
 	// Lists computed actual account values for a budget, with pagination.
+	// Authorization:
+	//
+	//	Scope: budgets:read
+	//	Permission: PERMISSION_BUDGETS_READ
+	//	Domain: organization-scoped
 	ListBudgetActualAccountValues(ctx context.Context, in *ListBudgetActualAccountValuesRequest, opts ...grpc.CallOption) (*ListBudgetActualAccountValuesResponse, error)
 }
 
@@ -76,8 +86,18 @@ func (c *budgetActualAccountValueServiceClient) ListBudgetActualAccountValues(ct
 // All resources in this service are server-computed and immutable.
 type BudgetActualAccountValueServiceServer interface {
 	// Gets the computed actual value for a single account within a budget.
+	// Authorization:
+	//
+	//	Scope: budgets:read
+	//	Permission: PERMISSION_BUDGETS_READ
+	//	Domain: organization-scoped
 	GetBudgetActualAccountValue(context.Context, *GetBudgetActualAccountValueRequest) (*BudgetActualAccountValue, error)
 	// Lists computed actual account values for a budget, with pagination.
+	// Authorization:
+	//
+	//	Scope: budgets:read
+	//	Permission: PERMISSION_BUDGETS_READ
+	//	Domain: organization-scoped
 	ListBudgetActualAccountValues(context.Context, *ListBudgetActualAccountValuesRequest) (*ListBudgetActualAccountValuesResponse, error)
 }
 

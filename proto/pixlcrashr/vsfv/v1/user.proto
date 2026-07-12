@@ -155,18 +155,30 @@ service UserService {
   option (google.api.default_host) = "vsfv.pixlcrashr.dev";
 
   // Gets a single user by resource name.
+  // Authorization:
+  //   Scope: users:read
+  //   Permission: PERMISSION_USERS_READ
+  //   Domain: global
   rpc GetUser(GetUserRequest) returns (User) {
     option (google.api.http) = {get: "/v1/{name=users/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists users with pagination.
+  // Authorization:
+  //   Scope: users:read
+  //   Permission: PERMISSION_USERS_READ
+  //   Domain: global
   rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
     option (google.api.http) = {get: "/v1/users"};
   }
 
   // Checks which of the requested permissions a user holds within a single
   // organization (custom method, AIP-136).
+  // Authorization:
+  //   Scope: users:read
+  //   Permission: PERMISSION_USERS_READ
+  //   Domain: global
   rpc CheckUserOrganizationPermissions(CheckUserOrganizationPermissionsRequest) returns (CheckUserOrganizationPermissionsResponse) {
     option (google.api.http) = {
       post: "/v1/{name=users/*}:checkOrganizationPermissions"
@@ -177,6 +189,10 @@ service UserService {
 
   // Checks permissions for a user across multiple organizations in one call
   // (batch custom method, AIP-231).
+  // Authorization:
+  //   Scope: users:read
+  //   Permission: PERMISSION_USERS_READ
+  //   Domain: global
   rpc BatchCheckUserOrganizationPermissions(BatchCheckUserOrganizationPermissionsRequest) returns (BatchCheckUserOrganizationPermissionsResponse) {
     option (google.api.http) = {
       post: "/v1/{name=users/*}:batchCheckOrganizationPermissions"

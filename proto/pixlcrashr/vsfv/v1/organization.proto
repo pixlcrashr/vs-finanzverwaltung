@@ -126,17 +126,29 @@ service OrganizationService {
   option (google.api.default_host) = "vsfv.pixlcrashr.dev";
 
   // Gets a single organization by resource name.
+  // Authorization:
+  //   Scope: organizations:read
+  //   Permission: PERMISSION_ORGANIZATIONS_READ
+  //   Domain: global
   rpc GetOrganization(GetOrganizationRequest) returns (Organization) {
     option (google.api.http) = {get: "/v1/{name=organizations/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists organizations with pagination.
+  // Authorization:
+  //   Scope: organizations:read
+  //   Permission: PERMISSION_ORGANIZATIONS_READ
+  //   Domain: global
   rpc ListOrganizations(ListOrganizationsRequest) returns (ListOrganizationsResponse) {
     option (google.api.http) = {get: "/v1/organizations"};
   }
 
   // Creates a new organization.
+  // Authorization:
+  //   Scope: organizations:write
+  //   Permission: PERMISSION_ORGANIZATIONS_CREATE
+  //   Domain: global
   rpc CreateOrganization(CreateOrganizationRequest) returns (Organization) {
     option (google.api.http) = {
       post: "/v1/organizations"
@@ -146,6 +158,10 @@ service OrganizationService {
   }
 
   // Updates an existing organization.
+  // Authorization:
+  //   Scope: organizations:write
+  //   Permission: PERMISSION_ORGANIZATIONS_UPDATE
+  //   Domain: global
   rpc UpdateOrganization(UpdateOrganizationRequest) returns (Organization) {
     option (google.api.http) = {
       patch: "/v1/{organization.name=organizations/*}"
@@ -155,12 +171,20 @@ service OrganizationService {
   }
 
   // Permanently deletes an organization.
+  // Authorization:
+  //   Scope: organizations:write
+  //   Permission: PERMISSION_ORGANIZATIONS_DELETE
+  //   Domain: global
   rpc DeleteOrganization(DeleteOrganizationRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/{name=organizations/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Checks whether an organization ID (slug) is available for use.
+  // Authorization:
+  //   Scope: organizations:read
+  //   Permission: PERMISSION_ORGANIZATIONS_READ
+  //   Domain: global
   rpc CheckOrganizationId(CheckOrganizationIdRequest) returns (CheckOrganizationIdResponse) {
     option (google.api.http) = {
       post: "/v1/organizations:checkId"

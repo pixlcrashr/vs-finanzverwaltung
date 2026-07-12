@@ -33,14 +33,34 @@ const (
 // Users are created exclusively through the SSO/OAuth2 flow.
 type UserServiceClient interface {
 	// Gets a single user by resource name.
+	// Authorization:
+	//
+	//	Scope: users:read
+	//	Permission: PERMISSION_USERS_READ
+	//	Domain: global
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*User, error)
 	// Lists users with pagination.
+	// Authorization:
+	//
+	//	Scope: users:read
+	//	Permission: PERMISSION_USERS_READ
+	//	Domain: global
 	ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*ListUsersResponse, error)
 	// Checks which of the requested permissions a user holds within a single
 	// organization (custom method, AIP-136).
+	// Authorization:
+	//
+	//	Scope: users:read
+	//	Permission: PERMISSION_USERS_READ
+	//	Domain: global
 	CheckUserOrganizationPermissions(ctx context.Context, in *CheckUserOrganizationPermissionsRequest, opts ...grpc.CallOption) (*CheckUserOrganizationPermissionsResponse, error)
 	// Checks permissions for a user across multiple organizations in one call
 	// (batch custom method, AIP-231).
+	// Authorization:
+	//
+	//	Scope: users:read
+	//	Permission: PERMISSION_USERS_READ
+	//	Domain: global
 	BatchCheckUserOrganizationPermissions(ctx context.Context, in *BatchCheckUserOrganizationPermissionsRequest, opts ...grpc.CallOption) (*BatchCheckUserOrganizationPermissionsResponse, error)
 }
 
@@ -100,14 +120,34 @@ func (c *userServiceClient) BatchCheckUserOrganizationPermissions(ctx context.Co
 // Users are created exclusively through the SSO/OAuth2 flow.
 type UserServiceServer interface {
 	// Gets a single user by resource name.
+	// Authorization:
+	//
+	//	Scope: users:read
+	//	Permission: PERMISSION_USERS_READ
+	//	Domain: global
 	GetUser(context.Context, *GetUserRequest) (*User, error)
 	// Lists users with pagination.
+	// Authorization:
+	//
+	//	Scope: users:read
+	//	Permission: PERMISSION_USERS_READ
+	//	Domain: global
 	ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error)
 	// Checks which of the requested permissions a user holds within a single
 	// organization (custom method, AIP-136).
+	// Authorization:
+	//
+	//	Scope: users:read
+	//	Permission: PERMISSION_USERS_READ
+	//	Domain: global
 	CheckUserOrganizationPermissions(context.Context, *CheckUserOrganizationPermissionsRequest) (*CheckUserOrganizationPermissionsResponse, error)
 	// Checks permissions for a user across multiple organizations in one call
 	// (batch custom method, AIP-231).
+	// Authorization:
+	//
+	//	Scope: users:read
+	//	Permission: PERMISSION_USERS_READ
+	//	Domain: global
 	BatchCheckUserOrganizationPermissions(context.Context, *BatchCheckUserOrganizationPermissionsRequest) (*BatchCheckUserOrganizationPermissionsResponse, error)
 }
 

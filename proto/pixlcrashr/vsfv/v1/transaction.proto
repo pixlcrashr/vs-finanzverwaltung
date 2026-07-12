@@ -158,18 +158,30 @@ service TransactionService {
   option (google.api.default_host) = "vsfv.pixlcrashr.dev";
 
   // Gets a single transaction by resource name.
+  // Authorization:
+  //   Scope: transactions:read
+  //   Permission: PERMISSION_TRANSACTIONS_READ
+  //   Domain: organization-scoped
   rpc GetTransaction(GetTransactionRequest) returns (Transaction) {
     option (google.api.http) = {get: "/v1/{name=organizations/*/transactions/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists transactions with keyset pagination and optional filters.
+  // Authorization:
+  //   Scope: transactions:read
+  //   Permission: PERMISSION_TRANSACTIONS_READ
+  //   Domain: organization-scoped
   rpc ListTransactions(ListTransactionsRequest) returns (ListTransactionsResponse) {
     option (google.api.http) = {get: "/v1/{parent=organizations/*}/transactions"};
     option (google.api.method_signature) = "parent";
   }
 
   // Creates a new transaction.
+  // Authorization:
+  //   Scope: transactions:write
+  //   Permission: PERMISSION_TRANSACTIONS_CREATE (note: not yet defined in permission.proto)
+  //   Domain: organization-scoped
   rpc CreateTransaction(CreateTransactionRequest) returns (Transaction) {
     option (google.api.http) = {
       post: "/v1/{parent=organizations/*}/transactions"
@@ -179,6 +191,10 @@ service TransactionService {
   }
 
   // Updates an existing transaction.
+  // Authorization:
+  //   Scope: transactions:write
+  //   Permission: PERMISSION_TRANSACTIONS_UPDATE
+  //   Domain: organization-scoped
   rpc UpdateTransaction(UpdateTransactionRequest) returns (Transaction) {
     option (google.api.http) = {
       patch: "/v1/{transaction.name=organizations/*/transactions/*}"
@@ -188,6 +204,10 @@ service TransactionService {
   }
 
   // Permanently deletes a transaction.
+  // Authorization:
+  //   Scope: transactions:write
+  //   Permission: PERMISSION_TRANSACTIONS_DELETE
+  //   Domain: organization-scoped
   rpc DeleteTransaction(DeleteTransactionRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/{name=organizations/*/transactions/*}"};
     option (google.api.method_signature) = "name";

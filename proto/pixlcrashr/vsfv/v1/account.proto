@@ -252,30 +252,50 @@ service AccountService {
   option (google.api.default_host) = "vsfv.pixlcrashr.dev";
 
   // Gets a single account by resource name.
+  // Authorization:
+  //   Scope: accounts:read
+  //   Permission: PERMISSION_ACCOUNTS_READ
+  //   Domain: organization-scoped
   rpc GetAccount(GetAccountRequest) returns (Account) {
     option (google.api.http) = {get: "/v1/{name=organizations/*/accounts/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists accounts with pagination.
+  // Authorization:
+  //   Scope: accounts:read
+  //   Permission: PERMISSION_ACCOUNTS_READ
+  //   Domain: organization-scoped
   rpc ListAccounts(ListAccountsRequest) returns (ListAccountsResponse) {
     option (google.api.http) = {get: "/v1/{parent=organizations/*}/accounts"};
     option (google.api.method_signature) = "parent";
   }
 
   // Lists all root accounts with their full nested subtrees (custom method).
+  // Authorization:
+  //   Scope: accounts:read
+  //   Permission: PERMISSION_ACCOUNTS_READ
+  //   Domain: organization-scoped
   rpc ListNestedAccounts(ListNestedAccountsRequest) returns (ListNestedAccountsResponse) {
     option (google.api.http) = {get: "/v1/{parent=organizations/*}/accounts:listNested"};
     option (google.api.method_signature) = "parent";
   }
 
   // Gets a single account's full nested subtree (custom method).
+  // Authorization:
+  //   Scope: accounts:read
+  //   Permission: PERMISSION_ACCOUNTS_READ
+  //   Domain: organization-scoped
   rpc GetNestedAccount(GetNestedAccountRequest) returns (GetNestedAccountResponse) {
     option (google.api.http) = {get: "/v1/{name=organizations/*/accounts/*}:getNested"};
     option (google.api.method_signature) = "name";
   }
 
   // Creates a new account.
+  // Authorization:
+  //   Scope: accounts:write
+  //   Permission: PERMISSION_ACCOUNTS_CREATE
+  //   Domain: organization-scoped
   rpc CreateAccount(CreateAccountRequest) returns (Account) {
     option (google.api.http) = {
       post: "/v1/{parent=organizations/*}/accounts"
@@ -285,6 +305,10 @@ service AccountService {
   }
 
   // Updates an existing account.
+  // Authorization:
+  //   Scope: accounts:write
+  //   Permission: PERMISSION_ACCOUNTS_UPDATE
+  //   Domain: organization-scoped
   rpc UpdateAccount(UpdateAccountRequest) returns (Account) {
     option (google.api.http) = {
       patch: "/v1/{account.name=organizations/*/accounts/*}"
@@ -294,6 +318,10 @@ service AccountService {
   }
 
   // Archives an account (soft-delete).
+  // Authorization:
+  //   Scope: accounts:write
+  //   Permission: PERMISSION_ACCOUNTS_ARCHIVE
+  //   Domain: organization-scoped
   rpc ArchiveAccount(ArchiveAccountRequest) returns (Account) {
     option (google.api.http) = {
       post: "/v1/{name=organizations/*/accounts/*}:archive"
@@ -303,6 +331,10 @@ service AccountService {
   }
 
   // Permanently deletes an account.
+  // Authorization:
+  //   Scope: accounts:write
+  //   Permission: PERMISSION_ACCOUNTS_DELETE
+  //   Domain: organization-scoped
   rpc DeleteAccount(DeleteAccountRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/{name=organizations/*/accounts/*}"};
     option (google.api.method_signature) = "name";

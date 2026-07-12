@@ -30,8 +30,18 @@ const (
 // UserSettingsService manages per-user application preferences.
 type UserSettingsServiceClient interface {
 	// Gets the settings for a user.
+	// Authorization:
+	//
+	//	Scope: settings:read
+	//	Permission: PERMISSION_SETTINGS_READ
+	//	Domain: global
 	GetUserSettings(ctx context.Context, in *GetUserSettingsRequest, opts ...grpc.CallOption) (*UserSettings, error)
 	// Updates the settings for a user.
+	// Authorization:
+	//
+	//	Scope: settings:write
+	//	Permission: PERMISSION_SETTINGS_UPDATE
+	//	Domain: global
 	UpdateUserSettings(ctx context.Context, in *UpdateUserSettingsRequest, opts ...grpc.CallOption) (*UserSettings, error)
 }
 
@@ -70,8 +80,18 @@ func (c *userSettingsServiceClient) UpdateUserSettings(ctx context.Context, in *
 // UserSettingsService manages per-user application preferences.
 type UserSettingsServiceServer interface {
 	// Gets the settings for a user.
+	// Authorization:
+	//
+	//	Scope: settings:read
+	//	Permission: PERMISSION_SETTINGS_READ
+	//	Domain: global
 	GetUserSettings(context.Context, *GetUserSettingsRequest) (*UserSettings, error)
 	// Updates the settings for a user.
+	// Authorization:
+	//
+	//	Scope: settings:write
+	//	Permission: PERMISSION_SETTINGS_UPDATE
+	//	Domain: global
 	UpdateUserSettings(context.Context, *UpdateUserSettingsRequest) (*UserSettings, error)
 }
 

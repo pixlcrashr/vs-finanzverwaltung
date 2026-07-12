@@ -151,18 +151,30 @@ service BudgetService {
   option (google.api.default_host) = "vsfv.pixlcrashr.dev";
 
   // Gets a single budget by resource name.
+  // Authorization:
+  //   Scope: budgets:read
+  //   Permission: PERMISSION_BUDGETS_READ
+  //   Domain: organization-scoped
   rpc GetBudget(GetBudgetRequest) returns (Budget) {
     option (google.api.http) = {get: "/v1/{name=organizations/*/budgets/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists budgets with pagination.
+  // Authorization:
+  //   Scope: budgets:read
+  //   Permission: PERMISSION_BUDGETS_READ
+  //   Domain: organization-scoped
   rpc ListBudgets(ListBudgetsRequest) returns (ListBudgetsResponse) {
     option (google.api.http) = {get: "/v1/{parent=organizations/*}/budgets"};
     option (google.api.method_signature) = "parent";
   }
 
   // Creates a new budget.
+  // Authorization:
+  //   Scope: budgets:write
+  //   Permission: PERMISSION_BUDGETS_CREATE
+  //   Domain: organization-scoped
   rpc CreateBudget(CreateBudgetRequest) returns (Budget) {
     option (google.api.http) = {
       post: "/v1/{parent=organizations/*}/budgets"
@@ -172,6 +184,10 @@ service BudgetService {
   }
 
   // Updates an existing budget.
+  // Authorization:
+  //   Scope: budgets:write
+  //   Permission: PERMISSION_BUDGETS_UPDATE
+  //   Domain: organization-scoped
   rpc UpdateBudget(UpdateBudgetRequest) returns (Budget) {
     option (google.api.http) = {
       patch: "/v1/{budget.name=organizations/*/budgets/*}"
@@ -181,6 +197,10 @@ service BudgetService {
   }
 
   // Closes a budget, marking it as no longer active.
+  // Authorization:
+  //   Scope: budgets:write
+  //   Permission: PERMISSION_BUDGETS_CLOSE
+  //   Domain: organization-scoped
   rpc CloseBudget(CloseBudgetRequest) returns (Budget) {
     option (google.api.http) = {
       post: "/v1/{name=organizations/*/budgets/*}:close"
@@ -190,6 +210,10 @@ service BudgetService {
   }
 
   // Permanently deletes a budget.
+  // Authorization:
+  //   Scope: budgets:write
+  //   Permission: PERMISSION_BUDGETS_DELETE
+  //   Domain: organization-scoped
   rpc DeleteBudget(DeleteBudgetRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/{name=organizations/*/budgets/*}"};
     option (google.api.method_signature) = "name";

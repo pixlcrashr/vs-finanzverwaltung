@@ -49,7 +49,7 @@ func (s *organizationServiceServer) GetOrganization(ctx context.Context, req *ge
 		return nil, &ServerError{Err: err, Status: statusInvalidOrganizationName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceOrganizations, authz.ActionRead, n.Organization); err != nil {
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceOrganizations, authz.ActionRead, authz.GlobalDomain); err != nil {
 		return nil, authError(err)
 	}
 
@@ -150,7 +150,7 @@ func (s *organizationServiceServer) UpdateOrganization(ctx context.Context, req 
 		return nil, &ServerError{Err: err, Status: statusInvalidOrganizationName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceOrganizations, authz.ActionUpdate, n.Organization); err != nil {
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceOrganizations, authz.ActionUpdate, authz.GlobalDomain); err != nil {
 		return nil, authError(err)
 	}
 
@@ -210,7 +210,7 @@ func (s *organizationServiceServer) DeleteOrganization(ctx context.Context, req 
 		return nil, &ServerError{Err: err, Status: statusInvalidOrganizationName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceOrganizations, authz.ActionDelete, n.Organization); err != nil {
+	if err := authz.Check(ctx, s.enforcer, authz.ResourceOrganizations, authz.ActionDelete, authz.GlobalDomain); err != nil {
 		return nil, authError(err)
 	}
 

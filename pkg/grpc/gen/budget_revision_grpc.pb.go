@@ -33,11 +33,26 @@ const (
 // BudgetAccountValues at the time of creation. Revisions are immutable.
 type BudgetRevisionServiceClient interface {
 	// Gets a single budget revision by resource name.
+	// Authorization:
+	//
+	//	Scope: budgets:read
+	//	Permission: PERMISSION_BUDGETS_READ
+	//	Domain: organization-scoped
 	GetBudgetRevision(ctx context.Context, in *GetBudgetRevisionRequest, opts ...grpc.CallOption) (*BudgetRevision, error)
 	// Lists revisions for a budget in reverse chronological order.
+	// Authorization:
+	//
+	//	Scope: budgets:read
+	//	Permission: PERMISSION_BUDGETS_READ
+	//	Domain: organization-scoped
 	ListBudgetRevisions(ctx context.Context, in *ListBudgetRevisionsRequest, opts ...grpc.CallOption) (*ListBudgetRevisionsResponse, error)
 	// Creates a new revision by capturing the current state of all
 	// BudgetAccountValues for the given budget.
+	// Authorization:
+	//
+	//	Scope: budgets:write
+	//	Permission: PERMISSION_BUDGETS_CREATE
+	//	Domain: organization-scoped
 	CreateBudgetRevision(ctx context.Context, in *CreateBudgetRevisionRequest, opts ...grpc.CallOption) (*BudgetRevision, error)
 }
 
@@ -88,11 +103,26 @@ func (c *budgetRevisionServiceClient) CreateBudgetRevision(ctx context.Context, 
 // BudgetAccountValues at the time of creation. Revisions are immutable.
 type BudgetRevisionServiceServer interface {
 	// Gets a single budget revision by resource name.
+	// Authorization:
+	//
+	//	Scope: budgets:read
+	//	Permission: PERMISSION_BUDGETS_READ
+	//	Domain: organization-scoped
 	GetBudgetRevision(context.Context, *GetBudgetRevisionRequest) (*BudgetRevision, error)
 	// Lists revisions for a budget in reverse chronological order.
+	// Authorization:
+	//
+	//	Scope: budgets:read
+	//	Permission: PERMISSION_BUDGETS_READ
+	//	Domain: organization-scoped
 	ListBudgetRevisions(context.Context, *ListBudgetRevisionsRequest) (*ListBudgetRevisionsResponse, error)
 	// Creates a new revision by capturing the current state of all
 	// BudgetAccountValues for the given budget.
+	// Authorization:
+	//
+	//	Scope: budgets:write
+	//	Permission: PERMISSION_BUDGETS_CREATE
+	//	Domain: organization-scoped
 	CreateBudgetRevision(context.Context, *CreateBudgetRevisionRequest) (*BudgetRevision, error)
 }
 

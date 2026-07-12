@@ -34,12 +34,32 @@ const (
 // Note: report file download is handled exclusively by the Huma HTTP API.
 type ReportServiceClient interface {
 	// Gets report metadata by resource name.
+	// Authorization:
+	//
+	//	Scope: reports:read
+	//	Permission: PERMISSION_REPORTS_READ
+	//	Domain: organization-scoped
 	GetReport(ctx context.Context, in *GetReportRequest, opts ...grpc.CallOption) (*Report, error)
 	// Lists reports with pagination.
+	// Authorization:
+	//
+	//	Scope: reports:read
+	//	Permission: PERMISSION_REPORTS_READ
+	//	Domain: organization-scoped
 	ListReports(ctx context.Context, in *ListReportsRequest, opts ...grpc.CallOption) (*ListReportsResponse, error)
 	// Creates a new report by rendering a template.
+	// Authorization:
+	//
+	//	Scope: reports:write
+	//	Permission: PERMISSION_REPORTS_CREATE
+	//	Domain: organization-scoped
 	CreateReport(ctx context.Context, in *CreateReportRequest, opts ...grpc.CallOption) (*Report, error)
 	// Permanently deletes a report.
+	// Authorization:
+	//
+	//	Scope: reports:write
+	//	Permission: PERMISSION_REPORTS_DELETE
+	//	Domain: organization-scoped
 	DeleteReport(ctx context.Context, in *DeleteReportRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -99,12 +119,32 @@ func (c *reportServiceClient) DeleteReport(ctx context.Context, in *DeleteReport
 // Note: report file download is handled exclusively by the Huma HTTP API.
 type ReportServiceServer interface {
 	// Gets report metadata by resource name.
+	// Authorization:
+	//
+	//	Scope: reports:read
+	//	Permission: PERMISSION_REPORTS_READ
+	//	Domain: organization-scoped
 	GetReport(context.Context, *GetReportRequest) (*Report, error)
 	// Lists reports with pagination.
+	// Authorization:
+	//
+	//	Scope: reports:read
+	//	Permission: PERMISSION_REPORTS_READ
+	//	Domain: organization-scoped
 	ListReports(context.Context, *ListReportsRequest) (*ListReportsResponse, error)
 	// Creates a new report by rendering a template.
+	// Authorization:
+	//
+	//	Scope: reports:write
+	//	Permission: PERMISSION_REPORTS_CREATE
+	//	Domain: organization-scoped
 	CreateReport(context.Context, *CreateReportRequest) (*Report, error)
 	// Permanently deletes a report.
+	// Authorization:
+	//
+	//	Scope: reports:write
+	//	Permission: PERMISSION_REPORTS_DELETE
+	//	Domain: organization-scoped
 	DeleteReport(context.Context, *DeleteReportRequest) (*emptypb.Empty, error)
 }
 

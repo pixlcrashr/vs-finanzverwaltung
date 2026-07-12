@@ -35,16 +35,46 @@ const (
 // BudgetService manages financial budgets.
 type BudgetServiceClient interface {
 	// Gets a single budget by resource name.
+	// Authorization:
+	//
+	//	Scope: budgets:read
+	//	Permission: PERMISSION_BUDGETS_READ
+	//	Domain: organization-scoped
 	GetBudget(ctx context.Context, in *GetBudgetRequest, opts ...grpc.CallOption) (*Budget, error)
 	// Lists budgets with pagination.
+	// Authorization:
+	//
+	//	Scope: budgets:read
+	//	Permission: PERMISSION_BUDGETS_READ
+	//	Domain: organization-scoped
 	ListBudgets(ctx context.Context, in *ListBudgetsRequest, opts ...grpc.CallOption) (*ListBudgetsResponse, error)
 	// Creates a new budget.
+	// Authorization:
+	//
+	//	Scope: budgets:write
+	//	Permission: PERMISSION_BUDGETS_CREATE
+	//	Domain: organization-scoped
 	CreateBudget(ctx context.Context, in *CreateBudgetRequest, opts ...grpc.CallOption) (*Budget, error)
 	// Updates an existing budget.
+	// Authorization:
+	//
+	//	Scope: budgets:write
+	//	Permission: PERMISSION_BUDGETS_UPDATE
+	//	Domain: organization-scoped
 	UpdateBudget(ctx context.Context, in *UpdateBudgetRequest, opts ...grpc.CallOption) (*Budget, error)
 	// Closes a budget, marking it as no longer active.
+	// Authorization:
+	//
+	//	Scope: budgets:write
+	//	Permission: PERMISSION_BUDGETS_CLOSE
+	//	Domain: organization-scoped
 	CloseBudget(ctx context.Context, in *CloseBudgetRequest, opts ...grpc.CallOption) (*Budget, error)
 	// Permanently deletes a budget.
+	// Authorization:
+	//
+	//	Scope: budgets:write
+	//	Permission: PERMISSION_BUDGETS_DELETE
+	//	Domain: organization-scoped
 	DeleteBudget(ctx context.Context, in *DeleteBudgetRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -123,16 +153,46 @@ func (c *budgetServiceClient) DeleteBudget(ctx context.Context, in *DeleteBudget
 // BudgetService manages financial budgets.
 type BudgetServiceServer interface {
 	// Gets a single budget by resource name.
+	// Authorization:
+	//
+	//	Scope: budgets:read
+	//	Permission: PERMISSION_BUDGETS_READ
+	//	Domain: organization-scoped
 	GetBudget(context.Context, *GetBudgetRequest) (*Budget, error)
 	// Lists budgets with pagination.
+	// Authorization:
+	//
+	//	Scope: budgets:read
+	//	Permission: PERMISSION_BUDGETS_READ
+	//	Domain: organization-scoped
 	ListBudgets(context.Context, *ListBudgetsRequest) (*ListBudgetsResponse, error)
 	// Creates a new budget.
+	// Authorization:
+	//
+	//	Scope: budgets:write
+	//	Permission: PERMISSION_BUDGETS_CREATE
+	//	Domain: organization-scoped
 	CreateBudget(context.Context, *CreateBudgetRequest) (*Budget, error)
 	// Updates an existing budget.
+	// Authorization:
+	//
+	//	Scope: budgets:write
+	//	Permission: PERMISSION_BUDGETS_UPDATE
+	//	Domain: organization-scoped
 	UpdateBudget(context.Context, *UpdateBudgetRequest) (*Budget, error)
 	// Closes a budget, marking it as no longer active.
+	// Authorization:
+	//
+	//	Scope: budgets:write
+	//	Permission: PERMISSION_BUDGETS_CLOSE
+	//	Domain: organization-scoped
 	CloseBudget(context.Context, *CloseBudgetRequest) (*Budget, error)
 	// Permanently deletes a budget.
+	// Authorization:
+	//
+	//	Scope: budgets:write
+	//	Permission: PERMISSION_BUDGETS_DELETE
+	//	Domain: organization-scoped
 	DeleteBudget(context.Context, *DeleteBudgetRequest) (*emptypb.Empty, error)
 }
 

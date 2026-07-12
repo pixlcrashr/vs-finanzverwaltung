@@ -148,18 +148,30 @@ service LedgerAccountService {
   option (google.api.default_host) = "vsfv.pixlcrashr.dev";
 
   // Gets a single ledger account by resource name.
+  // Authorization:
+  //   Scope: ledgerAccount:read
+  //   Permission: PERMISSION_LEDGER_ACCOUNT_READ
+  //   Domain: organization-scoped
   rpc GetLedgerAccount(GetLedgerAccountRequest) returns (LedgerAccount) {
     option (google.api.http) = {get: "/v1/{name=organizations/*/ledgerAccounts/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists ledger accounts with pagination.
+  // Authorization:
+  //   Scope: ledgerAccount:read
+  //   Permission: PERMISSION_LEDGER_ACCOUNT_READ
+  //   Domain: organization-scoped
   rpc ListLedgerAccounts(ListLedgerAccountsRequest) returns (ListLedgerAccountsResponse) {
     option (google.api.http) = {get: "/v1/{parent=organizations/*}/ledgerAccounts"};
     option (google.api.method_signature) = "parent";
   }
 
   // Updates an existing ledger account (e.g., display name).
+  // Authorization:
+  //   Scope: ledgerAccount:write
+  //   Permission: PERMISSION_LEDGER_ACCOUNT_UPDATE
+  //   Domain: organization-scoped
   rpc UpdateLedgerAccount(UpdateLedgerAccountRequest) returns (LedgerAccount) {
     option (google.api.http) = {
       patch: "/v1/{ledger_account.name=organizations/*/ledgerAccounts/*}"
@@ -169,6 +181,10 @@ service LedgerAccountService {
   }
 
   // Permanently deletes a ledger account.
+  // Authorization:
+  //   Scope: ledgerAccount:write
+  //   Permission: PERMISSION_LEDGER_ACCOUNT_DELETE
+  //   Domain: organization-scoped
   rpc DeleteLedgerAccount(DeleteLedgerAccountRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/{name=organizations/*/ledgerAccounts/*}"};
     option (google.api.method_signature) = "name";

@@ -31,8 +31,18 @@ const (
 // connections linked to a user. No credentials are ever returned.
 type UserIdentityServiceClient interface {
 	// Gets a single identity record.
+	// Authorization:
+	//
+	//	Scope: users:read
+	//	Permission: PERMISSION_USERS_READ
+	//	Domain: global
 	GetUserIdentity(ctx context.Context, in *GetUserIdentityRequest, opts ...grpc.CallOption) (*UserIdentity, error)
 	// Lists all identity records for a user.
+	// Authorization:
+	//
+	//	Scope: users:read
+	//	Permission: PERMISSION_USERS_READ
+	//	Domain: global
 	ListUserIdentities(ctx context.Context, in *ListUserIdentitiesRequest, opts ...grpc.CallOption) (*ListUserIdentitiesResponse, error)
 }
 
@@ -72,8 +82,18 @@ func (c *userIdentityServiceClient) ListUserIdentities(ctx context.Context, in *
 // connections linked to a user. No credentials are ever returned.
 type UserIdentityServiceServer interface {
 	// Gets a single identity record.
+	// Authorization:
+	//
+	//	Scope: users:read
+	//	Permission: PERMISSION_USERS_READ
+	//	Domain: global
 	GetUserIdentity(context.Context, *GetUserIdentityRequest) (*UserIdentity, error)
 	// Lists all identity records for a user.
+	// Authorization:
+	//
+	//	Scope: users:read
+	//	Permission: PERMISSION_USERS_READ
+	//	Domain: global
 	ListUserIdentities(context.Context, *ListUserIdentitiesRequest) (*ListUserIdentitiesResponse, error)
 }
 

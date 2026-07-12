@@ -140,17 +140,29 @@ service GroupService {
   option (google.api.default_host) = "vsfv.pixlcrashr.dev";
 
   // Gets a single group by resource name.
+  // Authorization:
+  //   Scope: groups:read
+  //   Permission: PERMISSION_GROUPS_READ
+  //   Domain: global
   rpc GetGroup(GetGroupRequest) returns (Group) {
     option (google.api.http) = {get: "/v1/{name=groups/*}"};
     option (google.api.method_signature) = "name";
   }
 
   // Lists groups with pagination.
+  // Authorization:
+  //   Scope: groups:read
+  //   Permission: PERMISSION_GROUPS_READ
+  //   Domain: global
   rpc ListGroups(ListGroupsRequest) returns (ListGroupsResponse) {
     option (google.api.http) = {get: "/v1/groups"};
   }
 
   // Creates a new group.
+  // Authorization:
+  //   Scope: groups:write
+  //   Permission: PERMISSION_GROUPS_CREATE
+  //   Domain: global
   rpc CreateGroup(CreateGroupRequest) returns (Group) {
     option (google.api.http) = {
       post: "/v1/groups"
@@ -160,6 +172,10 @@ service GroupService {
   }
 
   // Updates an existing group.
+  // Authorization:
+  //   Scope: groups:write
+  //   Permission: PERMISSION_GROUPS_UPDATE
+  //   Domain: global
   rpc UpdateGroup(UpdateGroupRequest) returns (Group) {
     option (google.api.http) = {
       patch: "/v1/{group.name=groups/*}"
@@ -169,6 +185,10 @@ service GroupService {
   }
 
   // Permanently deletes a group.
+  // Authorization:
+  //   Scope: groups:write
+  //   Permission: PERMISSION_GROUPS_DELETE
+  //   Domain: global
   rpc DeleteGroup(DeleteGroupRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/{name=groups/*}"};
     option (google.api.method_signature) = "name";

@@ -1,10 +1,17 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { map } from 'rxjs';
-import { V1Permission } from '../api/models/v1permission';
+import { Permission } from './permissions';
 import { AuthorizationService } from './authorization.service';
 
-export function requireAllPermissions(...requiredPermissions: V1Permission[]): CanActivateFn {
+/**
+ * requireAllPermissions returns a CanActivateFn that grants access only when
+ * the current user holds ALL of the specified permissions.
+ *
+ * The domain is determined from the `orgId` route parameter as "organizations/{orgId}".
+ * When `orgId` is absent, permissions are checked against the global domain.
+ */
+export function requireAllPermissions(...requiredPermissions: Permission[]): CanActivateFn {
   return (route) => {
     if (requiredPermissions.length === 0) {
       return true;
@@ -19,11 +26,9 @@ export function requireAllPermissions(...requiredPermissions: V1Permission[]): C
     }
 
     const orgId = route.paramMap.get('orgId');
-    if (!orgId) {
-      return true;
-    }
+    const domain = orgId ? `organizations/${orgId}` : '';
 
-    return authService.checkPermissions(user, `organizations/${orgId}`, requiredPermissions).pipe(
+    return authService.checkPermissions(user, domain, requiredPermissions).pipe(
       map((result) => {
         const allGranted = requiredPermissions.every((p) => result[p]);
         return allGranted || router.createUrlTree(['/']);
@@ -32,7 +37,14 @@ export function requireAllPermissions(...requiredPermissions: V1Permission[]): C
   };
 }
 
-export function requireAnyPermission(...permissions: V1Permission[]): CanActivateFn {
+/**
+ * requireAnyPermission returns a CanActivateFn that grants access when the
+ * current user holds at least ONE of the specified permissions.
+ *
+ * The domain is determined from the `orgId` route parameter as "organizations/{orgId}".
+ * When `orgId` is absent, permissions are checked against the global domain.
+ */
+export function requireAnyPermission(...permissions: Permission[]): CanActivateFn {
   return (route) => {
     if (permissions.length === 0) {
       return true;
@@ -47,11 +59,9 @@ export function requireAnyPermission(...permissions: V1Permission[]): CanActivat
     }
 
     const orgId = route.paramMap.get('orgId');
-    if (!orgId) {
-      return true;
-    }
+    const domain = orgId ? `organizations/${orgId}` : '';
 
-    return authService.checkPermissions(user, `organizations/${orgId}`, permissions).pipe(
+    return authService.checkPermissions(user, domain, permissions).pipe(
       map((result) => {
         const anyGranted = permissions.some((p) => result[p]);
         return anyGranted || router.createUrlTree(['/']);
@@ -60,7 +70,12 @@ export function requireAnyPermission(...permissions: V1Permission[]): CanActivat
   };
 }
 
-export function requireAllGlobalPermissions(...requiredPermissions: V1Permission[]): CanActivateFn {
+/**
+ * requireAllGlobalPermissions returns a CanActivateFn that grants access only
+ * when the current user holds ALL of the specified permissions in the global
+ * domain (ignoring any orgId route parameter).
+ */
+export function requireAllGlobalPermissions(...requiredPermissions: Permission[]): CanActivateFn {
   return () => {
     if (requiredPermissions.length === 0) {
       return true;
@@ -74,7 +89,7 @@ export function requireAllGlobalPermissions(...requiredPermissions: V1Permission
       return router.createUrlTree(['/']);
     }
 
-    return authService.checkGlobalPermissions(user, requiredPermissions).pipe(
+    return authService.checkPermissions(user, '', requiredPermissions).pipe(
       map((result) => {
         const allGranted = requiredPermissions.every((p) => result[p]);
         return allGranted || router.createUrlTree(['/']);
@@ -83,7 +98,12 @@ export function requireAllGlobalPermissions(...requiredPermissions: V1Permission
   };
 }
 
-export function requireAnyGlobalPermission(...permissions: V1Permission[]): CanActivateFn {
+/**
+ * requireAnyGlobalPermission returns a CanActivateFn that grants access when
+ * the current user holds at least ONE of the specified permissions in the
+ * global domain (ignoring any orgId route parameter).
+ */
+export function requireAnyGlobalPermission(...permissions: Permission[]): CanActivateFn {
   return () => {
     if (permissions.length === 0) {
       return true;
@@ -97,7 +117,7 @@ export function requireAnyGlobalPermission(...permissions: V1Permission[]): CanA
       return router.createUrlTree(['/']);
     }
 
-    return authService.checkGlobalPermissions(user, permissions).pipe(
+    return authService.checkPermissions(user, '', permissions).pipe(
       map((result) => {
         const anyGranted = permissions.some((p) => result[p]);
         return anyGranted || router.createUrlTree(['/']);

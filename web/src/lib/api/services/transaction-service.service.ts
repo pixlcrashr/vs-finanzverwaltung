@@ -35,7 +35,7 @@ class TransactionServiceService extends __BaseService {
    * Permanently deletes a transaction.
    * Authorization:
    *   Scope: transactions:write
-   *   Permission: PERMISSION_TRANSACTIONS_DELETE
+   *   Permission: transactions:delete
    *   Domain: organization-scoped
    * @param name_10 The resource name of the transaction.
    * Format: organizations/{organization}/transactions/{transaction}
@@ -67,7 +67,7 @@ class TransactionServiceService extends __BaseService {
    * Permanently deletes a transaction.
    * Authorization:
    *   Scope: transactions:write
-   *   Permission: PERMISSION_TRANSACTIONS_DELETE
+   *   Permission: transactions:delete
    *   Domain: organization-scoped
    * @param name_10 The resource name of the transaction.
    * Format: organizations/{organization}/transactions/{transaction}
@@ -83,7 +83,7 @@ class TransactionServiceService extends __BaseService {
    * Gets a single transaction by resource name.
    * Authorization:
    *   Scope: transactions:read
-   *   Permission: PERMISSION_TRANSACTIONS_READ
+   *   Permission: transactions:read
    *   Domain: organization-scoped
    * @param name_14 The resource name of the transaction.
    * Format: organizations/{organization}/transactions/{transaction}
@@ -115,7 +115,7 @@ class TransactionServiceService extends __BaseService {
    * Gets a single transaction by resource name.
    * Authorization:
    *   Scope: transactions:read
-   *   Permission: PERMISSION_TRANSACTIONS_READ
+   *   Permission: transactions:read
    *   Domain: organization-scoped
    * @param name_14 The resource name of the transaction.
    * Format: organizations/{organization}/transactions/{transaction}
@@ -131,7 +131,7 @@ class TransactionServiceService extends __BaseService {
    * Lists transactions with keyset pagination and optional filters.
    * Authorization:
    *   Scope: transactions:read
-   *   Permission: PERMISSION_TRANSACTIONS_READ
+   *   Permission: transactions:read
    *   Domain: organization-scoped
    * @param params The `TransactionServiceService.TransactionServiceListTransactionsParams` containing the following parameters:
    *
@@ -182,7 +182,7 @@ class TransactionServiceService extends __BaseService {
    * Lists transactions with keyset pagination and optional filters.
    * Authorization:
    *   Scope: transactions:read
-   *   Permission: PERMISSION_TRANSACTIONS_READ
+   *   Permission: transactions:read
    *   Domain: organization-scoped
    * @param params The `TransactionServiceService.TransactionServiceListTransactionsParams` containing the following parameters:
    *
@@ -213,7 +213,7 @@ class TransactionServiceService extends __BaseService {
    * Creates a new transaction.
    * Authorization:
    *   Scope: transactions:write
-   *   Permission: PERMISSION_TRANSACTIONS_CREATE (note: not yet defined in permission.proto)
+   *   Permission: transactions:create
    *   Domain: organization-scoped
    * @param params The `TransactionServiceService.TransactionServiceCreateTransactionParams` containing the following parameters:
    *
@@ -255,7 +255,7 @@ class TransactionServiceService extends __BaseService {
    * Creates a new transaction.
    * Authorization:
    *   Scope: transactions:write
-   *   Permission: PERMISSION_TRANSACTIONS_CREATE (note: not yet defined in permission.proto)
+   *   Permission: transactions:create
    *   Domain: organization-scoped
    * @param params The `TransactionServiceService.TransactionServiceCreateTransactionParams` containing the following parameters:
    *
@@ -279,7 +279,7 @@ class TransactionServiceService extends __BaseService {
    * Updates an existing transaction.
    * Authorization:
    *   Scope: transactions:write
-   *   Permission: PERMISSION_TRANSACTIONS_UPDATE
+   *   Permission: transactions:update
    *   Domain: organization-scoped
    * @param params The `TransactionServiceService.TransactionServiceUpdateTransactionParams` containing the following parameters:
    *
@@ -317,7 +317,7 @@ class TransactionServiceService extends __BaseService {
    * Updates an existing transaction.
    * Authorization:
    *   Scope: transactions:write
-   *   Permission: PERMISSION_TRANSACTIONS_UPDATE
+   *   Permission: transactions:update
    *   Domain: organization-scoped
    * @param params The `TransactionServiceService.TransactionServiceUpdateTransactionParams` containing the following parameters:
    *

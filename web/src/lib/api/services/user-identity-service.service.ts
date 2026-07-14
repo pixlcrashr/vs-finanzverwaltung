@@ -32,7 +32,7 @@ class UserIdentityServiceService extends __BaseService {
    * Gets a single identity record.
    * Authorization:
    *   Scope: users:read
-   *   Permission: PERMISSION_USERS_READ
+   *   Permission: users:read
    *   Domain: global
    * @param name_17 The resource name of the identity.
    * Format: users/{user}/identities/{identity}
@@ -64,7 +64,7 @@ class UserIdentityServiceService extends __BaseService {
    * Gets a single identity record.
    * Authorization:
    *   Scope: users:read
-   *   Permission: PERMISSION_USERS_READ
+   *   Permission: users:read
    *   Domain: global
    * @param name_17 The resource name of the identity.
    * Format: users/{user}/identities/{identity}
@@ -80,7 +80,7 @@ class UserIdentityServiceService extends __BaseService {
    * Lists all identity records for a user.
    * Authorization:
    *   Scope: users:read
-   *   Permission: PERMISSION_USERS_READ
+   *   Permission: users:read
    *   Domain: global
    * @param params The `UserIdentityServiceService.UserIdentityServiceListUserIdentitiesParams` containing the following parameters:
    *
@@ -122,7 +122,7 @@ class UserIdentityServiceService extends __BaseService {
    * Lists all identity records for a user.
    * Authorization:
    *   Scope: users:read
-   *   Permission: PERMISSION_USERS_READ
+   *   Permission: users:read
    *   Domain: global
    * @param params The `UserIdentityServiceService.UserIdentityServiceListUserIdentitiesParams` containing the following parameters:
    *

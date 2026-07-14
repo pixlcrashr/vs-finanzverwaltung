@@ -8,15 +8,15 @@ import { OrganizationListDataService } from './organizations/organization-list.d
 import { OrganizationEditDataService } from './organizations/organization-edit.data-service';
 import { environment } from '../../../environments/environment';
 import { requireAllGlobalPermissions, requireAnyGlobalPermission } from '../../../lib/authz/permission.guard';
-import { V1Permission } from '../../../lib/api/models';
+import { Permission, Permissions } from '../../../lib/authz/permissions';
 import { resolveGlobalPermissions } from '../../../lib/authz/permission.resolver';
 
 export const ADMIN_ROUTES: Routes = [
   {
     path: 'users',
-    canActivate: [requireAllGlobalPermissions(V1Permission.PERMISSION_USERS_READ)],
+    canActivate: [requireAllGlobalPermissions(Permissions.USERS_READ)],
     resolve: {
-      permissions: resolveGlobalPermissions(V1Permission.PERMISSION_USERS_UPDATE),
+      permissions: resolveGlobalPermissions(Permissions.USERS_UPDATE),
     },
     loadComponent: () => import('./users/user-list.component').then((m) => m.UserListComponent),
     providers: [
@@ -25,9 +25,9 @@ export const ADMIN_ROUTES: Routes = [
   },
   {
     path: 'users/:id/edit',
-    canActivate: [requireAnyGlobalPermission(V1Permission.PERMISSION_USERS_READ, V1Permission.PERMISSION_USERS_UPDATE)],
+    canActivate: [requireAnyGlobalPermission(Permissions.USERS_READ, Permissions.USERS_UPDATE)],
     resolve: {
-      permissions: resolveGlobalPermissions(V1Permission.PERMISSION_USERS_UPDATE),
+      permissions: resolveGlobalPermissions(Permissions.USERS_UPDATE),
     },
     loadComponent: () => import('./users/user-edit.component').then((m) => m.UserEditComponent),
     providers: [
@@ -36,9 +36,9 @@ export const ADMIN_ROUTES: Routes = [
   },
   {
     path: 'groups',
-    canActivate: [requireAllGlobalPermissions(V1Permission.PERMISSION_GROUPS_READ)],
+    canActivate: [requireAllGlobalPermissions(Permissions.GROUPS_READ)],
     resolve: {
-      permissions: resolveGlobalPermissions(V1Permission.PERMISSION_GROUPS_CREATE, V1Permission.PERMISSION_GROUPS_UPDATE, V1Permission.PERMISSION_GROUPS_DELETE),
+      permissions: resolveGlobalPermissions(Permissions.GROUPS_CREATE, Permissions.GROUPS_UPDATE, Permissions.GROUPS_DELETE),
     },
     loadComponent: () => import('./groups/group-list.component').then((m) => m.GroupListComponent),
     providers: [
@@ -47,7 +47,7 @@ export const ADMIN_ROUTES: Routes = [
   },
   {
     path: 'groups/new',
-    canActivate: [requireAllGlobalPermissions(V1Permission.PERMISSION_GROUPS_CREATE)],
+    canActivate: [requireAllGlobalPermissions(Permissions.GROUPS_CREATE)],
     loadComponent: () => import('./groups/group-new.component').then((m) => m.GroupNewComponent),
     providers: [
       { provide: GroupNewDataService, useClass: environment.dataServices.groupNew },
@@ -55,9 +55,9 @@ export const ADMIN_ROUTES: Routes = [
   },
   {
     path: 'groups/:id/edit',
-    canActivate: [requireAnyGlobalPermission(V1Permission.PERMISSION_GROUPS_READ, V1Permission.PERMISSION_GROUPS_UPDATE)],
+    canActivate: [requireAnyGlobalPermission(Permissions.GROUPS_READ, Permissions.GROUPS_UPDATE)],
     resolve: {
-      permissions: resolveGlobalPermissions(V1Permission.PERMISSION_GROUPS_UPDATE, V1Permission.PERMISSION_GROUPS_DELETE),
+      permissions: resolveGlobalPermissions(Permissions.GROUPS_UPDATE, Permissions.GROUPS_DELETE),
     },
     loadComponent: () => import('./groups/group-edit.component').then((m) => m.GroupEditComponent),
     providers: [
@@ -66,9 +66,9 @@ export const ADMIN_ROUTES: Routes = [
   },
   {
     path: 'organizations',
-    canActivate: [requireAllGlobalPermissions(V1Permission.PERMISSION_ORGANIZATIONS_READ)],
+    canActivate: [requireAllGlobalPermissions(Permissions.ORGANIZATIONS_READ)],
     resolve: {
-      permissions: resolveGlobalPermissions(V1Permission.PERMISSION_ORGANIZATIONS_CREATE, V1Permission.PERMISSION_ORGANIZATIONS_UPDATE, V1Permission.PERMISSION_ORGANIZATIONS_ARCHIVE, V1Permission.PERMISSION_ORGANIZATIONS_DELETE),
+      permissions: resolveGlobalPermissions(Permissions.ORGANIZATIONS_CREATE, Permissions.ORGANIZATIONS_UPDATE, Permissions.ORGANIZATIONS_ARCHIVE, Permissions.ORGANIZATIONS_DELETE),
     },
     loadComponent: () =>
       import('./organizations/organization-list.component').then(
@@ -80,9 +80,9 @@ export const ADMIN_ROUTES: Routes = [
   },
   {
     path: 'organizations/:id/edit',
-    canActivate: [requireAnyGlobalPermission(V1Permission.PERMISSION_ORGANIZATIONS_READ, V1Permission.PERMISSION_ORGANIZATIONS_UPDATE)],
+    canActivate: [requireAnyGlobalPermission(Permissions.ORGANIZATIONS_READ, Permissions.ORGANIZATIONS_UPDATE)],
     resolve: {
-      permissions: resolveGlobalPermissions(V1Permission.PERMISSION_ORGANIZATIONS_UPDATE, V1Permission.PERMISSION_ORGANIZATIONS_ARCHIVE, V1Permission.PERMISSION_ORGANIZATIONS_DELETE),
+      permissions: resolveGlobalPermissions(Permissions.ORGANIZATIONS_UPDATE, Permissions.ORGANIZATIONS_ARCHIVE, Permissions.ORGANIZATIONS_DELETE),
     },
     loadComponent: () =>
       import('./organizations/organization-edit.component').then(

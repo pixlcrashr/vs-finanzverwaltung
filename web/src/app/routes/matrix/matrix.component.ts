@@ -9,7 +9,7 @@ import { MatrixData, MatrixDataProviderService } from './matrix-data-provider.se
 import { MatrixDataService, MatrixBudgetValueUpdate } from './matrix.data-service';
 import { LoadingSpinnerComponent } from '../../shared/components';
 import { HasPermissionPipe } from '../../../lib/authz/has-permission.pipe';
-import { V1Permission } from '../../../lib/api/models';
+import { Permission, Permissions } from '../../../lib/authz/permissions';
 
 
 
@@ -26,7 +26,7 @@ import { V1Permission } from '../../../lib/api/models';
         [isLoading]="isLoading()"
         [isSaving]="isSaving()"
         [hasPendingChanges]="hasPendingChanges()"
-        [canSave]="V1Permission.PERMISSION_MATRIX_UPDATE | hasPermission"
+        [canSave]="Permissions.MATRIX_UPDATE | hasPermission"
         [(selectedBudgetIds)]="selectedBudgetIds"
         [(selectedTagIds)]="selectedTagIds"
         [(selectedAccountIds)]="selectedAccountIds"
@@ -61,7 +61,7 @@ export class Matrix {
   isLoading = signal(true);
   isSaving = signal(false);
   hasLoadedData = signal(false);
-  readonly V1Permission = V1Permission;
+  readonly Permissions = Permissions;
 
   matrixData = signal<MatrixData>({
     columns: [],

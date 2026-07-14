@@ -34,7 +34,7 @@ class ReportServiceService extends __BaseService {
    * Gets report metadata by resource name.
    * Authorization:
    *   Scope: reports:read
-   *   Permission: PERMISSION_REPORTS_READ
+   *   Permission: reports:read
    *   Domain: organization-scoped
    * @param name_12 The resource name of the report.
    * Format: organizations/{organization}/reports/{report}
@@ -66,7 +66,7 @@ class ReportServiceService extends __BaseService {
    * Gets report metadata by resource name.
    * Authorization:
    *   Scope: reports:read
-   *   Permission: PERMISSION_REPORTS_READ
+   *   Permission: reports:read
    *   Domain: organization-scoped
    * @param name_12 The resource name of the report.
    * Format: organizations/{organization}/reports/{report}
@@ -82,7 +82,7 @@ class ReportServiceService extends __BaseService {
    * Permanently deletes a report.
    * Authorization:
    *   Scope: reports:write
-   *   Permission: PERMISSION_REPORTS_DELETE
+   *   Permission: reports:delete
    *   Domain: organization-scoped
    * @param name_8 The resource name of the report.
    * Format: organizations/{organization}/reports/{report}
@@ -114,7 +114,7 @@ class ReportServiceService extends __BaseService {
    * Permanently deletes a report.
    * Authorization:
    *   Scope: reports:write
-   *   Permission: PERMISSION_REPORTS_DELETE
+   *   Permission: reports:delete
    *   Domain: organization-scoped
    * @param name_8 The resource name of the report.
    * Format: organizations/{organization}/reports/{report}
@@ -130,7 +130,7 @@ class ReportServiceService extends __BaseService {
    * Lists reports with pagination.
    * Authorization:
    *   Scope: reports:read
-   *   Permission: PERMISSION_REPORTS_READ
+   *   Permission: reports:read
    *   Domain: organization-scoped
    * @param params The `ReportServiceService.ReportServiceListReportsParams` containing the following parameters:
    *
@@ -180,7 +180,7 @@ class ReportServiceService extends __BaseService {
    * Lists reports with pagination.
    * Authorization:
    *   Scope: reports:read
-   *   Permission: PERMISSION_REPORTS_READ
+   *   Permission: reports:read
    *   Domain: organization-scoped
    * @param params The `ReportServiceService.ReportServiceListReportsParams` containing the following parameters:
    *
@@ -210,7 +210,7 @@ class ReportServiceService extends __BaseService {
    * Creates a new report by rendering a template.
    * Authorization:
    *   Scope: reports:write
-   *   Permission: PERMISSION_REPORTS_CREATE
+   *   Permission: reports:create
    *   Domain: organization-scoped
    * @param params The `ReportServiceService.ReportServiceCreateReportParams` containing the following parameters:
    *
@@ -252,7 +252,7 @@ class ReportServiceService extends __BaseService {
    * Creates a new report by rendering a template.
    * Authorization:
    *   Scope: reports:write
-   *   Permission: PERMISSION_REPORTS_CREATE
+   *   Permission: reports:create
    *   Domain: organization-scoped
    * @param params The `ReportServiceService.ReportServiceCreateReportParams` containing the following parameters:
    *

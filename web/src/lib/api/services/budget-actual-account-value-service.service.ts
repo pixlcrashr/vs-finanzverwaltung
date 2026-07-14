@@ -34,7 +34,7 @@ class BudgetActualAccountValueServiceService extends __BaseService {
    * Gets the computed actual value for a single account within a budget.
    * Authorization:
    *   Scope: budgets:read
-   *   Permission: PERMISSION_BUDGETS_READ
+   *   Permission: budgets:read
    *   Domain: organization-scoped
    * @param name_5 The resource name of the budget actual account value.
    * Format: organizations/{organization}/budgets/{budget}/actualAccountValues/{account}
@@ -66,7 +66,7 @@ class BudgetActualAccountValueServiceService extends __BaseService {
    * Gets the computed actual value for a single account within a budget.
    * Authorization:
    *   Scope: budgets:read
-   *   Permission: PERMISSION_BUDGETS_READ
+   *   Permission: budgets:read
    *   Domain: organization-scoped
    * @param name_5 The resource name of the budget actual account value.
    * Format: organizations/{organization}/budgets/{budget}/actualAccountValues/{account}
@@ -82,7 +82,7 @@ class BudgetActualAccountValueServiceService extends __BaseService {
    * Lists computed actual account values for a budget, with pagination.
    * Authorization:
    *   Scope: budgets:read
-   *   Permission: PERMISSION_BUDGETS_READ
+   *   Permission: budgets:read
    *   Domain: organization-scoped
    * @param params The `BudgetActualAccountValueServiceService.BudgetActualAccountValueServiceListBudgetActualAccountValuesParams` containing the following parameters:
    *
@@ -132,7 +132,7 @@ class BudgetActualAccountValueServiceService extends __BaseService {
    * Lists computed actual account values for a budget, with pagination.
    * Authorization:
    *   Scope: budgets:read
-   *   Permission: PERMISSION_BUDGETS_READ
+   *   Permission: budgets:read
    *   Domain: organization-scoped
    * @param params The `BudgetActualAccountValueServiceService.BudgetActualAccountValueServiceListBudgetActualAccountValuesParams` containing the following parameters:
    *

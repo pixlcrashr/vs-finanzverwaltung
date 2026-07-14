@@ -30,7 +30,7 @@ class UserSettingsServiceService extends __BaseService {
    * Gets the settings for a user.
    * Authorization:
    *   Scope: settings:read
-   *   Permission: PERMISSION_SETTINGS_READ
+   *   Permission: settings:read
    *   Domain: global
    * @param name_18 The resource name of the user settings.
    * Format: users/{user}/settings
@@ -62,7 +62,7 @@ class UserSettingsServiceService extends __BaseService {
    * Gets the settings for a user.
    * Authorization:
    *   Scope: settings:read
-   *   Permission: PERMISSION_SETTINGS_READ
+   *   Permission: settings:read
    *   Domain: global
    * @param name_18 The resource name of the user settings.
    * Format: users/{user}/settings
@@ -78,7 +78,7 @@ class UserSettingsServiceService extends __BaseService {
    * Updates the settings for a user.
    * Authorization:
    *   Scope: settings:write
-   *   Permission: PERMISSION_SETTINGS_UPDATE
+   *   Permission: settings:update
    *   Domain: global
    * @param params The `UserSettingsServiceService.UserSettingsServiceUpdateUserSettingsParams` containing the following parameters:
    *
@@ -121,7 +121,7 @@ class UserSettingsServiceService extends __BaseService {
    * Updates the settings for a user.
    * Authorization:
    *   Scope: settings:write
-   *   Permission: PERMISSION_SETTINGS_UPDATE
+   *   Permission: settings:update
    *   Domain: global
    * @param params The `UserSettingsServiceService.UserSettingsServiceUpdateUserSettingsParams` containing the following parameters:
    *

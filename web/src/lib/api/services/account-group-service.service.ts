@@ -34,7 +34,7 @@ class AccountGroupServiceService extends __BaseService {
    * Updates an existing account group.
    * Authorization:
    *   Scope: accountGroups:write
-   *   Permission: PERMISSION_ACCOUNT_GROUPS_UPDATE
+   *   Permission: accountGroups:update
    *   Domain: organization-scoped
    * @param params The `AccountGroupServiceService.AccountGroupServiceUpdateAccountGroupParams` containing the following parameters:
    *
@@ -72,7 +72,7 @@ class AccountGroupServiceService extends __BaseService {
    * Updates an existing account group.
    * Authorization:
    *   Scope: accountGroups:write
-   *   Permission: PERMISSION_ACCOUNT_GROUPS_UPDATE
+   *   Permission: accountGroups:update
    *   Domain: organization-scoped
    * @param params The `AccountGroupServiceService.AccountGroupServiceUpdateAccountGroupParams` containing the following parameters:
    *
@@ -93,7 +93,7 @@ class AccountGroupServiceService extends __BaseService {
    * Gets a single account group by resource name.
    * Authorization:
    *   Scope: accountGroups:read
-   *   Permission: PERMISSION_ACCOUNT_GROUPS_READ
+   *   Permission: accountGroups:read
    *   Domain: organization-scoped
    * @param name_1 The resource name of the account group.
    * Format: organizations/{organization}/accountGroups/{account_group}
@@ -125,7 +125,7 @@ class AccountGroupServiceService extends __BaseService {
    * Gets a single account group by resource name.
    * Authorization:
    *   Scope: accountGroups:read
-   *   Permission: PERMISSION_ACCOUNT_GROUPS_READ
+   *   Permission: accountGroups:read
    *   Domain: organization-scoped
    * @param name_1 The resource name of the account group.
    * Format: organizations/{organization}/accountGroups/{account_group}
@@ -141,7 +141,7 @@ class AccountGroupServiceService extends __BaseService {
    * Permanently deletes an account group.
    * Authorization:
    *   Scope: accountGroups:write
-   *   Permission: PERMISSION_ACCOUNT_GROUPS_DELETE
+   *   Permission: accountGroups:delete
    *   Domain: organization-scoped
    * @param name_1 The resource name of the account group.
    * Format: organizations/{organization}/accountGroups/{account_group}
@@ -173,7 +173,7 @@ class AccountGroupServiceService extends __BaseService {
    * Permanently deletes an account group.
    * Authorization:
    *   Scope: accountGroups:write
-   *   Permission: PERMISSION_ACCOUNT_GROUPS_DELETE
+   *   Permission: accountGroups:delete
    *   Domain: organization-scoped
    * @param name_1 The resource name of the account group.
    * Format: organizations/{organization}/accountGroups/{account_group}
@@ -189,7 +189,7 @@ class AccountGroupServiceService extends __BaseService {
    * Lists account groups with pagination.
    * Authorization:
    *   Scope: accountGroups:read
-   *   Permission: PERMISSION_ACCOUNT_GROUPS_READ
+   *   Permission: accountGroups:read
    *   Domain: organization-scoped
    * @param params The `AccountGroupServiceService.AccountGroupServiceListAccountGroupsParams` containing the following parameters:
    *
@@ -239,7 +239,7 @@ class AccountGroupServiceService extends __BaseService {
    * Lists account groups with pagination.
    * Authorization:
    *   Scope: accountGroups:read
-   *   Permission: PERMISSION_ACCOUNT_GROUPS_READ
+   *   Permission: accountGroups:read
    *   Domain: organization-scoped
    * @param params The `AccountGroupServiceService.AccountGroupServiceListAccountGroupsParams` containing the following parameters:
    *
@@ -269,7 +269,7 @@ class AccountGroupServiceService extends __BaseService {
    * Creates a new account group.
    * Authorization:
    *   Scope: accountGroups:write
-   *   Permission: PERMISSION_ACCOUNT_GROUPS_CREATE
+   *   Permission: accountGroups:create
    *   Domain: organization-scoped
    * @param params The `AccountGroupServiceService.AccountGroupServiceCreateAccountGroupParams` containing the following parameters:
    *
@@ -311,7 +311,7 @@ class AccountGroupServiceService extends __BaseService {
    * Creates a new account group.
    * Authorization:
    *   Scope: accountGroups:write
-   *   Permission: PERMISSION_ACCOUNT_GROUPS_CREATE
+   *   Permission: accountGroups:create
    *   Domain: organization-scoped
    * @param params The `AccountGroupServiceService.AccountGroupServiceCreateAccountGroupParams` containing the following parameters:
    *

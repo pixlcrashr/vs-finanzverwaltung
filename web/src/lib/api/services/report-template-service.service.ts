@@ -34,7 +34,7 @@ class ReportTemplateServiceService extends __BaseService {
    * Gets a single report template by resource name.
    * Authorization:
    *   Scope: reportTemplates:read
-   *   Permission: PERMISSION_REPORT_TEMPLATES_READ
+   *   Permission: reportTemplates:read
    *   Domain: organization-scoped
    * @param name_13 The resource name of the report template.
    * Format: organizations/{organization}/reportTemplates/{report_template}
@@ -66,7 +66,7 @@ class ReportTemplateServiceService extends __BaseService {
    * Gets a single report template by resource name.
    * Authorization:
    *   Scope: reportTemplates:read
-   *   Permission: PERMISSION_REPORT_TEMPLATES_READ
+   *   Permission: reportTemplates:read
    *   Domain: organization-scoped
    * @param name_13 The resource name of the report template.
    * Format: organizations/{organization}/reportTemplates/{report_template}
@@ -82,7 +82,7 @@ class ReportTemplateServiceService extends __BaseService {
    * Permanently deletes a report template.
    * Authorization:
    *   Scope: reportTemplates:write
-   *   Permission: PERMISSION_REPORT_TEMPLATES_DELETE
+   *   Permission: reportTemplates:delete
    *   Domain: organization-scoped
    * @param name_9 The resource name of the report template.
    * Format: organizations/{organization}/reportTemplates/{report_template}
@@ -114,7 +114,7 @@ class ReportTemplateServiceService extends __BaseService {
    * Permanently deletes a report template.
    * Authorization:
    *   Scope: reportTemplates:write
-   *   Permission: PERMISSION_REPORT_TEMPLATES_DELETE
+   *   Permission: reportTemplates:delete
    *   Domain: organization-scoped
    * @param name_9 The resource name of the report template.
    * Format: organizations/{organization}/reportTemplates/{report_template}
@@ -130,7 +130,7 @@ class ReportTemplateServiceService extends __BaseService {
    * Lists report templates with pagination.
    * Authorization:
    *   Scope: reportTemplates:read
-   *   Permission: PERMISSION_REPORT_TEMPLATES_READ
+   *   Permission: reportTemplates:read
    *   Domain: organization-scoped
    * @param params The `ReportTemplateServiceService.ReportTemplateServiceListReportTemplatesParams` containing the following parameters:
    *
@@ -180,7 +180,7 @@ class ReportTemplateServiceService extends __BaseService {
    * Lists report templates with pagination.
    * Authorization:
    *   Scope: reportTemplates:read
-   *   Permission: PERMISSION_REPORT_TEMPLATES_READ
+   *   Permission: reportTemplates:read
    *   Domain: organization-scoped
    * @param params The `ReportTemplateServiceService.ReportTemplateServiceListReportTemplatesParams` containing the following parameters:
    *
@@ -210,7 +210,7 @@ class ReportTemplateServiceService extends __BaseService {
    * Creates a new report template.
    * Authorization:
    *   Scope: reportTemplates:write
-   *   Permission: PERMISSION_REPORT_TEMPLATES_CREATE
+   *   Permission: reportTemplates:create
    *   Domain: organization-scoped
    * @param params The `ReportTemplateServiceService.ReportTemplateServiceCreateReportTemplateParams` containing the following parameters:
    *
@@ -252,7 +252,7 @@ class ReportTemplateServiceService extends __BaseService {
    * Creates a new report template.
    * Authorization:
    *   Scope: reportTemplates:write
-   *   Permission: PERMISSION_REPORT_TEMPLATES_CREATE
+   *   Permission: reportTemplates:create
    *   Domain: organization-scoped
    * @param params The `ReportTemplateServiceService.ReportTemplateServiceCreateReportTemplateParams` containing the following parameters:
    *
@@ -276,7 +276,7 @@ class ReportTemplateServiceService extends __BaseService {
    * Updates an existing report template.
    * Authorization:
    *   Scope: reportTemplates:write
-   *   Permission: PERMISSION_REPORT_TEMPLATES_UPDATE
+   *   Permission: reportTemplates:update
    *   Domain: organization-scoped
    * @param params The `ReportTemplateServiceService.ReportTemplateServiceUpdateReportTemplateParams` containing the following parameters:
    *
@@ -314,7 +314,7 @@ class ReportTemplateServiceService extends __BaseService {
    * Updates an existing report template.
    * Authorization:
    *   Scope: reportTemplates:write
-   *   Permission: PERMISSION_REPORT_TEMPLATES_UPDATE
+   *   Permission: reportTemplates:update
    *   Domain: organization-scoped
    * @param params The `ReportTemplateServiceService.ReportTemplateServiceUpdateReportTemplateParams` containing the following parameters:
    *

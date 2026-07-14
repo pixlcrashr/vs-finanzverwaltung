@@ -19,7 +19,7 @@ import {
   OrganizationSettings,
 } from './organization-settings.data-service';
 import { HasPermissionPipe } from '../../../lib/authz/has-permission.pipe';
-import { V1Permission } from '../../../lib/api/models';
+import { Permission, Permissions } from '../../../lib/authz/permissions';
 
 @Component({
   selector: 'app-organization-settings',
@@ -103,7 +103,7 @@ import { V1Permission } from '../../../lib/api/models';
 
               <!-- Actions -->
               <div class="flex justify-end gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
-                @if (V1Permission.PERMISSION_SETTINGS_UPDATE | hasPermission) {
+                @if (Permissions.SETTINGS_UPDATE | hasPermission) {
                   <app-button
                     [disabled]="saving()"
                     [loading]="saving()"
@@ -128,7 +128,7 @@ export class OrganizationSettingsComponent implements OnInit {
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly settings = signal<OrganizationSettings | null>(null);
-  readonly V1Permission = V1Permission;
+  readonly Permissions = Permissions;
 
   name = '';
   description = '';

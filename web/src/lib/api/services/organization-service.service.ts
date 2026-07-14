@@ -38,7 +38,7 @@ class OrganizationServiceService extends __BaseService {
    * Lists organizations with pagination.
    * Authorization:
    *   Scope: organizations:read
-   *   Permission: PERMISSION_ORGANIZATIONS_READ
+   *   Permission: organizations:read
    *   Domain: global
    * @param params The `OrganizationServiceService.OrganizationServiceListOrganizationsParams` containing the following parameters:
    *
@@ -84,7 +84,7 @@ class OrganizationServiceService extends __BaseService {
    * Lists organizations with pagination.
    * Authorization:
    *   Scope: organizations:read
-   *   Permission: PERMISSION_ORGANIZATIONS_READ
+   *   Permission: organizations:read
    *   Domain: global
    * @param params The `OrganizationServiceService.OrganizationServiceListOrganizationsParams` containing the following parameters:
    *
@@ -111,7 +111,7 @@ class OrganizationServiceService extends __BaseService {
    * Creates a new organization.
    * Authorization:
    *   Scope: organizations:write
-   *   Permission: PERMISSION_ORGANIZATIONS_CREATE
+   *   Permission: organizations:create
    *   Domain: global
    * @param params The `OrganizationServiceService.OrganizationServiceCreateOrganizationParams` containing the following parameters:
    *
@@ -149,7 +149,7 @@ class OrganizationServiceService extends __BaseService {
    * Creates a new organization.
    * Authorization:
    *   Scope: organizations:write
-   *   Permission: PERMISSION_ORGANIZATIONS_CREATE
+   *   Permission: organizations:create
    *   Domain: global
    * @param params The `OrganizationServiceService.OrganizationServiceCreateOrganizationParams` containing the following parameters:
    *
@@ -170,7 +170,7 @@ class OrganizationServiceService extends __BaseService {
    * Checks whether an organization ID (slug) is available for use.
    * Authorization:
    *   Scope: organizations:read
-   *   Permission: PERMISSION_ORGANIZATIONS_READ
+   *   Permission: organizations:read
    *   Domain: global
    * @param body undefined
    * @return A successful response.
@@ -201,7 +201,7 @@ class OrganizationServiceService extends __BaseService {
    * Checks whether an organization ID (slug) is available for use.
    * Authorization:
    *   Scope: organizations:read
-   *   Permission: PERMISSION_ORGANIZATIONS_READ
+   *   Permission: organizations:read
    *   Domain: global
    * @param body undefined
    * @return A successful response.
@@ -216,7 +216,7 @@ class OrganizationServiceService extends __BaseService {
    * Gets a single organization by resource name.
    * Authorization:
    *   Scope: organizations:read
-   *   Permission: PERMISSION_ORGANIZATIONS_READ
+   *   Permission: organizations:read
    *   Domain: global
    * @param name_11 The resource name of the organization.
    * Format: organizations/{organization}
@@ -248,7 +248,7 @@ class OrganizationServiceService extends __BaseService {
    * Gets a single organization by resource name.
    * Authorization:
    *   Scope: organizations:read
-   *   Permission: PERMISSION_ORGANIZATIONS_READ
+   *   Permission: organizations:read
    *   Domain: global
    * @param name_11 The resource name of the organization.
    * Format: organizations/{organization}
@@ -264,7 +264,7 @@ class OrganizationServiceService extends __BaseService {
    * Permanently deletes an organization.
    * Authorization:
    *   Scope: organizations:write
-   *   Permission: PERMISSION_ORGANIZATIONS_DELETE
+   *   Permission: organizations:delete
    *   Domain: global
    * @param name_7 The resource name of the organization.
    * Format: organizations/{organization}
@@ -296,7 +296,7 @@ class OrganizationServiceService extends __BaseService {
    * Permanently deletes an organization.
    * Authorization:
    *   Scope: organizations:write
-   *   Permission: PERMISSION_ORGANIZATIONS_DELETE
+   *   Permission: organizations:delete
    *   Domain: global
    * @param name_7 The resource name of the organization.
    * Format: organizations/{organization}
@@ -312,7 +312,7 @@ class OrganizationServiceService extends __BaseService {
    * Updates an existing organization.
    * Authorization:
    *   Scope: organizations:write
-   *   Permission: PERMISSION_ORGANIZATIONS_UPDATE
+   *   Permission: organizations:update
    *   Domain: global
    * @param params The `OrganizationServiceService.OrganizationServiceUpdateOrganizationParams` containing the following parameters:
    *
@@ -350,7 +350,7 @@ class OrganizationServiceService extends __BaseService {
    * Updates an existing organization.
    * Authorization:
    *   Scope: organizations:write
-   *   Permission: PERMISSION_ORGANIZATIONS_UPDATE
+   *   Permission: organizations:update
    *   Domain: global
    * @param params The `OrganizationServiceService.OrganizationServiceUpdateOrganizationParams` containing the following parameters:
    *

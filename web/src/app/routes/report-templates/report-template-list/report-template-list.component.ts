@@ -24,7 +24,7 @@ import { formatDateShort } from '../../../shared/utils';
 import { ReportTemplate } from '../../../shared/models';
 import { ReportTemplateListDataService } from './report-template-list.data-service';
 import { HasPermissionPipe } from '../../../../lib/authz/has-permission.pipe';
-import { V1Permission } from '../../../../lib/api/models';
+import { Permission, Permissions } from '../../../../lib/authz/permissions';
 
 @Component({
   selector: 'app-report-template-list',
@@ -38,7 +38,7 @@ import { V1Permission } from '../../../../lib/api/models';
   ],
   template: `
     <app-page-content-layout [breadcrumbs]="breadcrumbs">
-      @if (V1Permission.PERMISSION_REPORT_TEMPLATES_CREATE | hasPermission) {
+      @if (Permissions.REPORT_TEMPLATES_CREATE | hasPermission) {
         <a
           layout-header-actions
           [routerLink]="['/organizations', orgId, 'reportTemplates', 'new']"
@@ -56,7 +56,7 @@ import { V1Permission } from '../../../../lib/api/models';
             i18n-title title="Keine Vorlagen vorhanden"
             i18n-description description="Erstelle deine erste Berichtsvorlage."
           >
-            @if (V1Permission.PERMISSION_REPORT_TEMPLATES_CREATE | hasPermission) {
+            @if (Permissions.REPORT_TEMPLATES_CREATE | hasPermission) {
               <a
                 [routerLink]="['/organizations', orgId, 'reportTemplates', 'new']"
                 class="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:opacity-90"
@@ -107,7 +107,7 @@ import { V1Permission } from '../../../../lib/api/models';
                         <td class="px-3 py-2 text-xs text-gray-900">{{ formatDate(template.updatedAt) }}</td>
                         <td class="px-3 py-2 text-right text-xs">
                           <div class="flex items-center justify-end gap-2">
-                            @if (V1Permission.PERMISSION_REPORT_TEMPLATES_UPDATE | hasPermission) {
+                            @if (Permissions.REPORT_TEMPLATES_UPDATE | hasPermission) {
                               <a
                                 [routerLink]="['/organizations', orgId, 'reportTemplates', template.id, 'edit']"
                                 class="text-xs text-blue-600 hover:underline"
@@ -115,7 +115,7 @@ import { V1Permission } from '../../../../lib/api/models';
                                 <ng-container i18n>Bearbeiten</ng-container>
                               </a>
                             }
-                            @if (V1Permission.PERMISSION_REPORT_TEMPLATES_DELETE | hasPermission) {
+                            @if (Permissions.REPORT_TEMPLATES_DELETE | hasPermission) {
                               <button
                                 type="button"
                                 class="text-xs text-red-600 hover:underline"
@@ -148,7 +148,7 @@ export class ReportTemplateListComponent {
 
   readonly loading = signal(true);
   readonly templates = signal<ReportTemplate[]>([]);
-  readonly V1Permission = V1Permission;
+  readonly Permissions = Permissions;
 
   readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Berichtsvorlagen` }];
 

@@ -31,7 +31,7 @@ class TransactionAssignmentServiceService extends __BaseService {
    * Gets a single transaction assignment by resource name.
    * Authorization:
    *   Scope: transactions:read
-   *   Permission: PERMISSION_TRANSACTIONS_READ
+   *   Permission: transactions:read
    *   Domain: organization-scoped
    * @param name_15 The resource name of the transaction assignment.
    * Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
@@ -63,7 +63,7 @@ class TransactionAssignmentServiceService extends __BaseService {
    * Gets a single transaction assignment by resource name.
    * Authorization:
    *   Scope: transactions:read
-   *   Permission: PERMISSION_TRANSACTIONS_READ
+   *   Permission: transactions:read
    *   Domain: organization-scoped
    * @param name_15 The resource name of the transaction assignment.
    * Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
@@ -79,7 +79,7 @@ class TransactionAssignmentServiceService extends __BaseService {
    * Lists transaction assignments with keyset pagination and optional filters.
    * Authorization:
    *   Scope: transactions:read
-   *   Permission: PERMISSION_TRANSACTIONS_READ
+   *   Permission: transactions:read
    *   Domain: organization-scoped
    * @param params The `TransactionAssignmentServiceService.TransactionAssignmentServiceListTransactionAssignmentsParams` containing the following parameters:
    *
@@ -129,7 +129,7 @@ class TransactionAssignmentServiceService extends __BaseService {
    * Lists transaction assignments with keyset pagination and optional filters.
    * Authorization:
    *   Scope: transactions:read
-   *   Permission: PERMISSION_TRANSACTIONS_READ
+   *   Permission: transactions:read
    *   Domain: organization-scoped
    * @param params The `TransactionAssignmentServiceService.TransactionAssignmentServiceListTransactionAssignmentsParams` containing the following parameters:
    *

@@ -33,7 +33,7 @@ class LedgerYearServiceService extends __BaseService {
    * Gets a single ledger year by resource name.
    * Authorization:
    *   Scope: ledgerYear:read
-   *   Permission: PERMISSION_LEDGER_YEAR_READ
+   *   Permission: ledgerYear:read
    *   Domain: organization-scoped
    * @param name_10 The resource name of the ledger year.
    * Format: organizations/{organization}/ledgerYears/{ledger_year}
@@ -65,7 +65,7 @@ class LedgerYearServiceService extends __BaseService {
    * Gets a single ledger year by resource name.
    * Authorization:
    *   Scope: ledgerYear:read
-   *   Permission: PERMISSION_LEDGER_YEAR_READ
+   *   Permission: ledgerYear:read
    *   Domain: organization-scoped
    * @param name_10 The resource name of the ledger year.
    * Format: organizations/{organization}/ledgerYears/{ledger_year}
@@ -81,7 +81,7 @@ class LedgerYearServiceService extends __BaseService {
    * Closes a ledger year, preventing new imports.
    * Authorization:
    *   Scope: ledgerYear:write
-   *   Permission: PERMISSION_LEDGER_YEAR_CLOSE
+   *   Permission: ledgerYear:close
    *   Domain: organization-scoped
    * @param params The `LedgerYearServiceService.LedgerYearServiceCloseLedgerYearParams` containing the following parameters:
    *
@@ -119,7 +119,7 @@ class LedgerYearServiceService extends __BaseService {
    * Closes a ledger year, preventing new imports.
    * Authorization:
    *   Scope: ledgerYear:write
-   *   Permission: PERMISSION_LEDGER_YEAR_CLOSE
+   *   Permission: ledgerYear:close
    *   Domain: organization-scoped
    * @param params The `LedgerYearServiceService.LedgerYearServiceCloseLedgerYearParams` containing the following parameters:
    *
@@ -140,7 +140,7 @@ class LedgerYearServiceService extends __BaseService {
    * Lists ledger years for an organization.
    * Authorization:
    *   Scope: ledgerYear:read
-   *   Permission: PERMISSION_LEDGER_YEAR_READ
+   *   Permission: ledgerYear:read
    *   Domain: organization-scoped
    * @param params The `LedgerYearServiceService.LedgerYearServiceListLedgerYearsParams` containing the following parameters:
    *
@@ -190,7 +190,7 @@ class LedgerYearServiceService extends __BaseService {
    * Lists ledger years for an organization.
    * Authorization:
    *   Scope: ledgerYear:read
-   *   Permission: PERMISSION_LEDGER_YEAR_READ
+   *   Permission: ledgerYear:read
    *   Domain: organization-scoped
    * @param params The `LedgerYearServiceService.LedgerYearServiceListLedgerYearsParams` containing the following parameters:
    *

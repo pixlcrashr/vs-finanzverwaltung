@@ -3,7 +3,7 @@ import { V1CheckUserPermissionsResponse } from './v1check-user-permissions-respo
 
 /**
  * BatchCheckUserPermissionsResponse returns one result entry per requested
- * user, in the same order as the request.
+ * check, in the same order as the request.
  */
 export interface V1BatchCheckUserPermissionsResponse {
 

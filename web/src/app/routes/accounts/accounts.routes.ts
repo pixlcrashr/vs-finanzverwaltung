@@ -5,15 +5,15 @@ import { AccountCompareDataService } from './account-compare/account-compare.dat
 import { CreateAccountDialogDataService } from '../../shared/dialogs/create-account-dialog/create-account-dialog.data-service';
 import { environment } from '../../../environments/environment';
 import { requireAllPermissions, requireAnyPermission } from '../../../lib/authz/permission.guard';
-import { V1Permission } from '../../../lib/api/models';
+import { Permission, Permissions } from '../../../lib/authz/permissions';
 import { resolvePermissions } from '../../../lib/authz/permission.resolver';
 
 export const ACCOUNTS_ROUTES: Routes = [
   {
     path: '',
-    canActivate: [requireAllPermissions(V1Permission.PERMISSION_ACCOUNTS_READ)],
+    canActivate: [requireAllPermissions(Permissions.ACCOUNTS_READ)],
     resolve: {
-      permissions: resolvePermissions(V1Permission.PERMISSION_ACCOUNTS_CREATE, V1Permission.PERMISSION_ACCOUNTS_UPDATE, V1Permission.PERMISSION_ACCOUNTS_DELETE, V1Permission.PERMISSION_ACCOUNTS_ARCHIVE)
+      permissions: resolvePermissions(Permissions.ACCOUNTS_CREATE, Permissions.ACCOUNTS_UPDATE, Permissions.ACCOUNTS_DELETE, Permissions.ACCOUNTS_ARCHIVE)
     },
     loadComponent: () =>
       import('./account-list/account-list.component').then((m) => m.AccountListComponent),
@@ -24,16 +24,16 @@ export const ACCOUNTS_ROUTES: Routes = [
   },
   {
     path: 'compare',
-    canActivate: [requireAllPermissions(V1Permission.PERMISSION_ACCOUNTS_READ)],
+    canActivate: [requireAllPermissions(Permissions.ACCOUNTS_READ)],
     loadComponent: () =>
       import('./account-compare/account-compare.component').then((m) => m.AccountCompareComponent),
     providers: [{ provide: AccountCompareDataService, useClass: environment.dataServices.accountCompare }],
   },
   {
     path: ':id',
-    canActivate: [requireAnyPermission(V1Permission.PERMISSION_ACCOUNTS_READ, V1Permission.PERMISSION_ACCOUNTS_UPDATE)],
+    canActivate: [requireAnyPermission(Permissions.ACCOUNTS_READ, Permissions.ACCOUNTS_UPDATE)],
     resolve: {
-      permissions: resolvePermissions(V1Permission.PERMISSION_ACCOUNTS_UPDATE, V1Permission.PERMISSION_ACCOUNTS_DELETE)
+      permissions: resolvePermissions(Permissions.ACCOUNTS_UPDATE, Permissions.ACCOUNTS_DELETE)
     },
     loadComponent: () =>
       import('./account-edit/account-edit.component').then((m) => m.AccountEditComponent),

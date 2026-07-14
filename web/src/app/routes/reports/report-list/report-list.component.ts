@@ -31,7 +31,7 @@ import { formatDateShort } from '../../../shared/utils';
 import { Report } from '../../../shared/models';
 import { ReportListDataService } from './report-list.data-service';
 import { HasPermissionPipe } from '../../../../lib/authz/has-permission.pipe';
-import { V1Permission } from '../../../../lib/api/models';
+import { Permission, Permissions } from '../../../../lib/authz/permissions';
 
 @Component({
   selector: 'app-report-list',
@@ -46,7 +46,7 @@ import { V1Permission } from '../../../../lib/api/models';
   ],
   template: `
     <app-page-content-layout [breadcrumbs]="breadcrumbs">
-      @if (V1Permission.PERMISSION_REPORTS_CREATE | hasPermission) {
+      @if (Permissions.REPORTS_CREATE | hasPermission) {
         <app-button layout-header-actions variant="primary" (clicked)="openCreateDialog()">
           <ng-container i18n>Neuen Bericht erstellen</ng-container>
         </app-button>
@@ -63,7 +63,7 @@ import { V1Permission } from '../../../../lib/api/models';
                 i18n-title title="Keine Berichte vorhanden"
                 i18n-description description="Erstellen Sie einen neuen Bericht aus einer Vorlage."
               >
-                @if (V1Permission.PERMISSION_REPORTS_CREATE | hasPermission) {
+                @if (Permissions.REPORTS_CREATE | hasPermission) {
                   <app-button variant="primary" (clicked)="openCreateDialog()">
                     <ng-container i18n>Ersten Bericht erstellen</ng-container>
                   </app-button>
@@ -112,7 +112,7 @@ import { V1Permission } from '../../../../lib/api/models';
                               >
                                 <ng-container i18n>Ansehen</ng-container>
                               </a>
-                              @if (V1Permission.PERMISSION_REPORTS_DELETE | hasPermission) {
+                              @if (Permissions.REPORTS_DELETE | hasPermission) {
                                 <button
                                   type="button"
                                   class="text-xs text-red-600 hover:underline"
@@ -146,7 +146,7 @@ export class ReportListComponent {
 
   readonly loading = signal(true);
   readonly reports = signal<Report[]>([]);
-  readonly V1Permission = V1Permission;
+  readonly Permissions = Permissions;
 
   readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Berichte` }];
 

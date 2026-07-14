@@ -38,7 +38,7 @@ class BudgetAccountValueServiceService extends __BaseService {
    * Updates an existing budget account value.
    * Authorization:
    *   Scope: budgets:write
-   *   Permission: PERMISSION_BUDGETS_UPDATE
+   *   Permission: budgets:update
    *   Domain: organization-scoped
    * @param params The `BudgetAccountValueServiceService.BudgetAccountValueServiceUpdateBudgetAccountValueParams` containing the following parameters:
    *
@@ -80,7 +80,7 @@ class BudgetAccountValueServiceService extends __BaseService {
    * Updates an existing budget account value.
    * Authorization:
    *   Scope: budgets:write
-   *   Permission: PERMISSION_BUDGETS_UPDATE
+   *   Permission: budgets:update
    *   Domain: organization-scoped
    * @param params The `BudgetAccountValueServiceService.BudgetAccountValueServiceUpdateBudgetAccountValueParams` containing the following parameters:
    *
@@ -104,7 +104,7 @@ class BudgetAccountValueServiceService extends __BaseService {
    * Gets a single budget account value by resource name.
    * Authorization:
    *   Scope: budgets:read
-   *   Permission: PERMISSION_BUDGETS_READ
+   *   Permission: budgets:read
    *   Domain: organization-scoped
    * @param name_4 The resource name of the budget account value.
    * Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
@@ -136,7 +136,7 @@ class BudgetAccountValueServiceService extends __BaseService {
    * Gets a single budget account value by resource name.
    * Authorization:
    *   Scope: budgets:read
-   *   Permission: PERMISSION_BUDGETS_READ
+   *   Permission: budgets:read
    *   Domain: organization-scoped
    * @param name_4 The resource name of the budget account value.
    * Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
@@ -152,7 +152,7 @@ class BudgetAccountValueServiceService extends __BaseService {
    * Permanently deletes a budget account value.
    * Authorization:
    *   Scope: budgets:write
-   *   Permission: PERMISSION_BUDGETS_DELETE
+   *   Permission: budgets:delete
    *   Domain: organization-scoped
    * @param name_4 The resource name of the budget account value.
    * Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
@@ -184,7 +184,7 @@ class BudgetAccountValueServiceService extends __BaseService {
    * Permanently deletes a budget account value.
    * Authorization:
    *   Scope: budgets:write
-   *   Permission: PERMISSION_BUDGETS_DELETE
+   *   Permission: budgets:delete
    *   Domain: organization-scoped
    * @param name_4 The resource name of the budget account value.
    * Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
@@ -200,7 +200,7 @@ class BudgetAccountValueServiceService extends __BaseService {
    * Lists account values for a budget.
    * Authorization:
    *   Scope: budgets:read
-   *   Permission: PERMISSION_BUDGETS_READ
+   *   Permission: budgets:read
    *   Domain: organization-scoped
    * @param params The `BudgetAccountValueServiceService.BudgetAccountValueServiceListBudgetAccountValuesParams` containing the following parameters:
    *
@@ -250,7 +250,7 @@ class BudgetAccountValueServiceService extends __BaseService {
    * Lists account values for a budget.
    * Authorization:
    *   Scope: budgets:read
-   *   Permission: PERMISSION_BUDGETS_READ
+   *   Permission: budgets:read
    *   Domain: organization-scoped
    * @param params The `BudgetAccountValueServiceService.BudgetAccountValueServiceListBudgetAccountValuesParams` containing the following parameters:
    *
@@ -280,7 +280,7 @@ class BudgetAccountValueServiceService extends __BaseService {
    * Creates a new budget account value.
    * Authorization:
    *   Scope: budgets:write
-   *   Permission: PERMISSION_BUDGETS_CREATE
+   *   Permission: budgets:create
    *   Domain: organization-scoped
    * @param params The `BudgetAccountValueServiceService.BudgetAccountValueServiceCreateBudgetAccountValueParams` containing the following parameters:
    *
@@ -322,7 +322,7 @@ class BudgetAccountValueServiceService extends __BaseService {
    * Creates a new budget account value.
    * Authorization:
    *   Scope: budgets:write
-   *   Permission: PERMISSION_BUDGETS_CREATE
+   *   Permission: budgets:create
    *   Domain: organization-scoped
    * @param params The `BudgetAccountValueServiceService.BudgetAccountValueServiceCreateBudgetAccountValueParams` containing the following parameters:
    *
@@ -347,7 +347,7 @@ class BudgetAccountValueServiceService extends __BaseService {
    * Existing values for listed account IDs are updated; missing ones are created.
    * Authorization:
    *   Scope: budgets:write
-   *   Permission: PERMISSION_BUDGETS_UPDATE
+   *   Permission: budgets:update
    *   Domain: organization-scoped
    * @param params The `BudgetAccountValueServiceService.BudgetAccountValueServiceBatchUpdateBudgetAccountValuesParams` containing the following parameters:
    *
@@ -388,7 +388,7 @@ class BudgetAccountValueServiceService extends __BaseService {
    * Existing values for listed account IDs are updated; missing ones are created.
    * Authorization:
    *   Scope: budgets:write
-   *   Permission: PERMISSION_BUDGETS_UPDATE
+   *   Permission: budgets:update
    *   Domain: organization-scoped
    * @param params The `BudgetAccountValueServiceService.BudgetAccountValueServiceBatchUpdateBudgetAccountValuesParams` containing the following parameters:
    *

@@ -9,19 +9,19 @@ import {
 } from '../../shared/dialogs/close-budget-dialog/close-budget-dialog.data-service';
 import { environment } from '../../../environments/environment';
 import { requireAllPermissions } from '../../../lib/authz/permission.guard';
-import { V1Permission } from '../../../lib/api/models';
+import { Permission, Permissions } from '../../../lib/authz/permissions';
 import { resolvePermissions } from '../../../lib/authz/permission.resolver';
 
 export const BUDGETS_ROUTES: Routes = [
   {
     path: '',
-    canActivate: [requireAllPermissions(V1Permission.PERMISSION_BUDGETS_READ)],
+    canActivate: [requireAllPermissions(Permissions.BUDGETS_READ)],
     resolve: {
       permissions: resolvePermissions(
-        V1Permission.PERMISSION_BUDGETS_CREATE,
-        V1Permission.PERMISSION_BUDGETS_UPDATE,
-        V1Permission.PERMISSION_BUDGETS_DELETE,
-        V1Permission.PERMISSION_BUDGETS_CLOSE
+        Permissions.BUDGETS_CREATE,
+        Permissions.BUDGETS_UPDATE,
+        Permissions.BUDGETS_DELETE,
+        Permissions.BUDGETS_CLOSE
       ),
     },
     loadComponent: () =>
@@ -33,13 +33,13 @@ export const BUDGETS_ROUTES: Routes = [
   },
   {
     path: ':id',
-    canActivate: [requireAllPermissions(V1Permission.PERMISSION_BUDGETS_READ)],
+    canActivate: [requireAllPermissions(Permissions.BUDGETS_READ)],
     resolve: {
       permissions: resolvePermissions(
-        V1Permission.PERMISSION_BUDGETS_CREATE,
-        V1Permission.PERMISSION_BUDGETS_UPDATE,
-        V1Permission.PERMISSION_BUDGETS_DELETE,
-        V1Permission.PERMISSION_BUDGETS_CLOSE
+        Permissions.BUDGETS_CREATE,
+        Permissions.BUDGETS_UPDATE,
+        Permissions.BUDGETS_DELETE,
+        Permissions.BUDGETS_CLOSE
       ),
     },
     loadComponent: () =>

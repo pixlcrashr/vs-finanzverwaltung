@@ -10,18 +10,18 @@ import {
 } from '../../shared/dialogs/add-account-to-group-dialog/add-account-to-group-dialog.data-service';
 import { environment } from '../../../environments/environment';
 import { requireAllPermissions, requireAnyPermission } from '../../../lib/authz/permission.guard';
-import { V1Permission } from '../../../lib/api/models';
+import { Permission, Permissions } from '../../../lib/authz/permissions';
 import { resolvePermissions } from '../../../lib/authz/permission.resolver';
 
 export const ACCOUNT_GROUPS_ROUTES: Routes = [
   {
     path: '',
-    canActivate: [requireAllPermissions(V1Permission.PERMISSION_ACCOUNTS_READ, V1Permission.PERMISSION_ACCOUNT_GROUPS_READ)],
+    canActivate: [requireAllPermissions(Permissions.ACCOUNTS_READ, Permissions.ACCOUNT_GROUPS_READ)],
     resolve: {
       permissions: resolvePermissions(
-        V1Permission.PERMISSION_ACCOUNT_GROUPS_CREATE,
-        V1Permission.PERMISSION_ACCOUNT_GROUPS_UPDATE,
-        V1Permission.PERMISSION_ACCOUNT_GROUPS_DELETE,
+        Permissions.ACCOUNT_GROUPS_CREATE,
+        Permissions.ACCOUNT_GROUPS_UPDATE,
+        Permissions.ACCOUNT_GROUPS_DELETE,
       ),
     },
     loadComponent: () =>
@@ -35,11 +35,11 @@ export const ACCOUNT_GROUPS_ROUTES: Routes = [
   },
   {
     path: ':id',
-    canActivate: [requireAnyPermission(V1Permission.PERMISSION_ACCOUNT_GROUPS_READ, V1Permission.PERMISSION_ACCOUNT_GROUPS_UPDATE)],
+    canActivate: [requireAnyPermission(Permissions.ACCOUNT_GROUPS_READ, Permissions.ACCOUNT_GROUPS_UPDATE)],
     resolve: {
       permissions: resolvePermissions(
-        V1Permission.PERMISSION_ACCOUNT_GROUPS_UPDATE,
-        V1Permission.PERMISSION_ACCOUNT_GROUPS_DELETE,
+        Permissions.ACCOUNT_GROUPS_UPDATE,
+        Permissions.ACCOUNT_GROUPS_DELETE,
       ),
     },
     loadComponent: () =>
@@ -53,7 +53,7 @@ export const ACCOUNT_GROUPS_ROUTES: Routes = [
   },
   {
     path: ':id/stats',
-    canActivate: [requireAllPermissions(V1Permission.PERMISSION_ACCOUNT_GROUPS_READ, V1Permission.PERMISSION_BUDGETS_READ)],
+    canActivate: [requireAllPermissions(Permissions.ACCOUNT_GROUPS_READ, Permissions.BUDGETS_READ)],
     loadComponent: () =>
       import('./account-group-stats/account-group-stats.component').then(
         (m) => m.AccountGroupStatsComponent

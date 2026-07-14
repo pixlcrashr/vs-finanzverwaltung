@@ -11,10 +11,6 @@ import { V1ListUsersResponse } from '../models/v1list-users-response';
 import { V1BatchCheckUserPermissionsResponse } from '../models/v1batch-check-user-permissions-response';
 import { V1BatchCheckUserPermissionsRequest } from '../models/v1batch-check-user-permissions-request';
 import { V1User } from '../models/v1user';
-import { V1BatchCheckUserOrganizationPermissionsResponse } from '../models/v1batch-check-user-organization-permissions-response';
-import { UserServiceBatchCheckUserOrganizationPermissionsBody } from '../models/user-service-batch-check-user-organization-permissions-body';
-import { V1CheckUserOrganizationPermissionsResponse } from '../models/v1check-user-organization-permissions-response';
-import { UserServiceCheckUserOrganizationPermissionsBody } from '../models/user-service-check-user-organization-permissions-body';
 import { V1CheckUserPermissionsResponse } from '../models/v1check-user-permissions-response';
 import { UserServiceCheckUserPermissionsBody } from '../models/user-service-check-user-permissions-body';
 
@@ -29,8 +25,6 @@ class UserServiceService extends __BaseService {
   static readonly UserServiceListUsersPath = '/v1/users';
   static readonly UserServiceBatchCheckUserPermissionsPath = '/v1/users:batchCheckPermissions';
   static readonly UserServiceGetUserPath = '/v1/{name_16}';
-  static readonly UserServiceBatchCheckUserOrganizationPermissionsPath = '/v1/{name}:batchCheckOrganizationPermissions';
-  static readonly UserServiceCheckUserOrganizationPermissionsPath = '/v1/{name}:checkOrganizationPermissions';
   static readonly UserServiceCheckUserPermissionsPath = '/v1/{name}:checkPermissions';
 
   constructor(
@@ -44,7 +38,7 @@ class UserServiceService extends __BaseService {
    * Lists users with pagination.
    * Authorization:
    *   Scope: users:read
-   *   Permission: PERMISSION_USERS_READ
+   *   Permission: users:read
    *   Domain: global
    * @param params The `UserServiceService.UserServiceListUsersParams` containing the following parameters:
    *
@@ -89,7 +83,7 @@ class UserServiceService extends __BaseService {
    * Lists users with pagination.
    * Authorization:
    *   Scope: users:read
-   *   Permission: PERMISSION_USERS_READ
+   *   Permission: users:read
    *   Domain: global
    * @param params The `UserServiceService.UserServiceListUsersParams` containing the following parameters:
    *
@@ -112,14 +106,15 @@ class UserServiceService extends __BaseService {
   }
 
   /**
-   * Checks global permissions for multiple users in one call
-   * (batch custom method, AIP-231).
+   * Checks permissions for one or more users in one call, each optionally
+   * scoped to a different domain (batch custom method, AIP-231).
    * Authorization:
    *   Scope: users:read
-   *   Permission: PERMISSION_USERS_READ
+   *   Permission: users:read
    *   Domain: global
-   * @param body BatchCheckUserPermissionsRequest checks global permissions for multiple
-   * users in one call (AIP-231 batch pattern).
+   * @param body BatchCheckUserPermissionsRequest checks permissions for one or more users
+   * in a single call (AIP-231 batch pattern). Each entry can target a different
+   * domain (or the global domain when domain is empty).
    * @return A successful response.
    */
   UserServiceBatchCheckUserPermissionsResponse(body: V1BatchCheckUserPermissionsRequest): __Observable<__StrictHttpResponse<V1BatchCheckUserPermissionsResponse>> {
@@ -145,14 +140,15 @@ class UserServiceService extends __BaseService {
     );
   }
   /**
-   * Checks global permissions for multiple users in one call
-   * (batch custom method, AIP-231).
+   * Checks permissions for one or more users in one call, each optionally
+   * scoped to a different domain (batch custom method, AIP-231).
    * Authorization:
    *   Scope: users:read
-   *   Permission: PERMISSION_USERS_READ
+   *   Permission: users:read
    *   Domain: global
-   * @param body BatchCheckUserPermissionsRequest checks global permissions for multiple
-   * users in one call (AIP-231 batch pattern).
+   * @param body BatchCheckUserPermissionsRequest checks permissions for one or more users
+   * in a single call (AIP-231 batch pattern). Each entry can target a different
+   * domain (or the global domain when domain is empty).
    * @return A successful response.
    */
   UserServiceBatchCheckUserPermissions(body: V1BatchCheckUserPermissionsRequest): __Observable<V1BatchCheckUserPermissionsResponse> {
@@ -165,7 +161,7 @@ class UserServiceService extends __BaseService {
    * Gets a single user by resource name.
    * Authorization:
    *   Scope: users:read
-   *   Permission: PERMISSION_USERS_READ
+   *   Permission: users:read
    *   Domain: global
    * @param name_16 The resource name of the user.
    * Format: users/{user}
@@ -197,7 +193,7 @@ class UserServiceService extends __BaseService {
    * Gets a single user by resource name.
    * Authorization:
    *   Scope: users:read
-   *   Permission: PERMISSION_USERS_READ
+   *   Permission: users:read
    *   Domain: global
    * @param name_16 The resource name of the user.
    * Format: users/{user}
@@ -210,135 +206,13 @@ class UserServiceService extends __BaseService {
   }
 
   /**
-   * Checks permissions for a user across multiple organizations in one call
-   * (batch custom method, AIP-231).
+   * Checks which of the requested permissions a user holds, optionally scoped
+   * to a domain (custom method, AIP-136).
+   * When domain is empty, permissions are evaluated against the global
+   * domain. When set, permissions are evaluated against the specified domain.
    * Authorization:
    *   Scope: users:read
-   *   Permission: PERMISSION_USERS_READ
-   *   Domain: global
-   * @param params The `UserServiceService.UserServiceBatchCheckUserOrganizationPermissionsParams` containing the following parameters:
-   *
-   * - `name`: The resource name of the user.
-   *   Format: users/{user}
-   *
-   * - `body`:
-   *
-   * @return A successful response.
-   */
-  UserServiceBatchCheckUserOrganizationPermissionsResponse(params: UserServiceService.UserServiceBatchCheckUserOrganizationPermissionsParams): __Observable<__StrictHttpResponse<V1BatchCheckUserOrganizationPermissionsResponse>> {
-    let __params = this.newParams();
-    let __headers = new HttpHeaders();
-    let __body: any = null;
-
-    __body = params.body;
-    let req = new HttpRequest<any>(
-      'POST',
-      this.rootUrl + `/v1/${encodeURIComponent(String(params.name))}:batchCheckOrganizationPermissions`,
-      __body,
-      {
-        headers: __headers,
-        params: __params,
-        responseType: 'json'
-      });
-
-    return this.http.request<any>(req).pipe(
-      __filter(_r => _r instanceof HttpResponse),
-      __map((_r) => {
-        return _r as __StrictHttpResponse<V1BatchCheckUserOrganizationPermissionsResponse>;
-      })
-    );
-  }
-  /**
-   * Checks permissions for a user across multiple organizations in one call
-   * (batch custom method, AIP-231).
-   * Authorization:
-   *   Scope: users:read
-   *   Permission: PERMISSION_USERS_READ
-   *   Domain: global
-   * @param params The `UserServiceService.UserServiceBatchCheckUserOrganizationPermissionsParams` containing the following parameters:
-   *
-   * - `name`: The resource name of the user.
-   *   Format: users/{user}
-   *
-   * - `body`:
-   *
-   * @return A successful response.
-   */
-  UserServiceBatchCheckUserOrganizationPermissions(params: UserServiceService.UserServiceBatchCheckUserOrganizationPermissionsParams): __Observable<V1BatchCheckUserOrganizationPermissionsResponse> {
-    return this.UserServiceBatchCheckUserOrganizationPermissionsResponse(params).pipe(
-      __map(_r => _r.body as V1BatchCheckUserOrganizationPermissionsResponse)
-    );
-  }
-
-  /**
-   * Checks which of the requested permissions a user holds within a single
-   * organization (custom method, AIP-136).
-   * Authorization:
-   *   Scope: users:read
-   *   Permission: PERMISSION_USERS_READ
-   *   Domain: global
-   * @param params The `UserServiceService.UserServiceCheckUserOrganizationPermissionsParams` containing the following parameters:
-   *
-   * - `name`: The resource name of the user.
-   *   Format: users/{user}
-   *
-   * - `body`:
-   *
-   * @return A successful response.
-   */
-  UserServiceCheckUserOrganizationPermissionsResponse(params: UserServiceService.UserServiceCheckUserOrganizationPermissionsParams): __Observable<__StrictHttpResponse<V1CheckUserOrganizationPermissionsResponse>> {
-    let __params = this.newParams();
-    let __headers = new HttpHeaders();
-    let __body: any = null;
-
-    __body = params.body;
-    let req = new HttpRequest<any>(
-      'POST',
-      this.rootUrl + `/v1/${encodeURIComponent(String(params.name))}:checkOrganizationPermissions`,
-      __body,
-      {
-        headers: __headers,
-        params: __params,
-        responseType: 'json'
-      });
-
-    return this.http.request<any>(req).pipe(
-      __filter(_r => _r instanceof HttpResponse),
-      __map((_r) => {
-        return _r as __StrictHttpResponse<V1CheckUserOrganizationPermissionsResponse>;
-      })
-    );
-  }
-  /**
-   * Checks which of the requested permissions a user holds within a single
-   * organization (custom method, AIP-136).
-   * Authorization:
-   *   Scope: users:read
-   *   Permission: PERMISSION_USERS_READ
-   *   Domain: global
-   * @param params The `UserServiceService.UserServiceCheckUserOrganizationPermissionsParams` containing the following parameters:
-   *
-   * - `name`: The resource name of the user.
-   *   Format: users/{user}
-   *
-   * - `body`:
-   *
-   * @return A successful response.
-   */
-  UserServiceCheckUserOrganizationPermissions(params: UserServiceService.UserServiceCheckUserOrganizationPermissionsParams): __Observable<V1CheckUserOrganizationPermissionsResponse> {
-    return this.UserServiceCheckUserOrganizationPermissionsResponse(params).pipe(
-      __map(_r => _r.body as V1CheckUserOrganizationPermissionsResponse)
-    );
-  }
-
-  /**
-   * Checks which of the requested global permissions a user holds, without
-   * scoping to any organization (custom method, AIP-136).
-   * Only global resources (users, groups, settings, organizations) are
-   * evaluated; org-scoped permissions will always be absent from the result.
-   * Authorization:
-   *   Scope: users:read
-   *   Permission: PERMISSION_USERS_READ
+   *   Permission: users:read
    *   Domain: global
    * @param params The `UserServiceService.UserServiceCheckUserPermissionsParams` containing the following parameters:
    *
@@ -373,13 +247,13 @@ class UserServiceService extends __BaseService {
     );
   }
   /**
-   * Checks which of the requested global permissions a user holds, without
-   * scoping to any organization (custom method, AIP-136).
-   * Only global resources (users, groups, settings, organizations) are
-   * evaluated; org-scoped permissions will always be absent from the result.
+   * Checks which of the requested permissions a user holds, optionally scoped
+   * to a domain (custom method, AIP-136).
+   * When domain is empty, permissions are evaluated against the global
+   * domain. When set, permissions are evaluated against the specified domain.
    * Authorization:
    *   Scope: users:read
-   *   Permission: PERMISSION_USERS_READ
+   *   Permission: users:read
    *   Domain: global
    * @param params The `UserServiceService.UserServiceCheckUserPermissionsParams` containing the following parameters:
    *
@@ -425,32 +299,6 @@ module UserServiceService {
      * Supported fields: display_name, email, is_active.
      */
     filter?: string;
-  }
-
-  /**
-   * Parameters for UserServiceBatchCheckUserOrganizationPermissions
-   */
-  export interface UserServiceBatchCheckUserOrganizationPermissionsParams {
-
-    /**
-     * The resource name of the user.
-     * Format: users/{user}
-     */
-    name: string;
-    body: UserServiceBatchCheckUserOrganizationPermissionsBody;
-  }
-
-  /**
-   * Parameters for UserServiceCheckUserOrganizationPermissions
-   */
-  export interface UserServiceCheckUserOrganizationPermissionsParams {
-
-    /**
-     * The resource name of the user.
-     * Format: users/{user}
-     */
-    name: string;
-    body: UserServiceCheckUserOrganizationPermissionsBody;
   }
 
   /**

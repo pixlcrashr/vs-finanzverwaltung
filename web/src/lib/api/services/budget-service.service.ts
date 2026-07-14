@@ -37,7 +37,7 @@ class BudgetServiceService extends __BaseService {
    * Updates an existing budget.
    * Authorization:
    *   Scope: budgets:write
-   *   Permission: PERMISSION_BUDGETS_UPDATE
+   *   Permission: budgets:update
    *   Domain: organization-scoped
    * @param params The `BudgetServiceService.BudgetServiceUpdateBudgetParams` containing the following parameters:
    *
@@ -75,7 +75,7 @@ class BudgetServiceService extends __BaseService {
    * Updates an existing budget.
    * Authorization:
    *   Scope: budgets:write
-   *   Permission: PERMISSION_BUDGETS_UPDATE
+   *   Permission: budgets:update
    *   Domain: organization-scoped
    * @param params The `BudgetServiceService.BudgetServiceUpdateBudgetParams` containing the following parameters:
    *
@@ -96,7 +96,7 @@ class BudgetServiceService extends __BaseService {
    * Gets a single budget by resource name.
    * Authorization:
    *   Scope: budgets:read
-   *   Permission: PERMISSION_BUDGETS_READ
+   *   Permission: budgets:read
    *   Domain: organization-scoped
    * @param name_3 The resource name of the budget.
    * Format: organizations/{organization}/budgets/{budget}
@@ -128,7 +128,7 @@ class BudgetServiceService extends __BaseService {
    * Gets a single budget by resource name.
    * Authorization:
    *   Scope: budgets:read
-   *   Permission: PERMISSION_BUDGETS_READ
+   *   Permission: budgets:read
    *   Domain: organization-scoped
    * @param name_3 The resource name of the budget.
    * Format: organizations/{organization}/budgets/{budget}
@@ -144,7 +144,7 @@ class BudgetServiceService extends __BaseService {
    * Permanently deletes a budget.
    * Authorization:
    *   Scope: budgets:write
-   *   Permission: PERMISSION_BUDGETS_DELETE
+   *   Permission: budgets:delete
    *   Domain: organization-scoped
    * @param name_3 The resource name of the budget.
    * Format: organizations/{organization}/budgets/{budget}
@@ -176,7 +176,7 @@ class BudgetServiceService extends __BaseService {
    * Permanently deletes a budget.
    * Authorization:
    *   Scope: budgets:write
-   *   Permission: PERMISSION_BUDGETS_DELETE
+   *   Permission: budgets:delete
    *   Domain: organization-scoped
    * @param name_3 The resource name of the budget.
    * Format: organizations/{organization}/budgets/{budget}
@@ -192,7 +192,7 @@ class BudgetServiceService extends __BaseService {
    * Closes a budget, marking it as no longer active.
    * Authorization:
    *   Scope: budgets:write
-   *   Permission: PERMISSION_BUDGETS_CLOSE
+   *   Permission: budgets:close
    *   Domain: organization-scoped
    * @param params The `BudgetServiceService.BudgetServiceCloseBudgetParams` containing the following parameters:
    *
@@ -230,7 +230,7 @@ class BudgetServiceService extends __BaseService {
    * Closes a budget, marking it as no longer active.
    * Authorization:
    *   Scope: budgets:write
-   *   Permission: PERMISSION_BUDGETS_CLOSE
+   *   Permission: budgets:close
    *   Domain: organization-scoped
    * @param params The `BudgetServiceService.BudgetServiceCloseBudgetParams` containing the following parameters:
    *
@@ -251,7 +251,7 @@ class BudgetServiceService extends __BaseService {
    * Lists budgets with pagination.
    * Authorization:
    *   Scope: budgets:read
-   *   Permission: PERMISSION_BUDGETS_READ
+   *   Permission: budgets:read
    *   Domain: organization-scoped
    * @param params The `BudgetServiceService.BudgetServiceListBudgetsParams` containing the following parameters:
    *
@@ -304,7 +304,7 @@ class BudgetServiceService extends __BaseService {
    * Lists budgets with pagination.
    * Authorization:
    *   Scope: budgets:read
-   *   Permission: PERMISSION_BUDGETS_READ
+   *   Permission: budgets:read
    *   Domain: organization-scoped
    * @param params The `BudgetServiceService.BudgetServiceListBudgetsParams` containing the following parameters:
    *
@@ -336,7 +336,7 @@ class BudgetServiceService extends __BaseService {
    * Creates a new budget.
    * Authorization:
    *   Scope: budgets:write
-   *   Permission: PERMISSION_BUDGETS_CREATE
+   *   Permission: budgets:create
    *   Domain: organization-scoped
    * @param params The `BudgetServiceService.BudgetServiceCreateBudgetParams` containing the following parameters:
    *
@@ -378,7 +378,7 @@ class BudgetServiceService extends __BaseService {
    * Creates a new budget.
    * Authorization:
    *   Scope: budgets:write
-   *   Permission: PERMISSION_BUDGETS_CREATE
+   *   Permission: budgets:create
    *   Domain: organization-scoped
    * @param params The `BudgetServiceService.BudgetServiceCreateBudgetParams` containing the following parameters:
    *

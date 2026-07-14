@@ -40,7 +40,7 @@ class AccountServiceService extends __BaseService {
    * Updates an existing account.
    * Authorization:
    *   Scope: accounts:write
-   *   Permission: PERMISSION_ACCOUNTS_UPDATE
+   *   Permission: accounts:update
    *   Domain: organization-scoped
    * @param params The `AccountServiceService.AccountServiceUpdateAccountParams` containing the following parameters:
    *
@@ -78,7 +78,7 @@ class AccountServiceService extends __BaseService {
    * Updates an existing account.
    * Authorization:
    *   Scope: accounts:write
-   *   Permission: PERMISSION_ACCOUNTS_UPDATE
+   *   Permission: accounts:update
    *   Domain: organization-scoped
    * @param params The `AccountServiceService.AccountServiceUpdateAccountParams` containing the following parameters:
    *
@@ -99,7 +99,7 @@ class AccountServiceService extends __BaseService {
    * Gets a single account by resource name.
    * Authorization:
    *   Scope: accounts:read
-   *   Permission: PERMISSION_ACCOUNTS_READ
+   *   Permission: accounts:read
    *   Domain: organization-scoped
    * @param name The resource name of the account.
    * Format: organizations/{organization}/accounts/{account}
@@ -131,7 +131,7 @@ class AccountServiceService extends __BaseService {
    * Gets a single account by resource name.
    * Authorization:
    *   Scope: accounts:read
-   *   Permission: PERMISSION_ACCOUNTS_READ
+   *   Permission: accounts:read
    *   Domain: organization-scoped
    * @param name The resource name of the account.
    * Format: organizations/{organization}/accounts/{account}
@@ -147,7 +147,7 @@ class AccountServiceService extends __BaseService {
    * Permanently deletes an account.
    * Authorization:
    *   Scope: accounts:write
-   *   Permission: PERMISSION_ACCOUNTS_DELETE
+   *   Permission: accounts:delete
    *   Domain: organization-scoped
    * @param name The resource name of the account.
    * Format: organizations/{organization}/accounts/{account}
@@ -179,7 +179,7 @@ class AccountServiceService extends __BaseService {
    * Permanently deletes an account.
    * Authorization:
    *   Scope: accounts:write
-   *   Permission: PERMISSION_ACCOUNTS_DELETE
+   *   Permission: accounts:delete
    *   Domain: organization-scoped
    * @param name The resource name of the account.
    * Format: organizations/{organization}/accounts/{account}
@@ -195,7 +195,7 @@ class AccountServiceService extends __BaseService {
    * Archives an account (soft-delete).
    * Authorization:
    *   Scope: accounts:write
-   *   Permission: PERMISSION_ACCOUNTS_ARCHIVE
+   *   Permission: accounts:archive
    *   Domain: organization-scoped
    * @param params The `AccountServiceService.AccountServiceArchiveAccountParams` containing the following parameters:
    *
@@ -233,7 +233,7 @@ class AccountServiceService extends __BaseService {
    * Archives an account (soft-delete).
    * Authorization:
    *   Scope: accounts:write
-   *   Permission: PERMISSION_ACCOUNTS_ARCHIVE
+   *   Permission: accounts:archive
    *   Domain: organization-scoped
    * @param params The `AccountServiceService.AccountServiceArchiveAccountParams` containing the following parameters:
    *
@@ -254,7 +254,7 @@ class AccountServiceService extends __BaseService {
    * Gets a single account's full nested subtree (custom method).
    * Authorization:
    *   Scope: accounts:read
-   *   Permission: PERMISSION_ACCOUNTS_READ
+   *   Permission: accounts:read
    *   Domain: organization-scoped
    * @param params The `AccountServiceService.AccountServiceGetNestedAccountParams` containing the following parameters:
    *
@@ -294,7 +294,7 @@ class AccountServiceService extends __BaseService {
    * Gets a single account's full nested subtree (custom method).
    * Authorization:
    *   Scope: accounts:read
-   *   Permission: PERMISSION_ACCOUNTS_READ
+   *   Permission: accounts:read
    *   Domain: organization-scoped
    * @param params The `AccountServiceService.AccountServiceGetNestedAccountParams` containing the following parameters:
    *
@@ -317,7 +317,7 @@ class AccountServiceService extends __BaseService {
    * Lists accounts with pagination.
    * Authorization:
    *   Scope: accounts:read
-   *   Permission: PERMISSION_ACCOUNTS_READ
+   *   Permission: accounts:read
    *   Domain: organization-scoped
    * @param params The `AccountServiceService.AccountServiceListAccountsParams` containing the following parameters:
    *
@@ -373,7 +373,7 @@ class AccountServiceService extends __BaseService {
    * Lists accounts with pagination.
    * Authorization:
    *   Scope: accounts:read
-   *   Permission: PERMISSION_ACCOUNTS_READ
+   *   Permission: accounts:read
    *   Domain: organization-scoped
    * @param params The `AccountServiceService.AccountServiceListAccountsParams` containing the following parameters:
    *
@@ -408,7 +408,7 @@ class AccountServiceService extends __BaseService {
    * Creates a new account.
    * Authorization:
    *   Scope: accounts:write
-   *   Permission: PERMISSION_ACCOUNTS_CREATE
+   *   Permission: accounts:create
    *   Domain: organization-scoped
    * @param params The `AccountServiceService.AccountServiceCreateAccountParams` containing the following parameters:
    *
@@ -450,7 +450,7 @@ class AccountServiceService extends __BaseService {
    * Creates a new account.
    * Authorization:
    *   Scope: accounts:write
-   *   Permission: PERMISSION_ACCOUNTS_CREATE
+   *   Permission: accounts:create
    *   Domain: organization-scoped
    * @param params The `AccountServiceService.AccountServiceCreateAccountParams` containing the following parameters:
    *
@@ -474,7 +474,7 @@ class AccountServiceService extends __BaseService {
    * Lists all root accounts with their full nested subtrees (custom method).
    * Authorization:
    *   Scope: accounts:read
-   *   Permission: PERMISSION_ACCOUNTS_READ
+   *   Permission: accounts:read
    *   Domain: organization-scoped
    * @param params The `AccountServiceService.AccountServiceListNestedAccountsParams` containing the following parameters:
    *
@@ -514,7 +514,7 @@ class AccountServiceService extends __BaseService {
    * Lists all root accounts with their full nested subtrees (custom method).
    * Authorization:
    *   Scope: accounts:read
-   *   Permission: PERMISSION_ACCOUNTS_READ
+   *   Permission: accounts:read
    *   Domain: organization-scoped
    * @param params The `AccountServiceService.AccountServiceListNestedAccountsParams` containing the following parameters:
    *

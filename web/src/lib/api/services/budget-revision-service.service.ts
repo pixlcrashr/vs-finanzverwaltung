@@ -34,7 +34,7 @@ class BudgetRevisionServiceService extends __BaseService {
    * Gets a single budget revision by resource name.
    * Authorization:
    *   Scope: budgets:read
-   *   Permission: PERMISSION_BUDGETS_READ
+   *   Permission: budgets:read
    *   Domain: organization-scoped
    * @param name_6 The resource name of the budget revision.
    * Format: organizations/{organization}/budgets/{budget}/revisions/{revision}
@@ -66,7 +66,7 @@ class BudgetRevisionServiceService extends __BaseService {
    * Gets a single budget revision by resource name.
    * Authorization:
    *   Scope: budgets:read
-   *   Permission: PERMISSION_BUDGETS_READ
+   *   Permission: budgets:read
    *   Domain: organization-scoped
    * @param name_6 The resource name of the budget revision.
    * Format: organizations/{organization}/budgets/{budget}/revisions/{revision}
@@ -82,7 +82,7 @@ class BudgetRevisionServiceService extends __BaseService {
    * Lists revisions for a budget in reverse chronological order.
    * Authorization:
    *   Scope: budgets:read
-   *   Permission: PERMISSION_BUDGETS_READ
+   *   Permission: budgets:read
    *   Domain: organization-scoped
    * @param params The `BudgetRevisionServiceService.BudgetRevisionServiceListBudgetRevisionsParams` containing the following parameters:
    *
@@ -128,7 +128,7 @@ class BudgetRevisionServiceService extends __BaseService {
    * Lists revisions for a budget in reverse chronological order.
    * Authorization:
    *   Scope: budgets:read
-   *   Permission: PERMISSION_BUDGETS_READ
+   *   Permission: budgets:read
    *   Domain: organization-scoped
    * @param params The `BudgetRevisionServiceService.BudgetRevisionServiceListBudgetRevisionsParams` containing the following parameters:
    *
@@ -156,7 +156,7 @@ class BudgetRevisionServiceService extends __BaseService {
    * BudgetAccountValues for the given budget.
    * Authorization:
    *   Scope: budgets:write
-   *   Permission: PERMISSION_BUDGETS_CREATE
+   *   Permission: budgets:create
    *   Domain: organization-scoped
    * @param params The `BudgetRevisionServiceService.BudgetRevisionServiceCreateBudgetRevisionParams` containing the following parameters:
    *
@@ -200,7 +200,7 @@ class BudgetRevisionServiceService extends __BaseService {
    * BudgetAccountValues for the given budget.
    * Authorization:
    *   Scope: budgets:write
-   *   Permission: PERMISSION_BUDGETS_CREATE
+   *   Permission: budgets:create
    *   Domain: organization-scoped
    * @param params The `BudgetRevisionServiceService.BudgetRevisionServiceCreateBudgetRevisionParams` containing the following parameters:
    *

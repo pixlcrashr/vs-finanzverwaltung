@@ -35,7 +35,7 @@ class LedgerAccountServiceService extends __BaseService {
    * Updates an existing ledger account (e.g., display name).
    * Authorization:
    *   Scope: ledgerAccount:write
-   *   Permission: PERMISSION_LEDGER_ACCOUNT_UPDATE
+   *   Permission: ledgerAccount:update
    *   Domain: organization-scoped
    * @param params The `LedgerAccountServiceService.LedgerAccountServiceUpdateLedgerAccountParams` containing the following parameters:
    *
@@ -73,7 +73,7 @@ class LedgerAccountServiceService extends __BaseService {
    * Updates an existing ledger account (e.g., display name).
    * Authorization:
    *   Scope: ledgerAccount:write
-   *   Permission: PERMISSION_LEDGER_ACCOUNT_UPDATE
+   *   Permission: ledgerAccount:update
    *   Domain: organization-scoped
    * @param params The `LedgerAccountServiceService.LedgerAccountServiceUpdateLedgerAccountParams` containing the following parameters:
    *
@@ -94,7 +94,7 @@ class LedgerAccountServiceService extends __BaseService {
    * Permanently deletes a ledger account.
    * Authorization:
    *   Scope: ledgerAccount:write
-   *   Permission: PERMISSION_LEDGER_ACCOUNT_DELETE
+   *   Permission: ledgerAccount:delete
    *   Domain: organization-scoped
    * @param name_6 The resource name of the ledger account.
    * Format: organizations/{organization}/ledgerAccounts/{ledger_account}
@@ -126,7 +126,7 @@ class LedgerAccountServiceService extends __BaseService {
    * Permanently deletes a ledger account.
    * Authorization:
    *   Scope: ledgerAccount:write
-   *   Permission: PERMISSION_LEDGER_ACCOUNT_DELETE
+   *   Permission: ledgerAccount:delete
    *   Domain: organization-scoped
    * @param name_6 The resource name of the ledger account.
    * Format: organizations/{organization}/ledgerAccounts/{ledger_account}
@@ -142,7 +142,7 @@ class LedgerAccountServiceService extends __BaseService {
    * Gets a single ledger account by resource name.
    * Authorization:
    *   Scope: ledgerAccount:read
-   *   Permission: PERMISSION_LEDGER_ACCOUNT_READ
+   *   Permission: ledgerAccount:read
    *   Domain: organization-scoped
    * @param name_9 The resource name of the ledger account.
    * Format: organizations/{organization}/ledgerAccounts/{ledger_account}
@@ -174,7 +174,7 @@ class LedgerAccountServiceService extends __BaseService {
    * Gets a single ledger account by resource name.
    * Authorization:
    *   Scope: ledgerAccount:read
-   *   Permission: PERMISSION_LEDGER_ACCOUNT_READ
+   *   Permission: ledgerAccount:read
    *   Domain: organization-scoped
    * @param name_9 The resource name of the ledger account.
    * Format: organizations/{organization}/ledgerAccounts/{ledger_account}
@@ -190,7 +190,7 @@ class LedgerAccountServiceService extends __BaseService {
    * Lists ledger accounts with pagination.
    * Authorization:
    *   Scope: ledgerAccount:read
-   *   Permission: PERMISSION_LEDGER_ACCOUNT_READ
+   *   Permission: ledgerAccount:read
    *   Domain: organization-scoped
    * @param params The `LedgerAccountServiceService.LedgerAccountServiceListLedgerAccountsParams` containing the following parameters:
    *
@@ -243,7 +243,7 @@ class LedgerAccountServiceService extends __BaseService {
    * Lists ledger accounts with pagination.
    * Authorization:
    *   Scope: ledgerAccount:read
-   *   Permission: PERMISSION_LEDGER_ACCOUNT_READ
+   *   Permission: ledgerAccount:read
    *   Domain: organization-scoped
    * @param params The `LedgerAccountServiceService.LedgerAccountServiceListLedgerAccountsParams` containing the following parameters:
    *

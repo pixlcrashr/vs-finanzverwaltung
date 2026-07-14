@@ -34,7 +34,7 @@ class AccountGroupAssignmentServiceService extends __BaseService {
    * Updates an existing assignment.
    * Authorization:
    *   Scope: accountGroups:write
-   *   Permission: PERMISSION_ACCOUNT_GROUPS_UPDATE
+   *   Permission: accountGroups:update
    *   Domain: organization-scoped
    * @param params The `AccountGroupAssignmentServiceService.AccountGroupAssignmentServiceUpdateAccountGroupAssignmentParams` containing the following parameters:
    *
@@ -72,7 +72,7 @@ class AccountGroupAssignmentServiceService extends __BaseService {
    * Updates an existing assignment.
    * Authorization:
    *   Scope: accountGroups:write
-   *   Permission: PERMISSION_ACCOUNT_GROUPS_UPDATE
+   *   Permission: accountGroups:update
    *   Domain: organization-scoped
    * @param params The `AccountGroupAssignmentServiceService.AccountGroupAssignmentServiceUpdateAccountGroupAssignmentParams` containing the following parameters:
    *
@@ -93,7 +93,7 @@ class AccountGroupAssignmentServiceService extends __BaseService {
    * Gets a single assignment by resource name.
    * Authorization:
    *   Scope: accountGroups:read
-   *   Permission: PERMISSION_ACCOUNT_GROUPS_READ
+   *   Permission: accountGroups:read
    *   Domain: organization-scoped
    * @param name_2 The resource name of the assignment.
    * Format: organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}
@@ -125,7 +125,7 @@ class AccountGroupAssignmentServiceService extends __BaseService {
    * Gets a single assignment by resource name.
    * Authorization:
    *   Scope: accountGroups:read
-   *   Permission: PERMISSION_ACCOUNT_GROUPS_READ
+   *   Permission: accountGroups:read
    *   Domain: organization-scoped
    * @param name_2 The resource name of the assignment.
    * Format: organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}
@@ -141,7 +141,7 @@ class AccountGroupAssignmentServiceService extends __BaseService {
    * Permanently deletes an assignment.
    * Authorization:
    *   Scope: accountGroups:write
-   *   Permission: PERMISSION_ACCOUNT_GROUPS_DELETE
+   *   Permission: accountGroups:delete
    *   Domain: organization-scoped
    * @param name_2 The resource name of the assignment.
    * Format: organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}
@@ -173,7 +173,7 @@ class AccountGroupAssignmentServiceService extends __BaseService {
    * Permanently deletes an assignment.
    * Authorization:
    *   Scope: accountGroups:write
-   *   Permission: PERMISSION_ACCOUNT_GROUPS_DELETE
+   *   Permission: accountGroups:delete
    *   Domain: organization-scoped
    * @param name_2 The resource name of the assignment.
    * Format: organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}
@@ -189,7 +189,7 @@ class AccountGroupAssignmentServiceService extends __BaseService {
    * Lists assignments for an account group.
    * Authorization:
    *   Scope: accountGroups:read
-   *   Permission: PERMISSION_ACCOUNT_GROUPS_READ
+   *   Permission: accountGroups:read
    *   Domain: organization-scoped
    * @param params The `AccountGroupAssignmentServiceService.AccountGroupAssignmentServiceListAccountGroupAssignmentsParams` containing the following parameters:
    *
@@ -239,7 +239,7 @@ class AccountGroupAssignmentServiceService extends __BaseService {
    * Lists assignments for an account group.
    * Authorization:
    *   Scope: accountGroups:read
-   *   Permission: PERMISSION_ACCOUNT_GROUPS_READ
+   *   Permission: accountGroups:read
    *   Domain: organization-scoped
    * @param params The `AccountGroupAssignmentServiceService.AccountGroupAssignmentServiceListAccountGroupAssignmentsParams` containing the following parameters:
    *
@@ -269,7 +269,7 @@ class AccountGroupAssignmentServiceService extends __BaseService {
    * Creates a new assignment.
    * Authorization:
    *   Scope: accountGroups:write
-   *   Permission: PERMISSION_ACCOUNT_GROUPS_CREATE
+   *   Permission: accountGroups:create
    *   Domain: organization-scoped
    * @param params The `AccountGroupAssignmentServiceService.AccountGroupAssignmentServiceCreateAccountGroupAssignmentParams` containing the following parameters:
    *
@@ -311,7 +311,7 @@ class AccountGroupAssignmentServiceService extends __BaseService {
    * Creates a new assignment.
    * Authorization:
    *   Scope: accountGroups:write
-   *   Permission: PERMISSION_ACCOUNT_GROUPS_CREATE
+   *   Permission: accountGroups:create
    *   Domain: organization-scoped
    * @param params The `AccountGroupAssignmentServiceService.AccountGroupAssignmentServiceCreateAccountGroupAssignmentParams` containing the following parameters:
    *

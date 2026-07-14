@@ -4,15 +4,15 @@ import { ReportTemplateNewDataService } from './report-template-new/report-templ
 import { ReportTemplateEditDataService } from './report-template-edit/report-template-edit.data-service';
 import { environment } from '../../../environments/environment';
 import { requireAllPermissions, requireAnyPermission } from '../../../lib/authz/permission.guard';
-import { V1Permission } from '../../../lib/api/models';
+import { Permission, Permissions } from '../../../lib/authz/permissions';
 import { resolvePermissions } from '../../../lib/authz/permission.resolver';
 
 export const REPORT_TEMPLATES_ROUTES: Routes = [
   {
     path: '',
-    canActivate: [requireAllPermissions(V1Permission.PERMISSION_REPORT_TEMPLATES_READ)],
+    canActivate: [requireAllPermissions(Permissions.REPORT_TEMPLATES_READ)],
     resolve: {
-      permissions: resolvePermissions(V1Permission.PERMISSION_REPORT_TEMPLATES_CREATE, V1Permission.PERMISSION_REPORT_TEMPLATES_DELETE),
+      permissions: resolvePermissions(Permissions.REPORT_TEMPLATES_CREATE, Permissions.REPORT_TEMPLATES_DELETE),
     },
     loadComponent: () =>
       import('./report-template-list/report-template-list.component').then(
@@ -22,7 +22,7 @@ export const REPORT_TEMPLATES_ROUTES: Routes = [
   },
   {
     path: 'new',
-    canActivate: [requireAllPermissions(V1Permission.PERMISSION_REPORT_TEMPLATES_CREATE)],
+    canActivate: [requireAllPermissions(Permissions.REPORT_TEMPLATES_CREATE)],
     loadComponent: () =>
       import('./report-template-new/report-template-new.component').then(
         (m) => m.ReportTemplateNewComponent
@@ -31,9 +31,9 @@ export const REPORT_TEMPLATES_ROUTES: Routes = [
   },
   {
     path: ':id/edit',
-    canActivate: [requireAnyPermission(V1Permission.PERMISSION_REPORT_TEMPLATES_READ, V1Permission.PERMISSION_REPORT_TEMPLATES_UPDATE)],
+    canActivate: [requireAnyPermission(Permissions.REPORT_TEMPLATES_READ, Permissions.REPORT_TEMPLATES_UPDATE)],
     resolve: {
-      permissions: resolvePermissions(V1Permission.PERMISSION_REPORT_TEMPLATES_UPDATE, V1Permission.PERMISSION_REPORT_TEMPLATES_DELETE),
+      permissions: resolvePermissions(Permissions.REPORT_TEMPLATES_UPDATE, Permissions.REPORT_TEMPLATES_DELETE),
     },
     loadComponent: () =>
       import('./report-template-edit/report-template-edit.component').then(

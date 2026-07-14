@@ -1,9 +1,9 @@
 /* tslint:disable */
-import { V1GroupOrganizationPolicy } from './v1group-organization-policy';
 
 /**
- * Group is a named collection of users that share a common set of permissions,
- * scoped per organization via GroupOrganizationPolicy.
+ * Group is a named collection of users that share a common set of permissions.
+ * Permissions are self-standing (not scoped per organization); instead,
+ * groups are assigned to organizations via the organizations field.
  */
 export interface V1Group {
 
@@ -27,13 +27,13 @@ export interface V1Group {
    */
   etag?: string;
   name?: string;
+  organizations?: Array<string>;
 
   /**
-   * Per-organization permission policies for this group.
-   * Each entry associates a distinct organization with a set of permissions.
-   * Multiple entries for the same organization are not allowed.
+   * Self-standing permissions granted to this group.
+   * Format: "resource:action" (e.g. "accounts:read", "users:update").
    */
-  organization_policies?: Array<V1GroupOrganizationPolicy>;
+  permissions?: Array<string>;
 
   /**
    * The UUID of the group.

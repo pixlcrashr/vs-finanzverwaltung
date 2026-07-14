@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { UserServiceService } from '../../api/services/user-service.service';
-import { V1Permission } from '../../api/models/v1permission';
+import { Permission } from '../../authz/permissions';
 import { AuthorizationDataService } from '../../authz/authorization.service';
 
 @Injectable()
@@ -10,37 +10,14 @@ export class HttpAuthorizationDataService extends AuthorizationDataService {
 
   checkPermissions(
     user: string,
-    organization: string,
-    permissions: V1Permission[],
-  ): Observable<Record<string, boolean>> {
-    return this.userService
-      .UserServiceCheckUserOrganizationPermissions({
-        name: user,
-        body: {
-          organization,
-          permissions,
-        },
-      })
-      .pipe(
-        map((response) => {
-          const held = new Set(response.permitted ?? []);
-          const result: Record<string, boolean> = {};
-          for (const p of permissions) {
-            result[p] = held.has(p);
-          }
-          return result;
-        }),
-      );
-  }
-
-  checkGlobalPermissions(
-    user: string,
-    permissions: V1Permission[],
+    domain: string,
+    permissions: Permission[],
   ): Observable<Record<string, boolean>> {
     return this.userService
       .UserServiceCheckUserPermissions({
         name: user,
         body: {
+          domain: domain || undefined,
           permissions,
         },
       })
@@ -56,13 +33,14 @@ export class HttpAuthorizationDataService extends AuthorizationDataService {
       );
   }
 
-  batchCheckGlobalPermissions(
-    requests: { user: string; permissions: V1Permission[] }[],
+  batchCheckPermissions(
+    requests: { user: string; domain: string; permissions: Permission[] }[],
   ): Observable<Record<string, Record<string, boolean>>> {
     return this.userService
       .UserServiceBatchCheckUserPermissions({
         requests: requests.map((r) => ({
           name: r.user,
+          domain: r.domain || undefined,
           permissions: r.permissions,
         })),
       })

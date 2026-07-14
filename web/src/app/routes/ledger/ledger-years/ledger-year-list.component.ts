@@ -19,7 +19,7 @@ import {
   LedgerYearListItem,
 } from './ledger-year-list.data-service';
 import { HasPermissionPipe } from '../../../../lib/authz/has-permission.pipe';
-import { V1Permission } from '../../../../lib/api/models';
+import { Permission, Permissions } from '../../../../lib/authz/permissions';
 
 @Component({
   selector: 'app-ledger-year-list',
@@ -61,7 +61,7 @@ import { V1Permission } from '../../../../lib/api/models';
                       <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
                         <ng-container i18n>Offen</ng-container>
                       </span>
-                      @if (V1Permission.PERMISSION_LEDGER_YEAR_CLOSE | hasPermission) {
+                      @if (Permissions.LEDGER_YEAR_CLOSE | hasPermission) {
                         <app-button
                           variant="secondary"
                           size="sm"
@@ -91,7 +91,7 @@ export class LedgerYearListComponent implements OnInit {
   readonly loading = signal(true);
   readonly years = signal<LedgerYearListItem[]>([]);
   readonly closingYear = signal<string | null>(null);
-  readonly V1Permission = V1Permission;
+  readonly Permissions = Permissions;
 
   readonly orgId = signal<string>('');
 

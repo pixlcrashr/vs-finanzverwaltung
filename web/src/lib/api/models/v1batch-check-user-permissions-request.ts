@@ -2,13 +2,14 @@
 import { V1CheckUserPermissionsRequest } from './v1check-user-permissions-request';
 
 /**
- * BatchCheckUserPermissionsRequest checks global permissions for multiple
- * users in one call (AIP-231 batch pattern).
+ * BatchCheckUserPermissionsRequest checks permissions for one or more users
+ * in a single call (AIP-231 batch pattern). Each entry can target a different
+ * domain (or the global domain when domain is empty).
  */
 export interface V1BatchCheckUserPermissionsRequest {
 
   /**
-   * Individual per-user check requests. Maximum 100 entries per call.
+   * Individual check requests. Maximum 100 entries per call.
    */
   requests: Array<V1CheckUserPermissionsRequest>;
 }

@@ -9,7 +9,6 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 
 import { V1ListGroupsResponse } from '../models/v1list-groups-response';
 import { V1Group } from '../models/v1group';
-import { V1GroupOrganizationPolicy } from '../models/v1group-organization-policy';
 
 /**
  * GroupService manages groups and their per-organization permission policies.
@@ -35,7 +34,7 @@ class GroupServiceService extends __BaseService {
    * Lists groups with pagination.
    * Authorization:
    *   Scope: groups:read
-   *   Permission: PERMISSION_GROUPS_READ
+   *   Permission: groups:read
    *   Domain: global
    * @param params The `GroupServiceService.GroupServiceListGroupsParams` containing the following parameters:
    *
@@ -80,7 +79,7 @@ class GroupServiceService extends __BaseService {
    * Lists groups with pagination.
    * Authorization:
    *   Scope: groups:read
-   *   Permission: PERMISSION_GROUPS_READ
+   *   Permission: groups:read
    *   Domain: global
    * @param params The `GroupServiceService.GroupServiceListGroupsParams` containing the following parameters:
    *
@@ -106,7 +105,7 @@ class GroupServiceService extends __BaseService {
    * Creates a new group.
    * Authorization:
    *   Scope: groups:write
-   *   Permission: PERMISSION_GROUPS_CREATE
+   *   Permission: groups:create
    *   Domain: global
    * @param params The `GroupServiceService.GroupServiceCreateGroupParams` containing the following parameters:
    *
@@ -144,7 +143,7 @@ class GroupServiceService extends __BaseService {
    * Creates a new group.
    * Authorization:
    *   Scope: groups:write
-   *   Permission: PERMISSION_GROUPS_CREATE
+   *   Permission: groups:create
    *   Domain: global
    * @param params The `GroupServiceService.GroupServiceCreateGroupParams` containing the following parameters:
    *
@@ -165,7 +164,7 @@ class GroupServiceService extends __BaseService {
    * Updates an existing group.
    * Authorization:
    *   Scope: groups:write
-   *   Permission: PERMISSION_GROUPS_UPDATE
+   *   Permission: groups:update
    *   Domain: global
    * @param params The `GroupServiceService.GroupServiceUpdateGroupParams` containing the following parameters:
    *
@@ -203,7 +202,7 @@ class GroupServiceService extends __BaseService {
    * Updates an existing group.
    * Authorization:
    *   Scope: groups:write
-   *   Permission: PERMISSION_GROUPS_UPDATE
+   *   Permission: groups:update
    *   Domain: global
    * @param params The `GroupServiceService.GroupServiceUpdateGroupParams` containing the following parameters:
    *
@@ -224,7 +223,7 @@ class GroupServiceService extends __BaseService {
    * Permanently deletes a group.
    * Authorization:
    *   Scope: groups:write
-   *   Permission: PERMISSION_GROUPS_DELETE
+   *   Permission: groups:delete
    *   Domain: global
    * @param name_5 The resource name of the group.
    * Format: groups/{group}
@@ -256,7 +255,7 @@ class GroupServiceService extends __BaseService {
    * Permanently deletes a group.
    * Authorization:
    *   Scope: groups:write
-   *   Permission: PERMISSION_GROUPS_DELETE
+   *   Permission: groups:delete
    *   Domain: global
    * @param name_5 The resource name of the group.
    * Format: groups/{group}
@@ -272,7 +271,7 @@ class GroupServiceService extends __BaseService {
    * Gets a single group by resource name.
    * Authorization:
    *   Scope: groups:read
-   *   Permission: PERMISSION_GROUPS_READ
+   *   Permission: groups:read
    *   Domain: global
    * @param name_8 The resource name of the group.
    * Format: groups/{group}
@@ -304,7 +303,7 @@ class GroupServiceService extends __BaseService {
    * Gets a single group by resource name.
    * Authorization:
    *   Scope: groups:read
-   *   Permission: PERMISSION_GROUPS_READ
+   *   Permission: groups:read
    *   Domain: global
    * @param name_8 The resource name of the group.
    * Format: groups/{group}
@@ -378,7 +377,7 @@ module GroupServiceService {
     /**
      * The group to update.
      */
-    group: {uid?: string, display_name: string, display_description?: string, organization_policies?: Array<V1GroupOrganizationPolicy>, update_time?: string, create_time?: string, etag?: string};
+    group: {uid?: string, display_name: string, display_description?: string, organizations?: Array<string>, permissions?: Array<string>, update_time?: string, create_time?: string, etag?: string};
   }
 }
 

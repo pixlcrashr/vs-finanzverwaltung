@@ -33,7 +33,7 @@ class BudgetRevisionAccountValueServiceService extends __BaseService {
    * Gets a single budget revision account value by resource name.
    * Authorization:
    *   Scope: budgets:read
-   *   Permission: PERMISSION_BUDGETS_READ
+   *   Permission: budgets:read
    *   Domain: organization-scoped
    * @param name_7 The resource name of the budget revision account value.
    * Format: organizations/{organization}/budgets/{budget}/revisions/{revision}/accountValues/{account_value}
@@ -65,7 +65,7 @@ class BudgetRevisionAccountValueServiceService extends __BaseService {
    * Gets a single budget revision account value by resource name.
    * Authorization:
    *   Scope: budgets:read
-   *   Permission: PERMISSION_BUDGETS_READ
+   *   Permission: budgets:read
    *   Domain: organization-scoped
    * @param name_7 The resource name of the budget revision account value.
    * Format: organizations/{organization}/budgets/{budget}/revisions/{revision}/accountValues/{account_value}
@@ -81,7 +81,7 @@ class BudgetRevisionAccountValueServiceService extends __BaseService {
    * Lists the account values captured in a revision, with pagination.
    * Authorization:
    *   Scope: budgets:read
-   *   Permission: PERMISSION_BUDGETS_READ
+   *   Permission: budgets:read
    *   Domain: organization-scoped
    * @param params The `BudgetRevisionAccountValueServiceService.BudgetRevisionAccountValueServiceListBudgetRevisionAccountValuesParams` containing the following parameters:
    *
@@ -131,7 +131,7 @@ class BudgetRevisionAccountValueServiceService extends __BaseService {
    * Lists the account values captured in a revision, with pagination.
    * Authorization:
    *   Scope: budgets:read
-   *   Permission: PERMISSION_BUDGETS_READ
+   *   Permission: budgets:read
    *   Domain: organization-scoped
    * @param params The `BudgetRevisionAccountValueServiceService.BudgetRevisionAccountValueServiceListBudgetRevisionAccountValuesParams` containing the following parameters:
    *

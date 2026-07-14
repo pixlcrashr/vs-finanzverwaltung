@@ -10,28 +10,13 @@ import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
-import "pixlcrashr/vsfv/v1/permission.proto";
 
 option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
 option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
 
-// GroupOrganizationPolicy associates a set of permissions with a specific
-// organization for a group. A group may hold policies for multiple
-// organizations independently.
-message GroupOrganizationPolicy {
-  // The resource name of the organization this policy applies to.
-  // Format: organizations/{organization}
-  string organization = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Organization"}
-  ];
-
-  // The set of permissions granted within the organization.
-  repeated Permission permissions = 2 [(google.api.field_behavior) = REQUIRED];
-}
-
-// Group is a named collection of users that share a common set of permissions,
-// scoped per organization via GroupOrganizationPolicy.
+// Group is a named collection of users that share a common set of permissions.
+// Permissions are self-standing (not scoped per organization); instead,
+// groups are assigned to organizations via the organizations field.
 message Group {
   option (google.api.resource) = {
     type: "vsfv.pixlcrashr.dev/Group"
@@ -54,10 +39,16 @@ message Group {
   // Optional free-text description.
   string display_description = 4 [(google.api.field_behavior) = OPTIONAL];
 
-  // Per-organization permission policies for this group.
-  // Each entry associates a distinct organization with a set of permissions.
-  // Multiple entries for the same organization are not allowed.
-  repeated GroupOrganizationPolicy organization_policies = 5 [(google.api.field_behavior) = OPTIONAL];
+  // Organizations this group is assigned to (resource names).
+  // Format: organizations/{organization}
+  repeated string organizations = 5 [
+    (google.api.field_behavior) = OPTIONAL,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Organization"}
+  ];
+
+  // Self-standing permissions granted to this group.
+  // Format: "resource:action" (e.g. "accounts:read", "users:update").
+  repeated string permissions = 9 [(google.api.field_behavior) = OPTIONAL];
 
   // Last modification timestamp.
   google.protobuf.Timestamp update_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -142,7 +133,7 @@ service GroupService {
   // Gets a single group by resource name.
   // Authorization:
   //   Scope: groups:read
-  //   Permission: PERMISSION_GROUPS_READ
+  //   Permission: groups:read
   //   Domain: global
   rpc GetGroup(GetGroupRequest) returns (Group) {
     option (google.api.http) = {get: "/v1/{name=groups/*}"};
@@ -152,7 +143,7 @@ service GroupService {
   // Lists groups with pagination.
   // Authorization:
   //   Scope: groups:read
-  //   Permission: PERMISSION_GROUPS_READ
+  //   Permission: groups:read
   //   Domain: global
   rpc ListGroups(ListGroupsRequest) returns (ListGroupsResponse) {
     option (google.api.http) = {get: "/v1/groups"};
@@ -161,7 +152,7 @@ service GroupService {
   // Creates a new group.
   // Authorization:
   //   Scope: groups:write
-  //   Permission: PERMISSION_GROUPS_CREATE
+  //   Permission: groups:create
   //   Domain: global
   rpc CreateGroup(CreateGroupRequest) returns (Group) {
     option (google.api.http) = {
@@ -174,7 +165,7 @@ service GroupService {
   // Updates an existing group.
   // Authorization:
   //   Scope: groups:write
-  //   Permission: PERMISSION_GROUPS_UPDATE
+  //   Permission: groups:update
   //   Domain: global
   rpc UpdateGroup(UpdateGroupRequest) returns (Group) {
     option (google.api.http) = {
@@ -187,7 +178,7 @@ service GroupService {
   // Permanently deletes a group.
   // Authorization:
   //   Scope: groups:write
-  //   Permission: PERMISSION_GROUPS_DELETE
+  //   Permission: groups:delete
   //   Domain: global
   rpc DeleteGroup(DeleteGroupRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/{name=groups/*}"};

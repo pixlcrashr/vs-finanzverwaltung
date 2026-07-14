@@ -27,7 +27,7 @@ func newCasbinRule(db *gorm.DB, opts ...gen.DOOption) casbinRule {
 
 	tableName := _casbinRule.casbinRuleDo.TableName()
 	_casbinRule.ALL = field.NewAsterisk(tableName)
-	_casbinRule.ID = field.NewField(tableName, "id")
+	_casbinRule.ID = field.NewUint(tableName, "id")
 	_casbinRule.Ptype = field.NewString(tableName, "ptype")
 	_casbinRule.V0 = field.NewString(tableName, "v0")
 	_casbinRule.V1 = field.NewString(tableName, "v1")
@@ -45,7 +45,7 @@ type casbinRule struct {
 	casbinRuleDo casbinRuleDo
 
 	ALL   field.Asterisk
-	ID    field.Field
+	ID    field.Uint
 	Ptype field.String
 	V0    field.String
 	V1    field.String
@@ -69,7 +69,7 @@ func (c casbinRule) As(alias string) *casbinRule {
 
 func (c *casbinRule) updateTableName(table string) *casbinRule {
 	c.ALL = field.NewAsterisk(table)
-	c.ID = field.NewField(table, "id")
+	c.ID = field.NewUint(table, "id")
 	c.Ptype = field.NewString(table, "ptype")
 	c.V0 = field.NewString(table, "v0")
 	c.V1 = field.NewString(table, "v1")

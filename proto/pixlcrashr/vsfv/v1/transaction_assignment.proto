@@ -141,7 +141,7 @@ service TransactionAssignmentService {
   // Gets a single transaction assignment by resource name.
   // Authorization:
   //   Scope: transactions:read
-  //   Permission: PERMISSION_TRANSACTIONS_READ
+  //   Permission: transactions:read
   //   Domain: organization-scoped
   rpc GetTransactionAssignment(GetTransactionAssignmentRequest) returns (TransactionAssignment) {
     option (google.api.http) = {get: "/v1/{name=organizations/*/transactions/*/assignments/*}"};
@@ -151,7 +151,7 @@ service TransactionAssignmentService {
   // Lists transaction assignments with keyset pagination and optional filters.
   // Authorization:
   //   Scope: transactions:read
-  //   Permission: PERMISSION_TRANSACTIONS_READ
+  //   Permission: transactions:read
   //   Domain: organization-scoped
   rpc ListTransactionAssignments(ListTransactionAssignmentsRequest) returns (ListTransactionAssignmentsResponse) {
     option (google.api.http) = {get: "/v1/{parent=organizations/*/transactions/*}/assignments"};

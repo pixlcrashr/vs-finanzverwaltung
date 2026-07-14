@@ -47,7 +47,7 @@ func (s *accountGroupServiceServer) GetAccountGroup(ctx context.Context, req *ge
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountGroupName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionRead, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionRead, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -74,7 +74,7 @@ func (s *accountGroupServiceServer) ListAccountGroups(ctx context.Context, req *
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionRead, orgN.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionRead, orgN.Organization); err != nil {
 		return nil, authError(err)
 	}
 
@@ -140,7 +140,7 @@ func (s *accountGroupServiceServer) CreateAccountGroup(ctx context.Context, req 
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionCreate, pn.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionCreate, authz.OrgDomain(pn.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -181,7 +181,7 @@ func (s *accountGroupServiceServer) UpdateAccountGroup(ctx context.Context, req 
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountGroupName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionUpdate, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionUpdate, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -225,7 +225,7 @@ func (s *accountGroupServiceServer) DeleteAccountGroup(ctx context.Context, req 
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountGroupName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionDelete, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionDelete, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 

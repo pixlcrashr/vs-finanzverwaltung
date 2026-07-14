@@ -46,7 +46,7 @@ func (s *groupServiceServer) GetGroup(ctx context.Context, req *gen.GetGroupRequ
 		return nil, &ServerError{Err: err, Status: statusInvalidGroupName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceGroups, authz.ActionRead, authz.GlobalDomain); err != nil {
+	if err := authz.CheckGlobal(ctx, s.enforcer, authz.ResourceGroups, authz.ActionRead); err != nil {
 		return nil, authError(err)
 	}
 
@@ -58,16 +58,16 @@ func (s *groupServiceServer) GetGroup(ctx context.Context, req *gen.GetGroupRequ
 		return nil, &ServerError{Err: err, Status: statusFailedGetGroup}
 	}
 
-	policies, err := s.buildPoliciesProto(m)
+	orgs, perms, err := s.buildGroupPermissions(ctx, m)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusFailedGetGroup}
 	}
 
-	return UserGroupToProto(m, policies), nil
+	return UserGroupToProto(m, orgs, perms), nil
 }
 
 func (s *groupServiceServer) ListGroups(ctx context.Context, req *gen.ListGroupsRequest) (*gen.ListGroupsResponse, error) {
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceGroups, authz.ActionRead, authz.GlobalDomain); err != nil {
+	if err := authz.CheckGlobal(ctx, s.enforcer, authz.ResourceGroups, authz.ActionRead); err != nil {
 		return nil, authError(err)
 	}
 
@@ -104,11 +104,11 @@ func (s *groupServiceServer) ListGroups(ctx context.Context, req *gen.ListGroups
 
 	resp := &gen.ListGroupsResponse{TotalSize: total}
 	for _, m := range ms {
-		policies, err := s.buildPoliciesProto(m)
+		orgs, perms, err := s.buildGroupPermissions(ctx, m)
 		if err != nil {
 			return nil, &ServerError{Err: err, Status: statusFailedListGroups}
 		}
-		resp.Groups = append(resp.Groups, UserGroupToProto(m, policies))
+		resp.Groups = append(resp.Groups, UserGroupToProto(m, orgs, perms))
 	}
 
 	nextOffset := offset + int64(len(ms))
@@ -124,17 +124,16 @@ func (s *groupServiceServer) CreateGroup(ctx context.Context, req *gen.CreateGro
 		return nil, &ServerError{Status: statusGroupRequired}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceGroups, authz.ActionCreate, authz.GlobalDomain); err != nil {
+	if err := authz.CheckGlobal(ctx, s.enforcer, authz.ResourceGroups, authz.ActionCreate); err != nil {
 		return nil, authError(err)
 	}
 
-	orgPolicies := s.parseOrgPolicies(req.Group.OrganizationPolicies)
-
 	params := repository.CreateUserGroupParams{
-		DisplayName:          req.Group.DisplayName,
-		DisplayDescription:   req.Group.DisplayDescription,
-		CustomID:             req.GroupId,
-		OrganizationPolicies: orgPolicies,
+		DisplayName:        req.Group.DisplayName,
+		DisplayDescription: req.Group.DisplayDescription,
+		CustomID:           req.GroupId,
+		Organizations:      req.Group.Organizations,
+		Permissions:        req.Group.Permissions,
 	}
 
 	m, err := s.repo.Create(ctx, params)
@@ -145,12 +144,12 @@ func (s *groupServiceServer) CreateGroup(ctx context.Context, req *gen.CreateGro
 		return nil, &ServerError{Err: err, Status: statusFailedCreateGroup}
 	}
 
-	policies, err := s.buildPoliciesProto(m)
+	orgs, perms, err := s.buildGroupPermissions(ctx, m)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusFailedCreateGroup}
 	}
 
-	return UserGroupToProto(m, policies), nil
+	return UserGroupToProto(m, orgs, perms), nil
 }
 
 func (s *groupServiceServer) UpdateGroup(ctx context.Context, req *gen.UpdateGroupRequest) (*gen.Group, error) {
@@ -163,7 +162,7 @@ func (s *groupServiceServer) UpdateGroup(ctx context.Context, req *gen.UpdateGro
 		return nil, &ServerError{Err: err, Status: statusInvalidGroupName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceGroups, authz.ActionUpdate, authz.GlobalDomain); err != nil {
+	if err := authz.CheckGlobal(ctx, s.enforcer, authz.ResourceGroups, authz.ActionUpdate); err != nil {
 		return nil, authError(err)
 	}
 
@@ -183,10 +182,8 @@ func (s *groupServiceServer) UpdateGroup(ctx context.Context, req *gen.UpdateGro
 	if req.Group.DisplayDescription != "" {
 		updateParams.DisplayDescription = optional.From(req.Group.DisplayDescription)
 	}
-	if req.Group.OrganizationPolicies != nil {
-		orgPolicies := s.parseOrgPolicies(req.Group.OrganizationPolicies)
-		updateParams.OrganizationPolicies = optional.From(orgPolicies)
-	}
+	updateParams.Organizations = optional.From(req.Group.Organizations)
+	updateParams.Permissions = optional.From(req.Group.Permissions)
 
 	if err := s.repo.Update(ctx, m.ID, updateParams); err != nil {
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateGroup}
@@ -198,12 +195,12 @@ func (s *groupServiceServer) UpdateGroup(ctx context.Context, req *gen.UpdateGro
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateGroup}
 	}
 
-	policies, err := s.buildPoliciesProto(m)
+	orgs, perms, err := s.buildGroupPermissions(ctx, m)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateGroup}
 	}
 
-	return UserGroupToProto(m, policies), nil
+	return UserGroupToProto(m, orgs, perms), nil
 }
 
 func (s *groupServiceServer) DeleteGroup(ctx context.Context, req *gen.DeleteGroupRequest) (*emptypb.Empty, error) {
@@ -212,7 +209,7 @@ func (s *groupServiceServer) DeleteGroup(ctx context.Context, req *gen.DeleteGro
 		return nil, &ServerError{Err: err, Status: statusInvalidGroupName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceGroups, authz.ActionDelete, authz.GlobalDomain); err != nil {
+	if err := authz.CheckGlobal(ctx, s.enforcer, authz.ResourceGroups, authz.ActionDelete); err != nil {
 		return nil, authError(err)
 	}
 
@@ -234,34 +231,16 @@ func (s *groupServiceServer) DeleteGroup(ctx context.Context, req *gen.DeleteGro
 	return &emptypb.Empty{}, nil
 }
 
-// parseOrgPolicies converts proto GroupOrganizationPolicy slices into the
-// map[orgCustomID][]gen.Permission format expected by the repository.
-func (s *groupServiceServer) parseOrgPolicies(policies []*gen.GroupOrganizationPolicy) map[string][]gen.Permission {
-	result := make(map[string][]gen.Permission, len(policies))
-	for _, pol := range policies {
-		var on gen.OrganizationResourceName
-		if err := on.UnmarshalString(pol.Organization); err != nil {
-			continue
-		}
-		result[on.Organization] = pol.Permissions
-	}
-	return result
-}
-
-// buildPoliciesProto reads casbin policies for a group and converts them
-// into proto GroupOrganizationPolicy slices.
-func (s *groupServiceServer) buildPoliciesProto(m *model.UserGroup) ([]*gen.GroupOrganizationPolicy, error) {
-	policyMap, err := s.repo.GetOrganizationPolicies(m.ID.String())
+// buildGroupPermissions reads the organization assignments and permissions
+// for a group from the repository and returns them as string slices.
+func (s *groupServiceServer) buildGroupPermissions(ctx context.Context, m *model.UserGroup) (organizations, permissions []string, err error) {
+	organizations, err = s.repo.GetOrganizations(ctx, m.ID)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-
-	var policies []*gen.GroupOrganizationPolicy
-	for orgCustomID, perms := range policyMap {
-		policies = append(policies, &gen.GroupOrganizationPolicy{
-			Organization: gen.OrganizationResourceName{Organization: orgCustomID}.String(),
-			Permissions:  perms,
-		})
+	permissions, err = s.repo.GetPermissions(m.ID.String())
+	if err != nil {
+		return nil, nil, err
 	}
-	return policies, nil
+	return organizations, permissions, nil
 }

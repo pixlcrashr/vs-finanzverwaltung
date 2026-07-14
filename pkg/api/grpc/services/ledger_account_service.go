@@ -45,7 +45,7 @@ func (s *ledgerAccountServiceServer) GetLedgerAccount(ctx context.Context, req *
 		return nil, &ServerError{Err: err, Status: statusInvalidLedgerAccountName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceLedgerAccount, authz.ActionRead, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceLedgerAccount, authz.ActionRead, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -74,7 +74,7 @@ func (s *ledgerAccountServiceServer) ListLedgerAccounts(ctx context.Context, req
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceLedgerAccount, authz.ActionRead, pn.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceLedgerAccount, authz.ActionRead, authz.OrgDomain(pn.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -134,7 +134,7 @@ func (s *ledgerAccountServiceServer) UpdateLedgerAccount(ctx context.Context, re
 		return nil, &ServerError{Err: err, Status: statusInvalidLedgerAccountName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceLedgerAccount, authz.ActionUpdate, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceLedgerAccount, authz.ActionUpdate, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -180,7 +180,7 @@ func (s *ledgerAccountServiceServer) DeleteLedgerAccount(ctx context.Context, re
 		return nil, &ServerError{Err: err, Status: statusInvalidLedgerAccountName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceLedgerAccount, authz.ActionDelete, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceLedgerAccount, authz.ActionDelete, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 

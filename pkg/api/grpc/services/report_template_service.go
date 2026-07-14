@@ -47,7 +47,7 @@ func (s *reportTemplateServiceServer) GetReportTemplate(ctx context.Context, req
 		return nil, &ServerError{Err: err, Status: statusInvalidReportTemplateName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceReportTemplates, authz.ActionRead, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceReportTemplates, authz.ActionRead, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -75,7 +75,7 @@ func (s *reportTemplateServiceServer) ListReportTemplates(ctx context.Context, r
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceReportTemplates, authz.ActionRead, pn.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceReportTemplates, authz.ActionRead, authz.OrgDomain(pn.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -135,7 +135,7 @@ func (s *reportTemplateServiceServer) CreateReportTemplate(ctx context.Context, 
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceReportTemplates, authz.ActionCreate, pn.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceReportTemplates, authz.ActionCreate, authz.OrgDomain(pn.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -176,7 +176,7 @@ func (s *reportTemplateServiceServer) UpdateReportTemplate(ctx context.Context, 
 		return nil, &ServerError{Err: err, Status: statusInvalidReportTemplateName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceReportTemplates, authz.ActionUpdate, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceReportTemplates, authz.ActionUpdate, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -219,7 +219,7 @@ func (s *reportTemplateServiceServer) DeleteReportTemplate(ctx context.Context, 
 		return nil, &ServerError{Err: err, Status: statusInvalidReportTemplateName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceReportTemplates, authz.ActionDelete, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceReportTemplates, authz.ActionDelete, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 

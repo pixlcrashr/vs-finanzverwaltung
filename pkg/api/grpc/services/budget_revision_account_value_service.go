@@ -41,7 +41,7 @@ func (s *budgetRevisionAccountValueServiceServer) GetBudgetRevisionAccountValue(
 		return nil, &ServerError{Err: err, Status: statusInvalidBudgetRevisionAccountValueName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -69,7 +69,7 @@ func (s *budgetRevisionAccountValueServiceServer) ListBudgetRevisionAccountValue
 		return nil, &ServerError{Err: err, Status: statusInvalidParentRevisionName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, pn.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, authz.OrgDomain(pn.Organization)); err != nil {
 		return nil, authError(err)
 	}
 

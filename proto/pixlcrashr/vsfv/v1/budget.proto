@@ -153,7 +153,7 @@ service BudgetService {
   // Gets a single budget by resource name.
   // Authorization:
   //   Scope: budgets:read
-  //   Permission: PERMISSION_BUDGETS_READ
+  //   Permission: budgets:read
   //   Domain: organization-scoped
   rpc GetBudget(GetBudgetRequest) returns (Budget) {
     option (google.api.http) = {get: "/v1/{name=organizations/*/budgets/*}"};
@@ -163,7 +163,7 @@ service BudgetService {
   // Lists budgets with pagination.
   // Authorization:
   //   Scope: budgets:read
-  //   Permission: PERMISSION_BUDGETS_READ
+  //   Permission: budgets:read
   //   Domain: organization-scoped
   rpc ListBudgets(ListBudgetsRequest) returns (ListBudgetsResponse) {
     option (google.api.http) = {get: "/v1/{parent=organizations/*}/budgets"};
@@ -173,7 +173,7 @@ service BudgetService {
   // Creates a new budget.
   // Authorization:
   //   Scope: budgets:write
-  //   Permission: PERMISSION_BUDGETS_CREATE
+  //   Permission: budgets:create
   //   Domain: organization-scoped
   rpc CreateBudget(CreateBudgetRequest) returns (Budget) {
     option (google.api.http) = {
@@ -186,7 +186,7 @@ service BudgetService {
   // Updates an existing budget.
   // Authorization:
   //   Scope: budgets:write
-  //   Permission: PERMISSION_BUDGETS_UPDATE
+  //   Permission: budgets:update
   //   Domain: organization-scoped
   rpc UpdateBudget(UpdateBudgetRequest) returns (Budget) {
     option (google.api.http) = {
@@ -199,7 +199,7 @@ service BudgetService {
   // Closes a budget, marking it as no longer active.
   // Authorization:
   //   Scope: budgets:write
-  //   Permission: PERMISSION_BUDGETS_CLOSE
+  //   Permission: budgets:close
   //   Domain: organization-scoped
   rpc CloseBudget(CloseBudgetRequest) returns (Budget) {
     option (google.api.http) = {
@@ -212,7 +212,7 @@ service BudgetService {
   // Permanently deletes a budget.
   // Authorization:
   //   Scope: budgets:write
-  //   Permission: PERMISSION_BUDGETS_DELETE
+  //   Permission: budgets:delete
   //   Domain: organization-scoped
   rpc DeleteBudget(DeleteBudgetRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/{name=organizations/*/budgets/*}"};

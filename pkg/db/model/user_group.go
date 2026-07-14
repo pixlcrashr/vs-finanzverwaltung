@@ -17,6 +17,9 @@ type UserGroup struct {
 	IsDefault   bool      `gorm:"not null;default:false"`
 	CreatedAt   time.Time `gorm:"not null;default:now()"`
 	UpdatedAt   time.Time `gorm:"not null;default:now()"`
+
+	// Relations
+	GroupOrganizations []GroupOrganization `gorm:"foreignKey:UserGroupID"`
 }
 
 func (UserGroup) TableName() string { return "user_groups" }

@@ -122,7 +122,7 @@ service ReportService {
   // Gets report metadata by resource name.
   // Authorization:
   //   Scope: reports:read
-  //   Permission: PERMISSION_REPORTS_READ
+  //   Permission: reports:read
   //   Domain: organization-scoped
   rpc GetReport(GetReportRequest) returns (Report) {
     option (google.api.http) = {get: "/v1/{name=organizations/*/reports/*}"};
@@ -132,7 +132,7 @@ service ReportService {
   // Lists reports with pagination.
   // Authorization:
   //   Scope: reports:read
-  //   Permission: PERMISSION_REPORTS_READ
+  //   Permission: reports:read
   //   Domain: organization-scoped
   rpc ListReports(ListReportsRequest) returns (ListReportsResponse) {
     option (google.api.http) = {get: "/v1/{parent=organizations/*}/reports"};
@@ -142,7 +142,7 @@ service ReportService {
   // Creates a new report by rendering a template.
   // Authorization:
   //   Scope: reports:write
-  //   Permission: PERMISSION_REPORTS_CREATE
+  //   Permission: reports:create
   //   Domain: organization-scoped
   rpc CreateReport(CreateReportRequest) returns (Report) {
     option (google.api.http) = {
@@ -155,7 +155,7 @@ service ReportService {
   // Permanently deletes a report.
   // Authorization:
   //   Scope: reports:write
-  //   Permission: PERMISSION_REPORTS_DELETE
+  //   Permission: reports:delete
   //   Domain: organization-scoped
   rpc DeleteReport(DeleteReportRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/{name=organizations/*/reports/*}"};

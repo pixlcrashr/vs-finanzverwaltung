@@ -45,7 +45,7 @@ func (s *budgetActualAccountValueServiceServer) GetBudgetActualAccountValue(ctx 
 		return nil, &ServerError{Err: err, Status: statusInvalidActualAccountValueName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -80,7 +80,7 @@ func (s *budgetActualAccountValueServiceServer) ListBudgetActualAccountValues(ct
 		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetForActual}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, pn.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, authz.OrgDomain(pn.Organization)); err != nil {
 		return nil, authError(err)
 	}
 

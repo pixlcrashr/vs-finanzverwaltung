@@ -39,7 +39,7 @@ func (s *accountGroupAssignmentServiceServer) GetAccountGroupAssignment(ctx cont
 		return nil, &ServerError{Err: err, Status: statusInvalidAssignmentName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionRead, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionRead, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -67,7 +67,7 @@ func (s *accountGroupAssignmentServiceServer) ListAccountGroupAssignments(ctx co
 		return nil, &ServerError{Err: err, Status: statusInvalidParentAccountGroupName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionRead, pn.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionRead, authz.OrgDomain(pn.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -129,7 +129,7 @@ func (s *accountGroupAssignmentServiceServer) CreateAccountGroupAssignment(ctx c
 		return nil, &ServerError{Err: err, Status: statusInvalidParentAccountGroupName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionCreate, pn.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionCreate, authz.OrgDomain(pn.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -183,7 +183,7 @@ func (s *accountGroupAssignmentServiceServer) UpdateAccountGroupAssignment(ctx c
 		return nil, &ServerError{Err: err, Status: statusInvalidAssignmentName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionUpdate, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionUpdate, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -225,7 +225,7 @@ func (s *accountGroupAssignmentServiceServer) DeleteAccountGroupAssignment(ctx c
 		return nil, &ServerError{Err: err, Status: statusInvalidAssignmentName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionDelete, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceAccountGroups, authz.ActionDelete, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 

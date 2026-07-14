@@ -98,7 +98,7 @@ service UserIdentityService {
   // Gets a single identity record.
   // Authorization:
   //   Scope: users:read
-  //   Permission: PERMISSION_USERS_READ
+  //   Permission: users:read
   //   Domain: global
   rpc GetUserIdentity(GetUserIdentityRequest) returns (UserIdentity) {
     option (google.api.http) = {get: "/v1/{name=users/*/identities/*}"};
@@ -108,7 +108,7 @@ service UserIdentityService {
   // Lists all identity records for a user.
   // Authorization:
   //   Scope: users:read
-  //   Permission: PERMISSION_USERS_READ
+  //   Permission: users:read
   //   Domain: global
   rpc ListUserIdentities(ListUserIdentitiesRequest) returns (ListUserIdentitiesResponse) {
     option (google.api.http) = {get: "/v1/{parent=users/*}/identities"};

@@ -37,7 +37,7 @@ func (s *userIdentityServiceServer) GetUserIdentity(ctx context.Context, req *ge
 		return nil, &ServerError{Err: err, Status: statusInvalidUserIdentityName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead, authz.GlobalDomain); err != nil {
+	if err := authz.CheckGlobal(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead); err != nil {
 		return nil, authError(err)
 	}
 
@@ -63,7 +63,7 @@ func (s *userIdentityServiceServer) ListUserIdentities(ctx context.Context, req 
 		return nil, &ServerError{Err: err, Status: statusInvalidParentUserName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead, authz.GlobalDomain); err != nil {
+	if err := authz.CheckGlobal(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead); err != nil {
 		return nil, authError(err)
 	}
 

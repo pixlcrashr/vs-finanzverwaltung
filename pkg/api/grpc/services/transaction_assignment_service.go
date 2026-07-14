@@ -52,7 +52,7 @@ func (s *transactionAssignmentServiceServer) GetTransactionAssignment(ctx contex
 		return nil, &ServerError{Err: err, Status: statusInvalidTransactionAssignmentName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionRead, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionRead, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -85,7 +85,7 @@ func (s *transactionAssignmentServiceServer) ListTransactionAssignments(ctx cont
 		return nil, &ServerError{Err: err, Status: statusInvalidParentTransaction}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionRead, pn.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionRead, authz.OrgDomain(pn.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -147,7 +147,7 @@ func (s *transactionAssignmentServiceServer) CreateTransactionAssignment(ctx con
 		return nil, &ServerError{Err: err, Status: statusInvalidParentTransaction}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionCreate, pn.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionCreate, authz.OrgDomain(pn.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -212,7 +212,7 @@ func (s *transactionAssignmentServiceServer) UpdateTransactionAssignment(ctx con
 		return nil, &ServerError{Err: err, Status: statusInvalidTransactionAssignmentName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionUpdate, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionUpdate, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -268,7 +268,7 @@ func (s *transactionAssignmentServiceServer) DeleteTransactionAssignment(ctx con
 		return nil, &ServerError{Err: err, Status: statusInvalidTransactionAssignmentName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionDelete, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionDelete, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 

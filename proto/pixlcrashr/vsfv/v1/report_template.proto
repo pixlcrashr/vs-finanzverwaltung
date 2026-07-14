@@ -131,7 +131,7 @@ service ReportTemplateService {
   // Gets a single report template by resource name.
   // Authorization:
   //   Scope: reportTemplates:read
-  //   Permission: PERMISSION_REPORT_TEMPLATES_READ
+  //   Permission: reportTemplates:read
   //   Domain: organization-scoped
   rpc GetReportTemplate(GetReportTemplateRequest) returns (ReportTemplate) {
     option (google.api.http) = {get: "/v1/{name=organizations/*/reportTemplates/*}"};
@@ -141,7 +141,7 @@ service ReportTemplateService {
   // Lists report templates with pagination.
   // Authorization:
   //   Scope: reportTemplates:read
-  //   Permission: PERMISSION_REPORT_TEMPLATES_READ
+  //   Permission: reportTemplates:read
   //   Domain: organization-scoped
   rpc ListReportTemplates(ListReportTemplatesRequest) returns (ListReportTemplatesResponse) {
     option (google.api.http) = {get: "/v1/{parent=organizations/*}/reportTemplates"};
@@ -151,7 +151,7 @@ service ReportTemplateService {
   // Creates a new report template.
   // Authorization:
   //   Scope: reportTemplates:write
-  //   Permission: PERMISSION_REPORT_TEMPLATES_CREATE
+  //   Permission: reportTemplates:create
   //   Domain: organization-scoped
   rpc CreateReportTemplate(CreateReportTemplateRequest) returns (ReportTemplate) {
     option (google.api.http) = {
@@ -164,7 +164,7 @@ service ReportTemplateService {
   // Updates an existing report template.
   // Authorization:
   //   Scope: reportTemplates:write
-  //   Permission: PERMISSION_REPORT_TEMPLATES_UPDATE
+  //   Permission: reportTemplates:update
   //   Domain: organization-scoped
   rpc UpdateReportTemplate(UpdateReportTemplateRequest) returns (ReportTemplate) {
     option (google.api.http) = {
@@ -177,7 +177,7 @@ service ReportTemplateService {
   // Permanently deletes a report template.
   // Authorization:
   //   Scope: reportTemplates:write
-  //   Permission: PERMISSION_REPORT_TEMPLATES_DELETE
+  //   Permission: reportTemplates:delete
   //   Domain: organization-scoped
   rpc DeleteReportTemplate(DeleteReportTemplateRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/{name=organizations/*/reportTemplates/*}"};

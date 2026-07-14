@@ -37,35 +37,35 @@ type ReportTemplateServiceClient interface {
 	// Authorization:
 	//
 	//	Scope: reportTemplates:read
-	//	Permission: PERMISSION_REPORT_TEMPLATES_READ
+	//	Permission: reportTemplates:read
 	//	Domain: organization-scoped
 	GetReportTemplate(ctx context.Context, in *GetReportTemplateRequest, opts ...grpc.CallOption) (*ReportTemplate, error)
 	// Lists report templates with pagination.
 	// Authorization:
 	//
 	//	Scope: reportTemplates:read
-	//	Permission: PERMISSION_REPORT_TEMPLATES_READ
+	//	Permission: reportTemplates:read
 	//	Domain: organization-scoped
 	ListReportTemplates(ctx context.Context, in *ListReportTemplatesRequest, opts ...grpc.CallOption) (*ListReportTemplatesResponse, error)
 	// Creates a new report template.
 	// Authorization:
 	//
 	//	Scope: reportTemplates:write
-	//	Permission: PERMISSION_REPORT_TEMPLATES_CREATE
+	//	Permission: reportTemplates:create
 	//	Domain: organization-scoped
 	CreateReportTemplate(ctx context.Context, in *CreateReportTemplateRequest, opts ...grpc.CallOption) (*ReportTemplate, error)
 	// Updates an existing report template.
 	// Authorization:
 	//
 	//	Scope: reportTemplates:write
-	//	Permission: PERMISSION_REPORT_TEMPLATES_UPDATE
+	//	Permission: reportTemplates:update
 	//	Domain: organization-scoped
 	UpdateReportTemplate(ctx context.Context, in *UpdateReportTemplateRequest, opts ...grpc.CallOption) (*ReportTemplate, error)
 	// Permanently deletes a report template.
 	// Authorization:
 	//
 	//	Scope: reportTemplates:write
-	//	Permission: PERMISSION_REPORT_TEMPLATES_DELETE
+	//	Permission: reportTemplates:delete
 	//	Domain: organization-scoped
 	DeleteReportTemplate(ctx context.Context, in *DeleteReportTemplateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -138,35 +138,35 @@ type ReportTemplateServiceServer interface {
 	// Authorization:
 	//
 	//	Scope: reportTemplates:read
-	//	Permission: PERMISSION_REPORT_TEMPLATES_READ
+	//	Permission: reportTemplates:read
 	//	Domain: organization-scoped
 	GetReportTemplate(context.Context, *GetReportTemplateRequest) (*ReportTemplate, error)
 	// Lists report templates with pagination.
 	// Authorization:
 	//
 	//	Scope: reportTemplates:read
-	//	Permission: PERMISSION_REPORT_TEMPLATES_READ
+	//	Permission: reportTemplates:read
 	//	Domain: organization-scoped
 	ListReportTemplates(context.Context, *ListReportTemplatesRequest) (*ListReportTemplatesResponse, error)
 	// Creates a new report template.
 	// Authorization:
 	//
 	//	Scope: reportTemplates:write
-	//	Permission: PERMISSION_REPORT_TEMPLATES_CREATE
+	//	Permission: reportTemplates:create
 	//	Domain: organization-scoped
 	CreateReportTemplate(context.Context, *CreateReportTemplateRequest) (*ReportTemplate, error)
 	// Updates an existing report template.
 	// Authorization:
 	//
 	//	Scope: reportTemplates:write
-	//	Permission: PERMISSION_REPORT_TEMPLATES_UPDATE
+	//	Permission: reportTemplates:update
 	//	Domain: organization-scoped
 	UpdateReportTemplate(context.Context, *UpdateReportTemplateRequest) (*ReportTemplate, error)
 	// Permanently deletes a report template.
 	// Authorization:
 	//
 	//	Scope: reportTemplates:write
-	//	Permission: PERMISSION_REPORT_TEMPLATES_DELETE
+	//	Permission: reportTemplates:delete
 	//	Domain: organization-scoped
 	DeleteReportTemplate(context.Context, *DeleteReportTemplateRequest) (*emptypb.Empty, error)
 }

@@ -37,35 +37,35 @@ type GroupServiceClient interface {
 	// Authorization:
 	//
 	//	Scope: groups:read
-	//	Permission: PERMISSION_GROUPS_READ
+	//	Permission: groups:read
 	//	Domain: global
 	GetGroup(ctx context.Context, in *GetGroupRequest, opts ...grpc.CallOption) (*Group, error)
 	// Lists groups with pagination.
 	// Authorization:
 	//
 	//	Scope: groups:read
-	//	Permission: PERMISSION_GROUPS_READ
+	//	Permission: groups:read
 	//	Domain: global
 	ListGroups(ctx context.Context, in *ListGroupsRequest, opts ...grpc.CallOption) (*ListGroupsResponse, error)
 	// Creates a new group.
 	// Authorization:
 	//
 	//	Scope: groups:write
-	//	Permission: PERMISSION_GROUPS_CREATE
+	//	Permission: groups:create
 	//	Domain: global
 	CreateGroup(ctx context.Context, in *CreateGroupRequest, opts ...grpc.CallOption) (*Group, error)
 	// Updates an existing group.
 	// Authorization:
 	//
 	//	Scope: groups:write
-	//	Permission: PERMISSION_GROUPS_UPDATE
+	//	Permission: groups:update
 	//	Domain: global
 	UpdateGroup(ctx context.Context, in *UpdateGroupRequest, opts ...grpc.CallOption) (*Group, error)
 	// Permanently deletes a group.
 	// Authorization:
 	//
 	//	Scope: groups:write
-	//	Permission: PERMISSION_GROUPS_DELETE
+	//	Permission: groups:delete
 	//	Domain: global
 	DeleteGroup(ctx context.Context, in *DeleteGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -138,35 +138,35 @@ type GroupServiceServer interface {
 	// Authorization:
 	//
 	//	Scope: groups:read
-	//	Permission: PERMISSION_GROUPS_READ
+	//	Permission: groups:read
 	//	Domain: global
 	GetGroup(context.Context, *GetGroupRequest) (*Group, error)
 	// Lists groups with pagination.
 	// Authorization:
 	//
 	//	Scope: groups:read
-	//	Permission: PERMISSION_GROUPS_READ
+	//	Permission: groups:read
 	//	Domain: global
 	ListGroups(context.Context, *ListGroupsRequest) (*ListGroupsResponse, error)
 	// Creates a new group.
 	// Authorization:
 	//
 	//	Scope: groups:write
-	//	Permission: PERMISSION_GROUPS_CREATE
+	//	Permission: groups:create
 	//	Domain: global
 	CreateGroup(context.Context, *CreateGroupRequest) (*Group, error)
 	// Updates an existing group.
 	// Authorization:
 	//
 	//	Scope: groups:write
-	//	Permission: PERMISSION_GROUPS_UPDATE
+	//	Permission: groups:update
 	//	Domain: global
 	UpdateGroup(context.Context, *UpdateGroupRequest) (*Group, error)
 	// Permanently deletes a group.
 	// Authorization:
 	//
 	//	Scope: groups:write
-	//	Permission: PERMISSION_GROUPS_DELETE
+	//	Permission: groups:delete
 	//	Domain: global
 	DeleteGroup(context.Context, *DeleteGroupRequest) (*emptypb.Empty, error)
 }

@@ -47,7 +47,7 @@ func (s *reportServiceServer) GetReport(ctx context.Context, req *gen.GetReportR
 		return nil, &ServerError{Err: err, Status: statusInvalidReportName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceReports, authz.ActionRead, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceReports, authz.ActionRead, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -75,7 +75,7 @@ func (s *reportServiceServer) ListReports(ctx context.Context, req *gen.ListRepo
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceReports, authz.ActionRead, pn.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceReports, authz.ActionRead, authz.OrgDomain(pn.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -135,7 +135,7 @@ func (s *reportServiceServer) CreateReport(ctx context.Context, req *gen.CreateR
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceReports, authz.ActionCreate, pn.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceReports, authz.ActionCreate, authz.OrgDomain(pn.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -171,7 +171,7 @@ func (s *reportServiceServer) DeleteReport(ctx context.Context, req *gen.DeleteR
 		return nil, &ServerError{Err: err, Status: statusInvalidReportName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceReports, authz.ActionDelete, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceReports, authz.ActionDelete, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 

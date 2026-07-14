@@ -22,7 +22,7 @@ var (
 	statusFailedGetUser       = status.New(codes.Internal, "failed to get user")
 	statusFailedListUsers     = status.New(codes.Internal, "failed to list users")
 	statusFailedCheckPerms    = status.New(codes.Internal, "failed to check permissions")
-	statusInvalidOrgName      = status.New(codes.InvalidArgument, "invalid organization name")
+	statusInvalidDomain       = status.New(codes.InvalidArgument, "invalid domain")
 	statusNoPermissions       = status.New(codes.InvalidArgument, "at least one permission must be specified")
 	statusTooManyBatchEntries = status.New(codes.InvalidArgument, "too many batch entries (max 100)")
 )
@@ -43,7 +43,7 @@ func (s *userServiceServer) GetUser(ctx context.Context, req *gen.GetUserRequest
 		return nil, &ServerError{Err: err, Status: statusInvalidUserName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead, authz.GlobalDomain); err != nil {
+	if err := authz.CheckGlobal(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead); err != nil {
 		return nil, authError(err)
 	}
 
@@ -64,7 +64,7 @@ func (s *userServiceServer) GetUser(ctx context.Context, req *gen.GetUserRequest
 }
 
 func (s *userServiceServer) ListUsers(ctx context.Context, req *gen.ListUsersRequest) (*gen.ListUsersResponse, error) {
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead, authz.GlobalDomain); err != nil {
+	if err := authz.CheckGlobal(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead); err != nil {
 		return nil, authError(err)
 	}
 
@@ -112,76 +112,8 @@ func (s *userServiceServer) ListUsers(ctx context.Context, req *gen.ListUsersReq
 	return resp, nil
 }
 
-func (s *userServiceServer) CheckUserOrganizationPermissions(ctx context.Context, req *gen.CheckUserOrganizationPermissionsRequest) (*gen.CheckUserOrganizationPermissionsResponse, error) {
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead, authz.GlobalDomain); err != nil {
-		return nil, authError(err)
-	}
-
-	var un gen.UserResourceName
-	if err := un.UnmarshalString(req.Name); err != nil {
-		return nil, &ServerError{Err: err, Status: statusInvalidUserName}
-	}
-
-	var on gen.OrganizationResourceName
-	if err := on.UnmarshalString(req.Organization); err != nil {
-		return nil, &ServerError{Err: err, Status: statusInvalidOrgName}
-	}
-
-	if len(req.Permissions) == 0 {
-		return nil, &ServerError{Status: statusNoPermissions}
-	}
-
-	permitted, err := s.checkPermissions(un.User, on.Organization, req.Permissions)
-	if err != nil {
-		return nil, &ServerError{Err: err, Status: statusFailedCheckPerms}
-	}
-
-	return &gen.CheckUserOrganizationPermissionsResponse{
-		Organization: req.Organization,
-		Permitted:    permitted,
-	}, nil
-}
-
-func (s *userServiceServer) BatchCheckUserOrganizationPermissions(ctx context.Context, req *gen.BatchCheckUserOrganizationPermissionsRequest) (*gen.BatchCheckUserOrganizationPermissionsResponse, error) {
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead, authz.GlobalDomain); err != nil {
-		return nil, authError(err)
-	}
-
-	var un gen.UserResourceName
-	if err := un.UnmarshalString(req.Name); err != nil {
-		return nil, &ServerError{Err: err, Status: statusInvalidUserName}
-	}
-
-	if len(req.Requests) > 100 {
-		return nil, &ServerError{Status: statusTooManyBatchEntries}
-	}
-
-	resp := &gen.BatchCheckUserOrganizationPermissionsResponse{
-		Results: make([]*gen.CheckUserOrganizationPermissionsResponse, 0, len(req.Requests)),
-	}
-
-	for _, r := range req.Requests {
-		var on gen.OrganizationResourceName
-		if err := on.UnmarshalString(r.Organization); err != nil {
-			return nil, &ServerError{Err: err, Status: statusInvalidOrgName}
-		}
-
-		permitted, err := s.checkPermissions(un.User, on.Organization, r.Permissions)
-		if err != nil {
-			return nil, &ServerError{Err: err, Status: statusFailedCheckPerms}
-		}
-
-		resp.Results = append(resp.Results, &gen.CheckUserOrganizationPermissionsResponse{
-			Organization: r.Organization,
-			Permitted:    permitted,
-		})
-	}
-
-	return resp, nil
-}
-
 func (s *userServiceServer) CheckUserPermissions(ctx context.Context, req *gen.CheckUserPermissionsRequest) (*gen.CheckUserPermissionsResponse, error) {
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead, authz.GlobalDomain); err != nil {
+	if err := authz.CheckGlobal(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead); err != nil {
 		return nil, authError(err)
 	}
 
@@ -190,22 +122,25 @@ func (s *userServiceServer) CheckUserPermissions(ctx context.Context, req *gen.C
 		return nil, &ServerError{Err: err, Status: statusInvalidUserName}
 	}
 
+	// Domain is optional. When empty, permissions are checked globally.
+	// When set, it is used directly as the casbin domain (e.g. "organizations/{id}").
 	if len(req.Permissions) == 0 {
 		return nil, &ServerError{Status: statusNoPermissions}
 	}
 
-	permitted, err := s.checkPermissions(un.User, "", req.Permissions)
+	permitted, err := s.checkPermissions(un.User, req.Domain, req.Permissions)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusFailedCheckPerms}
 	}
 
 	return &gen.CheckUserPermissionsResponse{
+		Domain:    req.Domain,
 		Permitted: permitted,
 	}, nil
 }
 
 func (s *userServiceServer) BatchCheckUserPermissions(ctx context.Context, req *gen.BatchCheckUserPermissionsRequest) (*gen.BatchCheckUserPermissionsResponse, error) {
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead, authz.GlobalDomain); err != nil {
+	if err := authz.CheckGlobal(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead); err != nil {
 		return nil, authError(err)
 	}
 
@@ -227,12 +162,13 @@ func (s *userServiceServer) BatchCheckUserPermissions(ctx context.Context, req *
 			return nil, &ServerError{Status: statusNoPermissions}
 		}
 
-		permitted, err := s.checkPermissions(un.User, "", r.Permissions)
+		permitted, err := s.checkPermissions(un.User, r.Domain, r.Permissions)
 		if err != nil {
 			return nil, &ServerError{Err: err, Status: statusFailedCheckPerms}
 		}
 
 		resp.Results = append(resp.Results, &gen.CheckUserPermissionsResponse{
+			Domain:    r.Domain,
 			Permitted: permitted,
 		})
 	}
@@ -241,18 +177,19 @@ func (s *userServiceServer) BatchCheckUserPermissions(ctx context.Context, req *
 }
 
 // checkPermissions evaluates the requested permissions against casbin.
-// Global permissions (users, groups, settings) are checked with an empty
-// domain; org-scoped permissions use the organization custom ID as domain.
-func (s *userServiceServer) checkPermissions(userID, orgCustomID string, requested []gen.Permission) ([]gen.Permission, error) {
-	var permitted []gen.Permission
+// Global permissions (users, groups, settings) are always checked with an
+// empty domain. Org-scoped permissions use the provided domain string
+// directly (e.g. "organizations/{id}").
+func (s *userServiceServer) checkPermissions(userID, domain string, requested []string) ([]string, error) {
+	var permitted []string
 
-	for _, pp := range requested {
-		p, ok := authz.PermissionFromProto(pp)
+	for _, permStr := range requested {
+		p, ok := authz.ParsePermission(permStr)
 		if !ok {
 			continue
 		}
 
-		dom := orgCustomID
+		dom := domain
 		if authz.GlobalResources[p.Resource] {
 			dom = authz.GlobalDomain
 		}
@@ -263,7 +200,7 @@ func (s *userServiceServer) checkPermissions(userID, orgCustomID string, request
 		}
 
 		if allowed {
-			permitted = append(permitted, pp)
+			permitted = append(permitted, permStr)
 		}
 	}
 

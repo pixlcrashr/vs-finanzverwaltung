@@ -40,56 +40,56 @@ type AccountServiceClient interface {
 	// Authorization:
 	//
 	//	Scope: accounts:read
-	//	Permission: PERMISSION_ACCOUNTS_READ
+	//	Permission: accounts:read
 	//	Domain: organization-scoped
 	GetAccount(ctx context.Context, in *GetAccountRequest, opts ...grpc.CallOption) (*Account, error)
 	// Lists accounts with pagination.
 	// Authorization:
 	//
 	//	Scope: accounts:read
-	//	Permission: PERMISSION_ACCOUNTS_READ
+	//	Permission: accounts:read
 	//	Domain: organization-scoped
 	ListAccounts(ctx context.Context, in *ListAccountsRequest, opts ...grpc.CallOption) (*ListAccountsResponse, error)
 	// Lists all root accounts with their full nested subtrees (custom method).
 	// Authorization:
 	//
 	//	Scope: accounts:read
-	//	Permission: PERMISSION_ACCOUNTS_READ
+	//	Permission: accounts:read
 	//	Domain: organization-scoped
 	ListNestedAccounts(ctx context.Context, in *ListNestedAccountsRequest, opts ...grpc.CallOption) (*ListNestedAccountsResponse, error)
 	// Gets a single account's full nested subtree (custom method).
 	// Authorization:
 	//
 	//	Scope: accounts:read
-	//	Permission: PERMISSION_ACCOUNTS_READ
+	//	Permission: accounts:read
 	//	Domain: organization-scoped
 	GetNestedAccount(ctx context.Context, in *GetNestedAccountRequest, opts ...grpc.CallOption) (*GetNestedAccountResponse, error)
 	// Creates a new account.
 	// Authorization:
 	//
 	//	Scope: accounts:write
-	//	Permission: PERMISSION_ACCOUNTS_CREATE
+	//	Permission: accounts:create
 	//	Domain: organization-scoped
 	CreateAccount(ctx context.Context, in *CreateAccountRequest, opts ...grpc.CallOption) (*Account, error)
 	// Updates an existing account.
 	// Authorization:
 	//
 	//	Scope: accounts:write
-	//	Permission: PERMISSION_ACCOUNTS_UPDATE
+	//	Permission: accounts:update
 	//	Domain: organization-scoped
 	UpdateAccount(ctx context.Context, in *UpdateAccountRequest, opts ...grpc.CallOption) (*Account, error)
 	// Archives an account (soft-delete).
 	// Authorization:
 	//
 	//	Scope: accounts:write
-	//	Permission: PERMISSION_ACCOUNTS_ARCHIVE
+	//	Permission: accounts:archive
 	//	Domain: organization-scoped
 	ArchiveAccount(ctx context.Context, in *ArchiveAccountRequest, opts ...grpc.CallOption) (*Account, error)
 	// Permanently deletes an account.
 	// Authorization:
 	//
 	//	Scope: accounts:write
-	//	Permission: PERMISSION_ACCOUNTS_DELETE
+	//	Permission: accounts:delete
 	//	Domain: organization-scoped
 	DeleteAccount(ctx context.Context, in *DeleteAccountRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -192,56 +192,56 @@ type AccountServiceServer interface {
 	// Authorization:
 	//
 	//	Scope: accounts:read
-	//	Permission: PERMISSION_ACCOUNTS_READ
+	//	Permission: accounts:read
 	//	Domain: organization-scoped
 	GetAccount(context.Context, *GetAccountRequest) (*Account, error)
 	// Lists accounts with pagination.
 	// Authorization:
 	//
 	//	Scope: accounts:read
-	//	Permission: PERMISSION_ACCOUNTS_READ
+	//	Permission: accounts:read
 	//	Domain: organization-scoped
 	ListAccounts(context.Context, *ListAccountsRequest) (*ListAccountsResponse, error)
 	// Lists all root accounts with their full nested subtrees (custom method).
 	// Authorization:
 	//
 	//	Scope: accounts:read
-	//	Permission: PERMISSION_ACCOUNTS_READ
+	//	Permission: accounts:read
 	//	Domain: organization-scoped
 	ListNestedAccounts(context.Context, *ListNestedAccountsRequest) (*ListNestedAccountsResponse, error)
 	// Gets a single account's full nested subtree (custom method).
 	// Authorization:
 	//
 	//	Scope: accounts:read
-	//	Permission: PERMISSION_ACCOUNTS_READ
+	//	Permission: accounts:read
 	//	Domain: organization-scoped
 	GetNestedAccount(context.Context, *GetNestedAccountRequest) (*GetNestedAccountResponse, error)
 	// Creates a new account.
 	// Authorization:
 	//
 	//	Scope: accounts:write
-	//	Permission: PERMISSION_ACCOUNTS_CREATE
+	//	Permission: accounts:create
 	//	Domain: organization-scoped
 	CreateAccount(context.Context, *CreateAccountRequest) (*Account, error)
 	// Updates an existing account.
 	// Authorization:
 	//
 	//	Scope: accounts:write
-	//	Permission: PERMISSION_ACCOUNTS_UPDATE
+	//	Permission: accounts:update
 	//	Domain: organization-scoped
 	UpdateAccount(context.Context, *UpdateAccountRequest) (*Account, error)
 	// Archives an account (soft-delete).
 	// Authorization:
 	//
 	//	Scope: accounts:write
-	//	Permission: PERMISSION_ACCOUNTS_ARCHIVE
+	//	Permission: accounts:archive
 	//	Domain: organization-scoped
 	ArchiveAccount(context.Context, *ArchiveAccountRequest) (*Account, error)
 	// Permanently deletes an account.
 	// Authorization:
 	//
 	//	Scope: accounts:write
-	//	Permission: PERMISSION_ACCOUNTS_DELETE
+	//	Permission: accounts:delete
 	//	Domain: organization-scoped
 	DeleteAccount(context.Context, *DeleteAccountRequest) (*emptypb.Empty, error)
 }

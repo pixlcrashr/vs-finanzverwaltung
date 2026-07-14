@@ -131,7 +131,7 @@ service AccountGroupService {
   // Gets a single account group by resource name.
   // Authorization:
   //   Scope: accountGroups:read
-  //   Permission: PERMISSION_ACCOUNT_GROUPS_READ
+  //   Permission: accountGroups:read
   //   Domain: organization-scoped
   rpc GetAccountGroup(GetAccountGroupRequest) returns (AccountGroup) {
     option (google.api.http) = {get: "/v1/{name=organizations/*/accountGroups/*}"};
@@ -141,7 +141,7 @@ service AccountGroupService {
   // Lists account groups with pagination.
   // Authorization:
   //   Scope: accountGroups:read
-  //   Permission: PERMISSION_ACCOUNT_GROUPS_READ
+  //   Permission: accountGroups:read
   //   Domain: organization-scoped
   rpc ListAccountGroups(ListAccountGroupsRequest) returns (ListAccountGroupsResponse) {
     option (google.api.http) = {get: "/v1/{parent=organizations/*}/accountGroups"};
@@ -151,7 +151,7 @@ service AccountGroupService {
   // Creates a new account group.
   // Authorization:
   //   Scope: accountGroups:write
-  //   Permission: PERMISSION_ACCOUNT_GROUPS_CREATE
+  //   Permission: accountGroups:create
   //   Domain: organization-scoped
   rpc CreateAccountGroup(CreateAccountGroupRequest) returns (AccountGroup) {
     option (google.api.http) = {
@@ -164,7 +164,7 @@ service AccountGroupService {
   // Updates an existing account group.
   // Authorization:
   //   Scope: accountGroups:write
-  //   Permission: PERMISSION_ACCOUNT_GROUPS_UPDATE
+  //   Permission: accountGroups:update
   //   Domain: organization-scoped
   rpc UpdateAccountGroup(UpdateAccountGroupRequest) returns (AccountGroup) {
     option (google.api.http) = {
@@ -177,7 +177,7 @@ service AccountGroupService {
   // Permanently deletes an account group.
   // Authorization:
   //   Scope: accountGroups:write
-  //   Permission: PERMISSION_ACCOUNT_GROUPS_DELETE
+  //   Permission: accountGroups:delete
   //   Domain: organization-scoped
   rpc DeleteAccountGroup(DeleteAccountGroupRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/{name=organizations/*/accountGroups/*}"};

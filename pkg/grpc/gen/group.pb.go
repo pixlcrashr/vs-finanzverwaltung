@@ -25,66 +25,9 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// GroupOrganizationPolicy associates a set of permissions with a specific
-// organization for a group. A group may hold policies for multiple
-// organizations independently.
-type GroupOrganizationPolicy struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The resource name of the organization this policy applies to.
-	// Format: organizations/{organization}
-	Organization string `protobuf:"bytes,1,opt,name=organization,proto3" json:"organization,omitempty"`
-	// The set of permissions granted within the organization.
-	Permissions   []Permission `protobuf:"varint,2,rep,packed,name=permissions,proto3,enum=pixlcrashr.vsfv.v1.Permission" json:"permissions,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GroupOrganizationPolicy) Reset() {
-	*x = GroupOrganizationPolicy{}
-	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GroupOrganizationPolicy) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GroupOrganizationPolicy) ProtoMessage() {}
-
-func (x *GroupOrganizationPolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GroupOrganizationPolicy.ProtoReflect.Descriptor instead.
-func (*GroupOrganizationPolicy) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_group_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *GroupOrganizationPolicy) GetOrganization() string {
-	if x != nil {
-		return x.Organization
-	}
-	return ""
-}
-
-func (x *GroupOrganizationPolicy) GetPermissions() []Permission {
-	if x != nil {
-		return x.Permissions
-	}
-	return nil
-}
-
-// Group is a named collection of users that share a common set of permissions,
-// scoped per organization via GroupOrganizationPolicy.
+// Group is a named collection of users that share a common set of permissions.
+// Permissions are self-standing (not scoped per organization); instead,
+// groups are assigned to organizations via the organizations field.
 type Group struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The resource name of the group.
@@ -96,10 +39,12 @@ type Group struct {
 	DisplayName string `protobuf:"bytes,3,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
 	// Optional free-text description.
 	DisplayDescription string `protobuf:"bytes,4,opt,name=display_description,json=displayDescription,proto3" json:"display_description,omitempty"`
-	// Per-organization permission policies for this group.
-	// Each entry associates a distinct organization with a set of permissions.
-	// Multiple entries for the same organization are not allowed.
-	OrganizationPolicies []*GroupOrganizationPolicy `protobuf:"bytes,5,rep,name=organization_policies,json=organizationPolicies,proto3" json:"organization_policies,omitempty"`
+	// Organizations this group is assigned to (resource names).
+	// Format: organizations/{organization}
+	Organizations []string `protobuf:"bytes,5,rep,name=organizations,proto3" json:"organizations,omitempty"`
+	// Self-standing permissions granted to this group.
+	// Format: "resource:action" (e.g. "accounts:read", "users:update").
+	Permissions []string `protobuf:"bytes,9,rep,name=permissions,proto3" json:"permissions,omitempty"`
 	// Last modification timestamp.
 	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
 	// Creation timestamp.
@@ -112,7 +57,7 @@ type Group struct {
 
 func (x *Group) Reset() {
 	*x = Group{}
-	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[1]
+	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -124,7 +69,7 @@ func (x *Group) String() string {
 func (*Group) ProtoMessage() {}
 
 func (x *Group) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[1]
+	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -137,7 +82,7 @@ func (x *Group) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Group.ProtoReflect.Descriptor instead.
 func (*Group) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_group_proto_rawDescGZIP(), []int{1}
+	return file_pixlcrashr_vsfv_v1_group_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Group) GetName() string {
@@ -168,9 +113,16 @@ func (x *Group) GetDisplayDescription() string {
 	return ""
 }
 
-func (x *Group) GetOrganizationPolicies() []*GroupOrganizationPolicy {
+func (x *Group) GetOrganizations() []string {
 	if x != nil {
-		return x.OrganizationPolicies
+		return x.Organizations
+	}
+	return nil
+}
+
+func (x *Group) GetPermissions() []string {
+	if x != nil {
+		return x.Permissions
 	}
 	return nil
 }
@@ -207,7 +159,7 @@ type GetGroupRequest struct {
 
 func (x *GetGroupRequest) Reset() {
 	*x = GetGroupRequest{}
-	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[2]
+	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -219,7 +171,7 @@ func (x *GetGroupRequest) String() string {
 func (*GetGroupRequest) ProtoMessage() {}
 
 func (x *GetGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[2]
+	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -232,7 +184,7 @@ func (x *GetGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGroupRequest.ProtoReflect.Descriptor instead.
 func (*GetGroupRequest) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_group_proto_rawDescGZIP(), []int{2}
+	return file_pixlcrashr_vsfv_v1_group_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *GetGroupRequest) GetName() string {
@@ -260,7 +212,7 @@ type ListGroupsRequest struct {
 
 func (x *ListGroupsRequest) Reset() {
 	*x = ListGroupsRequest{}
-	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[3]
+	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -272,7 +224,7 @@ func (x *ListGroupsRequest) String() string {
 func (*ListGroupsRequest) ProtoMessage() {}
 
 func (x *ListGroupsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[3]
+	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -285,7 +237,7 @@ func (x *ListGroupsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListGroupsRequest.ProtoReflect.Descriptor instead.
 func (*ListGroupsRequest) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_group_proto_rawDescGZIP(), []int{3}
+	return file_pixlcrashr_vsfv_v1_group_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ListGroupsRequest) GetPageSize() int32 {
@@ -330,7 +282,7 @@ type ListGroupsResponse struct {
 
 func (x *ListGroupsResponse) Reset() {
 	*x = ListGroupsResponse{}
-	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[4]
+	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -342,7 +294,7 @@ func (x *ListGroupsResponse) String() string {
 func (*ListGroupsResponse) ProtoMessage() {}
 
 func (x *ListGroupsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[4]
+	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -355,7 +307,7 @@ func (x *ListGroupsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListGroupsResponse.ProtoReflect.Descriptor instead.
 func (*ListGroupsResponse) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_group_proto_rawDescGZIP(), []int{4}
+	return file_pixlcrashr_vsfv_v1_group_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ListGroupsResponse) GetGroups() []*Group {
@@ -392,7 +344,7 @@ type CreateGroupRequest struct {
 
 func (x *CreateGroupRequest) Reset() {
 	*x = CreateGroupRequest{}
-	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[5]
+	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -404,7 +356,7 @@ func (x *CreateGroupRequest) String() string {
 func (*CreateGroupRequest) ProtoMessage() {}
 
 func (x *CreateGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[5]
+	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -417,7 +369,7 @@ func (x *CreateGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateGroupRequest.ProtoReflect.Descriptor instead.
 func (*CreateGroupRequest) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_group_proto_rawDescGZIP(), []int{5}
+	return file_pixlcrashr_vsfv_v1_group_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *CreateGroupRequest) GetGroup() *Group {
@@ -446,7 +398,7 @@ type UpdateGroupRequest struct {
 
 func (x *UpdateGroupRequest) Reset() {
 	*x = UpdateGroupRequest{}
-	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[6]
+	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -458,7 +410,7 @@ func (x *UpdateGroupRequest) String() string {
 func (*UpdateGroupRequest) ProtoMessage() {}
 
 func (x *UpdateGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[6]
+	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -471,7 +423,7 @@ func (x *UpdateGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateGroupRequest.ProtoReflect.Descriptor instead.
 func (*UpdateGroupRequest) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_group_proto_rawDescGZIP(), []int{6}
+	return file_pixlcrashr_vsfv_v1_group_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *UpdateGroupRequest) GetGroup() *Group {
@@ -499,7 +451,7 @@ type DeleteGroupRequest struct {
 
 func (x *DeleteGroupRequest) Reset() {
 	*x = DeleteGroupRequest{}
-	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[7]
+	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -511,7 +463,7 @@ func (x *DeleteGroupRequest) String() string {
 func (*DeleteGroupRequest) ProtoMessage() {}
 
 func (x *DeleteGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[7]
+	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -524,7 +476,7 @@ func (x *DeleteGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteGroupRequest.ProtoReflect.Descriptor instead.
 func (*DeleteGroupRequest) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_group_proto_rawDescGZIP(), []int{7}
+	return file_pixlcrashr_vsfv_v1_group_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *DeleteGroupRequest) GetName() string {
@@ -538,17 +490,15 @@ var File_pixlcrashr_vsfv_v1_group_proto protoreflect.FileDescriptor
 
 const file_pixlcrashr_vsfv_v1_group_proto_rawDesc = "" +
 	"\n" +
-	"\x1epixlcrashr/vsfv/v1/group.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a#pixlcrashr/vsfv/v1/permission.proto\"\xae\x01\n" +
-	"\x17GroupOrganizationPolicy\x12L\n" +
-	"\forganization\x18\x01 \x01(\tB(\xe0A\x02\xfaA\"\n" +
-	" vsfv.pixlcrashr.dev/OrganizationR\forganization\x12E\n" +
-	"\vpermissions\x18\x02 \x03(\x0e2\x1e.pixlcrashr.vsfv.v1.PermissionB\x03\xe0A\x02R\vpermissions\"\xd1\x03\n" +
+	"\x1epixlcrashr/vsfv/v1/group.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe1\x03\n" +
 	"\x05Group\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x03R\x04name\x12\x1d\n" +
 	"\x03uid\x18\x02 \x01(\tB\v\xe0A\x03\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12&\n" +
 	"\fdisplay_name\x18\x03 \x01(\tB\x03\xe0A\x02R\vdisplayName\x124\n" +
-	"\x13display_description\x18\x04 \x01(\tB\x03\xe0A\x01R\x12displayDescription\x12e\n" +
-	"\x15organization_policies\x18\x05 \x03(\v2+.pixlcrashr.vsfv.v1.GroupOrganizationPolicyB\x03\xe0A\x01R\x14organizationPolicies\x12@\n" +
+	"\x13display_description\x18\x04 \x01(\tB\x03\xe0A\x01R\x12displayDescription\x12N\n" +
+	"\rorganizations\x18\x05 \x03(\tB(\xe0A\x01\xfaA\"\n" +
+	" vsfv.pixlcrashr.dev/OrganizationR\rorganizations\x12%\n" +
+	"\vpermissions\x18\t \x03(\tB\x03\xe0A\x01R\vpermissions\x12@\n" +
 	"\vupdate_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"updateTime\x12@\n" +
 	"\vcreate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
@@ -603,45 +553,41 @@ func file_pixlcrashr_vsfv_v1_group_proto_rawDescGZIP() []byte {
 	return file_pixlcrashr_vsfv_v1_group_proto_rawDescData
 }
 
-var file_pixlcrashr_vsfv_v1_group_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_pixlcrashr_vsfv_v1_group_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_pixlcrashr_vsfv_v1_group_proto_goTypes = []any{
-	(*GroupOrganizationPolicy)(nil), // 0: pixlcrashr.vsfv.v1.GroupOrganizationPolicy
-	(*Group)(nil),                   // 1: pixlcrashr.vsfv.v1.Group
-	(*GetGroupRequest)(nil),         // 2: pixlcrashr.vsfv.v1.GetGroupRequest
-	(*ListGroupsRequest)(nil),       // 3: pixlcrashr.vsfv.v1.ListGroupsRequest
-	(*ListGroupsResponse)(nil),      // 4: pixlcrashr.vsfv.v1.ListGroupsResponse
-	(*CreateGroupRequest)(nil),      // 5: pixlcrashr.vsfv.v1.CreateGroupRequest
-	(*UpdateGroupRequest)(nil),      // 6: pixlcrashr.vsfv.v1.UpdateGroupRequest
-	(*DeleteGroupRequest)(nil),      // 7: pixlcrashr.vsfv.v1.DeleteGroupRequest
-	(Permission)(0),                 // 8: pixlcrashr.vsfv.v1.Permission
-	(*timestamppb.Timestamp)(nil),   // 9: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),   // 10: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),           // 11: google.protobuf.Empty
+	(*Group)(nil),                 // 0: pixlcrashr.vsfv.v1.Group
+	(*GetGroupRequest)(nil),       // 1: pixlcrashr.vsfv.v1.GetGroupRequest
+	(*ListGroupsRequest)(nil),     // 2: pixlcrashr.vsfv.v1.ListGroupsRequest
+	(*ListGroupsResponse)(nil),    // 3: pixlcrashr.vsfv.v1.ListGroupsResponse
+	(*CreateGroupRequest)(nil),    // 4: pixlcrashr.vsfv.v1.CreateGroupRequest
+	(*UpdateGroupRequest)(nil),    // 5: pixlcrashr.vsfv.v1.UpdateGroupRequest
+	(*DeleteGroupRequest)(nil),    // 6: pixlcrashr.vsfv.v1.DeleteGroupRequest
+	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil), // 8: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),         // 9: google.protobuf.Empty
 }
 var file_pixlcrashr_vsfv_v1_group_proto_depIdxs = []int32{
-	8,  // 0: pixlcrashr.vsfv.v1.GroupOrganizationPolicy.permissions:type_name -> pixlcrashr.vsfv.v1.Permission
-	0,  // 1: pixlcrashr.vsfv.v1.Group.organization_policies:type_name -> pixlcrashr.vsfv.v1.GroupOrganizationPolicy
-	9,  // 2: pixlcrashr.vsfv.v1.Group.update_time:type_name -> google.protobuf.Timestamp
-	9,  // 3: pixlcrashr.vsfv.v1.Group.create_time:type_name -> google.protobuf.Timestamp
-	1,  // 4: pixlcrashr.vsfv.v1.ListGroupsResponse.groups:type_name -> pixlcrashr.vsfv.v1.Group
-	1,  // 5: pixlcrashr.vsfv.v1.CreateGroupRequest.group:type_name -> pixlcrashr.vsfv.v1.Group
-	1,  // 6: pixlcrashr.vsfv.v1.UpdateGroupRequest.group:type_name -> pixlcrashr.vsfv.v1.Group
-	10, // 7: pixlcrashr.vsfv.v1.UpdateGroupRequest.update_mask:type_name -> google.protobuf.FieldMask
-	2,  // 8: pixlcrashr.vsfv.v1.GroupService.GetGroup:input_type -> pixlcrashr.vsfv.v1.GetGroupRequest
-	3,  // 9: pixlcrashr.vsfv.v1.GroupService.ListGroups:input_type -> pixlcrashr.vsfv.v1.ListGroupsRequest
-	5,  // 10: pixlcrashr.vsfv.v1.GroupService.CreateGroup:input_type -> pixlcrashr.vsfv.v1.CreateGroupRequest
-	6,  // 11: pixlcrashr.vsfv.v1.GroupService.UpdateGroup:input_type -> pixlcrashr.vsfv.v1.UpdateGroupRequest
-	7,  // 12: pixlcrashr.vsfv.v1.GroupService.DeleteGroup:input_type -> pixlcrashr.vsfv.v1.DeleteGroupRequest
-	1,  // 13: pixlcrashr.vsfv.v1.GroupService.GetGroup:output_type -> pixlcrashr.vsfv.v1.Group
-	4,  // 14: pixlcrashr.vsfv.v1.GroupService.ListGroups:output_type -> pixlcrashr.vsfv.v1.ListGroupsResponse
-	1,  // 15: pixlcrashr.vsfv.v1.GroupService.CreateGroup:output_type -> pixlcrashr.vsfv.v1.Group
-	1,  // 16: pixlcrashr.vsfv.v1.GroupService.UpdateGroup:output_type -> pixlcrashr.vsfv.v1.Group
-	11, // 17: pixlcrashr.vsfv.v1.GroupService.DeleteGroup:output_type -> google.protobuf.Empty
-	13, // [13:18] is the sub-list for method output_type
-	8,  // [8:13] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	7,  // 0: pixlcrashr.vsfv.v1.Group.update_time:type_name -> google.protobuf.Timestamp
+	7,  // 1: pixlcrashr.vsfv.v1.Group.create_time:type_name -> google.protobuf.Timestamp
+	0,  // 2: pixlcrashr.vsfv.v1.ListGroupsResponse.groups:type_name -> pixlcrashr.vsfv.v1.Group
+	0,  // 3: pixlcrashr.vsfv.v1.CreateGroupRequest.group:type_name -> pixlcrashr.vsfv.v1.Group
+	0,  // 4: pixlcrashr.vsfv.v1.UpdateGroupRequest.group:type_name -> pixlcrashr.vsfv.v1.Group
+	8,  // 5: pixlcrashr.vsfv.v1.UpdateGroupRequest.update_mask:type_name -> google.protobuf.FieldMask
+	1,  // 6: pixlcrashr.vsfv.v1.GroupService.GetGroup:input_type -> pixlcrashr.vsfv.v1.GetGroupRequest
+	2,  // 7: pixlcrashr.vsfv.v1.GroupService.ListGroups:input_type -> pixlcrashr.vsfv.v1.ListGroupsRequest
+	4,  // 8: pixlcrashr.vsfv.v1.GroupService.CreateGroup:input_type -> pixlcrashr.vsfv.v1.CreateGroupRequest
+	5,  // 9: pixlcrashr.vsfv.v1.GroupService.UpdateGroup:input_type -> pixlcrashr.vsfv.v1.UpdateGroupRequest
+	6,  // 10: pixlcrashr.vsfv.v1.GroupService.DeleteGroup:input_type -> pixlcrashr.vsfv.v1.DeleteGroupRequest
+	0,  // 11: pixlcrashr.vsfv.v1.GroupService.GetGroup:output_type -> pixlcrashr.vsfv.v1.Group
+	3,  // 12: pixlcrashr.vsfv.v1.GroupService.ListGroups:output_type -> pixlcrashr.vsfv.v1.ListGroupsResponse
+	0,  // 13: pixlcrashr.vsfv.v1.GroupService.CreateGroup:output_type -> pixlcrashr.vsfv.v1.Group
+	0,  // 14: pixlcrashr.vsfv.v1.GroupService.UpdateGroup:output_type -> pixlcrashr.vsfv.v1.Group
+	9,  // 15: pixlcrashr.vsfv.v1.GroupService.DeleteGroup:output_type -> google.protobuf.Empty
+	11, // [11:16] is the sub-list for method output_type
+	6,  // [6:11] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_pixlcrashr_vsfv_v1_group_proto_init() }
@@ -649,14 +595,13 @@ func file_pixlcrashr_vsfv_v1_group_proto_init() {
 	if File_pixlcrashr_vsfv_v1_group_proto != nil {
 		return
 	}
-	file_pixlcrashr_vsfv_v1_permission_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pixlcrashr_vsfv_v1_group_proto_rawDesc), len(file_pixlcrashr_vsfv_v1_group_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

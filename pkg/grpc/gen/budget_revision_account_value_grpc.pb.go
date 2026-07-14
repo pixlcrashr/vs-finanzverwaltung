@@ -35,14 +35,14 @@ type BudgetRevisionAccountValueServiceClient interface {
 	// Authorization:
 	//
 	//	Scope: budgets:read
-	//	Permission: PERMISSION_BUDGETS_READ
+	//	Permission: budgets:read
 	//	Domain: organization-scoped
 	GetBudgetRevisionAccountValue(ctx context.Context, in *GetBudgetRevisionAccountValueRequest, opts ...grpc.CallOption) (*BudgetRevisionAccountValue, error)
 	// Lists the account values captured in a revision, with pagination.
 	// Authorization:
 	//
 	//	Scope: budgets:read
-	//	Permission: PERMISSION_BUDGETS_READ
+	//	Permission: budgets:read
 	//	Domain: organization-scoped
 	ListBudgetRevisionAccountValues(ctx context.Context, in *ListBudgetRevisionAccountValuesRequest, opts ...grpc.CallOption) (*ListBudgetRevisionAccountValuesResponse, error)
 }
@@ -87,14 +87,14 @@ type BudgetRevisionAccountValueServiceServer interface {
 	// Authorization:
 	//
 	//	Scope: budgets:read
-	//	Permission: PERMISSION_BUDGETS_READ
+	//	Permission: budgets:read
 	//	Domain: organization-scoped
 	GetBudgetRevisionAccountValue(context.Context, *GetBudgetRevisionAccountValueRequest) (*BudgetRevisionAccountValue, error)
 	// Lists the account values captured in a revision, with pagination.
 	// Authorization:
 	//
 	//	Scope: budgets:read
-	//	Permission: PERMISSION_BUDGETS_READ
+	//	Permission: budgets:read
 	//	Domain: organization-scoped
 	ListBudgetRevisionAccountValues(context.Context, *ListBudgetRevisionAccountValuesRequest) (*ListBudgetRevisionAccountValuesResponse, error)
 }

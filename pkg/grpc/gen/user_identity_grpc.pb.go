@@ -34,14 +34,14 @@ type UserIdentityServiceClient interface {
 	// Authorization:
 	//
 	//	Scope: users:read
-	//	Permission: PERMISSION_USERS_READ
+	//	Permission: users:read
 	//	Domain: global
 	GetUserIdentity(ctx context.Context, in *GetUserIdentityRequest, opts ...grpc.CallOption) (*UserIdentity, error)
 	// Lists all identity records for a user.
 	// Authorization:
 	//
 	//	Scope: users:read
-	//	Permission: PERMISSION_USERS_READ
+	//	Permission: users:read
 	//	Domain: global
 	ListUserIdentities(ctx context.Context, in *ListUserIdentitiesRequest, opts ...grpc.CallOption) (*ListUserIdentitiesResponse, error)
 }
@@ -85,14 +85,14 @@ type UserIdentityServiceServer interface {
 	// Authorization:
 	//
 	//	Scope: users:read
-	//	Permission: PERMISSION_USERS_READ
+	//	Permission: users:read
 	//	Domain: global
 	GetUserIdentity(context.Context, *GetUserIdentityRequest) (*UserIdentity, error)
 	// Lists all identity records for a user.
 	// Authorization:
 	//
 	//	Scope: users:read
-	//	Permission: PERMISSION_USERS_READ
+	//	Permission: users:read
 	//	Domain: global
 	ListUserIdentities(context.Context, *ListUserIdentitiesRequest) (*ListUserIdentitiesResponse, error)
 }

@@ -97,7 +97,7 @@ service BudgetActualAccountValueService {
   // Gets the computed actual value for a single account within a budget.
   // Authorization:
   //   Scope: budgets:read
-  //   Permission: PERMISSION_BUDGETS_READ
+  //   Permission: budgets:read
   //   Domain: organization-scoped
   rpc GetBudgetActualAccountValue(GetBudgetActualAccountValueRequest) returns (BudgetActualAccountValue) {
     option (google.api.http) = {get: "/v1/{name=organizations/*/budgets/*/actualAccountValues/*}"};
@@ -107,7 +107,7 @@ service BudgetActualAccountValueService {
   // Lists computed actual account values for a budget, with pagination.
   // Authorization:
   //   Scope: budgets:read
-  //   Permission: PERMISSION_BUDGETS_READ
+  //   Permission: budgets:read
   //   Domain: organization-scoped
   rpc ListBudgetActualAccountValues(ListBudgetActualAccountValuesRequest) returns (ListBudgetActualAccountValuesResponse) {
     option (google.api.http) = {get: "/v1/{parent=organizations/*/budgets/*}/actualAccountValues"};

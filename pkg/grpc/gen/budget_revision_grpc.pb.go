@@ -36,14 +36,14 @@ type BudgetRevisionServiceClient interface {
 	// Authorization:
 	//
 	//	Scope: budgets:read
-	//	Permission: PERMISSION_BUDGETS_READ
+	//	Permission: budgets:read
 	//	Domain: organization-scoped
 	GetBudgetRevision(ctx context.Context, in *GetBudgetRevisionRequest, opts ...grpc.CallOption) (*BudgetRevision, error)
 	// Lists revisions for a budget in reverse chronological order.
 	// Authorization:
 	//
 	//	Scope: budgets:read
-	//	Permission: PERMISSION_BUDGETS_READ
+	//	Permission: budgets:read
 	//	Domain: organization-scoped
 	ListBudgetRevisions(ctx context.Context, in *ListBudgetRevisionsRequest, opts ...grpc.CallOption) (*ListBudgetRevisionsResponse, error)
 	// Creates a new revision by capturing the current state of all
@@ -51,7 +51,7 @@ type BudgetRevisionServiceClient interface {
 	// Authorization:
 	//
 	//	Scope: budgets:write
-	//	Permission: PERMISSION_BUDGETS_CREATE
+	//	Permission: budgets:create
 	//	Domain: organization-scoped
 	CreateBudgetRevision(ctx context.Context, in *CreateBudgetRevisionRequest, opts ...grpc.CallOption) (*BudgetRevision, error)
 }
@@ -106,14 +106,14 @@ type BudgetRevisionServiceServer interface {
 	// Authorization:
 	//
 	//	Scope: budgets:read
-	//	Permission: PERMISSION_BUDGETS_READ
+	//	Permission: budgets:read
 	//	Domain: organization-scoped
 	GetBudgetRevision(context.Context, *GetBudgetRevisionRequest) (*BudgetRevision, error)
 	// Lists revisions for a budget in reverse chronological order.
 	// Authorization:
 	//
 	//	Scope: budgets:read
-	//	Permission: PERMISSION_BUDGETS_READ
+	//	Permission: budgets:read
 	//	Domain: organization-scoped
 	ListBudgetRevisions(context.Context, *ListBudgetRevisionsRequest) (*ListBudgetRevisionsResponse, error)
 	// Creates a new revision by capturing the current state of all
@@ -121,7 +121,7 @@ type BudgetRevisionServiceServer interface {
 	// Authorization:
 	//
 	//	Scope: budgets:write
-	//	Permission: PERMISSION_BUDGETS_CREATE
+	//	Permission: budgets:create
 	//	Domain: organization-scoped
 	CreateBudgetRevision(context.Context, *CreateBudgetRevisionRequest) (*BudgetRevision, error)
 }

@@ -54,7 +54,7 @@ func (s *accountServiceServer) GetAccount(ctx context.Context, req *gen.GetAccou
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionRead, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionRead, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -90,7 +90,7 @@ func (s *accountServiceServer) ListAccounts(ctx context.Context, req *gen.ListAc
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionRead, pn.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionRead, authz.OrgDomain(pn.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -152,7 +152,7 @@ func (s *accountServiceServer) ListNestedAccounts(ctx context.Context, req *gen.
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionRead, pn.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionRead, authz.OrgDomain(pn.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -190,7 +190,7 @@ func (s *accountServiceServer) GetNestedAccount(ctx context.Context, req *gen.Ge
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionRead, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionRead, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -230,7 +230,7 @@ func (s *accountServiceServer) CreateAccount(ctx context.Context, req *gen.Creat
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionCreate, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionCreate, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -306,7 +306,7 @@ func (s *accountServiceServer) UpdateAccount(ctx context.Context, req *gen.Updat
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionUpdate, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionUpdate, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -359,7 +359,7 @@ func (s *accountServiceServer) ArchiveAccount(ctx context.Context, req *gen.Arch
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionArchive, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionArchive, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -409,7 +409,7 @@ func (s *accountServiceServer) DeleteAccount(ctx context.Context, req *gen.Delet
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionDelete, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionDelete, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 

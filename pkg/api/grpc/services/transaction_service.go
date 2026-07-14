@@ -47,7 +47,7 @@ func (s *transactionServiceServer) GetTransaction(ctx context.Context, req *gen.
 		return nil, &ServerError{Err: err, Status: statusInvalidTransactionName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionRead, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionRead, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -85,7 +85,7 @@ func (s *transactionServiceServer) ListTransactions(ctx context.Context, req *ge
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionRead, pn.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionRead, authz.OrgDomain(pn.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -145,7 +145,7 @@ func (s *transactionServiceServer) CreateTransaction(ctx context.Context, req *g
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionCreate, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionCreate, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -227,7 +227,7 @@ func (s *transactionServiceServer) UpdateTransaction(ctx context.Context, req *g
 		return nil, &ServerError{Err: err, Status: statusInvalidTransactionName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionUpdate, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionUpdate, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -289,7 +289,7 @@ func (s *transactionServiceServer) DeleteTransaction(ctx context.Context, req *g
 		return nil, &ServerError{Err: err, Status: statusInvalidTransactionName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionDelete, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionDelete, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 

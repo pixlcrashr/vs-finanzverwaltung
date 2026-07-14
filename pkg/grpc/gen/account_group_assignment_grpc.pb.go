@@ -37,35 +37,35 @@ type AccountGroupAssignmentServiceClient interface {
 	// Authorization:
 	//
 	//	Scope: accountGroups:read
-	//	Permission: PERMISSION_ACCOUNT_GROUPS_READ
+	//	Permission: accountGroups:read
 	//	Domain: organization-scoped
 	GetAccountGroupAssignment(ctx context.Context, in *GetAccountGroupAssignmentRequest, opts ...grpc.CallOption) (*AccountGroupAssignment, error)
 	// Lists assignments for an account group.
 	// Authorization:
 	//
 	//	Scope: accountGroups:read
-	//	Permission: PERMISSION_ACCOUNT_GROUPS_READ
+	//	Permission: accountGroups:read
 	//	Domain: organization-scoped
 	ListAccountGroupAssignments(ctx context.Context, in *ListAccountGroupAssignmentsRequest, opts ...grpc.CallOption) (*ListAccountGroupAssignmentsResponse, error)
 	// Creates a new assignment.
 	// Authorization:
 	//
 	//	Scope: accountGroups:write
-	//	Permission: PERMISSION_ACCOUNT_GROUPS_CREATE
+	//	Permission: accountGroups:create
 	//	Domain: organization-scoped
 	CreateAccountGroupAssignment(ctx context.Context, in *CreateAccountGroupAssignmentRequest, opts ...grpc.CallOption) (*AccountGroupAssignment, error)
 	// Updates an existing assignment.
 	// Authorization:
 	//
 	//	Scope: accountGroups:write
-	//	Permission: PERMISSION_ACCOUNT_GROUPS_UPDATE
+	//	Permission: accountGroups:update
 	//	Domain: organization-scoped
 	UpdateAccountGroupAssignment(ctx context.Context, in *UpdateAccountGroupAssignmentRequest, opts ...grpc.CallOption) (*AccountGroupAssignment, error)
 	// Permanently deletes an assignment.
 	// Authorization:
 	//
 	//	Scope: accountGroups:write
-	//	Permission: PERMISSION_ACCOUNT_GROUPS_DELETE
+	//	Permission: accountGroups:delete
 	//	Domain: organization-scoped
 	DeleteAccountGroupAssignment(ctx context.Context, in *DeleteAccountGroupAssignmentRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -138,35 +138,35 @@ type AccountGroupAssignmentServiceServer interface {
 	// Authorization:
 	//
 	//	Scope: accountGroups:read
-	//	Permission: PERMISSION_ACCOUNT_GROUPS_READ
+	//	Permission: accountGroups:read
 	//	Domain: organization-scoped
 	GetAccountGroupAssignment(context.Context, *GetAccountGroupAssignmentRequest) (*AccountGroupAssignment, error)
 	// Lists assignments for an account group.
 	// Authorization:
 	//
 	//	Scope: accountGroups:read
-	//	Permission: PERMISSION_ACCOUNT_GROUPS_READ
+	//	Permission: accountGroups:read
 	//	Domain: organization-scoped
 	ListAccountGroupAssignments(context.Context, *ListAccountGroupAssignmentsRequest) (*ListAccountGroupAssignmentsResponse, error)
 	// Creates a new assignment.
 	// Authorization:
 	//
 	//	Scope: accountGroups:write
-	//	Permission: PERMISSION_ACCOUNT_GROUPS_CREATE
+	//	Permission: accountGroups:create
 	//	Domain: organization-scoped
 	CreateAccountGroupAssignment(context.Context, *CreateAccountGroupAssignmentRequest) (*AccountGroupAssignment, error)
 	// Updates an existing assignment.
 	// Authorization:
 	//
 	//	Scope: accountGroups:write
-	//	Permission: PERMISSION_ACCOUNT_GROUPS_UPDATE
+	//	Permission: accountGroups:update
 	//	Domain: organization-scoped
 	UpdateAccountGroupAssignment(context.Context, *UpdateAccountGroupAssignmentRequest) (*AccountGroupAssignment, error)
 	// Permanently deletes an assignment.
 	// Authorization:
 	//
 	//	Scope: accountGroups:write
-	//	Permission: PERMISSION_ACCOUNT_GROUPS_DELETE
+	//	Permission: accountGroups:delete
 	//	Domain: organization-scoped
 	DeleteAccountGroupAssignment(context.Context, *DeleteAccountGroupAssignmentRequest) (*emptypb.Empty, error)
 }

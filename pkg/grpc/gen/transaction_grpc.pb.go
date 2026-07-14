@@ -37,35 +37,35 @@ type TransactionServiceClient interface {
 	// Authorization:
 	//
 	//	Scope: transactions:read
-	//	Permission: PERMISSION_TRANSACTIONS_READ
+	//	Permission: transactions:read
 	//	Domain: organization-scoped
 	GetTransaction(ctx context.Context, in *GetTransactionRequest, opts ...grpc.CallOption) (*Transaction, error)
 	// Lists transactions with keyset pagination and optional filters.
 	// Authorization:
 	//
 	//	Scope: transactions:read
-	//	Permission: PERMISSION_TRANSACTIONS_READ
+	//	Permission: transactions:read
 	//	Domain: organization-scoped
 	ListTransactions(ctx context.Context, in *ListTransactionsRequest, opts ...grpc.CallOption) (*ListTransactionsResponse, error)
 	// Creates a new transaction.
 	// Authorization:
 	//
 	//	Scope: transactions:write
-	//	Permission: PERMISSION_TRANSACTIONS_CREATE (note: not yet defined in permission.proto)
+	//	Permission: transactions:create
 	//	Domain: organization-scoped
 	CreateTransaction(ctx context.Context, in *CreateTransactionRequest, opts ...grpc.CallOption) (*Transaction, error)
 	// Updates an existing transaction.
 	// Authorization:
 	//
 	//	Scope: transactions:write
-	//	Permission: PERMISSION_TRANSACTIONS_UPDATE
+	//	Permission: transactions:update
 	//	Domain: organization-scoped
 	UpdateTransaction(ctx context.Context, in *UpdateTransactionRequest, opts ...grpc.CallOption) (*Transaction, error)
 	// Permanently deletes a transaction.
 	// Authorization:
 	//
 	//	Scope: transactions:write
-	//	Permission: PERMISSION_TRANSACTIONS_DELETE
+	//	Permission: transactions:delete
 	//	Domain: organization-scoped
 	DeleteTransaction(ctx context.Context, in *DeleteTransactionRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -138,35 +138,35 @@ type TransactionServiceServer interface {
 	// Authorization:
 	//
 	//	Scope: transactions:read
-	//	Permission: PERMISSION_TRANSACTIONS_READ
+	//	Permission: transactions:read
 	//	Domain: organization-scoped
 	GetTransaction(context.Context, *GetTransactionRequest) (*Transaction, error)
 	// Lists transactions with keyset pagination and optional filters.
 	// Authorization:
 	//
 	//	Scope: transactions:read
-	//	Permission: PERMISSION_TRANSACTIONS_READ
+	//	Permission: transactions:read
 	//	Domain: organization-scoped
 	ListTransactions(context.Context, *ListTransactionsRequest) (*ListTransactionsResponse, error)
 	// Creates a new transaction.
 	// Authorization:
 	//
 	//	Scope: transactions:write
-	//	Permission: PERMISSION_TRANSACTIONS_CREATE (note: not yet defined in permission.proto)
+	//	Permission: transactions:create
 	//	Domain: organization-scoped
 	CreateTransaction(context.Context, *CreateTransactionRequest) (*Transaction, error)
 	// Updates an existing transaction.
 	// Authorization:
 	//
 	//	Scope: transactions:write
-	//	Permission: PERMISSION_TRANSACTIONS_UPDATE
+	//	Permission: transactions:update
 	//	Domain: organization-scoped
 	UpdateTransaction(context.Context, *UpdateTransactionRequest) (*Transaction, error)
 	// Permanently deletes a transaction.
 	// Authorization:
 	//
 	//	Scope: transactions:write
-	//	Permission: PERMISSION_TRANSACTIONS_DELETE
+	//	Permission: transactions:delete
 	//	Domain: organization-scoped
 	DeleteTransaction(context.Context, *DeleteTransactionRequest) (*emptypb.Empty, error)
 }

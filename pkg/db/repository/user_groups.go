@@ -9,7 +9,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
-	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
+	"github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"github.com/theater-improrama/go-utils/optional"
@@ -48,16 +48,20 @@ type CreateUserGroupParams struct {
 	DisplayName        string
 	DisplayDescription string
 	CustomID           string
-	// OrganizationPolicies is a map from organization custom ID to the list of
-	// proto Permission enum values to grant.
-	OrganizationPolicies map[string][]gen.Permission
+	// Organizations is a list of organization resource names
+	// (e.g. "organizations/{org}")
+	Organizations []string
+	// Permissions is a list of "resource:action" strings.
+	Permissions []string
 }
 
 type UpdateUserGroupParams struct {
 	DisplayName        optional.Optional[string]
 	DisplayDescription optional.Optional[string]
-	// OrganizationPolicies, when IsSet, replaces the entire policy set.
-	OrganizationPolicies optional.Optional[map[string][]gen.Permission]
+	// Organizations, when IsSet, replaces all group-to-organization assignments.
+	Organizations optional.Optional[[]string]
+	// Permissions, when IsSet, replaces all permissions.
+	Permissions optional.Optional[[]string]
 }
 
 type UserGroupRepository struct {
@@ -148,9 +152,9 @@ func (r *UserGroupRepository) Create(ctx context.Context, params CreateUserGroup
 		return nil, fmt.Errorf("create user group: %w", err)
 	}
 
-	if params.OrganizationPolicies != nil {
-		if err := r.syncPolicies(m.ID.String(), params.OrganizationPolicies); err != nil {
-			return nil, fmt.Errorf("create user group sync policies: %w", err)
+	if params.Organizations != nil || params.Permissions != nil {
+		if err := r.syncAssignmentsAndPolicies(ctx, m.ID, params.Organizations, params.Permissions); err != nil {
+			return nil, fmt.Errorf("create user group sync: %w", err)
 		}
 	}
 
@@ -179,9 +183,17 @@ func (r *UserGroupRepository) Update(ctx context.Context, id uuid.UUID, params U
 		return fmt.Errorf("update user group id=%s: %w", m.ID, err)
 	}
 
-	if params.OrganizationPolicies.IsSet {
-		if err := r.syncPolicies(m.ID.String(), params.OrganizationPolicies.Value); err != nil {
-			return fmt.Errorf("update user group sync policies id=%s: %w", m.ID, err)
+	if params.Organizations.IsSet || params.Permissions.IsSet {
+		var orgs []string
+		var perms []string
+		if params.Organizations.IsSet {
+			orgs = params.Organizations.Value
+		}
+		if params.Permissions.IsSet {
+			perms = params.Permissions.Value
+		}
+		if err := r.syncAssignmentsAndPolicies(ctx, m.ID, orgs, perms); err != nil {
+			return fmt.Errorf("update user group sync id=%s: %w", m.ID, err)
 		}
 	}
 
@@ -211,6 +223,11 @@ func (r *UserGroupRepository) Delete(ctx context.Context, id uuid.UUID) error {
 		return fmt.Errorf("delete user group remove policies id=%s: %w", id, err)
 	}
 
+	// Remove all casbin g3 assignments for this group.
+	if _, err := r.enforcer.RemoveAllGroupOrgAssignments(id.String()); err != nil {
+		return fmt.Errorf("delete user group remove org assignments id=%s: %w", id, err)
+	}
+
 	if err := r.enforcer.Flush(); err != nil {
 		return fmt.Errorf("delete user group flush policies id=%s: %w", id, err)
 	}
@@ -218,70 +235,110 @@ func (r *UserGroupRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-// syncPolicies replaces all casbin policies for the given group (role = groupID)
-// with the provided organization→permissions mapping. It then flushes the enforcer.
+// syncAssignmentsAndPolicies replaces all group-to-organization assignments
+// (both in the GORM table and casbin g3) and all casbin policies (p) for the
+// given group. It then flushes the enforcer.
 //
-// Casbin policy format (domain-aware):
-//
-//	p, <group_uuid>, <org_custom_id>, <resource>, <action>
-//
-// The organization custom ID is used as the casbin domain so that
-// group assignments and policies are scoped per organization.
-func (r *UserGroupRepository) syncPolicies(groupID string, policies map[string][]gen.Permission) error {
-	// 1. Remove all existing policies for this group.
-	if _, err := r.enforcer.RemoveFilteredPolicy(0, groupID); err != nil {
-		return fmt.Errorf("remove old policies for group %s: %w", groupID, err)
-	}
+// GORM table is the source of truth for org assignments; casbin g3 is synced
+// from it. Casbin p policies are self-standing (no domain).
+func (r *UserGroupRepository) syncAssignmentsAndPolicies(ctx context.Context, groupID uuid.UUID, organizations, permissions []string) error {
+	groupIDStr := groupID.String()
 
-	// 2. Add new policies.
-	for orgCustomID, perms := range policies {
-		for _, pp := range perms {
-			p, ok := authz.PermissionFromProto(pp)
-			if !ok {
+	// 1. Sync GORM table (source of truth for org assignments).
+	if organizations != nil {
+		// Delete existing assignments.
+		if err := r.db.WithContext(ctx).Where("user_group_id = ?", groupID).Delete(&model.GroupOrganization{}).Error; err != nil {
+			return fmt.Errorf("delete old group org assignments for group %s: %w", groupIDStr, err)
+		}
+		// Insert new assignments.
+		for _, orgRN := range organizations {
+			var on gen.OrganizationResourceName
+			if err := on.UnmarshalString(orgRN); err != nil {
 				continue
 			}
-			// Global permissions (users, groups, settings) use empty domain;
-			// org-scoped permissions use the organization custom ID.
-			dom := orgCustomID
-			if authz.GlobalResources[p.Resource] {
-				dom = authz.GlobalDomain
+			orgID, err := uuid.Parse(on.Organization)
+			if err != nil {
+				continue
 			}
-			if _, err := r.enforcer.AddPolicy(groupID, dom, p.Resource, p.Action); err != nil {
-				return fmt.Errorf("add policy group=%s dom=%s obj=%s act=%s: %w", groupID, dom, p.Resource, p.Action, err)
+			assignment := &model.GroupOrganization{
+				UserGroupID:    groupID,
+				OrganizationID: orgID,
+			}
+			if err := r.db.WithContext(ctx).Create(assignment).Error; err != nil {
+				return fmt.Errorf("create group org assignment group=%s org=%s: %w", groupIDStr, orgID, err)
 			}
 		}
 	}
 
-	// 3. Flush to ensure all consumers see updated policies.
+	// 2. Sync casbin g3 (derived from GORM).
+	if _, err := r.enforcer.RemoveAllGroupOrgAssignments(groupIDStr); err != nil {
+		return fmt.Errorf("remove old g3 assignments for group %s: %w", groupIDStr, err)
+	}
+	// Every group gets g3(group, "") for global access.
+	if _, err := r.enforcer.AddGroupOrgAssignment(groupIDStr, authz.GlobalDomain); err != nil {
+		return fmt.Errorf("add g3 global for group %s: %w", groupIDStr, err)
+	}
+	for _, orgRN := range organizations {
+		var on gen.OrganizationResourceName
+		if err := on.UnmarshalString(orgRN); err != nil {
+			continue
+		}
+		if _, err := r.enforcer.AddGroupOrgAssignment(groupIDStr, authz.OrgDomain(on.Organization)); err != nil {
+			return fmt.Errorf("add g3 group=%s org=%s: %w", groupIDStr, on.Organization, err)
+		}
+	}
+
+	// 3. Sync casbin p policies.
+	if permissions != nil {
+		if _, err := r.enforcer.RemoveFilteredPolicy(0, groupIDStr); err != nil {
+			return fmt.Errorf("remove old policies for group %s: %w", groupIDStr, err)
+		}
+		for _, permStr := range permissions {
+			p, ok := authz.ParsePermission(permStr)
+			if !ok {
+				continue
+			}
+			if _, err := r.enforcer.AddPolicy(groupIDStr, p.Resource, p.Action); err != nil {
+				return fmt.Errorf("add policy group=%s obj=%s act=%s: %w", groupIDStr, p.Resource, p.Action, err)
+			}
+		}
+	}
+
+	// 4. Flush to ensure all consumers see updated policies.
 	return r.enforcer.Flush()
 }
 
-// GetOrganizationPolicies reads casbin policies for a group and returns them
-// as a map from organization custom ID to proto permissions.
-func (r *UserGroupRepository) GetOrganizationPolicies(groupID string) (map[string][]gen.Permission, error) {
+// GetOrganizations reads the group-to-organization assignments from the GORM
+// table and returns them as organization resource names.
+func (r *UserGroupRepository) GetOrganizations(ctx context.Context, groupID uuid.UUID) ([]string, error) {
+	var assignments []model.GroupOrganization
+	if err := r.db.WithContext(ctx).
+		Preload("Organization").
+		Where("user_group_id = ?", groupID).
+		Find(&assignments).Error; err != nil {
+		return nil, fmt.Errorf("get organizations for group %s: %w", groupID, err)
+	}
+	var result []string
+	for _, a := range assignments {
+		result = append(result, gen.OrganizationResourceName{Organization: a.Organization.CustomID}.String())
+	}
+	return result, nil
+}
+
+// GetPermissions reads the casbin policies for a group and returns them
+// as "resource:action" strings.
+func (r *UserGroupRepository) GetPermissions(groupID string) ([]string, error) {
 	perms, err := r.enforcer.GetPermissionsForUser(groupID)
 	if err != nil {
 		return nil, fmt.Errorf("get permissions for group %s: %w", groupID, err)
 	}
-
-	result := make(map[string][]gen.Permission)
+	var result []string
 	for _, p := range perms {
-		// p = [groupID, dom, obj, act]
-		if len(p) < 4 {
+		// p = [groupID, resource, action]
+		if len(p) < 3 {
 			continue
 		}
-		orgCustomID := p[1]
-		resource := p[2]
-		act := p[3]
-
-		perm := authz.Permission{Resource: resource, Action: act}
-		protoPerm, ok := authz.ReversePermissions[perm]
-		if !ok {
-			continue
-		}
-
-		result[orgCustomID] = append(result[orgCustomID], protoPerm)
+		result = append(result, p[1]+":"+p[2])
 	}
-
 	return result, nil
 }

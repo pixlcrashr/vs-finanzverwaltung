@@ -78,7 +78,7 @@ paths:
         Lists groups with pagination.
         Authorization:
           Scope: groups:read
-          Permission: PERMISSION_GROUPS_READ
+          Permission: groups:read
           Domain: global
       operationId: GroupService_ListGroups
       responses:
@@ -123,7 +123,7 @@ paths:
         Creates a new group.
         Authorization:
           Scope: groups:write
-          Permission: PERMISSION_GROUPS_CREATE
+          Permission: groups:create
           Domain: global
       operationId: GroupService_CreateGroup
       responses:
@@ -157,7 +157,7 @@ paths:
         Lists organizations with pagination.
         Authorization:
           Scope: organizations:read
-          Permission: PERMISSION_ORGANIZATIONS_READ
+          Permission: organizations:read
           Domain: global
       operationId: OrganizationService_ListOrganizations
       responses:
@@ -203,7 +203,7 @@ paths:
         Creates a new organization.
         Authorization:
           Scope: organizations:write
-          Permission: PERMISSION_ORGANIZATIONS_CREATE
+          Permission: organizations:create
           Domain: global
       operationId: OrganizationService_CreateOrganization
       responses:
@@ -237,7 +237,7 @@ paths:
         Checks whether an organization ID (slug) is available for use.
         Authorization:
           Scope: organizations:read
-          Permission: PERMISSION_ORGANIZATIONS_READ
+          Permission: organizations:read
           Domain: global
       operationId: OrganizationService_CheckOrganizationId
       responses:
@@ -263,7 +263,7 @@ paths:
         Lists users with pagination.
         Authorization:
           Scope: users:read
-          Permission: PERMISSION_USERS_READ
+          Permission: users:read
           Domain: global
       operationId: UserService_ListUsers
       responses:
@@ -306,11 +306,11 @@ paths:
   /v1/users:batchCheckPermissions:
     post:
       summary: |-
-        Checks global permissions for multiple users in one call
-        (batch custom method, AIP-231).
+        Checks permissions for one or more users in one call, each optionally
+        scoped to a different domain (batch custom method, AIP-231).
         Authorization:
           Scope: users:read
-          Permission: PERMISSION_USERS_READ
+          Permission: users:read
           Domain: global
       operationId: UserService_BatchCheckUserPermissions
       responses:
@@ -325,8 +325,9 @@ paths:
       parameters:
         - name: body
           description: |-
-            BatchCheckUserPermissionsRequest checks global permissions for multiple
-            users in one call (AIP-231 batch pattern).
+            BatchCheckUserPermissionsRequest checks permissions for one or more users
+            in a single call (AIP-231 batch pattern). Each entry can target a different
+            domain (or the global domain when domain is empty).
           in: body
           required: true
           schema:
@@ -339,7 +340,7 @@ paths:
         Updates an existing account.
         Authorization:
           Scope: accounts:write
-          Permission: PERMISSION_ACCOUNTS_UPDATE
+          Permission: accounts:update
           Domain: organization-scoped
       operationId: AccountService_UpdateAccount
       responses:
@@ -420,7 +421,7 @@ paths:
         Updates an existing account group.
         Authorization:
           Scope: accountGroups:write
-          Permission: PERMISSION_ACCOUNT_GROUPS_UPDATE
+          Permission: accountGroups:update
           Domain: organization-scoped
       operationId: AccountGroupService_UpdateAccountGroup
       responses:
@@ -483,7 +484,7 @@ paths:
         Updates an existing budget account value.
         Authorization:
           Scope: budgets:write
-          Permission: PERMISSION_BUDGETS_UPDATE
+          Permission: budgets:update
           Domain: organization-scoped
       operationId: BudgetAccountValueService_UpdateBudgetAccountValue
       responses:
@@ -560,7 +561,7 @@ paths:
         Updates an existing assignment.
         Authorization:
           Scope: accountGroups:write
-          Permission: PERMISSION_ACCOUNT_GROUPS_UPDATE
+          Permission: accountGroups:update
           Domain: organization-scoped
       operationId: AccountGroupAssignmentService_UpdateAccountGroupAssignment
       responses:
@@ -629,7 +630,7 @@ paths:
         Updates an existing budget.
         Authorization:
           Scope: budgets:write
-          Permission: PERMISSION_BUDGETS_UPDATE
+          Permission: budgets:update
           Domain: organization-scoped
       operationId: BudgetService_UpdateBudget
       responses:
@@ -704,7 +705,7 @@ paths:
         Updates an existing group.
         Authorization:
           Scope: groups:write
-          Permission: PERMISSION_GROUPS_UPDATE
+          Permission: groups:update
           Domain: global
       operationId: GroupService_UpdateGroup
       responses:
@@ -742,15 +743,20 @@ paths:
               display_description:
                 type: string
                 description: Optional free-text description.
-              organization_policies:
+              organizations:
                 type: array
                 items:
-                  type: object
-                  $ref: '#/definitions/v1GroupOrganizationPolicy'
+                  type: string
+                title: |-
+                  Organizations this group is assigned to (resource names).
+                  Format: organizations/{organization}
+              permissions:
+                type: array
+                items:
+                  type: string
                 description: |-
-                  Per-organization permission policies for this group.
-                  Each entry associates a distinct organization with a set of permissions.
-                  Multiple entries for the same organization are not allowed.
+                  Self-standing permissions granted to this group.
+                  Format: "resource:action" (e.g. "accounts:read", "users:update").
               update_time:
                 type: string
                 format: date-time
@@ -776,7 +782,7 @@ paths:
         Updates an existing ledger account (e.g., display name).
         Authorization:
           Scope: ledgerAccount:write
-          Permission: PERMISSION_LEDGER_ACCOUNT_UPDATE
+          Permission: ledgerAccount:update
           Domain: organization-scoped
       operationId: LedgerAccountService_UpdateLedgerAccount
       responses:
@@ -846,7 +852,7 @@ paths:
         Gets a single ledger year by resource name.
         Authorization:
           Scope: ledgerYear:read
-          Permission: PERMISSION_LEDGER_YEAR_READ
+          Permission: ledgerYear:read
           Domain: organization-scoped
       operationId: LedgerYearService_GetLedgerYear
       responses:
@@ -874,7 +880,7 @@ paths:
         Permanently deletes a transaction.
         Authorization:
           Scope: transactions:write
-          Permission: PERMISSION_TRANSACTIONS_DELETE
+          Permission: transactions:delete
           Domain: organization-scoped
       operationId: TransactionService_DeleteTransaction
       responses:
@@ -904,7 +910,7 @@ paths:
         Gets a single organization by resource name.
         Authorization:
           Scope: organizations:read
-          Permission: PERMISSION_ORGANIZATIONS_READ
+          Permission: organizations:read
           Domain: global
       operationId: OrganizationService_GetOrganization
       responses:
@@ -933,7 +939,7 @@ paths:
         Gets report metadata by resource name.
         Authorization:
           Scope: reports:read
-          Permission: PERMISSION_REPORTS_READ
+          Permission: reports:read
           Domain: organization-scoped
       operationId: ReportService_GetReport
       responses:
@@ -962,7 +968,7 @@ paths:
         Gets a single report template by resource name.
         Authorization:
           Scope: reportTemplates:read
-          Permission: PERMISSION_REPORT_TEMPLATES_READ
+          Permission: reportTemplates:read
           Domain: organization-scoped
       operationId: ReportTemplateService_GetReportTemplate
       responses:
@@ -991,7 +997,7 @@ paths:
         Gets a single transaction by resource name.
         Authorization:
           Scope: transactions:read
-          Permission: PERMISSION_TRANSACTIONS_READ
+          Permission: transactions:read
           Domain: organization-scoped
       operationId: TransactionService_GetTransaction
       responses:
@@ -1020,7 +1026,7 @@ paths:
         Gets a single transaction assignment by resource name.
         Authorization:
           Scope: transactions:read
-          Permission: PERMISSION_TRANSACTIONS_READ
+          Permission: transactions:read
           Domain: organization-scoped
       operationId: TransactionAssignmentService_GetTransactionAssignment
       responses:
@@ -1049,7 +1055,7 @@ paths:
         Gets a single user by resource name.
         Authorization:
           Scope: users:read
-          Permission: PERMISSION_USERS_READ
+          Permission: users:read
           Domain: global
       operationId: UserService_GetUser
       responses:
@@ -1078,7 +1084,7 @@ paths:
         Gets a single identity record.
         Authorization:
           Scope: users:read
-          Permission: PERMISSION_USERS_READ
+          Permission: users:read
           Domain: global
       operationId: UserIdentityService_GetUserIdentity
       responses:
@@ -1107,7 +1113,7 @@ paths:
         Gets the settings for a user.
         Authorization:
           Scope: settings:read
-          Permission: PERMISSION_SETTINGS_READ
+          Permission: settings:read
           Domain: global
       operationId: UserSettingsService_GetUserSettings
       responses:
@@ -1136,7 +1142,7 @@ paths:
         Gets a single account group by resource name.
         Authorization:
           Scope: accountGroups:read
-          Permission: PERMISSION_ACCOUNT_GROUPS_READ
+          Permission: accountGroups:read
           Domain: organization-scoped
       operationId: AccountGroupService_GetAccountGroup
       responses:
@@ -1164,7 +1170,7 @@ paths:
         Permanently deletes an account group.
         Authorization:
           Scope: accountGroups:write
-          Permission: PERMISSION_ACCOUNT_GROUPS_DELETE
+          Permission: accountGroups:delete
           Domain: organization-scoped
       operationId: AccountGroupService_DeleteAccountGroup
       responses:
@@ -1194,7 +1200,7 @@ paths:
         Closes a ledger year, preventing new imports.
         Authorization:
           Scope: ledgerYear:write
-          Permission: PERMISSION_LEDGER_YEAR_CLOSE
+          Permission: ledgerYear:close
           Domain: organization-scoped
       operationId: LedgerYearService_CloseLedgerYear
       responses:
@@ -1228,7 +1234,7 @@ paths:
         Gets a single assignment by resource name.
         Authorization:
           Scope: accountGroups:read
-          Permission: PERMISSION_ACCOUNT_GROUPS_READ
+          Permission: accountGroups:read
           Domain: organization-scoped
       operationId: AccountGroupAssignmentService_GetAccountGroupAssignment
       responses:
@@ -1256,7 +1262,7 @@ paths:
         Permanently deletes an assignment.
         Authorization:
           Scope: accountGroups:write
-          Permission: PERMISSION_ACCOUNT_GROUPS_DELETE
+          Permission: accountGroups:delete
           Domain: organization-scoped
       operationId: AccountGroupAssignmentService_DeleteAccountGroupAssignment
       responses:
@@ -1286,7 +1292,7 @@ paths:
         Gets a single budget by resource name.
         Authorization:
           Scope: budgets:read
-          Permission: PERMISSION_BUDGETS_READ
+          Permission: budgets:read
           Domain: organization-scoped
       operationId: BudgetService_GetBudget
       responses:
@@ -1314,7 +1320,7 @@ paths:
         Permanently deletes a budget.
         Authorization:
           Scope: budgets:write
-          Permission: PERMISSION_BUDGETS_DELETE
+          Permission: budgets:delete
           Domain: organization-scoped
       operationId: BudgetService_DeleteBudget
       responses:
@@ -1344,7 +1350,7 @@ paths:
         Gets a single budget account value by resource name.
         Authorization:
           Scope: budgets:read
-          Permission: PERMISSION_BUDGETS_READ
+          Permission: budgets:read
           Domain: organization-scoped
       operationId: BudgetAccountValueService_GetBudgetAccountValue
       responses:
@@ -1372,7 +1378,7 @@ paths:
         Permanently deletes a budget account value.
         Authorization:
           Scope: budgets:write
-          Permission: PERMISSION_BUDGETS_DELETE
+          Permission: budgets:delete
           Domain: organization-scoped
       operationId: BudgetAccountValueService_DeleteBudgetAccountValue
       responses:
@@ -1402,7 +1408,7 @@ paths:
         Gets the computed actual value for a single account within a budget.
         Authorization:
           Scope: budgets:read
-          Permission: PERMISSION_BUDGETS_READ
+          Permission: budgets:read
           Domain: organization-scoped
       operationId: BudgetActualAccountValueService_GetBudgetActualAccountValue
       responses:
@@ -1430,7 +1436,7 @@ paths:
         Permanently deletes a group.
         Authorization:
           Scope: groups:write
-          Permission: PERMISSION_GROUPS_DELETE
+          Permission: groups:delete
           Domain: global
       operationId: GroupService_DeleteGroup
       responses:
@@ -1460,7 +1466,7 @@ paths:
         Gets a single budget revision by resource name.
         Authorization:
           Scope: budgets:read
-          Permission: PERMISSION_BUDGETS_READ
+          Permission: budgets:read
           Domain: organization-scoped
       operationId: BudgetRevisionService_GetBudgetRevision
       responses:
@@ -1488,7 +1494,7 @@ paths:
         Permanently deletes a ledger account.
         Authorization:
           Scope: ledgerAccount:write
-          Permission: PERMISSION_LEDGER_ACCOUNT_DELETE
+          Permission: ledgerAccount:delete
           Domain: organization-scoped
       operationId: LedgerAccountService_DeleteLedgerAccount
       responses:
@@ -1518,7 +1524,7 @@ paths:
         Gets a single budget revision account value by resource name.
         Authorization:
           Scope: budgets:read
-          Permission: PERMISSION_BUDGETS_READ
+          Permission: budgets:read
           Domain: organization-scoped
       operationId: BudgetRevisionAccountValueService_GetBudgetRevisionAccountValue
       responses:
@@ -1546,7 +1552,7 @@ paths:
         Permanently deletes an organization.
         Authorization:
           Scope: organizations:write
-          Permission: PERMISSION_ORGANIZATIONS_DELETE
+          Permission: organizations:delete
           Domain: global
       operationId: OrganizationService_DeleteOrganization
       responses:
@@ -1576,7 +1582,7 @@ paths:
         Gets a single group by resource name.
         Authorization:
           Scope: groups:read
-          Permission: PERMISSION_GROUPS_READ
+          Permission: groups:read
           Domain: global
       operationId: GroupService_GetGroup
       responses:
@@ -1604,7 +1610,7 @@ paths:
         Permanently deletes a report.
         Authorization:
           Scope: reports:write
-          Permission: PERMISSION_REPORTS_DELETE
+          Permission: reports:delete
           Domain: organization-scoped
       operationId: ReportService_DeleteReport
       responses:
@@ -1634,7 +1640,7 @@ paths:
         Gets a single ledger account by resource name.
         Authorization:
           Scope: ledgerAccount:read
-          Permission: PERMISSION_LEDGER_ACCOUNT_READ
+          Permission: ledgerAccount:read
           Domain: organization-scoped
       operationId: LedgerAccountService_GetLedgerAccount
       responses:
@@ -1662,7 +1668,7 @@ paths:
         Permanently deletes a report template.
         Authorization:
           Scope: reportTemplates:write
-          Permission: PERMISSION_REPORT_TEMPLATES_DELETE
+          Permission: reportTemplates:delete
           Domain: organization-scoped
       operationId: ReportTemplateService_DeleteReportTemplate
       responses:
@@ -1692,7 +1698,7 @@ paths:
         Gets a single account by resource name.
         Authorization:
           Scope: accounts:read
-          Permission: PERMISSION_ACCOUNTS_READ
+          Permission: accounts:read
           Domain: organization-scoped
       operationId: AccountService_GetAccount
       responses:
@@ -1720,7 +1726,7 @@ paths:
         Permanently deletes an account.
         Authorization:
           Scope: accounts:write
-          Permission: PERMISSION_ACCOUNTS_DELETE
+          Permission: accounts:delete
           Domain: organization-scoped
       operationId: AccountService_DeleteAccount
       responses:
@@ -1750,7 +1756,7 @@ paths:
         Archives an account (soft-delete).
         Authorization:
           Scope: accounts:write
-          Permission: PERMISSION_ACCOUNTS_ARCHIVE
+          Permission: accounts:archive
           Domain: organization-scoped
       operationId: AccountService_ArchiveAccount
       responses:
@@ -1778,86 +1784,16 @@ paths:
             $ref: '#/definitions/AccountServiceArchiveAccountBody'
       tags:
         - AccountService
-  /v1/{name}:batchCheckOrganizationPermissions:
-    post:
-      summary: |-
-        Checks permissions for a user across multiple organizations in one call
-        (batch custom method, AIP-231).
-        Authorization:
-          Scope: users:read
-          Permission: PERMISSION_USERS_READ
-          Domain: global
-      operationId: UserService_BatchCheckUserOrganizationPermissions
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1BatchCheckUserOrganizationPermissionsResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name
-          description: |-
-            The resource name of the user.
-            Format: users/{user}
-          in: path
-          required: true
-          type: string
-          pattern: users/[^/]+
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/UserServiceBatchCheckUserOrganizationPermissionsBody'
-      tags:
-        - UserService
-  /v1/{name}:checkOrganizationPermissions:
-    post:
-      summary: |-
-        Checks which of the requested permissions a user holds within a single
-        organization (custom method, AIP-136).
-        Authorization:
-          Scope: users:read
-          Permission: PERMISSION_USERS_READ
-          Domain: global
-      operationId: UserService_CheckUserOrganizationPermissions
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1CheckUserOrganizationPermissionsResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name
-          description: |-
-            The resource name of the user.
-            Format: users/{user}
-          in: path
-          required: true
-          type: string
-          pattern: users/[^/]+
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/UserServiceCheckUserOrganizationPermissionsBody'
-      tags:
-        - UserService
   /v1/{name}:checkPermissions:
     post:
       summary: |-
-        Checks which of the requested global permissions a user holds, without
-        scoping to any organization (custom method, AIP-136).
-        Only global resources (users, groups, settings, organizations) are
-        evaluated; org-scoped permissions will always be absent from the result.
+        Checks which of the requested permissions a user holds, optionally scoped
+        to a domain (custom method, AIP-136).
+        When domain is empty, permissions are evaluated against the global
+        domain. When set, permissions are evaluated against the specified domain.
         Authorization:
           Scope: users:read
-          Permission: PERMISSION_USERS_READ
+          Permission: users:read
           Domain: global
       operationId: UserService_CheckUserPermissions
       responses:
@@ -1891,7 +1827,7 @@ paths:
         Closes a budget, marking it as no longer active.
         Authorization:
           Scope: budgets:write
-          Permission: PERMISSION_BUDGETS_CLOSE
+          Permission: budgets:close
           Domain: organization-scoped
       operationId: BudgetService_CloseBudget
       responses:
@@ -1925,7 +1861,7 @@ paths:
         Gets a single account's full nested subtree (custom method).
         Authorization:
           Scope: accounts:read
-          Permission: PERMISSION_ACCOUNTS_READ
+          Permission: accounts:read
           Domain: organization-scoped
       operationId: AccountService_GetNestedAccount
       responses:
@@ -1962,7 +1898,7 @@ paths:
         Updates an existing organization.
         Authorization:
           Scope: organizations:write
-          Permission: PERMISSION_ORGANIZATIONS_UPDATE
+          Permission: organizations:update
           Domain: global
       operationId: OrganizationService_UpdateOrganization
       responses:
@@ -2026,7 +1962,7 @@ paths:
         Lists the account values captured in a revision, with pagination.
         Authorization:
           Scope: budgets:read
-          Permission: PERMISSION_BUDGETS_READ
+          Permission: budgets:read
           Domain: organization-scoped
       operationId: BudgetRevisionAccountValueService_ListBudgetRevisionAccountValues
       responses:
@@ -2081,7 +2017,7 @@ paths:
         Lists transaction assignments with keyset pagination and optional filters.
         Authorization:
           Scope: transactions:read
-          Permission: PERMISSION_TRANSACTIONS_READ
+          Permission: transactions:read
           Domain: organization-scoped
       operationId: TransactionAssignmentService_ListTransactionAssignments
       responses:
@@ -2136,7 +2072,7 @@ paths:
         Lists account groups with pagination.
         Authorization:
           Scope: accountGroups:read
-          Permission: PERMISSION_ACCOUNT_GROUPS_READ
+          Permission: accountGroups:read
           Domain: organization-scoped
       operationId: AccountGroupService_ListAccountGroups
       responses:
@@ -2190,7 +2126,7 @@ paths:
         Creates a new account group.
         Authorization:
           Scope: accountGroups:write
-          Permission: PERMISSION_ACCOUNT_GROUPS_CREATE
+          Permission: accountGroups:create
           Domain: organization-scoped
       operationId: AccountGroupService_CreateAccountGroup
       responses:
@@ -2232,7 +2168,7 @@ paths:
         Lists account values for a budget.
         Authorization:
           Scope: budgets:read
-          Permission: PERMISSION_BUDGETS_READ
+          Permission: budgets:read
           Domain: organization-scoped
       operationId: BudgetAccountValueService_ListBudgetAccountValues
       responses:
@@ -2286,7 +2222,7 @@ paths:
         Creates a new budget account value.
         Authorization:
           Scope: budgets:write
-          Permission: PERMISSION_BUDGETS_CREATE
+          Permission: budgets:create
           Domain: organization-scoped
       operationId: BudgetAccountValueService_CreateBudgetAccountValue
       responses:
@@ -2329,7 +2265,7 @@ paths:
         Existing values for listed account IDs are updated; missing ones are created.
         Authorization:
           Scope: budgets:write
-          Permission: PERMISSION_BUDGETS_UPDATE
+          Permission: budgets:update
           Domain: organization-scoped
       operationId: BudgetAccountValueService_BatchUpdateBudgetAccountValues
       responses:
@@ -2365,7 +2301,7 @@ paths:
         Lists accounts with pagination.
         Authorization:
           Scope: accounts:read
-          Permission: PERMISSION_ACCOUNTS_READ
+          Permission: accounts:read
           Domain: organization-scoped
       operationId: AccountService_ListAccounts
       responses:
@@ -2429,7 +2365,7 @@ paths:
         Creates a new account.
         Authorization:
           Scope: accounts:write
-          Permission: PERMISSION_ACCOUNTS_CREATE
+          Permission: accounts:create
           Domain: organization-scoped
       operationId: AccountService_CreateAccount
       responses:
@@ -2471,7 +2407,7 @@ paths:
         Lists all root accounts with their full nested subtrees (custom method).
         Authorization:
           Scope: accounts:read
-          Permission: PERMISSION_ACCOUNTS_READ
+          Permission: accounts:read
           Domain: organization-scoped
       operationId: AccountService_ListNestedAccounts
       responses:
@@ -2508,7 +2444,7 @@ paths:
         Lists computed actual account values for a budget, with pagination.
         Authorization:
           Scope: budgets:read
-          Permission: PERMISSION_BUDGETS_READ
+          Permission: budgets:read
           Domain: organization-scoped
       operationId: BudgetActualAccountValueService_ListBudgetActualAccountValues
       responses:
@@ -2563,7 +2499,7 @@ paths:
         Lists assignments for an account group.
         Authorization:
           Scope: accountGroups:read
-          Permission: PERMISSION_ACCOUNT_GROUPS_READ
+          Permission: accountGroups:read
           Domain: organization-scoped
       operationId: AccountGroupAssignmentService_ListAccountGroupAssignments
       responses:
@@ -2617,7 +2553,7 @@ paths:
         Creates a new assignment.
         Authorization:
           Scope: accountGroups:write
-          Permission: PERMISSION_ACCOUNT_GROUPS_CREATE
+          Permission: accountGroups:create
           Domain: organization-scoped
       operationId: AccountGroupAssignmentService_CreateAccountGroupAssignment
       responses:
@@ -2659,7 +2595,7 @@ paths:
         Lists budgets with pagination.
         Authorization:
           Scope: budgets:read
-          Permission: PERMISSION_BUDGETS_READ
+          Permission: budgets:read
           Domain: organization-scoped
       operationId: BudgetService_ListBudgets
       responses:
@@ -2718,7 +2654,7 @@ paths:
         Creates a new budget.
         Authorization:
           Scope: budgets:write
-          Permission: PERMISSION_BUDGETS_CREATE
+          Permission: budgets:create
           Domain: organization-scoped
       operationId: BudgetService_CreateBudget
       responses:
@@ -2760,7 +2696,7 @@ paths:
         Lists all identity records for a user.
         Authorization:
           Scope: users:read
-          Permission: PERMISSION_USERS_READ
+          Permission: users:read
           Domain: global
       operationId: UserIdentityService_ListUserIdentities
       responses:
@@ -2802,7 +2738,7 @@ paths:
         Lists ledger accounts with pagination.
         Authorization:
           Scope: ledgerAccount:read
-          Permission: PERMISSION_LEDGER_ACCOUNT_READ
+          Permission: ledgerAccount:read
           Domain: organization-scoped
       operationId: LedgerAccountService_ListLedgerAccounts
       responses:
@@ -2862,7 +2798,7 @@ paths:
         Lists ledger years for an organization.
         Authorization:
           Scope: ledgerYear:read
-          Permission: PERMISSION_LEDGER_YEAR_READ
+          Permission: ledgerYear:read
           Domain: organization-scoped
       operationId: LedgerYearService_ListLedgerYears
       responses:
@@ -2917,7 +2853,7 @@ paths:
         Lists report templates with pagination.
         Authorization:
           Scope: reportTemplates:read
-          Permission: PERMISSION_REPORT_TEMPLATES_READ
+          Permission: reportTemplates:read
           Domain: organization-scoped
       operationId: ReportTemplateService_ListReportTemplates
       responses:
@@ -2971,7 +2907,7 @@ paths:
         Creates a new report template.
         Authorization:
           Scope: reportTemplates:write
-          Permission: PERMISSION_REPORT_TEMPLATES_CREATE
+          Permission: reportTemplates:create
           Domain: organization-scoped
       operationId: ReportTemplateService_CreateReportTemplate
       responses:
@@ -3013,7 +2949,7 @@ paths:
         Lists reports with pagination.
         Authorization:
           Scope: reports:read
-          Permission: PERMISSION_REPORTS_READ
+          Permission: reports:read
           Domain: organization-scoped
       operationId: ReportService_ListReports
       responses:
@@ -3067,7 +3003,7 @@ paths:
         Creates a new report by rendering a template.
         Authorization:
           Scope: reports:write
-          Permission: PERMISSION_REPORTS_CREATE
+          Permission: reports:create
           Domain: organization-scoped
       operationId: ReportService_CreateReport
       responses:
@@ -3109,7 +3045,7 @@ paths:
         Lists revisions for a budget in reverse chronological order.
         Authorization:
           Scope: budgets:read
-          Permission: PERMISSION_BUDGETS_READ
+          Permission: budgets:read
           Domain: organization-scoped
       operationId: BudgetRevisionService_ListBudgetRevisions
       responses:
@@ -3158,7 +3094,7 @@ paths:
         BudgetAccountValues for the given budget.
         Authorization:
           Scope: budgets:write
-          Permission: PERMISSION_BUDGETS_CREATE
+          Permission: budgets:create
           Domain: organization-scoped
       operationId: BudgetRevisionService_CreateBudgetRevision
       responses:
@@ -3202,7 +3138,7 @@ paths:
         Lists transactions with keyset pagination and optional filters.
         Authorization:
           Scope: transactions:read
-          Permission: PERMISSION_TRANSACTIONS_READ
+          Permission: transactions:read
           Domain: organization-scoped
       operationId: TransactionService_ListTransactions
       responses:
@@ -3257,7 +3193,7 @@ paths:
         Creates a new transaction.
         Authorization:
           Scope: transactions:write
-          Permission: PERMISSION_TRANSACTIONS_CREATE (note: not yet defined in permission.proto)
+          Permission: transactions:create
           Domain: organization-scoped
       operationId: TransactionService_CreateTransaction
       responses:
@@ -3299,7 +3235,7 @@ paths:
         Updates an existing report template.
         Authorization:
           Scope: reportTemplates:write
-          Permission: PERMISSION_REPORT_TEMPLATES_UPDATE
+          Permission: reportTemplates:update
           Domain: organization-scoped
       operationId: ReportTemplateService_UpdateReportTemplate
       responses:
@@ -3363,7 +3299,7 @@ paths:
         Updates the settings for a user.
         Authorization:
           Scope: settings:write
-          Permission: PERMISSION_SETTINGS_UPDATE
+          Permission: settings:update
           Domain: global
       operationId: UserSettingsService_UpdateUserSettings
       responses:
@@ -3423,7 +3359,7 @@ paths:
         Updates an existing transaction.
         Authorization:
           Scope: transactions:write
-          Permission: PERMISSION_TRANSACTIONS_UPDATE
+          Permission: transactions:update
           Domain: organization-scoped
       operationId: TransactionService_UpdateTransaction
       responses:
@@ -3528,58 +3464,28 @@ definitions:
     type: object
   LedgerYearServiceCloseLedgerYearBody:
     type: object
-  UserServiceBatchCheckUserOrganizationPermissionsBody:
-    type: object
-    properties:
-      requests:
-        type: array
-        items:
-          type: object
-          $ref: '#/definitions/v1CheckUserOrganizationPermissionsRequest'
-        description: |-
-          Individual per-organization check requests.
-          Maximum 100 entries per call.
-    description: |-
-      BatchCheckUserOrganizationPermissionsRequest checks permissions for a single
-      user across multiple organizations in one call (AIP-231 batch pattern).
-    required:
-      - requests
-  UserServiceCheckUserOrganizationPermissionsBody:
-    type: object
-    properties:
-      organization:
-        type: string
-        title: |-
-          The resource name of the organization to check permissions against.
-          Format: organizations/{organization}
-      permissions:
-        type: array
-        items:
-          $ref: '#/definitions/v1Permission'
-        description: |-
-          The permissions to evaluate. At least one must be provided.
-          Only the permissions listed here are evaluated and returned.
-    description: |-
-      CheckUserOrganizationPermissionsRequest checks which of the requested
-      permissions a user holds within a single organization.
-    required:
-      - organization
-      - permissions
   UserServiceCheckUserPermissionsBody:
     type: object
     properties:
+      domain:
+        type: string
+        description: |-
+          The domain to scope the check to (e.g. "organizations/{organization}").
+          If empty, permissions are checked against the global domain.
       permissions:
         type: array
         items:
-          $ref: '#/definitions/v1Permission'
+          type: string
         description: |-
-          The permissions to evaluate. At least one must be provided.
-          Only the permissions listed here are evaluated and returned.
+          The permissions to evaluate, as "resource:action" strings.
+          At least one must be provided. Only the permissions listed here
+          are evaluated and returned.
     description: |-
-      CheckUserPermissionsRequest checks which of the requested global
-      permissions a user holds, without scoping to any organization.
-      Only global resources (users, groups, settings, organizations) are
-      evaluated; org-scoped permissions will always be absent from the result.
+      CheckUserPermissionsRequest checks which of the requested permissions a
+      user holds, optionally scoped to a domain.
+      When domain is empty, permissions are evaluated against the global
+      domain (e.g. users, groups, settings). When set, permissions are evaluated
+      against the specified domain (e.g. "organizations/{organization}").
     required:
       - permissions
   protobufAny:
@@ -3793,21 +3699,6 @@ definitions:
        - ACCOUNT_TYPE_REVENUE: Revenue account (e.g., sales, interest income).
        - ACCOUNT_TYPE_EXPENSE: Expense account (e.g., rent, salaries, utilities).
        - ACCOUNT_TYPE_SYSTEM: System account for internal calculations. Special internal use only.
-  v1BatchCheckUserOrganizationPermissionsResponse:
-    type: object
-    properties:
-      results:
-        type: array
-        items:
-          type: object
-          $ref: '#/definitions/v1CheckUserOrganizationPermissionsResponse'
-        description: |-
-          One result per entry in BatchCheckUserOrganizationPermissionsRequest.requests,
-          in the same order.
-        readOnly: true
-    description: |-
-      BatchCheckUserOrganizationPermissionsResponse returns one result entry per
-      requested organization, in the same order as the request.
   v1BatchCheckUserPermissionsRequest:
     type: object
     properties:
@@ -3816,10 +3707,11 @@ definitions:
         items:
           type: object
           $ref: '#/definitions/v1CheckUserPermissionsRequest'
-        description: Individual per-user check requests. Maximum 100 entries per call.
+        description: Individual check requests. Maximum 100 entries per call.
     description: |-
-      BatchCheckUserPermissionsRequest checks global permissions for multiple
-      users in one call (AIP-231 batch pattern).
+      BatchCheckUserPermissionsRequest checks permissions for one or more users
+      in a single call (AIP-231 batch pattern). Each entry can target a different
+      domain (or the global domain when domain is empty).
     required:
       - requests
   v1BatchCheckUserPermissionsResponse:
@@ -3836,7 +3728,7 @@ definitions:
         readOnly: true
     description: |-
       BatchCheckUserPermissionsResponse returns one result entry per requested
-      user, in the same order as the request.
+      check, in the same order as the request.
   v1BatchUpdateBudgetAccountValuesResponse:
     type: object
     properties:
@@ -4072,51 +3964,6 @@ definitions:
       available:
         type: boolean
         description: Whether the organization ID is available (not yet in use).
-  v1CheckUserOrganizationPermissionsRequest:
-    type: object
-    properties:
-      name:
-        type: string
-        title: |-
-          The resource name of the user.
-          Format: users/{user}
-      organization:
-        type: string
-        title: |-
-          The resource name of the organization to check permissions against.
-          Format: organizations/{organization}
-      permissions:
-        type: array
-        items:
-          $ref: '#/definitions/v1Permission'
-        description: |-
-          The permissions to evaluate. At least one must be provided.
-          Only the permissions listed here are evaluated and returned.
-    description: |-
-      CheckUserOrganizationPermissionsRequest checks which of the requested
-      permissions a user holds within a single organization.
-    required:
-      - name
-      - organization
-      - permissions
-  v1CheckUserOrganizationPermissionsResponse:
-    type: object
-    properties:
-      organization:
-        type: string
-        title: |-
-          The organization that was evaluated.
-          Format: organizations/{organization}
-        readOnly: true
-      permitted:
-        type: array
-        items:
-          $ref: '#/definitions/v1Permission'
-        description: The subset of the requested permissions that the user holds.
-        readOnly: true
-    description: |-
-      CheckUserOrganizationPermissionsResponse reports which of the requested
-      permissions the user actually holds.
   v1CheckUserPermissionsRequest:
     type: object
     properties:
@@ -4125,33 +3972,46 @@ definitions:
         title: |-
           The resource name of the user.
           Format: users/{user}
+      domain:
+        type: string
+        description: |-
+          The domain to scope the check to (e.g. "organizations/{organization}").
+          If empty, permissions are checked against the global domain.
       permissions:
         type: array
         items:
-          $ref: '#/definitions/v1Permission'
+          type: string
         description: |-
-          The permissions to evaluate. At least one must be provided.
-          Only the permissions listed here are evaluated and returned.
+          The permissions to evaluate, as "resource:action" strings.
+          At least one must be provided. Only the permissions listed here
+          are evaluated and returned.
     description: |-
-      CheckUserPermissionsRequest checks which of the requested global
-      permissions a user holds, without scoping to any organization.
-      Only global resources (users, groups, settings, organizations) are
-      evaluated; org-scoped permissions will always be absent from the result.
+      CheckUserPermissionsRequest checks which of the requested permissions a
+      user holds, optionally scoped to a domain.
+      When domain is empty, permissions are evaluated against the global
+      domain (e.g. users, groups, settings). When set, permissions are evaluated
+      against the specified domain (e.g. "organizations/{organization}").
     required:
       - name
       - permissions
   v1CheckUserPermissionsResponse:
     type: object
     properties:
+      domain:
+        type: string
+        description: |-
+          The domain that was evaluated, if any.
+          Empty if the check was global.
+        readOnly: true
       permitted:
         type: array
         items:
-          $ref: '#/definitions/v1Permission'
+          type: string
         description: The subset of the requested permissions that the user holds.
         readOnly: true
     description: |-
-      CheckUserPermissionsResponse reports which of the requested
-      permissions the user actually holds.
+      CheckUserPermissionsResponse reports which of the requested permissions
+      the user actually holds.
   v1Decimal:
     type: object
     properties:
@@ -4189,15 +4049,20 @@ definitions:
       display_description:
         type: string
         description: Optional free-text description.
-      organization_policies:
+      organizations:
         type: array
         items:
-          type: object
-          $ref: '#/definitions/v1GroupOrganizationPolicy'
+          type: string
+        title: |-
+          Organizations this group is assigned to (resource names).
+          Format: organizations/{organization}
+      permissions:
+        type: array
+        items:
+          type: string
         description: |-
-          Per-organization permission policies for this group.
-          Each entry associates a distinct organization with a set of permissions.
-          Multiple entries for the same organization are not allowed.
+          Self-standing permissions granted to this group.
+          Format: "resource:action" (e.g. "accounts:read", "users:update").
       update_time:
         type: string
         format: date-time
@@ -4213,30 +4078,11 @@ definitions:
         description: Entity tag for optimistic concurrency control.
         readOnly: true
     description: |-
-      Group is a named collection of users that share a common set of permissions,
-      scoped per organization via GroupOrganizationPolicy.
+      Group is a named collection of users that share a common set of permissions.
+      Permissions are self-standing (not scoped per organization); instead,
+      groups are assigned to organizations via the organizations field.
     required:
       - display_name
-  v1GroupOrganizationPolicy:
-    type: object
-    properties:
-      organization:
-        type: string
-        title: |-
-          The resource name of the organization this policy applies to.
-          Format: organizations/{organization}
-      permissions:
-        type: array
-        items:
-          $ref: '#/definitions/v1Permission'
-        description: The set of permissions granted within the organization.
-    description: |-
-      GroupOrganizationPolicy associates a set of permissions with a specific
-      organization for a group. A group may hold policies for multiple
-      organizations independently.
-    required:
-      - organization
-      - permissions
   v1LedgerAccount:
     type: object
     properties:
@@ -4736,93 +4582,6 @@ definitions:
     required:
       - display_name
       - start_month
-  v1Permission:
-    type: string
-    enum:
-      - PERMISSION_UNSPECIFIED
-      - PERMISSION_DASHBOARD_READ
-      - PERMISSION_ACCOUNTS_READ
-      - PERMISSION_ACCOUNTS_CREATE
-      - PERMISSION_ACCOUNTS_UPDATE
-      - PERMISSION_ACCOUNTS_DELETE
-      - PERMISSION_ACCOUNTS_ARCHIVE
-      - PERMISSION_ACCOUNT_GROUPS_READ
-      - PERMISSION_ACCOUNT_GROUPS_CREATE
-      - PERMISSION_ACCOUNT_GROUPS_UPDATE
-      - PERMISSION_ACCOUNT_GROUPS_DELETE
-      - PERMISSION_BUDGETS_READ
-      - PERMISSION_BUDGETS_CREATE
-      - PERMISSION_BUDGETS_UPDATE
-      - PERMISSION_BUDGETS_DELETE
-      - PERMISSION_BUDGETS_CLOSE
-      - PERMISSION_JOURNAL_READ
-      - PERMISSION_JOURNAL_IMPORT
-      - PERMISSION_LEDGER_ACCOUNT_READ
-      - PERMISSION_LEDGER_ACCOUNT_UPDATE
-      - PERMISSION_LEDGER_ACCOUNT_DELETE
-      - PERMISSION_LEDGER_YEAR_READ
-      - PERMISSION_LEDGER_YEAR_CREATE
-      - PERMISSION_LEDGER_YEAR_CLOSE
-      - PERMISSION_LEDGER_YEAR_DELETE
-      - PERMISSION_TRANSACTIONS_READ
-      - PERMISSION_TRANSACTIONS_UPDATE
-      - PERMISSION_TRANSACTIONS_DELETE
-      - PERMISSION_MATRIX_READ
-      - PERMISSION_MATRIX_UPDATE
-      - PERMISSION_REPORTS_READ
-      - PERMISSION_REPORTS_CREATE
-      - PERMISSION_REPORTS_DELETE
-      - PERMISSION_REPORT_TEMPLATES_READ
-      - PERMISSION_REPORT_TEMPLATES_CREATE
-      - PERMISSION_REPORT_TEMPLATES_UPDATE
-      - PERMISSION_REPORT_TEMPLATES_DELETE
-      - PERMISSION_IMPORT_SOURCES_READ
-      - PERMISSION_IMPORT_SOURCES_CREATE
-      - PERMISSION_IMPORT_SOURCES_UPDATE
-      - PERMISSION_USERS_READ
-      - PERMISSION_USERS_UPDATE
-      - PERMISSION_GROUPS_READ
-      - PERMISSION_GROUPS_CREATE
-      - PERMISSION_GROUPS_UPDATE
-      - PERMISSION_GROUPS_DELETE
-      - PERMISSION_SETTINGS_READ
-      - PERMISSION_SETTINGS_UPDATE
-      - PERMISSION_ORGANIZATIONS_READ
-      - PERMISSION_ORGANIZATIONS_UPDATE
-      - PERMISSION_ORGANIZATIONS_ARCHIVE
-      - PERMISSION_ORGANIZATIONS_CREATE
-      - PERMISSION_ORGANIZATIONS_DELETE
-      - PERMISSION_REIMBURSEMENTS_READ
-      - PERMISSION_REIMBURSEMENTS_CREATE
-      - PERMISSION_REIMBURSEMENTS_COMMENT
-      - PERMISSION_REIMBURSEMENTS_UPDATE
-      - PERMISSION_REIMBURSEMENTS_ARCHIVE
-      - PERMISSION_REIMBURSEMENTS_READ_OWN
-      - PERMISSION_REIMBURSEMENTS_COMMENT_OWN
-      - PERMISSION_REIMBURSEMENTS_UPDATE_OWN
-    default: PERMISSION_UNSPECIFIED
-    description: |-
-      Permission enumerates every discrete access right in the system.
-      Each value encodes a resource and an action, following the convention
-      RESOURCE_ACTION (all upper-snake-case).
-
-       - PERMISSION_DASHBOARD_READ: Dashboard
-       - PERMISSION_ACCOUNTS_READ: Accounts
-       - PERMISSION_ACCOUNT_GROUPS_READ: Account Groups
-       - PERMISSION_BUDGETS_READ: Budgets / Plans
-       - PERMISSION_JOURNAL_READ: Journal
-       - PERMISSION_LEDGER_ACCOUNT_READ: Ledger Accounts
-       - PERMISSION_LEDGER_YEAR_READ: Ledger Years
-       - PERMISSION_TRANSACTIONS_READ: Transactions
-       - PERMISSION_MATRIX_READ: Matrix
-       - PERMISSION_REPORTS_READ: Reports
-       - PERMISSION_REPORT_TEMPLATES_READ: Report Templates
-       - PERMISSION_IMPORT_SOURCES_READ: Import Sources
-       - PERMISSION_USERS_READ: Users
-       - PERMISSION_GROUPS_READ: Groups
-       - PERMISSION_SETTINGS_READ: Settings
-       - PERMISSION_ORGANIZATIONS_READ: Organizations
-       - PERMISSION_REIMBURSEMENTS_READ: Reimbursements
   v1Report:
     type: object
     properties:

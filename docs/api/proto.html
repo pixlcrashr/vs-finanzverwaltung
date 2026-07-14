@@ -564,21 +564,6 @@
         
           
           <li>
-            <a href="#pixlcrashr%2fvsfv%2fv1%2fpermission.proto">pixlcrashr/vsfv/v1/permission.proto</a>
-            <ul>
-              
-              
-                <li>
-                  <a href="#pixlcrashr.vsfv.v1.Permission"><span class="badge">E</span>Permission</a>
-                </li>
-              
-              
-              
-            </ul>
-          </li>
-        
-          
-          <li>
             <a href="#pixlcrashr%2fvsfv%2fv1%2fgroup.proto">pixlcrashr/vsfv/v1/group.proto</a>
             <ul>
               
@@ -596,10 +581,6 @@
               
                 <li>
                   <a href="#pixlcrashr.vsfv.v1.Group"><span class="badge">M</span>Group</a>
-                </li>
-              
-                <li>
-                  <a href="#pixlcrashr.vsfv.v1.GroupOrganizationPolicy"><span class="badge">M</span>GroupOrganizationPolicy</a>
                 </li>
               
                 <li>
@@ -935,27 +916,11 @@
             <ul>
               
                 <li>
-                  <a href="#pixlcrashr.vsfv.v1.BatchCheckUserOrganizationPermissionsRequest"><span class="badge">M</span>BatchCheckUserOrganizationPermissionsRequest</a>
-                </li>
-              
-                <li>
-                  <a href="#pixlcrashr.vsfv.v1.BatchCheckUserOrganizationPermissionsResponse"><span class="badge">M</span>BatchCheckUserOrganizationPermissionsResponse</a>
-                </li>
-              
-                <li>
                   <a href="#pixlcrashr.vsfv.v1.BatchCheckUserPermissionsRequest"><span class="badge">M</span>BatchCheckUserPermissionsRequest</a>
                 </li>
               
                 <li>
                   <a href="#pixlcrashr.vsfv.v1.BatchCheckUserPermissionsResponse"><span class="badge">M</span>BatchCheckUserPermissionsResponse</a>
-                </li>
-              
-                <li>
-                  <a href="#pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsRequest"><span class="badge">M</span>CheckUserOrganizationPermissionsRequest</a>
-                </li>
-              
-                <li>
-                  <a href="#pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsResponse"><span class="badge">M</span>CheckUserOrganizationPermissionsResponse</a>
                 </li>
               
                 <li>
@@ -1664,7 +1629,7 @@ Format: organizations/{organization}/accounts/{account} </p></td>
                 <td><p>Gets a single account by resource name.
 Authorization:
   Scope: accounts:read
-  Permission: PERMISSION_ACCOUNTS_READ
+  Permission: accounts:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -1675,7 +1640,7 @@ Authorization:
                 <td><p>Lists accounts with pagination.
 Authorization:
   Scope: accounts:read
-  Permission: PERMISSION_ACCOUNTS_READ
+  Permission: accounts:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -1686,7 +1651,7 @@ Authorization:
                 <td><p>Lists all root accounts with their full nested subtrees (custom method).
 Authorization:
   Scope: accounts:read
-  Permission: PERMISSION_ACCOUNTS_READ
+  Permission: accounts:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -1697,7 +1662,7 @@ Authorization:
                 <td><p>Gets a single account&#39;s full nested subtree (custom method).
 Authorization:
   Scope: accounts:read
-  Permission: PERMISSION_ACCOUNTS_READ
+  Permission: accounts:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -1708,7 +1673,7 @@ Authorization:
                 <td><p>Creates a new account.
 Authorization:
   Scope: accounts:write
-  Permission: PERMISSION_ACCOUNTS_CREATE
+  Permission: accounts:create
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -1719,7 +1684,7 @@ Authorization:
                 <td><p>Updates an existing account.
 Authorization:
   Scope: accounts:write
-  Permission: PERMISSION_ACCOUNTS_UPDATE
+  Permission: accounts:update
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -1730,7 +1695,7 @@ Authorization:
                 <td><p>Archives an account (soft-delete).
 Authorization:
   Scope: accounts:write
-  Permission: PERMISSION_ACCOUNTS_ARCHIVE
+  Permission: accounts:archive
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -1741,7 +1706,7 @@ Authorization:
                 <td><p>Permanently deletes an account.
 Authorization:
   Scope: accounts:write
-  Permission: PERMISSION_ACCOUNTS_DELETE
+  Permission: accounts:delete
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -2158,7 +2123,7 @@ Example: &#34;display_name=\&#34;Overhead\&#34;&#34;. </p></td>
                 <td><p>Gets a single account group by resource name.
 Authorization:
   Scope: accountGroups:read
-  Permission: PERMISSION_ACCOUNT_GROUPS_READ
+  Permission: accountGroups:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -2169,7 +2134,7 @@ Authorization:
                 <td><p>Lists account groups with pagination.
 Authorization:
   Scope: accountGroups:read
-  Permission: PERMISSION_ACCOUNT_GROUPS_READ
+  Permission: accountGroups:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -2180,7 +2145,7 @@ Authorization:
                 <td><p>Creates a new account group.
 Authorization:
   Scope: accountGroups:write
-  Permission: PERMISSION_ACCOUNT_GROUPS_CREATE
+  Permission: accountGroups:create
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -2191,7 +2156,7 @@ Authorization:
                 <td><p>Updates an existing account group.
 Authorization:
   Scope: accountGroups:write
-  Permission: PERMISSION_ACCOUNT_GROUPS_UPDATE
+  Permission: accountGroups:update
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -2202,7 +2167,7 @@ Authorization:
                 <td><p>Permanently deletes an account group.
 Authorization:
   Scope: accountGroups:write
-  Permission: PERMISSION_ACCOUNT_GROUPS_DELETE
+  Permission: accountGroups:delete
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -2597,7 +2562,7 @@ Example: &#34;negate=true&#34; or &#34;account_id=\&#34;&lt;uuid&gt;\&#34;&#34;.
                 <td><p>Gets a single assignment by resource name.
 Authorization:
   Scope: accountGroups:read
-  Permission: PERMISSION_ACCOUNT_GROUPS_READ
+  Permission: accountGroups:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -2608,7 +2573,7 @@ Authorization:
                 <td><p>Lists assignments for an account group.
 Authorization:
   Scope: accountGroups:read
-  Permission: PERMISSION_ACCOUNT_GROUPS_READ
+  Permission: accountGroups:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -2619,7 +2584,7 @@ Authorization:
                 <td><p>Creates a new assignment.
 Authorization:
   Scope: accountGroups:write
-  Permission: PERMISSION_ACCOUNT_GROUPS_CREATE
+  Permission: accountGroups:create
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -2630,7 +2595,7 @@ Authorization:
                 <td><p>Updates an existing assignment.
 Authorization:
   Scope: accountGroups:write
-  Permission: PERMISSION_ACCOUNT_GROUPS_UPDATE
+  Permission: accountGroups:update
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -2641,7 +2606,7 @@ Authorization:
                 <td><p>Permanently deletes an assignment.
 Authorization:
   Scope: accountGroups:write
-  Permission: PERMISSION_ACCOUNT_GROUPS_DELETE
+  Permission: accountGroups:delete
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -3081,7 +3046,7 @@ Example: &#34;is_closed=false&#34; or &#34;display_name=\&#34;FY2025\&#34;&#34;.
                 <td><p>Gets a single budget by resource name.
 Authorization:
   Scope: budgets:read
-  Permission: PERMISSION_BUDGETS_READ
+  Permission: budgets:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -3092,7 +3057,7 @@ Authorization:
                 <td><p>Lists budgets with pagination.
 Authorization:
   Scope: budgets:read
-  Permission: PERMISSION_BUDGETS_READ
+  Permission: budgets:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -3103,7 +3068,7 @@ Authorization:
                 <td><p>Creates a new budget.
 Authorization:
   Scope: budgets:write
-  Permission: PERMISSION_BUDGETS_CREATE
+  Permission: budgets:create
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -3114,7 +3079,7 @@ Authorization:
                 <td><p>Updates an existing budget.
 Authorization:
   Scope: budgets:write
-  Permission: PERMISSION_BUDGETS_UPDATE
+  Permission: budgets:update
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -3125,7 +3090,7 @@ Authorization:
                 <td><p>Closes a budget, marking it as no longer active.
 Authorization:
   Scope: budgets:write
-  Permission: PERMISSION_BUDGETS_CLOSE
+  Permission: budgets:close
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -3136,7 +3101,7 @@ Authorization:
                 <td><p>Permanently deletes a budget.
 Authorization:
   Scope: budgets:write
-  Permission: PERMISSION_BUDGETS_DELETE
+  Permission: budgets:delete
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -3646,7 +3611,7 @@ created. In this situation, update_mask is ignored. </p></td>
                 <td><p>Gets a single budget account value by resource name.
 Authorization:
   Scope: budgets:read
-  Permission: PERMISSION_BUDGETS_READ
+  Permission: budgets:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -3657,7 +3622,7 @@ Authorization:
                 <td><p>Lists account values for a budget.
 Authorization:
   Scope: budgets:read
-  Permission: PERMISSION_BUDGETS_READ
+  Permission: budgets:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -3668,7 +3633,7 @@ Authorization:
                 <td><p>Creates a new budget account value.
 Authorization:
   Scope: budgets:write
-  Permission: PERMISSION_BUDGETS_CREATE
+  Permission: budgets:create
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -3679,7 +3644,7 @@ Authorization:
                 <td><p>Updates an existing budget account value.
 Authorization:
   Scope: budgets:write
-  Permission: PERMISSION_BUDGETS_UPDATE
+  Permission: budgets:update
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -3690,7 +3655,7 @@ Authorization:
                 <td><p>Permanently deletes a budget account value.
 Authorization:
   Scope: budgets:write
-  Permission: PERMISSION_BUDGETS_DELETE
+  Permission: budgets:delete
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -3702,7 +3667,7 @@ Authorization:
 Existing values for listed account IDs are updated; missing ones are created.
 Authorization:
   Scope: budgets:write
-  Permission: PERMISSION_BUDGETS_UPDATE
+  Permission: budgets:update
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -3984,7 +3949,7 @@ Example: &#34;account_id=\&#34;&lt;uuid&gt;\&#34;&#34;. </p></td>
                 <td><p>Gets the computed actual value for a single account within a budget.
 Authorization:
   Scope: budgets:read
-  Permission: PERMISSION_BUDGETS_READ
+  Permission: budgets:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -3995,7 +3960,7 @@ Authorization:
                 <td><p>Lists computed actual account values for a budget, with pagination.
 Authorization:
   Scope: budgets:read
-  Permission: PERMISSION_BUDGETS_READ
+  Permission: budgets:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -4297,7 +4262,7 @@ Example: &#34;create_time desc&#34;, &#34;display_name&#34;. </p></td>
                 <td><p>Gets a single budget revision by resource name.
 Authorization:
   Scope: budgets:read
-  Permission: PERMISSION_BUDGETS_READ
+  Permission: budgets:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -4308,7 +4273,7 @@ Authorization:
                 <td><p>Lists revisions for a budget in reverse chronological order.
 Authorization:
   Scope: budgets:read
-  Permission: PERMISSION_BUDGETS_READ
+  Permission: budgets:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -4320,7 +4285,7 @@ Authorization:
 BudgetAccountValues for the given budget.
 Authorization:
   Scope: budgets:write
-  Permission: PERMISSION_BUDGETS_CREATE
+  Permission: budgets:create
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -4593,7 +4558,7 @@ Example: &#34;account_id=\&#34;&lt;uuid&gt;\&#34;&#34;. </p></td>
                 <td><p>Gets a single budget revision account value by resource name.
 Authorization:
   Scope: budgets:read
-  Permission: PERMISSION_BUDGETS_READ
+  Permission: budgets:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -4604,7 +4569,7 @@ Authorization:
                 <td><p>Lists the account values captured in a revision, with pagination.
 Authorization:
   Scope: budgets:read
-  Permission: PERMISSION_BUDGETS_READ
+  Permission: budgets:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -4756,397 +4721,6 @@ Authorization:
     
       
       <div class="file-heading">
-        <h2 id="pixlcrashr/vsfv/v1/permission.proto">pixlcrashr/vsfv/v1/permission.proto</h2><a href="#title">Top</a>
-      </div>
-      <p></p>
-
-      
-
-      
-        <h3 id="pixlcrashr.vsfv.v1.Permission">Permission</h3>
-        <p>Permission enumerates every discrete access right in the system.</p><p>Each value encodes a resource and an action, following the convention</p><p>RESOURCE_ACTION (all upper-snake-case).</p>
-        <table class="enum-table">
-          <thead>
-            <tr><td>Name</td><td>Number</td><td>Description</td></tr>
-          </thead>
-          <tbody>
-            
-              <tr>
-                <td>PERMISSION_UNSPECIFIED</td>
-                <td>0</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_DASHBOARD_READ</td>
-                <td>1</td>
-                <td><p>Dashboard</p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_ACCOUNTS_READ</td>
-                <td>10</td>
-                <td><p>Accounts</p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_ACCOUNTS_CREATE</td>
-                <td>11</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_ACCOUNTS_UPDATE</td>
-                <td>12</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_ACCOUNTS_DELETE</td>
-                <td>13</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_ACCOUNTS_ARCHIVE</td>
-                <td>14</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_ACCOUNT_GROUPS_READ</td>
-                <td>20</td>
-                <td><p>Account Groups</p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_ACCOUNT_GROUPS_CREATE</td>
-                <td>21</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_ACCOUNT_GROUPS_UPDATE</td>
-                <td>22</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_ACCOUNT_GROUPS_DELETE</td>
-                <td>23</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_BUDGETS_READ</td>
-                <td>30</td>
-                <td><p>Budgets / Plans</p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_BUDGETS_CREATE</td>
-                <td>31</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_BUDGETS_UPDATE</td>
-                <td>32</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_BUDGETS_DELETE</td>
-                <td>33</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_BUDGETS_CLOSE</td>
-                <td>34</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_JOURNAL_READ</td>
-                <td>40</td>
-                <td><p>Journal</p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_JOURNAL_IMPORT</td>
-                <td>41</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_LEDGER_ACCOUNT_READ</td>
-                <td>45</td>
-                <td><p>Ledger Accounts</p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_LEDGER_ACCOUNT_UPDATE</td>
-                <td>46</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_LEDGER_ACCOUNT_DELETE</td>
-                <td>47</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_LEDGER_YEAR_READ</td>
-                <td>50</td>
-                <td><p>Ledger Years</p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_LEDGER_YEAR_CREATE</td>
-                <td>51</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_LEDGER_YEAR_CLOSE</td>
-                <td>52</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_LEDGER_YEAR_DELETE</td>
-                <td>53</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_TRANSACTIONS_READ</td>
-                <td>55</td>
-                <td><p>Transactions</p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_TRANSACTIONS_UPDATE</td>
-                <td>56</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_TRANSACTIONS_DELETE</td>
-                <td>57</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_MATRIX_READ</td>
-                <td>60</td>
-                <td><p>Matrix</p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_MATRIX_UPDATE</td>
-                <td>61</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_REPORTS_READ</td>
-                <td>70</td>
-                <td><p>Reports</p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_REPORTS_CREATE</td>
-                <td>71</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_REPORTS_DELETE</td>
-                <td>72</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_REPORT_TEMPLATES_READ</td>
-                <td>80</td>
-                <td><p>Report Templates</p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_REPORT_TEMPLATES_CREATE</td>
-                <td>81</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_REPORT_TEMPLATES_UPDATE</td>
-                <td>82</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_REPORT_TEMPLATES_DELETE</td>
-                <td>83</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_IMPORT_SOURCES_READ</td>
-                <td>90</td>
-                <td><p>Import Sources</p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_IMPORT_SOURCES_CREATE</td>
-                <td>91</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_IMPORT_SOURCES_UPDATE</td>
-                <td>92</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_USERS_READ</td>
-                <td>100</td>
-                <td><p>Users</p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_USERS_UPDATE</td>
-                <td>101</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_GROUPS_READ</td>
-                <td>110</td>
-                <td><p>Groups</p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_GROUPS_CREATE</td>
-                <td>111</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_GROUPS_UPDATE</td>
-                <td>112</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_GROUPS_DELETE</td>
-                <td>113</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_SETTINGS_READ</td>
-                <td>120</td>
-                <td><p>Settings</p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_SETTINGS_UPDATE</td>
-                <td>121</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_ORGANIZATIONS_READ</td>
-                <td>130</td>
-                <td><p>Organizations</p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_ORGANIZATIONS_UPDATE</td>
-                <td>131</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_ORGANIZATIONS_ARCHIVE</td>
-                <td>132</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_ORGANIZATIONS_CREATE</td>
-                <td>133</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_ORGANIZATIONS_DELETE</td>
-                <td>134</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_REIMBURSEMENTS_READ</td>
-                <td>140</td>
-                <td><p>Reimbursements</p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_REIMBURSEMENTS_CREATE</td>
-                <td>141</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_REIMBURSEMENTS_COMMENT</td>
-                <td>142</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_REIMBURSEMENTS_UPDATE</td>
-                <td>143</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_REIMBURSEMENTS_ARCHIVE</td>
-                <td>144</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_REIMBURSEMENTS_READ_OWN</td>
-                <td>145</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_REIMBURSEMENTS_COMMENT_OWN</td>
-                <td>146</td>
-                <td><p></p></td>
-              </tr>
-            
-              <tr>
-                <td>PERMISSION_REIMBURSEMENTS_UPDATE_OWN</td>
-                <td>147</td>
-                <td><p></p></td>
-              </tr>
-            
-          </tbody>
-        </table>
-      
-
-      
-
-      
-    
-      
-      <div class="file-heading">
         <h2 id="pixlcrashr/vsfv/v1/group.proto">pixlcrashr/vsfv/v1/group.proto</h2><a href="#title">Top</a>
       </div>
       <p></p>
@@ -5235,7 +4809,7 @@ Format: groups/{group} </p></td>
         
       
         <h3 id="pixlcrashr.vsfv.v1.Group">Group</h3>
-        <p>Group is a named collection of users that share a common set of permissions,</p><p>scoped per organization via GroupOrganizationPolicy.</p>
+        <p>Group is a named collection of users that share a common set of permissions.</p><p>Permissions are self-standing (not scoped per organization); instead,</p><p>groups are assigned to organizations via the organizations field.</p>
 
         
           <table class="field-table">
@@ -5274,12 +4848,19 @@ Format: groups/{group} </p></td>
                 </tr>
               
                 <tr>
-                  <td>organization_policies</td>
-                  <td><a href="#pixlcrashr.vsfv.v1.GroupOrganizationPolicy">GroupOrganizationPolicy</a></td>
+                  <td>organizations</td>
+                  <td><a href="#string">string</a></td>
                   <td>repeated</td>
-                  <td><p>Per-organization permission policies for this group.
-Each entry associates a distinct organization with a set of permissions.
-Multiple entries for the same organization are not allowed. </p></td>
+                  <td><p>Organizations this group is assigned to (resource names).
+Format: organizations/{organization} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>permissions</td>
+                  <td><a href="#string">string</a></td>
+                  <td>repeated</td>
+                  <td><p>Self-standing permissions granted to this group.
+Format: &#34;resource:action&#34; (e.g. &#34;accounts:read&#34;, &#34;users:update&#34;). </p></td>
                 </tr>
               
                 <tr>
@@ -5301,38 +4882,6 @@ Multiple entries for the same organization are not allowed. </p></td>
                   <td><a href="#string">string</a></td>
                   <td></td>
                   <td><p>Entity tag for optimistic concurrency control. </p></td>
-                </tr>
-              
-            </tbody>
-          </table>
-
-          
-
-        
-      
-        <h3 id="pixlcrashr.vsfv.v1.GroupOrganizationPolicy">GroupOrganizationPolicy</h3>
-        <p>GroupOrganizationPolicy associates a set of permissions with a specific</p><p>organization for a group. A group may hold policies for multiple</p><p>organizations independently.</p>
-
-        
-          <table class="field-table">
-            <thead>
-              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
-            </thead>
-            <tbody>
-              
-                <tr>
-                  <td>organization</td>
-                  <td><a href="#string">string</a></td>
-                  <td></td>
-                  <td><p>The resource name of the organization this policy applies to.
-Format: organizations/{organization} </p></td>
-                </tr>
-              
-                <tr>
-                  <td>permissions</td>
-                  <td><a href="#pixlcrashr.vsfv.v1.Permission">Permission</a></td>
-                  <td>repeated</td>
-                  <td><p>The set of permissions granted within the organization. </p></td>
                 </tr>
               
             </tbody>
@@ -5479,7 +5028,7 @@ Supported fields: display_name. </p></td>
                 <td><p>Gets a single group by resource name.
 Authorization:
   Scope: groups:read
-  Permission: PERMISSION_GROUPS_READ
+  Permission: groups:read
   Domain: global</p></td>
               </tr>
             
@@ -5490,7 +5039,7 @@ Authorization:
                 <td><p>Lists groups with pagination.
 Authorization:
   Scope: groups:read
-  Permission: PERMISSION_GROUPS_READ
+  Permission: groups:read
   Domain: global</p></td>
               </tr>
             
@@ -5501,7 +5050,7 @@ Authorization:
                 <td><p>Creates a new group.
 Authorization:
   Scope: groups:write
-  Permission: PERMISSION_GROUPS_CREATE
+  Permission: groups:create
   Domain: global</p></td>
               </tr>
             
@@ -5512,7 +5061,7 @@ Authorization:
                 <td><p>Updates an existing group.
 Authorization:
   Scope: groups:write
-  Permission: PERMISSION_GROUPS_UPDATE
+  Permission: groups:update
   Domain: global</p></td>
               </tr>
             
@@ -5523,7 +5072,7 @@ Authorization:
                 <td><p>Permanently deletes a group.
 Authorization:
   Scope: groups:write
-  Permission: PERMISSION_GROUPS_DELETE
+  Permission: groups:delete
   Domain: global</p></td>
               </tr>
             
@@ -5944,7 +5493,7 @@ Example: &#34;account_type=ASSET&#34; or &#34;code:\&#34;1000\&#34;&#34;. </p></
                 <td><p>Gets a single ledger account by resource name.
 Authorization:
   Scope: ledgerAccount:read
-  Permission: PERMISSION_LEDGER_ACCOUNT_READ
+  Permission: ledgerAccount:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -5955,7 +5504,7 @@ Authorization:
                 <td><p>Lists ledger accounts with pagination.
 Authorization:
   Scope: ledgerAccount:read
-  Permission: PERMISSION_LEDGER_ACCOUNT_READ
+  Permission: ledgerAccount:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -5966,7 +5515,7 @@ Authorization:
                 <td><p>Updates an existing ledger account (e.g., display name).
 Authorization:
   Scope: ledgerAccount:write
-  Permission: PERMISSION_LEDGER_ACCOUNT_UPDATE
+  Permission: ledgerAccount:update
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -5977,7 +5526,7 @@ Authorization:
                 <td><p>Permanently deletes a ledger account.
 Authorization:
   Scope: ledgerAccount:write
-  Permission: PERMISSION_LEDGER_ACCOUNT_DELETE
+  Permission: ledgerAccount:delete
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -6348,7 +5897,7 @@ Example: &#34;is_closed=false&#34; or &#34;year=2025&#34;. </p></td>
                 <td><p>Gets a single ledger year by resource name.
 Authorization:
   Scope: ledgerYear:read
-  Permission: PERMISSION_LEDGER_YEAR_READ
+  Permission: ledgerYear:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -6359,7 +5908,7 @@ Authorization:
                 <td><p>Lists ledger years for an organization.
 Authorization:
   Scope: ledgerYear:read
-  Permission: PERMISSION_LEDGER_YEAR_READ
+  Permission: ledgerYear:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -6370,7 +5919,7 @@ Authorization:
                 <td><p>Closes a ledger year, preventing new imports.
 Authorization:
   Scope: ledgerYear:write
-  Permission: PERMISSION_LEDGER_YEAR_CLOSE
+  Permission: ledgerYear:close
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -6769,7 +6318,7 @@ Format: organizations/{organization} </p></td>
                 <td><p>Gets a single organization by resource name.
 Authorization:
   Scope: organizations:read
-  Permission: PERMISSION_ORGANIZATIONS_READ
+  Permission: organizations:read
   Domain: global</p></td>
               </tr>
             
@@ -6780,7 +6329,7 @@ Authorization:
                 <td><p>Lists organizations with pagination.
 Authorization:
   Scope: organizations:read
-  Permission: PERMISSION_ORGANIZATIONS_READ
+  Permission: organizations:read
   Domain: global</p></td>
               </tr>
             
@@ -6791,7 +6340,7 @@ Authorization:
                 <td><p>Creates a new organization.
 Authorization:
   Scope: organizations:write
-  Permission: PERMISSION_ORGANIZATIONS_CREATE
+  Permission: organizations:create
   Domain: global</p></td>
               </tr>
             
@@ -6802,7 +6351,7 @@ Authorization:
                 <td><p>Updates an existing organization.
 Authorization:
   Scope: organizations:write
-  Permission: PERMISSION_ORGANIZATIONS_UPDATE
+  Permission: organizations:update
   Domain: global</p></td>
               </tr>
             
@@ -6813,7 +6362,7 @@ Authorization:
                 <td><p>Permanently deletes an organization.
 Authorization:
   Scope: organizations:write
-  Permission: PERMISSION_ORGANIZATIONS_DELETE
+  Permission: organizations:delete
   Domain: global</p></td>
               </tr>
             
@@ -6824,7 +6373,7 @@ Authorization:
                 <td><p>Checks whether an organization ID (slug) is available for use.
 Authorization:
   Scope: organizations:read
-  Permission: PERMISSION_ORGANIZATIONS_READ
+  Permission: organizations:read
   Domain: global</p></td>
               </tr>
             
@@ -7183,7 +6732,7 @@ Format: organizations/{organization}/reports/{report} </p></td>
                 <td><p>Gets report metadata by resource name.
 Authorization:
   Scope: reports:read
-  Permission: PERMISSION_REPORTS_READ
+  Permission: reports:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -7194,7 +6743,7 @@ Authorization:
                 <td><p>Lists reports with pagination.
 Authorization:
   Scope: reports:read
-  Permission: PERMISSION_REPORTS_READ
+  Permission: reports:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -7205,7 +6754,7 @@ Authorization:
                 <td><p>Creates a new report by rendering a template.
 Authorization:
   Scope: reports:write
-  Permission: PERMISSION_REPORTS_CREATE
+  Permission: reports:create
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -7216,7 +6765,7 @@ Authorization:
                 <td><p>Permanently deletes a report.
 Authorization:
   Scope: reports:write
-  Permission: PERMISSION_REPORTS_DELETE
+  Permission: reports:delete
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -7593,7 +7142,7 @@ Format: organizations/{organization}/reportTemplates/{report_template} </p></td>
                 <td><p>Gets a single report template by resource name.
 Authorization:
   Scope: reportTemplates:read
-  Permission: PERMISSION_REPORT_TEMPLATES_READ
+  Permission: reportTemplates:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -7604,7 +7153,7 @@ Authorization:
                 <td><p>Lists report templates with pagination.
 Authorization:
   Scope: reportTemplates:read
-  Permission: PERMISSION_REPORT_TEMPLATES_READ
+  Permission: reportTemplates:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -7615,7 +7164,7 @@ Authorization:
                 <td><p>Creates a new report template.
 Authorization:
   Scope: reportTemplates:write
-  Permission: PERMISSION_REPORT_TEMPLATES_CREATE
+  Permission: reportTemplates:create
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -7626,7 +7175,7 @@ Authorization:
                 <td><p>Updates an existing report template.
 Authorization:
   Scope: reportTemplates:write
-  Permission: PERMISSION_REPORT_TEMPLATES_UPDATE
+  Permission: reportTemplates:update
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -7637,7 +7186,7 @@ Authorization:
                 <td><p>Permanently deletes a report template.
 Authorization:
   Scope: reportTemplates:write
-  Permission: PERMISSION_REPORT_TEMPLATES_DELETE
+  Permission: reportTemplates:delete
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -8069,7 +7618,7 @@ Format: organizations/{organization}/ledgerAccounts/{ledger_account} </p></td>
                 <td><p>Gets a single transaction by resource name.
 Authorization:
   Scope: transactions:read
-  Permission: PERMISSION_TRANSACTIONS_READ
+  Permission: transactions:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -8080,7 +7629,7 @@ Authorization:
                 <td><p>Lists transactions with keyset pagination and optional filters.
 Authorization:
   Scope: transactions:read
-  Permission: PERMISSION_TRANSACTIONS_READ
+  Permission: transactions:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -8091,7 +7640,7 @@ Authorization:
                 <td><p>Creates a new transaction.
 Authorization:
   Scope: transactions:write
-  Permission: PERMISSION_TRANSACTIONS_CREATE (note: not yet defined in permission.proto)
+  Permission: transactions:create
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -8102,7 +7651,7 @@ Authorization:
                 <td><p>Updates an existing transaction.
 Authorization:
   Scope: transactions:write
-  Permission: PERMISSION_TRANSACTIONS_UPDATE
+  Permission: transactions:update
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -8113,7 +7662,7 @@ Authorization:
                 <td><p>Permanently deletes a transaction.
 Authorization:
   Scope: transactions:write
-  Permission: PERMISSION_TRANSACTIONS_DELETE
+  Permission: transactions:delete
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -8502,7 +8051,7 @@ Format: organizations/{organization}/accounts/{account} </p></td>
                 <td><p>Gets a single transaction assignment by resource name.
 Authorization:
   Scope: transactions:read
-  Permission: PERMISSION_TRANSACTIONS_READ
+  Permission: transactions:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -8513,7 +8062,7 @@ Authorization:
                 <td><p>Lists transaction assignments with keyset pagination and optional filters.
 Authorization:
   Scope: transactions:read
-  Permission: PERMISSION_TRANSACTIONS_READ
+  Permission: transactions:read
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -8567,66 +8116,8 @@ Authorization:
       <p></p>
 
       
-        <h3 id="pixlcrashr.vsfv.v1.BatchCheckUserOrganizationPermissionsRequest">BatchCheckUserOrganizationPermissionsRequest</h3>
-        <p>BatchCheckUserOrganizationPermissionsRequest checks permissions for a single</p><p>user across multiple organizations in one call (AIP-231 batch pattern).</p>
-
-        
-          <table class="field-table">
-            <thead>
-              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
-            </thead>
-            <tbody>
-              
-                <tr>
-                  <td>name</td>
-                  <td><a href="#string">string</a></td>
-                  <td></td>
-                  <td><p>The resource name of the user.
-Format: users/{user} </p></td>
-                </tr>
-              
-                <tr>
-                  <td>requests</td>
-                  <td><a href="#pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsRequest">CheckUserOrganizationPermissionsRequest</a></td>
-                  <td>repeated</td>
-                  <td><p>Individual per-organization check requests.
-Maximum 100 entries per call. </p></td>
-                </tr>
-              
-            </tbody>
-          </table>
-
-          
-
-        
-      
-        <h3 id="pixlcrashr.vsfv.v1.BatchCheckUserOrganizationPermissionsResponse">BatchCheckUserOrganizationPermissionsResponse</h3>
-        <p>BatchCheckUserOrganizationPermissionsResponse returns one result entry per</p><p>requested organization, in the same order as the request.</p>
-
-        
-          <table class="field-table">
-            <thead>
-              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
-            </thead>
-            <tbody>
-              
-                <tr>
-                  <td>results</td>
-                  <td><a href="#pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsResponse">CheckUserOrganizationPermissionsResponse</a></td>
-                  <td>repeated</td>
-                  <td><p>One result per entry in BatchCheckUserOrganizationPermissionsRequest.requests,
-in the same order. </p></td>
-                </tr>
-              
-            </tbody>
-          </table>
-
-          
-
-        
-      
         <h3 id="pixlcrashr.vsfv.v1.BatchCheckUserPermissionsRequest">BatchCheckUserPermissionsRequest</h3>
-        <p>BatchCheckUserPermissionsRequest checks global permissions for multiple</p><p>users in one call (AIP-231 batch pattern).</p>
+        <p>BatchCheckUserPermissionsRequest checks permissions for one or more users</p><p>in a single call (AIP-231 batch pattern). Each entry can target a different</p><p>domain (or the global domain when domain is empty).</p>
 
         
           <table class="field-table">
@@ -8639,7 +8130,7 @@ in the same order. </p></td>
                   <td>requests</td>
                   <td><a href="#pixlcrashr.vsfv.v1.CheckUserPermissionsRequest">CheckUserPermissionsRequest</a></td>
                   <td>repeated</td>
-                  <td><p>Individual per-user check requests. Maximum 100 entries per call. </p></td>
+                  <td><p>Individual check requests. Maximum 100 entries per call. </p></td>
                 </tr>
               
             </tbody>
@@ -8650,7 +8141,7 @@ in the same order. </p></td>
         
       
         <h3 id="pixlcrashr.vsfv.v1.BatchCheckUserPermissionsResponse">BatchCheckUserPermissionsResponse</h3>
-        <p>BatchCheckUserPermissionsResponse returns one result entry per requested</p><p>user, in the same order as the request.</p>
+        <p>BatchCheckUserPermissionsResponse returns one result entry per requested</p><p>check, in the same order as the request.</p>
 
         
           <table class="field-table">
@@ -8674,81 +8165,8 @@ in the same order. </p></td>
 
         
       
-        <h3 id="pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsRequest">CheckUserOrganizationPermissionsRequest</h3>
-        <p>CheckUserOrganizationPermissionsRequest checks which of the requested</p><p>permissions a user holds within a single organization.</p>
-
-        
-          <table class="field-table">
-            <thead>
-              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
-            </thead>
-            <tbody>
-              
-                <tr>
-                  <td>name</td>
-                  <td><a href="#string">string</a></td>
-                  <td></td>
-                  <td><p>The resource name of the user.
-Format: users/{user} </p></td>
-                </tr>
-              
-                <tr>
-                  <td>organization</td>
-                  <td><a href="#string">string</a></td>
-                  <td></td>
-                  <td><p>The resource name of the organization to check permissions against.
-Format: organizations/{organization} </p></td>
-                </tr>
-              
-                <tr>
-                  <td>permissions</td>
-                  <td><a href="#pixlcrashr.vsfv.v1.Permission">Permission</a></td>
-                  <td>repeated</td>
-                  <td><p>The permissions to evaluate. At least one must be provided.
-Only the permissions listed here are evaluated and returned. </p></td>
-                </tr>
-              
-            </tbody>
-          </table>
-
-          
-
-        
-      
-        <h3 id="pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsResponse">CheckUserOrganizationPermissionsResponse</h3>
-        <p>CheckUserOrganizationPermissionsResponse reports which of the requested</p><p>permissions the user actually holds.</p>
-
-        
-          <table class="field-table">
-            <thead>
-              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
-            </thead>
-            <tbody>
-              
-                <tr>
-                  <td>organization</td>
-                  <td><a href="#string">string</a></td>
-                  <td></td>
-                  <td><p>The organization that was evaluated.
-Format: organizations/{organization} </p></td>
-                </tr>
-              
-                <tr>
-                  <td>permitted</td>
-                  <td><a href="#pixlcrashr.vsfv.v1.Permission">Permission</a></td>
-                  <td>repeated</td>
-                  <td><p>The subset of the requested permissions that the user holds. </p></td>
-                </tr>
-              
-            </tbody>
-          </table>
-
-          
-
-        
-      
         <h3 id="pixlcrashr.vsfv.v1.CheckUserPermissionsRequest">CheckUserPermissionsRequest</h3>
-        <p>CheckUserPermissionsRequest checks which of the requested global</p><p>permissions a user holds, without scoping to any organization.</p><p>Only global resources (users, groups, settings, organizations) are</p><p>evaluated; org-scoped permissions will always be absent from the result.</p>
+        <p>CheckUserPermissionsRequest checks which of the requested permissions a</p><p>user holds, optionally scoped to a domain.</p><p>When domain is empty, permissions are evaluated against the global</p><p>domain (e.g. users, groups, settings). When set, permissions are evaluated</p><p>against the specified domain (e.g. "organizations/{organization}").</p>
 
         
           <table class="field-table">
@@ -8766,11 +8184,20 @@ Format: users/{user} </p></td>
                 </tr>
               
                 <tr>
+                  <td>domain</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The domain to scope the check to (e.g. &#34;organizations/{organization}&#34;).
+If empty, permissions are checked against the global domain. </p></td>
+                </tr>
+              
+                <tr>
                   <td>permissions</td>
-                  <td><a href="#pixlcrashr.vsfv.v1.Permission">Permission</a></td>
+                  <td><a href="#string">string</a></td>
                   <td>repeated</td>
-                  <td><p>The permissions to evaluate. At least one must be provided.
-Only the permissions listed here are evaluated and returned. </p></td>
+                  <td><p>The permissions to evaluate, as &#34;resource:action&#34; strings.
+At least one must be provided. Only the permissions listed here
+are evaluated and returned. </p></td>
                 </tr>
               
             </tbody>
@@ -8781,7 +8208,7 @@ Only the permissions listed here are evaluated and returned. </p></td>
         
       
         <h3 id="pixlcrashr.vsfv.v1.CheckUserPermissionsResponse">CheckUserPermissionsResponse</h3>
-        <p>CheckUserPermissionsResponse reports which of the requested</p><p>permissions the user actually holds.</p>
+        <p>CheckUserPermissionsResponse reports which of the requested permissions</p><p>the user actually holds.</p>
 
         
           <table class="field-table">
@@ -8791,8 +8218,16 @@ Only the permissions listed here are evaluated and returned. </p></td>
             <tbody>
               
                 <tr>
+                  <td>domain</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The domain that was evaluated, if any.
+Empty if the check was global. </p></td>
+                </tr>
+              
+                <tr>
                   <td>permitted</td>
-                  <td><a href="#pixlcrashr.vsfv.v1.Permission">Permission</a></td>
+                  <td><a href="#string">string</a></td>
                   <td>repeated</td>
                   <td><p>The subset of the requested permissions that the user holds. </p></td>
                 </tr>
@@ -9009,7 +8444,7 @@ Format: users/{user} </p></td>
                 <td><p>Gets a single user by resource name.
 Authorization:
   Scope: users:read
-  Permission: PERMISSION_USERS_READ
+  Permission: users:read
   Domain: global</p></td>
               </tr>
             
@@ -9020,31 +8455,7 @@ Authorization:
                 <td><p>Lists users with pagination.
 Authorization:
   Scope: users:read
-  Permission: PERMISSION_USERS_READ
-  Domain: global</p></td>
-              </tr>
-            
-              <tr>
-                <td>CheckUserOrganizationPermissions</td>
-                <td><a href="#pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsRequest">CheckUserOrganizationPermissionsRequest</a></td>
-                <td><a href="#pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsResponse">CheckUserOrganizationPermissionsResponse</a></td>
-                <td><p>Checks which of the requested permissions a user holds within a single
-organization (custom method, AIP-136).
-Authorization:
-  Scope: users:read
-  Permission: PERMISSION_USERS_READ
-  Domain: global</p></td>
-              </tr>
-            
-              <tr>
-                <td>BatchCheckUserOrganizationPermissions</td>
-                <td><a href="#pixlcrashr.vsfv.v1.BatchCheckUserOrganizationPermissionsRequest">BatchCheckUserOrganizationPermissionsRequest</a></td>
-                <td><a href="#pixlcrashr.vsfv.v1.BatchCheckUserOrganizationPermissionsResponse">BatchCheckUserOrganizationPermissionsResponse</a></td>
-                <td><p>Checks permissions for a user across multiple organizations in one call
-(batch custom method, AIP-231).
-Authorization:
-  Scope: users:read
-  Permission: PERMISSION_USERS_READ
+  Permission: users:read
   Domain: global</p></td>
               </tr>
             
@@ -9052,13 +8463,13 @@ Authorization:
                 <td>CheckUserPermissions</td>
                 <td><a href="#pixlcrashr.vsfv.v1.CheckUserPermissionsRequest">CheckUserPermissionsRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.CheckUserPermissionsResponse">CheckUserPermissionsResponse</a></td>
-                <td><p>Checks which of the requested global permissions a user holds, without
-scoping to any organization (custom method, AIP-136).
-Only global resources (users, groups, settings, organizations) are
-evaluated; org-scoped permissions will always be absent from the result.
+                <td><p>Checks which of the requested permissions a user holds, optionally scoped
+to a domain (custom method, AIP-136).
+When domain is empty, permissions are evaluated against the global
+domain. When set, permissions are evaluated against the specified domain.
 Authorization:
   Scope: users:read
-  Permission: PERMISSION_USERS_READ
+  Permission: users:read
   Domain: global</p></td>
               </tr>
             
@@ -9066,11 +8477,11 @@ Authorization:
                 <td>BatchCheckUserPermissions</td>
                 <td><a href="#pixlcrashr.vsfv.v1.BatchCheckUserPermissionsRequest">BatchCheckUserPermissionsRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.BatchCheckUserPermissionsResponse">BatchCheckUserPermissionsResponse</a></td>
-                <td><p>Checks global permissions for multiple users in one call
-(batch custom method, AIP-231).
+                <td><p>Checks permissions for one or more users in one call, each optionally
+scoped to a different domain (batch custom method, AIP-231).
 Authorization:
   Scope: users:read
-  Permission: PERMISSION_USERS_READ
+  Permission: users:read
   Domain: global</p></td>
               </tr>
             
@@ -9109,26 +8520,6 @@ Authorization:
                 <td>GET</td>
                 <td>/v1/users</td>
                 <td></td>
-              </tr>
-              
-            
-              
-              
-              <tr>
-                <td>CheckUserOrganizationPermissions</td>
-                <td>POST</td>
-                <td>/v1/{name=users/*}:checkOrganizationPermissions</td>
-                <td>*</td>
-              </tr>
-              
-            
-              
-              
-              <tr>
-                <td>BatchCheckUserOrganizationPermissions</td>
-                <td>POST</td>
-                <td>/v1/{name=users/*}:batchCheckOrganizationPermissions</td>
-                <td>*</td>
               </tr>
               
             
@@ -9363,7 +8754,7 @@ This is the provider&#39;s stable user ID, not a credential. </p></td>
                 <td><p>Gets a single identity record.
 Authorization:
   Scope: users:read
-  Permission: PERMISSION_USERS_READ
+  Permission: users:read
   Domain: global</p></td>
               </tr>
             
@@ -9374,7 +8765,7 @@ Authorization:
                 <td><p>Lists all identity records for a user.
 Authorization:
   Scope: users:read
-  Permission: PERMISSION_USERS_READ
+  Permission: users:read
   Domain: global</p></td>
               </tr>
             
@@ -9567,7 +8958,7 @@ Format: users/{user}/settings </p></td>
                 <td><p>Gets the settings for a user.
 Authorization:
   Scope: settings:read
-  Permission: PERMISSION_SETTINGS_READ
+  Permission: settings:read
   Domain: global</p></td>
               </tr>
             
@@ -9578,7 +8969,7 @@ Authorization:
                 <td><p>Updates the settings for a user.
 Authorization:
   Scope: settings:write
-  Permission: PERMISSION_SETTINGS_UPDATE
+  Permission: settings:update
   Domain: global</p></td>
               </tr>
             

@@ -68,39 +68,19 @@ func (en *Enforcer) Enforce(sub, dom, obj, act string) (bool, error) {
 	return en.e.Enforce(sub, dom, obj, act)
 }
 
-// AddPolicy adds a policy rule (p, sub, dom, obj, act).
-func (en *Enforcer) AddPolicy(sub, dom, obj, act string) (bool, error) {
-	return en.e.AddPolicy(sub, dom, obj, act)
+// AddPolicy adds a policy rule (p, sub, obj, act).
+func (en *Enforcer) AddPolicy(sub, obj, act string) (bool, error) {
+	return en.e.AddPolicy(sub, obj, act)
 }
 
 // RemovePolicy removes a policy rule.
-func (en *Enforcer) RemovePolicy(sub, dom, obj, act string) (bool, error) {
-	return en.e.RemovePolicy(sub, dom, obj, act)
+func (en *Enforcer) RemovePolicy(sub, obj, act string) (bool, error) {
+	return en.e.RemovePolicy(sub, obj, act)
 }
 
 // RemoveFilteredPolicy removes all policy rules matching the given field values.
 func (en *Enforcer) RemoveFilteredPolicy(fieldIndex int, fieldValues ...string) (bool, error) {
 	return en.e.RemoveFilteredPolicy(fieldIndex, fieldValues...)
-}
-
-// AddGroupingPolicy adds a per-domain role assignment (g, user, role, domain).
-func (en *Enforcer) AddGroupingPolicy(user, role, domain string) (bool, error) {
-	return en.e.AddGroupingPolicy(user, role, domain)
-}
-
-// RemoveGroupingPolicy removes a per-domain role assignment.
-func (en *Enforcer) RemoveGroupingPolicy(user, role, domain string) (bool, error) {
-	return en.e.RemoveGroupingPolicy(user, role, domain)
-}
-
-// GetRolesForUserInDomain returns all role names assigned to user in the given domain.
-func (en *Enforcer) GetRolesForUserInDomain(user, domain string) []string {
-	return en.e.GetRolesForUserInDomain(user, domain)
-}
-
-// GetUsersForRoleInDomain returns all user IDs assigned to role in the given domain.
-func (en *Enforcer) GetUsersForRoleInDomain(role, domain string) []string {
-	return en.e.GetUsersForRoleInDomain(role, domain)
 }
 
 // ── Global (g2) role assignments ─────────────────────────────────────────────
@@ -132,8 +112,42 @@ func (en *Enforcer) GetGlobalRolesForUser(user string) ([]string, error) {
 	return roles, nil
 }
 
-// GetPermissionsForUser returns all (sub, dom, obj, act) tuples for user/role.
+// GetPermissionsForUser returns all (sub, obj, act) tuples for user/role.
 func (en *Enforcer) GetPermissionsForUser(user string) ([][]string, error) {
 	perms, err := en.e.GetPermissionsForUser(user)
 	return perms, err
+}
+
+// ── Group-to-Domain (g3) assignments ───────────────────────────────────────────
+// g3 maps a group ID to a domain. Every group gets a g3(group, "")
+// entry for global access. Per-org entries are g3(group, "organizations/{id}").
+
+// AddGroupOrgAssignment adds a group-to-organization assignment (g3, group, orgDomain).
+func (en *Enforcer) AddGroupOrgAssignment(groupID, orgDomain string) (bool, error) {
+	return en.e.AddNamedGroupingPolicy("g3", groupID, orgDomain)
+}
+
+// RemoveGroupOrgAssignment removes a group-to-organization assignment.
+func (en *Enforcer) RemoveGroupOrgAssignment(groupID, orgDomain string) (bool, error) {
+	return en.e.RemoveNamedGroupingPolicy("g3", groupID, orgDomain)
+}
+
+// RemoveAllGroupOrgAssignments removes all g3 entries for the given group.
+func (en *Enforcer) RemoveAllGroupOrgAssignments(groupID string) (bool, error) {
+	return en.e.RemoveFilteredNamedGroupingPolicy("g3", 0, groupID)
+}
+
+// GetOrganizationsForGroup returns all organization domains assigned to the group.
+func (en *Enforcer) GetOrganizationsForGroup(groupID string) ([]string, error) {
+	policies, err := en.e.GetNamedGroupingPolicy("g3")
+	if err != nil {
+		return nil, err
+	}
+	var orgs []string
+	for _, p := range policies {
+		if len(p) >= 2 && p[0] == groupID {
+			orgs = append(orgs, p[1])
+		}
+	}
+	return orgs, nil
 }

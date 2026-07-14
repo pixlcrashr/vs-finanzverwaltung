@@ -52,7 +52,7 @@ func (s *budgetRevisionServiceServer) GetBudgetRevision(ctx context.Context, req
 		return nil, &ServerError{Err: err, Status: statusInvalidBudgetRevisionName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -80,7 +80,7 @@ func (s *budgetRevisionServiceServer) ListBudgetRevisions(ctx context.Context, r
 		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetRevisionName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, pn.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, authz.OrgDomain(pn.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -135,7 +135,7 @@ func (s *budgetRevisionServiceServer) CreateBudgetRevision(ctx context.Context, 
 		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetRevisionName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionCreate, pn.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionCreate, authz.OrgDomain(pn.Organization)); err != nil {
 		return nil, authError(err)
 	}
 

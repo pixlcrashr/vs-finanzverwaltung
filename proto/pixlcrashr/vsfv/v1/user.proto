@@ -8,7 +8,6 @@ import "google/api/field_behavior.proto";
 import "google/api/field_info.proto";
 import "google/api/resource.proto";
 import "google/protobuf/timestamp.proto";
-import "pixlcrashr/vsfv/v1/permission.proto";
 
 option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
 option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
@@ -91,66 +90,11 @@ message ListUsersResponse {
 
 // ── Permission check ──────────────────────────────────────────────────────────
 
-// CheckUserOrganizationPermissionsRequest checks which of the requested
-// permissions a user holds within a single organization.
-message CheckUserOrganizationPermissionsRequest {
-  // The resource name of the user.
-  // Format: users/{user}
-  string name = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/User"}
-  ];
-
-  // The resource name of the organization to check permissions against.
-  // Format: organizations/{organization}
-  string organization = 2 [
-    (google.api.field_behavior) = REQUIRED,
-    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Organization"}
-  ];
-
-  // The permissions to evaluate. At least one must be provided.
-  // Only the permissions listed here are evaluated and returned.
-  repeated Permission permissions = 3 [(google.api.field_behavior) = REQUIRED];
-}
-
-// CheckUserOrganizationPermissionsResponse reports which of the requested
-// permissions the user actually holds.
-message CheckUserOrganizationPermissionsResponse {
-  // The organization that was evaluated.
-  // Format: organizations/{organization}
-  string organization = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // The subset of the requested permissions that the user holds.
-  repeated Permission permitted = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
-}
-
-// BatchCheckUserOrganizationPermissionsRequest checks permissions for a single
-// user across multiple organizations in one call (AIP-231 batch pattern).
-message BatchCheckUserOrganizationPermissionsRequest {
-  // The resource name of the user.
-  // Format: users/{user}
-  string name = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/User"}
-  ];
-
-  // Individual per-organization check requests.
-  // Maximum 100 entries per call.
-  repeated CheckUserOrganizationPermissionsRequest requests = 2 [(google.api.field_behavior) = REQUIRED];
-}
-
-// BatchCheckUserOrganizationPermissionsResponse returns one result entry per
-// requested organization, in the same order as the request.
-message BatchCheckUserOrganizationPermissionsResponse {
-  // One result per entry in BatchCheckUserOrganizationPermissionsRequest.requests,
-  // in the same order.
-  repeated CheckUserOrganizationPermissionsResponse results = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-}
-
-// CheckUserPermissionsRequest checks which of the requested global
-// permissions a user holds, without scoping to any organization.
-// Only global resources (users, groups, settings, organizations) are
-// evaluated; org-scoped permissions will always be absent from the result.
+// CheckUserPermissionsRequest checks which of the requested permissions a
+// user holds, optionally scoped to a domain.
+// When domain is empty, permissions are evaluated against the global
+// domain (e.g. users, groups, settings). When set, permissions are evaluated
+// against the specified domain (e.g. "organizations/{organization}").
 message CheckUserPermissionsRequest {
   // The resource name of the user.
   // Format: users/{user}
@@ -159,27 +103,37 @@ message CheckUserPermissionsRequest {
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/User"}
   ];
 
-  // The permissions to evaluate. At least one must be provided.
-  // Only the permissions listed here are evaluated and returned.
-  repeated Permission permissions = 3 [(google.api.field_behavior) = REQUIRED];
+  // The domain to scope the check to (e.g. "organizations/{organization}").
+  // If empty, permissions are checked against the global domain.
+  string domain = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // The permissions to evaluate, as "resource:action" strings.
+  // At least one must be provided. Only the permissions listed here
+  // are evaluated and returned.
+  repeated string permissions = 3 [(google.api.field_behavior) = REQUIRED];
 }
 
-// CheckUserPermissionsResponse reports which of the requested
-// permissions the user actually holds.
+// CheckUserPermissionsResponse reports which of the requested permissions
+// the user actually holds.
 message CheckUserPermissionsResponse {
+  // The domain that was evaluated, if any.
+  // Empty if the check was global.
+  string domain = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
   // The subset of the requested permissions that the user holds.
-  repeated Permission permitted = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  repeated string permitted = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
-// BatchCheckUserPermissionsRequest checks global permissions for multiple
-// users in one call (AIP-231 batch pattern).
+// BatchCheckUserPermissionsRequest checks permissions for one or more users
+// in a single call (AIP-231 batch pattern). Each entry can target a different
+// domain (or the global domain when domain is empty).
 message BatchCheckUserPermissionsRequest {
-  // Individual per-user check requests. Maximum 100 entries per call.
+  // Individual check requests. Maximum 100 entries per call.
   repeated CheckUserPermissionsRequest requests = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // BatchCheckUserPermissionsResponse returns one result entry per requested
-// user, in the same order as the request.
+// check, in the same order as the request.
 message BatchCheckUserPermissionsResponse {
   // One result per entry in BatchCheckUserPermissionsRequest.requests,
   // in the same order.
@@ -196,7 +150,7 @@ service UserService {
   // Gets a single user by resource name.
   // Authorization:
   //   Scope: users:read
-  //   Permission: PERMISSION_USERS_READ
+  //   Permission: users:read
   //   Domain: global
   rpc GetUser(GetUserRequest) returns (User) {
     option (google.api.http) = {get: "/v1/{name=users/*}"};
@@ -206,61 +160,33 @@ service UserService {
   // Lists users with pagination.
   // Authorization:
   //   Scope: users:read
-  //   Permission: PERMISSION_USERS_READ
+  //   Permission: users:read
   //   Domain: global
   rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
     option (google.api.http) = {get: "/v1/users"};
   }
 
-  // Checks which of the requested permissions a user holds within a single
-  // organization (custom method, AIP-136).
+  // Checks which of the requested permissions a user holds, optionally scoped
+  // to a domain (custom method, AIP-136).
+  // When domain is empty, permissions are evaluated against the global
+  // domain. When set, permissions are evaluated against the specified domain.
   // Authorization:
   //   Scope: users:read
-  //   Permission: PERMISSION_USERS_READ
-  //   Domain: global
-  rpc CheckUserOrganizationPermissions(CheckUserOrganizationPermissionsRequest) returns (CheckUserOrganizationPermissionsResponse) {
-    option (google.api.http) = {
-      post: "/v1/{name=users/*}:checkOrganizationPermissions"
-      body: "*"
-    };
-    option (google.api.method_signature) = "name,organization,permissions";
-  }
-
-  // Checks permissions for a user across multiple organizations in one call
-  // (batch custom method, AIP-231).
-  // Authorization:
-  //   Scope: users:read
-  //   Permission: PERMISSION_USERS_READ
-  //   Domain: global
-  rpc BatchCheckUserOrganizationPermissions(BatchCheckUserOrganizationPermissionsRequest) returns (BatchCheckUserOrganizationPermissionsResponse) {
-    option (google.api.http) = {
-      post: "/v1/{name=users/*}:batchCheckOrganizationPermissions"
-      body: "*"
-    };
-    option (google.api.method_signature) = "name,requests";
-  }
-
-  // Checks which of the requested global permissions a user holds, without
-  // scoping to any organization (custom method, AIP-136).
-  // Only global resources (users, groups, settings, organizations) are
-  // evaluated; org-scoped permissions will always be absent from the result.
-  // Authorization:
-  //   Scope: users:read
-  //   Permission: PERMISSION_USERS_READ
+  //   Permission: users:read
   //   Domain: global
   rpc CheckUserPermissions(CheckUserPermissionsRequest) returns (CheckUserPermissionsResponse) {
     option (google.api.http) = {
       post: "/v1/{name=users/*}:checkPermissions"
       body: "*"
     };
-    option (google.api.method_signature) = "name,permissions";
+    option (google.api.method_signature) = "name,domain,permissions";
   }
 
-  // Checks global permissions for multiple users in one call
-  // (batch custom method, AIP-231).
+  // Checks permissions for one or more users in one call, each optionally
+  // scoped to a different domain (batch custom method, AIP-231).
   // Authorization:
   //   Scope: users:read
-  //   Permission: PERMISSION_USERS_READ
+  //   Permission: users:read
   //   Domain: global
   rpc BatchCheckUserPermissions(BatchCheckUserPermissionsRequest) returns (BatchCheckUserPermissionsResponse) {
     option (google.api.http) = {

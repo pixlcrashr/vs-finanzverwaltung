@@ -184,6 +184,18 @@ func newAccountGroup(db *gorm.DB, opts ...gen.DOOption) accountGroup {
 			TransactionAssignments struct {
 				field.RelationField
 			}
+			GroupOrganizations struct {
+				field.RelationField
+				UserGroup struct {
+					field.RelationField
+					GroupOrganizations struct {
+						field.RelationField
+					}
+				}
+				Organization struct {
+					field.RelationField
+				}
+			}
 		}{
 			RelationField: field.NewRelation("AccountGroupAssignments.Organization", "model.Organization"),
 			AccountGroupAssignments: struct {
@@ -675,6 +687,38 @@ func newAccountGroup(db *gorm.DB, opts ...gen.DOOption) accountGroup {
 			}{
 				RelationField: field.NewRelation("AccountGroupAssignments.Organization.TransactionAssignments", "model.TransactionAssignment"),
 			},
+			GroupOrganizations: struct {
+				field.RelationField
+				UserGroup struct {
+					field.RelationField
+					GroupOrganizations struct {
+						field.RelationField
+					}
+				}
+				Organization struct {
+					field.RelationField
+				}
+			}{
+				RelationField: field.NewRelation("AccountGroupAssignments.Organization.GroupOrganizations", "model.GroupOrganization"),
+				UserGroup: struct {
+					field.RelationField
+					GroupOrganizations struct {
+						field.RelationField
+					}
+				}{
+					RelationField: field.NewRelation("AccountGroupAssignments.Organization.GroupOrganizations.UserGroup", "model.UserGroup"),
+					GroupOrganizations: struct {
+						field.RelationField
+					}{
+						RelationField: field.NewRelation("AccountGroupAssignments.Organization.GroupOrganizations.UserGroup.GroupOrganizations", "model.GroupOrganization"),
+					},
+				},
+				Organization: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("AccountGroupAssignments.Organization.GroupOrganizations.Organization", "model.Organization"),
+				},
+			},
 		},
 		AccountGroup: struct {
 			field.RelationField
@@ -941,6 +985,18 @@ type accountGroupHasManyAccountGroupAssignments struct {
 		}
 		TransactionAssignments struct {
 			field.RelationField
+		}
+		GroupOrganizations struct {
+			field.RelationField
+			UserGroup struct {
+				field.RelationField
+				GroupOrganizations struct {
+					field.RelationField
+				}
+			}
+			Organization struct {
+				field.RelationField
+			}
 		}
 	}
 	AccountGroup struct {

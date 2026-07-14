@@ -29,6 +29,7 @@ type Organization struct {
 	Reports                     []Report                     `gorm:"foreignKey:OrganizationID"`
 	Transactions                []Transaction_               `gorm:"foreignKey:OrganizationID"`
 	TransactionAssignments      []TransactionAssignment      `gorm:"foreignKey:OrganizationID"`
+	GroupOrganizations          []GroupOrganization          `gorm:"foreignKey:OrganizationID"`
 }
 
 func (Organization) TableName() string { return "organizations" }

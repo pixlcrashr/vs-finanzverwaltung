@@ -49,7 +49,7 @@ func (s *budgetServiceServer) GetBudget(ctx context.Context, req *gen.GetBudgetR
 		return nil, &ServerError{Err: err, Status: statusInvalidBudgetName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -78,7 +78,7 @@ func (s *budgetServiceServer) ListBudgets(ctx context.Context, req *gen.ListBudg
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, pn.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, authz.OrgDomain(pn.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -142,7 +142,7 @@ func (s *budgetServiceServer) CreateBudget(ctx context.Context, req *gen.CreateB
 		return nil, &ServerError{Err: err, Status: statusInvalidParent}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionCreate, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionCreate, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -193,7 +193,7 @@ func (s *budgetServiceServer) UpdateBudget(ctx context.Context, req *gen.UpdateB
 		return nil, &ServerError{Err: err, Status: statusInvalidBudgetName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionUpdate, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionUpdate, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -245,7 +245,7 @@ func (s *budgetServiceServer) CloseBudget(ctx context.Context, req *gen.CloseBud
 		return nil, &ServerError{Err: err, Status: statusInvalidBudgetName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionClose, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionClose, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -288,7 +288,7 @@ func (s *budgetServiceServer) DeleteBudget(ctx context.Context, req *gen.DeleteB
 		return nil, &ServerError{Err: err, Status: statusInvalidBudgetName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionDelete, n.Organization); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionDelete, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 

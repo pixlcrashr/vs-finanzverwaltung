@@ -33,14 +33,14 @@ type UserSettingsServiceClient interface {
 	// Authorization:
 	//
 	//	Scope: settings:read
-	//	Permission: PERMISSION_SETTINGS_READ
+	//	Permission: settings:read
 	//	Domain: global
 	GetUserSettings(ctx context.Context, in *GetUserSettingsRequest, opts ...grpc.CallOption) (*UserSettings, error)
 	// Updates the settings for a user.
 	// Authorization:
 	//
 	//	Scope: settings:write
-	//	Permission: PERMISSION_SETTINGS_UPDATE
+	//	Permission: settings:update
 	//	Domain: global
 	UpdateUserSettings(ctx context.Context, in *UpdateUserSettingsRequest, opts ...grpc.CallOption) (*UserSettings, error)
 }
@@ -83,14 +83,14 @@ type UserSettingsServiceServer interface {
 	// Authorization:
 	//
 	//	Scope: settings:read
-	//	Permission: PERMISSION_SETTINGS_READ
+	//	Permission: settings:read
 	//	Domain: global
 	GetUserSettings(context.Context, *GetUserSettingsRequest) (*UserSettings, error)
 	// Updates the settings for a user.
 	// Authorization:
 	//
 	//	Scope: settings:write
-	//	Permission: PERMISSION_SETTINGS_UPDATE
+	//	Permission: settings:update
 	//	Domain: global
 	UpdateUserSettings(context.Context, *UpdateUserSettingsRequest) (*UserSettings, error)
 }

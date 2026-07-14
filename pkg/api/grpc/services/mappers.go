@@ -285,15 +285,16 @@ func UserSettingsToProto(userRN gen.UserResourceName, m *model.UserSettings) *ge
 }
 
 // UserGroupToProto maps a model.UserGroup to its proto representation.
-func UserGroupToProto(m *model.UserGroup, policies []*gen.GroupOrganizationPolicy) *gen.Group {
+func UserGroupToProto(m *model.UserGroup, organizations, permissions []string) *gen.Group {
 	return &gen.Group{
-		Name:                 gen.GroupResourceName{Group: m.CustomID}.String(),
-		Uid:                  m.ID.String(),
-		DisplayName:          m.Name,
-		DisplayDescription:   m.Description,
-		OrganizationPolicies: policies,
-		UpdateTime:           ts(m.UpdatedAt),
-		CreateTime:           ts(m.CreatedAt),
+		Name:               gen.GroupResourceName{Group: m.CustomID}.String(),
+		Uid:                m.ID.String(),
+		DisplayName:        m.Name,
+		DisplayDescription: m.Description,
+		Organizations:      organizations,
+		Permissions:        permissions,
+		UpdateTime:         ts(m.UpdatedAt),
+		CreateTime:         ts(m.CreatedAt),
 	}
 }
 

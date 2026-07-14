@@ -318,256 +318,30 @@ func (x *ListUsersResponse) GetTotalSize() int64 {
 	return 0
 }
 
-// CheckUserOrganizationPermissionsRequest checks which of the requested
-// permissions a user holds within a single organization.
-type CheckUserOrganizationPermissionsRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The resource name of the user.
-	// Format: users/{user}
-	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// The resource name of the organization to check permissions against.
-	// Format: organizations/{organization}
-	Organization string `protobuf:"bytes,2,opt,name=organization,proto3" json:"organization,omitempty"`
-	// The permissions to evaluate. At least one must be provided.
-	// Only the permissions listed here are evaluated and returned.
-	Permissions   []Permission `protobuf:"varint,3,rep,packed,name=permissions,proto3,enum=pixlcrashr.vsfv.v1.Permission" json:"permissions,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CheckUserOrganizationPermissionsRequest) Reset() {
-	*x = CheckUserOrganizationPermissionsRequest{}
-	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CheckUserOrganizationPermissionsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CheckUserOrganizationPermissionsRequest) ProtoMessage() {}
-
-func (x *CheckUserOrganizationPermissionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CheckUserOrganizationPermissionsRequest.ProtoReflect.Descriptor instead.
-func (*CheckUserOrganizationPermissionsRequest) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_user_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *CheckUserOrganizationPermissionsRequest) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *CheckUserOrganizationPermissionsRequest) GetOrganization() string {
-	if x != nil {
-		return x.Organization
-	}
-	return ""
-}
-
-func (x *CheckUserOrganizationPermissionsRequest) GetPermissions() []Permission {
-	if x != nil {
-		return x.Permissions
-	}
-	return nil
-}
-
-// CheckUserOrganizationPermissionsResponse reports which of the requested
-// permissions the user actually holds.
-type CheckUserOrganizationPermissionsResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The organization that was evaluated.
-	// Format: organizations/{organization}
-	Organization string `protobuf:"bytes,1,opt,name=organization,proto3" json:"organization,omitempty"`
-	// The subset of the requested permissions that the user holds.
-	Permitted     []Permission `protobuf:"varint,2,rep,packed,name=permitted,proto3,enum=pixlcrashr.vsfv.v1.Permission" json:"permitted,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CheckUserOrganizationPermissionsResponse) Reset() {
-	*x = CheckUserOrganizationPermissionsResponse{}
-	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CheckUserOrganizationPermissionsResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CheckUserOrganizationPermissionsResponse) ProtoMessage() {}
-
-func (x *CheckUserOrganizationPermissionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CheckUserOrganizationPermissionsResponse.ProtoReflect.Descriptor instead.
-func (*CheckUserOrganizationPermissionsResponse) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_user_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *CheckUserOrganizationPermissionsResponse) GetOrganization() string {
-	if x != nil {
-		return x.Organization
-	}
-	return ""
-}
-
-func (x *CheckUserOrganizationPermissionsResponse) GetPermitted() []Permission {
-	if x != nil {
-		return x.Permitted
-	}
-	return nil
-}
-
-// BatchCheckUserOrganizationPermissionsRequest checks permissions for a single
-// user across multiple organizations in one call (AIP-231 batch pattern).
-type BatchCheckUserOrganizationPermissionsRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The resource name of the user.
-	// Format: users/{user}
-	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// Individual per-organization check requests.
-	// Maximum 100 entries per call.
-	Requests      []*CheckUserOrganizationPermissionsRequest `protobuf:"bytes,2,rep,name=requests,proto3" json:"requests,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *BatchCheckUserOrganizationPermissionsRequest) Reset() {
-	*x = BatchCheckUserOrganizationPermissionsRequest{}
-	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BatchCheckUserOrganizationPermissionsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BatchCheckUserOrganizationPermissionsRequest) ProtoMessage() {}
-
-func (x *BatchCheckUserOrganizationPermissionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use BatchCheckUserOrganizationPermissionsRequest.ProtoReflect.Descriptor instead.
-func (*BatchCheckUserOrganizationPermissionsRequest) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_user_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *BatchCheckUserOrganizationPermissionsRequest) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *BatchCheckUserOrganizationPermissionsRequest) GetRequests() []*CheckUserOrganizationPermissionsRequest {
-	if x != nil {
-		return x.Requests
-	}
-	return nil
-}
-
-// BatchCheckUserOrganizationPermissionsResponse returns one result entry per
-// requested organization, in the same order as the request.
-type BatchCheckUserOrganizationPermissionsResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// One result per entry in BatchCheckUserOrganizationPermissionsRequest.requests,
-	// in the same order.
-	Results       []*CheckUserOrganizationPermissionsResponse `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *BatchCheckUserOrganizationPermissionsResponse) Reset() {
-	*x = BatchCheckUserOrganizationPermissionsResponse{}
-	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BatchCheckUserOrganizationPermissionsResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BatchCheckUserOrganizationPermissionsResponse) ProtoMessage() {}
-
-func (x *BatchCheckUserOrganizationPermissionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use BatchCheckUserOrganizationPermissionsResponse.ProtoReflect.Descriptor instead.
-func (*BatchCheckUserOrganizationPermissionsResponse) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_user_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *BatchCheckUserOrganizationPermissionsResponse) GetResults() []*CheckUserOrganizationPermissionsResponse {
-	if x != nil {
-		return x.Results
-	}
-	return nil
-}
-
-// CheckUserPermissionsRequest checks which of the requested global
-// permissions a user holds, without scoping to any organization.
-// Only global resources (users, groups, settings, organizations) are
-// evaluated; org-scoped permissions will always be absent from the result.
+// CheckUserPermissionsRequest checks which of the requested permissions a
+// user holds, optionally scoped to a domain.
+// When domain is empty, permissions are evaluated against the global
+// domain (e.g. users, groups, settings). When set, permissions are evaluated
+// against the specified domain (e.g. "organizations/{organization}").
 type CheckUserPermissionsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The resource name of the user.
 	// Format: users/{user}
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// The permissions to evaluate. At least one must be provided.
-	// Only the permissions listed here are evaluated and returned.
-	Permissions   []Permission `protobuf:"varint,3,rep,packed,name=permissions,proto3,enum=pixlcrashr.vsfv.v1.Permission" json:"permissions,omitempty"`
+	// The domain to scope the check to (e.g. "organizations/{organization}").
+	// If empty, permissions are checked against the global domain.
+	Domain string `protobuf:"bytes,2,opt,name=domain,proto3" json:"domain,omitempty"`
+	// The permissions to evaluate, as "resource:action" strings.
+	// At least one must be provided. Only the permissions listed here
+	// are evaluated and returned.
+	Permissions   []string `protobuf:"bytes,3,rep,name=permissions,proto3" json:"permissions,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CheckUserPermissionsRequest) Reset() {
 	*x = CheckUserPermissionsRequest{}
-	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[8]
+	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -579,7 +353,7 @@ func (x *CheckUserPermissionsRequest) String() string {
 func (*CheckUserPermissionsRequest) ProtoMessage() {}
 
 func (x *CheckUserPermissionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[8]
+	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -592,7 +366,7 @@ func (x *CheckUserPermissionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckUserPermissionsRequest.ProtoReflect.Descriptor instead.
 func (*CheckUserPermissionsRequest) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_user_proto_rawDescGZIP(), []int{8}
+	return file_pixlcrashr_vsfv_v1_user_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *CheckUserPermissionsRequest) GetName() string {
@@ -602,26 +376,36 @@ func (x *CheckUserPermissionsRequest) GetName() string {
 	return ""
 }
 
-func (x *CheckUserPermissionsRequest) GetPermissions() []Permission {
+func (x *CheckUserPermissionsRequest) GetDomain() string {
+	if x != nil {
+		return x.Domain
+	}
+	return ""
+}
+
+func (x *CheckUserPermissionsRequest) GetPermissions() []string {
 	if x != nil {
 		return x.Permissions
 	}
 	return nil
 }
 
-// CheckUserPermissionsResponse reports which of the requested
-// permissions the user actually holds.
+// CheckUserPermissionsResponse reports which of the requested permissions
+// the user actually holds.
 type CheckUserPermissionsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// The domain that was evaluated, if any.
+	// Empty if the check was global.
+	Domain string `protobuf:"bytes,1,opt,name=domain,proto3" json:"domain,omitempty"`
 	// The subset of the requested permissions that the user holds.
-	Permitted     []Permission `protobuf:"varint,1,rep,packed,name=permitted,proto3,enum=pixlcrashr.vsfv.v1.Permission" json:"permitted,omitempty"`
+	Permitted     []string `protobuf:"bytes,2,rep,name=permitted,proto3" json:"permitted,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CheckUserPermissionsResponse) Reset() {
 	*x = CheckUserPermissionsResponse{}
-	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[9]
+	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -633,7 +417,7 @@ func (x *CheckUserPermissionsResponse) String() string {
 func (*CheckUserPermissionsResponse) ProtoMessage() {}
 
 func (x *CheckUserPermissionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[9]
+	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -646,21 +430,29 @@ func (x *CheckUserPermissionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckUserPermissionsResponse.ProtoReflect.Descriptor instead.
 func (*CheckUserPermissionsResponse) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_user_proto_rawDescGZIP(), []int{9}
+	return file_pixlcrashr_vsfv_v1_user_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *CheckUserPermissionsResponse) GetPermitted() []Permission {
+func (x *CheckUserPermissionsResponse) GetDomain() string {
+	if x != nil {
+		return x.Domain
+	}
+	return ""
+}
+
+func (x *CheckUserPermissionsResponse) GetPermitted() []string {
 	if x != nil {
 		return x.Permitted
 	}
 	return nil
 }
 
-// BatchCheckUserPermissionsRequest checks global permissions for multiple
-// users in one call (AIP-231 batch pattern).
+// BatchCheckUserPermissionsRequest checks permissions for one or more users
+// in a single call (AIP-231 batch pattern). Each entry can target a different
+// domain (or the global domain when domain is empty).
 type BatchCheckUserPermissionsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Individual per-user check requests. Maximum 100 entries per call.
+	// Individual check requests. Maximum 100 entries per call.
 	Requests      []*CheckUserPermissionsRequest `protobuf:"bytes,1,rep,name=requests,proto3" json:"requests,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -668,7 +460,7 @@ type BatchCheckUserPermissionsRequest struct {
 
 func (x *BatchCheckUserPermissionsRequest) Reset() {
 	*x = BatchCheckUserPermissionsRequest{}
-	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[10]
+	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -680,7 +472,7 @@ func (x *BatchCheckUserPermissionsRequest) String() string {
 func (*BatchCheckUserPermissionsRequest) ProtoMessage() {}
 
 func (x *BatchCheckUserPermissionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[10]
+	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -693,7 +485,7 @@ func (x *BatchCheckUserPermissionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchCheckUserPermissionsRequest.ProtoReflect.Descriptor instead.
 func (*BatchCheckUserPermissionsRequest) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_user_proto_rawDescGZIP(), []int{10}
+	return file_pixlcrashr_vsfv_v1_user_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *BatchCheckUserPermissionsRequest) GetRequests() []*CheckUserPermissionsRequest {
@@ -704,7 +496,7 @@ func (x *BatchCheckUserPermissionsRequest) GetRequests() []*CheckUserPermissions
 }
 
 // BatchCheckUserPermissionsResponse returns one result entry per requested
-// user, in the same order as the request.
+// check, in the same order as the request.
 type BatchCheckUserPermissionsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// One result per entry in BatchCheckUserPermissionsRequest.requests,
@@ -716,7 +508,7 @@ type BatchCheckUserPermissionsResponse struct {
 
 func (x *BatchCheckUserPermissionsResponse) Reset() {
 	*x = BatchCheckUserPermissionsResponse{}
-	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[11]
+	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -728,7 +520,7 @@ func (x *BatchCheckUserPermissionsResponse) String() string {
 func (*BatchCheckUserPermissionsResponse) ProtoMessage() {}
 
 func (x *BatchCheckUserPermissionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[11]
+	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -741,7 +533,7 @@ func (x *BatchCheckUserPermissionsResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use BatchCheckUserPermissionsResponse.ProtoReflect.Descriptor instead.
 func (*BatchCheckUserPermissionsResponse) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_user_proto_rawDescGZIP(), []int{11}
+	return file_pixlcrashr_vsfv_v1_user_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *BatchCheckUserPermissionsResponse) GetResults() []*CheckUserPermissionsResponse {
@@ -755,7 +547,7 @@ var File_pixlcrashr_vsfv_v1_user_proto protoreflect.FileDescriptor
 
 const file_pixlcrashr_vsfv_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x1dpixlcrashr/vsfv/v1/user.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a#pixlcrashr/vsfv/v1/permission.proto\"\xed\x02\n" +
+	"\x1dpixlcrashr/vsfv/v1/user.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xed\x02\n" +
 	"\x04User\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x03R\x04name\x12\x1d\n" +
 	"\x03uid\x18\x02 \x01(\tB\v\xe0A\x03\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12&\n" +
@@ -781,38 +573,23 @@ const file_pixlcrashr_vsfv_v1_user_proto_rawDesc = "" +
 	"\x05users\x18\x01 \x03(\v2\x18.pixlcrashr.vsfv.v1.UserR\x05users\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xf4\x01\n" +
-	"'CheckUserOrganizationPermissionsRequest\x124\n" +
-	"\x04name\x18\x01 \x01(\tB \xe0A\x02\xfaA\x1a\n" +
-	"\x18vsfv.pixlcrashr.dev/UserR\x04name\x12L\n" +
-	"\forganization\x18\x02 \x01(\tB(\xe0A\x02\xfaA\"\n" +
-	" vsfv.pixlcrashr.dev/OrganizationR\forganization\x12E\n" +
-	"\vpermissions\x18\x03 \x03(\x0e2\x1e.pixlcrashr.vsfv.v1.PermissionB\x03\xe0A\x02R\vpermissions\"\x96\x01\n" +
-	"(CheckUserOrganizationPermissionsResponse\x12'\n" +
-	"\forganization\x18\x01 \x01(\tB\x03\xe0A\x03R\forganization\x12A\n" +
-	"\tpermitted\x18\x02 \x03(\x0e2\x1e.pixlcrashr.vsfv.v1.PermissionB\x03\xe0A\x03R\tpermitted\"\xc2\x01\n" +
-	",BatchCheckUserOrganizationPermissionsRequest\x124\n" +
-	"\x04name\x18\x01 \x01(\tB \xe0A\x02\xfaA\x1a\n" +
-	"\x18vsfv.pixlcrashr.dev/UserR\x04name\x12\\\n" +
-	"\brequests\x18\x02 \x03(\v2;.pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsRequestB\x03\xe0A\x02R\brequests\"\x8c\x01\n" +
-	"-BatchCheckUserOrganizationPermissionsResponse\x12[\n" +
-	"\aresults\x18\x01 \x03(\v2<.pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsResponseB\x03\xe0A\x03R\aresults\"\x9a\x01\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\x97\x01\n" +
 	"\x1bCheckUserPermissionsRequest\x124\n" +
 	"\x04name\x18\x01 \x01(\tB \xe0A\x02\xfaA\x1a\n" +
-	"\x18vsfv.pixlcrashr.dev/UserR\x04name\x12E\n" +
-	"\vpermissions\x18\x03 \x03(\x0e2\x1e.pixlcrashr.vsfv.v1.PermissionB\x03\xe0A\x02R\vpermissions\"a\n" +
-	"\x1cCheckUserPermissionsResponse\x12A\n" +
-	"\tpermitted\x18\x01 \x03(\x0e2\x1e.pixlcrashr.vsfv.v1.PermissionB\x03\xe0A\x03R\tpermitted\"t\n" +
+	"\x18vsfv.pixlcrashr.dev/UserR\x04name\x12\x1b\n" +
+	"\x06domain\x18\x02 \x01(\tB\x03\xe0A\x01R\x06domain\x12%\n" +
+	"\vpermissions\x18\x03 \x03(\tB\x03\xe0A\x02R\vpermissions\"^\n" +
+	"\x1cCheckUserPermissionsResponse\x12\x1b\n" +
+	"\x06domain\x18\x01 \x01(\tB\x03\xe0A\x03R\x06domain\x12!\n" +
+	"\tpermitted\x18\x02 \x03(\tB\x03\xe0A\x03R\tpermitted\"t\n" +
 	" BatchCheckUserPermissionsRequest\x12P\n" +
 	"\brequests\x18\x01 \x03(\v2/.pixlcrashr.vsfv.v1.CheckUserPermissionsRequestB\x03\xe0A\x02R\brequests\"t\n" +
 	"!BatchCheckUserPermissionsResponse\x12O\n" +
-	"\aresults\x18\x01 \x03(\v20.pixlcrashr.vsfv.v1.CheckUserPermissionsResponseB\x03\xe0A\x03R\aresults2\xf0\b\n" +
+	"\aresults\x18\x01 \x03(\v20.pixlcrashr.vsfv.v1.CheckUserPermissionsResponseB\x03\xe0A\x03R\aresults2\xfb\x04\n" +
 	"\vUserService\x12j\n" +
 	"\aGetUser\x12\".pixlcrashr.vsfv.v1.GetUserRequest\x1a\x18.pixlcrashr.vsfv.v1.User\"!\xdaA\x04name\x82\xd3\xe4\x93\x02\x14\x12\x12/v1/{name=users/*}\x12k\n" +
-	"\tListUsers\x12$.pixlcrashr.vsfv.v1.ListUsersRequest\x1a%.pixlcrashr.vsfv.v1.ListUsersResponse\"\x11\x82\xd3\xe4\x93\x02\v\x12\t/v1/users\x12\xf9\x01\n" +
-	" CheckUserOrganizationPermissions\x12;.pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsRequest\x1a<.pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsResponse\"Z\xdaA\x1dname,organization,permissions\x82\xd3\xe4\x93\x024:\x01*\"//v1/{name=users/*}:checkOrganizationPermissions\x12\xfd\x01\n" +
-	"%BatchCheckUserOrganizationPermissions\x12@.pixlcrashr.vsfv.v1.BatchCheckUserOrganizationPermissionsRequest\x1aA.pixlcrashr.vsfv.v1.BatchCheckUserOrganizationPermissionsResponse\"O\xdaA\rname,requests\x82\xd3\xe4\x93\x029:\x01*\"4/v1/{name=users/*}:batchCheckOrganizationPermissions\x12\xbc\x01\n" +
-	"\x14CheckUserPermissions\x12/.pixlcrashr.vsfv.v1.CheckUserPermissionsRequest\x1a0.pixlcrashr.vsfv.v1.CheckUserPermissionsResponse\"A\xdaA\x10name,permissions\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/{name=users/*}:checkPermissions\x12\xb4\x01\n" +
+	"\tListUsers\x12$.pixlcrashr.vsfv.v1.ListUsersRequest\x1a%.pixlcrashr.vsfv.v1.ListUsersResponse\"\x11\x82\xd3\xe4\x93\x02\v\x12\t/v1/users\x12\xc3\x01\n" +
+	"\x14CheckUserPermissions\x12/.pixlcrashr.vsfv.v1.CheckUserPermissionsRequest\x1a0.pixlcrashr.vsfv.v1.CheckUserPermissionsResponse\"H\xdaA\x17name,domain,permissions\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/{name=users/*}:checkPermissions\x12\xb4\x01\n" +
 	"\x19BatchCheckUserPermissions\x124.pixlcrashr.vsfv.v1.BatchCheckUserPermissionsRequest\x1a5.pixlcrashr.vsfv.v1.BatchCheckUserPermissionsResponse\"*\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/v1/users:batchCheckPermissions\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xb6\x01\n" +
 	"\x16com.pixlcrashr.vsfv.v1B\tUserProtoP\x01Z'github.com/pixlcrashr/vsfv/pkg/grpc/gen\xa2\x02\x03PVX\xaa\x02\x12Pixlcrashr.Vsfv.V1\xca\x02\x12Pixlcrashr\\Vsfv\\V1\xe2\x02\x1ePixlcrashr\\Vsfv\\V1\\GPBMetadata\xea\x02\x14Pixlcrashr::Vsfv::V1b\x06proto3"
 
@@ -828,52 +605,37 @@ func file_pixlcrashr_vsfv_v1_user_proto_rawDescGZIP() []byte {
 	return file_pixlcrashr_vsfv_v1_user_proto_rawDescData
 }
 
-var file_pixlcrashr_vsfv_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_pixlcrashr_vsfv_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_pixlcrashr_vsfv_v1_user_proto_goTypes = []any{
-	(*User)(nil),                                          // 0: pixlcrashr.vsfv.v1.User
-	(*GetUserRequest)(nil),                                // 1: pixlcrashr.vsfv.v1.GetUserRequest
-	(*ListUsersRequest)(nil),                              // 2: pixlcrashr.vsfv.v1.ListUsersRequest
-	(*ListUsersResponse)(nil),                             // 3: pixlcrashr.vsfv.v1.ListUsersResponse
-	(*CheckUserOrganizationPermissionsRequest)(nil),       // 4: pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsRequest
-	(*CheckUserOrganizationPermissionsResponse)(nil),      // 5: pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsResponse
-	(*BatchCheckUserOrganizationPermissionsRequest)(nil),  // 6: pixlcrashr.vsfv.v1.BatchCheckUserOrganizationPermissionsRequest
-	(*BatchCheckUserOrganizationPermissionsResponse)(nil), // 7: pixlcrashr.vsfv.v1.BatchCheckUserOrganizationPermissionsResponse
-	(*CheckUserPermissionsRequest)(nil),                   // 8: pixlcrashr.vsfv.v1.CheckUserPermissionsRequest
-	(*CheckUserPermissionsResponse)(nil),                  // 9: pixlcrashr.vsfv.v1.CheckUserPermissionsResponse
-	(*BatchCheckUserPermissionsRequest)(nil),              // 10: pixlcrashr.vsfv.v1.BatchCheckUserPermissionsRequest
-	(*BatchCheckUserPermissionsResponse)(nil),             // 11: pixlcrashr.vsfv.v1.BatchCheckUserPermissionsResponse
-	(*timestamppb.Timestamp)(nil),                         // 12: google.protobuf.Timestamp
-	(Permission)(0),                                       // 13: pixlcrashr.vsfv.v1.Permission
+	(*User)(nil),                              // 0: pixlcrashr.vsfv.v1.User
+	(*GetUserRequest)(nil),                    // 1: pixlcrashr.vsfv.v1.GetUserRequest
+	(*ListUsersRequest)(nil),                  // 2: pixlcrashr.vsfv.v1.ListUsersRequest
+	(*ListUsersResponse)(nil),                 // 3: pixlcrashr.vsfv.v1.ListUsersResponse
+	(*CheckUserPermissionsRequest)(nil),       // 4: pixlcrashr.vsfv.v1.CheckUserPermissionsRequest
+	(*CheckUserPermissionsResponse)(nil),      // 5: pixlcrashr.vsfv.v1.CheckUserPermissionsResponse
+	(*BatchCheckUserPermissionsRequest)(nil),  // 6: pixlcrashr.vsfv.v1.BatchCheckUserPermissionsRequest
+	(*BatchCheckUserPermissionsResponse)(nil), // 7: pixlcrashr.vsfv.v1.BatchCheckUserPermissionsResponse
+	(*timestamppb.Timestamp)(nil),             // 8: google.protobuf.Timestamp
 }
 var file_pixlcrashr_vsfv_v1_user_proto_depIdxs = []int32{
-	12, // 0: pixlcrashr.vsfv.v1.User.update_time:type_name -> google.protobuf.Timestamp
-	12, // 1: pixlcrashr.vsfv.v1.User.create_time:type_name -> google.protobuf.Timestamp
-	0,  // 2: pixlcrashr.vsfv.v1.ListUsersResponse.users:type_name -> pixlcrashr.vsfv.v1.User
-	13, // 3: pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsRequest.permissions:type_name -> pixlcrashr.vsfv.v1.Permission
-	13, // 4: pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsResponse.permitted:type_name -> pixlcrashr.vsfv.v1.Permission
-	4,  // 5: pixlcrashr.vsfv.v1.BatchCheckUserOrganizationPermissionsRequest.requests:type_name -> pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsRequest
-	5,  // 6: pixlcrashr.vsfv.v1.BatchCheckUserOrganizationPermissionsResponse.results:type_name -> pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsResponse
-	13, // 7: pixlcrashr.vsfv.v1.CheckUserPermissionsRequest.permissions:type_name -> pixlcrashr.vsfv.v1.Permission
-	13, // 8: pixlcrashr.vsfv.v1.CheckUserPermissionsResponse.permitted:type_name -> pixlcrashr.vsfv.v1.Permission
-	8,  // 9: pixlcrashr.vsfv.v1.BatchCheckUserPermissionsRequest.requests:type_name -> pixlcrashr.vsfv.v1.CheckUserPermissionsRequest
-	9,  // 10: pixlcrashr.vsfv.v1.BatchCheckUserPermissionsResponse.results:type_name -> pixlcrashr.vsfv.v1.CheckUserPermissionsResponse
-	1,  // 11: pixlcrashr.vsfv.v1.UserService.GetUser:input_type -> pixlcrashr.vsfv.v1.GetUserRequest
-	2,  // 12: pixlcrashr.vsfv.v1.UserService.ListUsers:input_type -> pixlcrashr.vsfv.v1.ListUsersRequest
-	4,  // 13: pixlcrashr.vsfv.v1.UserService.CheckUserOrganizationPermissions:input_type -> pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsRequest
-	6,  // 14: pixlcrashr.vsfv.v1.UserService.BatchCheckUserOrganizationPermissions:input_type -> pixlcrashr.vsfv.v1.BatchCheckUserOrganizationPermissionsRequest
-	8,  // 15: pixlcrashr.vsfv.v1.UserService.CheckUserPermissions:input_type -> pixlcrashr.vsfv.v1.CheckUserPermissionsRequest
-	10, // 16: pixlcrashr.vsfv.v1.UserService.BatchCheckUserPermissions:input_type -> pixlcrashr.vsfv.v1.BatchCheckUserPermissionsRequest
-	0,  // 17: pixlcrashr.vsfv.v1.UserService.GetUser:output_type -> pixlcrashr.vsfv.v1.User
-	3,  // 18: pixlcrashr.vsfv.v1.UserService.ListUsers:output_type -> pixlcrashr.vsfv.v1.ListUsersResponse
-	5,  // 19: pixlcrashr.vsfv.v1.UserService.CheckUserOrganizationPermissions:output_type -> pixlcrashr.vsfv.v1.CheckUserOrganizationPermissionsResponse
-	7,  // 20: pixlcrashr.vsfv.v1.UserService.BatchCheckUserOrganizationPermissions:output_type -> pixlcrashr.vsfv.v1.BatchCheckUserOrganizationPermissionsResponse
-	9,  // 21: pixlcrashr.vsfv.v1.UserService.CheckUserPermissions:output_type -> pixlcrashr.vsfv.v1.CheckUserPermissionsResponse
-	11, // 22: pixlcrashr.vsfv.v1.UserService.BatchCheckUserPermissions:output_type -> pixlcrashr.vsfv.v1.BatchCheckUserPermissionsResponse
-	17, // [17:23] is the sub-list for method output_type
-	11, // [11:17] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	8, // 0: pixlcrashr.vsfv.v1.User.update_time:type_name -> google.protobuf.Timestamp
+	8, // 1: pixlcrashr.vsfv.v1.User.create_time:type_name -> google.protobuf.Timestamp
+	0, // 2: pixlcrashr.vsfv.v1.ListUsersResponse.users:type_name -> pixlcrashr.vsfv.v1.User
+	4, // 3: pixlcrashr.vsfv.v1.BatchCheckUserPermissionsRequest.requests:type_name -> pixlcrashr.vsfv.v1.CheckUserPermissionsRequest
+	5, // 4: pixlcrashr.vsfv.v1.BatchCheckUserPermissionsResponse.results:type_name -> pixlcrashr.vsfv.v1.CheckUserPermissionsResponse
+	1, // 5: pixlcrashr.vsfv.v1.UserService.GetUser:input_type -> pixlcrashr.vsfv.v1.GetUserRequest
+	2, // 6: pixlcrashr.vsfv.v1.UserService.ListUsers:input_type -> pixlcrashr.vsfv.v1.ListUsersRequest
+	4, // 7: pixlcrashr.vsfv.v1.UserService.CheckUserPermissions:input_type -> pixlcrashr.vsfv.v1.CheckUserPermissionsRequest
+	6, // 8: pixlcrashr.vsfv.v1.UserService.BatchCheckUserPermissions:input_type -> pixlcrashr.vsfv.v1.BatchCheckUserPermissionsRequest
+	0, // 9: pixlcrashr.vsfv.v1.UserService.GetUser:output_type -> pixlcrashr.vsfv.v1.User
+	3, // 10: pixlcrashr.vsfv.v1.UserService.ListUsers:output_type -> pixlcrashr.vsfv.v1.ListUsersResponse
+	5, // 11: pixlcrashr.vsfv.v1.UserService.CheckUserPermissions:output_type -> pixlcrashr.vsfv.v1.CheckUserPermissionsResponse
+	7, // 12: pixlcrashr.vsfv.v1.UserService.BatchCheckUserPermissions:output_type -> pixlcrashr.vsfv.v1.BatchCheckUserPermissionsResponse
+	9, // [9:13] is the sub-list for method output_type
+	5, // [5:9] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_pixlcrashr_vsfv_v1_user_proto_init() }
@@ -881,14 +643,13 @@ func file_pixlcrashr_vsfv_v1_user_proto_init() {
 	if File_pixlcrashr_vsfv_v1_user_proto != nil {
 		return
 	}
-	file_pixlcrashr_vsfv_v1_permission_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pixlcrashr_vsfv_v1_user_proto_rawDesc), len(file_pixlcrashr_vsfv_v1_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

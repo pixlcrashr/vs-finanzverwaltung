@@ -44,7 +44,7 @@ func SeedAdminGroup(ctx context.Context, db *gorm.DB, enforcer *Enforcer) error 
 		return fmt.Errorf("authz: clear admin policies: %w", err)
 	}
 
-	if _, err := enforcer.AddPolicy(group.ID.String(), "*", "*", "*"); err != nil {
+	if _, err := enforcer.AddPolicy(group.ID.String(), "*", "*"); err != nil {
 		return fmt.Errorf("authz: add admin wildcard policy: %w", err)
 	}
 

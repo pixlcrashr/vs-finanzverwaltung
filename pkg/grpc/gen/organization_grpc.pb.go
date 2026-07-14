@@ -38,42 +38,42 @@ type OrganizationServiceClient interface {
 	// Authorization:
 	//
 	//	Scope: organizations:read
-	//	Permission: PERMISSION_ORGANIZATIONS_READ
+	//	Permission: organizations:read
 	//	Domain: global
 	GetOrganization(ctx context.Context, in *GetOrganizationRequest, opts ...grpc.CallOption) (*Organization, error)
 	// Lists organizations with pagination.
 	// Authorization:
 	//
 	//	Scope: organizations:read
-	//	Permission: PERMISSION_ORGANIZATIONS_READ
+	//	Permission: organizations:read
 	//	Domain: global
 	ListOrganizations(ctx context.Context, in *ListOrganizationsRequest, opts ...grpc.CallOption) (*ListOrganizationsResponse, error)
 	// Creates a new organization.
 	// Authorization:
 	//
 	//	Scope: organizations:write
-	//	Permission: PERMISSION_ORGANIZATIONS_CREATE
+	//	Permission: organizations:create
 	//	Domain: global
 	CreateOrganization(ctx context.Context, in *CreateOrganizationRequest, opts ...grpc.CallOption) (*Organization, error)
 	// Updates an existing organization.
 	// Authorization:
 	//
 	//	Scope: organizations:write
-	//	Permission: PERMISSION_ORGANIZATIONS_UPDATE
+	//	Permission: organizations:update
 	//	Domain: global
 	UpdateOrganization(ctx context.Context, in *UpdateOrganizationRequest, opts ...grpc.CallOption) (*Organization, error)
 	// Permanently deletes an organization.
 	// Authorization:
 	//
 	//	Scope: organizations:write
-	//	Permission: PERMISSION_ORGANIZATIONS_DELETE
+	//	Permission: organizations:delete
 	//	Domain: global
 	DeleteOrganization(ctx context.Context, in *DeleteOrganizationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Checks whether an organization ID (slug) is available for use.
 	// Authorization:
 	//
 	//	Scope: organizations:read
-	//	Permission: PERMISSION_ORGANIZATIONS_READ
+	//	Permission: organizations:read
 	//	Domain: global
 	CheckOrganizationId(ctx context.Context, in *CheckOrganizationIdRequest, opts ...grpc.CallOption) (*CheckOrganizationIdResponse, error)
 }
@@ -156,42 +156,42 @@ type OrganizationServiceServer interface {
 	// Authorization:
 	//
 	//	Scope: organizations:read
-	//	Permission: PERMISSION_ORGANIZATIONS_READ
+	//	Permission: organizations:read
 	//	Domain: global
 	GetOrganization(context.Context, *GetOrganizationRequest) (*Organization, error)
 	// Lists organizations with pagination.
 	// Authorization:
 	//
 	//	Scope: organizations:read
-	//	Permission: PERMISSION_ORGANIZATIONS_READ
+	//	Permission: organizations:read
 	//	Domain: global
 	ListOrganizations(context.Context, *ListOrganizationsRequest) (*ListOrganizationsResponse, error)
 	// Creates a new organization.
 	// Authorization:
 	//
 	//	Scope: organizations:write
-	//	Permission: PERMISSION_ORGANIZATIONS_CREATE
+	//	Permission: organizations:create
 	//	Domain: global
 	CreateOrganization(context.Context, *CreateOrganizationRequest) (*Organization, error)
 	// Updates an existing organization.
 	// Authorization:
 	//
 	//	Scope: organizations:write
-	//	Permission: PERMISSION_ORGANIZATIONS_UPDATE
+	//	Permission: organizations:update
 	//	Domain: global
 	UpdateOrganization(context.Context, *UpdateOrganizationRequest) (*Organization, error)
 	// Permanently deletes an organization.
 	// Authorization:
 	//
 	//	Scope: organizations:write
-	//	Permission: PERMISSION_ORGANIZATIONS_DELETE
+	//	Permission: organizations:delete
 	//	Domain: global
 	DeleteOrganization(context.Context, *DeleteOrganizationRequest) (*emptypb.Empty, error)
 	// Checks whether an organization ID (slug) is available for use.
 	// Authorization:
 	//
 	//	Scope: organizations:read
-	//	Permission: PERMISSION_ORGANIZATIONS_READ
+	//	Permission: organizations:read
 	//	Domain: global
 	CheckOrganizationId(context.Context, *CheckOrganizationIdRequest) (*CheckOrganizationIdResponse, error)
 }

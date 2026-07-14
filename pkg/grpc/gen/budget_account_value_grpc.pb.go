@@ -38,35 +38,35 @@ type BudgetAccountValueServiceClient interface {
 	// Authorization:
 	//
 	//	Scope: budgets:read
-	//	Permission: PERMISSION_BUDGETS_READ
+	//	Permission: budgets:read
 	//	Domain: organization-scoped
 	GetBudgetAccountValue(ctx context.Context, in *GetBudgetAccountValueRequest, opts ...grpc.CallOption) (*BudgetAccountValue, error)
 	// Lists account values for a budget.
 	// Authorization:
 	//
 	//	Scope: budgets:read
-	//	Permission: PERMISSION_BUDGETS_READ
+	//	Permission: budgets:read
 	//	Domain: organization-scoped
 	ListBudgetAccountValues(ctx context.Context, in *ListBudgetAccountValuesRequest, opts ...grpc.CallOption) (*ListBudgetAccountValuesResponse, error)
 	// Creates a new budget account value.
 	// Authorization:
 	//
 	//	Scope: budgets:write
-	//	Permission: PERMISSION_BUDGETS_CREATE
+	//	Permission: budgets:create
 	//	Domain: organization-scoped
 	CreateBudgetAccountValue(ctx context.Context, in *CreateBudgetAccountValueRequest, opts ...grpc.CallOption) (*BudgetAccountValue, error)
 	// Updates an existing budget account value.
 	// Authorization:
 	//
 	//	Scope: budgets:write
-	//	Permission: PERMISSION_BUDGETS_UPDATE
+	//	Permission: budgets:update
 	//	Domain: organization-scoped
 	UpdateBudgetAccountValue(ctx context.Context, in *UpdateBudgetAccountValueRequest, opts ...grpc.CallOption) (*BudgetAccountValue, error)
 	// Permanently deletes a budget account value.
 	// Authorization:
 	//
 	//	Scope: budgets:write
-	//	Permission: PERMISSION_BUDGETS_DELETE
+	//	Permission: budgets:delete
 	//	Domain: organization-scoped
 	DeleteBudgetAccountValue(ctx context.Context, in *DeleteBudgetAccountValueRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Atomically upserts multiple account values for a budget.
@@ -74,7 +74,7 @@ type BudgetAccountValueServiceClient interface {
 	// Authorization:
 	//
 	//	Scope: budgets:write
-	//	Permission: PERMISSION_BUDGETS_UPDATE
+	//	Permission: budgets:update
 	//	Domain: organization-scoped
 	BatchUpdateBudgetAccountValues(ctx context.Context, in *BatchUpdateBudgetAccountValuesRequest, opts ...grpc.CallOption) (*BatchUpdateBudgetAccountValuesResponse, error)
 }
@@ -157,35 +157,35 @@ type BudgetAccountValueServiceServer interface {
 	// Authorization:
 	//
 	//	Scope: budgets:read
-	//	Permission: PERMISSION_BUDGETS_READ
+	//	Permission: budgets:read
 	//	Domain: organization-scoped
 	GetBudgetAccountValue(context.Context, *GetBudgetAccountValueRequest) (*BudgetAccountValue, error)
 	// Lists account values for a budget.
 	// Authorization:
 	//
 	//	Scope: budgets:read
-	//	Permission: PERMISSION_BUDGETS_READ
+	//	Permission: budgets:read
 	//	Domain: organization-scoped
 	ListBudgetAccountValues(context.Context, *ListBudgetAccountValuesRequest) (*ListBudgetAccountValuesResponse, error)
 	// Creates a new budget account value.
 	// Authorization:
 	//
 	//	Scope: budgets:write
-	//	Permission: PERMISSION_BUDGETS_CREATE
+	//	Permission: budgets:create
 	//	Domain: organization-scoped
 	CreateBudgetAccountValue(context.Context, *CreateBudgetAccountValueRequest) (*BudgetAccountValue, error)
 	// Updates an existing budget account value.
 	// Authorization:
 	//
 	//	Scope: budgets:write
-	//	Permission: PERMISSION_BUDGETS_UPDATE
+	//	Permission: budgets:update
 	//	Domain: organization-scoped
 	UpdateBudgetAccountValue(context.Context, *UpdateBudgetAccountValueRequest) (*BudgetAccountValue, error)
 	// Permanently deletes a budget account value.
 	// Authorization:
 	//
 	//	Scope: budgets:write
-	//	Permission: PERMISSION_BUDGETS_DELETE
+	//	Permission: budgets:delete
 	//	Domain: organization-scoped
 	DeleteBudgetAccountValue(context.Context, *DeleteBudgetAccountValueRequest) (*emptypb.Empty, error)
 	// Atomically upserts multiple account values for a budget.
@@ -193,7 +193,7 @@ type BudgetAccountValueServiceServer interface {
 	// Authorization:
 	//
 	//	Scope: budgets:write
-	//	Permission: PERMISSION_BUDGETS_UPDATE
+	//	Permission: budgets:update
 	//	Domain: organization-scoped
 	BatchUpdateBudgetAccountValues(context.Context, *BatchUpdateBudgetAccountValuesRequest) (*BatchUpdateBudgetAccountValuesResponse, error)
 }

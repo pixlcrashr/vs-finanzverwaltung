@@ -33,14 +33,14 @@ type TransactionAssignmentServiceClient interface {
 	// Authorization:
 	//
 	//	Scope: transactions:read
-	//	Permission: PERMISSION_TRANSACTIONS_READ
+	//	Permission: transactions:read
 	//	Domain: organization-scoped
 	GetTransactionAssignment(ctx context.Context, in *GetTransactionAssignmentRequest, opts ...grpc.CallOption) (*TransactionAssignment, error)
 	// Lists transaction assignments with keyset pagination and optional filters.
 	// Authorization:
 	//
 	//	Scope: transactions:read
-	//	Permission: PERMISSION_TRANSACTIONS_READ
+	//	Permission: transactions:read
 	//	Domain: organization-scoped
 	ListTransactionAssignments(ctx context.Context, in *ListTransactionAssignmentsRequest, opts ...grpc.CallOption) (*ListTransactionAssignmentsResponse, error)
 }
@@ -83,14 +83,14 @@ type TransactionAssignmentServiceServer interface {
 	// Authorization:
 	//
 	//	Scope: transactions:read
-	//	Permission: PERMISSION_TRANSACTIONS_READ
+	//	Permission: transactions:read
 	//	Domain: organization-scoped
 	GetTransactionAssignment(context.Context, *GetTransactionAssignmentRequest) (*TransactionAssignment, error)
 	// Lists transaction assignments with keyset pagination and optional filters.
 	// Authorization:
 	//
 	//	Scope: transactions:read
-	//	Permission: PERMISSION_TRANSACTIONS_READ
+	//	Permission: transactions:read
 	//	Domain: organization-scoped
 	ListTransactionAssignments(context.Context, *ListTransactionAssignmentsRequest) (*ListTransactionAssignmentsResponse, error)
 }

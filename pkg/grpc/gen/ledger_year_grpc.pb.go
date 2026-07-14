@@ -34,21 +34,21 @@ type LedgerYearServiceClient interface {
 	// Authorization:
 	//
 	//	Scope: ledgerYear:read
-	//	Permission: PERMISSION_LEDGER_YEAR_READ
+	//	Permission: ledgerYear:read
 	//	Domain: organization-scoped
 	GetLedgerYear(ctx context.Context, in *GetLedgerYearRequest, opts ...grpc.CallOption) (*LedgerYear, error)
 	// Lists ledger years for an organization.
 	// Authorization:
 	//
 	//	Scope: ledgerYear:read
-	//	Permission: PERMISSION_LEDGER_YEAR_READ
+	//	Permission: ledgerYear:read
 	//	Domain: organization-scoped
 	ListLedgerYears(ctx context.Context, in *ListLedgerYearsRequest, opts ...grpc.CallOption) (*ListLedgerYearsResponse, error)
 	// Closes a ledger year, preventing new imports.
 	// Authorization:
 	//
 	//	Scope: ledgerYear:write
-	//	Permission: PERMISSION_LEDGER_YEAR_CLOSE
+	//	Permission: ledgerYear:close
 	//	Domain: organization-scoped
 	CloseLedgerYear(ctx context.Context, in *CloseLedgerYearRequest, opts ...grpc.CallOption) (*LedgerYear, error)
 }
@@ -101,21 +101,21 @@ type LedgerYearServiceServer interface {
 	// Authorization:
 	//
 	//	Scope: ledgerYear:read
-	//	Permission: PERMISSION_LEDGER_YEAR_READ
+	//	Permission: ledgerYear:read
 	//	Domain: organization-scoped
 	GetLedgerYear(context.Context, *GetLedgerYearRequest) (*LedgerYear, error)
 	// Lists ledger years for an organization.
 	// Authorization:
 	//
 	//	Scope: ledgerYear:read
-	//	Permission: PERMISSION_LEDGER_YEAR_READ
+	//	Permission: ledgerYear:read
 	//	Domain: organization-scoped
 	ListLedgerYears(context.Context, *ListLedgerYearsRequest) (*ListLedgerYearsResponse, error)
 	// Closes a ledger year, preventing new imports.
 	// Authorization:
 	//
 	//	Scope: ledgerYear:write
-	//	Permission: PERMISSION_LEDGER_YEAR_CLOSE
+	//	Permission: ledgerYear:close
 	//	Domain: organization-scoped
 	CloseLedgerYear(context.Context, *CloseLedgerYearRequest) (*LedgerYear, error)
 }

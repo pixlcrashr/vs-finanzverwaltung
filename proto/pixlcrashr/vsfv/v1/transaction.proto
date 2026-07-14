@@ -160,7 +160,7 @@ service TransactionService {
   // Gets a single transaction by resource name.
   // Authorization:
   //   Scope: transactions:read
-  //   Permission: PERMISSION_TRANSACTIONS_READ
+  //   Permission: transactions:read
   //   Domain: organization-scoped
   rpc GetTransaction(GetTransactionRequest) returns (Transaction) {
     option (google.api.http) = {get: "/v1/{name=organizations/*/transactions/*}"};
@@ -170,7 +170,7 @@ service TransactionService {
   // Lists transactions with keyset pagination and optional filters.
   // Authorization:
   //   Scope: transactions:read
-  //   Permission: PERMISSION_TRANSACTIONS_READ
+  //   Permission: transactions:read
   //   Domain: organization-scoped
   rpc ListTransactions(ListTransactionsRequest) returns (ListTransactionsResponse) {
     option (google.api.http) = {get: "/v1/{parent=organizations/*}/transactions"};
@@ -180,7 +180,7 @@ service TransactionService {
   // Creates a new transaction.
   // Authorization:
   //   Scope: transactions:write
-  //   Permission: PERMISSION_TRANSACTIONS_CREATE (note: not yet defined in permission.proto)
+  //   Permission: transactions:create
   //   Domain: organization-scoped
   rpc CreateTransaction(CreateTransactionRequest) returns (Transaction) {
     option (google.api.http) = {
@@ -193,7 +193,7 @@ service TransactionService {
   // Updates an existing transaction.
   // Authorization:
   //   Scope: transactions:write
-  //   Permission: PERMISSION_TRANSACTIONS_UPDATE
+  //   Permission: transactions:update
   //   Domain: organization-scoped
   rpc UpdateTransaction(UpdateTransactionRequest) returns (Transaction) {
     option (google.api.http) = {
@@ -206,7 +206,7 @@ service TransactionService {
   // Permanently deletes a transaction.
   // Authorization:
   //   Scope: transactions:write
-  //   Permission: PERMISSION_TRANSACTIONS_DELETE
+  //   Permission: transactions:delete
   //   Domain: organization-scoped
   rpc DeleteTransaction(DeleteTransactionRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/{name=organizations/*/transactions/*}"};

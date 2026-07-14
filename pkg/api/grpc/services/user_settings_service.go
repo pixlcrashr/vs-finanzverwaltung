@@ -35,7 +35,7 @@ func (s *userSettingsServiceServer) GetUserSettings(ctx context.Context, req *ge
 		return nil, &ServerError{Err: err, Status: statusInvalidUserSettingsName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceSettings, authz.ActionRead, authz.GlobalDomain); err != nil {
+	if err := authz.CheckGlobal(ctx, s.enforcer, authz.ResourceSettings, authz.ActionRead); err != nil {
 		return nil, authError(err)
 	}
 
@@ -70,7 +70,7 @@ func (s *userSettingsServiceServer) UpdateUserSettings(ctx context.Context, req 
 		return nil, &ServerError{Err: err, Status: statusInvalidUserSettingsName}
 	}
 
-	if err := authz.Check(ctx, s.enforcer, authz.ResourceSettings, authz.ActionUpdate, authz.GlobalDomain); err != nil {
+	if err := authz.CheckGlobal(ctx, s.enforcer, authz.ResourceSettings, authz.ActionUpdate); err != nil {
 		return nil, authError(err)
 	}
 

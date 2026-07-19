@@ -95,7 +95,7 @@ class TransactionAssignmentServiceService extends __BaseService {
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: account.
-   *   Example: "account=\"organizations/*/accounts/*\"".
+   *   Example: "account=\"organizations/{organization}/accounts/{account}\"".
    *
    * @return A successful response.
    */
@@ -145,7 +145,7 @@ class TransactionAssignmentServiceService extends __BaseService {
    *
    * - `filter`: Filter expression conforming to AIP-160.
    *   Supported fields: account.
-   *   Example: "account=\"organizations/*/accounts/*\"".
+   *   Example: "account=\"organizations/{organization}/accounts/{account}\"".
    *
    * @return A successful response.
    */
@@ -188,7 +188,7 @@ module TransactionAssignmentServiceService {
     /**
      * Filter expression conforming to AIP-160.
      * Supported fields: account.
-     * Example: "account=\"organizations/*/accounts/*\"".
+     * Example: "account=\"organizations/{organization}/accounts/{account}\"".
      */
     filter?: string;
   }

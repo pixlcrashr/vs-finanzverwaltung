@@ -1,5 +1,4 @@
 /* tslint:disable */
-import { V1NestedAccount } from './v1nested-account';
 
 /**
  * NestedAccount is a read-only view of an Account that includes its full

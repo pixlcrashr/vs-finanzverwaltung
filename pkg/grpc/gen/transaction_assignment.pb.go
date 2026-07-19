@@ -187,7 +187,7 @@ type ListTransactionAssignmentsRequest struct {
 	PageToken string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	// Filter expression conforming to AIP-160.
 	// Supported fields: account.
-	// Example: "account=\"organizations/*/accounts/*\"".
+	// Example: "account=\"organizations/{organization}/accounts/{account}\"".
 	Filter string `protobuf:"bytes,4,opt,name=filter,proto3" json:"filter,omitempty"`
 	// Order by expression (e.g. "value desc", "create_time").
 	OrderBy       string `protobuf:"bytes,5,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`

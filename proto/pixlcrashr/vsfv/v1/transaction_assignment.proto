@@ -83,7 +83,7 @@ message ListTransactionAssignmentsRequest {
 
   // Filter expression conforming to AIP-160.
   // Supported fields: account.
-  // Example: "account=\"organizations/*/accounts/*\"".
+  // Example: "account=\"organizations/{organization}/accounts/{account}\"".
   string filter = 4 [(google.api.field_behavior) = OPTIONAL];
 
   // Order by expression (e.g. "value desc", "create_time").

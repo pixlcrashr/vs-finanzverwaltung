@@ -2055,7 +2055,7 @@ paths:
           description: |-
             Filter expression conforming to AIP-160.
             Supported fields: account.
-            Example: "account=\"organizations/*/accounts/*\"".
+            Example: "account=\"organizations/{organization}/accounts/{account}\"".
           in: query
           required: false
           type: string

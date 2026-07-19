@@ -9,7 +9,6 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "generate:apiV3": "ng-openapi-gen --input ../openapi.swagger.yaml --output .\\src\\lib\\api\\ --ignore-unused-models false",
     "generate:apiV2": "ng-swagger-gen --input ../openapi.swagger.yaml --output .\\src\\lib\\api\\"
   },
   "private": true,

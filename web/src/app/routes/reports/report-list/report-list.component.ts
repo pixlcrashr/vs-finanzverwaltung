@@ -22,10 +22,10 @@ import {
   ConfirmDeleteDialogOutput,
 } from '../../../shared/dialogs/confirm-delete-dialog/confirm-delete-dialog.component';
 import {
-  CreateReportDialogComponent,
-  CreateReportDialogInput,
-  CreateReportDialogOutput,
-} from '../../../shared/dialogs/create-report-dialog/create-report-dialog.component';
+  ExportReportDialogComponent,
+  ExportReportDialogInput,
+  ExportReportDialogOutput,
+} from '../../../shared/dialogs/export-report-dialog/export-report-dialog.component';
 
 import { formatDateShort } from '../../../shared/utils';
 import { Report } from '../../../shared/models';
@@ -178,8 +178,8 @@ export class ReportListComponent {
   }
 
   openCreateDialog(): void {
-    const dialogRef = this.dialog.open<CreateReportDialogOutput, CreateReportDialogInput>(
-      CreateReportDialogComponent,
+    const dialogRef = this.dialog.open<ExportReportDialogOutput, ExportReportDialogInput>(
+      ExportReportDialogComponent,
       {
         backdropClass: 'cdk-overlay-dark-backdrop',
         width: '500px',
@@ -188,7 +188,7 @@ export class ReportListComponent {
     );
 
     dialogRef.closed.subscribe((result) => {
-      if (result?.created && result.report) {
+      if (result?.confirmed && result.report) {
         this.reports.update((reports) => [
           {
             id: result.report!.id,

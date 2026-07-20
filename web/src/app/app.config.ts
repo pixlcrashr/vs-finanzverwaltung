@@ -1,6 +1,7 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideAppInitializer, inject } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { provideApiConfiguration } from './provide-api-configuration';
 import { environment } from '../environments/environment';
 
@@ -16,6 +17,12 @@ import { CreateReportDialogDataService } from './shared/dialogs/create-report-di
 import { AddReceiptDialogDataService } from './shared/dialogs/add-receipt-dialog/add-receipt-dialog.data-service';
 import { CreateOrganizationDialogDataService } from './shared/dialogs/create-organization-dialog/create-organization-dialog.data-service';
 import { AuthorizationDataService } from '../lib/authz/authorization.service';
+import { CurrentUserService, CurrentUserInitializer, CurrentUserInfo } from '../lib/authz/current-user.service';
+
+function initializeCurrentUser(): Promise<CurrentUserInfo | null> {
+  const initializer = inject(CurrentUserInitializer);
+  return firstValueFrom(initializer.initialize());
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -33,5 +40,7 @@ export const appConfig: ApplicationConfig = {
     { provide: AddReceiptDialogDataService, useClass: environment.dataServices.addReceiptDialog },
     { provide: CreateOrganizationDialogDataService, useClass: environment.dataServices.createOrganizationDialog },
     { provide: AuthorizationDataService, useClass: environment.dataServices.authorizationData },
+    { provide: CurrentUserService, useClass: environment.dataServices.currentUser },
+    provideAppInitializer(initializeCurrentUser),
   ],
 };

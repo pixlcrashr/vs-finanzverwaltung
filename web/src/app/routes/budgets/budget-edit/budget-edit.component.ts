@@ -144,7 +144,6 @@ import { BudgetEditDataService, BudgetDetails } from './budget-edit.data-service
                           <input
                             type="checkbox"
                             formControlName="publishCurrentTargetValuesAlways"
-                            [disabled]="budget()!.isClosed"
                             class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                           />
                           <ng-container i18n>Aktuelle Soll-Werte immer veröffentlichen</ng-container>
@@ -153,7 +152,6 @@ import { BudgetEditDataService, BudgetDetails } from './budget-edit.data-service
                           <input
                             type="checkbox"
                             formControlName="publishCurrentActualValuesAlways"
-                            [disabled]="budget()!.isClosed"
                             class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                           />
                           <ng-container i18n>Aktuelle Ist-Werte immer veröffentlichen</ng-container>
@@ -388,6 +386,13 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
           publishCurrentActualValuesAlways: budget.publishCurrentActualValuesAlways ?? false,
         }, { emitEvent: false });
         this.budgetForm.markAsPristine();
+        if (budget.isClosed) {
+          this.budgetForm.get('publishCurrentTargetValuesAlways')?.disable({ emitEvent: false });
+          this.budgetForm.get('publishCurrentActualValuesAlways')?.disable({ emitEvent: false });
+        } else {
+          this.budgetForm.get('publishCurrentTargetValuesAlways')?.enable({ emitEvent: false });
+          this.budgetForm.get('publishCurrentActualValuesAlways')?.enable({ emitEvent: false });
+        }
         this.breadcrumbs.set([
           { label: $localize`Haushaltspläne`, path: `/organizations/${this.orgId}/budgets` },
           { label: budget.displayName },

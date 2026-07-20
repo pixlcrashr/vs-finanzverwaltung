@@ -40,6 +40,7 @@ import { MockOrganizationEditDataService } from '../lib/data/mock/organization-e
 import { MockCreateOrganizationDialogDataService } from '../lib/data/mock/create-organization-dialog.data-service.mock';
 import { MockMainLayoutDataService } from '../lib/data/mock/main-layout.data-service.mock';
 import { MockAuthorizationDataService } from '../lib/data/mock/authorization-data.service.mock';
+import { MockCurrentUserService } from '../lib/data/mock/current-user.service.mock';
 
 
 
@@ -90,5 +91,6 @@ export const environment = {
     createOrganizationDialog: MockCreateOrganizationDialogDataService,
     mainLayout: MockMainLayoutDataService,
     authorizationData: MockAuthorizationDataService,
+    currentUser: MockCurrentUserService,
   },
 };

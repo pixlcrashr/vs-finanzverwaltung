@@ -37,32 +37,36 @@ import { V1AccountType } from '../../../../lib/api/models/v1account-type';
             <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
               <div class="space-y-4">
                 <!-- Read-only fields -->
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      <ng-container i18n>Kontonummer</ng-container>
-                    </label>
-                    <input
-                      type="text"
-                      [value]="acc.code"
-                      disabled
-                      class="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
-                    />
-                  </div>
-                  <div>
-                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      <ng-container i18n>Typ</ng-container>
-                    </label>
-                    <input
-                      type="text"
-                      [value]="formatAccountType(acc.accountType)"
-                      disabled
-                      class="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
-                    />
-                  </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <ng-container i18n>Kontonummer</ng-container>
+                  </label>
+                  <input
+                    type="text"
+                    [value]="acc.code"
+                    disabled
+                    class="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
+                  />
                 </div>
 
                 <!-- Editable fields -->
+                <div>
+                  <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <ng-container i18n>Typ</ng-container>
+                  </label>
+                  <select
+                    [(ngModel)]="accountType"
+                    class="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="ACCOUNT_TYPE_ASSET">Aktiv</option>
+                    <option value="ACCOUNT_TYPE_LIABILITY">Passiv</option>
+                    <option value="ACCOUNT_TYPE_EQUITY">Eigenkapital</option>
+                    <option value="ACCOUNT_TYPE_REVENUE">Ertrag</option>
+                    <option value="ACCOUNT_TYPE_EXPENSE">Aufwand</option>
+                    <option value="ACCOUNT_TYPE_SYSTEM">System</option>
+                  </select>
+                </div>
+
                 <div>
                   <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                     <ng-container i18n>Anzeigename</ng-container>
@@ -120,6 +124,7 @@ export class LedgerAccountEditComponent implements OnInit {
 
   displayName = '';
   displayDescription = '';
+  accountType: V1AccountType = 'ACCOUNT_TYPE_UNSPECIFIED';
 
   readonly orgId = signal<string>('');
   readonly accountId = signal<string>('');
@@ -147,6 +152,7 @@ export class LedgerAccountEditComponent implements OnInit {
         this.account.set(account);
         this.displayName = account.displayName || '';
         this.displayDescription = account.displayDescription || '';
+        this.accountType = account.accountType;
         this.loading.set(false);
       },
       error: () => {
@@ -167,6 +173,7 @@ export class LedgerAccountEditComponent implements OnInit {
       id: account.id,
       displayName: this.displayName || undefined,
       displayDescription: this.displayDescription || undefined,
+      accountType: this.accountType,
       etag: account.etag,
     };
 

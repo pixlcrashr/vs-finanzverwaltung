@@ -34,14 +34,14 @@ export class HttpLedgerAccountEditDataService implements LedgerAccountEditDataSe
     request: UpdateLedgerAccountRequest
   ): Observable<LedgerAccountDetail> {
     const ledgerAccountName = `organizations/${organizationId}/ledgerAccounts/${request.id}`;
-    
+
     return this.api
       .LedgerAccountServiceUpdateLedgerAccount({
         ledgerAccountName,
         ledgerAccount: {
           uid: request.id,
           code: '',
-          account_type: 'ACCOUNT_TYPE_UNSPECIFIED' as V1AccountType,
+          account_type: (request.accountType ?? 'ACCOUNT_TYPE_UNSPECIFIED') as V1AccountType,
           display_name: request.displayName,
           display_description: request.displayDescription,
           etag: request.etag,

@@ -96,7 +96,7 @@ import { MainLayoutDataService } from './main-layout.data-service';
 
           <div class="mt-4">
             <p i18n class="px-2 mb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-500">
-              Finanzbuchhaltung
+              Buchhaltung
             </p>
             <ul class="space-y-0.5">
               @for (item of bookkeepingMenuItems(); track item.name) {
@@ -271,7 +271,7 @@ export class MainLayoutComponent implements OnInit {
     const orgId = this.orgIdFromRoute();
     if (!orgId) return [];
     return [
-      { name: $localize`Ledger Konten`, path: `/organizations/${orgId}/ledgerAccounts` },
+      { name: $localize`Buchhaltungskonten`, path: `/organizations/${orgId}/ledgerAccounts` },
       { name: $localize`Geschäftsjahre`, path: `/organizations/${orgId}/ledgerYears` },
     ];
   });

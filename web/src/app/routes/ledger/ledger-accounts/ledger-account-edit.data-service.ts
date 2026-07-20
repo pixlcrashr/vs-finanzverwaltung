@@ -17,6 +17,7 @@ export interface UpdateLedgerAccountRequest {
   id: string;
   displayName?: string;
   displayDescription?: string;
+  accountType?: V1AccountType;
   etag?: string;
 }
 

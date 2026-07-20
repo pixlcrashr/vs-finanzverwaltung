@@ -31,7 +31,10 @@ export function requireAllPermissions(...requiredPermissions: Permission[]): Can
     return authService.checkPermissions(user, domain, requiredPermissions).pipe(
       map((result) => {
         const allGranted = requiredPermissions.every((p) => result[p]);
-        return allGranted || router.createUrlTree(['/']);
+        if (allGranted) return true;
+        return orgId
+          ? router.createUrlTree(['/organizations', orgId, 'permission-denied'])
+          : router.createUrlTree(['/permission-denied']);
       }),
     );
   };
@@ -64,7 +67,10 @@ export function requireAnyPermission(...permissions: Permission[]): CanActivateF
     return authService.checkPermissions(user, domain, permissions).pipe(
       map((result) => {
         const anyGranted = permissions.some((p) => result[p]);
-        return anyGranted || router.createUrlTree(['/']);
+        if (anyGranted) return true;
+        return orgId
+          ? router.createUrlTree(['/organizations', orgId, 'permission-denied'])
+          : router.createUrlTree(['/permission-denied']);
       }),
     );
   };
@@ -92,7 +98,7 @@ export function requireAllGlobalPermissions(...requiredPermissions: Permission[]
     return authService.checkPermissions(user, '', requiredPermissions).pipe(
       map((result) => {
         const allGranted = requiredPermissions.every((p) => result[p]);
-        return allGranted || router.createUrlTree(['/']);
+        return allGranted || router.createUrlTree(['/permission-denied']);
       }),
     );
   };
@@ -120,7 +126,7 @@ export function requireAnyGlobalPermission(...permissions: Permission[]): CanAct
     return authService.checkPermissions(user, '', permissions).pipe(
       map((result) => {
         const anyGranted = permissions.some((p) => result[p]);
-        return anyGranted || router.createUrlTree(['/']);
+        return anyGranted || router.createUrlTree(['/permission-denied']);
       }),
     );
   };

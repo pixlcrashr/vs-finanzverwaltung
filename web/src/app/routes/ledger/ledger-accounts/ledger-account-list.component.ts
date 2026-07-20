@@ -5,8 +5,7 @@ import {
   signal,
   OnInit,
 } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   PageContentLayoutComponent,
   BreadcrumbItem,
@@ -17,39 +16,14 @@ import {
 import {
   LedgerAccountListDataService,
   LedgerAccountListItem,
-  LedgerAccountListFilter,
 } from './ledger-account-list.data-service';
 
 @Component({
   selector: 'app-ledger-account-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, RouterLink, PageContentLayoutComponent, LoadingSpinnerComponent, EmptyStateComponent],
+  imports: [RouterLink, PageContentLayoutComponent, LoadingSpinnerComponent, EmptyStateComponent],
   template: `
     <app-page-content-layout [breadcrumbs]="breadcrumbs">
-      <div layout-header-actions>
-        <div class="flex items-center gap-2">
-          <select
-            [(ngModel)]="selectedAccountType"
-            (ngModelChange)="onFilterChange()"
-            class="px-2 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-          >
-            <option value="">Alle Typen</option>
-            <option value="ACCOUNT_TYPE_ASSET">Aktiv</option>
-            <option value="ACCOUNT_TYPE_LIABILITY">Passiv</option>
-            <option value="ACCOUNT_TYPE_EQUITY">Eigenkapital</option>
-            <option value="ACCOUNT_TYPE_REVENUE">Ertrag</option>
-            <option value="ACCOUNT_TYPE_EXPENSE">Aufwand</option>
-          </select>
-          <input
-            type="text"
-            [(ngModel)]="searchQuery"
-            (ngModelChange)="onFilterChange()"
-            placeholder="Suchen..."
-            class="px-2 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 w-40"
-          />
-        </div>
-      </div>
-
       <div layout-content class="flex flex-1 justify-center">
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Ledger-Konten werden geladen..." />
@@ -129,9 +103,6 @@ export class LedgerAccountListComponent implements OnInit {
   readonly loading = signal(true);
   readonly accounts = signal<LedgerAccountListItem[]>([]);
 
-  selectedAccountType = '';
-  searchQuery = '';
-
   readonly orgId = signal<string>('');
 
   readonly breadcrumbs: BreadcrumbItem[] = [
@@ -152,15 +123,7 @@ export class LedgerAccountListComponent implements OnInit {
 
     this.loading.set(true);
 
-    const filter: LedgerAccountListFilter = {};
-    if (this.selectedAccountType) {
-      filter.accountType = this.selectedAccountType;
-    }
-    if (this.searchQuery) {
-      filter.search = this.searchQuery;
-    }
-
-    this.dataService.listLedgerAccounts(orgId, filter).subscribe({
+    this.dataService.listLedgerAccounts(orgId).subscribe({
       next: (result) => {
         this.accounts.set(result.accounts);
         this.loading.set(false);
@@ -170,10 +133,6 @@ export class LedgerAccountListComponent implements OnInit {
         this.loading.set(false);
       },
     });
-  }
-
-  onFilterChange(): void {
-    this.loadAccounts();
   }
 
   formatAccountType(type: string): string {

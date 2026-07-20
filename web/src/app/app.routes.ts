@@ -16,6 +16,14 @@ export const routes: Routes = [
       { provide: MainLayoutDataService, useClass: environment.dataServices.mainLayout },
     ],
     children: [
+      // Permission denied (global, no org prefix)
+      {
+        path: 'permission-denied',
+        loadComponent: () =>
+          import('./routes/permission-denied/permission-denied.component').then(
+            (m) => m.PermissionDeniedComponent,
+          ),
+      },
       // Admin routes
       {
         path: 'admin',
@@ -93,18 +101,26 @@ export const routes: Routes = [
       {
         path: 'organizations/:orgId/ledgerAccounts',
         runGuardsAndResolvers: 'paramsOrQueryParamsChange',
-        loadChildren: () => import('./routes/ledger/ledger.routes').then((m) => m.LEDGER_ROUTES),
+        loadChildren: () => import('./routes/ledger/ledger-accounts.routes').then((m) => m.LEDGER_ACCOUNT_ROUTES),
       },
       {
         path: 'organizations/:orgId/ledgerYears',
         runGuardsAndResolvers: 'paramsOrQueryParamsChange',
-        loadChildren: () => import('./routes/ledger/ledger.routes').then((m) => m.LEDGER_ROUTES),
+        loadChildren: () => import('./routes/ledger/ledger-years.routes').then((m) => m.LEDGER_YEAR_ROUTES),
       },
       // Organization settings
       {
         path: 'organizations/:orgId/settings',
         runGuardsAndResolvers: 'paramsOrQueryParamsChange',
         loadChildren: () => import('./routes/settings/settings.routes').then((m) => m.SETTINGS_ROUTES),
+      },
+      // Permission denied (org-scoped)
+      {
+        path: 'organizations/:orgId/permission-denied',
+        loadComponent: () =>
+          import('./routes/permission-denied/permission-denied.component').then(
+            (m) => m.PermissionDeniedComponent,
+          ),
       },
     ],
   },

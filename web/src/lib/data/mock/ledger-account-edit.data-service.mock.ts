@@ -17,7 +17,7 @@ function createMockAccount(id: string): LedgerAccountDetail {
     'ACCOUNT_TYPE_REVENUE',
     'ACCOUNT_TYPE_EXPENSE',
   ]);
-  
+
   return {
     id,
     name: `organizations/test/ledgerAccounts/${id}`,
@@ -52,6 +52,7 @@ export class MockLedgerAccountEditDataService implements LedgerAccountEditDataSe
       ...account,
       displayName: request.displayName ?? account.displayName,
       displayDescription: request.displayDescription ?? account.displayDescription,
+      accountType: request.accountType ?? account.accountType,
       updateTime: new Date().toISOString(),
       etag: faker.string.alphanumeric(16),
     };

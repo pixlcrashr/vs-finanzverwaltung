@@ -12,9 +12,7 @@ function createMockSettings(id: string): OrganizationSettings {
     id,
     name: faker.company.name(),
     description: faker.datatype.boolean() ? faker.company.catchPhrase() : undefined,
-    defaultCurrency: 'EUR',
     fiscalYearStart: 1,
-    fiscalYearEnd: 12,
   };
 }
 

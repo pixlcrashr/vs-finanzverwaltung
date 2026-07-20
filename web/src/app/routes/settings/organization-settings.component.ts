@@ -57,48 +57,31 @@ import { Permission, Permissions } from '../../../lib/authz/permissions';
                 ></textarea>
               </div>
 
-              <!-- Default Currency -->
+              <!-- Fiscal Year Start -->
               <div>
                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  <ng-container i18n>Währung</ng-container>
+                  <ng-container i18n>Geschäftsjahr Beginn (Monat)</ng-container>
                 </label>
-                <input
-                  type="text"
-                  [(ngModel)]="defaultCurrency"
-                  disabled
-                  class="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
-                />
+                <select
+                  [(ngModel)]="fiscalYearStart"
+                  class="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option [ngValue]="1" i18n>Januar</option>
+                  <option [ngValue]="2" i18n>Februar</option>
+                  <option [ngValue]="3" i18n>März</option>
+                  <option [ngValue]="4" i18n>April</option>
+                  <option [ngValue]="5" i18n>Mai</option>
+                  <option [ngValue]="6" i18n>Juni</option>
+                  <option [ngValue]="7" i18n>Juli</option>
+                  <option [ngValue]="8" i18n>August</option>
+                  <option [ngValue]="9" i18n>September</option>
+                  <option [ngValue]="10" i18n>Oktober</option>
+                  <option [ngValue]="11" i18n>November</option>
+                  <option [ngValue]="12" i18n>Dezember</option>
+                </select>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" i18n>
-                  Die Währung kann nicht geändert werden.
+                  Das Geschäftsjahr endet am letzten Tag des Vormonats des Startmonats im Folgejahr.
                 </p>
-              </div>
-
-              <!-- Fiscal Year -->
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    <ng-container i18n>Geschäftsjahr Beginn (Monat)</ng-container>
-                  </label>
-                  <input
-                    type="number"
-                    [(ngModel)]="fiscalYearStart"
-                    min="1"
-                    max="12"
-                    class="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    <ng-container i18n>Geschäftsjahr Ende (Monat)</ng-container>
-                  </label>
-                  <input
-                    type="number"
-                    [(ngModel)]="fiscalYearEnd"
-                    min="1"
-                    max="12"
-                    class="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
               </div>
 
               <!-- Actions -->
@@ -132,9 +115,7 @@ export class OrganizationSettingsComponent implements OnInit {
 
   name = '';
   description = '';
-  defaultCurrency = 'EUR';
   fiscalYearStart = 1;
-  fiscalYearEnd = 12;
 
   readonly orgId = signal<string>('');
 
@@ -157,9 +138,7 @@ export class OrganizationSettingsComponent implements OnInit {
         this.settings.set(settings);
         this.name = settings.name;
         this.description = settings.description || '';
-        this.defaultCurrency = settings.defaultCurrency;
         this.fiscalYearStart = settings.fiscalYearStart;
-        this.fiscalYearEnd = settings.fiscalYearEnd;
         this.loading.set(false);
       },
       error: () => {
@@ -179,7 +158,6 @@ export class OrganizationSettingsComponent implements OnInit {
       name: this.name,
       description: this.description || undefined,
       fiscalYearStart: this.fiscalYearStart,
-      fiscalYearEnd: this.fiscalYearEnd,
     };
 
     this.dataService.updateSettings(orgId, update).subscribe({

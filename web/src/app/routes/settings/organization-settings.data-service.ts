@@ -4,9 +4,7 @@ export interface OrganizationSettings {
   id: string;
   name: string;
   description?: string;
-  defaultCurrency: string;
   fiscalYearStart: number;
-  fiscalYearEnd: number;
 }
 
 export abstract class OrganizationSettingsDataService {

@@ -1,8 +1,9 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, effect } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
+import { Dialog } from '@angular/cdk/dialog';
 import { merge, map, distinctUntilChanged, filter, delay } from 'rxjs';
-import { MatrixHeader } from "./matrix-header/matrix-header";
+import { MatrixHeader, ExportButtonClickArgs } from "./matrix-header/matrix-header";
 import { MatrixContent } from "./matrix-content/matrix-content";
 import { MatrixValueStoreService } from './matrix-value-store.service';
 import { MatrixData, MatrixDataProviderService } from './matrix-data-provider.service';
@@ -10,6 +11,11 @@ import { MatrixDataService, MatrixBudgetValueUpdate } from './matrix.data-servic
 import { LoadingSpinnerComponent } from '../../shared/components';
 import { HasPermissionPipe } from '../../../lib/authz/has-permission.pipe';
 import { Permission, Permissions } from '../../../lib/authz/permissions';
+import {
+  ExportMatrixDialogComponent,
+  ExportMatrixDialogInput,
+  ExportMatrixDialogOutput,
+} from '../../shared/dialogs/export-matrix-dialog/export-matrix-dialog.component';
 
 
 
@@ -31,6 +37,7 @@ import { Permission, Permissions } from '../../../lib/authz/permissions';
         [(selectedTagIds)]="selectedTagIds"
         [(selectedAccountIds)]="selectedAccountIds"
         (saveClick)="onSave()"
+        (exportButtonClick)="onExport($event)"
       />
       <div class="flex-grow overflow-auto">
         @if (isLoading() && !hasLoadedData()) {
@@ -54,6 +61,7 @@ export class Matrix {
   private readonly route = inject(ActivatedRoute);
   private readonly dataProvider = inject(MatrixDataProviderService);
   private readonly dataService = inject(MatrixDataService);
+  private readonly dialog = inject(Dialog);
   protected readonly valueStore = inject(MatrixValueStoreService);
 
   private orgId = '';
@@ -83,7 +91,41 @@ export class Matrix {
   selectedTagIds = signal<string[]>([]);
   selectedAccountIds = signal<string[]>([]);
 
+  private readonly configKey = computed(() => `vsfv:matrix-config:${this.orgId}`);
+
+  private saveConfigToStorage(): void {
+    const key = this.configKey();
+    if (!key) return;
+    const config = {
+      selectedBudgetIds: this.selectedBudgetIds(),
+      selectedTagIds: this.selectedTagIds(),
+      selectedAccountIds: this.selectedAccountIds(),
+    };
+    try {
+      localStorage.setItem(key, JSON.stringify(config));
+    } catch {}
+  }
+
+  private loadConfigFromStorage(): { selectedBudgetIds: string[]; selectedTagIds: string[]; selectedAccountIds: string[] } | null {
+    const key = this.configKey();
+    if (!key) return null;
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+
   constructor() {
+    effect(() => {
+      this.selectedBudgetIds();
+      this.selectedTagIds();
+      this.selectedAccountIds();
+      this.saveConfigToStorage();
+    });
+
     merge(...this.route.pathFromRoot.map(r => r.params)).pipe(
       map(params => params['orgId'] as string | undefined),
       filter((id): id is string => !!id),
@@ -94,9 +136,10 @@ export class Matrix {
       this.isLoading.set(true);
       this.hasLoadedData.set(false);
       this.matrixData.set({ columns: [], rows: [], budgets: [], accounts: [] });
-      this.selectedBudgetIds.set([]);
-      this.selectedTagIds.set([]);
-      this.selectedAccountIds.set([]);
+      const saved = this.loadConfigFromStorage();
+      this.selectedBudgetIds.set(saved?.selectedBudgetIds ?? []);
+      this.selectedTagIds.set(saved?.selectedTagIds ?? []);
+      this.selectedAccountIds.set(saved?.selectedAccountIds ?? []);
       this.valueStore.resetAllToOriginal();
       this.loadInitialData();
     });
@@ -109,14 +152,43 @@ export class Matrix {
       delay(200)
     ).subscribe({
       next: (data) => {
-        if (data.budgets.length > 0 && this.selectedBudgetIds().length === 0) {
+        const saved = this.loadConfigFromStorage();
+        if (saved && saved.selectedBudgetIds.length > 0) {
+          const validBudgetIds = saved.selectedBudgetIds.filter(id =>
+            data.budgets.some(b => b.id === id)
+          );
+          if (validBudgetIds.length > 0) {
+            this.selectedBudgetIds.set(validBudgetIds);
+          } else if (data.budgets.length > 0) {
+            const firstBudget = data.budgets[0];
+            this.selectedBudgetIds.set([firstBudget.id]);
+            const lastTag = firstBudget.tags[firstBudget.tags.length - 1];
+            this.selectedTagIds.set(lastTag ? [lastTag.id] : []);
+          }
+        } else if (data.budgets.length > 0 && this.selectedBudgetIds().length === 0) {
           const firstBudget = data.budgets[0];
           this.selectedBudgetIds.set([firstBudget.id]);
           const lastTag = firstBudget.tags[firstBudget.tags.length - 1];
           this.selectedTagIds.set(lastTag ? [lastTag.id] : []);
         }
 
-        if (data.accounts.length > 0 && this.selectedAccountIds().length === 0) {
+        if (saved && saved.selectedTagIds.length > 0) {
+          const validTagIds = saved.selectedTagIds.filter(id =>
+            data.budgets.some(b => b.tags.some(t => t.id === id))
+          );
+          if (validTagIds.length > 0) {
+            this.selectedTagIds.set(validTagIds);
+          }
+        }
+
+        if (saved && saved.selectedAccountIds.length > 0) {
+          const validAccountIds = saved.selectedAccountIds.filter(id =>
+            data.accounts.some(a => a.id === id)
+          );
+          if (validAccountIds.length > 0) {
+            this.selectedAccountIds.set(validAccountIds);
+          }
+        } else if (data.accounts.length > 0 && this.selectedAccountIds().length === 0) {
           const nonArchivedIds = data.accounts
             .filter(a => !a.isArchived)
             .map(a => a.id);
@@ -126,6 +198,7 @@ export class Matrix {
         this.matrixData.set(data);
         this.hasLoadedData.set(true);
         this.isLoading.set(false);
+        this.saveConfigToStorage();
       },
       error: () => this.isLoading.set(false)
     });
@@ -135,7 +208,6 @@ export class Matrix {
     const allChangedValues = this.valueStore.getAllChangedValues();
 
     if (allChangedValues.size === 0) {
-      console.log('No changes to save');
       return;
     }
 
@@ -150,7 +222,6 @@ export class Matrix {
       });
     });
 
-    console.log('Saving changed values:', updates);
     this.isSaving.set(true);
 
     this.dataService.updateMatrixBudgetValues(this.orgId, updates).subscribe({
@@ -158,11 +229,29 @@ export class Matrix {
         this.valueStore.markAllAsClean();
         this.matrixData.update(d => ({ ...d }));
         this.isSaving.set(false);
-        console.log('Save successful');
       },
-      error: (err) => {
-        console.error('Save failed:', err);
+      error: () => {
         this.isSaving.set(false);
+      }
+    });
+  }
+
+  onExport(_args: ExportButtonClickArgs): void {
+    const dialogRef = this.dialog.open<ExportMatrixDialogOutput, ExportMatrixDialogInput>(
+      ExportMatrixDialogComponent,
+      {
+        backdropClass: 'cdk-overlay-dark-backdrop',
+        width: '500px',
+        data: {
+          organizationId: this.orgId,
+          templates: [],
+        },
+      }
+    );
+
+    dialogRef.closed.subscribe((result) => {
+      if (result?.confirmed) {
+        // TODO: Implement actual export logic once backend supports it
       }
     });
   }

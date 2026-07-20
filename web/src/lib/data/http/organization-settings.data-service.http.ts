@@ -16,9 +16,7 @@ export class HttpOrganizationSettingsDataService implements OrganizationSettings
     return of({
       id: organizationId,
       name: 'Organization ' + organizationId,
-      defaultCurrency: 'EUR',
       fiscalYearStart: 1,
-      fiscalYearEnd: 12,
     });
   }
 
@@ -31,9 +29,7 @@ export class HttpOrganizationSettingsDataService implements OrganizationSettings
       id: organizationId,
       name: settings.name || 'Organization ' + organizationId,
       description: settings.description,
-      defaultCurrency: 'EUR',
       fiscalYearStart: settings.fiscalYearStart ?? 1,
-      fiscalYearEnd: settings.fiscalYearEnd ?? 12,
     });
   }
 }

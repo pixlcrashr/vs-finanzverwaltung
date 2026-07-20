@@ -42,6 +42,7 @@ import { HttpOrganizationEditDataService } from '../lib/data/http/organization-e
 import { HttpCreateOrganizationDialogDataService } from '../lib/data/http/create-organization-dialog.data-service.http';
 import { HttpMainLayoutDataService } from '../lib/data/http/main-layout.data-service.http';
 import { HttpAuthorizationDataService } from '../lib/data/http/authorization-data.service.http';
+import { HttpCurrentUserService } from '../lib/data/http/current-user.service.http';
 
 
 
@@ -92,5 +93,6 @@ export const environment = {
     createOrganizationDialog: HttpCreateOrganizationDialogDataService,
     mainLayout: HttpMainLayoutDataService,
     authorizationData: HttpAuthorizationDataService,
+    currentUser: HttpCurrentUserService,
   },
 };

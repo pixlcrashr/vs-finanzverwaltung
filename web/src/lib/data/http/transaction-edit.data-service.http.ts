@@ -4,8 +4,8 @@ import { TransactionServiceService } from '../../api/services/transaction-servic
 import { TransactionAssignmentServiceService } from '../../api/services/transaction-assignment-service.service';
 import { LedgerAccountServiceService } from '../../api/services/ledger-account-service.service';
 import { AccountServiceService } from '../../api/services/account-service.service';
-import { Transaction, Account } from '../../../app/shared/models';
-import { TransactionEditDataService } from '../../../app/routes/transactions/transaction-edit/transaction-edit.data-service';
+import { Transaction, Account, TransactionAssignment } from '../../../app/shared/models';
+import { TransactionEditDataService, CreateAssignmentParams } from '../../../app/routes/transactions/transaction-edit/transaction-edit.data-service';
 import { mapApiAccount, mapApiTransaction, mapApiTransactionAssignment } from './_mappers';
 
 @Injectable()
@@ -88,6 +88,28 @@ export class HttpTransactionEditDataService extends TransactionEditDataService {
   listAvailableAccounts(organizationId: string): Observable<Account[]> {
     return this.accountSvc.AccountServiceListAccounts({ parent: `organizations/${organizationId}`, pageSize: 100, showDeleted: false }).pipe(
       map((resp) => (resp.accounts ?? []).map(mapApiAccount)),
+    );
+  }
+
+  createAssignment(organizationId: string, transactionId: string, params: CreateAssignmentParams): Observable<TransactionAssignment> {
+    const parent = this.txnName(organizationId, transactionId);
+    const accountName = `organizations/${organizationId}/accounts/${params.accountId}`;
+    return this.assignmentSvc.TransactionAssignmentServiceCreateTransactionAssignment({
+      parent1: parent,
+      assignment: {
+        transaction: parent,
+        account: accountName,
+        value: { value: params.value },
+      },
+    }).pipe(
+      map((a) => mapApiTransactionAssignment(a, '', '')),
+    );
+  }
+
+  deleteAssignment(organizationId: string, transactionId: string, assignmentId: string): Observable<void> {
+    const assignmentName = `organizations/${organizationId}/transactions/${transactionId}/assignments/${assignmentId}`;
+    return this.assignmentSvc.TransactionAssignmentServiceDeleteTransactionAssignment(assignmentName).pipe(
+      map(() => undefined),
     );
   }
 }

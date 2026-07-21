@@ -24,4 +24,10 @@ export class HttpReportTemplateEditDataService extends ReportTemplateEditDataSer
       reportTemplate: { display_name: input.name, template: input.template },
     }).pipe(map(mapApiReportTemplate));
   }
+
+  generateHtmlPreview(template: string): Observable<string> {
+    return this.svc.ReportTemplateServiceGenerateHtmlPreview({ template }).pipe(
+      map((resp) => resp.html ?? ''),
+    );
+  }
 }

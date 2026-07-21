@@ -1,10 +1,22 @@
 import { Routes } from '@angular/router';
 import { MainLayoutDataService } from './shared/layout/main-layout/main-layout.data-service';
+import { ReportTemplateEditDataService } from './routes/report-templates/report-template-edit/report-template-edit.data-service';
 import { environment } from '../environments/environment';
 
 
 
 export const routes: Routes = [
+  // Standalone preview route (no main layout, full-page)
+  {
+    path: 'preview/report-template/:previewId',
+    loadComponent: () =>
+      import('./routes/report-templates/report-template-preview/report-template-preview.component').then(
+        (m) => m.ReportTemplatePreviewComponent,
+      ),
+    providers: [
+      { provide: ReportTemplateEditDataService, useClass: environment.dataServices.reportTemplateEdit },
+    ],
+  },
   // Main layout with left sidebar - single instance for all routes
   {
     path: '',

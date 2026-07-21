@@ -9,12 +9,6 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 
 import { V1BudgetRevision } from '../models/v1budget-revision';
 import { V1ListBudgetRevisionsResponse } from '../models/v1list-budget-revisions-response';
-
-/**
- * BudgetRevisionService manages read-only revision history for budgets.
- * Revisions are created on demand and capture the full set of
- * BudgetAccountValues at the time of creation. Revisions are immutable.
- */
 @Injectable({
   providedIn: 'root',
 })

@@ -9,10 +9,6 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 
 import { V1ListGroupsResponse } from '../models/v1list-groups-response';
 import { V1Group } from '../models/v1group';
-
-/**
- * GroupService manages groups and their per-organization permission policies.
- */
 @Injectable({
   providedIn: 'root',
 })

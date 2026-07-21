@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Observable, forkJoin } from 'rxjs';
 import {
   PageContentLayoutComponent,
   BreadcrumbItem,
@@ -17,7 +18,7 @@ import {
   NotificationService,
 } from '../../../shared/components';
 import { formatDateShort, formatCurrency } from '../../../shared/utils';
-import { Transaction } from '../../../shared/models';
+import { Transaction, Account } from '../../../shared/models';
 import { TransactionEditDataService } from './transaction-edit.data-service';
 
 @Component({
@@ -168,16 +169,40 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                         <th i18n class="text-right py-2 px-3 text-xs font-medium text-gray-500">
                           Betrag
                         </th>
+                        <th class="w-10 py-2 px-3"></th>
                       </tr>
                     </thead>
                     <tbody>
-                      @for (assignment of transaction()!.accountAssignments; track assignment.id) {
+                      @for (assignment of editableAssignments(); track $index; let i = $index) {
                         <tr class="border-b border-gray-200 last:border-b-0">
-                          <td class="py-3 px-3 text-sm text-gray-900">
-                            {{ assignment.accountCode }} {{ assignment.accountName }}
+                          <td class="py-2 px-3">
+                            <select
+                              [ngModel]="assignment.accountId"
+                              (ngModelChange)="onAssignmentAccountChange($event, i)"
+                              class="w-full px-2 py-1 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              [class.border-red-300]="!assignment.accountId"
+                            >
+                              <option value="" i18n>Konto wählen...</option>
+                              @for (account of availableAccounts(); track account.id) {
+                                <option [value]="account.id">{{ account.code }} {{ account.name }}</option>
+                              }
+                            </select>
                           </td>
-                          <td class="py-3 px-3 text-right text-sm text-gray-900">
-                            {{ formatAmount(assignment.value) }}
+                          <td class="py-2 px-3">
+                            <input
+                              type="text"
+                              [ngModel]="assignment.value"
+                              (ngModelChange)="onAssignmentValueChange($event, i)"
+                              class="w-32 px-2 py-1 text-sm text-right border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            />
+                          </td>
+                          <td class="py-2 px-3 text-center">
+                            <button
+                              type="button"
+                              (click)="removeAssignment(i)"
+                              [disabled]="assignmentSaving()"
+                              class="px-1.5 py-1 text-xs text-red-600 border border-red-200 rounded hover:bg-red-50 disabled:opacity-30 disabled:cursor-not-allowed"
+                            >✕</button>
                           </td>
                         </tr>
                       }
@@ -189,6 +214,26 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                   Keine Kontenzuordnungen vorhanden.
                 </p>
               }
+
+              <!-- Add Assignment Button -->
+              <div class="flex justify-between items-center mb-4">
+                <button
+                  type="button"
+                  (click)="addAssignment()"
+                  [disabled]="assignmentSaving()"
+                  class="px-2 py-1 text-xs font-medium text-green-700 border border-green-200 rounded hover:bg-green-50 disabled:opacity-30 disabled:cursor-not-allowed"
+                  i18n
+                >+ Zuweisung hinzufügen</button>
+                @if (hasUnsavedChanges()) {
+                  <app-button
+                    variant="primary"
+                    [loading]="assignmentSaving()"
+                    (clicked)="saveAssignments()"
+                  >
+                    <ng-container i18n>Zuweisungen speichern</ng-container>
+                  </app-button>
+                }
+              </div>
             </div>
 
             <!-- Metadata -->
@@ -211,9 +256,14 @@ export class TransactionEditComponent implements OnInit {
 
   readonly loading = signal(true);
   readonly saving = signal(false);
+  readonly assignmentSaving = signal(false);
   readonly transaction = signal<Transaction | null>(null);
+  readonly availableAccounts = signal<Account[]>([]);
 
   description = '';
+
+  private originalAssignments = signal<ReadonlyArray<{id: string; accountId: string; value: string}>>([]);
+  readonly editableAssignments = signal<Array<{id: string; accountId: string; value: string}>>([]);
 
   readonly breadcrumbs: BreadcrumbItem[] = [
     { label: $localize`Journal`, path: '' },
@@ -233,11 +283,9 @@ export class TransactionEditComponent implements OnInit {
   }
 
   readonly assignedTotal = computed(() => {
-    const tx = this.transaction();
-    if (!tx) return '0.00';
-    const total = tx.accountAssignments.reduce(
-      (sum, a) => sum + parseFloat(a.value),
-      0
+    const assignments = this.editableAssignments();
+    const total = assignments.reduce(
+      (sum, a) => sum + parseFloat(a.value || '0'), 0
     );
     return total.toFixed(2);
   });
@@ -254,13 +302,32 @@ export class TransactionEditComponent implements OnInit {
     return Math.abs(this.assignmentPercentage() - 100) < 0.01;
   });
 
+  readonly hasUnsavedChanges = computed(() => {
+    const current = this.editableAssignments();
+    const original = this.originalAssignments();
+    if (current.length !== original.length) return true;
+    for (let i = 0; i < current.length; i++) {
+      if (current[i].accountId !== original[i].accountId || current[i].value !== original[i].value) {
+        return true;
+      }
+    }
+    return false;
+  });
+
   ngOnInit(): void {
     this.orgId = this.getOrgId();
     this.breadcrumbs[0].path = `/organizations/${this.orgId}/journal`;
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.loadTransaction(id);
+      this.loadAccounts();
     }
+  }
+
+  private loadAccounts(): void {
+    this.dataService.listAvailableAccounts(this.orgId).subscribe({
+      next: (accounts) => this.availableAccounts.set(accounts),
+    });
   }
 
   private loadTransaction(id: string): void {
@@ -268,6 +335,13 @@ export class TransactionEditComponent implements OnInit {
       next: (transaction) => {
         this.transaction.set(transaction);
         this.description = transaction.description;
+        const assignments = transaction.accountAssignments.map(a => ({
+          id: a.id,
+          accountId: a.accountId,
+          value: a.value,
+        }));
+        this.editableAssignments.set([...assignments]);
+        this.originalAssignments.set(assignments.map(a => ({...a})));
         this.loading.set(false);
       },
       error: () => {
@@ -290,6 +364,110 @@ export class TransactionEditComponent implements OnInit {
       error: () => {
         this.notifications.error($localize`Fehler beim Speichern der Buchung`);
         this.saving.set(false);
+      },
+    });
+  }
+
+  onAssignmentAccountChange(accountId: string, index: number): void {
+    const assignments = this.editableAssignments();
+    assignments[index] = { ...assignments[index], accountId };
+    this.editableAssignments.set([...assignments]);
+  }
+
+  onAssignmentValueChange(value: string, index: number): void {
+    const assignments = this.editableAssignments();
+    assignments[index] = { ...assignments[index], value };
+    this.editableAssignments.set([...assignments]);
+  }
+
+  addAssignment(): void {
+    this.editableAssignments.update(arr => [...arr, { id: '', accountId: '', value: '0.00' }]);
+  }
+
+  removeAssignment(index: number): void {
+    const assignments = this.editableAssignments();
+    const assignment = assignments[index];
+    if (assignment.id) {
+      this.assignmentSaving.set(true);
+      this.dataService.deleteAssignment(this.orgId, this.transaction()!.id, assignment.id).subscribe({
+        next: () => {
+          const updated = assignments.filter((_, i) => i !== index);
+          this.editableAssignments.set(updated);
+          this.originalAssignments.set(updated.map(a => ({...a})));
+          this.assignmentSaving.set(false);
+        },
+        error: () => {
+          this.notifications.error($localize`Fehler beim Löschen der Zuweisung`);
+          this.assignmentSaving.set(false);
+        },
+      });
+    } else {
+      this.editableAssignments.set(assignments.filter((_, i) => i !== index));
+    }
+  }
+
+  saveAssignments(): void {
+    const tx = this.transaction();
+    if (!tx) return;
+
+    this.assignmentSaving.set(true);
+    const current = this.editableAssignments();
+    const original = this.originalAssignments();
+
+    const toCreate = current.filter(a => !a.id && a.accountId);
+    const toRecreate: Array<{oldId: string; accountId: string; value: string}> = [];
+    const toDelete: Array<{id: string}> = [];
+
+    for (let i = 0; i < current.length; i++) {
+      if (current[i].id) {
+        const orig = original.find(o => o.id === current[i].id);
+        if (orig && (orig.accountId !== current[i].accountId || orig.value !== current[i].value)) {
+          toRecreate.push({ oldId: current[i].id, accountId: current[i].accountId, value: current[i].value });
+        }
+      }
+    }
+
+    for (const orig of original) {
+      if (!current.find(c => c.id === orig.id)) {
+        toDelete.push({ id: orig.id });
+      }
+    }
+
+    const operations: Observable<unknown>[] = [];
+
+    for (const a of toCreate) {
+      operations.push(this.dataService.createAssignment(this.orgId, tx.id, {
+        accountId: a.accountId,
+        value: a.value,
+      }));
+    }
+
+    for (const r of toRecreate) {
+      operations.push(this.dataService.deleteAssignment(this.orgId, tx.id, r.oldId));
+      operations.push(this.dataService.createAssignment(this.orgId, tx.id, {
+        accountId: r.accountId,
+        value: r.value,
+      }));
+    }
+
+    for (const d of toDelete) {
+      operations.push(this.dataService.deleteAssignment(this.orgId, tx.id, d.id));
+    }
+
+    if (operations.length === 0) {
+      this.assignmentSaving.set(false);
+      return;
+    }
+
+    forkJoin(operations).subscribe({
+      next: () => {
+        this.loadTransaction(tx.id);
+        this.assignmentSaving.set(false);
+        this.notifications.success($localize`Zuweisungen erfolgreich gespeichert`);
+      },
+      error: () => {
+        this.notifications.error($localize`Fehler beim Speichern der Zuweisungen`);
+        this.assignmentSaving.set(false);
       },
     });
   }

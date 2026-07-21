@@ -85,26 +85,28 @@ interface TransactionRow {
                     }
                   </div>
 
-                  <div>
-                    <label
-                      for="file"
-                      class="block text-xs font-medium text-gray-700 mb-1"
-                    >
-                      <ng-container i18n>CSV-Datei</ng-container>
-                    </label>
-                    <input
-                      id="file"
-                      type="file"
-                      accept=".csv"
-                      (change)="onFileSelected($event)"
-                      class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 file:mr-4 file:py-1 file:px-4 file:rounded file:border-0 file:bg-blue-600 file:text-white file:cursor-pointer"
-                    />
-                  </div>
+                  @if (selectedType) {
+                    <div>
+                      <label
+                        for="file"
+                        class="block text-xs font-medium text-gray-700 mb-1"
+                      >
+                        <ng-container i18n>CSV-Datei</ng-container>
+                      </label>
+                      <input
+                        id="file"
+                        type="file"
+                        accept=".csv"
+                        (change)="onFileSelected($event)"
+                        class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 file:mr-4 file:py-1 file:px-4 file:rounded file:border-0 file:bg-blue-600 file:text-white file:cursor-pointer"
+                      />
+                    </div>
 
-                  @if (selectedFile()) {
-                    <p i18n class="text-xs text-gray-500">
-                      Ausgewählte Datei: {{ selectedFile()!.name }}
-                    </p>
+                    @if (selectedFile()) {
+                      <p i18n class="text-xs text-gray-500">
+                        Ausgewählte Datei: {{ selectedFile()!.name }}
+                      </p>
+                    }
                   }
                 </div>
 

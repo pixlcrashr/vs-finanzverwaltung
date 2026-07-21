@@ -94,6 +94,30 @@ export interface CreateOrganizationDialogOutput {
               class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
             ></textarea>
           </div>
+
+          <div>
+            <label for="startMonth" class="block text-xs font-medium text-gray-700 mb-1">
+              <ng-container i18n>Geschäftsjahr Beginn (Monat)</ng-container>
+            </label>
+            <select
+              id="startMonth"
+              formControlName="startMonth"
+              class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option [ngValue]="1" i18n>Januar</option>
+              <option [ngValue]="2" i18n>Februar</option>
+              <option [ngValue]="3" i18n>März</option>
+              <option [ngValue]="4" i18n>April</option>
+              <option [ngValue]="5" i18n>Mai</option>
+              <option [ngValue]="6" i18n>Juni</option>
+              <option [ngValue]="7" i18n>Juli</option>
+              <option [ngValue]="8" i18n>August</option>
+              <option [ngValue]="9" i18n>September</option>
+              <option [ngValue]="10" i18n>Oktober</option>
+              <option [ngValue]="11" i18n>November</option>
+              <option [ngValue]="12" i18n>Dezember</option>
+            </select>
+          </div>
         </div>
 
         <div class="flex justify-end gap-2 mt-4">
@@ -127,6 +151,7 @@ export class CreateOrganizationDialogComponent implements OnInit, OnDestroy {
     name: ['', Validators.required],
     slug: [{ value: '', disabled: false }, { validators: [], asyncValidators: [this.slugAvailabilityValidator()], updateOn: 'blur' }],
     description: [''],
+    startMonth: [1, Validators.required],
   });
 
   get slugControl(): AbstractControl {
@@ -171,14 +196,14 @@ export class CreateOrganizationDialogComponent implements OnInit, OnDestroy {
     if (this.form.invalid) return;
 
     this.creating.set(true);
-    const { name, slug, description } = this.form.value;
+    const { name, slug, description, startMonth } = this.form.value;
     let organizationId = (slug as string).trim() || undefined;
     if (organizationId === '') {
       organizationId = undefined;
     }
 
     this.dataService
-      .createOrganization(name.trim(), (description ?? '').trim(), organizationId)
+      .createOrganization(name.trim(), (description ?? '').trim(), organizationId, startMonth as number)
       .subscribe({
         next: (organization) => {
           this.creating.set(false);

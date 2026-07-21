@@ -5,6 +5,7 @@ import { ApiConfiguration, ApiConfigurationInterface } from './api-configuration
 
 import { GroupServiceService } from './services/group-service.service';
 import { OrganizationServiceService } from './services/organization-service.service';
+import { ReportTemplateServiceService } from './services/report-template-service.service';
 import { UserServiceService } from './services/user-service.service';
 import { AccountServiceService } from './services/account-service.service';
 import { AccountGroupServiceService } from './services/account-group-service.service';
@@ -14,9 +15,8 @@ import { BudgetServiceService } from './services/budget-service.service';
 import { LedgerAccountServiceService } from './services/ledger-account-service.service';
 import { LedgerYearServiceService } from './services/ledger-year-service.service';
 import { TransactionServiceService } from './services/transaction-service.service';
-import { ReportServiceService } from './services/report-service.service';
-import { ReportTemplateServiceService } from './services/report-template-service.service';
 import { TransactionAssignmentServiceService } from './services/transaction-assignment-service.service';
+import { ReportServiceService } from './services/report-service.service';
 import { UserIdentityServiceService } from './services/user-identity-service.service';
 import { UserSettingsServiceService } from './services/user-settings-service.service';
 import { BudgetActualAccountValueServiceService } from './services/budget-actual-account-value-service.service';
@@ -38,6 +38,7 @@ import { BudgetRevisionAccountValueServiceService } from './services/budget-revi
     ApiConfiguration,
     GroupServiceService,
     OrganizationServiceService,
+    ReportTemplateServiceService,
     UserServiceService,
     AccountServiceService,
     AccountGroupServiceService,
@@ -47,9 +48,8 @@ import { BudgetRevisionAccountValueServiceService } from './services/budget-revi
     LedgerAccountServiceService,
     LedgerYearServiceService,
     TransactionServiceService,
-    ReportServiceService,
-    ReportTemplateServiceService,
     TransactionAssignmentServiceService,
+    ReportServiceService,
     UserIdentityServiceService,
     UserSettingsServiceService,
     BudgetActualAccountValueServiceService,

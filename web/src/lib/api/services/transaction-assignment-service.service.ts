@@ -9,22 +9,68 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 
 import { V1TransactionAssignment } from '../models/v1transaction-assignment';
 import { V1ListTransactionAssignmentsResponse } from '../models/v1list-transaction-assignments-response';
-
-/**
- * TransactionAssignmentService manages transaction assignments to budget accounts.
- */
 @Injectable({
   providedIn: 'root',
 })
 class TransactionAssignmentServiceService extends __BaseService {
+  static readonly TransactionAssignmentServiceDeleteTransactionAssignmentPath = '/v1/{name_11}';
   static readonly TransactionAssignmentServiceGetTransactionAssignmentPath = '/v1/{name_15}';
   static readonly TransactionAssignmentServiceListTransactionAssignmentsPath = '/v1/{parent_1}/assignments';
+  static readonly TransactionAssignmentServiceCreateTransactionAssignmentPath = '/v1/{parent_1}/assignments';
 
   constructor(
     config: __Configuration,
     http: HttpClient
   ) {
     super(config, http);
+  }
+
+  /**
+   * Deletes a transaction assignment.
+   * Authorization:
+   *   Scope: transactions:delete
+   *   Permission: transactions:delete
+   *   Domain: organization-scoped
+   * @param name_11 The resource name of the transaction assignment.
+   * Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
+   * @return A successful response.
+   */
+  TransactionAssignmentServiceDeleteTransactionAssignmentResponse(name11: string): __Observable<__StrictHttpResponse<{}>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    let req = new HttpRequest<any>(
+      'DELETE',
+      this.rootUrl + `/v1/${encodeURIComponent(String(name11))}`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<{}>;
+      })
+    );
+  }
+  /**
+   * Deletes a transaction assignment.
+   * Authorization:
+   *   Scope: transactions:delete
+   *   Permission: transactions:delete
+   *   Domain: organization-scoped
+   * @param name_11 The resource name of the transaction assignment.
+   * Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
+   * @return A successful response.
+   */
+  TransactionAssignmentServiceDeleteTransactionAssignment(name11: string): __Observable<{}> {
+    return this.TransactionAssignmentServiceDeleteTransactionAssignmentResponse(name11).pipe(
+      __map(_r => _r.body as {})
+    );
   }
 
   /**
@@ -154,6 +200,72 @@ class TransactionAssignmentServiceService extends __BaseService {
       __map(_r => _r.body as V1ListTransactionAssignmentsResponse)
     );
   }
+
+  /**
+   * Creates a new transaction assignment.
+   * Authorization:
+   *   Scope: transactions:create
+   *   Permission: transactions:create
+   *   Domain: organization-scoped
+   * @param params The `TransactionAssignmentServiceService.TransactionAssignmentServiceCreateTransactionAssignmentParams` containing the following parameters:
+   *
+   * - `parent_1`: The parent transaction resource name.
+   *   Format: organizations/{organization}/transactions/{transaction}
+   *
+   * - `assignment`: The transaction assignment to create.
+   *
+   * - `assignment_id`: The ID to use for the assignment. If not provided, a system-generated
+   *   UUID will be used. Must be unique within the parent transaction.
+   *
+   * @return A successful response.
+   */
+  TransactionAssignmentServiceCreateTransactionAssignmentResponse(params: TransactionAssignmentServiceService.TransactionAssignmentServiceCreateTransactionAssignmentParams): __Observable<__StrictHttpResponse<V1TransactionAssignment>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    __body = params.assignment;
+    if (params.assignmentId != null) __params = __params.set('assignment_id', params.assignmentId.toString());
+    let req = new HttpRequest<any>(
+      'POST',
+      this.rootUrl + `/v1/${encodeURIComponent(String(params.parent1))}/assignments`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<V1TransactionAssignment>;
+      })
+    );
+  }
+  /**
+   * Creates a new transaction assignment.
+   * Authorization:
+   *   Scope: transactions:create
+   *   Permission: transactions:create
+   *   Domain: organization-scoped
+   * @param params The `TransactionAssignmentServiceService.TransactionAssignmentServiceCreateTransactionAssignmentParams` containing the following parameters:
+   *
+   * - `parent_1`: The parent transaction resource name.
+   *   Format: organizations/{organization}/transactions/{transaction}
+   *
+   * - `assignment`: The transaction assignment to create.
+   *
+   * - `assignment_id`: The ID to use for the assignment. If not provided, a system-generated
+   *   UUID will be used. Must be unique within the parent transaction.
+   *
+   * @return A successful response.
+   */
+  TransactionAssignmentServiceCreateTransactionAssignment(params: TransactionAssignmentServiceService.TransactionAssignmentServiceCreateTransactionAssignmentParams): __Observable<V1TransactionAssignment> {
+    return this.TransactionAssignmentServiceCreateTransactionAssignmentResponse(params).pipe(
+      __map(_r => _r.body as V1TransactionAssignment)
+    );
+  }
 }
 
 module TransactionAssignmentServiceService {
@@ -191,6 +303,29 @@ module TransactionAssignmentServiceService {
      * Example: "account=\"organizations/{organization}/accounts/{account}\"".
      */
     filter?: string;
+  }
+
+  /**
+   * Parameters for TransactionAssignmentServiceCreateTransactionAssignment
+   */
+  export interface TransactionAssignmentServiceCreateTransactionAssignmentParams {
+
+    /**
+     * The parent transaction resource name.
+     * Format: organizations/{organization}/transactions/{transaction}
+     */
+    parent1: string;
+
+    /**
+     * The transaction assignment to create.
+     */
+    assignment: V1TransactionAssignment;
+
+    /**
+     * The ID to use for the assignment. If not provided, a system-generated
+     * UUID will be used. Must be unique within the parent transaction.
+     */
+    assignmentId?: string;
   }
 }
 

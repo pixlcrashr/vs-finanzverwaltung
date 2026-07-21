@@ -57,30 +57,16 @@ import { Permission, Permissions } from '../../../lib/authz/permissions';
                 ></textarea>
               </div>
 
-              <!-- Fiscal Year Start -->
+              <!-- Fiscal Year Start (read-only after creation) -->
               <div>
                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                   <ng-container i18n>Geschäftsjahr Beginn (Monat)</ng-container>
                 </label>
-                <select
-                  [(ngModel)]="fiscalYearStart"
-                  class="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option [ngValue]="1" i18n>Januar</option>
-                  <option [ngValue]="2" i18n>Februar</option>
-                  <option [ngValue]="3" i18n>März</option>
-                  <option [ngValue]="4" i18n>April</option>
-                  <option [ngValue]="5" i18n>Mai</option>
-                  <option [ngValue]="6" i18n>Juni</option>
-                  <option [ngValue]="7" i18n>Juli</option>
-                  <option [ngValue]="8" i18n>August</option>
-                  <option [ngValue]="9" i18n>September</option>
-                  <option [ngValue]="10" i18n>Oktober</option>
-                  <option [ngValue]="11" i18n>November</option>
-                  <option [ngValue]="12" i18n>Dezember</option>
-                </select>
+                <p class="text-sm text-gray-900 dark:text-gray-100 py-1.5">
+                  {{ monthName(fiscalYearStart) }}
+                </p>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" i18n>
-                  Das Geschäftsjahr endet am letzten Tag des Vormonats des Startmonats im Folgejahr.
+                  Das Geschäftsjahr kann nach der Erstellung nicht mehr geändert werden.
                 </p>
               </div>
 
@@ -157,7 +143,6 @@ export class OrganizationSettingsComponent implements OnInit {
     const update: Partial<OrganizationSettings> = {
       name: this.name,
       description: this.description || undefined,
-      fiscalYearStart: this.fiscalYearStart,
     };
 
     this.dataService.updateSettings(orgId, update).subscribe({
@@ -170,5 +155,14 @@ export class OrganizationSettingsComponent implements OnInit {
         this.saving.set(false);
       },
     });
+  }
+
+  monthName(month: number): string {
+    const names = [
+      $localize`Januar`, $localize`Februar`, $localize`März`, $localize`April`,
+      $localize`Mai`, $localize`Juni`, $localize`Juli`, $localize`August`,
+      $localize`September`, $localize`Oktober`, $localize`November`, $localize`Dezember`,
+    ];
+    return names[month - 1] || '';
   }
 }

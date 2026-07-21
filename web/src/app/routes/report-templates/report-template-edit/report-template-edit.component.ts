@@ -4,6 +4,7 @@ import {
   inject,
   signal,
   OnInit,
+  OnDestroy,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -30,6 +31,12 @@ import { ReportTemplateEditDataService } from './report-template-edit.data-servi
   template: `
     <app-page-content-layout [breadcrumbs]="breadcrumbs">
       <div layout-header-actions class="flex gap-2">
+          <app-button
+            variant="secondary"
+            (clicked)="previewHtml()"
+          >
+            <ng-container i18n>HTML-Vorschau</ng-container>
+          </app-button>
           <app-button variant="secondary" (clicked)="cancel()">
             <ng-container i18n>Abbrechen</ng-container>
           </app-button>
@@ -96,6 +103,7 @@ import { ReportTemplateEditDataService } from './report-template-edit.data-servi
               </div>
               <textarea
                 [(ngModel)]="templateContent"
+                (ngModelChange)="onTemplateContentChange()"
                 rows="20"
                 class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
               ></textarea>
@@ -124,7 +132,7 @@ import { ReportTemplateEditDataService } from './report-template-edit.data-servi
     </app-page-content-layout>
   `,
 })
-export class ReportTemplateEditComponent implements OnInit {
+export class ReportTemplateEditComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dataService = inject(ReportTemplateEditDataService);
@@ -154,6 +162,9 @@ export class ReportTemplateEditComponent implements OnInit {
     { label: $localize`Bearbeiten` },
   ];
 
+  private previewId = '';
+  private static readonly PREVIEW_KEY_PREFIX = 'rt-preview-';
+
   private templateId = '';
   private orgId = '';
 
@@ -171,9 +182,14 @@ export class ReportTemplateEditComponent implements OnInit {
     this.orgId = this.getOrgId();
     this.breadcrumbs[0].path = `/organizations/${this.orgId}/reportTemplates`;
     this.templateId = this.route.snapshot.paramMap.get('id') || '';
+    this.previewId = crypto.randomUUID();
     if (this.templateId) {
       this.loadTemplate();
     }
+  }
+
+  ngOnDestroy(): void {
+    localStorage.removeItem(ReportTemplateEditComponent.PREVIEW_KEY_PREFIX + this.previewId);
   }
 
   private loadTemplate(): void {
@@ -218,6 +234,20 @@ export class ReportTemplateEditComponent implements OnInit {
 
   cancel(): void {
     this.router.navigate(['/organizations', this.orgId, 'reportTemplates']);
+  }
+
+  previewHtml(): void {
+    this.updatePreviewStorage();
+    const url = `/preview/report-template/${this.previewId}`;
+    window.open(url, '_blank');
+  }
+
+  onTemplateContentChange(): void {
+    this.updatePreviewStorage();
+  }
+
+  private updatePreviewStorage(): void {
+    localStorage.setItem(ReportTemplateEditComponent.PREVIEW_KEY_PREFIX + this.previewId, this.templateContent);
   }
 
   formatDate(date: Date): string {

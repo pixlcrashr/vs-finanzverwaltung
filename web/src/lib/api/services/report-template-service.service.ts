@@ -7,16 +7,15 @@ import { StrictHttpResponse as __StrictHttpResponse } from '../strict-http-respo
 import { Observable as __Observable } from 'rxjs';
 import { map as __map, filter as __filter } from 'rxjs/operators';
 
+import { V1GenerateHtmlPreviewResponse } from '../models/v1generate-html-preview-response';
+import { V1GenerateHtmlPreviewRequest } from '../models/v1generate-html-preview-request';
 import { V1ReportTemplate } from '../models/v1report-template';
 import { V1ListReportTemplatesResponse } from '../models/v1list-report-templates-response';
-
-/**
- * ReportTemplateService manages Handlebars templates used for report generation.
- */
 @Injectable({
   providedIn: 'root',
 })
 class ReportTemplateServiceService extends __BaseService {
+  static readonly ReportTemplateServiceGenerateHtmlPreviewPath = '/v1/reportTemplates:generateHtmlPreview';
   static readonly ReportTemplateServiceGetReportTemplatePath = '/v1/{name_13}';
   static readonly ReportTemplateServiceDeleteReportTemplatePath = '/v1/{name_9}';
   static readonly ReportTemplateServiceListReportTemplatesPath = '/v1/{parent}/reportTemplates';
@@ -28,6 +27,58 @@ class ReportTemplateServiceService extends __BaseService {
     http: HttpClient
   ) {
     super(config, http);
+  }
+
+  /**
+   * Generates an HTML preview from a raw template string.
+   * This is a custom method (AIP-136) independent of any single reportTemplate resource.
+   * It renders the provided template with sample/fake data for preview purposes.
+   * Authorization:
+   *   Scope: reportTemplates:read
+   *   Permission: reportTemplates:read
+   *   Domain: global
+   * @param body Request message for generating an HTML preview from a raw template.
+   * This is a custom method (AIP-136) independent of any single reportTemplate resource.
+   * @return A successful response.
+   */
+  ReportTemplateServiceGenerateHtmlPreviewResponse(body: V1GenerateHtmlPreviewRequest): __Observable<__StrictHttpResponse<V1GenerateHtmlPreviewResponse>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+    __body = body;
+    let req = new HttpRequest<any>(
+      'POST',
+      this.rootUrl + `/v1/reportTemplates:generateHtmlPreview`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<V1GenerateHtmlPreviewResponse>;
+      })
+    );
+  }
+  /**
+   * Generates an HTML preview from a raw template string.
+   * This is a custom method (AIP-136) independent of any single reportTemplate resource.
+   * It renders the provided template with sample/fake data for preview purposes.
+   * Authorization:
+   *   Scope: reportTemplates:read
+   *   Permission: reportTemplates:read
+   *   Domain: global
+   * @param body Request message for generating an HTML preview from a raw template.
+   * This is a custom method (AIP-136) independent of any single reportTemplate resource.
+   * @return A successful response.
+   */
+  ReportTemplateServiceGenerateHtmlPreview(body: V1GenerateHtmlPreviewRequest): __Observable<V1GenerateHtmlPreviewResponse> {
+    return this.ReportTemplateServiceGenerateHtmlPreviewResponse(body).pipe(
+      __map(_r => _r.body as V1GenerateHtmlPreviewResponse)
+    );
   }
 
   /**

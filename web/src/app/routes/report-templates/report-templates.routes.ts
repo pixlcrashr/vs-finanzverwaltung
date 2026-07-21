@@ -12,7 +12,7 @@ export const REPORT_TEMPLATES_ROUTES: Routes = [
     path: '',
     canActivate: [requireAllPermissions(Permissions.REPORT_TEMPLATES_READ)],
     resolve: {
-      permissions: resolvePermissions(Permissions.REPORT_TEMPLATES_CREATE, Permissions.REPORT_TEMPLATES_DELETE),
+      permissions: resolvePermissions(Permissions.REPORT_TEMPLATES_CREATE, Permissions.REPORT_TEMPLATES_UPDATE, Permissions.REPORT_TEMPLATES_DELETE),
     },
     loadComponent: () =>
       import('./report-template-list/report-template-list.component').then(

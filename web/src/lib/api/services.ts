@@ -1,5 +1,6 @@
 export { GroupServiceService } from './services/group-service.service';
 export { OrganizationServiceService } from './services/organization-service.service';
+export { ReportTemplateServiceService } from './services/report-template-service.service';
 export { UserServiceService } from './services/user-service.service';
 export { AccountServiceService } from './services/account-service.service';
 export { AccountGroupServiceService } from './services/account-group-service.service';
@@ -9,9 +10,8 @@ export { BudgetServiceService } from './services/budget-service.service';
 export { LedgerAccountServiceService } from './services/ledger-account-service.service';
 export { LedgerYearServiceService } from './services/ledger-year-service.service';
 export { TransactionServiceService } from './services/transaction-service.service';
-export { ReportServiceService } from './services/report-service.service';
-export { ReportTemplateServiceService } from './services/report-template-service.service';
 export { TransactionAssignmentServiceService } from './services/transaction-assignment-service.service';
+export { ReportServiceService } from './services/report-service.service';
 export { UserIdentityServiceService } from './services/user-identity-service.service';
 export { UserSettingsServiceService } from './services/user-settings-service.service';
 export { BudgetActualAccountValueServiceService } from './services/budget-actual-account-value-service.service';

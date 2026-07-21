@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, delay } from 'rxjs';
 import { faker } from '@faker-js/faker';
-import { Transaction, Account } from '../../../app/shared/models';
-import { TransactionEditDataService } from '../../../app/routes/transactions/transaction-edit/transaction-edit.data-service';
+import { Transaction, Account, TransactionAssignment } from '../../../app/shared/models';
+import { TransactionEditDataService, CreateAssignmentParams } from '../../../app/routes/transactions/transaction-edit/transaction-edit.data-service';
 
 @Injectable()
 export class MockTransactionEditDataService extends TransactionEditDataService {
@@ -69,5 +69,22 @@ export class MockTransactionEditDataService extends TransactionEditDataService {
       parentAccountId: null,
       children: [],
     };
+  }
+
+  createAssignment(organizationId: string, transactionId: string, params: CreateAssignmentParams): Observable<TransactionAssignment> {
+    const assignment: TransactionAssignment = {
+      id: faker.string.uuid(),
+      accountId: params.accountId,
+      accountCode: '',
+      accountName: '',
+      value: params.value,
+    };
+    this.transaction.accountAssignments.push(assignment);
+    return of(assignment).pipe(delay(200));
+  }
+
+  deleteAssignment(organizationId: string, transactionId: string, assignmentId: string): Observable<void> {
+    this.transaction.accountAssignments = this.transaction.accountAssignments.filter(a => a.id !== assignmentId);
+    return of(undefined).pipe(delay(200));
   }
 }

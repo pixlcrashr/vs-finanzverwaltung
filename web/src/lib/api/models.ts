@@ -21,6 +21,8 @@ export { V1CheckOrganizationIdResponse } from './models/v1check-organization-id-
 export { V1CheckUserPermissionsRequest } from './models/v1check-user-permissions-request';
 export { V1CheckUserPermissionsResponse } from './models/v1check-user-permissions-response';
 export { V1Decimal } from './models/v1decimal';
+export { V1GenerateHtmlPreviewRequest } from './models/v1generate-html-preview-request';
+export { V1GenerateHtmlPreviewResponse } from './models/v1generate-html-preview-response';
 export { V1GetNestedAccountResponse } from './models/v1get-nested-account-response';
 export { V1Group } from './models/v1group';
 export { V1LedgerAccount } from './models/v1ledger-account';

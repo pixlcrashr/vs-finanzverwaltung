@@ -56,4 +56,8 @@ export class MockReportTemplateEditDataService extends ReportTemplateEditDataSer
     };
     return of({ ...this.template }).pipe(delay(400));
   }
+
+  generateHtmlPreview(template: string): Observable<string> {
+    return of(template).pipe(delay(300));
+  }
 }

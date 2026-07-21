@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
+	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/reporttemplate"
 	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
@@ -237,4 +238,21 @@ func (s *reportTemplateServiceServer) DeleteReportTemplate(ctx context.Context, 
 	}
 
 	return &emptypb.Empty{}, nil
+}
+
+func (s *reportTemplateServiceServer) GenerateHtmlPreview(ctx context.Context, req *gen.GenerateHtmlPreviewRequest) (*gen.GenerateHtmlPreviewResponse, error) {
+	if req.Template == "" {
+		return nil, &ServerError{Status: status.New(codes.InvalidArgument, "template is required")}
+	}
+
+	if err := authz.CheckGlobal(ctx, s.enforcer, authz.ResourceReportTemplates, authz.ActionRead); err != nil {
+		return nil, authError(err)
+	}
+
+	html, err := reporttemplate.RenderTemplate(req.Template)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: status.New(codes.InvalidArgument, "failed to render template")}
+	}
+
+	return &gen.GenerateHtmlPreviewResponse{Html: html}, nil
 }

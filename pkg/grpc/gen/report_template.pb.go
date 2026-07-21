@@ -485,6 +485,99 @@ func (x *DeleteReportTemplateRequest) GetName() string {
 	return ""
 }
 
+// Request message for generating an HTML preview from a raw template.
+// This is a custom method (AIP-136) independent of any single reportTemplate resource.
+type GenerateHtmlPreviewRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The raw Go html/template source to render.
+	Template      string `protobuf:"bytes,1,opt,name=template,proto3" json:"template,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GenerateHtmlPreviewRequest) Reset() {
+	*x = GenerateHtmlPreviewRequest{}
+	mi := &file_pixlcrashr_vsfv_v1_report_template_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GenerateHtmlPreviewRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GenerateHtmlPreviewRequest) ProtoMessage() {}
+
+func (x *GenerateHtmlPreviewRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pixlcrashr_vsfv_v1_report_template_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GenerateHtmlPreviewRequest.ProtoReflect.Descriptor instead.
+func (*GenerateHtmlPreviewRequest) Descriptor() ([]byte, []int) {
+	return file_pixlcrashr_vsfv_v1_report_template_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *GenerateHtmlPreviewRequest) GetTemplate() string {
+	if x != nil {
+		return x.Template
+	}
+	return ""
+}
+
+// Response message containing the rendered HTML.
+type GenerateHtmlPreviewResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The rendered HTML output.
+	Html          string `protobuf:"bytes,1,opt,name=html,proto3" json:"html,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GenerateHtmlPreviewResponse) Reset() {
+	*x = GenerateHtmlPreviewResponse{}
+	mi := &file_pixlcrashr_vsfv_v1_report_template_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GenerateHtmlPreviewResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GenerateHtmlPreviewResponse) ProtoMessage() {}
+
+func (x *GenerateHtmlPreviewResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pixlcrashr_vsfv_v1_report_template_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GenerateHtmlPreviewResponse.ProtoReflect.Descriptor instead.
+func (*GenerateHtmlPreviewResponse) Descriptor() ([]byte, []int) {
+	return file_pixlcrashr_vsfv_v1_report_template_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GenerateHtmlPreviewResponse) GetHtml() string {
+	if x != nil {
+		return x.Html
+	}
+	return ""
+}
+
 var File_pixlcrashr_vsfv_v1_report_template_proto protoreflect.FileDescriptor
 
 const file_pixlcrashr_vsfv_v1_report_template_proto_rawDesc = "" +
@@ -528,13 +621,18 @@ const file_pixlcrashr_vsfv_v1_report_template_proto_rawDesc = "" +
 	"updateMask\"]\n" +
 	"\x1bDeleteReportTemplateRequest\x12>\n" +
 	"\x04name\x18\x01 \x01(\tB*\xe0A\x02\xfaA$\n" +
-	"\"vsfv.pixlcrashr.dev/ReportTemplateR\x04name2\xef\a\n" +
+	"\"vsfv.pixlcrashr.dev/ReportTemplateR\x04name\"=\n" +
+	"\x1aGenerateHtmlPreviewRequest\x12\x1f\n" +
+	"\btemplate\x18\x01 \x01(\tB\x03\xe0A\x02R\btemplate\"1\n" +
+	"\x1bGenerateHtmlPreviewResponse\x12\x12\n" +
+	"\x04html\x18\x01 \x01(\tR\x04html2\x9c\t\n" +
 	"\x15ReportTemplateService\x12\xa2\x01\n" +
 	"\x11GetReportTemplate\x12,.pixlcrashr.vsfv.v1.GetReportTemplateRequest\x1a\".pixlcrashr.vsfv.v1.ReportTemplate\";\xdaA\x04name\x82\xd3\xe4\x93\x02.\x12,/v1/{name=organizations/*/reportTemplates/*}\x12\xb5\x01\n" +
 	"\x13ListReportTemplates\x12..pixlcrashr.vsfv.v1.ListReportTemplatesRequest\x1a/.pixlcrashr.vsfv.v1.ListReportTemplatesResponse\"=\xdaA\x06parent\x82\xd3\xe4\x93\x02.\x12,/v1/{parent=organizations/*}/reportTemplates\x12\xde\x01\n" +
 	"\x14CreateReportTemplate\x12/.pixlcrashr.vsfv.v1.CreateReportTemplateRequest\x1a\".pixlcrashr.vsfv.v1.ReportTemplate\"q\xdaA)parent,report_template,report_template_id\x82\xd3\xe4\x93\x02?:\x0freport_template\",/v1/{parent=organizations/*}/reportTemplates\x12\xe0\x01\n" +
 	"\x14UpdateReportTemplate\x12/.pixlcrashr.vsfv.v1.UpdateReportTemplateRequest\x1a\".pixlcrashr.vsfv.v1.ReportTemplate\"s\xdaA\x1breport_template,update_mask\x82\xd3\xe4\x93\x02O:\x0freport_template2</v1/{report_template.name=organizations/*/reportTemplates/*}\x12\x9c\x01\n" +
-	"\x14DeleteReportTemplate\x12/.pixlcrashr.vsfv.v1.DeleteReportTemplateRequest\x1a\x16.google.protobuf.Empty\";\xdaA\x04name\x82\xd3\xe4\x93\x02.*,/v1/{name=organizations/*/reportTemplates/*}\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xc0\x01\n" +
+	"\x14DeleteReportTemplate\x12/.pixlcrashr.vsfv.v1.DeleteReportTemplateRequest\x1a\x16.google.protobuf.Empty\";\xdaA\x04name\x82\xd3\xe4\x93\x02.*,/v1/{name=organizations/*/reportTemplates/*}\x12\xaa\x01\n" +
+	"\x13GenerateHtmlPreview\x12..pixlcrashr.vsfv.v1.GenerateHtmlPreviewRequest\x1a/.pixlcrashr.vsfv.v1.GenerateHtmlPreviewResponse\"2\x82\xd3\xe4\x93\x02,:\x01*\"'/v1/reportTemplates:generateHtmlPreview\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xc0\x01\n" +
 	"\x16com.pixlcrashr.vsfv.v1B\x13ReportTemplateProtoP\x01Z'github.com/pixlcrashr/vsfv/pkg/grpc/gen\xa2\x02\x03PVX\xaa\x02\x12Pixlcrashr.Vsfv.V1\xca\x02\x12Pixlcrashr\\Vsfv\\V1\xe2\x02\x1ePixlcrashr\\Vsfv\\V1\\GPBMetadata\xea\x02\x14Pixlcrashr::Vsfv::V1b\x06proto3"
 
 var (
@@ -549,7 +647,7 @@ func file_pixlcrashr_vsfv_v1_report_template_proto_rawDescGZIP() []byte {
 	return file_pixlcrashr_vsfv_v1_report_template_proto_rawDescData
 }
 
-var file_pixlcrashr_vsfv_v1_report_template_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_pixlcrashr_vsfv_v1_report_template_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_pixlcrashr_vsfv_v1_report_template_proto_goTypes = []any{
 	(*ReportTemplate)(nil),              // 0: pixlcrashr.vsfv.v1.ReportTemplate
 	(*GetReportTemplateRequest)(nil),    // 1: pixlcrashr.vsfv.v1.GetReportTemplateRequest
@@ -558,29 +656,33 @@ var file_pixlcrashr_vsfv_v1_report_template_proto_goTypes = []any{
 	(*CreateReportTemplateRequest)(nil), // 4: pixlcrashr.vsfv.v1.CreateReportTemplateRequest
 	(*UpdateReportTemplateRequest)(nil), // 5: pixlcrashr.vsfv.v1.UpdateReportTemplateRequest
 	(*DeleteReportTemplateRequest)(nil), // 6: pixlcrashr.vsfv.v1.DeleteReportTemplateRequest
-	(*timestamppb.Timestamp)(nil),       // 7: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),       // 8: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),               // 9: google.protobuf.Empty
+	(*GenerateHtmlPreviewRequest)(nil),  // 7: pixlcrashr.vsfv.v1.GenerateHtmlPreviewRequest
+	(*GenerateHtmlPreviewResponse)(nil), // 8: pixlcrashr.vsfv.v1.GenerateHtmlPreviewResponse
+	(*timestamppb.Timestamp)(nil),       // 9: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),       // 10: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),               // 11: google.protobuf.Empty
 }
 var file_pixlcrashr_vsfv_v1_report_template_proto_depIdxs = []int32{
-	7,  // 0: pixlcrashr.vsfv.v1.ReportTemplate.update_time:type_name -> google.protobuf.Timestamp
-	7,  // 1: pixlcrashr.vsfv.v1.ReportTemplate.create_time:type_name -> google.protobuf.Timestamp
+	9,  // 0: pixlcrashr.vsfv.v1.ReportTemplate.update_time:type_name -> google.protobuf.Timestamp
+	9,  // 1: pixlcrashr.vsfv.v1.ReportTemplate.create_time:type_name -> google.protobuf.Timestamp
 	0,  // 2: pixlcrashr.vsfv.v1.ListReportTemplatesResponse.report_templates:type_name -> pixlcrashr.vsfv.v1.ReportTemplate
 	0,  // 3: pixlcrashr.vsfv.v1.CreateReportTemplateRequest.report_template:type_name -> pixlcrashr.vsfv.v1.ReportTemplate
 	0,  // 4: pixlcrashr.vsfv.v1.UpdateReportTemplateRequest.report_template:type_name -> pixlcrashr.vsfv.v1.ReportTemplate
-	8,  // 5: pixlcrashr.vsfv.v1.UpdateReportTemplateRequest.update_mask:type_name -> google.protobuf.FieldMask
+	10, // 5: pixlcrashr.vsfv.v1.UpdateReportTemplateRequest.update_mask:type_name -> google.protobuf.FieldMask
 	1,  // 6: pixlcrashr.vsfv.v1.ReportTemplateService.GetReportTemplate:input_type -> pixlcrashr.vsfv.v1.GetReportTemplateRequest
 	2,  // 7: pixlcrashr.vsfv.v1.ReportTemplateService.ListReportTemplates:input_type -> pixlcrashr.vsfv.v1.ListReportTemplatesRequest
 	4,  // 8: pixlcrashr.vsfv.v1.ReportTemplateService.CreateReportTemplate:input_type -> pixlcrashr.vsfv.v1.CreateReportTemplateRequest
 	5,  // 9: pixlcrashr.vsfv.v1.ReportTemplateService.UpdateReportTemplate:input_type -> pixlcrashr.vsfv.v1.UpdateReportTemplateRequest
 	6,  // 10: pixlcrashr.vsfv.v1.ReportTemplateService.DeleteReportTemplate:input_type -> pixlcrashr.vsfv.v1.DeleteReportTemplateRequest
-	0,  // 11: pixlcrashr.vsfv.v1.ReportTemplateService.GetReportTemplate:output_type -> pixlcrashr.vsfv.v1.ReportTemplate
-	3,  // 12: pixlcrashr.vsfv.v1.ReportTemplateService.ListReportTemplates:output_type -> pixlcrashr.vsfv.v1.ListReportTemplatesResponse
-	0,  // 13: pixlcrashr.vsfv.v1.ReportTemplateService.CreateReportTemplate:output_type -> pixlcrashr.vsfv.v1.ReportTemplate
-	0,  // 14: pixlcrashr.vsfv.v1.ReportTemplateService.UpdateReportTemplate:output_type -> pixlcrashr.vsfv.v1.ReportTemplate
-	9,  // 15: pixlcrashr.vsfv.v1.ReportTemplateService.DeleteReportTemplate:output_type -> google.protobuf.Empty
-	11, // [11:16] is the sub-list for method output_type
-	6,  // [6:11] is the sub-list for method input_type
+	7,  // 11: pixlcrashr.vsfv.v1.ReportTemplateService.GenerateHtmlPreview:input_type -> pixlcrashr.vsfv.v1.GenerateHtmlPreviewRequest
+	0,  // 12: pixlcrashr.vsfv.v1.ReportTemplateService.GetReportTemplate:output_type -> pixlcrashr.vsfv.v1.ReportTemplate
+	3,  // 13: pixlcrashr.vsfv.v1.ReportTemplateService.ListReportTemplates:output_type -> pixlcrashr.vsfv.v1.ListReportTemplatesResponse
+	0,  // 14: pixlcrashr.vsfv.v1.ReportTemplateService.CreateReportTemplate:output_type -> pixlcrashr.vsfv.v1.ReportTemplate
+	0,  // 15: pixlcrashr.vsfv.v1.ReportTemplateService.UpdateReportTemplate:output_type -> pixlcrashr.vsfv.v1.ReportTemplate
+	11, // 16: pixlcrashr.vsfv.v1.ReportTemplateService.DeleteReportTemplate:output_type -> google.protobuf.Empty
+	8,  // 17: pixlcrashr.vsfv.v1.ReportTemplateService.GenerateHtmlPreview:output_type -> pixlcrashr.vsfv.v1.GenerateHtmlPreviewResponse
+	12, // [12:18] is the sub-list for method output_type
+	6,  // [6:12] is the sub-list for method input_type
 	6,  // [6:6] is the sub-list for extension type_name
 	6,  // [6:6] is the sub-list for extension extendee
 	0,  // [0:6] is the sub-list for field type_name
@@ -597,7 +699,7 @@ func file_pixlcrashr_vsfv_v1_report_template_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pixlcrashr_vsfv_v1_report_template_proto_rawDesc), len(file_pixlcrashr_vsfv_v1_report_template_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

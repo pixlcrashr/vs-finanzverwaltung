@@ -117,14 +117,6 @@ message CreateTransactionAssignmentRequest {
   string assignment_id = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
-message UpdateTransactionAssignmentRequest {
-  // The transaction assignment to update.
-  TransactionAssignment assignment = 1 [(google.api.field_behavior) = REQUIRED];
-
-  // The list of fields to update.
-  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
-}
-
 message DeleteTransactionAssignmentRequest {
   // The resource name of the transaction assignment.
   // Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
@@ -156,5 +148,28 @@ service TransactionAssignmentService {
   rpc ListTransactionAssignments(ListTransactionAssignmentsRequest) returns (ListTransactionAssignmentsResponse) {
     option (google.api.http) = {get: "/v1/{parent=organizations/*/transactions/*}/assignments"};
     option (google.api.method_signature) = "parent";
+  }
+
+  // Creates a new transaction assignment.
+  // Authorization:
+  //   Scope: transactions:create
+  //   Permission: transactions:create
+  //   Domain: organization-scoped
+  rpc CreateTransactionAssignment(CreateTransactionAssignmentRequest) returns (TransactionAssignment) {
+    option (google.api.http) = {
+      post: "/v1/{parent=organizations/*/transactions/*}/assignments"
+      body: "assignment"
+    };
+    option (google.api.method_signature) = "parent,assignment,assignment_id";
+  }
+
+  // Deletes a transaction assignment.
+  // Authorization:
+  //   Scope: transactions:delete
+  //   Permission: transactions:delete
+  //   Domain: organization-scoped
+  rpc DeleteTransactionAssignment(DeleteTransactionAssignmentRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/v1/{name=organizations/*/transactions/*/assignments/*}"};
+    option (google.api.method_signature) = "name";
   }
 }

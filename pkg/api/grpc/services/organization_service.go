@@ -170,7 +170,6 @@ func (s *organizationServiceServer) UpdateOrganization(ctx context.Context, req 
 
 	updateParams := repository.UpdateOrganizationParams{
 		DisplayName: optional.From(req.Organization.DisplayName),
-		StartMonth:  optional.From(time.Month(req.Organization.StartMonth)),
 	}
 
 	if err := s.repo.Update(ctx, m.ID, updateParams); err != nil {

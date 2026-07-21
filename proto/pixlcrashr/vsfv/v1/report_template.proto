@@ -124,6 +124,19 @@ message DeleteReportTemplateRequest {
   ];
 }
 
+// Request message for generating an HTML preview from a raw template.
+// This is a custom method (AIP-136) independent of any single reportTemplate resource.
+message GenerateHtmlPreviewRequest {
+  // The raw Go html/template source to render.
+  string template = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// Response message containing the rendered HTML.
+message GenerateHtmlPreviewResponse {
+  // The rendered HTML output.
+  string html = 1;
+}
+
 // ReportTemplateService manages Handlebars templates used for report generation.
 service ReportTemplateService {
   option (google.api.default_host) = "vsfv.pixlcrashr.dev";
@@ -182,5 +195,19 @@ service ReportTemplateService {
   rpc DeleteReportTemplate(DeleteReportTemplateRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/{name=organizations/*/reportTemplates/*}"};
     option (google.api.method_signature) = "name";
+  }
+
+  // Generates an HTML preview from a raw template string.
+  // This is a custom method (AIP-136) independent of any single reportTemplate resource.
+  // It renders the provided template with sample/fake data for preview purposes.
+  // Authorization:
+  //   Scope: reportTemplates:read
+  //   Permission: reportTemplates:read
+  //   Domain: global
+  rpc GenerateHtmlPreview(GenerateHtmlPreviewRequest) returns (GenerateHtmlPreviewResponse) {
+    option (google.api.http) = {
+      post: "/v1/reportTemplates:generateHtmlPreview"
+      body: "*"
+    };
   }
 }

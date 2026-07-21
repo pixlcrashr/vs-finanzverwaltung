@@ -8,61 +8,24 @@ info:
     email: info@pixlcrashr.dev
 tags:
   - name: AccountService
-    description: AccountService manages budget accounts in the chart of accounts.
   - name: AccountGroupService
-    description: AccountGroupService manages named groupings of budget accounts.
   - name: AccountGroupAssignmentService
-    description: AccountGroupAssignmentService manages account memberships within account groups.
   - name: BudgetService
-    description: BudgetService manages financial budgets.
   - name: BudgetAccountValueService
-    description: BudgetAccountValueService manages per-account value assignments within a budget.
   - name: BudgetActualAccountValueService
-    description: |-
-      BudgetActualAccountValueService provides read-only access to the computed
-      actual monetary values per budget account. Values are derived from the sum of
-      TransactionAccountAssignment values for transactions within the budget period.
-      All resources in this service are server-computed and immutable.
   - name: BudgetRevisionService
-    description: |-
-      BudgetRevisionService manages read-only revision history for budgets.
-      Revisions are created on demand and capture the full set of
-      BudgetAccountValues at the time of creation. Revisions are immutable.
   - name: BudgetRevisionAccountValueService
-    description: |-
-      BudgetRevisionAccountValueService provides read-only access to the
-      per-account values captured within a BudgetRevision. All resources in this
-      service are immutable and server-managed.
   - name: GroupService
-    description: GroupService manages groups and their per-organization permission policies.
   - name: LedgerAccountService
-    description: |-
-      LedgerAccountService manages ledger accounts for bookkeeping.
-      Accounts are auto-created during import; only Get, List, Update, Delete are exposed.
   - name: LedgerYearService
-    description: LedgerYearService manages fiscal/economic years within an organization.
   - name: OrganizationService
-    description: OrganizationService manages organizations.
   - name: ReportService
-    description: |-
-      ReportService manages generated report instances.
-      Note: report file download is handled exclusively by the Huma HTTP API.
   - name: ReportTemplateService
-    description: ReportTemplateService manages Handlebars templates used for report generation.
   - name: TransactionService
-    description: TransactionService manages financial transactions.
   - name: TransactionAssignmentService
-    description: TransactionAssignmentService manages transaction assignments to budget accounts.
   - name: UserService
-    description: |-
-      UserService provides a read-only administrative view of users.
-      Users are created exclusively through the SSO/OAuth2 flow.
   - name: UserIdentityService
-    description: |-
-      UserIdentityService provides a read-only view of the OAuth2 / SSO
-      connections linked to a user. No credentials are ever returned.
   - name: UserSettingsService
-    description: UserSettingsService manages per-user application preferences.
 host: test.pixlcrashr.dev
 basePath: /api
 schemes:
@@ -257,6 +220,37 @@ paths:
             $ref: '#/definitions/v1CheckOrganizationIdRequest'
       tags:
         - OrganizationService
+  /v1/reportTemplates:generateHtmlPreview:
+    post:
+      summary: |-
+        Generates an HTML preview from a raw template string.
+        This is a custom method (AIP-136) independent of any single reportTemplate resource.
+        It renders the provided template with sample/fake data for preview purposes.
+        Authorization:
+          Scope: reportTemplates:read
+          Permission: reportTemplates:read
+          Domain: global
+      operationId: ReportTemplateService_GenerateHtmlPreview
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GenerateHtmlPreviewResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          description: |-
+            Request message for generating an HTML preview from a raw template.
+            This is a custom method (AIP-136) independent of any single reportTemplate resource.
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1GenerateHtmlPreviewRequest'
+      tags:
+        - ReportTemplateService
   /v1/users:
     get:
       summary: |-
@@ -933,6 +927,35 @@ paths:
           pattern: organizations/[^/]+
       tags:
         - OrganizationService
+    delete:
+      summary: |-
+        Deletes a transaction assignment.
+        Authorization:
+          Scope: transactions:delete
+          Permission: transactions:delete
+          Domain: organization-scoped
+      operationId: TransactionAssignmentService_DeleteTransactionAssignment
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            type: object
+            properties: {}
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name_11
+          description: |-
+            The resource name of the transaction assignment.
+            Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/transactions/[^/]+/assignments/[^/]+
+      tags:
+        - TransactionAssignmentService
   /v1/{name_12}:
     get:
       summary: |-
@@ -2061,6 +2084,47 @@ paths:
           type: string
         - name: order_by
           description: Order by expression (e.g. "value desc", "create_time").
+          in: query
+          required: false
+          type: string
+      tags:
+        - TransactionAssignmentService
+    post:
+      summary: |-
+        Creates a new transaction assignment.
+        Authorization:
+          Scope: transactions:create
+          Permission: transactions:create
+          Domain: organization-scoped
+      operationId: TransactionAssignmentService_CreateTransactionAssignment
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1TransactionAssignment'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: parent_1
+          description: |-
+            The parent transaction resource name.
+            Format: organizations/{organization}/transactions/{transaction}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/transactions/[^/]+
+        - name: assignment
+          description: The transaction assignment to create.
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1TransactionAssignment'
+        - name: assignment_id
+          description: |-
+            The ID to use for the assignment. If not provided, a system-generated
+            UUID will be used. Must be unique within the parent transaction.
           in: query
           required: false
           type: string
@@ -4023,6 +4087,24 @@ definitions:
       monetary and other values where floating-point rounding is unacceptable.
 
       The value is a formatted decimal string, e.g. "1234.56", "-42", "0.001".
+  v1GenerateHtmlPreviewRequest:
+    type: object
+    properties:
+      template:
+        type: string
+        description: The raw Go html/template source to render.
+    description: |-
+      Request message for generating an HTML preview from a raw template.
+      This is a custom method (AIP-136) independent of any single reportTemplate resource.
+    required:
+      - template
+  v1GenerateHtmlPreviewResponse:
+    type: object
+    properties:
+      html:
+        type: string
+        description: The rendered HTML output.
+    description: Response message containing the rendered HTML.
   v1GetNestedAccountResponse:
     type: object
     properties:

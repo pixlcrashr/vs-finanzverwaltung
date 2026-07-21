@@ -795,6 +795,14 @@
                 </li>
               
                 <li>
+                  <a href="#pixlcrashr.vsfv.v1.GenerateHtmlPreviewRequest"><span class="badge">M</span>GenerateHtmlPreviewRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.GenerateHtmlPreviewResponse"><span class="badge">M</span>GenerateHtmlPreviewResponse</a>
+                </li>
+              
+                <li>
                   <a href="#pixlcrashr.vsfv.v1.GetReportTemplateRequest"><span class="badge">M</span>GetReportTemplateRequest</a>
                 </li>
               
@@ -894,10 +902,6 @@
               
                 <li>
                   <a href="#pixlcrashr.vsfv.v1.TransactionAssignment"><span class="badge">M</span>TransactionAssignment</a>
-                </li>
-              
-                <li>
-                  <a href="#pixlcrashr.vsfv.v1.UpdateTransactionAssignmentRequest"><span class="badge">M</span>UpdateTransactionAssignmentRequest</a>
                 </li>
               
               
@@ -6904,6 +6908,54 @@ Format: organizations/{organization}/reportTemplates/{report_template} </p></td>
 
         
       
+        <h3 id="pixlcrashr.vsfv.v1.GenerateHtmlPreviewRequest">GenerateHtmlPreviewRequest</h3>
+        <p>Request message for generating an HTML preview from a raw template.</p><p>This is a custom method (AIP-136) independent of any single reportTemplate resource.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>template</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The raw Go html/template source to render. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.GenerateHtmlPreviewResponse">GenerateHtmlPreviewResponse</h3>
+        <p>Response message containing the rendered HTML.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>html</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The rendered HTML output. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
         <h3 id="pixlcrashr.vsfv.v1.GetReportTemplateRequest">GetReportTemplateRequest</h3>
         <p></p>
 
@@ -7190,6 +7242,19 @@ Authorization:
   Domain: organization-scoped</p></td>
               </tr>
             
+              <tr>
+                <td>GenerateHtmlPreview</td>
+                <td><a href="#pixlcrashr.vsfv.v1.GenerateHtmlPreviewRequest">GenerateHtmlPreviewRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.GenerateHtmlPreviewResponse">GenerateHtmlPreviewResponse</a></td>
+                <td><p>Generates an HTML preview from a raw template string.
+This is a custom method (AIP-136) independent of any single reportTemplate resource.
+It renders the provided template with sample/fake data for preview purposes.
+Authorization:
+  Scope: reportTemplates:read
+  Permission: reportTemplates:read
+  Domain: global</p></td>
+              </tr>
+            
           </tbody>
         </table>
 
@@ -7255,6 +7320,16 @@ Authorization:
                 <td>DELETE</td>
                 <td>/v1/{name=organizations/*/reportTemplates/*}</td>
                 <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>GenerateHtmlPreview</td>
+                <td>POST</td>
+                <td>/v1/reportTemplates:generateHtmlPreview</td>
+                <td>*</td>
               </tr>
               
             
@@ -7999,37 +8074,6 @@ Format: organizations/{organization}/accounts/{account} </p></td>
 
         
       
-        <h3 id="pixlcrashr.vsfv.v1.UpdateTransactionAssignmentRequest">UpdateTransactionAssignmentRequest</h3>
-        <p></p>
-
-        
-          <table class="field-table">
-            <thead>
-              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
-            </thead>
-            <tbody>
-              
-                <tr>
-                  <td>assignment</td>
-                  <td><a href="#pixlcrashr.vsfv.v1.TransactionAssignment">TransactionAssignment</a></td>
-                  <td></td>
-                  <td><p>The transaction assignment to update. </p></td>
-                </tr>
-              
-                <tr>
-                  <td>update_mask</td>
-                  <td><a href="#google.protobuf.FieldMask">google.protobuf.FieldMask</a></td>
-                  <td></td>
-                  <td><p>The list of fields to update. </p></td>
-                </tr>
-              
-            </tbody>
-          </table>
-
-          
-
-        
-      
 
       
 
@@ -8063,6 +8107,28 @@ Authorization:
 Authorization:
   Scope: transactions:read
   Permission: transactions:read
+  Domain: organization-scoped</p></td>
+              </tr>
+            
+              <tr>
+                <td>CreateTransactionAssignment</td>
+                <td><a href="#pixlcrashr.vsfv.v1.CreateTransactionAssignmentRequest">CreateTransactionAssignmentRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.TransactionAssignment">TransactionAssignment</a></td>
+                <td><p>Creates a new transaction assignment.
+Authorization:
+  Scope: transactions:create
+  Permission: transactions:create
+  Domain: organization-scoped</p></td>
+              </tr>
+            
+              <tr>
+                <td>DeleteTransactionAssignment</td>
+                <td><a href="#pixlcrashr.vsfv.v1.DeleteTransactionAssignmentRequest">DeleteTransactionAssignmentRequest</a></td>
+                <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
+                <td><p>Deletes a transaction assignment.
+Authorization:
+  Scope: transactions:delete
+  Permission: transactions:delete
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -8100,6 +8166,26 @@ Authorization:
                 <td>ListTransactionAssignments</td>
                 <td>GET</td>
                 <td>/v1/{parent=organizations/*/transactions/*}/assignments</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>CreateTransactionAssignment</td>
+                <td>POST</td>
+                <td>/v1/{parent=organizations/*/transactions/*}/assignments</td>
+                <td>assignment</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>DeleteTransactionAssignment</td>
+                <td>DELETE</td>
+                <td>/v1/{name=organizations/*/transactions/*/assignments/*}</td>
                 <td></td>
               </tr>
               

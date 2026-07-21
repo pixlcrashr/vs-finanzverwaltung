@@ -13,7 +13,6 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
-	"github.com/theater-improrama/go-utils/optional"
 	"go.einride.tech/aip/ordering"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -29,7 +28,6 @@ var (
 	statusFailedGetTransactionAssignment     = status.New(codes.Internal, "failed to get transaction assignment")
 	statusFailedListTransactionAssignments   = status.New(codes.Internal, "failed to list transaction assignments")
 	statusFailedCreateTransactionAssignment  = status.New(codes.Internal, "failed to create transaction assignment")
-	statusFailedUpdateTransactionAssignment  = status.New(codes.Internal, "failed to update transaction assignment")
 	statusFailedDeleteTransactionAssignment  = status.New(codes.Internal, "failed to delete transaction assignment")
 )
 
@@ -199,66 +197,6 @@ func (s *transactionAssignmentServiceServer) CreateTransactionAssignment(ctx con
 	}
 
 	return TransactionAssignmentToProto(pn, m, a), nil
-}
-
-func (s *transactionAssignmentServiceServer) UpdateTransactionAssignment(ctx context.Context, req *gen.UpdateTransactionAssignmentRequest) (*gen.TransactionAssignment, error) {
-	if req.Assignment == nil {
-		return nil, &ServerError{Status: statusTransactionAssignmentRequired}
-	}
-
-	var n gen.TransactionAssignmentResourceName
-
-	if err := n.UnmarshalString(req.Assignment.Name); err != nil {
-		return nil, &ServerError{Err: err, Status: statusInvalidTransactionAssignmentName}
-	}
-
-	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionUpdate, authz.OrgDomain(n.Organization)); err != nil {
-		return nil, authError(err)
-	}
-
-	assignmentID, err := uuid.Parse(n.Assignment)
-	if err != nil {
-		return nil, &ServerError{Err: err, Status: statusInvalidTransactionAssignmentName}
-	}
-
-	m, err := s.repo.GetByID(ctx, assignmentID)
-	if err != nil {
-		if errors.Is(err, repository.ErrTransactionAssignmentNotFound) {
-			return nil, &ServerError{Err: err, Status: statusTransactionAssignmentNotFound}
-		}
-
-		return nil, &ServerError{Err: err, Status: statusFailedGetTransactionAssignment}
-	}
-
-	updateParams := repository.UpdateTransactionAssignmentParams{
-		Value: optional.From(decimalProtoToApd(req.Assignment.Value)),
-	}
-
-	if req.Assignment.Account != "" {
-		var accountResourceName gen.AccountResourceName
-		if err := accountResourceName.UnmarshalString(req.Assignment.Account); err != nil {
-			return nil, &ServerError{Err: err, Status: statusInvalidAccountID}
-		}
-
-		a, err := s.accountRepo.GetByCustomID(ctx, m.OrganizationID, accountResourceName.Account)
-		if err != nil {
-			return nil, &ServerError{Err: err, Status: statusAccountNotFound}
-		}
-
-		updateParams.AccountID = optional.From(a.ID)
-	}
-
-	if err := s.repo.Update(ctx, m.ID, updateParams); err != nil {
-		return nil, &ServerError{Err: err, Status: statusFailedUpdateTransactionAssignment}
-	}
-
-	// Refresh the model after update
-	m, err = s.repo.GetByID(ctx, m.ID)
-	if err != nil {
-		return nil, &ServerError{Err: err, Status: statusFailedUpdateTransactionAssignment}
-	}
-
-	return TransactionAssignmentToProto(n.TransactionResourceName(), m, &model.Account{CustomID: m.AccountID.String()}), nil
 }
 
 func (s *transactionAssignmentServiceServer) DeleteTransactionAssignment(ctx context.Context, req *gen.DeleteTransactionAssignmentRequest) (*emptypb.Empty, error) {

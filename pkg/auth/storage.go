@@ -16,7 +16,6 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -427,28 +426,6 @@ func (s *Storage) IsJWTUsed(ctx context.Context, jti string) (bool, error) {
 
 func (s *Storage) MarkJWTUsedForTime(ctx context.Context, jti string, exp time.Time) error {
 	return nil
-}
-
-// --- Authenticate (for Resource Owner Password Credentials) ---
-
-func (s *Storage) Authenticate(ctx context.Context, name string, secret string) (subject string, err error) {
-	user, err := s.userRepo.GetByEmail(ctx, name)
-	if err != nil {
-		user, err = s.userRepo.GetByName(ctx, name, true)
-		if err != nil {
-			return "", fosite.ErrNotFound.WithDebug("user not found")
-		}
-	}
-
-	if user.PasswordHash == nil {
-		return "", fosite.ErrNotFound.WithDebug("password login not configured for this user")
-	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(*user.PasswordHash), []byte(secret)); err != nil {
-		return "", fosite.ErrNotFound.WithDebug("invalid credentials")
-	}
-
-	return user.ID.String(), nil
 }
 
 // --- OpenID user info ---

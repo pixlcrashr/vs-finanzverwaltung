@@ -176,18 +176,6 @@ func newAccount(db *gorm.DB, opts ...gen.DOOption) account {
 			TransactionAssignments struct {
 				field.RelationField
 			}
-			GroupOrganizations struct {
-				field.RelationField
-				UserGroup struct {
-					field.RelationField
-					GroupOrganizations struct {
-						field.RelationField
-					}
-				}
-				Organization struct {
-					field.RelationField
-				}
-			}
 		}{
 			RelationField: field.NewRelation("ChildAccounts.Organization", "model.Organization"),
 			AccountGroupAssignments: struct {
@@ -578,38 +566,6 @@ func newAccount(db *gorm.DB, opts ...gen.DOOption) account {
 			}{
 				RelationField: field.NewRelation("ChildAccounts.Organization.TransactionAssignments", "model.TransactionAssignment"),
 			},
-			GroupOrganizations: struct {
-				field.RelationField
-				UserGroup struct {
-					field.RelationField
-					GroupOrganizations struct {
-						field.RelationField
-					}
-				}
-				Organization struct {
-					field.RelationField
-				}
-			}{
-				RelationField: field.NewRelation("ChildAccounts.Organization.GroupOrganizations", "model.GroupOrganization"),
-				UserGroup: struct {
-					field.RelationField
-					GroupOrganizations struct {
-						field.RelationField
-					}
-				}{
-					RelationField: field.NewRelation("ChildAccounts.Organization.GroupOrganizations.UserGroup", "model.UserGroup"),
-					GroupOrganizations: struct {
-						field.RelationField
-					}{
-						RelationField: field.NewRelation("ChildAccounts.Organization.GroupOrganizations.UserGroup.GroupOrganizations", "model.GroupOrganization"),
-					},
-				},
-				Organization: struct {
-					field.RelationField
-				}{
-					RelationField: field.NewRelation("ChildAccounts.Organization.GroupOrganizations.Organization", "model.Organization"),
-				},
-			},
 		},
 		ParentAccount: struct {
 			field.RelationField
@@ -947,18 +903,6 @@ type accountHasManyChildAccounts struct {
 		}
 		TransactionAssignments struct {
 			field.RelationField
-		}
-		GroupOrganizations struct {
-			field.RelationField
-			UserGroup struct {
-				field.RelationField
-				GroupOrganizations struct {
-					field.RelationField
-				}
-			}
-			Organization struct {
-				field.RelationField
-			}
 		}
 	}
 	ParentAccount struct {

@@ -40,9 +40,9 @@ type Budget struct {
 	DisplayDescription string `protobuf:"bytes,4,opt,name=display_description,json=displayDescription,proto3" json:"display_description,omitempty"`
 	// Whether the budget is closed (no further modifications allowed).
 	IsClosed bool `protobuf:"varint,5,opt,name=is_closed,json=isClosed,proto3" json:"is_closed,omitempty"`
-	// Budget period start date.
+	// Budget period start date. Immutable after creation.
 	PeriodStart *date.Date `protobuf:"bytes,6,opt,name=period_start,json=periodStart,proto3" json:"period_start,omitempty"`
-	// Budget period end date.
+	// Budget period end date. Immutable after creation.
 	PeriodEnd *date.Date `protobuf:"bytes,7,opt,name=period_end,json=periodEnd,proto3" json:"period_end,omitempty"`
 	// Last modification timestamp.
 	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
@@ -572,16 +572,16 @@ var File_pixlcrashr_vsfv_v1_budget_proto protoreflect.FileDescriptor
 
 const file_pixlcrashr_vsfv_v1_budget_proto_rawDesc = "" +
 	"\n" +
-	"\x1fpixlcrashr/vsfv/v1/budget.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16google/type/date.proto\"\x9f\x04\n" +
+	"\x1fpixlcrashr/vsfv/v1/budget.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16google/type/date.proto\"\xa5\x04\n" +
 	"\x06Budget\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x03R\x04name\x12\x1d\n" +
 	"\x03uid\x18\x02 \x01(\tB\v\xe0A\x03\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12&\n" +
 	"\fdisplay_name\x18\x03 \x01(\tB\x03\xe0A\x02R\vdisplayName\x124\n" +
 	"\x13display_description\x18\x04 \x01(\tB\x03\xe0A\x01R\x12displayDescription\x12 \n" +
-	"\tis_closed\x18\x05 \x01(\bB\x03\xe0A\x03R\bisClosed\x129\n" +
-	"\fperiod_start\x18\x06 \x01(\v2\x11.google.type.DateB\x03\xe0A\x02R\vperiodStart\x125\n" +
+	"\tis_closed\x18\x05 \x01(\bB\x03\xe0A\x03R\bisClosed\x12<\n" +
+	"\fperiod_start\x18\x06 \x01(\v2\x11.google.type.DateB\x06\xe0A\x02\xe0A\x05R\vperiodStart\x128\n" +
 	"\n" +
-	"period_end\x18\a \x01(\v2\x11.google.type.DateB\x03\xe0A\x02R\tperiodEnd\x12@\n" +
+	"period_end\x18\a \x01(\v2\x11.google.type.DateB\x06\xe0A\x02\xe0A\x05R\tperiodEnd\x12@\n" +
 	"\vupdate_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"updateTime\x12@\n" +
 	"\vcreate_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +

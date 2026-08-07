@@ -7,19 +7,20 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
+	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 )
 
 const SessionCookieName = "vsfv_session"
 
 type SessionManager struct {
-	repo   *repository.AuthSessionRepository
-	ttl    time.Duration
+	repo          *repository.AuthSessionRepository
+	ttl           time.Duration
+	secureCookies bool
 }
 
-func NewSessionManager(repo *repository.AuthSessionRepository, ttl time.Duration) *SessionManager {
-	return &SessionManager{repo: repo, ttl: ttl}
+func NewSessionManager(repo *repository.AuthSessionRepository, ttl time.Duration, secureCookies bool) *SessionManager {
+	return &SessionManager{repo: repo, ttl: ttl, secureCookies: secureCookies}
 }
 
 func (sm *SessionManager) CreateSession(ctx context.Context, userID uuid.UUID) (*model.AuthSession, error) {
@@ -48,6 +49,7 @@ func (sm *SessionManager) SetSessionCookie(w http.ResponseWriter, token string) 
 		Value:    token,
 		Path:     "/",
 		HttpOnly: true,
+		Secure:   sm.secureCookies,
 		SameSite: http.SameSiteLaxMode,
 		MaxAge:   int(sm.ttl.Seconds()),
 	})
@@ -59,6 +61,7 @@ func (sm *SessionManager) ClearSessionCookie(w http.ResponseWriter) {
 		Value:    "",
 		Path:     "/",
 		HttpOnly: true,
+		Secure:   sm.secureCookies,
 		SameSite: http.SameSiteLaxMode,
 		MaxAge:   -1,
 	})

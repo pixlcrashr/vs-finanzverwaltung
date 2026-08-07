@@ -127,6 +127,22 @@ func (r *BudgetRevisionRepository) GetByCustomID(ctx context.Context, orgID uuid
 	return m, nil
 }
 
+// GetLatest returns the most recently created budget revision for the given budget.
+// Returns ErrBudgetRevisionNotFound if no revisions exist.
+func (r *BudgetRevisionRepository) GetLatest(ctx context.Context, budgetID uuid.UUID) (*model.BudgetRevision, error) {
+	var m model.BudgetRevision
+	if err := r.db.WithContext(ctx).
+		Where("budget_id = ?", budgetID).
+		Order("created_at DESC").
+		First(&m).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Join(ErrBudgetRevisionNotFound, fmt.Errorf("budget_id=%s: %w", budgetID, err))
+		}
+		return nil, fmt.Errorf("get latest budget revision budget_id=%s: %w", budgetID, err)
+	}
+	return &m, nil
+}
+
 // CreateWithSnapshotParams holds the fields required to create a budget revision with a snapshot.
 type CreateWithSnapshotParams struct {
 	OrganizationID     uuid.UUID

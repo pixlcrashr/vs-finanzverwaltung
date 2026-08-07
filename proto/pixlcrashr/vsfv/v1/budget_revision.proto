@@ -113,6 +113,15 @@ message CreateBudgetRevisionRequest {
   string budget_revision_id = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
+message GetLatestBudgetRevisionRequest {
+  // The parent budget resource name.
+  // Format: organizations/{organization}/budgets/{budget}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Budget"}
+  ];
+}
+
 // BudgetRevisionService manages read-only revision history for budgets.
 // Revisions are created on demand and capture the full set of
 // BudgetAccountValues at the time of creation. Revisions are immutable.
@@ -136,6 +145,18 @@ service BudgetRevisionService {
   //   Domain: organization-scoped
   rpc ListBudgetRevisions(ListBudgetRevisionsRequest) returns (ListBudgetRevisionsResponse) {
     option (google.api.http) = {get: "/v1/{parent=organizations/*/budgets/*}/revisions"};
+    option (google.api.method_signature) = "parent";
+  }
+
+  // Gets the most recently created revision for a budget.
+  // Returns the latest revision ordered by create_time descending.
+  // Returns an empty response (no revision) if no revisions exist.
+  // Authorization:
+  //   Scope: budgets:read
+  //   Permission: budgets:read
+  //   Domain: organization-scoped
+  rpc GetLatestBudgetRevision(GetLatestBudgetRevisionRequest) returns (BudgetRevision) {
+    option (google.api.http) = {get: "/v1/{parent=organizations/*/budgets/*}/revisions:getLatest"};
     option (google.api.method_signature) = "parent";
   }
 

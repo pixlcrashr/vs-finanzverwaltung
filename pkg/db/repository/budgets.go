@@ -12,6 +12,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"github.com/theater-improrama/go-utils/optional"
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 )
 
@@ -147,6 +148,44 @@ func (r *BudgetRepository) GetByCustomID(ctx context.Context, orgID uuid.UUID, c
 			return nil, errors.Join(ErrBudgetNotFound, fmt.Errorf("organization_id=%s custom_id=%s: %w", orgID, customID, err))
 		}
 		return nil, fmt.Errorf("get budget organization_id=%s custom_id=%s: %w", orgID, customID, err)
+	}
+	return m, nil
+}
+
+// GetByResourceName resolves a budget by organization and budget identifiers, each of
+// which may be either a UUID or a custom ID.
+func (r *BudgetRepository) GetByResourceName(ctx context.Context, organization string, budget string) (*model.Budget, error) {
+	var orgID uuid.UUID
+	orgID, _ = uuid.Parse(organization)
+
+	o, err := r.q.Organization.WithContext(ctx).Where(
+		field.Or(
+			r.q.Organization.CustomID.Eq(organization),
+			r.q.Organization.ID.Eq(orgID),
+		),
+	).First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Join(ErrOrganizationNotFound, fmt.Errorf("organization=%s: %w", organization, err))
+		}
+		return nil, fmt.Errorf("get organization organization=%s: %w", organization, err)
+	}
+
+	var budgetID uuid.UUID
+	budgetID, _ = uuid.Parse(budget)
+
+	m, err := r.q.Budget.WithContext(ctx).Where(
+		r.q.Budget.OrganizationID.Eq(o.ID),
+		field.Or(
+			r.q.Budget.CustomID.Eq(budget),
+			r.q.Budget.ID.Eq(budgetID),
+		),
+	).First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Join(ErrBudgetNotFound, fmt.Errorf("budget=%s: %w", budget, err))
+		}
+		return nil, fmt.Errorf("get budget budget=%s: %w", budget, err)
 	}
 	return m, nil
 }

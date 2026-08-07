@@ -1,4 +1,4 @@
-h1:iwgQX3bnuD1zhVZ0H4mmpHko0dXXF37Mw3jsMtgLdyU=
+h1:7yP3mrYvvdG5DzKNp/e4DXQyuHBxAhGoSxsrhd75Ulk=
 20260608003436_initial.up.sql h1:4HFKA1ctWkWeGmIRkz4ShIh0G3Rwmm3B3smquXmxmdU=
 20260609124713_update-indicies.up.sql h1:TNDgsk/qMGNQlbNvqSxQ/zWIfzMrBEpNiXb7G2xG/AQ=
 20260611005718_fix-budget-revision-index.up.sql h1:KK4QfDl04+U6sXeQl2VpldjxwTJrMH7BTOP+OxcQhz8=
@@ -9,3 +9,5 @@ h1:iwgQX3bnuD1zhVZ0H4mmpHko0dXXF37Mw3jsMtgLdyU=
 20260706201044_add-auth-tables.up.sql h1:ITWGYnAFUw38DPlJLM2Pl3t083Uw1ugGZF32UnVX2OY=
 20260706202228_fix-casbin-rule-id.up.sql h1:DbUwWCN22ub4q18wYY7F1tpNHFjkLJhshiwbYjnxUhY=
 20260706203747_fix-casbin-rule-id-2.up.sql h1:aQ/NiJCpzpFi8jailusk4n7irOyMrtmUk1Bd4xlRY/U=
+20260807142636_fixes.up.sql h1:/eT8psvYXKMjoEGAZ7DLO45KvWo+PhusMOPHSD0YBNU=
+20260807150928_fixes-2.up.sql h1:A0Z7B1Mn4pJqlfKB/x55jdckaPb6aVB82264DcV5AHw=

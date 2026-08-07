@@ -668,10 +668,10 @@ paths:
                 readOnly: true
               period_start:
                 $ref: '#/definitions/typeDate'
-                description: Budget period start date.
+                description: Budget period start date. Immutable after creation.
               period_end:
                 $ref: '#/definitions/typeDate'
-                description: Budget period end date.
+                description: Budget period end date. Immutable after creation.
               update_time:
                 type: string
                 format: date-time
@@ -3196,6 +3196,37 @@ paths:
           type: string
       tags:
         - BudgetRevisionService
+  /v1/{parent}/revisions:getLatest:
+    get:
+      summary: |-
+        Gets the most recently created revision for a budget.
+        Returns the latest revision ordered by create_time descending.
+        Returns an empty response (no revision) if no revisions exist.
+        Authorization:
+          Scope: budgets:read
+          Permission: budgets:read
+          Domain: organization-scoped
+      operationId: BudgetRevisionService_GetLatestBudgetRevision
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1BudgetRevision'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: parent
+          description: |-
+            The parent budget resource name.
+            Format: organizations/{organization}/budgets/{budget}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/budgets/[^/]+
+      tags:
+        - BudgetRevisionService
   /v1/{parent}/transactions:
     get:
       summary: |-
@@ -3827,10 +3858,10 @@ definitions:
         readOnly: true
       period_start:
         $ref: '#/definitions/typeDate'
-        description: Budget period start date.
+        description: Budget period start date. Immutable after creation.
       period_end:
         $ref: '#/definitions/typeDate'
-        description: Budget period end date.
+        description: Budget period end date. Immutable after creation.
       update_time:
         type: string
         format: date-time

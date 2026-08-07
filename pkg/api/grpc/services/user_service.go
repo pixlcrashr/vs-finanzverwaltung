@@ -190,6 +190,9 @@ func (s *userServiceServer) checkPermissions(userID, domain string, requested []
 		}
 
 		dom := domain
+		if dom == "" {
+			dom = authz.GlobalDomain
+		}
 		if authz.GlobalResources[p.Resource] {
 			dom = authz.GlobalDomain
 		}

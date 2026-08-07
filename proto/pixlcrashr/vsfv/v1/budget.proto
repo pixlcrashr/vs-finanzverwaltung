@@ -41,11 +41,17 @@ message Budget {
   // Whether the budget is closed (no further modifications allowed).
   bool is_closed = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Budget period start date.
-  google.type.Date period_start = 6 [(google.api.field_behavior) = REQUIRED];
+  // Budget period start date. Immutable after creation.
+  google.type.Date period_start = 6 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
 
-  // Budget period end date.
-  google.type.Date period_end = 7 [(google.api.field_behavior) = REQUIRED];
+  // Budget period end date. Immutable after creation.
+  google.type.Date period_end = 7 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
 
   // Last modification timestamp.
   google.protobuf.Timestamp update_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];

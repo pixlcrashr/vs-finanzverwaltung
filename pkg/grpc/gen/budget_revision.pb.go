@@ -388,6 +388,52 @@ func (x *CreateBudgetRevisionRequest) GetBudgetRevisionId() string {
 	return ""
 }
 
+type GetLatestBudgetRevisionRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The parent budget resource name.
+	// Format: organizations/{organization}/budgets/{budget}
+	Parent        string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetLatestBudgetRevisionRequest) Reset() {
+	*x = GetLatestBudgetRevisionRequest{}
+	mi := &file_pixlcrashr_vsfv_v1_budget_revision_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetLatestBudgetRevisionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetLatestBudgetRevisionRequest) ProtoMessage() {}
+
+func (x *GetLatestBudgetRevisionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pixlcrashr_vsfv_v1_budget_revision_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetLatestBudgetRevisionRequest.ProtoReflect.Descriptor instead.
+func (*GetLatestBudgetRevisionRequest) Descriptor() ([]byte, []int) {
+	return file_pixlcrashr_vsfv_v1_budget_revision_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetLatestBudgetRevisionRequest) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
+}
+
 var File_pixlcrashr_vsfv_v1_budget_revision_proto protoreflect.FileDescriptor
 
 const file_pixlcrashr_vsfv_v1_budget_revision_proto_rawDesc = "" +
@@ -424,10 +470,14 @@ const file_pixlcrashr_vsfv_v1_budget_revision_proto_rawDesc = "" +
 	"\x06parent\x18\x01 \x01(\tB\"\xe0A\x02\xfaA\x1c\n" +
 	"\x1avsfv.pixlcrashr.dev/BudgetR\x06parent\x12C\n" +
 	"\brevision\x18\x02 \x01(\v2\".pixlcrashr.vsfv.v1.BudgetRevisionB\x03\xe0A\x02R\brevision\x121\n" +
-	"\x12budget_revision_id\x18\x03 \x01(\tB\x03\xe0A\x01R\x10budgetRevisionId2\xeb\x04\n" +
+	"\x12budget_revision_id\x18\x03 \x01(\tB\x03\xe0A\x01R\x10budgetRevisionId\"\\\n" +
+	"\x1eGetLatestBudgetRevisionRequest\x12:\n" +
+	"\x06parent\x18\x01 \x01(\tB\"\xe0A\x02\xfaA\x1c\n" +
+	"\x1avsfv.pixlcrashr.dev/BudgetR\x06parent2\xac\x06\n" +
 	"\x15BudgetRevisionService\x12\xa6\x01\n" +
 	"\x11GetBudgetRevision\x12,.pixlcrashr.vsfv.v1.GetBudgetRevisionRequest\x1a\".pixlcrashr.vsfv.v1.BudgetRevision\"?\xdaA\x04name\x82\xd3\xe4\x93\x022\x120/v1/{name=organizations/*/budgets/*/revisions/*}\x12\xb9\x01\n" +
-	"\x13ListBudgetRevisions\x12..pixlcrashr.vsfv.v1.ListBudgetRevisionsRequest\x1a/.pixlcrashr.vsfv.v1.ListBudgetRevisionsResponse\"A\xdaA\x06parent\x82\xd3\xe4\x93\x022\x120/v1/{parent=organizations/*/budgets/*}/revisions\x12\xd4\x01\n" +
+	"\x13ListBudgetRevisions\x12..pixlcrashr.vsfv.v1.ListBudgetRevisionsRequest\x1a/.pixlcrashr.vsfv.v1.ListBudgetRevisionsResponse\"A\xdaA\x06parent\x82\xd3\xe4\x93\x022\x120/v1/{parent=organizations/*/budgets/*}/revisions\x12\xbe\x01\n" +
+	"\x17GetLatestBudgetRevision\x122.pixlcrashr.vsfv.v1.GetLatestBudgetRevisionRequest\x1a\".pixlcrashr.vsfv.v1.BudgetRevision\"K\xdaA\x06parent\x82\xd3\xe4\x93\x02<\x12:/v1/{parent=organizations/*/budgets/*}/revisions:getLatest\x12\xd4\x01\n" +
 	"\x14CreateBudgetRevision\x12/.pixlcrashr.vsfv.v1.CreateBudgetRevisionRequest\x1a\".pixlcrashr.vsfv.v1.BudgetRevision\"g\xdaA\"parent,revision,budget_revision_id\x82\xd3\xe4\x93\x02<:\brevision\"0/v1/{parent=organizations/*/budgets/*}/revisions\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xc0\x01\n" +
 	"\x16com.pixlcrashr.vsfv.v1B\x13BudgetRevisionProtoP\x01Z'github.com/pixlcrashr/vsfv/pkg/grpc/gen\xa2\x02\x03PVX\xaa\x02\x12Pixlcrashr.Vsfv.V1\xca\x02\x12Pixlcrashr\\Vsfv\\V1\xe2\x02\x1ePixlcrashr\\Vsfv\\V1\\GPBMetadata\xea\x02\x14Pixlcrashr::Vsfv::V1b\x06proto3"
 
@@ -443,29 +493,32 @@ func file_pixlcrashr_vsfv_v1_budget_revision_proto_rawDescGZIP() []byte {
 	return file_pixlcrashr_vsfv_v1_budget_revision_proto_rawDescData
 }
 
-var file_pixlcrashr_vsfv_v1_budget_revision_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_pixlcrashr_vsfv_v1_budget_revision_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_pixlcrashr_vsfv_v1_budget_revision_proto_goTypes = []any{
-	(*BudgetRevision)(nil),              // 0: pixlcrashr.vsfv.v1.BudgetRevision
-	(*GetBudgetRevisionRequest)(nil),    // 1: pixlcrashr.vsfv.v1.GetBudgetRevisionRequest
-	(*ListBudgetRevisionsRequest)(nil),  // 2: pixlcrashr.vsfv.v1.ListBudgetRevisionsRequest
-	(*ListBudgetRevisionsResponse)(nil), // 3: pixlcrashr.vsfv.v1.ListBudgetRevisionsResponse
-	(*CreateBudgetRevisionRequest)(nil), // 4: pixlcrashr.vsfv.v1.CreateBudgetRevisionRequest
-	(*date.Date)(nil),                   // 5: google.type.Date
-	(*timestamppb.Timestamp)(nil),       // 6: google.protobuf.Timestamp
+	(*BudgetRevision)(nil),                 // 0: pixlcrashr.vsfv.v1.BudgetRevision
+	(*GetBudgetRevisionRequest)(nil),       // 1: pixlcrashr.vsfv.v1.GetBudgetRevisionRequest
+	(*ListBudgetRevisionsRequest)(nil),     // 2: pixlcrashr.vsfv.v1.ListBudgetRevisionsRequest
+	(*ListBudgetRevisionsResponse)(nil),    // 3: pixlcrashr.vsfv.v1.ListBudgetRevisionsResponse
+	(*CreateBudgetRevisionRequest)(nil),    // 4: pixlcrashr.vsfv.v1.CreateBudgetRevisionRequest
+	(*GetLatestBudgetRevisionRequest)(nil), // 5: pixlcrashr.vsfv.v1.GetLatestBudgetRevisionRequest
+	(*date.Date)(nil),                      // 6: google.type.Date
+	(*timestamppb.Timestamp)(nil),          // 7: google.protobuf.Timestamp
 }
 var file_pixlcrashr_vsfv_v1_budget_revision_proto_depIdxs = []int32{
-	5, // 0: pixlcrashr.vsfv.v1.BudgetRevision.date:type_name -> google.type.Date
-	6, // 1: pixlcrashr.vsfv.v1.BudgetRevision.create_time:type_name -> google.protobuf.Timestamp
+	6, // 0: pixlcrashr.vsfv.v1.BudgetRevision.date:type_name -> google.type.Date
+	7, // 1: pixlcrashr.vsfv.v1.BudgetRevision.create_time:type_name -> google.protobuf.Timestamp
 	0, // 2: pixlcrashr.vsfv.v1.ListBudgetRevisionsResponse.revisions:type_name -> pixlcrashr.vsfv.v1.BudgetRevision
 	0, // 3: pixlcrashr.vsfv.v1.CreateBudgetRevisionRequest.revision:type_name -> pixlcrashr.vsfv.v1.BudgetRevision
 	1, // 4: pixlcrashr.vsfv.v1.BudgetRevisionService.GetBudgetRevision:input_type -> pixlcrashr.vsfv.v1.GetBudgetRevisionRequest
 	2, // 5: pixlcrashr.vsfv.v1.BudgetRevisionService.ListBudgetRevisions:input_type -> pixlcrashr.vsfv.v1.ListBudgetRevisionsRequest
-	4, // 6: pixlcrashr.vsfv.v1.BudgetRevisionService.CreateBudgetRevision:input_type -> pixlcrashr.vsfv.v1.CreateBudgetRevisionRequest
-	0, // 7: pixlcrashr.vsfv.v1.BudgetRevisionService.GetBudgetRevision:output_type -> pixlcrashr.vsfv.v1.BudgetRevision
-	3, // 8: pixlcrashr.vsfv.v1.BudgetRevisionService.ListBudgetRevisions:output_type -> pixlcrashr.vsfv.v1.ListBudgetRevisionsResponse
-	0, // 9: pixlcrashr.vsfv.v1.BudgetRevisionService.CreateBudgetRevision:output_type -> pixlcrashr.vsfv.v1.BudgetRevision
-	7, // [7:10] is the sub-list for method output_type
-	4, // [4:7] is the sub-list for method input_type
+	5, // 6: pixlcrashr.vsfv.v1.BudgetRevisionService.GetLatestBudgetRevision:input_type -> pixlcrashr.vsfv.v1.GetLatestBudgetRevisionRequest
+	4, // 7: pixlcrashr.vsfv.v1.BudgetRevisionService.CreateBudgetRevision:input_type -> pixlcrashr.vsfv.v1.CreateBudgetRevisionRequest
+	0, // 8: pixlcrashr.vsfv.v1.BudgetRevisionService.GetBudgetRevision:output_type -> pixlcrashr.vsfv.v1.BudgetRevision
+	3, // 9: pixlcrashr.vsfv.v1.BudgetRevisionService.ListBudgetRevisions:output_type -> pixlcrashr.vsfv.v1.ListBudgetRevisionsResponse
+	0, // 10: pixlcrashr.vsfv.v1.BudgetRevisionService.GetLatestBudgetRevision:output_type -> pixlcrashr.vsfv.v1.BudgetRevision
+	0, // 11: pixlcrashr.vsfv.v1.BudgetRevisionService.CreateBudgetRevision:output_type -> pixlcrashr.vsfv.v1.BudgetRevision
+	8, // [8:12] is the sub-list for method output_type
+	4, // [4:8] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name
 	4, // [4:4] is the sub-list for extension extendee
 	0, // [0:4] is the sub-list for field type_name
@@ -482,7 +535,7 @@ func file_pixlcrashr_vsfv_v1_budget_revision_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pixlcrashr_vsfv_v1_budget_revision_proto_rawDesc), len(file_pixlcrashr_vsfv_v1_budget_revision_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

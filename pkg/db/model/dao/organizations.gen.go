@@ -183,18 +183,6 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 			TransactionAssignments struct {
 				field.RelationField
 			}
-			GroupOrganizations struct {
-				field.RelationField
-				UserGroup struct {
-					field.RelationField
-					GroupOrganizations struct {
-						field.RelationField
-					}
-				}
-				Organization struct {
-					field.RelationField
-				}
-			}
 		}{
 			RelationField: field.NewRelation("AccountGroupAssignments.Organization", "model.Organization"),
 			AccountGroupAssignments: struct {
@@ -686,38 +674,6 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 			}{
 				RelationField: field.NewRelation("AccountGroupAssignments.Organization.TransactionAssignments", "model.TransactionAssignment"),
 			},
-			GroupOrganizations: struct {
-				field.RelationField
-				UserGroup struct {
-					field.RelationField
-					GroupOrganizations struct {
-						field.RelationField
-					}
-				}
-				Organization struct {
-					field.RelationField
-				}
-			}{
-				RelationField: field.NewRelation("AccountGroupAssignments.Organization.GroupOrganizations", "model.GroupOrganization"),
-				UserGroup: struct {
-					field.RelationField
-					GroupOrganizations struct {
-						field.RelationField
-					}
-				}{
-					RelationField: field.NewRelation("AccountGroupAssignments.Organization.GroupOrganizations.UserGroup", "model.UserGroup"),
-					GroupOrganizations: struct {
-						field.RelationField
-					}{
-						RelationField: field.NewRelation("AccountGroupAssignments.Organization.GroupOrganizations.UserGroup.GroupOrganizations", "model.GroupOrganization"),
-					},
-				},
-				Organization: struct {
-					field.RelationField
-				}{
-					RelationField: field.NewRelation("AccountGroupAssignments.Organization.GroupOrganizations.Organization", "model.Organization"),
-				},
-			},
 		},
 		AccountGroup: struct {
 			field.RelationField
@@ -803,12 +759,6 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 		RelationField: field.NewRelation("TransactionAssignments", "model.TransactionAssignment"),
 	}
 
-	_organization.GroupOrganizations = organizationHasManyGroupOrganizations{
-		db: db.Session(&gorm.Session{}),
-
-		RelationField: field.NewRelation("GroupOrganizations", "model.GroupOrganization"),
-	}
-
 	_organization.fillFieldMap()
 
 	return _organization
@@ -849,8 +799,6 @@ type organization struct {
 	Transactions organizationHasManyTransactions
 
 	TransactionAssignments organizationHasManyTransactionAssignments
-
-	GroupOrganizations organizationHasManyGroupOrganizations
 
 	fieldMap map[string]field.Expr
 }
@@ -901,7 +849,7 @@ func (o *organization) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (o *organization) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 20)
+	o.fieldMap = make(map[string]field.Expr, 19)
 	o.fieldMap["id"] = o.ID
 	o.fieldMap["custom_id"] = o.CustomID
 	o.fieldMap["display_name"] = o.DisplayName
@@ -939,8 +887,6 @@ func (o organization) clone(db *gorm.DB) organization {
 	o.Transactions.db.Statement.ConnPool = db.Statement.ConnPool
 	o.TransactionAssignments.db = db.Session(&gorm.Session{Initialized: true})
 	o.TransactionAssignments.db.Statement.ConnPool = db.Statement.ConnPool
-	o.GroupOrganizations.db = db.Session(&gorm.Session{Initialized: true})
-	o.GroupOrganizations.db.Statement.ConnPool = db.Statement.ConnPool
 	return o
 }
 
@@ -959,7 +905,6 @@ func (o organization) replaceDB(db *gorm.DB) organization {
 	o.Reports.db = db.Session(&gorm.Session{})
 	o.Transactions.db = db.Session(&gorm.Session{})
 	o.TransactionAssignments.db = db.Session(&gorm.Session{})
-	o.GroupOrganizations.db = db.Session(&gorm.Session{})
 	return o
 }
 
@@ -1113,18 +1058,6 @@ type organizationHasManyAccountGroupAssignments struct {
 		}
 		TransactionAssignments struct {
 			field.RelationField
-		}
-		GroupOrganizations struct {
-			field.RelationField
-			UserGroup struct {
-				field.RelationField
-				GroupOrganizations struct {
-					field.RelationField
-				}
-			}
-			Organization struct {
-				field.RelationField
-			}
 		}
 	}
 	AccountGroup struct {
@@ -2178,87 +2111,6 @@ func (a organizationHasManyTransactionAssignmentsTx) Count() int64 {
 }
 
 func (a organizationHasManyTransactionAssignmentsTx) Unscoped() *organizationHasManyTransactionAssignmentsTx {
-	a.tx = a.tx.Unscoped()
-	return &a
-}
-
-type organizationHasManyGroupOrganizations struct {
-	db *gorm.DB
-
-	field.RelationField
-}
-
-func (a organizationHasManyGroupOrganizations) Where(conds ...field.Expr) *organizationHasManyGroupOrganizations {
-	if len(conds) == 0 {
-		return &a
-	}
-
-	exprs := make([]clause.Expression, 0, len(conds))
-	for _, cond := range conds {
-		exprs = append(exprs, cond.BeCond().(clause.Expression))
-	}
-	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
-	return &a
-}
-
-func (a organizationHasManyGroupOrganizations) WithContext(ctx context.Context) *organizationHasManyGroupOrganizations {
-	a.db = a.db.WithContext(ctx)
-	return &a
-}
-
-func (a organizationHasManyGroupOrganizations) Session(session *gorm.Session) *organizationHasManyGroupOrganizations {
-	a.db = a.db.Session(session)
-	return &a
-}
-
-func (a organizationHasManyGroupOrganizations) Model(m *model.Organization) *organizationHasManyGroupOrganizationsTx {
-	return &organizationHasManyGroupOrganizationsTx{a.db.Model(m).Association(a.Name())}
-}
-
-func (a organizationHasManyGroupOrganizations) Unscoped() *organizationHasManyGroupOrganizations {
-	a.db = a.db.Unscoped()
-	return &a
-}
-
-type organizationHasManyGroupOrganizationsTx struct{ tx *gorm.Association }
-
-func (a organizationHasManyGroupOrganizationsTx) Find() (result []*model.GroupOrganization, err error) {
-	return result, a.tx.Find(&result)
-}
-
-func (a organizationHasManyGroupOrganizationsTx) Append(values ...*model.GroupOrganization) (err error) {
-	targetValues := make([]interface{}, len(values))
-	for i, v := range values {
-		targetValues[i] = v
-	}
-	return a.tx.Append(targetValues...)
-}
-
-func (a organizationHasManyGroupOrganizationsTx) Replace(values ...*model.GroupOrganization) (err error) {
-	targetValues := make([]interface{}, len(values))
-	for i, v := range values {
-		targetValues[i] = v
-	}
-	return a.tx.Replace(targetValues...)
-}
-
-func (a organizationHasManyGroupOrganizationsTx) Delete(values ...*model.GroupOrganization) (err error) {
-	targetValues := make([]interface{}, len(values))
-	for i, v := range values {
-		targetValues[i] = v
-	}
-	return a.tx.Delete(targetValues...)
-}
-
-func (a organizationHasManyGroupOrganizationsTx) Clear() error {
-	return a.tx.Clear()
-}
-
-func (a organizationHasManyGroupOrganizationsTx) Count() int64 {
-	return a.tx.Count()
-}
-
-func (a organizationHasManyGroupOrganizationsTx) Unscoped() *organizationHasManyGroupOrganizationsTx {
 	a.tx = a.tx.Unscoped()
 	return &a
 }

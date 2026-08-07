@@ -18,8 +18,10 @@ type UserGroup struct {
 	CreatedAt   time.Time `gorm:"not null;default:now()"`
 	UpdatedAt   time.Time `gorm:"not null;default:now()"`
 
-	// Relations
-	GroupOrganizations []GroupOrganization `gorm:"foreignKey:UserGroupID"`
+	// Organizations is a transient (non-persisted) list of organization resource
+	// names (or "*") that this group is assigned to. Populated by the repository
+	// from casbin g3 entries when loading groups.
+	Organizations []string `gorm:"-"`
 }
 
 func (UserGroup) TableName() string { return "user_groups" }

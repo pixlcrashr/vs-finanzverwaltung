@@ -19,12 +19,14 @@ auth:
   refresh-ttl: "720h"
   # Auth session lifetime (browser login session). Defaults to 24h.
   session-ttl: "24h"
+  # Set the Secure flag on auth cookies. Enable when serving over HTTPS.
+  secure-cookies: false
+  # Additional redirect URIs for the web OAuth2 client.
+  # Defaults to {public-url}/login if empty.
+  web-redirect-uris: []
   # JWKS key files for signing JWTs. Leave empty to auto-generate keys.
   jwks:
     key-files: []
-  # Password-based login (email + password). Defaults to enabled.
-  password-login:
-    enabled: true
   gitlab:
     # Enable GitLab OAuth2 login. Defaults to false.
     enabled: false

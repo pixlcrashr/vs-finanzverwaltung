@@ -58,7 +58,7 @@ incoming HTTP requests. It shuts down gracefully on SIGINT or SIGTERM.`,
 		sessionRepo := repository.NewAuthSessionRepository(gormDB)
 
 		// Seed default OAuth2 client
-		if err := auth.SeedDefaultClient(context.Background(), clientRepo, config.Server.PublicURL); err != nil {
+		if err := auth.SeedDefaultClient(context.Background(), clientRepo, config.Server.PublicURL, config.Auth.WebRedirectURIs); err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: failed to seed default OAuth2 client: %v\n", err)
 		}
 
@@ -69,7 +69,7 @@ incoming HTTP requests. It shuts down gracefully on SIGINT or SIGTERM.`,
 		}
 
 		// Create GitLab handler
-		gitlabHandler := auth.NewGitLabHandler(config.Auth, userRepo, identityRepo, authSrv.SessionManager())
+		gitlabHandler := auth.NewGitLabHandler(config.Auth, config.Server.PublicURL, userRepo, identityRepo, authSrv.SessionManager())
 
 		grpcSrv, err := apiserv.NewGRPCServer(config.Server.GRPCAddress, svcSet)
 		if err != nil {

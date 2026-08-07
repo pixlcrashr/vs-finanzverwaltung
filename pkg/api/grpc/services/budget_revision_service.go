@@ -128,6 +128,39 @@ func (s *budgetRevisionServiceServer) ListBudgetRevisions(ctx context.Context, r
 	return resp, nil
 }
 
+func (s *budgetRevisionServiceServer) GetLatestBudgetRevision(ctx context.Context, req *gen.GetLatestBudgetRevisionRequest) (*gen.BudgetRevision, error) {
+	var pn gen.BudgetResourceName
+
+	if err := pn.UnmarshalString(req.Parent); err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetRevisionName}
+	}
+
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionRead, authz.OrgDomain(pn.Organization)); err != nil {
+		return nil, authError(err)
+	}
+
+	budget, err := s.budgetRepo.GetByResourceName(ctx, pn.Organization, pn.Budget)
+	if err != nil {
+		if errors.Is(err, repository.ErrOrganizationNotFound) {
+			return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetRevisionName}
+		}
+		if errors.Is(err, repository.ErrBudgetNotFound) {
+			return nil, &ServerError{Err: err, Status: statusBudgetNotFound}
+		}
+		return nil, &ServerError{Err: err, Status: statusFailedGetBudget}
+	}
+
+	m, err := s.repo.GetLatest(ctx, budget.ID)
+	if err != nil {
+		if errors.Is(err, repository.ErrBudgetRevisionNotFound) {
+			return nil, &ServerError{Err: err, Status: statusBudgetRevisionNotFound}
+		}
+		return nil, &ServerError{Err: err, Status: statusFailedGetBudgetRevision}
+	}
+
+	return BudgetRevisionToProto(pn, m), nil
+}
+
 func (s *budgetRevisionServiceServer) CreateBudgetRevision(ctx context.Context, req *gen.CreateBudgetRevisionRequest) (*gen.BudgetRevision, error) {
 	var pn gen.BudgetResourceName
 

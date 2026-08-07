@@ -217,14 +217,6 @@ func (s *budgetServiceServer) UpdateBudget(ctx context.Context, req *gen.UpdateB
 		DisplayDescription: optional.From(req.Budget.DisplayDescription),
 	}
 
-	if req.Budget.PeriodStart != nil {
-		updateParams.PeriodStart = optional.From(protoDateToTime(req.Budget.PeriodStart))
-	}
-
-	if req.Budget.PeriodEnd != nil {
-		updateParams.PeriodEnd = optional.From(protoDateToTime(req.Budget.PeriodEnd))
-	}
-
 	if err := s.repo.Update(ctx, m.ID, updateParams); err != nil {
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateBudget}
 	}

@@ -183,18 +183,6 @@ func newBudgetRevision(db *gorm.DB, opts ...gen.DOOption) budgetRevision {
 			TransactionAssignments struct {
 				field.RelationField
 			}
-			GroupOrganizations struct {
-				field.RelationField
-				UserGroup struct {
-					field.RelationField
-					GroupOrganizations struct {
-						field.RelationField
-					}
-				}
-				Organization struct {
-					field.RelationField
-				}
-			}
 		}{
 			RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization", "model.Organization"),
 			AccountGroupAssignments: struct {
@@ -732,38 +720,6 @@ func newBudgetRevision(db *gorm.DB, opts ...gen.DOOption) budgetRevision {
 			}{
 				RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.TransactionAssignments", "model.TransactionAssignment"),
 			},
-			GroupOrganizations: struct {
-				field.RelationField
-				UserGroup struct {
-					field.RelationField
-					GroupOrganizations struct {
-						field.RelationField
-					}
-				}
-				Organization struct {
-					field.RelationField
-				}
-			}{
-				RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.GroupOrganizations", "model.GroupOrganization"),
-				UserGroup: struct {
-					field.RelationField
-					GroupOrganizations struct {
-						field.RelationField
-					}
-				}{
-					RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.GroupOrganizations.UserGroup", "model.UserGroup"),
-					GroupOrganizations: struct {
-						field.RelationField
-					}{
-						RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.GroupOrganizations.UserGroup.GroupOrganizations", "model.GroupOrganization"),
-					},
-				},
-				Organization: struct {
-					field.RelationField
-				}{
-					RelationField: field.NewRelation("BudgetRevisionAccountValues.Organization.GroupOrganizations.Organization", "model.Organization"),
-				},
-			},
 		},
 		Budget: struct {
 			field.RelationField
@@ -1049,18 +1005,6 @@ type budgetRevisionHasManyBudgetRevisionAccountValues struct {
 		}
 		TransactionAssignments struct {
 			field.RelationField
-		}
-		GroupOrganizations struct {
-			field.RelationField
-			UserGroup struct {
-				field.RelationField
-				GroupOrganizations struct {
-					field.RelationField
-				}
-			}
-			Organization struct {
-				field.RelationField
-			}
 		}
 	}
 	Budget struct {

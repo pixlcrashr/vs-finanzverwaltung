@@ -1,41 +1,30 @@
-import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { Observable, map } from 'rxjs';
 import { UserGroup } from '../../../app/shared/models';
 import {
   GroupEditDataService,
   UpdateGroupInput,
-  PermissionCategory,
 } from '../../../app/routes/admin/groups/group-edit.data-service';
+import { GroupServiceService } from '../../api/services/group-service.service';
+import { mapV1Group } from './group-mapper';
 
 @Injectable()
 export class HttpGroupEditDataService extends GroupEditDataService {
+  private readonly groupService = inject(GroupServiceService);
+
   getGroup(id: string): Observable<UserGroup> {
-    // TODO: No generated API endpoint for user groups.
-    return throwError(() => new Error('User groups API is not yet implemented.'));
+    return this.groupService.GroupServiceGetGroup(`groups/${id}`).pipe(map(mapV1Group));
   }
 
   updateGroup(id: string, input: UpdateGroupInput): Observable<UserGroup> {
-    // TODO: No generated API endpoint for user groups.
-    return throwError(() => new Error('User groups API is not yet implemented.'));
-  }
-
-  getPermissions(): Observable<PermissionCategory[]> {
-    // TODO: No generated API endpoint for permissions.
-    return throwError(() => new Error('Permissions API is not yet implemented.'));
-  }
-
-  getGroupPermissions(groupId: string): Observable<string[]> {
-    // TODO: No generated API endpoint for group permissions.
-    return throwError(() => new Error('Group permissions API is not yet implemented.'));
-  }
-
-  addPermission(groupId: string, permissionId: string): Observable<void> {
-    // TODO: No generated API endpoint for group permissions.
-    return throwError(() => new Error('Group permissions API is not yet implemented.'));
-  }
-
-  removePermission(groupId: string, permissionId: string): Observable<void> {
-    // TODO: No generated API endpoint for group permissions.
-    return throwError(() => new Error('Group permissions API is not yet implemented.'));
+    return this.groupService.GroupServiceUpdateGroup({
+      groupName: `groups/${id}`,
+      group: {
+        display_name: input.name,
+        display_description: input.description,
+        organizations: input.organizations,
+        permissions: input.permissions,
+      },
+    }).pipe(map(mapV1Group));
   }
 }

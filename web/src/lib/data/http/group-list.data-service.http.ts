@@ -1,17 +1,25 @@
-import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { Observable, map } from 'rxjs';
 import { UserGroup } from '../../../app/shared/models';
 import { GroupListDataService } from '../../../app/routes/admin/groups/group-list.data-service';
+import { GroupServiceService } from '../../api/services/group-service.service';
+import { mapV1Group } from './group-mapper';
 
 @Injectable()
 export class HttpGroupListDataService extends GroupListDataService {
+  private readonly groupService = inject(GroupServiceService);
+
   getGroups(): Observable<UserGroup[]> {
-    // TODO: No generated API endpoint for user groups.
-    return throwError(() => new Error('User groups API is not yet implemented.'));
+    return this.groupService.GroupServiceListGroups({ pageSize: 100 }).pipe(
+      map((resp) => {
+        return (resp.groups ?? []).map(mapV1Group);
+      }),
+    );
   }
 
   deleteGroup(id: string): Observable<void> {
-    // TODO: No generated API endpoint for user groups.
-    return throwError(() => new Error('User groups API is not yet implemented.'));
+    return this.groupService.GroupServiceDeleteGroup(`groups/${id}`).pipe(
+      map(() => void 0),
+    );
   }
 }

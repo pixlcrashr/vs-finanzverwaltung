@@ -8,12 +8,12 @@ import {
 import { Router } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
 import {
-  PageContentLayoutComponent,
-  BreadcrumbItem,
   LoadingSpinnerComponent,
   EmptyStateComponent,
   NotificationService,
   ButtonComponent,
+  AdminContentHeaderComponent,
+  AdminContentComponent,
 } from '../../../shared/components';
 import { Organization } from '../../../shared/models';
 import { OrganizationListDataService } from './organization-list.data-service';
@@ -26,18 +26,20 @@ import {
   selector: 'app-organization-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    PageContentLayoutComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
     ButtonComponent,
+    AdminContentHeaderComponent,
+    AdminContentComponent,
   ],
   template: `
-    <app-page-content-layout [breadcrumbs]="breadcrumbs">
-      <app-button layout-header-actions (clicked)="openCreateDialog()">
-        <ng-container i18n>Hinzufügen</ng-container>
-      </app-button>
-
-      <div layout-content class="flex flex-1 justify-center">
+    <div class="flex flex-col h-full min-h-0">
+      <app-admin-content-header i18n-title title="Organisationen">
+        <app-button (clicked)="openCreateDialog()">
+          <ng-container i18n>Hinzufügen</ng-container>
+        </app-button>
+      </app-admin-content-header>
+      <app-admin-content>
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Organisationen werden geladen..." />
         } @else if (organizations().length === 0) {
@@ -94,8 +96,8 @@ import {
             </div>
           </div>
         }
-      </div>
-    </app-page-content-layout>
+      </app-admin-content>
+    </div>
   `,
 })
 export class OrganizationListComponent implements OnInit {
@@ -106,11 +108,6 @@ export class OrganizationListComponent implements OnInit {
 
   readonly loading = signal(true);
   readonly organizations = signal<Organization[]>([]);
-
-  readonly breadcrumbs: BreadcrumbItem[] = [
-    { label: $localize`Administration` },
-    { label: $localize`Organisationen` },
-  ];
 
   ngOnInit(): void {
     this.loadOrganizations();

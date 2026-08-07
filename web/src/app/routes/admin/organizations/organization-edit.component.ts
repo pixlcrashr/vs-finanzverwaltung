@@ -11,11 +11,11 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
 import {
-  PageContentLayoutComponent,
-  BreadcrumbItem,
   LoadingSpinnerComponent,
   NotificationService,
   ButtonComponent,
+  AdminContentHeaderComponent,
+  AdminContentComponent,
 } from '../../../shared/components';
 import { Organization } from '../../../shared/models';
 import { OrganizationEditDataService } from './organization-edit.data-service';
@@ -25,13 +25,16 @@ import { OrganizationEditDataService } from './organization-edit.data-service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
-    PageContentLayoutComponent,
     LoadingSpinnerComponent,
     ButtonComponent,
+    AdminContentHeaderComponent,
+    AdminContentComponent,
   ],
   template: `
-    <app-page-content-layout [breadcrumbs]="breadcrumbs()">
-      <div layout-content class="flex flex-1 justify-center">
+    <div class="flex flex-col h-full min-h-0">
+      <app-admin-content-header i18n-title title="Organisation bearbeiten">
+      </app-admin-content-header>
+      <app-admin-content>
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Organisation wird geladen..." />
         } @else if (organization()) {
@@ -122,8 +125,8 @@ import { OrganizationEditDataService } from './organization-edit.data-service';
             </div>
           </div>
         }
-      </div>
-    </app-page-content-layout>
+      </app-admin-content>
+    </div>
   `,
 })
 export class OrganizationEditComponent implements OnInit, OnDestroy {
@@ -139,11 +142,6 @@ export class OrganizationEditComponent implements OnInit, OnDestroy {
   readonly saving = signal(false);
   readonly deleting = signal(false);
   readonly organization = signal<Organization | null>(null);
-  readonly breadcrumbs = signal<BreadcrumbItem[]>([
-    { label: $localize`Administration` },
-    { label: $localize`Organisationen`, path: '/admin/organizations' },
-    { label: $localize`Laden...` },
-  ]);
 
   readonly organizationForm: FormGroup;
 
@@ -189,11 +187,6 @@ export class OrganizationEditComponent implements OnInit, OnDestroy {
           description: org.description ?? '',
         }, { emitEvent: false });
         this.organizationForm.markAsPristine();
-        this.breadcrumbs.set([
-          { label: $localize`Administration` },
-          { label: $localize`Organisationen`, path: '/admin/organizations' },
-          { label: org.name },
-        ]);
         this.loading.set(false);
       },
       error: () => {
@@ -217,12 +210,6 @@ export class OrganizationEditComponent implements OnInit, OnDestroy {
       next: () => {
         this.saving.set(false);
         this.organizationForm.markAsPristine();
-        // Update breadcrumbs with new name
-        this.breadcrumbs.set([
-          { label: $localize`Administration` },
-          { label: $localize`Organisationen`, path: '/admin/organizations' },
-          { label: name.trim() },
-        ]);
       },
       error: () => {
         this.notifications.error($localize`Fehler beim Speichern der Organisation`);

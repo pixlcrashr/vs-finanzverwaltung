@@ -47,6 +47,7 @@ import { MockCurrentUserService } from '../lib/data/mock/current-user.service.mo
 export const environment = {
   production: false,
   apiBaseUrl: '',
+  oauthIssuer: 'http://127.0.0.1:8080',
   dataServices: {
     accountGroupList: MockAccountGroupListDataService,
     accountGroupEdit: MockAccountGroupEditDataService,

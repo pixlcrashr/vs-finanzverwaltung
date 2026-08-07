@@ -16,6 +16,7 @@ class BudgetRevisionServiceService extends __BaseService {
   static readonly BudgetRevisionServiceGetBudgetRevisionPath = '/v1/{name_6}';
   static readonly BudgetRevisionServiceListBudgetRevisionsPath = '/v1/{parent}/revisions';
   static readonly BudgetRevisionServiceCreateBudgetRevisionPath = '/v1/{parent}/revisions';
+  static readonly BudgetRevisionServiceGetLatestBudgetRevisionPath = '/v1/{parent}/revisions:getLatest';
 
   constructor(
     config: __Configuration,
@@ -211,6 +212,58 @@ class BudgetRevisionServiceService extends __BaseService {
    */
   BudgetRevisionServiceCreateBudgetRevision(params: BudgetRevisionServiceService.BudgetRevisionServiceCreateBudgetRevisionParams): __Observable<V1BudgetRevision> {
     return this.BudgetRevisionServiceCreateBudgetRevisionResponse(params).pipe(
+      __map(_r => _r.body as V1BudgetRevision)
+    );
+  }
+
+  /**
+   * Gets the most recently created revision for a budget.
+   * Returns the latest revision ordered by create_time descending.
+   * Returns an empty response (no revision) if no revisions exist.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: budgets:read
+   *   Domain: organization-scoped
+   * @param parent The parent budget resource name.
+   * Format: organizations/{organization}/budgets/{budget}
+   * @return A successful response.
+   */
+  BudgetRevisionServiceGetLatestBudgetRevisionResponse(parent: string): __Observable<__StrictHttpResponse<V1BudgetRevision>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    let req = new HttpRequest<any>(
+      'GET',
+      this.rootUrl + `/v1/${encodeURIComponent(String(parent))}/revisions:getLatest`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<V1BudgetRevision>;
+      })
+    );
+  }
+  /**
+   * Gets the most recently created revision for a budget.
+   * Returns the latest revision ordered by create_time descending.
+   * Returns an empty response (no revision) if no revisions exist.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: budgets:read
+   *   Domain: organization-scoped
+   * @param parent The parent budget resource name.
+   * Format: organizations/{organization}/budgets/{budget}
+   * @return A successful response.
+   */
+  BudgetRevisionServiceGetLatestBudgetRevision(parent: string): __Observable<V1BudgetRevision> {
+    return this.BudgetRevisionServiceGetLatestBudgetRevisionResponse(parent).pipe(
       __map(_r => _r.body as V1BudgetRevision)
     );
   }

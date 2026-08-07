@@ -117,8 +117,8 @@ import { BudgetEditDataService, BudgetDetails } from './budget-edit.data-service
                             id="startDate"
                             type="date"
                             formControlName="startDate"
-                            [readonly]="budget()!.isClosed"
-                            class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                            [disabled]="true"
+                            class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-gray-50 text-gray-500 cursor-not-allowed"
                           />
                         </div>
 
@@ -133,8 +133,8 @@ import { BudgetEditDataService, BudgetDetails } from './budget-edit.data-service
                             id="endDate"
                             type="date"
                             formControlName="endDate"
-                            [readonly]="budget()!.isClosed"
-                            class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                            [disabled]="true"
+                            class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-gray-50 text-gray-500 cursor-not-allowed"
                           />
                         </div>
                       </div>
@@ -194,7 +194,7 @@ import { BudgetEditDataService, BudgetDetails } from './budget-edit.data-service
                               {{ tag.name }}
                             </p>
                             <p class="text-xs text-gray-500">
-                              {{ tag.description || noDescriptionLabel }}
+                              {{ formatDateShort(tag.date) }} · {{ tag.description || noDescriptionLabel }}
                             </p>
                           </div>
                           <div class="flex items-center gap-2">
@@ -415,8 +415,6 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
     const {
       name,
       description,
-      startDate,
-      endDate,
       publishCurrentTargetValuesAlways,
       publishCurrentActualValuesAlways,
     } = this.budgetForm.value;
@@ -427,8 +425,6 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
         budget.id,
         name,
         description,
-        new Date(startDate),
-        new Date(endDate),
         publishCurrentTargetValuesAlways,
         publishCurrentActualValuesAlways
       )

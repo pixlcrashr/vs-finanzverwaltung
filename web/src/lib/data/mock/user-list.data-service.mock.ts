@@ -14,9 +14,9 @@ export class MockUserListDataService extends UserListDataService {
 
   private generateUsers(): User[] {
     const groups = [
-      { id: 'g1', name: 'Administratoren', description: 'Voller Zugriff', createdAt: faker.date.past({ years: 2 }), updatedAt: faker.date.recent() },
-      { id: 'g2', name: 'Finanzvorstand', description: 'Finanzverwaltung', createdAt: faker.date.past({ years: 2 }), updatedAt: faker.date.recent() },
-      { id: 'g3', name: 'Kassenprüfer', description: 'Nur Lesezugriff', createdAt: faker.date.past({ years: 2 }), updatedAt: faker.date.recent() },
+      { id: 'g1', customId: 'g1', name: 'Administratoren', description: 'Voller Zugriff', organizations: ['*'], permissions: [], createdAt: faker.date.past({ years: 2 }), updatedAt: faker.date.recent() },
+      { id: 'g2', customId: 'g2', name: 'Finanzvorstand', description: 'Finanzverwaltung', organizations: ['*'], permissions: [], createdAt: faker.date.past({ years: 2 }), updatedAt: faker.date.recent() },
+      { id: 'g3', customId: 'g3', name: 'Kassenprüfer', description: 'Nur Lesezugriff', organizations: ['*'], permissions: [], createdAt: faker.date.past({ years: 2 }), updatedAt: faker.date.recent() },
     ];
 
     return Array.from({ length: 8 }, () => ({

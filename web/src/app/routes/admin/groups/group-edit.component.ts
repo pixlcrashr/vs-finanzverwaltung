@@ -12,26 +12,31 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
 import {
-  PageContentLayoutComponent,
-  BreadcrumbItem,
   LoadingSpinnerComponent,
   NotificationService,
+  AdminContentHeaderComponent,
+  AdminContentComponent,
 } from '../../../shared/components';
 import { formatDateShort } from '../../../shared/utils';
-import { UserGroup } from '../../../shared/models';
-import { GroupEditDataService, PermissionCategory } from './group-edit.data-service';
+import { UserGroup, Organization } from '../../../shared/models';
+import { GroupEditDataService } from './group-edit.data-service';
+import { PermissionCatalogService, PermissionCategory } from '../../../shared/services/permission-catalog.service';
+import { OrganizationListDataService } from '../organizations/organization-list.data-service';
 
 @Component({
   selector: 'app-group-edit',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
-    PageContentLayoutComponent,
     LoadingSpinnerComponent,
+    AdminContentHeaderComponent,
+    AdminContentComponent,
   ],
   template: `
-    <app-page-content-layout [breadcrumbs]="breadcrumbs()">
-      <div layout-content class="flex flex-1 justify-center">
+    <div class="flex flex-col h-full min-h-0">
+      <app-admin-content-header i18n-title title="Gruppe bearbeiten">
+      </app-admin-content-header>
+      <app-admin-content>
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Gruppe wird geladen..." />
         } @else if (group()) {
@@ -89,21 +94,53 @@ import { GroupEditDataService, PermissionCategory } from './group-edit.data-serv
                   </form>
                 </div>
 
+                <!-- Organizations Section -->
+                <div class="bg-white rounded-lg border border-gray-200 p-4">
+                  <div class="flex items-center justify-between mb-4">
+                    <h2 i18n class="text-sm font-semibold text-gray-900">
+                      Organisationen
+                    </h2>
+                  </div>
+
+                  @if (organizations().length === 0) {
+                    <p i18n class="text-xs text-gray-500">Keine Organisationen vorhanden.</p>
+                  } @else {
+                    <div class="space-y-2">
+                      <label class="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          [checked]="isAllOrganizations()"
+                          (change)="toggleAllOrganizations($event)"
+                          class="h-4 w-4 shrink-0 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span class="text-sm font-medium text-gray-900" i18n>Alle Organisationen (*)</span>
+                      </label>
+
+                      @if (!isAllOrganizations()) {
+                        <div class="space-y-1 pl-6 border-l border-gray-200 ml-2">
+                          @for (org of organizations(); track org.id) {
+                            <label class="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                [checked]="isOrganizationAssigned(org.id)"
+                                (change)="toggleOrganization(org.id, $event)"
+                                class="h-4 w-4 shrink-0 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                              />
+                              <span class="text-sm text-gray-900">{{ org.name }}</span>
+                            </label>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+
                 <!-- Permissions Section -->
                 <div class="bg-white rounded-lg border border-gray-200 p-4">
                   <div class="flex items-center justify-between mb-4">
                     <h2 i18n class="text-sm font-semibold text-gray-900">
                       Berechtigungen
                     </h2>
-                    @if (savingPermissions()) {
-                      <span class="text-xs text-gray-500 flex items-center gap-1">
-                        <svg class="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <ng-container i18n>Speichern...</ng-container>
-                      </span>
-                    }
                   </div>
 
                   @if (permissionCategories().length === 0) {
@@ -160,8 +197,8 @@ import { GroupEditDataService, PermissionCategory } from './group-edit.data-serv
             </div>
           </div>
         }
-      </div>
-    </app-page-content-layout>
+      </app-admin-content>
+    </div>
   `,
 })
 export class GroupEditComponent implements OnInit, OnDestroy {
@@ -169,23 +206,22 @@ export class GroupEditComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly dataService = inject(GroupEditDataService);
+  private readonly permissionCatalog = inject(PermissionCatalogService);
+  private readonly orgListDataService = inject(OrganizationListDataService);
   private readonly notifications = inject(NotificationService);
 
   private readonly destroy$ = new Subject<void>();
 
   readonly loading = signal(true);
   readonly saving = signal(false);
-  private readonly pendingPermissionSaves = signal(0);
-  readonly savingPermissions = computed(() => this.pendingPermissionSaves() > 0);
   readonly group = signal<UserGroup | null>(null);
   readonly permissionCategories = signal<PermissionCategory[]>([]);
+  readonly organizations = signal<Organization[]>([]);
   readonly assignedPermissionIds = signal<Set<string>>(new Set());
+  readonly assignedOrgIds = signal<Set<string>>(new Set());
+  readonly allOrganizations = signal(false);
 
-  readonly breadcrumbs = signal<BreadcrumbItem[]>([
-    { label: $localize`Administration` },
-    { label: $localize`Gruppen`, path: '/admin/groups' },
-    { label: $localize`Laden...` },
-  ]);
+  readonly isAllOrganizations = computed(() => this.allOrganizations());
 
   readonly groupForm: FormGroup;
 
@@ -202,6 +238,7 @@ export class GroupEditComponent implements OnInit, OnDestroy {
     this.groupId = this.route.snapshot.paramMap.get('id') || '';
     if (this.groupId) {
       this.loadGroup();
+      this.loadOrganizations();
       this.loadPermissions();
       this.setupAutoSave();
     }
@@ -232,17 +269,42 @@ export class GroupEditComponent implements OnInit, OnDestroy {
           description: group.description ?? '',
         }, { emitEvent: false });
         this.groupForm.markAsPristine();
-        this.breadcrumbs.set([
-          { label: $localize`Administration` },
-          { label: $localize`Gruppen`, path: '/admin/groups' },
-          { label: group.name },
-        ]);
+
+        // Load assigned permissions and organizations from the group.
+        this.assignedPermissionIds.set(new Set(group.permissions));
+
+        // Check if wildcard is set, otherwise parse org IDs.
+        if (group.organizations.includes('*')) {
+          this.allOrganizations.set(true);
+          this.assignedOrgIds.set(new Set());
+        } else {
+          this.allOrganizations.set(false);
+          const orgIds = group.organizations
+            .map((rn) => this.extractOrgId(rn))
+            .filter((id) => id !== '');
+          this.assignedOrgIds.set(new Set(orgIds));
+        }
+
         this.loading.set(false);
       },
       error: () => {
         this.notifications.error($localize`Fehler beim Laden der Gruppe`);
         this.loading.set(false);
         this.router.navigate(['/admin/groups']);
+      },
+    });
+  }
+
+  private loadOrganizations(): void {
+    this.orgListDataService.getOrganizations().subscribe({
+      next: (orgs) => this.organizations.set(orgs),
+    });
+  }
+
+  private loadPermissions(): void {
+    this.permissionCatalog.getPermissionCategories().subscribe({
+      next: (categories) => {
+        this.permissionCategories.set(categories);
       },
     });
   }
@@ -256,16 +318,13 @@ export class GroupEditComponent implements OnInit, OnDestroy {
     this.dataService.updateGroup(this.groupId, {
       name: name.trim(),
       description: description.trim(),
+      organizations: this.buildOrganizationsList(),
+      permissions: Array.from(this.assignedPermissionIds()),
     }).subscribe({
-      next: () => {
+      next: (updated) => {
         this.saving.set(false);
         this.groupForm.markAsPristine();
-        // Update breadcrumbs with new name
-        this.breadcrumbs.set([
-          { label: $localize`Administration` },
-          { label: $localize`Gruppen`, path: '/admin/groups' },
-          { label: name.trim() },
-        ]);
+        this.group.set(updated);
       },
       error: () => {
         this.notifications.error($localize`Fehler beim Speichern der Gruppe`);
@@ -274,19 +333,16 @@ export class GroupEditComponent implements OnInit, OnDestroy {
     });
   }
 
-  private loadPermissions(): void {
-    this.dataService.getPermissions().subscribe({
-      next: (categories) => {
-        this.permissionCategories.set(categories);
-        this.loadGroupPermissions();
-      },
-    });
+  private buildOrganizationsList(): string[] {
+    if (this.allOrganizations()) {
+      return ['*'];
+    }
+    return Array.from(this.assignedOrgIds()).map((id) => `organizations/${id}`);
   }
 
-  private loadGroupPermissions(): void {
-    this.dataService.getGroupPermissions(this.groupId).subscribe({
-      next: (ids) => this.assignedPermissionIds.set(new Set(ids)),
-    });
+  private extractOrgId(resourceName: string): string {
+    const parts = resourceName.split('/');
+    return parts.length >= 2 ? parts[parts.length - 1] : resourceName;
   }
 
   isPermissionAssigned(permissionId: string): boolean {
@@ -304,29 +360,34 @@ export class GroupEditComponent implements OnInit, OnDestroy {
       }
       return next;
     });
+    this.saveGroup();
+  }
 
-    this.pendingPermissionSaves.update(n => n + 1);
-    const request$ = checked
-      ? this.dataService.addPermission(this.groupId, permissionId)
-      : this.dataService.removePermission(this.groupId, permissionId);
+  isOrganizationAssigned(orgId: string): boolean {
+    return this.assignedOrgIds().has(orgId);
+  }
 
-    request$.subscribe({
-      next: () => this.pendingPermissionSaves.update(n => n - 1),
-      error: () => {
-        this.notifications.error($localize`Fehler beim Speichern der Berechtigung`);
-        // Revert optimistic update
-        this.assignedPermissionIds.update((ids) => {
-          const next = new Set(ids);
-          if (checked) {
-            next.delete(permissionId);
-          } else {
-            next.add(permissionId);
-          }
-          return next;
-        });
-        this.pendingPermissionSaves.update(n => n - 1);
-      },
+  toggleOrganization(orgId: string, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.assignedOrgIds.update((ids) => {
+      const next = new Set(ids);
+      if (checked) {
+        next.add(orgId);
+      } else {
+        next.delete(orgId);
+      }
+      return next;
     });
+    this.saveGroup();
+  }
+
+  toggleAllOrganizations(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.allOrganizations.set(checked);
+    if (checked) {
+      this.assignedOrgIds.set(new Set());
+    }
+    this.saveGroup();
   }
 
   formatDate(date: Date): string {

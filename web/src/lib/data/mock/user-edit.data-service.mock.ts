@@ -12,15 +12,15 @@ export class MockUserEditDataService extends UserEditDataService {
     email: faker.internet.email(),
     image: faker.image.avatar(),
     groups: [
-      { id: 'g2', name: 'Finanzvorstand', description: 'Finanzverwaltung', createdAt: new Date('2024-02-10'), updatedAt: new Date('2024-03-15') },
+      { id: 'g2', customId: 'g2', name: 'Finanzvorstand', description: 'Finanzverwaltung', organizations: ['*'], permissions: [], createdAt: new Date('2024-02-10'), updatedAt: new Date('2024-03-15') },
     ],
   };
 
   private availableGroups: UserGroup[] = [
-    { id: 'g1', name: 'Administratoren', description: 'Voller Zugriff auf alle Funktionen', createdAt: new Date('2024-01-15'), updatedAt: new Date('2024-03-20') },
-    { id: 'g2', name: 'Finanzvorstand', description: 'Kann Haushalte und Buchungen verwalten', createdAt: new Date('2024-02-10'), updatedAt: new Date('2024-03-15') },
-    { id: 'g3', name: 'Kassenprüfer', description: 'Nur Lesezugriff für Prüfungen', createdAt: new Date('2024-01-20'), updatedAt: new Date('2024-02-28') },
-    { id: 'g4', name: 'Referatsleitung', description: 'Zugriff auf Referatsbudgets', createdAt: new Date('2024-03-01'), updatedAt: new Date('2024-03-25') },
+    { id: 'g1', customId: 'g1', name: 'Administratoren', description: 'Voller Zugriff auf alle Funktionen', organizations: ['*'], permissions: [], createdAt: new Date('2024-01-15'), updatedAt: new Date('2024-03-20') },
+    { id: 'g2', customId: 'g2', name: 'Finanzvorstand', description: 'Kann Haushalte und Buchungen verwalten', organizations: ['*'], permissions: [], createdAt: new Date('2024-02-10'), updatedAt: new Date('2024-03-15') },
+    { id: 'g3', customId: 'g3', name: 'Kassenprüfer', description: 'Nur Lesezugriff für Prüfungen', organizations: ['*'], permissions: [], createdAt: new Date('2024-01-20'), updatedAt: new Date('2024-02-28') },
+    { id: 'g4', customId: 'g4', name: 'Referatsleitung', description: 'Zugriff auf Referatsbudgets', organizations: ['*'], permissions: [], createdAt: new Date('2024-03-01'), updatedAt: new Date('2024-03-25') },
   ];
 
   getUser(id: string): Observable<User> {

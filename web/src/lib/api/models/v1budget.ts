@@ -33,12 +33,12 @@ export interface V1Budget {
   name?: string;
 
   /**
-   * Budget period end date.
+   * Budget period end date. Immutable after creation.
    */
   period_end: TypeDate;
 
   /**
-   * Budget period start date.
+   * Budget period start date. Immutable after creation.
    */
   period_start: TypeDate;
 

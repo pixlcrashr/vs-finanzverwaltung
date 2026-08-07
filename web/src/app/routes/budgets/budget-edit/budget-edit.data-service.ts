@@ -24,8 +24,6 @@ export abstract class BudgetEditDataService {
     budgetId: string,
     name: string,
     description: string,
-    startDate: Date,
-    endDate: Date,
     publishCurrentTargetValuesAlways: boolean,
     publishCurrentActualValuesAlways: boolean
   ): Observable<void>;

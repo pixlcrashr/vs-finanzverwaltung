@@ -24,8 +24,6 @@ export class MockBudgetEditDataService extends BudgetEditDataService {
     id: string,
     name: string,
     description: string,
-    startDate: Date,
-    endDate: Date,
     publishCurrentTargetValuesAlways: boolean,
     publishCurrentActualValuesAlways: boolean
   ): Observable<void> {
@@ -34,11 +32,8 @@ export class MockBudgetEditDataService extends BudgetEditDataService {
     if (data) {
       data.budget.displayName = name;
       data.budget.displayDescription = description;
-      data.budget.periodStart = startDate;
-      data.budget.periodEnd = endDate;
       data.budget.publishCurrentTargetValuesAlways = publishCurrentTargetValuesAlways;
       data.budget.publishCurrentActualValuesAlways = publishCurrentActualValuesAlways;
-      // Changes are account-based and computed by the server
     }
     return of(undefined).pipe(delay(300));
   }

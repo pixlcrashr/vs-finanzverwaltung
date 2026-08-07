@@ -8,9 +8,15 @@ export interface User {
 
 export interface UserGroup {
   id: string;
+  customId: string;
   name: string;
   description: string | null;
   isActive?: boolean;
+  isSystem?: boolean;
+  /** Organization resource names (e.g. "organizations/{id}") or "*" for all. */
+  organizations: string[];
+  /** Permission strings in "resource:action" format. */
+  permissions: string[];
   createdAt: Date;
   updatedAt: Date;
 }

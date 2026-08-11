@@ -30,17 +30,35 @@ export interface V1Budget {
    * Whether the budget is closed (no further modifications allowed).
    */
   is_closed?: boolean;
+
+  /**
+   * Whether the budget is published. Only published budgets allow their
+   * revisions to be published.
+   */
+  is_published?: boolean;
   name?: string;
 
   /**
-   * Budget period end date.
+   * Budget period end date. Immutable after creation.
    */
   period_end: TypeDate;
 
   /**
-   * Budget period start date.
+   * Budget period start date. Immutable after creation.
    */
   period_start: TypeDate;
+
+  /**
+   * Whether current actual (Ist) account values are publicly visible.
+   */
+  publish_actual_values?: boolean;
+
+  /**
+   * Optional date until which current actual values are publicly visible.
+   * Must lie within the budget period. If unset, the end of the budget period
+   * is assumed.
+   */
+  publish_actual_values_until?: TypeDate;
 
   /**
    * The UUID of the budget.

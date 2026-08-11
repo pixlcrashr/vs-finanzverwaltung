@@ -8,10 +8,10 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
-  PageContentLayoutComponent,
-  BreadcrumbItem,
   LoadingSpinnerComponent,
   NotificationService,
+  AdminContentHeaderComponent,
+  AdminContentComponent,
 } from '../../../shared/components';
 import { User, UserGroup } from '../../../shared/models';
 import { UserEditDataService } from './user-edit.data-service';
@@ -20,12 +20,15 @@ import { UserEditDataService } from './user-edit.data-service';
   selector: 'app-user-edit',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    PageContentLayoutComponent,
     LoadingSpinnerComponent,
+    AdminContentHeaderComponent,
+    AdminContentComponent,
   ],
   template: `
-    <app-page-content-layout [breadcrumbs]="breadcrumbs">
-      <div layout-content class="flex flex-1 justify-center">
+    <div class="flex flex-col h-full min-h-0">
+      <app-admin-content-header i18n-title title="Benutzer bearbeiten">
+      </app-admin-content-header>
+      <app-admin-content>
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Benutzer wird geladen..." />
         } @else if (user()) {
@@ -111,8 +114,8 @@ import { UserEditDataService } from './user-edit.data-service';
             </div>
           </div>
         }
-      </div>
-    </app-page-content-layout>
+      </app-admin-content>
+    </div>
   `,
 })
 export class UserEditComponent implements OnInit {
@@ -125,12 +128,6 @@ export class UserEditComponent implements OnInit {
   readonly savingGroup = computed(() => this.pendingGroupSaves() > 0);
   readonly user = signal<User | null>(null);
   readonly allGroups = signal<UserGroup[]>([]);
-
-  readonly breadcrumbs: BreadcrumbItem[] = [
-    { label: $localize`Administration` },
-    { label: $localize`Benutzer`, path: '/admin/users' },
-    { label: $localize`Bearbeiten` },
-  ];
 
   private userId = '';
 

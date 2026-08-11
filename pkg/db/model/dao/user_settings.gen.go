@@ -31,6 +31,7 @@ func newUserSettings(db *gorm.DB, opts ...gen.DOOption) userSettings {
 	_userSettings.UserID = field.NewField(tableName, "user_id")
 	_userSettings.Locale = field.NewString(tableName, "locale")
 	_userSettings.Theme = field.NewString(tableName, "theme")
+	_userSettings.EmailNotifications = field.NewBool(tableName, "email_notifications")
 	_userSettings.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_userSettings.User = userSettingsBelongsToUser{
 		db: db.Session(&gorm.Session{}),
@@ -59,13 +60,14 @@ func newUserSettings(db *gorm.DB, opts ...gen.DOOption) userSettings {
 type userSettings struct {
 	userSettingsDo userSettingsDo
 
-	ALL       field.Asterisk
-	ID        field.Field
-	UserID    field.Field
-	Locale    field.String
-	Theme     field.String
-	UpdatedAt field.Time
-	User      userSettingsBelongsToUser
+	ALL                field.Asterisk
+	ID                 field.Field
+	UserID             field.Field
+	Locale             field.String
+	Theme              field.String
+	EmailNotifications field.Bool
+	UpdatedAt          field.Time
+	User               userSettingsBelongsToUser
 
 	fieldMap map[string]field.Expr
 }
@@ -86,6 +88,7 @@ func (u *userSettings) updateTableName(table string) *userSettings {
 	u.UserID = field.NewField(table, "user_id")
 	u.Locale = field.NewString(table, "locale")
 	u.Theme = field.NewString(table, "theme")
+	u.EmailNotifications = field.NewBool(table, "email_notifications")
 	u.UpdatedAt = field.NewTime(table, "updated_at")
 
 	u.fillFieldMap()
@@ -115,11 +118,12 @@ func (u *userSettings) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (u *userSettings) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 6)
+	u.fieldMap = make(map[string]field.Expr, 7)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["user_id"] = u.UserID
 	u.fieldMap["locale"] = u.Locale
 	u.fieldMap["theme"] = u.Theme
+	u.fieldMap["email_notifications"] = u.EmailNotifications
 	u.fieldMap["updated_at"] = u.UpdatedAt
 
 }

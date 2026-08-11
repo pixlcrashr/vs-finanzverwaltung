@@ -1,8 +1,11 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, of, map, expand, reduce, EMPTY, forkJoin, switchMap } from 'rxjs';
 import { AccountServiceService } from '../../api/services/account-service.service';
 import { BudgetServiceService } from '../../api/services/budget-service.service';
 import { TransactionServiceService } from '../../api/services/transaction-service.service';
+import { TransactionAssignmentServiceService } from '../../api/services/transaction-assignment-service.service';
+import { V1ListTransactionsResponse } from '../../api/models/v1list-transactions-response';
+import { V1Transaction } from '../../api/models/v1transaction';
 import {
   AccountCompareDataService,
   BudgetOption,
@@ -16,6 +19,7 @@ export class HttpAccountCompareDataService extends AccountCompareDataService {
   private readonly accountSvc = inject(AccountServiceService);
   private readonly budgetSvc = inject(BudgetServiceService);
   private readonly txnSvc = inject(TransactionServiceService);
+  private readonly assignmentSvc = inject(TransactionAssignmentServiceService);
 
   listBudgets(organizationId: string): Observable<BudgetOption[]> {
     return this.budgetSvc.BudgetServiceListBudgets({ parent: `organizations/${organizationId}`, pageSize: 100 }).pipe(
@@ -44,17 +48,68 @@ export class HttpAccountCompareDataService extends AccountCompareDataService {
 
   listTransactions(
     organizationId: string,
-    _budgetId: string,
-    _accountId: string,
+    budgetId: string,
+    accountId: string,
   ): Observable<CompareAccountTransaction[]> {
-    return this.txnSvc.TransactionServiceListTransactions({ parent: `organizations/${organizationId}`, pageSize: 100 }).pipe(
-      map((resp) =>
-        (resp.transactions ?? []).map((t) => ({
+    const orgParent = `organizations/${organizationId}`;
+    const accountName = `${orgParent}/accounts/${accountId}`;
+    const budgetName = `${orgParent}/budgets/${budgetId}`;
+
+    return this.budgetSvc.BudgetServiceGetBudget(budgetName).pipe(
+      switchMap((budget) => {
+        const periodStart = typeDateToDate(budget.period_start);
+        const periodEnd = typeDateToDate(budget.period_end);
+        const startFilter = periodStart.toISOString();
+        const endFilter = periodEnd.toISOString();
+        const filterExpr = `booked_at>="${startFilter}" AND booked_at<="${endFilter}"`;
+
+        return this.txnSvc.TransactionServiceListTransactions({
+          parent: orgParent,
+          pageSize: 100,
+          filter: filterExpr,
+        }).pipe(
+          expand((resp: V1ListTransactionsResponse) =>
+            resp.next_page_token
+              ? this.txnSvc.TransactionServiceListTransactions({
+                  parent: orgParent,
+                  pageSize: 100,
+                  filter: filterExpr,
+                  pageToken: resp.next_page_token,
+                })
+              : EMPTY,
+          ),
+          reduce((all: V1Transaction[], resp: V1ListTransactionsResponse) =>
+            all.concat(resp.transactions ?? []), []),
+        );
+      }),
+      switchMap((transactions) => {
+        if (transactions.length === 0) return of([]);
+
+        return forkJoin(
+          transactions.map((t) => {
+            const txnName = t.name ?? `${orgParent}/transactions/${t.uid}`;
+            return this.assignmentSvc.TransactionAssignmentServiceListTransactionAssignments({
+              parent1: txnName,
+              pageSize: 100,
+              filter: `account="${accountName}"`,
+            }).pipe(
+              map((assignmentResp) => ({
+                transaction: t,
+                hasAssignment: (assignmentResp.assignments ?? []).length > 0,
+              })),
+            );
+          }),
+        ).pipe(
+          map((results) => results.filter((r) => r.hasAssignment).map((r) => r.transaction)),
+        );
+      }),
+      map((transactions) =>
+        transactions.map((t) => ({
           id: t.uid ?? '',
           documentDate: new Date(t.document_date),
           amount: t.amount?.value ?? '',
-          debitAccountCode: '',
-          creditAccountCode: '',
+          debitAccountCode: t.debit_ledger_account,
+          creditAccountCode: t.credit_ledger_account,
           description: t.description ?? '',
         })),
       ),

@@ -39,7 +39,7 @@ export class MockAccountEditDataService extends AccountEditDataService {
   }
 
   listParentAccounts(organizationId: string): Observable<Account[]> {
-    return of(this.accounts.filter((a) => a.depth === 0)).pipe(delay(200));
+    return of(this.accounts.filter((a) => !a.parentAccountId)).pipe(delay(200));
   }
 
   private generateAccounts(): AccountDetails[] {
@@ -52,9 +52,9 @@ export class MockAccountEditDataService extends AccountEditDataService {
         name: 'Einnahmen',
         description: 'Alle Einnahmen',
         depth: 0,
+        childrenCount: 1,
         isArchived: false,
         parentAccountId: null,
-        children: [],
         createdAt: new Date(now.getFullYear() - 1, 0, 1),
         updatedAt: now,
       },
@@ -65,9 +65,9 @@ export class MockAccountEditDataService extends AccountEditDataService {
         name: 'Mitgliedsbeiträge',
         description: 'Einnahmen aus Mitgliedsbeiträgen',
         depth: 1,
+        childrenCount: 0,
         isArchived: false,
         parentAccountId: null,
-        children: [],
         createdAt: new Date(now.getFullYear() - 1, 0, 1),
         updatedAt: now,
       },
@@ -78,9 +78,9 @@ export class MockAccountEditDataService extends AccountEditDataService {
         name: 'Ausgaben',
         description: 'Alle Ausgaben',
         depth: 0,
+        childrenCount: 0,
         isArchived: false,
         parentAccountId: null,
-        children: [],
         createdAt: new Date(now.getFullYear() - 1, 0, 1),
         updatedAt: now,
       },

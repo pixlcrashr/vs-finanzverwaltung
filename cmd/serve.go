@@ -27,7 +27,7 @@ var serveCmd = &cobra.Command{
 The server connects to the configured PostgreSQL database and listens for
 incoming HTTP requests. It shuts down gracefully on SIGINT or SIGTERM.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		gormDB, err := db.Connect(config.Database.URL)
+		gormDB, err := db.Connect(config.Database.DSN)
 		if err != nil {
 			return fmt.Errorf("connecting to database: %w", err)
 		}
@@ -58,7 +58,7 @@ incoming HTTP requests. It shuts down gracefully on SIGINT or SIGTERM.`,
 		sessionRepo := repository.NewAuthSessionRepository(gormDB)
 
 		// Seed default OAuth2 client
-		if err := auth.SeedDefaultClient(context.Background(), clientRepo, config.Server.PublicURL); err != nil {
+		if err := auth.SeedDefaultClient(context.Background(), clientRepo, config.Server.PublicURL, config.Auth.WebRedirectURIs); err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: failed to seed default OAuth2 client: %v\n", err)
 		}
 
@@ -69,7 +69,7 @@ incoming HTTP requests. It shuts down gracefully on SIGINT or SIGTERM.`,
 		}
 
 		// Create GitLab handler
-		gitlabHandler := auth.NewGitLabHandler(config.Auth, userRepo, identityRepo, authSrv.SessionManager())
+		gitlabHandler := auth.NewGitLabHandler(config.Auth, config.Server.PublicURL, userRepo, identityRepo, authSrv.SessionManager())
 
 		grpcSrv, err := apiserv.NewGRPCServer(config.Server.GRPCAddress, svcSet)
 		if err != nil {

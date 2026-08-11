@@ -62,6 +62,8 @@ type UpdateUserGroupParams struct {
 	Organizations optional.Optional[[]string]
 	// Permissions, when IsSet, replaces all permissions.
 	Permissions optional.Optional[[]string]
+	// ForceSystem bypasses the IsSystem guard, allowing updates to system groups.
+	ForceSystem bool
 }
 
 type UserGroupRepository struct {
@@ -113,6 +115,11 @@ func (r *UserGroupRepository) List(ctx context.Context, params ListUserGroupsPar
 		return nil, 0, fmt.Errorf("list user groups: %w", err)
 	}
 
+	// Batch-load organization assignments from casbin g3 for all groups.
+	if err := r.loadOrganizations(ctx, ms); err != nil {
+		return nil, 0, fmt.Errorf("list user groups load organizations: %w", err)
+	}
+
 	return ms, total, nil
 }
 
@@ -124,6 +131,9 @@ func (r *UserGroupRepository) GetByID(ctx context.Context, id uuid.UUID) (*model
 		}
 		return nil, fmt.Errorf("get user group id=%s: %w", id, err)
 	}
+	if err := r.loadOrganizations(ctx, []*model.UserGroup{m}); err != nil {
+		return nil, fmt.Errorf("get user group load organizations id=%s: %w", id, err)
+	}
 	return m, nil
 }
 
@@ -134,6 +144,42 @@ func (r *UserGroupRepository) GetByCustomID(ctx context.Context, customID string
 			return nil, errors.Join(ErrUserGroupNotFound, fmt.Errorf("custom_id=%s: %w", customID, err))
 		}
 		return nil, fmt.Errorf("get user group custom_id=%s: %w", customID, err)
+	}
+	if err := r.loadOrganizations(ctx, []*model.UserGroup{m}); err != nil {
+		return nil, fmt.Errorf("get user group load organizations custom_id=%s: %w", customID, err)
+	}
+	return m, nil
+}
+
+// GetByResourceName resolves a group by its resource name identifier (the
+// {group} segment of "groups/{group}"). The identifier may be either a UUID
+// or a custom ID. It tries UUID first, then falls back to custom ID.
+func (r *UserGroupRepository) GetByResourceName(ctx context.Context, identifier string) (*model.UserGroup, error) {
+	// Try as UUID first.
+	if id, err := uuid.Parse(identifier); err == nil {
+		m, err := r.q.UserGroup.WithContext(ctx).Where(r.q.UserGroup.ID.Eq(id)).First()
+		if err == nil {
+			if err := r.loadOrganizations(ctx, []*model.UserGroup{m}); err != nil {
+				return nil, fmt.Errorf("get user group load organizations id=%s: %w", identifier, err)
+			}
+			return m, nil
+		}
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("get user group id=%s: %w", identifier, err)
+		}
+		// Fall through to custom ID lookup.
+	}
+
+	// Fall back to custom ID.
+	m, err := r.q.UserGroup.WithContext(ctx).Where(r.q.UserGroup.CustomID.Eq(identifier)).First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Join(ErrUserGroupNotFound, fmt.Errorf("identifier=%s: %w", identifier, err))
+		}
+		return nil, fmt.Errorf("get user group identifier=%s: %w", identifier, err)
+	}
+	if err := r.loadOrganizations(ctx, []*model.UserGroup{m}); err != nil {
+		return nil, fmt.Errorf("get user group load organizations identifier=%s: %w", identifier, err)
 	}
 	return m, nil
 }
@@ -167,7 +213,7 @@ func (r *UserGroupRepository) Update(ctx context.Context, id uuid.UUID, params U
 		return err
 	}
 
-	if m.IsSystem {
+	if m.IsSystem && !params.ForceSystem {
 		return errors.Join(ErrUserGroupIsSystem, fmt.Errorf("id=%s", id))
 	}
 
@@ -236,59 +282,53 @@ func (r *UserGroupRepository) Delete(ctx context.Context, id uuid.UUID) error {
 }
 
 // syncAssignmentsAndPolicies replaces all group-to-organization assignments
-// (both in the GORM table and casbin g3) and all casbin policies (p) for the
-// given group. It then flushes the enforcer.
+// (casbin g3) and all casbin policies (p) for the given group. It then flushes
+// the enforcer.
 //
-// GORM table is the source of truth for org assignments; casbin g3 is synced
-// from it. Casbin p policies are self-standing (no domain).
+// Casbin g3 is the sole source of truth for group-to-organization assignments.
+// Each entry is either "organizations/{customID}" for a specific org or "*" for
+// wildcard org access. Casbin p policies are self-standing (no domain).
 func (r *UserGroupRepository) syncAssignmentsAndPolicies(ctx context.Context, groupID uuid.UUID, organizations, permissions []string) error {
 	groupIDStr := groupID.String()
+	orgRepo := NewOrganizationRepository(r.db)
 
-	// 1. Sync GORM table (source of truth for org assignments).
+	// 1. Sync casbin g3 (sole source of truth for org assignments).
 	if organizations != nil {
-		// Delete existing assignments.
-		if err := r.db.WithContext(ctx).Where("user_group_id = ?", groupID).Delete(&model.GroupOrganization{}).Error; err != nil {
-			return fmt.Errorf("delete old group org assignments for group %s: %w", groupIDStr, err)
+		if _, err := r.enforcer.RemoveAllGroupOrgAssignments(groupIDStr); err != nil {
+			return fmt.Errorf("remove old g3 assignments for group %s: %w", groupIDStr, err)
 		}
-		// Insert new assignments.
+
+		// Every group gets g3(group, "g") for global domain access.
+		if _, err := r.enforcer.AddGroupOrgAssignment(groupIDStr, authz.GlobalDomain); err != nil {
+			return fmt.Errorf("add g3 global for group %s: %w", groupIDStr, err)
+		}
+
 		for _, orgRN := range organizations {
+			// Wildcard: assign to all organizations (covers global domain too).
+			if orgRN == authz.WildcardDomain {
+				if _, err := r.enforcer.AddGroupOrgAssignment(groupIDStr, authz.WildcardDomain); err != nil {
+					return fmt.Errorf("add g3 wildcard for group %s: %w", groupIDStr, err)
+				}
+				continue
+			}
+
 			var on gen.OrganizationResourceName
 			if err := on.UnmarshalString(orgRN); err != nil {
 				continue
 			}
-			orgID, err := uuid.Parse(on.Organization)
+
+			// Resolve the org identifier (UUID or custom ID) to the org's custom ID.
+			org, err := orgRepo.GetByResourceName(ctx, on.Organization)
 			if err != nil {
-				continue
+				return fmt.Errorf("resolve organization %s for group %s: %w", on.Organization, groupIDStr, err)
 			}
-			assignment := &model.GroupOrganization{
-				UserGroupID:    groupID,
-				OrganizationID: orgID,
-			}
-			if err := r.db.WithContext(ctx).Create(assignment).Error; err != nil {
-				return fmt.Errorf("create group org assignment group=%s org=%s: %w", groupIDStr, orgID, err)
+			if _, err := r.enforcer.AddGroupOrgAssignment(groupIDStr, authz.OrgDomain(org.CustomID)); err != nil {
+				return fmt.Errorf("add g3 group=%s org=%s: %w", groupIDStr, org.CustomID, err)
 			}
 		}
 	}
 
-	// 2. Sync casbin g3 (derived from GORM).
-	if _, err := r.enforcer.RemoveAllGroupOrgAssignments(groupIDStr); err != nil {
-		return fmt.Errorf("remove old g3 assignments for group %s: %w", groupIDStr, err)
-	}
-	// Every group gets g3(group, "") for global access.
-	if _, err := r.enforcer.AddGroupOrgAssignment(groupIDStr, authz.GlobalDomain); err != nil {
-		return fmt.Errorf("add g3 global for group %s: %w", groupIDStr, err)
-	}
-	for _, orgRN := range organizations {
-		var on gen.OrganizationResourceName
-		if err := on.UnmarshalString(orgRN); err != nil {
-			continue
-		}
-		if _, err := r.enforcer.AddGroupOrgAssignment(groupIDStr, authz.OrgDomain(on.Organization)); err != nil {
-			return fmt.Errorf("add g3 group=%s org=%s: %w", groupIDStr, on.Organization, err)
-		}
-	}
-
-	// 3. Sync casbin p policies.
+	// 2. Sync casbin p policies.
 	if permissions != nil {
 		if _, err := r.enforcer.RemoveFilteredPolicy(0, groupIDStr); err != nil {
 			return fmt.Errorf("remove old policies for group %s: %w", groupIDStr, err)
@@ -304,25 +344,120 @@ func (r *UserGroupRepository) syncAssignmentsAndPolicies(ctx context.Context, gr
 		}
 	}
 
-	// 4. Flush to ensure all consumers see updated policies.
+	// 3. Flush to ensure all consumers see updated policies.
 	return r.enforcer.Flush()
 }
 
-// GetOrganizations reads the group-to-organization assignments from the GORM
-// table and returns them as organization resource names.
-func (r *UserGroupRepository) GetOrganizations(ctx context.Context, groupID uuid.UUID) ([]string, error) {
-	var assignments []model.GroupOrganization
-	if err := r.db.WithContext(ctx).
-		Preload("Organization").
-		Where("user_group_id = ?", groupID).
-		Find(&assignments).Error; err != nil {
-		return nil, fmt.Errorf("get organizations for group %s: %w", groupID, err)
+// loadOrganizations populates the transient Organizations field on each group
+// by reading casbin g3 entries. It loads all g3 assignments in a single call
+// and distributes them to the matching groups. A wildcard ("*") assignment is
+// expanded to all existing organization resource names.
+func (r *UserGroupRepository) loadOrganizations(ctx context.Context, groups []*model.UserGroup) error {
+	if len(groups) == 0 {
+		return nil
 	}
-	var result []string
-	for _, a := range assignments {
-		result = append(result, gen.OrganizationResourceName{Organization: a.Organization.CustomID}.String())
+
+	allAssignments, err := r.enforcer.GetAllGroupOrgAssignments()
+	if err != nil {
+		return fmt.Errorf("load all g3 assignments: %w", err)
+	}
+
+	// Eagerly load all organizations once, in case any group has a wildcard.
+	var allOrgResourceNames []string
+	needsAllOrgs := false
+	for _, g := range groups {
+		if hasWildcard(allAssignments[g.ID.String()]) {
+			needsAllOrgs = true
+			break
+		}
+	}
+	if needsAllOrgs {
+		allOrgResourceNames, err = r.allOrganizationResourceNames(ctx)
+		if err != nil {
+			return fmt.Errorf("load all organizations for wildcard expansion: %w", err)
+		}
+	}
+
+	for _, g := range groups {
+		domains := allAssignments[g.ID.String()]
+		g.Organizations = domainsToResourceNames(domains, allOrgResourceNames)
+	}
+
+	return nil
+}
+
+// hasWildcard reports whether the domain list contains the wildcard entry.
+func hasWildcard(domains []string) bool {
+	for _, d := range domains {
+		if d == authz.WildcardDomain {
+			return true
+		}
+	}
+	return false
+}
+
+// allOrganizationResourceNames returns the resource names of all organizations
+// in the database, ordered by creation date (descending).
+func (r *UserGroupRepository) allOrganizationResourceNames(ctx context.Context) ([]string, error) {
+	orgRepo := NewOrganizationRepository(r.db)
+	orgs, _, err := orgRepo.List(ctx, ListOrganizationsParams{PageSize: 10000})
+	if err != nil {
+		return nil, fmt.Errorf("list all organizations: %w", err)
+	}
+	result := make([]string, 0, len(orgs))
+	for _, o := range orgs {
+		result = append(result, authz.OrgDomain(o.CustomID))
 	}
 	return result, nil
+}
+
+// domainsToResourceNames converts casbin g3 domain values to organization
+// resource names. A wildcard ("*") domain is expanded to allOrgResourceNames
+// (when non-empty); "organizations/{customID}" values are kept as-is. The
+// global domain ("g") is excluded — it is not an organization.
+func domainsToResourceNames(domains, allOrgResourceNames []string) []string {
+	if len(domains) == 0 {
+		return nil
+	}
+	result := make([]string, 0, len(domains))
+	for _, d := range domains {
+		// Skip the global domain — it grants access to global resources, not
+		// to a specific organization.
+		if d == authz.GlobalDomain {
+			continue
+		}
+		if d == authz.WildcardDomain {
+			if len(allOrgResourceNames) > 0 {
+				result = append(result, allOrgResourceNames...)
+			} else {
+				result = append(result, authz.WildcardDomain)
+			}
+			continue
+		}
+		// d is already in "organizations/{customID}" format.
+		result = append(result, d)
+	}
+	return result
+}
+
+// GetOrganizations reads the group-to-organization assignments from casbin g3
+// and returns them as organization resource names. A wildcard ("*") assignment
+// is expanded to all existing organization resource names.
+func (r *UserGroupRepository) GetOrganizations(ctx context.Context, groupID uuid.UUID) ([]string, error) {
+	domains, err := r.enforcer.GetOrganizationsForGroup(groupID.String())
+	if err != nil {
+		return nil, fmt.Errorf("get organizations for group %s: %w", groupID, err)
+	}
+
+	var allOrgResourceNames []string
+	if hasWildcard(domains) {
+		allOrgResourceNames, err = r.allOrganizationResourceNames(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("load all organizations for wildcard expansion: %w", err)
+		}
+	}
+
+	return domainsToResourceNames(domains, allOrgResourceNames), nil
 }
 
 // GetPermissions reads the casbin policies for a group and returns them

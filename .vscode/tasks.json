@@ -8,6 +8,11 @@
       "script": "test",
       "path": "web",
       "isBackground": true,
+      "presentation": {
+        "reveal": "never",
+        "focus": false,
+        "panel": "dedicated"
+      },
       "problemMatcher": {
         "owner": "typescript",
         "pattern": "$tsc",

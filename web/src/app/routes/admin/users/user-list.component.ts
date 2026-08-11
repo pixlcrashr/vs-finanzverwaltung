@@ -7,11 +7,11 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
-  PageContentLayoutComponent,
-  BreadcrumbItem,
   LoadingSpinnerComponent,
   EmptyStateComponent,
   NotificationService,
+  AdminContentHeaderComponent,
+  AdminContentComponent,
 } from '../../../shared/components';
 import { User } from '../../../shared/models';
 import { UserListDataService } from './user-list.data-service';
@@ -21,13 +21,16 @@ import { UserListDataService } from './user-list.data-service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    PageContentLayoutComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
+    AdminContentHeaderComponent,
+    AdminContentComponent,
   ],
   template: `
-    <app-page-content-layout [breadcrumbs]="breadcrumbs">
-      <div layout-content class="flex flex-1 justify-center">
+    <div class="flex flex-col h-full min-h-0">
+      <app-admin-content-header i18n-title title="Benutzer">
+      </app-admin-content-header>
+      <app-admin-content>
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Benutzer werden geladen..." />
         } @else if (users().length === 0) {
@@ -93,8 +96,8 @@ import { UserListDataService } from './user-list.data-service';
             </div>
           </div>
         }
-      </div>
-    </app-page-content-layout>
+      </app-admin-content>
+    </div>
   `,
 })
 export class UserListComponent implements OnInit {
@@ -103,11 +106,6 @@ export class UserListComponent implements OnInit {
 
   readonly loading = signal(true);
   readonly users = signal<User[]>([]);
-
-  readonly breadcrumbs: BreadcrumbItem[] = [
-    { label: $localize`Administration` },
-    { label: $localize`Benutzer` }
-  ];
 
   ngOnInit(): void {
     this.loadUsers();

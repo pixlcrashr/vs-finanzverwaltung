@@ -18,7 +18,7 @@ var toolListGroupsCmd = &cobra.Command{
 	Short: "List all user groups",
 	Long:  `List all user groups with their ID, custom ID, name, system flag, and description.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		gormDB, err := db.ConnectSilent(config.Database.URL)
+		gormDB, err := db.ConnectSilent(config.Database.DSN)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: connecting to database: %v\n", err)
 			os.Exit(1)

@@ -2,14 +2,16 @@ package auth
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
 
+	"github.com/gofiber/adaptor/v2"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"github.com/pixlcrashr/vsfv/pkg/cfg"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
@@ -18,14 +20,18 @@ import (
 
 const (
 	gitlabProviderName = "gitlab"
+	StateCookieName    = "vsfv_oauth_state"
+	ReturnToCookieName = "vsfv_oauth_return_to"
+	stateCookieMaxAge  = 300 // 5 minutes
 )
 
 type GitLabHandler struct {
-	cfg          cfgGitLab
-	userRepo     *repository.UserRepository
-	identityRepo *repository.UserIdentityRepository
-	sessionMgr   *SessionManager
-	oauth2Config *oauth2.Config
+	cfg           cfgGitLab
+	userRepo      *repository.UserRepository
+	identityRepo  *repository.UserIdentityRepository
+	sessionMgr    *SessionManager
+	oauth2Config  *oauth2.Config
+	secureCookies bool
 }
 
 type cfgGitLab interface {
@@ -49,6 +55,7 @@ func (g gitlabConfigAdapter) GetIssuer() string       { return g.issuer }
 
 func NewGitLabHandler(
 	authCfg cfg.Auth,
+	publicURL string,
 	userRepo *repository.UserRepository,
 	identityRepo *repository.UserIdentityRepository,
 	sessionMgr *SessionManager,
@@ -61,10 +68,11 @@ func NewGitLabHandler(
 	}
 
 	g := &GitLabHandler{
-		cfg:          adapter,
-		userRepo:     userRepo,
-		identityRepo: identityRepo,
-		sessionMgr:   sessionMgr,
+		cfg:           adapter,
+		userRepo:      userRepo,
+		identityRepo:  identityRepo,
+		sessionMgr:    sessionMgr,
+		secureCookies: authCfg.SecureCookies,
 	}
 
 	if adapter.IsEnabled() {
@@ -72,7 +80,7 @@ func NewGitLabHandler(
 		g.oauth2Config = &oauth2.Config{
 			ClientID:     adapter.GetClientID(),
 			ClientSecret: adapter.GetClientSecret(),
-			RedirectURL:  "", // set per-request via state
+			RedirectURL:  strings.TrimSuffix(publicURL, "/") + "/auth/gitlab/callback",
 			Endpoint: oauth2.Endpoint{
 				AuthURL:  issuer + "/oauth/authorize",
 				TokenURL: issuer + "/oauth/token",
@@ -89,24 +97,56 @@ func (g *GitLabHandler) IsEnabled() bool {
 }
 
 // GitLabLoginInitiate redirects the user to GitLab for OIDC login.
+// It expects a "return_to" query parameter containing the URL to redirect to
+// after successful authentication (typically the original /oauth2/authorize URL).
+// A random state is generated and stored in an HTTP-only cookie for CSRF protection.
 func (g *GitLabHandler) GitLabLoginInitiate(c *fiber.Ctx) error {
 	if !g.cfg.IsEnabled() {
 		return c.Status(http.StatusNotFound).JSON(fiber.Map{"error": "gitlab login disabled"})
 	}
 
-	redirectURI := c.Query("redirect_uri")
-	if redirectURI == "" {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "invalid_request", "error_description": "redirect_uri is required"})
+	returnTo := c.Query("return_to")
+	if returnTo == "" {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "invalid_request", "error_description": "return_to is required"})
 	}
 
-	// Build a state that encodes the redirect URI
-	state := fmt.Sprintf("%s|%s", uuid.New().String(), redirectURI)
+	// Generate cryptographically random state
+	stateBytes := make([]byte, 16)
+	if _, err := rand.Read(stateBytes); err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "internal_error", "error_description": "failed to generate state"})
+	}
+	state := hex.EncodeToString(stateBytes)
 
-	url := g.oauth2Config.AuthCodeURL(state, oauth2.SetAuthURLParam("redirect_uri", redirectURI))
+	// Set HTTP-only state cookie for CSRF validation
+	c.Cookie(&fiber.Cookie{
+		Name:     StateCookieName,
+		Value:    state,
+		Path:     "/",
+		HTTPOnly: true,
+		Secure:   g.secureCookies,
+		SameSite: fiber.CookieSameSiteLaxMode,
+		MaxAge:   stateCookieMaxAge,
+	})
+
+	// Store the return_to URL in a cookie for use in the callback
+	c.Cookie(&fiber.Cookie{
+		Name:     ReturnToCookieName,
+		Value:    returnTo,
+		Path:     "/",
+		HTTPOnly: true,
+		Secure:   g.secureCookies,
+		SameSite: fiber.CookieSameSiteLaxMode,
+		MaxAge:   stateCookieMaxAge,
+	})
+
+	url := g.oauth2Config.AuthCodeURL(state)
 	return c.Redirect(url, http.StatusTemporaryRedirect)
 }
 
 // GitLabLoginCallback handles the callback from GitLab.
+// It validates the state parameter against the cookie, exchanges the code for
+// a token, creates/finds the user, creates a session, and redirects to the
+// return_to URL stored in the cookie.
 func (g *GitLabHandler) GitLabLoginCallback(c *fiber.Ctx) error {
 	if !g.cfg.IsEnabled() {
 		return c.Status(http.StatusNotFound).JSON(fiber.Map{"error": "gitlab login disabled"})
@@ -122,17 +162,26 @@ func (g *GitLabHandler) GitLabLoginCallback(c *fiber.Ctx) error {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "invalid_request", "error_description": "no state provided"})
 	}
 
-	// Parse state to extract redirect URI
-	parts := strings.SplitN(state, "|", 2)
-	if len(parts) != 2 {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "invalid_request", "error_description": "invalid state"})
+	// Validate state against cookie
+	cookieState := c.Cookies(StateCookieName)
+	if cookieState == "" || cookieState != state {
+		return c.Status(http.StatusForbidden).JSON(fiber.Map{"error": "invalid_state", "error_description": "state mismatch"})
 	}
-	redirectURI := parts[1]
+
+	// Read return_to from cookie
+	returnTo := c.Cookies(ReturnToCookieName)
+	if returnTo == "" {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "invalid_request", "error_description": "missing return_to"})
+	}
+
+	// Clear state and return_to cookies
+	c.ClearCookie(StateCookieName)
+	c.ClearCookie(ReturnToCookieName)
 
 	ctx := c.Context()
 
-	// Exchange code for token using the redirect URI that was used for the initial request
-	token, err := g.oauth2Config.Exchange(ctx, code, oauth2.SetAuthURLParam("redirect_uri", redirectURI))
+	// Exchange code for token
+	token, err := g.oauth2Config.Exchange(ctx, code)
 	if err != nil {
 		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "token_exchange_failed", "error_description": err.Error()})
 	}
@@ -149,20 +198,18 @@ func (g *GitLabHandler) GitLabLoginCallback(c *fiber.Ctx) error {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "user_provisioning_failed", "error_description": err.Error()})
 	}
 
-	// Create session
+	// Create session and set session cookie
 	sess, err := g.sessionMgr.CreateSession(ctx, user.ID)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "session_failed", "error_description": err.Error()})
 	}
 
-	// Redirect back to the redirect URI with session token
-	// The SPA will use this to set the cookie or we set it directly
-	separator := "?"
-	if strings.Contains(redirectURI, "?") {
-		separator = "&"
-	}
-	redirectURL := fmt.Sprintf("%s%ssession_token=%s", redirectURI, separator, sess.Token)
-	return c.Redirect(redirectURL, http.StatusTemporaryRedirect)
+	// Set session cookie via http.ResponseWriter
+	sessionCookieAdapter := adaptor.HTTPHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		g.sessionMgr.SetSessionCookie(w, sess.Token)
+		http.Redirect(w, r, returnTo, http.StatusTemporaryRedirect)
+	}))
+	return sessionCookieAdapter(c)
 }
 
 type gitlabUserInfo struct {

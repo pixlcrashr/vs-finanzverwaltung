@@ -42,12 +42,13 @@ func protoDateToTime(d *gdate.Date) time.Time {
 // OrganizationToProto maps a model.Organization to its proto representation.
 func OrganizationToProto(m *model.Organization) *gen.Organization {
 	return &gen.Organization{
-		Name:        gen.OrganizationResourceName{Organization: m.CustomID}.String(),
-		Uid:         m.ID.String(),
-		DisplayName: m.DisplayName,
-		StartMonth:  gen.Month(m.StartMonth),
-		UpdateTime:  ts(m.UpdatedAt),
-		CreateTime:  ts(m.CreatedAt),
+		Name:               gen.OrganizationResourceName{Organization: m.CustomID}.String(),
+		Uid:                m.ID.String(),
+		DisplayName:        m.DisplayName,
+		DisplayDescription: m.DisplayDescription,
+		StartMonth:         gen.Month(m.StartMonth),
+		UpdateTime:         ts(m.UpdatedAt),
+		CreateTime:         ts(m.CreatedAt),
 	}
 }
 
@@ -116,17 +117,23 @@ func AccountGroupAssignmentToProto(groupRN gen.AccountGroupResourceName, m *mode
 
 // BudgetToProto maps a model.Budget to its proto representation.
 func BudgetToProto(orgRN gen.OrganizationResourceName, m *model.Budget) *gen.Budget {
-	return &gen.Budget{
-		Name:               orgRN.BudgetResourceName(m.CustomID).String(),
-		Uid:                m.ID.String(),
-		DisplayName:        m.DisplayName,
-		DisplayDescription: m.DisplayDescription,
-		IsClosed:           m.IsClosed,
-		PeriodStart:        dateProto(m.PeriodStart),
-		PeriodEnd:          dateProto(m.PeriodEnd),
-		UpdateTime:         ts(m.UpdatedAt),
-		CreateTime:         ts(m.CreatedAt),
+	p := &gen.Budget{
+		Name:                orgRN.BudgetResourceName(m.CustomID).String(),
+		Uid:                 m.ID.String(),
+		DisplayName:         m.DisplayName,
+		DisplayDescription:  m.DisplayDescription,
+		IsClosed:            m.IsClosed,
+		IsPublished:         m.IsPublished,
+		PublishActualValues: m.PublishActualValues,
+		PeriodStart:         dateProto(m.PeriodStart),
+		PeriodEnd:           dateProto(m.PeriodEnd),
+		UpdateTime:          ts(m.UpdatedAt),
+		CreateTime:          ts(m.CreatedAt),
 	}
+	if m.PublishActualValuesUntil.Valid {
+		p.PublishActualValuesUntil = dateProto(m.PublishActualValuesUntil.Time)
+	}
+	return p
 }
 
 // BudgetAccountValueToProto maps model.BudgetAccountValue to gen.BudgetAccountValue.
@@ -150,6 +157,7 @@ func BudgetRevisionToProto(budgetRN gen.BudgetResourceName, m *model.BudgetRevis
 		Budget:             budgetRN.String(),
 		DisplayName:        m.DisplayName,
 		DisplayDescription: m.DisplayDescription,
+		IsPublished:        m.IsPublished,
 		Date:               dateProto(m.Date),
 		CreateTime:         ts(m.CreatedAt),
 	}
@@ -277,10 +285,11 @@ func UserIdentityToProto(userRN gen.UserResourceName, m *model.UserIdentity) *ge
 // UserSettingsToProto maps a model.UserSettings to its proto representation.
 func UserSettingsToProto(userRN gen.UserResourceName, m *model.UserSettings) *gen.UserSettings {
 	return &gen.UserSettings{
-		Name:       userRN.UserSettingsResourceName().String(),
-		Locale:     m.Locale,
-		Theme:      m.Theme,
-		UpdateTime: ts(m.UpdatedAt),
+		Name:               userRN.UserSettingsResourceName().String(),
+		Locale:             m.Locale,
+		Theme:              m.Theme,
+		EmailNotifications: m.EmailNotifications,
+		UpdateTime:         ts(m.UpdatedAt),
 	}
 }
 

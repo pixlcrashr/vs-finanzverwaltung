@@ -35,6 +35,9 @@ message Organization {
   // Human-readable organization name.
   string display_name = 3 [(google.api.field_behavior) = REQUIRED];
 
+  // Optional free-text description.
+  string display_description = 8 [(google.api.field_behavior) = OPTIONAL];
+
   // The start month of ledger years for this organization. It is assumed that the start date is the 1st of the month.
   Month start_month = 7 [(google.api.field_behavior) = REQUIRED];
 

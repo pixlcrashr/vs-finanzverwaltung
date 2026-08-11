@@ -8,11 +8,12 @@ import (
 )
 
 type UserSettings struct {
-	ID        uuid.UUID `gorm:"type:uuid;primaryKey"`
-	UserID    uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_user_settings_user_id"`
-	Locale    string    `gorm:"not null;default:''"`
-	Theme     string    `gorm:"not null;default:'system'"`
-	UpdatedAt time.Time `gorm:"not null;default:now()"`
+	ID                 uuid.UUID `gorm:"type:uuid;primaryKey"`
+	UserID             uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_user_settings_user_id"`
+	Locale             string    `gorm:"not null;default:''"`
+	Theme              string    `gorm:"not null;default:'system'"`
+	EmailNotifications bool      `gorm:"not null;default:false"`
+	UpdatedAt          time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 
 	// Relations
 	User User `gorm:"foreignKey:UserID"`

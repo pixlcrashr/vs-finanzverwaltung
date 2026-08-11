@@ -486,6 +486,118 @@ func (x *DeleteGroupRequest) GetName() string {
 	return ""
 }
 
+type AddUserToGroupRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The resource name of the group.
+	// Format: groups/{group}
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// The resource name of the user to add.
+	// Format: users/{user}
+	User          string `protobuf:"bytes,2,opt,name=user,proto3" json:"user,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AddUserToGroupRequest) Reset() {
+	*x = AddUserToGroupRequest{}
+	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AddUserToGroupRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AddUserToGroupRequest) ProtoMessage() {}
+
+func (x *AddUserToGroupRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AddUserToGroupRequest.ProtoReflect.Descriptor instead.
+func (*AddUserToGroupRequest) Descriptor() ([]byte, []int) {
+	return file_pixlcrashr_vsfv_v1_group_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *AddUserToGroupRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *AddUserToGroupRequest) GetUser() string {
+	if x != nil {
+		return x.User
+	}
+	return ""
+}
+
+type RemoveUserFromGroupRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The resource name of the group.
+	// Format: groups/{group}
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// The resource name of the user to remove.
+	// Format: users/{user}
+	User          string `protobuf:"bytes,2,opt,name=user,proto3" json:"user,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoveUserFromGroupRequest) Reset() {
+	*x = RemoveUserFromGroupRequest{}
+	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoveUserFromGroupRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveUserFromGroupRequest) ProtoMessage() {}
+
+func (x *RemoveUserFromGroupRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pixlcrashr_vsfv_v1_group_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveUserFromGroupRequest.ProtoReflect.Descriptor instead.
+func (*RemoveUserFromGroupRequest) Descriptor() ([]byte, []int) {
+	return file_pixlcrashr_vsfv_v1_group_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *RemoveUserFromGroupRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *RemoveUserFromGroupRequest) GetUser() string {
+	if x != nil {
+		return x.User
+	}
+	return ""
+}
+
 var File_pixlcrashr_vsfv_v1_group_proto protoreflect.FileDescriptor
 
 const file_pixlcrashr_vsfv_v1_group_proto_rawDesc = "" +
@@ -528,7 +640,17 @@ const file_pixlcrashr_vsfv_v1_group_proto_rawDesc = "" +
 	"updateMask\"K\n" +
 	"\x12DeleteGroupRequest\x125\n" +
 	"\x04name\x18\x01 \x01(\tB!\xe0A\x02\xfaA\x1b\n" +
-	"\x19vsfv.pixlcrashr.dev/GroupR\x04name2\x89\x05\n" +
+	"\x19vsfv.pixlcrashr.dev/GroupR\x04name\"\x84\x01\n" +
+	"\x15AddUserToGroupRequest\x125\n" +
+	"\x04name\x18\x01 \x01(\tB!\xe0A\x02\xfaA\x1b\n" +
+	"\x19vsfv.pixlcrashr.dev/GroupR\x04name\x124\n" +
+	"\x04user\x18\x02 \x01(\tB \xe0A\x02\xfaA\x1a\n" +
+	"\x18vsfv.pixlcrashr.dev/UserR\x04user\"\x89\x01\n" +
+	"\x1aRemoveUserFromGroupRequest\x125\n" +
+	"\x04name\x18\x01 \x01(\tB!\xe0A\x02\xfaA\x1b\n" +
+	"\x19vsfv.pixlcrashr.dev/GroupR\x04name\x124\n" +
+	"\x04user\x18\x02 \x01(\tB \xe0A\x02\xfaA\x1a\n" +
+	"\x18vsfv.pixlcrashr.dev/UserR\x04user2\x91\a\n" +
 	"\fGroupService\x12n\n" +
 	"\bGetGroup\x12#.pixlcrashr.vsfv.v1.GetGroupRequest\x1a\x19.pixlcrashr.vsfv.v1.Group\"\"\xdaA\x04name\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/{name=groups/*}\x12o\n" +
 	"\n" +
@@ -537,7 +659,9 @@ const file_pixlcrashr_vsfv_v1_group_proto_rawDesc = "" +
 	"\vCreateGroup\x12&.pixlcrashr.vsfv.v1.CreateGroupRequest\x1a\x19.pixlcrashr.vsfv.v1.Group\"*\xdaA\x0egroup,group_id\x82\xd3\xe4\x93\x02\x13:\x05group\"\n" +
 	"/v1/groups\x12\x8e\x01\n" +
 	"\vUpdateGroup\x12&.pixlcrashr.vsfv.v1.UpdateGroupRequest\x1a\x19.pixlcrashr.vsfv.v1.Group\"<\xdaA\x11group,update_mask\x82\xd3\xe4\x93\x02\":\x05group2\x19/v1/{group.name=groups/*}\x12q\n" +
-	"\vDeleteGroup\x12&.pixlcrashr.vsfv.v1.DeleteGroupRequest\x1a\x16.google.protobuf.Empty\"\"\xdaA\x04name\x82\xd3\xe4\x93\x02\x15*\x13/v1/{name=groups/*}\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xb7\x01\n" +
+	"\vDeleteGroup\x12&.pixlcrashr.vsfv.v1.DeleteGroupRequest\x1a\x16.google.protobuf.Empty\"\"\xdaA\x04name\x82\xd3\xe4\x93\x02\x15*\x13/v1/{name=groups/*}\x12{\n" +
+	"\x0eAddUserToGroup\x12).pixlcrashr.vsfv.v1.AddUserToGroupRequest\x1a\x16.google.protobuf.Empty\"&\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/v1/{name=groups/*}:addUser\x12\x88\x01\n" +
+	"\x13RemoveUserFromGroup\x12..pixlcrashr.vsfv.v1.RemoveUserFromGroupRequest\x1a\x16.google.protobuf.Empty\")\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v1/{name=groups/*}:removeUser\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xb7\x01\n" +
 	"\x16com.pixlcrashr.vsfv.v1B\n" +
 	"GroupProtoP\x01Z'github.com/pixlcrashr/vsfv/pkg/grpc/gen\xa2\x02\x03PVX\xaa\x02\x12Pixlcrashr.Vsfv.V1\xca\x02\x12Pixlcrashr\\Vsfv\\V1\xe2\x02\x1ePixlcrashr\\Vsfv\\V1\\GPBMetadata\xea\x02\x14Pixlcrashr::Vsfv::V1b\x06proto3"
 
@@ -553,38 +677,44 @@ func file_pixlcrashr_vsfv_v1_group_proto_rawDescGZIP() []byte {
 	return file_pixlcrashr_vsfv_v1_group_proto_rawDescData
 }
 
-var file_pixlcrashr_vsfv_v1_group_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_pixlcrashr_vsfv_v1_group_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_pixlcrashr_vsfv_v1_group_proto_goTypes = []any{
-	(*Group)(nil),                 // 0: pixlcrashr.vsfv.v1.Group
-	(*GetGroupRequest)(nil),       // 1: pixlcrashr.vsfv.v1.GetGroupRequest
-	(*ListGroupsRequest)(nil),     // 2: pixlcrashr.vsfv.v1.ListGroupsRequest
-	(*ListGroupsResponse)(nil),    // 3: pixlcrashr.vsfv.v1.ListGroupsResponse
-	(*CreateGroupRequest)(nil),    // 4: pixlcrashr.vsfv.v1.CreateGroupRequest
-	(*UpdateGroupRequest)(nil),    // 5: pixlcrashr.vsfv.v1.UpdateGroupRequest
-	(*DeleteGroupRequest)(nil),    // 6: pixlcrashr.vsfv.v1.DeleteGroupRequest
-	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil), // 8: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),         // 9: google.protobuf.Empty
+	(*Group)(nil),                      // 0: pixlcrashr.vsfv.v1.Group
+	(*GetGroupRequest)(nil),            // 1: pixlcrashr.vsfv.v1.GetGroupRequest
+	(*ListGroupsRequest)(nil),          // 2: pixlcrashr.vsfv.v1.ListGroupsRequest
+	(*ListGroupsResponse)(nil),         // 3: pixlcrashr.vsfv.v1.ListGroupsResponse
+	(*CreateGroupRequest)(nil),         // 4: pixlcrashr.vsfv.v1.CreateGroupRequest
+	(*UpdateGroupRequest)(nil),         // 5: pixlcrashr.vsfv.v1.UpdateGroupRequest
+	(*DeleteGroupRequest)(nil),         // 6: pixlcrashr.vsfv.v1.DeleteGroupRequest
+	(*AddUserToGroupRequest)(nil),      // 7: pixlcrashr.vsfv.v1.AddUserToGroupRequest
+	(*RemoveUserFromGroupRequest)(nil), // 8: pixlcrashr.vsfv.v1.RemoveUserFromGroupRequest
+	(*timestamppb.Timestamp)(nil),      // 9: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),      // 10: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),              // 11: google.protobuf.Empty
 }
 var file_pixlcrashr_vsfv_v1_group_proto_depIdxs = []int32{
-	7,  // 0: pixlcrashr.vsfv.v1.Group.update_time:type_name -> google.protobuf.Timestamp
-	7,  // 1: pixlcrashr.vsfv.v1.Group.create_time:type_name -> google.protobuf.Timestamp
+	9,  // 0: pixlcrashr.vsfv.v1.Group.update_time:type_name -> google.protobuf.Timestamp
+	9,  // 1: pixlcrashr.vsfv.v1.Group.create_time:type_name -> google.protobuf.Timestamp
 	0,  // 2: pixlcrashr.vsfv.v1.ListGroupsResponse.groups:type_name -> pixlcrashr.vsfv.v1.Group
 	0,  // 3: pixlcrashr.vsfv.v1.CreateGroupRequest.group:type_name -> pixlcrashr.vsfv.v1.Group
 	0,  // 4: pixlcrashr.vsfv.v1.UpdateGroupRequest.group:type_name -> pixlcrashr.vsfv.v1.Group
-	8,  // 5: pixlcrashr.vsfv.v1.UpdateGroupRequest.update_mask:type_name -> google.protobuf.FieldMask
+	10, // 5: pixlcrashr.vsfv.v1.UpdateGroupRequest.update_mask:type_name -> google.protobuf.FieldMask
 	1,  // 6: pixlcrashr.vsfv.v1.GroupService.GetGroup:input_type -> pixlcrashr.vsfv.v1.GetGroupRequest
 	2,  // 7: pixlcrashr.vsfv.v1.GroupService.ListGroups:input_type -> pixlcrashr.vsfv.v1.ListGroupsRequest
 	4,  // 8: pixlcrashr.vsfv.v1.GroupService.CreateGroup:input_type -> pixlcrashr.vsfv.v1.CreateGroupRequest
 	5,  // 9: pixlcrashr.vsfv.v1.GroupService.UpdateGroup:input_type -> pixlcrashr.vsfv.v1.UpdateGroupRequest
 	6,  // 10: pixlcrashr.vsfv.v1.GroupService.DeleteGroup:input_type -> pixlcrashr.vsfv.v1.DeleteGroupRequest
-	0,  // 11: pixlcrashr.vsfv.v1.GroupService.GetGroup:output_type -> pixlcrashr.vsfv.v1.Group
-	3,  // 12: pixlcrashr.vsfv.v1.GroupService.ListGroups:output_type -> pixlcrashr.vsfv.v1.ListGroupsResponse
-	0,  // 13: pixlcrashr.vsfv.v1.GroupService.CreateGroup:output_type -> pixlcrashr.vsfv.v1.Group
-	0,  // 14: pixlcrashr.vsfv.v1.GroupService.UpdateGroup:output_type -> pixlcrashr.vsfv.v1.Group
-	9,  // 15: pixlcrashr.vsfv.v1.GroupService.DeleteGroup:output_type -> google.protobuf.Empty
-	11, // [11:16] is the sub-list for method output_type
-	6,  // [6:11] is the sub-list for method input_type
+	7,  // 11: pixlcrashr.vsfv.v1.GroupService.AddUserToGroup:input_type -> pixlcrashr.vsfv.v1.AddUserToGroupRequest
+	8,  // 12: pixlcrashr.vsfv.v1.GroupService.RemoveUserFromGroup:input_type -> pixlcrashr.vsfv.v1.RemoveUserFromGroupRequest
+	0,  // 13: pixlcrashr.vsfv.v1.GroupService.GetGroup:output_type -> pixlcrashr.vsfv.v1.Group
+	3,  // 14: pixlcrashr.vsfv.v1.GroupService.ListGroups:output_type -> pixlcrashr.vsfv.v1.ListGroupsResponse
+	0,  // 15: pixlcrashr.vsfv.v1.GroupService.CreateGroup:output_type -> pixlcrashr.vsfv.v1.Group
+	0,  // 16: pixlcrashr.vsfv.v1.GroupService.UpdateGroup:output_type -> pixlcrashr.vsfv.v1.Group
+	11, // 17: pixlcrashr.vsfv.v1.GroupService.DeleteGroup:output_type -> google.protobuf.Empty
+	11, // 18: pixlcrashr.vsfv.v1.GroupService.AddUserToGroup:output_type -> google.protobuf.Empty
+	11, // 19: pixlcrashr.vsfv.v1.GroupService.RemoveUserFromGroup:output_type -> google.protobuf.Empty
+	13, // [13:20] is the sub-list for method output_type
+	6,  // [6:13] is the sub-list for method input_type
 	6,  // [6:6] is the sub-list for extension type_name
 	6,  // [6:6] is the sub-list for extension extendee
 	0,  // [0:6] is the sub-list for field type_name
@@ -601,7 +731,7 @@ func file_pixlcrashr_vsfv_v1_group_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pixlcrashr_vsfv_v1_group_proto_rawDesc), len(file_pixlcrashr_vsfv_v1_group_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

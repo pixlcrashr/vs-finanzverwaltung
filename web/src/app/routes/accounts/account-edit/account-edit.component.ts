@@ -147,7 +147,7 @@ import { AccountEditDataService, AccountDetails } from './account-edit.data-serv
                     </div>
                     <div>
                       <dt i18n class="text-xs text-gray-500">Unterkonten</dt>
-                      <dd class="text-sm text-gray-900">{{ account()!.children.length }}</dd>
+                      <dd class="text-sm text-gray-900">{{ account()!.childrenCount }}</dd>
                     </div>
                   </dl>
                 </div>

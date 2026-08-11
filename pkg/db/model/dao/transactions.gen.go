@@ -189,18 +189,6 @@ func newTransaction_(db *gorm.DB, opts ...gen.DOOption) transaction_ {
 			TransactionAssignments struct {
 				field.RelationField
 			}
-			GroupOrganizations struct {
-				field.RelationField
-				UserGroup struct {
-					field.RelationField
-					GroupOrganizations struct {
-						field.RelationField
-					}
-				}
-				Organization struct {
-					field.RelationField
-				}
-			}
 		}{
 			RelationField: field.NewRelation("TransactionAssignments.Organization", "model.Organization"),
 			AccountGroupAssignments: struct {
@@ -710,38 +698,6 @@ func newTransaction_(db *gorm.DB, opts ...gen.DOOption) transaction_ {
 			}{
 				RelationField: field.NewRelation("TransactionAssignments.Organization.TransactionAssignments", "model.TransactionAssignment"),
 			},
-			GroupOrganizations: struct {
-				field.RelationField
-				UserGroup struct {
-					field.RelationField
-					GroupOrganizations struct {
-						field.RelationField
-					}
-				}
-				Organization struct {
-					field.RelationField
-				}
-			}{
-				RelationField: field.NewRelation("TransactionAssignments.Organization.GroupOrganizations", "model.GroupOrganization"),
-				UserGroup: struct {
-					field.RelationField
-					GroupOrganizations struct {
-						field.RelationField
-					}
-				}{
-					RelationField: field.NewRelation("TransactionAssignments.Organization.GroupOrganizations.UserGroup", "model.UserGroup"),
-					GroupOrganizations: struct {
-						field.RelationField
-					}{
-						RelationField: field.NewRelation("TransactionAssignments.Organization.GroupOrganizations.UserGroup.GroupOrganizations", "model.GroupOrganization"),
-					},
-				},
-				Organization: struct {
-					field.RelationField
-				}{
-					RelationField: field.NewRelation("TransactionAssignments.Organization.GroupOrganizations.Organization", "model.Organization"),
-				},
-			},
 		},
 		Transaction: struct {
 			field.RelationField
@@ -1045,18 +1001,6 @@ type transaction_HasManyTransactionAssignments struct {
 		}
 		TransactionAssignments struct {
 			field.RelationField
-		}
-		GroupOrganizations struct {
-			field.RelationField
-			UserGroup struct {
-				field.RelationField
-				GroupOrganizations struct {
-					field.RelationField
-				}
-			}
-			Organization struct {
-				field.RelationField
-			}
 		}
 	}
 	Transaction struct {

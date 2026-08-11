@@ -151,3 +151,20 @@ func (en *Enforcer) GetOrganizationsForGroup(groupID string) ([]string, error) {
 	}
 	return orgs, nil
 }
+
+// GetAllGroupOrgAssignments returns all g3 entries as a map from group ID to
+// the list of organization domains assigned to that group. Use this for batch
+// loading instead of calling GetOrganizationsForGroup per group.
+func (en *Enforcer) GetAllGroupOrgAssignments() (map[string][]string, error) {
+	policies, err := en.e.GetNamedGroupingPolicy("g3")
+	if err != nil {
+		return nil, err
+	}
+	result := make(map[string][]string)
+	for _, p := range policies {
+		if len(p) >= 2 {
+			result[p[0]] = append(result[p[0]], p[1])
+		}
+	}
+	return result, nil
+}

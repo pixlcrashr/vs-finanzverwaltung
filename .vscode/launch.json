@@ -11,7 +11,8 @@
       "mode": "debug",
       "program": "${workspaceFolder}",
       "args": ["serve", "--config", "${workspaceFolder}/config.dev.yaml"],
-      "cwd": "${workspaceFolder}"
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole"
     },
     {
       "name": "Frontend: Serve Mock (Chrome)",

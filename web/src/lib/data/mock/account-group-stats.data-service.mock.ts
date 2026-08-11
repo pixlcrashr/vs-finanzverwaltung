@@ -13,6 +13,8 @@ export class MockAccountGroupStatsDataService extends AccountGroupStatsDataServi
       displayDescription: 'Aktueller Haushaltsplan',
       periodStart: new Date('2025-01-01'),
       periodEnd: new Date('2025-12-31'),
+      isPublished: false,
+      publishActualValues: false,
       isClosed: false,
     },
     {
@@ -21,6 +23,8 @@ export class MockAccountGroupStatsDataService extends AccountGroupStatsDataServi
       displayDescription: 'Vorjahr',
       periodStart: new Date('2024-01-01'),
       periodEnd: new Date('2024-12-31'),
+      isPublished: true,
+      publishActualValues: true,
       isClosed: true,
     },
   ];

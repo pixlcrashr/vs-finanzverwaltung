@@ -499,11 +499,19 @@
                 </li>
               
                 <li>
+                  <a href="#pixlcrashr.vsfv.v1.GetLatestBudgetRevisionRequest"><span class="badge">M</span>GetLatestBudgetRevisionRequest</a>
+                </li>
+              
+                <li>
                   <a href="#pixlcrashr.vsfv.v1.ListBudgetRevisionsRequest"><span class="badge">M</span>ListBudgetRevisionsRequest</a>
                 </li>
               
                 <li>
                   <a href="#pixlcrashr.vsfv.v1.ListBudgetRevisionsResponse"><span class="badge">M</span>ListBudgetRevisionsResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.UpdateBudgetRevisionRequest"><span class="badge">M</span>UpdateBudgetRevisionRequest</a>
                 </li>
               
               
@@ -568,6 +576,10 @@
             <ul>
               
                 <li>
+                  <a href="#pixlcrashr.vsfv.v1.AddUserToGroupRequest"><span class="badge">M</span>AddUserToGroupRequest</a>
+                </li>
+              
+                <li>
                   <a href="#pixlcrashr.vsfv.v1.CreateGroupRequest"><span class="badge">M</span>CreateGroupRequest</a>
                 </li>
               
@@ -589,6 +601,10 @@
               
                 <li>
                   <a href="#pixlcrashr.vsfv.v1.ListGroupsResponse"><span class="badge">M</span>ListGroupsResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.RemoveUserFromGroupRequest"><span class="badge">M</span>RemoveUserFromGroupRequest</a>
                 </li>
               
                 <li>
@@ -937,6 +953,14 @@
               
                 <li>
                   <a href="#pixlcrashr.vsfv.v1.GetUserRequest"><span class="badge">M</span>GetUserRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListUserGroupsRequest"><span class="badge">M</span>ListUserGroupsRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.ListUserGroupsResponse"><span class="badge">M</span>ListUserGroupsResponse</a>
                 </li>
               
                 <li>
@@ -2744,14 +2768,14 @@ Format: organizations/{organization}/budgets/{budget} </p></td>
                   <td>period_start</td>
                   <td><a href="#google.type.Date">google.type.Date</a></td>
                   <td></td>
-                  <td><p>Budget period start date. </p></td>
+                  <td><p>Budget period start date. Immutable after creation. </p></td>
                 </tr>
               
                 <tr>
                   <td>period_end</td>
                   <td><a href="#google.type.Date">google.type.Date</a></td>
                   <td></td>
-                  <td><p>Budget period end date. </p></td>
+                  <td><p>Budget period end date. Immutable after creation. </p></td>
                 </tr>
               
                 <tr>
@@ -2773,6 +2797,30 @@ Format: organizations/{organization}/budgets/{budget} </p></td>
                   <td><a href="#string">string</a></td>
                   <td></td>
                   <td><p>Entity tag for optimistic concurrency control. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>is_published</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>Whether the budget is published. Only published budgets allow their
+revisions to be published. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>publish_actual_values</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>Whether current actual (Ist) account values are publicly visible. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>publish_actual_values_until</td>
+                  <td><a href="#google.type.Date">google.type.Date</a></td>
+                  <td></td>
+                  <td><p>Optional date until which current actual values are publicly visible.
+Must lie within the budget period. If unset, the end of the budget period
+is assumed. </p></td>
                 </tr>
               
             </tbody>
@@ -4086,6 +4134,14 @@ Format: organizations/{organization}/budgets/{budget} </p></td>
                   <td><p>Entity tag for optimistic concurrency control. </p></td>
                 </tr>
               
+                <tr>
+                  <td>is_published</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>Whether the revision is published. A revision can only be published if
+its parent budget is published. </p></td>
+                </tr>
+              
             </tbody>
           </table>
 
@@ -4150,6 +4206,31 @@ will be used. Must be unique within the parent budget. </p></td>
                   <td></td>
                   <td><p>The resource name of the budget revision.
 Format: organizations/{organization}/budgets/{budget}/revisions/{revision} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.GetLatestBudgetRevisionRequest">GetLatestBudgetRevisionRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>parent</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The parent budget resource name.
+Format: organizations/{organization}/budgets/{budget} </p></td>
                 </tr>
               
             </tbody>
@@ -4245,6 +4326,38 @@ Example: &#34;create_time desc&#34;, &#34;display_name&#34;. </p></td>
 
         
       
+        <h3 id="pixlcrashr.vsfv.v1.UpdateBudgetRevisionRequest">UpdateBudgetRevisionRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>revision</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.BudgetRevision">BudgetRevision</a></td>
+                  <td></td>
+                  <td><p>The revision to update. Only is_published can be changed; all other
+fields are immutable after creation. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>update_mask</td>
+                  <td><a href="#google.protobuf.FieldMask">google.protobuf.FieldMask</a></td>
+                  <td></td>
+                  <td><p>The list of fields to update. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
 
       
 
@@ -4282,6 +4395,19 @@ Authorization:
               </tr>
             
               <tr>
+                <td>GetLatestBudgetRevision</td>
+                <td><a href="#pixlcrashr.vsfv.v1.GetLatestBudgetRevisionRequest">GetLatestBudgetRevisionRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.BudgetRevision">BudgetRevision</a></td>
+                <td><p>Gets the most recently created revision for a budget.
+Returns the latest revision ordered by create_time descending.
+Returns an empty response (no revision) if no revisions exist.
+Authorization:
+  Scope: budgets:read
+  Permission: budgets:read
+  Domain: organization-scoped</p></td>
+              </tr>
+            
+              <tr>
                 <td>CreateBudgetRevision</td>
                 <td><a href="#pixlcrashr.vsfv.v1.CreateBudgetRevisionRequest">CreateBudgetRevisionRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.BudgetRevision">BudgetRevision</a></td>
@@ -4290,6 +4416,18 @@ BudgetAccountValues for the given budget.
 Authorization:
   Scope: budgets:write
   Permission: budgets:create
+  Domain: organization-scoped</p></td>
+              </tr>
+            
+              <tr>
+                <td>UpdateBudgetRevision</td>
+                <td><a href="#pixlcrashr.vsfv.v1.UpdateBudgetRevisionRequest">UpdateBudgetRevisionRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.BudgetRevision">BudgetRevision</a></td>
+                <td><p>Updates a revision. Only the is_published field may be updated.
+Setting is_published to true requires the parent budget to be published.
+Authorization:
+  Scope: budgets:write
+  Permission: budgets:update
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -4334,9 +4472,29 @@ Authorization:
               
               
               <tr>
+                <td>GetLatestBudgetRevision</td>
+                <td>GET</td>
+                <td>/v1/{parent=organizations/*/budgets/*}/revisions:getLatest</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
                 <td>CreateBudgetRevision</td>
                 <td>POST</td>
                 <td>/v1/{parent=organizations/*/budgets/*}/revisions</td>
+                <td>revision</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>UpdateBudgetRevision</td>
+                <td>PATCH</td>
+                <td>/v1/{revision.name=organizations/*/budgets/*/revisions/*}</td>
                 <td>revision</td>
               </tr>
               
@@ -4730,6 +4888,39 @@ Authorization:
       <p></p>
 
       
+        <h3 id="pixlcrashr.vsfv.v1.AddUserToGroupRequest">AddUserToGroupRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the group.
+Format: groups/{group} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>user</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the user to add.
+Format: users/{user} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
         <h3 id="pixlcrashr.vsfv.v1.CreateGroupRequest">CreateGroupRequest</h3>
         <p></p>
 
@@ -4980,6 +5171,39 @@ Supported fields: display_name. </p></td>
 
         
       
+        <h3 id="pixlcrashr.vsfv.v1.RemoveUserFromGroupRequest">RemoveUserFromGroupRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the group.
+Format: groups/{group} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>user</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the user to remove.
+Format: users/{user} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
         <h3 id="pixlcrashr.vsfv.v1.UpdateGroupRequest">UpdateGroupRequest</h3>
         <p></p>
 
@@ -5080,6 +5304,28 @@ Authorization:
   Domain: global</p></td>
               </tr>
             
+              <tr>
+                <td>AddUserToGroup</td>
+                <td><a href="#pixlcrashr.vsfv.v1.AddUserToGroupRequest">AddUserToGroupRequest</a></td>
+                <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
+                <td><p>Adds a user to a group (custom method, AIP-136).
+Authorization:
+  Scope: groups:write
+  Permission: groups:update
+  Domain: global</p></td>
+              </tr>
+            
+              <tr>
+                <td>RemoveUserFromGroup</td>
+                <td><a href="#pixlcrashr.vsfv.v1.RemoveUserFromGroupRequest">RemoveUserFromGroupRequest</a></td>
+                <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
+                <td><p>Removes a user from a group (custom method, AIP-136).
+Authorization:
+  Scope: groups:write
+  Permission: groups:update
+  Domain: global</p></td>
+              </tr>
+            
           </tbody>
         </table>
 
@@ -5145,6 +5391,26 @@ Authorization:
                 <td>DELETE</td>
                 <td>/v1/{name=groups/*}</td>
                 <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>AddUserToGroup</td>
+                <td>POST</td>
+                <td>/v1/{name=groups/*}:addUser</td>
+                <td>*</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>RemoveUserFromGroup</td>
+                <td>POST</td>
+                <td>/v1/{name=groups/*}:removeUser</td>
+                <td>*</td>
               </tr>
               
             
@@ -6233,6 +6499,13 @@ Format: organizations/{organization} </p></td>
                   <td><a href="#string">string</a></td>
                   <td></td>
                   <td><p>Human-readable organization name. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>display_description</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Optional free-text description. </p></td>
                 </tr>
               
                 <tr>
@@ -8350,6 +8623,55 @@ Format: users/{user} </p></td>
 
         
       
+        <h3 id="pixlcrashr.vsfv.v1.ListUserGroupsRequest">ListUserGroupsRequest</h3>
+        <p>ListUserGroupsRequest requests the groups a user belongs to.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the user.
+Format: users/{user} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.ListUserGroupsResponse">ListUserGroupsResponse</h3>
+        <p>ListUserGroupsResponse returns the groups a user belongs to.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>groups</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.Group">Group</a></td>
+                  <td>repeated</td>
+                  <td><p>The groups the user is a member of. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
         <h3 id="pixlcrashr.vsfv.v1.ListUsersRequest">ListUsersRequest</h3>
         <p></p>
 
@@ -8571,6 +8893,17 @@ Authorization:
   Domain: global</p></td>
               </tr>
             
+              <tr>
+                <td>ListUserGroups</td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListUserGroupsRequest">ListUserGroupsRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.ListUserGroupsResponse">ListUserGroupsResponse</a></td>
+                <td><p>Lists the groups a user belongs to (custom method, AIP-136).
+Authorization:
+  Scope: users:read
+  Permission: users:read
+  Domain: global</p></td>
+              </tr>
+            
           </tbody>
         </table>
 
@@ -8626,6 +8959,16 @@ Authorization:
                 <td>POST</td>
                 <td>/v1/users:batchCheckPermissions</td>
                 <td>*</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>ListUserGroups</td>
+                <td>GET</td>
+                <td>/v1/{name=users/*}:listGroups</td>
+                <td></td>
               </tr>
               
             
@@ -9000,6 +9343,13 @@ Format: users/{user}/settings </p></td>
                   <td><a href="#string">string</a></td>
                   <td></td>
                   <td><p>Preferred UI theme: &#34;light&#34;, &#34;dark&#34;, or &#34;system&#34;. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>email_notifications</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>Whether the user wants to receive email notifications. </p></td>
                 </tr>
               
                 <tr>

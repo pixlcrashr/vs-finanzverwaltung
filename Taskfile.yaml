@@ -10,7 +10,8 @@ tasks:
       - git push --follow-tags origin main
   migration:create:
     cmds:
-      - atlas migrate diff --env gorm {{.CLI_ARGS}}
+      - atlas migrate diff --env gorm_postgres {{.CLI_ARGS}}
+      - atlas migrate diff --env gorm_sqlite {{.CLI_ARGS}}
   proto:build:
     desc: Validate and build all proto files using buf
     cmds:

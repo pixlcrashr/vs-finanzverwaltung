@@ -33,6 +33,9 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 	_budget.DisplayName = field.NewString(tableName, "display_name")
 	_budget.DisplayDescription = field.NewString(tableName, "display_description")
 	_budget.IsClosed = field.NewBool(tableName, "is_closed")
+	_budget.IsPublished = field.NewBool(tableName, "is_published")
+	_budget.PublishActualValues = field.NewBool(tableName, "publish_actual_values")
+	_budget.PublishActualValuesUntil = field.NewField(tableName, "publish_actual_values_until")
 	_budget.PeriodStart = field.NewTime(tableName, "period_start")
 	_budget.PeriodEnd = field.NewTime(tableName, "period_end")
 	_budget.UpdatedAt = field.NewTime(tableName, "updated_at")
@@ -186,18 +189,6 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 			}
 			TransactionAssignments struct {
 				field.RelationField
-			}
-			GroupOrganizations struct {
-				field.RelationField
-				UserGroup struct {
-					field.RelationField
-					GroupOrganizations struct {
-						field.RelationField
-					}
-				}
-				Organization struct {
-					field.RelationField
-				}
 			}
 		}{
 			RelationField: field.NewRelation("BudgetRevisions.Organization", "model.Organization"),
@@ -750,38 +741,6 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 			}{
 				RelationField: field.NewRelation("BudgetRevisions.Organization.TransactionAssignments", "model.TransactionAssignment"),
 			},
-			GroupOrganizations: struct {
-				field.RelationField
-				UserGroup struct {
-					field.RelationField
-					GroupOrganizations struct {
-						field.RelationField
-					}
-				}
-				Organization struct {
-					field.RelationField
-				}
-			}{
-				RelationField: field.NewRelation("BudgetRevisions.Organization.GroupOrganizations", "model.GroupOrganization"),
-				UserGroup: struct {
-					field.RelationField
-					GroupOrganizations struct {
-						field.RelationField
-					}
-				}{
-					RelationField: field.NewRelation("BudgetRevisions.Organization.GroupOrganizations.UserGroup", "model.UserGroup"),
-					GroupOrganizations: struct {
-						field.RelationField
-					}{
-						RelationField: field.NewRelation("BudgetRevisions.Organization.GroupOrganizations.UserGroup.GroupOrganizations", "model.GroupOrganization"),
-					},
-				},
-				Organization: struct {
-					field.RelationField
-				}{
-					RelationField: field.NewRelation("BudgetRevisions.Organization.GroupOrganizations.Organization", "model.Organization"),
-				},
-			},
 		},
 		Budget: struct {
 			field.RelationField
@@ -815,18 +774,21 @@ func newBudget(db *gorm.DB, opts ...gen.DOOption) budget {
 type budget struct {
 	budgetDo budgetDo
 
-	ALL                field.Asterisk
-	ID                 field.Field
-	CustomID           field.String
-	OrganizationID     field.Field
-	DisplayName        field.String
-	DisplayDescription field.String
-	IsClosed           field.Bool
-	PeriodStart        field.Time
-	PeriodEnd          field.Time
-	UpdatedAt          field.Time
-	CreatedAt          field.Time
-	BudgetRevisions    budgetHasManyBudgetRevisions
+	ALL                      field.Asterisk
+	ID                       field.Field
+	CustomID                 field.String
+	OrganizationID           field.Field
+	DisplayName              field.String
+	DisplayDescription       field.String
+	IsClosed                 field.Bool
+	IsPublished              field.Bool
+	PublishActualValues      field.Bool
+	PublishActualValuesUntil field.Field
+	PeriodStart              field.Time
+	PeriodEnd                field.Time
+	UpdatedAt                field.Time
+	CreatedAt                field.Time
+	BudgetRevisions          budgetHasManyBudgetRevisions
 
 	BudgetAccountValues budgetHasManyBudgetAccountValues
 
@@ -853,6 +815,9 @@ func (b *budget) updateTableName(table string) *budget {
 	b.DisplayName = field.NewString(table, "display_name")
 	b.DisplayDescription = field.NewString(table, "display_description")
 	b.IsClosed = field.NewBool(table, "is_closed")
+	b.IsPublished = field.NewBool(table, "is_published")
+	b.PublishActualValues = field.NewBool(table, "publish_actual_values")
+	b.PublishActualValuesUntil = field.NewField(table, "publish_actual_values_until")
 	b.PeriodStart = field.NewTime(table, "period_start")
 	b.PeriodEnd = field.NewTime(table, "period_end")
 	b.UpdatedAt = field.NewTime(table, "updated_at")
@@ -881,13 +846,16 @@ func (b *budget) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (b *budget) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 13)
+	b.fieldMap = make(map[string]field.Expr, 16)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["custom_id"] = b.CustomID
 	b.fieldMap["organization_id"] = b.OrganizationID
 	b.fieldMap["display_name"] = b.DisplayName
 	b.fieldMap["display_description"] = b.DisplayDescription
 	b.fieldMap["is_closed"] = b.IsClosed
+	b.fieldMap["is_published"] = b.IsPublished
+	b.fieldMap["publish_actual_values"] = b.PublishActualValues
+	b.fieldMap["publish_actual_values_until"] = b.PublishActualValuesUntil
 	b.fieldMap["period_start"] = b.PeriodStart
 	b.fieldMap["period_end"] = b.PeriodEnd
 	b.fieldMap["updated_at"] = b.UpdatedAt
@@ -1064,18 +1032,6 @@ type budgetHasManyBudgetRevisions struct {
 		}
 		TransactionAssignments struct {
 			field.RelationField
-		}
-		GroupOrganizations struct {
-			field.RelationField
-			UserGroup struct {
-				field.RelationField
-				GroupOrganizations struct {
-					field.RelationField
-				}
-			}
-			Organization struct {
-				field.RelationField
-			}
 		}
 	}
 	Budget struct {

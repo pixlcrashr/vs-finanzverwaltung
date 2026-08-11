@@ -7,7 +7,12 @@ export interface OrganizationSettings {
   fiscalYearStart: number;
 }
 
+export type OrganizationSettingsUpdate = {
+  name?: string;
+  description?: string;
+};
+
 export abstract class OrganizationSettingsDataService {
   abstract getSettings(organizationId: string): Observable<OrganizationSettings>;
-  abstract updateSettings(organizationId: string, settings: Partial<OrganizationSettings>): Observable<OrganizationSettings>;
+  abstract updateSettings(organizationId: string, settings: OrganizationSettingsUpdate): Observable<OrganizationSettings>;
 }

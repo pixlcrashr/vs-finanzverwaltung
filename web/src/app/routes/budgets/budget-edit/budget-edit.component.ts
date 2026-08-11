@@ -31,7 +31,7 @@ import {
   CreateTagDialogOutput,
 } from '../../../shared/dialogs/create-tag-dialog/create-tag-dialog.component';
 import { formatDateShort, formatDateForInput } from '../../../shared/utils';
-import { BudgetEditDataService, BudgetDetails } from './budget-edit.data-service';
+import { BudgetEditDataService, BudgetDetails, UpdateBudgetParams } from './budget-edit.data-service';
 
 @Component({
   selector: 'app-budget-edit',
@@ -117,8 +117,8 @@ import { BudgetEditDataService, BudgetDetails } from './budget-edit.data-service
                             id="startDate"
                             type="date"
                             formControlName="startDate"
-                            [readonly]="budget()!.isClosed"
-                            class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                            [disabled]="true"
+                            class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-gray-50 text-gray-500 cursor-not-allowed"
                           />
                         </div>
 
@@ -133,8 +133,8 @@ import { BudgetEditDataService, BudgetDetails } from './budget-edit.data-service
                             id="endDate"
                             type="date"
                             formControlName="endDate"
-                            [readonly]="budget()!.isClosed"
-                            class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                            [disabled]="true"
+                            class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-gray-50 text-gray-500 cursor-not-allowed"
                           />
                         </div>
                       </div>
@@ -143,28 +143,40 @@ import { BudgetEditDataService, BudgetDetails } from './budget-edit.data-service
                         <label class="flex items-center gap-2 text-xs text-gray-700">
                           <input
                             type="checkbox"
-                            formControlName="publishCurrentTargetValuesAlways"
+                            formControlName="isPublished"
                             class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                           />
-                          <ng-container i18n>Aktuelle Soll-Werte immer veröffentlichen</ng-container>
+                          <ng-container i18n>Veröffentlicht</ng-container>
                         </label>
                         <label class="flex items-center gap-2 text-xs text-gray-700">
                           <input
                             type="checkbox"
-                            formControlName="publishCurrentActualValuesAlways"
+                            formControlName="publishActualValues"
                             class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                           />
-                          <ng-container i18n>Aktuelle Ist-Werte immer veröffentlichen</ng-container>
+                          <ng-container i18n>Ist-Werte veröffentlichen</ng-container>
                         </label>
+                        @if (budgetForm.controls['publishActualValues'].value) {
+                          <div class="pl-6">
+                            <label class="block text-xs text-gray-500 mb-1" i18n>
+                              Ist-Werte veröffentlichen bis
+                            </label>
+                            <input
+                              type="date"
+                              formControlName="publishActualValuesUntil"
+                              class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
+                        }
                       </div>
                     </div>
                   </form>
                 </div>
 
-                <!-- Tags -->
+                <!-- Revisionen -->
                 <div class="bg-white rounded-lg border border-gray-200 p-4">
                   <div class="flex items-center justify-between mb-4">
-                    <h2 i18n class="text-sm font-semibold text-gray-900">Tags</h2>
+                    <h2 i18n class="text-sm font-semibold text-gray-900">Revisionen</h2>
                     <div class="flex items-center gap-2">
                       @if (!budget()!.hasUntaggedChanges && !budget()!.isClosed) {
                         <span class="text-xs text-gray-500 font-medium">
@@ -176,13 +188,13 @@ import { BudgetEditDataService, BudgetDetails } from './budget-edit.data-service
                         (clicked)="addTag()"
                         [disabled]="budget()!.isClosed"
                       >
-                        <ng-container i18n>Neuen Tag erstellen</ng-container>
+                        <ng-container i18n>Neue Revision erstellen</ng-container>
                       </app-button>
                     </div>
                   </div>
 
                   @if (budget()!.tags.length === 0) {
-                    <p i18n class="text-xs text-gray-500">Keine Tags vorhanden.</p>
+                    <p i18n class="text-xs text-gray-500">Keine Revisionen vorhanden.</p>
                   } @else {
                     <div class="space-y-2">
                       @for (tag of budget()!.tags; track tag.id) {
@@ -194,7 +206,7 @@ import { BudgetEditDataService, BudgetDetails } from './budget-edit.data-service
                               {{ tag.name }}
                             </p>
                             <p class="text-xs text-gray-500">
-                              {{ tag.description || noDescriptionLabel }}
+                              {{ formatDateShort(tag.date) }} · {{ tag.description || noDescriptionLabel }}
                             </p>
                           </div>
                           <div class="flex items-center gap-2">
@@ -332,8 +344,9 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
       description: [''],
       startDate: ['', Validators.required],
       endDate: ['', Validators.required],
-      publishCurrentTargetValuesAlways: [false],
-      publishCurrentActualValuesAlways: [false],
+      isPublished: [false],
+      publishActualValues: [false],
+      publishActualValuesUntil: [null],
     });
   }
 
@@ -382,16 +395,19 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
           description: budget.displayDescription,
           startDate: formatDateForInput(budget.periodStart),
           endDate: formatDateForInput(budget.periodEnd),
-          publishCurrentTargetValuesAlways: budget.publishCurrentTargetValuesAlways ?? false,
-          publishCurrentActualValuesAlways: budget.publishCurrentActualValuesAlways ?? false,
+          isPublished: budget.isPublished ?? false,
+          publishActualValues: budget.publishActualValues ?? false,
+          publishActualValuesUntil: budget.publishActualValuesUntil ? formatDateForInput(budget.publishActualValuesUntil) : null,
         }, { emitEvent: false });
         this.budgetForm.markAsPristine();
         if (budget.isClosed) {
-          this.budgetForm.get('publishCurrentTargetValuesAlways')?.disable({ emitEvent: false });
-          this.budgetForm.get('publishCurrentActualValuesAlways')?.disable({ emitEvent: false });
+          this.budgetForm.get('isPublished')?.disable({ emitEvent: false });
+          this.budgetForm.get('publishActualValues')?.disable({ emitEvent: false });
+          this.budgetForm.get('publishActualValuesUntil')?.disable({ emitEvent: false });
         } else {
-          this.budgetForm.get('publishCurrentTargetValuesAlways')?.enable({ emitEvent: false });
-          this.budgetForm.get('publishCurrentActualValuesAlways')?.enable({ emitEvent: false });
+          this.budgetForm.get('isPublished')?.enable({ emitEvent: false });
+          this.budgetForm.get('publishActualValues')?.enable({ emitEvent: false });
+          this.budgetForm.get('publishActualValuesUntil')?.enable({ emitEvent: false });
         }
         this.breadcrumbs.set([
           { label: $localize`Haushaltspläne`, path: `/organizations/${this.orgId}/budgets` },
@@ -415,22 +431,24 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
     const {
       name,
       description,
-      startDate,
-      endDate,
-      publishCurrentTargetValuesAlways,
-      publishCurrentActualValuesAlways,
+      isPublished,
+      publishActualValues,
+      publishActualValuesUntil,
     } = this.budgetForm.value;
+
+    const params: UpdateBudgetParams = {
+      name,
+      description,
+      isPublished: isPublished ?? false,
+      publishActualValues: publishActualValues ?? false,
+      publishActualValuesUntil: publishActualValuesUntil ? new Date(publishActualValuesUntil) : null,
+    };
 
     this.dataService
       .updateBudget(
         this.orgId,
         budget.id,
-        name,
-        description,
-        new Date(startDate),
-        new Date(endDate),
-        publishCurrentTargetValuesAlways,
-        publishCurrentActualValuesAlways
+        params,
       )
       .subscribe({
         next: () => {
@@ -455,7 +473,7 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
 
     // Prevent tag creation for closed budgets
     if (budget.isClosed) {
-      this.notifications.error($localize`Tags können nicht für geschlossene Haushaltspläne erstellt werden`);
+      this.notifications.error($localize`Revisionen können nicht für geschlossene Haushaltspläne erstellt werden`);
       return;
     }
 
@@ -498,10 +516,10 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
     this.dataService.createBudgetRevision(this.orgId, budget.id, new Date(), name, description, force).subscribe({
       next: () => {
         this.loadBudget(budget.id);
-        this.notifications.success($localize`Tag erfolgreich erstellt`);
+        this.notifications.success($localize`Revision erfolgreich erstellt`);
       },
       error: () => {
-        this.notifications.error($localize`Fehler beim Hinzufügen des Tags`);
+        this.notifications.error($localize`Fehler beim Hinzufügen der Revision`);
       },
     });
   }
@@ -517,13 +535,13 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
     const budget = this.budget();
     if (!budget || budget.isClosed) return;
 
-    this.dataService.updateBudgetRevision(this.orgId, tag.id, !tag.isPublished).subscribe({
+    this.dataService.updateBudgetRevision(this.orgId, budget.id, tag.id, !tag.isPublished).subscribe({
       next: () => {
         this.loadBudget(budget.id);
-        this.notifications.success(tag.isPublished ? $localize`Tag wurde unveröffentlicht` : $localize`Tag wurde veröffentlicht`);
+        this.notifications.success(tag.isPublished ? $localize`Revision wurde unveröffentlicht` : $localize`Revision wurde veröffentlicht`);
       },
       error: () => {
-        this.notifications.error($localize`Fehler beim Aktualisieren der Tag-Veröffentlichung`);
+        this.notifications.error($localize`Fehler beim Aktualisieren der Revision-Veröffentlichung`);
       },
     });
   }
@@ -535,10 +553,10 @@ export class BudgetEditComponent implements OnInit, OnDestroy {
     this.dataService.deleteBudgetRevision(this.orgId, tagId).subscribe({
       next: () => {
         this.loadBudget(budget.id);
-        this.notifications.success($localize`Tag erfolgreich entfernt`);
+        this.notifications.success($localize`Revision erfolgreich entfernt`);
       },
       error: () => {
-        this.notifications.error($localize`Fehler beim Entfernen des Tags`);
+        this.notifications.error($localize`Fehler beim Entfernen der Revision`);
       },
     });
   }

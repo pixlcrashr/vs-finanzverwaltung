@@ -49,7 +49,7 @@ func New(db *gorm.DB, enforcer *authz.Enforcer) *Services {
 		TransactionAssignment:      newTransactionAssignmentServiceServer(repository.NewTransactionAssignmentRepository(db), repository.NewAccountRepository(db), enforcer),
 		ReportTemplate:             newReportTemplateServiceServer(repository.NewReportTemplateRepository(db), enforcer),
 		Report:                     newReportServiceServer(repository.NewReportRepository(db), enforcer),
-		User:                       newUserServiceServer(repository.NewUserRepository(db), enforcer),
+		User:                       newUserServiceServer(repository.NewUserRepository(db), repository.NewUserGroupRepository(db, enforcer), enforcer),
 		UserSettings:               newUserSettingsServiceServer(repository.NewUserSettingsRepository(db), enforcer),
 		UserIdentity:               newUserIdentityServiceServer(repository.NewUserIdentityRepository(db), enforcer),
 		Group:                      newGroupServiceServer(repository.NewUserGroupRepository(db, enforcer), enforcer),

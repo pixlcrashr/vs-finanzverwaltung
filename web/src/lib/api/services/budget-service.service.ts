@@ -411,7 +411,7 @@ module BudgetServiceService {
     /**
      * The budget to update.
      */
-    budget: {uid?: string, display_name: string, display_description?: string, is_closed?: boolean, period_start: TypeDate, period_end: TypeDate, update_time?: string, create_time?: string, etag?: string};
+    budget: {uid?: string, display_name: string, display_description?: string, is_closed?: boolean, period_start: TypeDate, period_end: TypeDate, update_time?: string, create_time?: string, etag?: string, is_published?: boolean, publish_actual_values?: boolean, publish_actual_values_until?: TypeDate};
   }
 
   /**

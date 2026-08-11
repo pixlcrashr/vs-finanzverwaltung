@@ -1,9 +1,12 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideAppInitializer, inject } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { provideOAuthClient, OAuthService } from 'angular-oauth2-oidc';
 import { provideApiConfiguration } from './provide-api-configuration';
 import { environment } from '../environments/environment';
+import { authConfig } from './auth/auth.config';
+import { authInterceptor } from './auth/auth.interceptor';
 
 import { routes } from './app.routes';
 
@@ -19,6 +22,12 @@ import { CreateOrganizationDialogDataService } from './shared/dialogs/create-org
 import { AuthorizationDataService } from '../lib/authz/authorization.service';
 import { CurrentUserService, CurrentUserInitializer, CurrentUserInfo } from '../lib/authz/current-user.service';
 
+async function initializeAuth(): Promise<void> {
+  const oauthService = inject(OAuthService);
+  oauthService.configure(authConfig);
+  await oauthService.loadDiscoveryDocumentAndTryLogin();
+}
+
 function initializeCurrentUser(): Promise<CurrentUserInfo | null> {
   const initializer = inject(CurrentUserInitializer);
   return firstValueFrom(initializer.initialize());
@@ -28,7 +37,8 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([authInterceptor])),
+    provideOAuthClient(),
     provideApiConfiguration(environment.apiBaseUrl),
     // Dialog data services (global providers since dialogs can be opened from any route)
     { provide: CreateAccountGroupDialogDataService, useClass: environment.dataServices.createAccountGroupDialog },
@@ -41,6 +51,7 @@ export const appConfig: ApplicationConfig = {
     { provide: CreateOrganizationDialogDataService, useClass: environment.dataServices.createOrganizationDialog },
     { provide: AuthorizationDataService, useClass: environment.dataServices.authorizationData },
     { provide: CurrentUserService, useClass: environment.dataServices.currentUser },
+    provideAppInitializer(initializeAuth),
     provideAppInitializer(initializeCurrentUser),
   ],
 };

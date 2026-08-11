@@ -23,21 +23,18 @@ type Server struct {
 }
 
 type Database struct {
-	URL string `mapstructure:"url"`
+	DSN string `mapstructure:"dsn"`
 }
 
 type Auth struct {
-	Secret        string        `mapstructure:"secret"`
-	TokenTTL      time.Duration `mapstructure:"token-ttl"`
-	RefreshTTL    time.Duration `mapstructure:"refresh-ttl"`
-	SessionTTL    time.Duration `mapstructure:"session-ttl"`
-	JWKS          JWKSConfig    `mapstructure:"jwks"`
-	PasswordLogin PasswordLogin `mapstructure:"password-login"`
-	GitLab        GitLabOAuth   `mapstructure:"gitlab"`
-}
-
-type PasswordLogin struct {
-	Enabled bool `mapstructure:"enabled"`
+	Secret          string        `mapstructure:"secret"`
+	TokenTTL        time.Duration `mapstructure:"token-ttl"`
+	RefreshTTL      time.Duration `mapstructure:"refresh-ttl"`
+	SessionTTL      time.Duration `mapstructure:"session-ttl"`
+	SecureCookies   bool          `mapstructure:"secure-cookies"`
+	WebRedirectURIs []string      `mapstructure:"web-redirect-uris"`
+	JWKS            JWKSConfig    `mapstructure:"jwks"`
+	GitLab          GitLabOAuth   `mapstructure:"gitlab"`
 }
 
 type GitLabOAuth struct {
@@ -95,7 +92,8 @@ func Load(cfgFile string) (*Config, error) {
 	viper.SetDefault("auth.token-ttl", time.Hour)
 	viper.SetDefault("auth.refresh-ttl", 720*time.Hour)
 	viper.SetDefault("auth.session-ttl", 24*time.Hour)
-	viper.SetDefault("auth.password-login.enabled", true)
+	viper.SetDefault("auth.secure-cookies", false)
+	viper.SetDefault("auth.web-redirect-uris", []string{})
 	viper.SetDefault("auth.gitlab.enabled", false)
 	viper.SetDefault("auth.jwks.key-files", []string{})
 

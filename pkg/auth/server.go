@@ -1,8 +1,11 @@
 package auth
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/gofiber/adaptor/v2"
@@ -11,6 +14,7 @@ import (
 	"github.com/ory/fosite"
 	"github.com/ory/fosite/compose"
 	"github.com/ory/fosite/handler/openid"
+	"github.com/ory/fosite/token/jwt"
 	"github.com/pixlcrashr/vsfv/pkg/cfg"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
@@ -43,7 +47,7 @@ func NewServer(
 	}
 
 	storage := NewStorage(db, clientRepo, tokenRepo, userRepo)
-	sessionMgr := NewSessionManager(sessionRepo, authCfg.SessionTTL)
+	sessionMgr := NewSessionManager(sessionRepo, authCfg.SessionTTL, authCfg.SecureCookies)
 
 	secret := []byte(authCfg.Secret)
 
@@ -56,7 +60,30 @@ func NewServer(
 		SendDebugMessagesToClients: true,
 	}
 
-	oauth2 := compose.ComposeAllEnabled(fositeConfig, storage, km.SigningKey())
+	keyGetter := func(context.Context) (interface{}, error) {
+		return km.SigningKey(), nil
+	}
+	strategy := &compose.CommonStrategy{
+		CoreStrategy:               compose.NewOAuth2HMACStrategy(fositeConfig),
+		OpenIDConnectTokenStrategy: compose.NewOpenIDConnectStrategy(keyGetter, fositeConfig),
+		Signer:                     &jwt.DefaultSigner{GetPrivateKey: keyGetter},
+	}
+
+	oauth2 := compose.Compose(
+		fositeConfig,
+		storage,
+		strategy,
+		compose.OAuth2AuthorizeExplicitFactory,
+		compose.OAuth2AuthorizeImplicitFactory,
+		compose.OAuth2RefreshTokenGrantFactory,
+		compose.OpenIDConnectExplicitFactory,
+		compose.OpenIDConnectImplicitFactory,
+		compose.OpenIDConnectHybridFactory,
+		compose.OpenIDConnectRefreshFactory,
+		compose.OAuth2TokenIntrospectionFactory,
+		compose.OAuth2TokenRevocationFactory,
+		compose.OAuth2PKCEFactory,
+	)
 
 	return &Server{
 		oauth2:     oauth2,
@@ -92,12 +119,11 @@ func (s *Server) authorizeHandler(w http.ResponseWriter, r *http.Request) {
 
 	sess, err := s.sessionMgr.GetSessionFromRequest(ctx, r)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		_ = json.NewEncoder(w).Encode(map[string]string{
-			"error":             "unauthorized",
-			"error_description": "no valid session",
-		})
+		// No session — redirect to GitLab OIDC login, which will redirect back
+		// to this same authorize endpoint after authentication.
+		returnTo := s.publicURL + r.URL.RequestURI()
+		loginURL := fmt.Sprintf("/auth/gitlab?return_to=%s", url.QueryEscape(returnTo))
+		http.Redirect(w, r, loginURL, http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -114,7 +140,16 @@ func (s *Server) authorizeHandler(w http.ResponseWriter, r *http.Request) {
 
 	session := NewSession(user)
 
-	for _, scope := range ar.GetRequestedScopes() {
+	// Grant scopes. For the trusted first-party web client, grant all
+	// scopes the client is allowed to request (regardless of what the
+	// frontend actually requested) so the frontend doesn't need to know
+	// about individual API scopes. Casbin still enforces per-user
+	// permissions; scopes only gate whether the check is attempted.
+	scopesToGrant := ar.GetRequestedScopes()
+	if ar.GetClient().GetID() == DefaultWebClientID {
+		scopesToGrant = ar.GetClient().GetScopes()
+	}
+	for _, scope := range scopesToGrant {
 		ar.GrantScope(scope)
 	}
 

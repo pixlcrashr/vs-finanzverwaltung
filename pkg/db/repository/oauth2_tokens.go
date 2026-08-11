@@ -6,9 +6,9 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/lib/pq"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
+	"github.com/pixlcrashr/vsfv/pkg/db/types"
 	"gorm.io/gorm"
 )
 
@@ -30,8 +30,8 @@ type CreateOAuth2TokenParams struct {
 	RequestType  string
 	ClientID     string
 	UserID       *uuid.UUID
-	Scope        pq.StringArray
-	GrantedScope pq.StringArray
+	Scope        types.StringArray
+	GrantedScope types.StringArray
 	FormData     string
 	SessionData  string
 	RequestedAt  interface{}

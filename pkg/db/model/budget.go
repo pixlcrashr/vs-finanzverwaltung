@@ -1,6 +1,7 @@
 package model
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -8,16 +9,19 @@ import (
 )
 
 type Budget struct {
-	ID                 uuid.UUID `gorm:"type:uuid;primaryKey;uniqueIndex:idx_budgets_org_id,priority:1"`
-	CustomID           string    `gorm:"uniqueIndex:idx_budgets_custom_id_org,priority:1"`
-	OrganizationID     uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_budgets_org_id,priority:2;uniqueIndex:idx_budgets_custom_id_org,priority:2"`
-	DisplayName        string    `gorm:"not null;default:'';index:idx_budgets_display_name"`
-	DisplayDescription string    `gorm:"not null;default:''"`
-	IsClosed           bool      `gorm:"not null;default:false"`
-	PeriodStart        time.Time `gorm:"not null"`
-	PeriodEnd          time.Time `gorm:"not null"`
-	UpdatedAt          time.Time `gorm:"not null;default:now()"`
-	CreatedAt          time.Time `gorm:"not null;default:now()"`
+	ID                       uuid.UUID    `gorm:"type:uuid;primaryKey;uniqueIndex:idx_budgets_org_id,priority:1"`
+	CustomID                 string       `gorm:"uniqueIndex:idx_budgets_custom_id_org,priority:1"`
+	OrganizationID           uuid.UUID    `gorm:"type:uuid;not null;uniqueIndex:idx_budgets_org_id,priority:2;uniqueIndex:idx_budgets_custom_id_org,priority:2"`
+	DisplayName              string       `gorm:"not null;default:'';index:idx_budgets_display_name"`
+	DisplayDescription       string       `gorm:"not null;default:''"`
+	IsClosed                 bool         `gorm:"not null;default:false"`
+	IsPublished              bool         `gorm:"not null;default:false"`
+	PublishActualValues      bool         `gorm:"not null;default:false"`
+	PublishActualValuesUntil sql.NullTime `gorm:"default:null"`
+	PeriodStart              time.Time    `gorm:"not null"`
+	PeriodEnd                time.Time    `gorm:"not null"`
+	UpdatedAt                time.Time    `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	CreatedAt                time.Time    `gorm:"not null;default:CURRENT_TIMESTAMP"`
 
 	// Relations
 	Organization        Organization         `gorm:"foreignKey:OrganizationID"`

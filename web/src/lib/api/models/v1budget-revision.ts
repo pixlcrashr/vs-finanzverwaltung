@@ -34,6 +34,12 @@ export interface V1BudgetRevision {
    * Entity tag for optimistic concurrency control.
    */
   etag?: string;
+
+  /**
+   * Whether the revision is published. A revision can only be published if
+   * its parent budget is published.
+   */
+  is_published?: boolean;
   name?: string;
 
   /**

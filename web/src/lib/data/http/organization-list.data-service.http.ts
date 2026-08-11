@@ -11,7 +11,6 @@ export class HttpOrganizationListDataService extends OrganizationListDataService
   getOrganizations(): Observable<Organization[]> {
     return this.svc.OrganizationServiceListOrganizations({ pageSize: 100 }).pipe(
       map((resp) => {
-        console.log(resp);
         return (resp.organizations ?? []).map((o) => ({
           id: o.uid ?? '',
           name: o.display_name,

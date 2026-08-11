@@ -13,8 +13,8 @@ type LedgerYear struct {
 	OrganizationID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_ledger_years_org_id,priority:2;uniqueIndex:idx_ledger_years_custom_id,priority:2;uniqueIndex:idx_ledger_years_org_year,priority:1"`
 	Year           int       `gorm:"not null;default:0;uniqueIndex:idx_ledger_years_org_year,priority:2"`
 	IsClosed       bool      `gorm:"not null;default:false"`
-	UpdatedAt      time.Time `gorm:"not null;default:now()"`
-	CreatedAt      time.Time `gorm:"not null;default:now()"`
+	UpdatedAt      time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	CreatedAt      time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 
 	// Relations
 	Organization Organization `gorm:"foreignKey:OrganizationID"`

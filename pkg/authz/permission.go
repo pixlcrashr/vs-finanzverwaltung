@@ -61,7 +61,14 @@ const (
 
 // GlobalDomain is the casbin domain value used for permissions that are not
 // scoped to any organization (e.g. user management, group management, settings).
-const GlobalDomain = ""
+// Must be non-empty — the GORM adapter strips trailing empty strings from policy
+// rows, which would corrupt g3 rules.
+const GlobalDomain = "g"
+
+// WildcardDomain is the casbin domain value used for wildcard organization
+// assignments (g3). A group assigned to WildcardDomain has its permissions
+// applied to every organization.
+const WildcardDomain = "*"
 
 // OrgDomainPrefix is the prefix for organization-scoped domains in casbin.
 const OrgDomainPrefix = "organizations/"

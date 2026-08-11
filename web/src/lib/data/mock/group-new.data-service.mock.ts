@@ -8,10 +8,14 @@ import { GroupNewDataService, CreateGroupInput } from '../../../app/routes/admin
 export class MockGroupNewDataService extends GroupNewDataService {
   createGroup(input: CreateGroupInput): Observable<UserGroup> {
     const now = new Date();
+    const id = faker.string.uuid();
     const group: UserGroup = {
-      id: faker.string.uuid(),
+      id,
+      customId: id,
       name: input.name,
       description: input.description,
+      organizations: input.organizations,
+      permissions: input.permissions,
       createdAt: now,
       updatedAt: now,
     };

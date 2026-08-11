@@ -34,6 +34,8 @@ type UserSettings struct {
 	Locale string `protobuf:"bytes,2,opt,name=locale,proto3" json:"locale,omitempty"`
 	// Preferred UI theme: "light", "dark", or "system".
 	Theme string `protobuf:"bytes,3,opt,name=theme,proto3" json:"theme,omitempty"`
+	// Whether the user wants to receive email notifications.
+	EmailNotifications bool `protobuf:"varint,6,opt,name=email_notifications,json=emailNotifications,proto3" json:"email_notifications,omitempty"`
 	// Last modification timestamp.
 	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
 	// Entity tag for optimistic concurrency control.
@@ -91,6 +93,13 @@ func (x *UserSettings) GetTheme() string {
 		return x.Theme
 	}
 	return ""
+}
+
+func (x *UserSettings) GetEmailNotifications() bool {
+	if x != nil {
+		return x.EmailNotifications
+	}
+	return false
 }
 
 func (x *UserSettings) GetUpdateTime() *timestamppb.Timestamp {
@@ -222,11 +231,12 @@ var File_pixlcrashr_vsfv_v1_user_settings_proto protoreflect.FileDescriptor
 
 const file_pixlcrashr_vsfv_v1_user_settings_proto_rawDesc = "" +
 	"\n" +
-	"&pixlcrashr/vsfv/v1/user_settings.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x82\x02\n" +
+	"&pixlcrashr/vsfv/v1/user_settings.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb8\x02\n" +
 	"\fUserSettings\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x03R\x04name\x12\x1b\n" +
 	"\x06locale\x18\x02 \x01(\tB\x03\xe0A\x01R\x06locale\x12\x19\n" +
-	"\x05theme\x18\x03 \x01(\tB\x03\xe0A\x01R\x05theme\x12@\n" +
+	"\x05theme\x18\x03 \x01(\tB\x03\xe0A\x01R\x05theme\x124\n" +
+	"\x13email_notifications\x18\x06 \x01(\bB\x03\xe0A\x01R\x12emailNotifications\x12@\n" +
 	"\vupdate_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"updateTime\x12\x17\n" +
 	"\x04etag\x18\x05 \x01(\tB\x03\xe0A\x03R\x04etag:F\xeaAC\n" +

@@ -5,8 +5,9 @@ export interface Budget {
   periodStart: Date;
   periodEnd: Date;
   isClosed: boolean;
-  publishCurrentTargetValuesAlways?: boolean;
-  publishCurrentActualValuesAlways?: boolean;
+  isPublished: boolean;
+  publishActualValues: boolean;
+  publishActualValuesUntil?: Date | null;
 }
 
 export interface BudgetRevision {

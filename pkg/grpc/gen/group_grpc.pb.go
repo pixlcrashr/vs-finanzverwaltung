@@ -20,11 +20,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	GroupService_GetGroup_FullMethodName    = "/pixlcrashr.vsfv.v1.GroupService/GetGroup"
-	GroupService_ListGroups_FullMethodName  = "/pixlcrashr.vsfv.v1.GroupService/ListGroups"
-	GroupService_CreateGroup_FullMethodName = "/pixlcrashr.vsfv.v1.GroupService/CreateGroup"
-	GroupService_UpdateGroup_FullMethodName = "/pixlcrashr.vsfv.v1.GroupService/UpdateGroup"
-	GroupService_DeleteGroup_FullMethodName = "/pixlcrashr.vsfv.v1.GroupService/DeleteGroup"
+	GroupService_GetGroup_FullMethodName            = "/pixlcrashr.vsfv.v1.GroupService/GetGroup"
+	GroupService_ListGroups_FullMethodName          = "/pixlcrashr.vsfv.v1.GroupService/ListGroups"
+	GroupService_CreateGroup_FullMethodName         = "/pixlcrashr.vsfv.v1.GroupService/CreateGroup"
+	GroupService_UpdateGroup_FullMethodName         = "/pixlcrashr.vsfv.v1.GroupService/UpdateGroup"
+	GroupService_DeleteGroup_FullMethodName         = "/pixlcrashr.vsfv.v1.GroupService/DeleteGroup"
+	GroupService_AddUserToGroup_FullMethodName      = "/pixlcrashr.vsfv.v1.GroupService/AddUserToGroup"
+	GroupService_RemoveUserFromGroup_FullMethodName = "/pixlcrashr.vsfv.v1.GroupService/RemoveUserFromGroup"
 )
 
 // GroupServiceClient is the client API for GroupService service.
@@ -68,6 +70,20 @@ type GroupServiceClient interface {
 	//	Permission: groups:delete
 	//	Domain: global
 	DeleteGroup(ctx context.Context, in *DeleteGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// Adds a user to a group (custom method, AIP-136).
+	// Authorization:
+	//
+	//	Scope: groups:write
+	//	Permission: groups:update
+	//	Domain: global
+	AddUserToGroup(ctx context.Context, in *AddUserToGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// Removes a user from a group (custom method, AIP-136).
+	// Authorization:
+	//
+	//	Scope: groups:write
+	//	Permission: groups:update
+	//	Domain: global
+	RemoveUserFromGroup(ctx context.Context, in *RemoveUserFromGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type groupServiceClient struct {
@@ -128,6 +144,26 @@ func (c *groupServiceClient) DeleteGroup(ctx context.Context, in *DeleteGroupReq
 	return out, nil
 }
 
+func (c *groupServiceClient) AddUserToGroup(ctx context.Context, in *AddUserToGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, GroupService_AddUserToGroup_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *groupServiceClient) RemoveUserFromGroup(ctx context.Context, in *RemoveUserFromGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, GroupService_RemoveUserFromGroup_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GroupServiceServer is the server API for GroupService service.
 // All implementations should embed UnimplementedGroupServiceServer
 // for forward compatibility.
@@ -169,6 +205,20 @@ type GroupServiceServer interface {
 	//	Permission: groups:delete
 	//	Domain: global
 	DeleteGroup(context.Context, *DeleteGroupRequest) (*emptypb.Empty, error)
+	// Adds a user to a group (custom method, AIP-136).
+	// Authorization:
+	//
+	//	Scope: groups:write
+	//	Permission: groups:update
+	//	Domain: global
+	AddUserToGroup(context.Context, *AddUserToGroupRequest) (*emptypb.Empty, error)
+	// Removes a user from a group (custom method, AIP-136).
+	// Authorization:
+	//
+	//	Scope: groups:write
+	//	Permission: groups:update
+	//	Domain: global
+	RemoveUserFromGroup(context.Context, *RemoveUserFromGroupRequest) (*emptypb.Empty, error)
 }
 
 // UnimplementedGroupServiceServer should be embedded to have
@@ -192,6 +242,12 @@ func (UnimplementedGroupServiceServer) UpdateGroup(context.Context, *UpdateGroup
 }
 func (UnimplementedGroupServiceServer) DeleteGroup(context.Context, *DeleteGroupRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteGroup not implemented")
+}
+func (UnimplementedGroupServiceServer) AddUserToGroup(context.Context, *AddUserToGroupRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method AddUserToGroup not implemented")
+}
+func (UnimplementedGroupServiceServer) RemoveUserFromGroup(context.Context, *RemoveUserFromGroupRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method RemoveUserFromGroup not implemented")
 }
 func (UnimplementedGroupServiceServer) testEmbeddedByValue() {}
 
@@ -303,6 +359,42 @@ func _GroupService_DeleteGroup_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GroupService_AddUserToGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddUserToGroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupServiceServer).AddUserToGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GroupService_AddUserToGroup_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupServiceServer).AddUserToGroup(ctx, req.(*AddUserToGroupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GroupService_RemoveUserFromGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveUserFromGroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupServiceServer).RemoveUserFromGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GroupService_RemoveUserFromGroup_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupServiceServer).RemoveUserFromGroup(ctx, req.(*RemoveUserFromGroupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GroupService_ServiceDesc is the grpc.ServiceDesc for GroupService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -329,6 +421,14 @@ var GroupService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteGroup",
 			Handler:    _GroupService_DeleteGroup_Handler,
+		},
+		{
+			MethodName: "AddUserToGroup",
+			Handler:    _GroupService_AddUserToGroup_Handler,
+		},
+		{
+			MethodName: "RemoveUserFromGroup",
+			Handler:    _GroupService_RemoveUserFromGroup_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

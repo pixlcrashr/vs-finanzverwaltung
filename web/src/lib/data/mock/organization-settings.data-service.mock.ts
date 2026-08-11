@@ -2,6 +2,7 @@ import { Observable, of } from 'rxjs';
 import {
   OrganizationSettingsDataService,
   OrganizationSettings,
+  OrganizationSettingsUpdate,
 } from '../../../app/routes/settings/organization-settings.data-service';
 import { faker } from '@faker-js/faker';
 
@@ -26,7 +27,7 @@ export class MockOrganizationSettingsDataService implements OrganizationSettings
 
   updateSettings(
     organizationId: string,
-    settings: Partial<OrganizationSettings>
+    settings: OrganizationSettingsUpdate
   ): Observable<OrganizationSettings> {
     const current = mockSettings.get(organizationId) || createMockSettings(organizationId);
     const updated: OrganizationSettings = {

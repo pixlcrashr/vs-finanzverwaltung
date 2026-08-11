@@ -28,8 +28,8 @@ type LedgerAccount struct {
 	AccountType        AccountType `gorm:"type:int;not null;default:0"`
 	DisplayName        string      `gorm:"not null;default:'';index:idx_ledger_accounts_display_name"`
 	DisplayDescription string      `gorm:"not null;default:''"`
-	UpdatedAt          time.Time   `gorm:"not null;default:now()"`
-	CreatedAt          time.Time   `gorm:"not null;default:now()"`
+	UpdatedAt          time.Time   `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	CreatedAt          time.Time   `gorm:"not null;default:CURRENT_TIMESTAMP"`
 
 	// Relations
 	Organization       Organization   `gorm:"foreignKey:OrganizationID"`

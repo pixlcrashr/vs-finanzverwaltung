@@ -3,14 +3,20 @@ server:
   grpc-addr: "127.0.0.1:9090"
 
 database:
-  url: "postgres://vsf:postgres@127.0.0.1:5334/vsf?sslmode=disable"
+  # dsn: "postgres://vsf:postgres@127.0.0.1:5334/vsf?sslmode=disable"
+  dsn: sqlite://dev.sqlite
 
 auth:
   secret: "dev-secret-do-not-use-in-production"
   gitlab:
-    client-id: "dev-client-id"
-    client-secret: "dev-client-secret"
-    issuer: "https://gitlab.com"
+    enabled: true
+    client-id: "a14f354382377ca5b75714826032d5791542f11ea0aabe799044978354c06465"
+    client-secret: "gloas-7ee892cf1be1741ea672cbf26e7f30ec42cf9d8c0c53bb91ea0be679b1a1b548"
+    issuer: "https://collaborating.tuhh.de"
+  web-redirect-uris:
+    - "http://localhost:4200/login"
+    - "http://localhost:8080/login"
+    - "http://127.0.0.1:8080/login"
 
 gotenberg:
   url: "http://127.0.0.1:3000"

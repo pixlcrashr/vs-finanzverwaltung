@@ -13,8 +13,8 @@ type ReportTemplate struct {
 	OrganizationID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_report_templates_org_id,priority:2;uniqueIndex:idx_report_templates_custom_id_org,priority:2"`
 	DisplayName    string    `gorm:"not null;default:''"`
 	Template       string    `gorm:"not null;default:''"`
-	UpdatedAt      time.Time `gorm:"not null;default:now()"`
-	CreatedAt      time.Time `gorm:"not null;default:now()"`
+	UpdatedAt      time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	CreatedAt      time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 
 	// Relations
 	Organization Organization `gorm:"foreignKey:OrganizationID"`

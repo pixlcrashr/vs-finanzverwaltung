@@ -34,31 +34,24 @@ export class MockAccountListDataService extends AccountListDataService {
       code,
       fullCode: code,
       description,
-      depth: parentAccountId ? 1 : 0,
       isArchived: false,
+      isContainer,
       parentAccountId,
-      children: [],
     };
 
-    if (parentAccountId) {
-      const parent = this.findAccount(accounts, parentAccountId);
-      if (parent) {
-        parent.children.push(newAccount);
-      }
-    } else {
-      accounts.unshift(newAccount);
-    }
+    accounts.push(newAccount);
 
     return of(newAccount).pipe(delay(300));
   }
 
   deleteAccount(organizationId: string, id: string): Observable<void> {
-    this.accountsByOrg.set(organizationId, this.removeAccount(this.getAccounts(organizationId), id));
+    const accounts = this.getAccounts(organizationId);
+    this.accountsByOrg.set(organizationId, accounts.filter((a) => a.id !== id));
     return of(undefined).pipe(delay(300));
   }
 
   archiveAccount(organizationId: string, id: string): Observable<void> {
-    const account = this.findAccount(this.getAccounts(organizationId), id);
+    const account = this.getAccounts(organizationId).find((a) => a.id === id);
     if (account) {
       account.isArchived = true;
     }
@@ -66,83 +59,63 @@ export class MockAccountListDataService extends AccountListDataService {
   }
 
   restoreAccount(organizationId: string, id: string): Observable<void> {
-    const account = this.findAccount(this.getAccounts(organizationId), id);
+    const account = this.getAccounts(organizationId).find((a) => a.id === id);
     if (account) {
       account.isArchived = false;
     }
     return of(undefined).pipe(delay(300));
   }
 
-  private findAccount(accounts: Account[], id: string): Account | null {
-    for (const account of accounts) {
-      if (account.id === id) {
-        return account;
-      }
-      const found = this.findAccount(account.children, id);
-      if (found) {
-        return found;
-      }
-    }
-    return null;
-  }
-
-  private removeAccount(accounts: Account[], id: string): Account[] {
-    return accounts
-      .filter((a) => a.id !== id)
-      .map((a) => ({
-        ...a,
-        children: this.removeAccount(a.children, id),
-      }));
-  }
-
   private generateAccounts(): Account[] {
-    const rootAccounts: Account[] = [
-      this.createAccountNode('1', 'Einnahmen', 'Alle Einnahmen', 0),
-      this.createAccountNode('2', 'Ausgaben', 'Alle Ausgaben', 0),
-      this.createAccountNode('3', 'Rücklagen', 'Rücklagen und Reserven', 0),
+    const einnahmenId = faker.string.uuid();
+    const ausgabenId = faker.string.uuid();
+    const ruecklagenId = faker.string.uuid();
+    const personalId = faker.string.uuid();
+    const sachmittelId = faker.string.uuid();
+    const verwaltungId = faker.string.uuid();
+
+    const accounts: Account[] = [
+      this.createAccountNode(einnahmenId, null, '1', 'Einnahmen', 'Alle Einnahmen', false, true),
+      this.createAccountNode(ausgabenId, null, '2', 'Ausgaben', 'Alle Ausgaben', false, true),
+      this.createAccountNode(ruecklagenId, null, '3', 'Rücklagen', 'Rücklagen und Reserven', false, true),
+
+      // Einnahmen children
+      this.createAccountNode(faker.string.uuid(), einnahmenId, '1.1', 'Mitgliedsbeiträge', 'Einnahmen aus Mitgliedsbeiträgen'),
+      this.createAccountNode(faker.string.uuid(), einnahmenId, '1.2', 'Zuschüsse', 'Öffentliche Zuschüsse'),
+      this.createAccountNode(faker.string.uuid(), einnahmenId, '1.3', 'Spenden', 'Spendeneinnahmen'),
+
+      // Ausgaben children
+      this.createAccountNode(personalId, ausgabenId, '2.1', 'Personal', 'Personalkosten', false, true),
+      this.createAccountNode(sachmittelId, ausgabenId, '2.2', 'Sachmittel', 'Sachmittel und Material', false, true),
+      this.createAccountNode(faker.string.uuid(), ausgabenId, '2.3', 'Veranstaltungen', 'Veranstaltungskosten'),
+      this.createAccountNode(verwaltungId, ausgabenId, '2.4', 'Verwaltung', 'Verwaltungskosten', true),
+
+      // Personal sub-children
+      this.createAccountNode(faker.string.uuid(), personalId, '2.1.1', 'Gehälter', 'Gehaltszahlungen'),
+      this.createAccountNode(faker.string.uuid(), personalId, '2.1.2', 'Sozialabgaben', 'Arbeitgeberanteile Sozialversicherung'),
     ];
 
-    // Add children to Einnahmen
-    rootAccounts[0].children = [
-      this.createAccountNode('1.1', 'Mitgliedsbeiträge', 'Einnahmen aus Mitgliedsbeiträgen', 1),
-      this.createAccountNode('1.2', 'Zuschüsse', 'Öffentliche Zuschüsse', 1),
-      this.createAccountNode('1.3', 'Spenden', 'Spendeneinnahmen', 1),
-    ];
-
-    // Add children to Ausgaben
-    rootAccounts[1].children = [
-      this.createAccountNode('2.1', 'Personal', 'Personalkosten', 1),
-      this.createAccountNode('2.2', 'Sachmittel', 'Sachmittel und Material', 1),
-      this.createAccountNode('2.3', 'Veranstaltungen', 'Veranstaltungskosten', 1),
-      this.createAccountNode('2.4', 'Verwaltung', 'Verwaltungskosten', 1, true),
-    ];
-
-    // Add sub-children to Personal
-    rootAccounts[1].children[0].children = [
-      this.createAccountNode('2.1.1', 'Gehälter', 'Gehaltszahlungen', 2),
-      this.createAccountNode('2.1.2', 'Sozialabgaben', 'Arbeitgeberanteile Sozialversicherung', 2),
-    ];
-
-    return rootAccounts;
+    return accounts;
   }
 
   private createAccountNode(
+    id: string,
+    parentAccountId: string | null,
     code: string,
     name: string,
     description: string,
-    depth: number,
-    isArchived = false
+    isArchived = false,
+    isContainer = false,
   ): Account {
     return {
-      id: faker.string.uuid(),
+      id,
       code,
       fullCode: code,
       name,
       description,
-      depth,
       isArchived,
-      parentAccountId: null,
-      children: [],
+      isContainer,
+      parentAccountId,
     };
   }
 }

@@ -43,12 +43,14 @@ import { HttpCreateOrganizationDialogDataService } from '../lib/data/http/create
 import { HttpMainLayoutDataService } from '../lib/data/http/main-layout.data-service.http';
 import { HttpAuthorizationDataService } from '../lib/data/http/authorization-data.service.http';
 import { HttpCurrentUserService } from '../lib/data/http/current-user.service.http';
+import { HttpUserProfileDataService } from '../lib/data/http/user-profile.data-service.http';
 
 
 
 export const environment = {
   production: false,
-  apiBaseUrl: 'http://localhost:8080/api',
+  apiBaseUrl: 'http://127.0.0.1:8080/api',
+  oauthIssuer: 'http://127.0.0.1:8080',
   dataServices: {
     accountGroupList: HttpAccountGroupListDataService,
     accountGroupEdit: HttpAccountGroupEditDataService,
@@ -94,5 +96,6 @@ export const environment = {
     mainLayout: HttpMainLayoutDataService,
     authorizationData: HttpAuthorizationDataService,
     currentUser: HttpCurrentUserService,
+    userProfile: HttpUserProfileDataService,
   },
 };

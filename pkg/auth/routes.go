@@ -23,12 +23,6 @@ func RegisterRoutes(app *fiber.App, srv *Server, gitlab *GitLabHandler) {
 	app.Post("/auth/logout", srv.LogoutHandler)
 	app.Get("/auth/me", srv.MeHandler)
 
-	// Password login (conditional)
-	if srv.Config().PasswordLogin.Enabled {
-		app.Post("/auth/login", srv.LoginHandler)
-		app.Post("/auth/register", srv.CreateUserWithPassword)
-	}
-
 	// GitLab login (conditional)
 	if gitlab != nil && gitlab.IsEnabled() {
 		app.Get("/auth/gitlab", gitlab.GitLabLoginInitiate)

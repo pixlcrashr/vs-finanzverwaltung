@@ -48,6 +48,16 @@ func SeedAdminGroup(ctx context.Context, db *gorm.DB, enforcer *Enforcer) error 
 		return fmt.Errorf("authz: add admin wildcard policy: %w", err)
 	}
 
+	// Re-sync the wildcard organization assignment so the admin group has
+	// access to every organization without being explicitly assigned to each one.
+	if _, err := enforcer.RemoveAllGroupOrgAssignments(group.ID.String()); err != nil {
+		return fmt.Errorf("authz: clear admin org assignments: %w", err)
+	}
+
+	if _, err := enforcer.AddGroupOrgAssignment(group.ID.String(), WildcardDomain); err != nil {
+		return fmt.Errorf("authz: add admin wildcard org assignment: %w", err)
+	}
+
 	if err := enforcer.Flush(); err != nil {
 		return fmt.Errorf("authz: flush after admin seed: %w", err)
 	}

@@ -12,6 +12,11 @@ export interface V1Organization {
   create_time?: string;
 
   /**
+   * Optional free-text description.
+   */
+  display_description?: string;
+
+  /**
    * Human-readable organization name.
    */
   display_name: string;

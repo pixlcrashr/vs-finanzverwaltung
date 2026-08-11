@@ -49,9 +49,10 @@ func (s *userSettingsServiceServer) GetUserSettings(ctx context.Context, req *ge
 		if errors.Is(err, repository.ErrUserSettingsNotFound) {
 			// Return empty defaults when no settings row exists yet.
 			return &gen.UserSettings{
-				Name:   gen.UserSettingsResourceName{User: n.User}.String(),
-				Locale: "",
-				Theme:  "system",
+				Name:               gen.UserSettingsResourceName{User: n.User}.String(),
+				Locale:             "",
+				Theme:              "system",
+				EmailNotifications: false,
 			}, nil
 		}
 		return nil, &ServerError{Err: err, Status: statusFailedGetUserSettings}
@@ -79,7 +80,7 @@ func (s *userSettingsServiceServer) UpdateUserSettings(ctx context.Context, req 
 		return nil, &ServerError{Err: err, Status: statusInvalidUserSettingsName}
 	}
 
-	m, err := s.repo.Upsert(ctx, userID, req.Settings.Locale, req.Settings.Theme)
+	m, err := s.repo.Upsert(ctx, userID, req.Settings.Locale, req.Settings.Theme, req.Settings.EmailNotifications)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateUserSettings}
 	}

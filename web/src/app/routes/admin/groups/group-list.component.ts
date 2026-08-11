@@ -8,12 +8,12 @@ import {
 import { RouterLink } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
 import {
-  PageContentLayoutComponent,
-  BreadcrumbItem,
   ButtonComponent,
   LoadingSpinnerComponent,
   EmptyStateComponent,
   NotificationService,
+  AdminContentHeaderComponent,
+  AdminContentComponent,
 } from '../../../shared/components';
 import {
   ConfirmDeleteDialogComponent,
@@ -28,20 +28,22 @@ import { GroupListDataService } from './group-list.data-service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    PageContentLayoutComponent,
     ButtonComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
+    AdminContentHeaderComponent,
+    AdminContentComponent,
   ],
   template: `
-    <app-page-content-layout [breadcrumbs]="breadcrumbs">
-      <a layout-header-actions routerLink="/admin/groups/new">
-        <app-button variant="primary">
-          <ng-container i18n>Neue Gruppe</ng-container>
-        </app-button>
-      </a>
-
-      <div layout-content class="flex flex-1 justify-center">
+    <div class="flex flex-col h-full min-h-0">
+      <app-admin-content-header i18n-title title="Gruppen">
+        <a routerLink="/admin/groups/new">
+          <app-button variant="primary">
+            <ng-container i18n>Neue Gruppe</ng-container>
+          </app-button>
+        </a>
+      </app-admin-content-header>
+      <app-admin-content>
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Gruppen werden geladen..." />
         } @else if (groups().length === 0) {
@@ -72,6 +74,12 @@ import { GroupListDataService } from './group-list.data-service';
                         scope="col"
                         class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500"
                       >
+                        <ng-container i18n>Typ</ng-container>
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-left text-gray-500"
+                      >
                         <ng-container i18n>Beschreibung</ng-container>
                       </th>
                       <th scope="col" class="px-3 py-2 text-right">
@@ -83,6 +91,13 @@ import { GroupListDataService } from './group-list.data-service';
                     @for (group of groups(); track group.id) {
                       <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-3 py-2 text-xs text-gray-900">{{ group.name }}</td>
+                        <td class="px-3 py-2 text-xs">
+                          @if (group.isSystem) {
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" i18n>System</span>
+                          } @else {
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400" i18n>Benutzerdefiniert</span>
+                          }
+                        </td>
                         <td class="px-3 py-2 text-xs text-gray-900">
                           <div class="max-w-md truncate" [title]="group.description || ''">
                             {{ group.description || '-' }}
@@ -96,13 +111,15 @@ import { GroupListDataService } from './group-list.data-service';
                             >
                               <ng-container i18n>Bearbeiten</ng-container>
                             </a>
-                            <button
-                              type="button"
-                              class="text-xs text-red-600 hover:underline"
-                              (click)="openDeleteDialog(group)"
-                            >
-                              <ng-container i18n>Löschen</ng-container>
-                            </button>
+                            @if (!group.isSystem) {
+                              <button
+                                type="button"
+                                class="text-xs text-red-600 hover:underline"
+                                (click)="openDeleteDialog(group)"
+                              >
+                                <ng-container i18n>Löschen</ng-container>
+                              </button>
+                            }
                           </div>
                         </td>
                       </tr>
@@ -113,8 +130,8 @@ import { GroupListDataService } from './group-list.data-service';
             </div>
           </div>
         }
-      </div>
-    </app-page-content-layout>
+      </app-admin-content>
+    </div>
   `,
 })
 export class GroupListComponent implements OnInit {
@@ -124,8 +141,6 @@ export class GroupListComponent implements OnInit {
 
   readonly loading = signal(true);
   readonly groups = signal<UserGroup[]>([]);
-
-  readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Gruppen` }];
 
   ngOnInit(): void {
     this.loadGroups();

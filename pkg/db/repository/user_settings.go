@@ -36,7 +36,7 @@ func (r *UserSettingsRepository) GetByUserID(ctx context.Context, userID uuid.UU
 }
 
 // Upsert creates or updates the settings for a user.
-func (r *UserSettingsRepository) Upsert(ctx context.Context, userID uuid.UUID, locale, theme string) (*model.UserSettings, error) {
+func (r *UserSettingsRepository) Upsert(ctx context.Context, userID uuid.UUID, locale, theme string, emailNotifications bool) (*model.UserSettings, error) {
 	var m model.UserSettings
 	err := r.db.WithContext(ctx).Where("user_id = ?", userID).First(&m).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -45,9 +45,10 @@ func (r *UserSettingsRepository) Upsert(ctx context.Context, userID uuid.UUID, l
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		m = model.UserSettings{
-			UserID: userID,
-			Locale: locale,
-			Theme:  theme,
+			UserID:             userID,
+			Locale:             locale,
+			Theme:              theme,
+			EmailNotifications: emailNotifications,
 		}
 		if err := r.db.WithContext(ctx).Create(&m).Error; err != nil {
 			return nil, fmt.Errorf("create user settings user_id=%s: %w", userID, err)
@@ -61,6 +62,7 @@ func (r *UserSettingsRepository) Upsert(ctx context.Context, userID uuid.UUID, l
 	if theme != "" {
 		m.Theme = theme
 	}
+	m.EmailNotifications = emailNotifications
 
 	if err := r.db.WithContext(ctx).Save(&m).Error; err != nil {
 		return nil, fmt.Errorf("update user settings user_id=%s: %w", userID, err)

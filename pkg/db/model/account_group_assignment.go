@@ -14,8 +14,8 @@ type AccountGroupAssignment struct {
 	AccountGroupID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_account_group_assignments_org_group_account,priority:2;uniqueIndex:idx_account_group_assignments_custom_id,priority:3"`
 	AccountID      uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_account_group_assignments_org_group_account,priority:3"`
 	Negate         bool      `gorm:"not null;default:false;index:idx_account_group_assignments_negate"`
-	UpdatedAt      time.Time `gorm:"not null;default:now()"`
-	CreatedAt      time.Time `gorm:"not null;default:now()"`
+	UpdatedAt      time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	CreatedAt      time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 
 	// Relations
 	Organization Organization `gorm:"foreignKey:OrganizationID"`

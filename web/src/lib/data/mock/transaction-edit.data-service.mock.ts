@@ -64,10 +64,8 @@ export class MockTransactionEditDataService extends TransactionEditDataService {
       fullCode: code,
       name,
       description: '',
-      depth: 1,
       isArchived: false,
       parentAccountId: null,
-      children: [],
     };
   }
 

@@ -1,12 +1,16 @@
 package main
 
 import (
+	"context"
 	"flag"
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/cockroachdb/apd/v3"
 	"github.com/google/uuid"
+	"github.com/pixlcrashr/vsfv/pkg/authz"
+	"github.com/pixlcrashr/vsfv/pkg/cfg"
 	pkgdb "github.com/pixlcrashr/vsfv/pkg/db"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"gorm.io/gorm"
@@ -14,17 +18,31 @@ import (
 )
 
 func main() {
-	dsn := flag.String("dsn", "postgres://vsf:postgres@127.0.0.1:5334/vsf?sslmode=disable", "PostgreSQL DSN")
+	cfgFile := flag.String("c", "", "config file (default: ./config.yaml)")
 	flag.Parse()
 
-	db, err := pkgdb.Connect(*dsn)
+	config, err := cfg.Load(*cfgFile)
+	if err != nil {
+		log.Fatalf("load config: %v", err)
+	}
+
+	db, err := pkgdb.Connect(config.Database.DSN)
 	if err != nil {
 		log.Fatalf("connect: %v", err)
 	}
 	db.Logger = db.Logger.LogMode(logger.Silent)
 
+	enforcer, err := authz.NewEnforcer(db)
+	if err != nil {
+		log.Fatalf("create enforcer: %v", err)
+	}
+
+	if err := authz.SeedAdminGroup(context.Background(), db, enforcer); err != nil {
+		log.Fatalf("seed admin group: %v", err)
+	}
+
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		return seed(tx)
+		return seed(tx, enforcer)
 	}); err != nil {
 		log.Fatalf("seed: %v", err)
 	}
@@ -45,7 +63,28 @@ func date(y int, m time.Month, d int) time.Time {
 
 func cr(db *gorm.DB, v any) error { return db.Create(v).Error }
 
-func seed(db *gorm.DB) error {
+func seed(db *gorm.DB, enforcer *authz.Enforcer) error {
+	// ── Admin User ───────────────────────────────────────────────────────────
+	adminUser := &model.User{
+		Email: "admin@vsfv.local",
+		Name:  "Admin",
+	}
+	if err := cr(db, adminUser); err != nil {
+		return err
+	}
+
+	// Assign admin user to the admin group (g2: user → group)
+	var adminGroup model.UserGroup
+	if err := db.Where("custom_id = ?", authz.AdminGroupCustomID).First(&adminGroup).Error; err != nil {
+		return fmt.Errorf("find admin group: %w", err)
+	}
+	if _, err := enforcer.AddGlobalGroupingPolicy(adminUser.ID.String(), adminGroup.ID.String()); err != nil {
+		return fmt.Errorf("assign admin user to admin group: %w", err)
+	}
+	if err := enforcer.Flush(); err != nil {
+		return fmt.Errorf("flush enforcer after user assignment: %w", err)
+	}
+
 	// ── Organizations ────────────────────────────────────────────────────────
 	// org1: Verein Musterstadt – a registered association (Verein), focuses on
 	//       membership fees, event income, and operating expenses.

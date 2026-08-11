@@ -18,10 +18,10 @@ type Transaction_ struct {
 	Amount                apd.Decimal `gorm:"type:decimal;not null;uniqueIndex:idx_transactions_unique_entry,priority:3"`
 	Description           string      `gorm:"not null;default:'';uniqueIndex:idx_transactions_unique_entry,priority:4"`
 	Reference             string      `gorm:"not null;default:'';uniqueIndex:idx_transactions_unique_entry,priority:5"`
-	BookedAt              time.Time   `gorm:"type:date;not null;default:now();uniqueIndex:idx_transactions_unique_entry,priority:6"`
-	DocumentDate          time.Time   `gorm:"type:date;not null;default:now();uniqueIndex:idx_transactions_unique_entry,priority:7"`
-	UpdatedAt             time.Time   `gorm:"not null;default:now()"`
-	CreatedAt             time.Time   `gorm:"not null;default:now()"`
+	BookedAt              time.Time   `gorm:"type:date;not null;default:CURRENT_TIMESTAMP;uniqueIndex:idx_transactions_unique_entry,priority:6"`
+	DocumentDate          time.Time   `gorm:"type:date;not null;default:CURRENT_TIMESTAMP;uniqueIndex:idx_transactions_unique_entry,priority:7"`
+	UpdatedAt             time.Time   `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	CreatedAt             time.Time   `gorm:"not null;default:CURRENT_TIMESTAMP"`
 
 	// Relations
 	Organization           Organization            `gorm:"foreignKey:OrganizationID"`

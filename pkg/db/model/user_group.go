@@ -15,11 +15,13 @@ type UserGroup struct {
 	Description string    `gorm:"not null;default:''"`
 	IsSystem    bool      `gorm:"not null;default:false"`
 	IsDefault   bool      `gorm:"not null;default:false"`
-	CreatedAt   time.Time `gorm:"not null;default:now()"`
-	UpdatedAt   time.Time `gorm:"not null;default:now()"`
+	CreatedAt   time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	UpdatedAt   time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 
-	// Relations
-	GroupOrganizations []GroupOrganization `gorm:"foreignKey:UserGroupID"`
+	// Organizations is a transient (non-persisted) list of organization resource
+	// names (or "*") that this group is assigned to. Populated by the repository
+	// from casbin g3 entries when loading groups.
+	Organizations []string `gorm:"-"`
 }
 
 func (UserGroup) TableName() string { return "user_groups" }

@@ -1,7 +1,9 @@
 import { Routes } from '@angular/router';
 import { MainLayoutDataService } from './shared/layout/main-layout/main-layout.data-service';
 import { ReportTemplateEditDataService } from './routes/report-templates/report-template-edit/report-template-edit.data-service';
+import { UserProfileDataService } from './routes/profile/user-profile.data-service';
 import { environment } from '../environments/environment';
+import { authGuard } from './auth/auth.guard';
 
 
 
@@ -17,9 +19,18 @@ export const routes: Routes = [
       { provide: ReportTemplateEditDataService, useClass: environment.dataServices.reportTemplateEdit },
     ],
   },
+  // Login / OAuth2 callback route (no main layout, no auth guard)
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./routes/login/login.component').then(
+        (m) => m.LoginComponent,
+      ),
+  },
   // Main layout with left sidebar - single instance for all routes
   {
     path: '',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./shared/layout/main-layout/main-layout.component').then(
         (m) => m.MainLayoutComponent,
@@ -35,6 +46,17 @@ export const routes: Routes = [
           import('./routes/permission-denied/permission-denied.component').then(
             (m) => m.PermissionDeniedComponent,
           ),
+      },
+      // User profile (self-service settings)
+      {
+        path: 'me',
+        loadComponent: () =>
+          import('./routes/profile/user-profile.component').then(
+            (m) => m.UserProfileComponent,
+          ),
+        providers: [
+          { provide: UserProfileDataService, useClass: environment.dataServices.userProfile },
+        ],
       },
       // Admin routes
       {

@@ -2,14 +2,20 @@ import { Component, ChangeDetectionStrategy, signal, inject, OnInit, computed, O
 import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, filter } from 'rxjs';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faSun, faMoon, faGear, faRightFromBracket, faCircleUser } from '@fortawesome/free-solid-svg-icons';
+import { OAuthService } from 'angular-oauth2-oidc';
 import { MenuItem, Organization } from '../../models';
 import { CurrentOrganizationService } from '../../services/current-organization.service';
 import { MainLayoutDataService } from './main-layout.data-service';
+import { CurrentUserService, CurrentUserInfo } from '../../../../lib/authz/current-user.service';
+import { AuthorizationService } from '../../../../lib/authz/authorization.service';
+import { Permissions } from '../../../../lib/authz/permissions';
 
 @Component({
   selector: 'app-main-layout',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, FormsModule],
+  imports: [RouterOutlet, RouterLink, FormsModule, FontAwesomeModule],
   styles: `
     :host {
       display: block;
@@ -123,75 +129,73 @@ import { MainLayoutDataService } from './main-layout.data-service';
               }
             </ul>
           </div>
+        </nav>
+        }
 
-          <div class="mt-4">
-            <p i18n class="px-2 mb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-500">
-              Organisation
-            </p>
-            <ul class="space-y-0.5">
-              @for (item of orgSettingsMenuItems(); track item.name) {
-                <li>
-                  <a [routerLink]="item.path" [class]="menuItemClasses(item)">
-                    {{ item.name }}
-                  </a>
-                </li>
+        <!-- User Info Row -->
+        <div class="border-t border-gray-800 px-2 py-2">
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              routerLink="/me"
+              class="flex items-center gap-2 flex-1 min-w-0 rounded p-1 hover:bg-gray-800 transition-colors"
+              [title]="'Profil'"
+            >
+              <div class="flex-shrink-0 w-7 h-7 rounded-full bg-gray-700 flex items-center justify-center">
+                <fa-icon [icon]="faCircleUser" class="text-gray-400 text-sm"></fa-icon>
+              </div>
+              <p class="text-xs font-medium text-white truncate">{{ currentUser()?.name || 'Guest' }}</p>
+            </button>
+            <div class="flex items-center gap-1">
+              @if (hasAdminAccess()) {
+                <button
+                  type="button"
+                  routerLink="/admin"
+                  class="p-1.5 rounded transition-colors"
+                  [class]="isAdminRouteActive() ? 'bg-blue-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white'"
+                  [attr.aria-label]="'Administration'"
+                  [title]="'Systemeinstellungen'"
+                >
+                  <fa-icon [icon]="faGear" class="text-xs"></fa-icon>
+                </button>
               }
-            </ul>
+              <button
+                type="button"
+                (click)="logout()"
+                class="p-1.5 rounded text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
+                [attr.aria-label]="'Logout'"
+                [title]="'Abmelden'"
+              >
+                <fa-icon [icon]="faRightFromBracket" class="text-xs"></fa-icon>
+              </button>
+            </div>
           </div>
-        </nav>
-        }
+        </div>
 
-        <!-- Admin Navigation (separate from normal routes) -->
-        @if (adminMenuItems().length > 0) {
-        <nav class="border-t border-gray-800 px-2 py-2">
-          <p i18n class="px-2 mb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-500">
-            Administration
-          </p>
-          <ul class="space-y-0.5">
-            @for (item of adminMenuItems(); track item.name) {
-              <li>
-                <a [routerLink]="item.path" [class]="menuItemClasses(item)">
-                  {{ item.name }}
-                </a>
-              </li>
-            }
-          </ul>
-        </nav>
-        }
-
-        <!-- Theme Toggle -->
-        <div class="px-2 py-2 border-t border-gray-800">
+        <!-- Theme Toggle Row -->
+        <div class="px-2 py-1.5 border-t border-gray-800">
           <button
             type="button"
             (click)="toggleTheme()"
-            class="flex items-center gap-2 w-full px-2 py-1.5 rounded text-xs text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+            class="flex items-center justify-center gap-2 w-full px-2 py-1 rounded text-[11px] text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
           >
-            @if (isDarkMode()) {
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-              <span i18n>Light Mode</span>
-            } @else {
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-              </svg>
-              <span i18n>Dark Mode</span>
-            }
+            <fa-icon [icon]="isDarkMode() ? faSun : faMoon" class="text-[10px]"></fa-icon>
+            <span i18n>{{ isDarkMode() ? 'Light Mode' : 'Dark Mode' }}</span>
           </button>
         </div>
 
         <!-- Footer -->
         <footer class="px-2 py-2 border-t border-gray-800">
           <p class="text-[10px] text-center text-gray-500">
-            © 2025 Vincent Heins<br />
-            <a
-              href="https://github.com/pixlcrashr/vsfv"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="hover:text-white"
-            >
-              github.com/pixlcrashr/vsfv
-            </a>
+              © 2025 Vincent Heins<br />
+              <a
+                href="https://github.com/pixlcrashr/vsfv"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="hover:text-white"
+              >
+                github.com/pixlcrashr/vsfv
+              </a>
           </p>
         </footer>
       </aside>
@@ -209,10 +213,21 @@ export class MainLayoutComponent implements OnInit {
   protected readonly router = inject(Router);
   private readonly currentOrganizationService = inject(CurrentOrganizationService);
   private readonly dataService = inject(MainLayoutDataService);
+  private readonly currentUserService = inject(CurrentUserService);
+  private readonly authorizationService = inject(AuthorizationService);
+  private readonly oauthService = inject(OAuthService);
+
+  readonly faSun = faSun;
+  readonly faMoon = faMoon;
+  readonly faGear = faGear;
+  readonly faRightFromBracket = faRightFromBracket;
+  readonly faCircleUser = faCircleUser;
 
   readonly isDarkMode = signal(false);
   readonly organizations = signal<Organization[]>([]);
   readonly loading = signal(true);
+  readonly currentUser = signal<CurrentUserInfo | null>(null);
+  readonly hasAdminAccess = signal(false);
 
   readonly currentOrganizationId = signal<string>('');
 
@@ -237,7 +252,10 @@ export class MainLayoutComponent implements OnInit {
   readonly generalMenuItems = computed<MenuItem[]>(() => {
     const orgId = this.orgIdFromRoute();
     if (!orgId) return [];
-    return [{ name: $localize`Dashboard`, path: `/organizations/${orgId}/dashboard` }];
+    return [
+      { name: $localize`Dashboard`, path: `/organizations/${orgId}/dashboard` },
+      { name: $localize`Einstellungen`, path: `/organizations/${orgId}/settings` },
+    ];
   });
 
   readonly applicationMenuItems = computed<MenuItem[]>(() => {
@@ -261,26 +279,12 @@ export class MainLayoutComponent implements OnInit {
     ];
   });
 
-  readonly adminMenuItems = computed<MenuItem[]>(() => [
-    { name: $localize`Organisationen`, path: '/admin/organizations' },
-    { name: $localize`Benutzer`, path: '/admin/users' },
-    { name: $localize`Gruppen`, path: '/admin/groups' },
-  ]);
-
   readonly bookkeepingMenuItems = computed<MenuItem[]>(() => {
     const orgId = this.orgIdFromRoute();
     if (!orgId) return [];
     return [
       { name: $localize`Buchhaltungskonten`, path: `/organizations/${orgId}/ledgerAccounts` },
       { name: $localize`Geschäftsjahre`, path: `/organizations/${orgId}/ledgerYears` },
-    ];
-  });
-
-  readonly orgSettingsMenuItems = computed<MenuItem[]>(() => {
-    const orgId = this.orgIdFromRoute();
-    if (!orgId) return [];
-    return [
-      { name: $localize`Einstellungen`, path: `/organizations/${orgId}/settings` },
     ];
   });
 
@@ -327,6 +331,32 @@ export class MainLayoutComponent implements OnInit {
     });
 
     this.loadOrganizations();
+    this.loadCurrentUser();
+  }
+
+  private loadCurrentUser(): void {
+    this.currentUserService.getCurrentUser().pipe(
+      takeUntil(this.destroy$),
+    ).subscribe((user) => {
+      this.currentUser.set(user);
+      if (user) {
+        this.authorizationService.checkPermissions(
+          `users/${user.id}`,
+          '',
+          [Permissions.ORGANIZATIONS_READ, Permissions.USERS_READ, Permissions.GROUPS_READ],
+        ).pipe(takeUntil(this.destroy$)).subscribe((result) => {
+          this.hasAdminAccess.set(
+            result[Permissions.ORGANIZATIONS_READ] ||
+            result[Permissions.USERS_READ] ||
+            result[Permissions.GROUPS_READ],
+          );
+        });
+      }
+    });
+  }
+
+  logout(): void {
+    this.oauthService.logOut();
   }
 
   ngOnDestroy(): void {
@@ -408,6 +438,11 @@ export class MainLayoutComponent implements OnInit {
   private readonly orgChangeSubject = new Subject<string>();
   private readonly destroy$ = new Subject<void>();
 
+  isAdminRouteActive(): boolean {
+    const currentUrl = this.router.url;
+    return currentUrl === '/admin' || currentUrl.startsWith('/admin/');
+  }
+
   isMenuItemActive(item: MenuItem): boolean {
     // Check if this is an admin route - admin routes don't have org prefix
     const isAdminRoute = item.path.startsWith('/admin/');
@@ -475,6 +510,12 @@ export class MainLayoutComponent implements OnInit {
     const useDarkMode = savedTheme ? savedTheme === 'dark' : prefersDark;
 
     this.applyTheme(useDarkMode, false);
+
+    // Listen for browser theme changes when no user override is stored
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      if (window.localStorage.getItem('theme')) return;
+      this.applyTheme(e.matches, false);
+    });
   }
 
   private applyTheme(isDark: boolean, persist = true): void {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -11,7 +12,10 @@ import (
 )
 
 func main() {
-	stmts, err := gormschema.New("postgres").Load(db.Models...)
+	dialect := flag.String("dialect", "postgres", "database dialect (postgres or sqlite)")
+	flag.Parse()
+
+	stmts, err := gormschema.New(*dialect).Load(db.Models...)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to load gorm schema: %v\n", err)
 		os.Exit(1)

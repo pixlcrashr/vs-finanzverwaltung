@@ -426,7 +426,7 @@ module OrganizationServiceService {
     /**
      * The organization to update.
      */
-    organization: {uid?: string, display_name: string, start_month: V1Month, update_time?: string, create_time?: string, etag?: string};
+    organization: {uid?: string, display_name: string, display_description?: string, start_month: V1Month, update_time?: string, create_time?: string, etag?: string};
   }
 }
 

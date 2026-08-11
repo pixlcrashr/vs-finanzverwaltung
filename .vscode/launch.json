@@ -17,7 +17,6 @@
       "name": "Frontend: Serve Mock (Chrome)",
       "type": "chrome",
       "request": "launch",
-      "preLaunchTask": "web:serve:mock",
       "url": "http://localhost:4200/",
       "webRoot": "${workspaceFolder}/web",
       "sourceMaps": true
@@ -26,7 +25,6 @@
       "name": "Frontend: Serve API (Chrome)",
       "type": "chrome",
       "request": "launch",
-      "preLaunchTask": "web:serve:api",
       "url": "http://localhost:4200/",
       "webRoot": "${workspaceFolder}/web",
       "sourceMaps": true
@@ -37,16 +35,6 @@
       "request": "launch",
       "preLaunchTask": "web:test",
       "url": "http://localhost:9876/debug.html"
-    }
-  ],
-  "compounds": [
-    {
-      "name": "Frontend: Serve Mock + Debug",
-      "configurations": ["Frontend: Serve Mock (Chrome)"],
-    },
-    {
-      "name": "Frontend: Serve API + Debug",
-      "configurations": ["Frontend: Serve API (Chrome)"]
     }
   ]
 }

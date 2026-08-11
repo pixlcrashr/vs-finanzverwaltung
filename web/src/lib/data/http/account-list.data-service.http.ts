@@ -4,7 +4,7 @@ import { AccountServiceService } from '../../api/services/account-service.servic
 import { V1ListAccountsResponse } from '../../api/models/v1list-accounts-response';
 import { Account } from '../../../app/shared/models';
 import { AccountListDataService } from '../../../app/routes/accounts/account-list/account-list.data-service';
-import { mapApiAccount, buildAccountTree } from './_mappers';
+import { mapApiAccount } from './_mappers';
 
 @Injectable()
 export class HttpAccountListDataService extends AccountListDataService {
@@ -29,7 +29,6 @@ export class HttpAccountListDataService extends AccountListDataService {
         all.concat((resp.accounts ?? []).map(mapApiAccount)),
         []
       ),
-      map(buildAccountTree),
     );
   }
 

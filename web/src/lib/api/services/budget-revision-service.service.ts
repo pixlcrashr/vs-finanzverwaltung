@@ -9,6 +9,7 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 
 import { V1BudgetRevision } from '../models/v1budget-revision';
 import { V1ListBudgetRevisionsResponse } from '../models/v1list-budget-revisions-response';
+import { TypeDate } from '../models/type-date';
 @Injectable({
   providedIn: 'root',
 })
@@ -17,6 +18,7 @@ class BudgetRevisionServiceService extends __BaseService {
   static readonly BudgetRevisionServiceListBudgetRevisionsPath = '/v1/{parent}/revisions';
   static readonly BudgetRevisionServiceCreateBudgetRevisionPath = '/v1/{parent}/revisions';
   static readonly BudgetRevisionServiceGetLatestBudgetRevisionPath = '/v1/{parent}/revisions:getLatest';
+  static readonly BudgetRevisionServiceUpdateBudgetRevisionPath = '/v1/{revision.name}';
 
   constructor(
     config: __Configuration,
@@ -267,6 +269,69 @@ class BudgetRevisionServiceService extends __BaseService {
       __map(_r => _r.body as V1BudgetRevision)
     );
   }
+
+  /**
+   * Updates a revision. Only the is_published field may be updated.
+   * Setting is_published to true requires the parent budget to be published.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: budgets:update
+   *   Domain: organization-scoped
+   * @param params The `BudgetRevisionServiceService.BudgetRevisionServiceUpdateBudgetRevisionParams` containing the following parameters:
+   *
+   * - `revision.name`: The resource name of the revision.
+   *   Format: organizations/{organization}/budgets/{budget}/revisions/{revision}
+   *
+   * - `revision`: The revision to update. Only is_published can be changed; all other
+   *   fields are immutable after creation.
+   *
+   * @return A successful response.
+   */
+  BudgetRevisionServiceUpdateBudgetRevisionResponse(params: BudgetRevisionServiceService.BudgetRevisionServiceUpdateBudgetRevisionParams): __Observable<__StrictHttpResponse<V1BudgetRevision>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    __body = params.revision;
+    let req = new HttpRequest<any>(
+      'PATCH',
+      this.rootUrl + `/v1/${encodeURIComponent(String(params.revisionName))}`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<V1BudgetRevision>;
+      })
+    );
+  }
+  /**
+   * Updates a revision. Only the is_published field may be updated.
+   * Setting is_published to true requires the parent budget to be published.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: budgets:update
+   *   Domain: organization-scoped
+   * @param params The `BudgetRevisionServiceService.BudgetRevisionServiceUpdateBudgetRevisionParams` containing the following parameters:
+   *
+   * - `revision.name`: The resource name of the revision.
+   *   Format: organizations/{organization}/budgets/{budget}/revisions/{revision}
+   *
+   * - `revision`: The revision to update. Only is_published can be changed; all other
+   *   fields are immutable after creation.
+   *
+   * @return A successful response.
+   */
+  BudgetRevisionServiceUpdateBudgetRevision(params: BudgetRevisionServiceService.BudgetRevisionServiceUpdateBudgetRevisionParams): __Observable<V1BudgetRevision> {
+    return this.BudgetRevisionServiceUpdateBudgetRevisionResponse(params).pipe(
+      __map(_r => _r.body as V1BudgetRevision)
+    );
+  }
 }
 
 module BudgetRevisionServiceService {
@@ -322,6 +387,24 @@ module BudgetRevisionServiceService {
      * will be used. Must be unique within the parent budget.
      */
     budgetRevisionId?: string;
+  }
+
+  /**
+   * Parameters for BudgetRevisionServiceUpdateBudgetRevision
+   */
+  export interface BudgetRevisionServiceUpdateBudgetRevisionParams {
+
+    /**
+     * The resource name of the revision.
+     * Format: organizations/{organization}/budgets/{budget}/revisions/{revision}
+     */
+    revisionName: string;
+
+    /**
+     * The revision to update. Only is_published can be changed; all other
+     * fields are immutable after creation.
+     */
+    revision: {uid?: string, budget?: string, display_name: string, display_description?: string, date?: TypeDate, create_time?: string, etag?: string, is_published?: boolean};
   }
 }
 

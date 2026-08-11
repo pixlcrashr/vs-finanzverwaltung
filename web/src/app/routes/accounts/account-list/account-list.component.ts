@@ -28,8 +28,9 @@ import {
   ConfirmDeleteDialogInput,
   ConfirmDeleteDialogOutput,
 } from '../../../shared/dialogs/confirm-delete-dialog/confirm-delete-dialog.component';
-import { Account } from '../../../shared/models';
+import { HierarchicalAccount } from '../../../shared/models';
 import { AccountListDataService } from './account-list.data-service';
+import { AccountHierarchyService } from '../../../shared/services/account-hierarchy.service';
 
 @Component({
   selector: 'app-account-list',
@@ -71,6 +72,9 @@ import { AccountListDataService } from './account-list.data-service';
                         <ng-container i18n>Name</ng-container>
                       </th>
                       <th scope="col" class="px-2.5 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+                        <ng-container i18n>Typ</ng-container>
+                      </th>
+                      <th scope="col" class="px-2.5 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500">
                         <ng-container i18n>Beschreibung</ng-container>
                       </th>
                       <th scope="col" class="px-2.5 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500">
@@ -96,14 +100,21 @@ import { AccountListDataService } from './account-list.data-service';
 
     <!-- Account Row Template (recursive) -->
     <ng-template #accountRow let-account>
-      <tr class="hover:bg-gray-50 transition-colors">
+      <tr class="hover:bg-gray-50 transition-colors" [style.padding-left.px]="account.depth * 30">
         <td class="px-2.5 py-1.5 text-xs text-gray-900">
-          <span [style.padding-left.rem]="account.depth * 1.25">
-            {{ account.code }}
-          </span>
+          {{ account.code }}
         </td>
         <td class="px-2.5 py-1.5 text-xs text-gray-900">
           {{ account.name }}
+        </td>
+        <td class="px-2.5 py-1.5 text-xs">
+          <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium"
+                [class.bg-blue-100]="account.isContainer"
+                [class.text-blue-700]="account.isContainer"
+                [class.bg-gray-100]="!account.isContainer"
+                [class.text-gray-600]="!account.isContainer">
+            {{ account.isContainer ? 'Gruppe' : 'Blatt' }}
+          </span>
         </td>
         <td class="px-2.5 py-1.5 text-[11px] text-gray-500">
           <div class="max-w-xs truncate" [title]="account.description || ''">
@@ -164,6 +175,7 @@ export class AccountListComponent {
   private readonly dataService = inject(AccountListDataService);
   private readonly dialog = inject(Dialog);
   private readonly notifications = inject(NotificationService);
+  private readonly hierarchy = inject(AccountHierarchyService);
 
   orgId = '';
 
@@ -171,7 +183,7 @@ export class AccountListComponent {
   readonly archivingAccountId = signal<string | null>(null);
   readonly restoringAccountId = signal<string | null>(null);
   readonly deletingAccountId = signal<string | null>(null);
-  readonly accounts = signal<Account[]>([]);
+  readonly accounts = signal<HierarchicalAccount[]>([]);
   readonly expandedIds = signal<Set<string>>(new Set());
 
   readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Haushaltskonten` }];
@@ -192,10 +204,11 @@ export class AccountListComponent {
 
   private loadAccounts(): void {
     this.dataService.listAccounts(this.orgId).subscribe({
-      next: (accounts) => {
-        this.accounts.set(accounts);
+      next: (flatAccounts) => {
+        const hierarchical = this.hierarchy.build(flatAccounts);
+        this.accounts.set(hierarchical);
         const ids = new Set<string>();
-        this.collectIds(accounts, ids);
+        this.collectIds(hierarchical, ids);
         this.expandedIds.set(ids);
         this.loading.set(false);
       },
@@ -206,7 +219,7 @@ export class AccountListComponent {
     });
   }
 
-  private collectIds(accounts: Account[], ids: Set<string>): void {
+  private collectIds(accounts: HierarchicalAccount[], ids: Set<string>): void {
     for (const account of accounts) {
       if (account.children.length > 0) {
         ids.add(account.id);
@@ -232,11 +245,11 @@ export class AccountListComponent {
     });
   }
 
-  canArchive(account: Account): boolean {
+  canArchive(account: HierarchicalAccount): boolean {
     return this.allChildrenArchived(account.children);
   }
 
-  private findArchivedAncestors(targetId: string, nodes: Account[]): string[] | null {
+  private findArchivedAncestors(targetId: string, nodes: HierarchicalAccount[]): string[] | null {
     for (const node of nodes) {
       if (node.id === targetId) {
         return [];
@@ -254,7 +267,7 @@ export class AccountListComponent {
     return null;
   }
 
-  private allChildrenArchived(children: Account[]): boolean {
+  private allChildrenArchived(children: HierarchicalAccount[]): boolean {
     return children.every((child) => child.isArchived && this.allChildrenArchived(child.children));
   }
 
@@ -262,7 +275,7 @@ export class AccountListComponent {
     return this.archivingAccountId() === id || this.restoringAccountId() === id || this.deletingAccountId() === id;
   }
 
-  openDeleteDialog(account: Account): void {
+  openDeleteDialog(account: HierarchicalAccount): void {
     if (this.isMutatingAccount(account.id)) return;
 
     const dialogRef = this.dialog.open<ConfirmDeleteDialogOutput, ConfirmDeleteDialogInput>(
@@ -296,7 +309,7 @@ export class AccountListComponent {
     });
   }
 
-  archiveAccount(account: Account): void {
+  archiveAccount(account: HierarchicalAccount): void {
     if (this.isMutatingAccount(account.id)) return;
 
     this.archivingAccountId.set(account.id);
@@ -312,7 +325,7 @@ export class AccountListComponent {
     });
   }
 
-  restoreAccount(account: Account): void {
+  restoreAccount(account: HierarchicalAccount): void {
     if (this.isMutatingAccount(account.id)) return;
 
     const archivedAncestorIds = this.findArchivedAncestors(account.id, this.accounts()) ?? [];

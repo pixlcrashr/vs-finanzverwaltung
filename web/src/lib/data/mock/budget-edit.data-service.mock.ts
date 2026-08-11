@@ -7,6 +7,7 @@ import {
   BudgetEditDataService,
   BudgetDetails,
   BudgetChange,
+  UpdateBudgetParams,
 } from '../../../app/routes/budgets/budget-edit/budget-edit.data-service';
 import { SharedBudgetMockData } from './_shared-budget-data';
 
@@ -22,18 +23,16 @@ export class MockBudgetEditDataService extends BudgetEditDataService {
   updateBudget(
     organizationId: string,
     id: string,
-    name: string,
-    description: string,
-    publishCurrentTargetValuesAlways: boolean,
-    publishCurrentActualValuesAlways: boolean
+    params: UpdateBudgetParams,
   ): Observable<void> {
     const data = this.sharedData.getBudgetDetails(id);
 
     if (data) {
-      data.budget.displayName = name;
-      data.budget.displayDescription = description;
-      data.budget.publishCurrentTargetValuesAlways = publishCurrentTargetValuesAlways;
-      data.budget.publishCurrentActualValuesAlways = publishCurrentActualValuesAlways;
+      data.budget.displayName = params.name;
+      data.budget.displayDescription = params.description;
+      data.budget.isPublished = params.isPublished;
+      data.budget.publishActualValues = params.publishActualValues;
+      data.budget.publishActualValuesUntil = params.publishActualValuesUntil ?? null;
     }
     return of(undefined).pipe(delay(300));
   }
@@ -79,11 +78,16 @@ export class MockBudgetEditDataService extends BudgetEditDataService {
     return of(tag).pipe(delay(300));
   }
 
-  updateBudgetRevision(organizationId: string, id: string, isPublished: boolean): Observable<void> {
+  updateBudgetRevision(organizationId: string, budgetId: string, id: string, isPublished: boolean): Observable<void> {
+    const data = this.sharedData.getBudgetDetails(budgetId);
+    if (data && isPublished && !data.budget.isPublished) {
+      return throwError(() => new Error('Revision cannot be published if budget is not published'));
+    }
+
     const allBudgets = this.sharedData.getAllBudgets();
     for (const budget of allBudgets) {
-      const data = this.sharedData.getBudgetDetails(budget.id);
-      const tag = data?.budget.tags.find((candidate) => candidate.id === id);
+      const bd = this.sharedData.getBudgetDetails(budget.id);
+      const tag = bd?.budget.tags.find((candidate) => candidate.id === id);
       if (tag) {
         tag.isPublished = isPublished;
         tag.updatedAt = new Date();

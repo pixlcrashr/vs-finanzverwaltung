@@ -26,6 +26,8 @@ export class MockBudgetListDataService extends BudgetListDataService {
       displayDescription: description,
       periodStart: startDate,
       periodEnd: endDate,
+      isPublished: false,
+      publishActualValues: false,
       isClosed: false,
     };
 

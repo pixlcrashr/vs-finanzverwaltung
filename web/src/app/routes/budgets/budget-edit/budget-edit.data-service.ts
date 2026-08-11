@@ -17,18 +17,23 @@ export interface BudgetDetails extends Budget {
   changes: BudgetChange[];
 }
 
+export interface UpdateBudgetParams {
+  name: string;
+  description: string;
+  isPublished: boolean;
+  publishActualValues: boolean;
+  publishActualValuesUntil?: Date | null;
+}
+
 export abstract class BudgetEditDataService {
   abstract getBudget(organizationId: string, budgetId: string): Observable<BudgetDetails>;
   abstract updateBudget(
     organizationId: string,
     budgetId: string,
-    name: string,
-    description: string,
-    publishCurrentTargetValuesAlways: boolean,
-    publishCurrentActualValuesAlways: boolean
+    params: UpdateBudgetParams,
   ): Observable<void>;
   abstract createBudgetRevision(organizationId: string, budgetId: string, date: Date, name: string, description: string, force: boolean): Observable<BudgetTag>;
-  abstract updateBudgetRevision(organizationId: string, budgetRevisionId: string, isPublished: boolean): Observable<void>;
+  abstract updateBudgetRevision(organizationId: string, budgetId: string, budgetRevisionId: string, isPublished: boolean): Observable<void>;
   abstract deleteBudgetRevision(organizationId: string, budgetRevisionId: string): Observable<void>;
   abstract closeBudget(organizationId: string, budgetId: string): Observable<void>;
 }

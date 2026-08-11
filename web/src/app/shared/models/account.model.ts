@@ -4,8 +4,12 @@ export interface Account {
   code: string;
   fullCode: string;
   description: string;
-  depth: number;
   isArchived: boolean;
+  isContainer?: boolean;
   parentAccountId: string | null;
-  children: Account[];
+}
+
+export interface HierarchicalAccount extends Account {
+  depth: number;
+  children: HierarchicalAccount[];
 }

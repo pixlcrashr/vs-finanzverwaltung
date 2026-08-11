@@ -21,12 +21,14 @@ export class HttpCreateAccountDialogDataService extends CreateAccountDialogDataS
   listParentAccounts(organizationId: string): Observable<ParentAccountOption[]> {
     return this.svc.AccountServiceListAccounts({ parent: `organizations/${organizationId}`, pageSize: 1000, showDeleted: false }).pipe(
       map((response) => {
-        const flat: FlatAccount[] = (response.accounts ?? []).map((a) => ({
-          id: a.uid ?? '',
-          code: a.display_code,
-          name: a.display_name,
-          parentAccountId: a.parent_account ? a.parent_account.split('/').pop() ?? null : null,
-        }));
+        const flat: FlatAccount[] = (response.accounts ?? [])
+          .filter((a) => a.is_container === true)
+          .map((a) => ({
+            id: a.uid ?? '',
+            code: a.display_code,
+            name: a.display_name,
+            parentAccountId: a.parent_account ? a.parent_account.split('/').pop() ?? null : null,
+          }));
         return this.buildHierarchicalList(flat);
       }),
     );

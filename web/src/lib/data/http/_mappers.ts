@@ -52,46 +52,10 @@ export function mapApiAccount(a: ApiAccount): Account {
     code: a.display_code,
     fullCode: a.display_code,
     description: a.display_description ?? '',
-    depth: 0,
     isArchived: a.is_archived ?? false,
+    isContainer: a.is_container ?? false,
     parentAccountId: parentUid,
-    children: [],
   };
-}
-
-export function buildAccountTree(flatAccounts: Account[]): Account[] {
-  const map = new Map<string, Account>();
-  const roots: Account[] = [];
-
-  for (const a of flatAccounts) {
-    map.set(a.id, { ...a, children: [] });
-  }
-
-  for (const a of map.values()) {
-    if (a.parentAccountId && map.has(a.parentAccountId)) {
-      map.get(a.parentAccountId)!.children.push(a);
-    } else {
-      roots.push(a);
-    }
-  }
-
-  function sortByCode(accounts: Account[]): void {
-    accounts.sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true, sensitivity: 'base' }));
-    for (const a of accounts) {
-      sortByCode(a.children);
-    }
-  }
-
-  function setDepth(accounts: Account[], depth: number): void {
-    for (const a of accounts) {
-      a.depth = depth;
-      setDepth(a.children, depth + 1);
-    }
-  }
-  sortByCode(roots);
-  setDepth(roots, 0);
-
-  return roots;
 }
 
 export function mapApiAccountGroupAssignment(
@@ -118,6 +82,9 @@ export function mapApiBudget(b: ApiBudget): Budget {
     periodStart: typeDateToDate(b.period_start),
     periodEnd: typeDateToDate(b.period_end),
     isClosed: b.is_closed ?? false,
+    isPublished: b.is_published ?? false,
+    publishActualValues: b.publish_actual_values ?? false,
+    publishActualValuesUntil: b.publish_actual_values_until ? typeDateToDate(b.publish_actual_values_until) : null,
   };
 }
 
@@ -139,6 +106,7 @@ export function mapApiBudgetTag(r: ApiBudgetRevision): BudgetTag {
     name: r.display_name ?? '',
     date,
     description: r.display_description ?? '',
+    isPublished: r.is_published ?? false,
     createdAt: new Date(r.create_time ?? ''),
     updatedAt: new Date(r.create_time ?? ''),
   };

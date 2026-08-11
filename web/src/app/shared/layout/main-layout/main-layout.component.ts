@@ -137,6 +137,7 @@ import { Permissions } from '../../../../lib/authz/permissions';
           <div class="flex items-center gap-2">
             <button
               type="button"
+              routerLink="/me"
               class="flex items-center gap-2 flex-1 min-w-0 rounded p-1 hover:bg-gray-800 transition-colors"
               [title]="'Profil'"
             >

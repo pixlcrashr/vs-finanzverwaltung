@@ -11,6 +11,7 @@ import {
   BudgetEditDataService,
   BudgetDetails,
   BudgetChange,
+  UpdateBudgetParams,
 } from '../../../app/routes/budgets/budget-edit/budget-edit.data-service';
 import { mapApiBudget, mapApiBudgetTag, dateToTypeDate } from './_mappers';
 
@@ -166,24 +167,37 @@ export class HttpBudgetEditDataService extends BudgetEditDataService {
     return of(void 0);
   }
 
-  override updateBudgetRevision(_organizationId: string, _budgetRevisionId: string, _isPublished: boolean): Observable<void> {
-    return of(void 0);
+  override updateBudgetRevision(organizationId: string, budgetId: string, budgetRevisionId: string, isPublished: boolean): Observable<void> {
+    const revisionName = `organizations/${organizationId}/budgets/${budgetId}/revisions/${budgetRevisionId}`;
+    return this.revisionSvc
+      .BudgetRevisionServiceUpdateBudgetRevision({
+        revisionName,
+        revision: {
+          display_name: '',
+          is_published: isPublished,
+        },
+      })
+      .pipe(map(() => undefined));
   }
 
   updateBudget(
     organizationId: string,
     budgetId: string,
-    name: string,
-    description: string,
-    _publishCurrentTargetValuesAlways: boolean,
-    _publishCurrentActualValuesAlways: boolean,
+    params: UpdateBudgetParams,
   ): Observable<void> {
     return this.svc
       .BudgetServiceUpdateBudget({
         budgetName: this.budgetName(organizationId, budgetId),
         budget: {
-          display_name: name,
-          display_description: description,
+          display_name: params.name,
+          display_description: params.description,
+          is_published: params.isPublished,
+          publish_actual_values: params.publishActualValues,
+          publish_actual_values_until: params.publishActualValuesUntil
+            ? dateToTypeDate(params.publishActualValuesUntil)
+            : undefined,
+          period_start: { year: 0, month: 0, day: 0 },
+          period_end: { year: 0, month: 0, day: 0 },
         } as any,
       })
       .pipe(map(() => undefined));

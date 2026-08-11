@@ -4,6 +4,8 @@ import { Account } from '../../../shared/models';
 export interface AccountDetails extends Account {
   createdAt: Date;
   updatedAt: Date;
+  depth: number;
+  childrenCount: number;
 }
 
 export abstract class AccountEditDataService {

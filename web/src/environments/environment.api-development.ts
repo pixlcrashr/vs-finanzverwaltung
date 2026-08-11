@@ -43,6 +43,7 @@ import { HttpCreateOrganizationDialogDataService } from '../lib/data/http/create
 import { HttpMainLayoutDataService } from '../lib/data/http/main-layout.data-service.http';
 import { HttpAuthorizationDataService } from '../lib/data/http/authorization-data.service.http';
 import { HttpCurrentUserService } from '../lib/data/http/current-user.service.http';
+import { HttpUserProfileDataService } from '../lib/data/http/user-profile.data-service.http';
 
 
 
@@ -95,5 +96,6 @@ export const environment = {
     mainLayout: HttpMainLayoutDataService,
     authorizationData: HttpAuthorizationDataService,
     currentUser: HttpCurrentUserService,
+    userProfile: HttpUserProfileDataService,
   },
 };

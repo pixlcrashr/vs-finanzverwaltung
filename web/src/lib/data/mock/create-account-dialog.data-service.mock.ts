@@ -12,15 +12,9 @@ export class MockCreateAccountDialogDataService extends CreateAccountDialogDataS
   listParentAccounts(organizationId: string): Observable<ParentAccountOption[]> {
     const accounts: ParentAccountOption[] = [
       { id: faker.string.uuid(), code: '1', name: 'Aktiva', depth: 0 },
-      { id: faker.string.uuid(), code: '1.1', name: 'Kasse', depth: 1 },
-      { id: faker.string.uuid(), code: '1.2', name: 'Bank', depth: 1 },
       { id: faker.string.uuid(), code: '2', name: 'Passiva', depth: 0 },
       { id: faker.string.uuid(), code: '2.1', name: 'Personal', depth: 1 },
-      { id: faker.string.uuid(), code: '2.1.1', name: 'Gehälter', depth: 2 },
-      { id: faker.string.uuid(), code: '2.1.2', name: 'Sozialabgaben', depth: 2 },
       { id: faker.string.uuid(), code: '2.2', name: 'Sachkosten', depth: 1 },
-      { id: faker.string.uuid(), code: '2.2.1', name: 'Büromaterial', depth: 2 },
-      { id: faker.string.uuid(), code: '2.2.2', name: 'IT-Ausstattung', depth: 2 },
     ];
     return of(accounts).pipe(delay(300));
   }

@@ -4,33 +4,36 @@ import {
   inject,
   signal,
   OnInit,
+  DestroyRef,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { debounceTime, distinctUntilChanged, skip } from 'rxjs';
 import {
   PageContentLayoutComponent,
   BreadcrumbItem,
-  ButtonComponent,
   LoadingSpinnerComponent,
   NotificationService,
 } from '../../shared/components';
 import {
   OrganizationSettingsDataService,
-  OrganizationSettings,
 } from './organization-settings.data-service';
-import { HasPermissionPipe } from '../../../lib/authz/has-permission.pipe';
-import { Permission, Permissions } from '../../../lib/authz/permissions';
 
 @Component({
   selector: 'app-organization-settings',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, PageContentLayoutComponent, ButtonComponent, LoadingSpinnerComponent, HasPermissionPipe],
+  imports: [ReactiveFormsModule, PageContentLayoutComponent, LoadingSpinnerComponent],
   template: `
     <app-page-content-layout [breadcrumbs]="breadcrumbs">
       <div layout-content>
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Einstellungen werden geladen..." />
-        } @else if (settings()) {
+        } @else {
           <div class="max-w-2xl mx-auto">
             <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 space-y-4">
               <!-- Organization Name -->
@@ -40,7 +43,7 @@ import { Permission, Permissions } from '../../../lib/authz/permissions';
                 </label>
                 <input
                   type="text"
-                  [(ngModel)]="name"
+                  [formControl]="form.controls.name"
                   class="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -51,7 +54,7 @@ import { Permission, Permissions } from '../../../lib/authz/permissions';
                   <ng-container i18n>Beschreibung</ng-container>
                 </label>
                 <textarea
-                  [(ngModel)]="description"
+                  [formControl]="form.controls.description"
                   rows="3"
                   class="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 ></textarea>
@@ -70,18 +73,13 @@ import { Permission, Permissions } from '../../../lib/authz/permissions';
                 </p>
               </div>
 
-              <!-- Actions -->
-              <div class="flex justify-end gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
-                @if (Permissions.SETTINGS_UPDATE | hasPermission) {
-                  <app-button
-                    [disabled]="saving()"
-                    [loading]="saving()"
-                    (clicked)="save()"
-                  >
-                    <ng-container i18n>Speichern</ng-container>
-                  </app-button>
-                }
-              </div>
+              <!-- Auto-save indicator -->
+              @if (saving()) {
+                <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-700">
+                  <span class="inline-block w-3 h-3 border-2 border-gray-300 dark:border-gray-600 border-t-blue-500 rounded-full animate-spin"></span>
+                  <ng-container i18n>Speichern...</ng-container>
+                </div>
+              }
             </div>
           </div>
         }
@@ -93,15 +91,16 @@ export class OrganizationSettingsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly dataService = inject(OrganizationSettingsDataService);
   private readonly notifications = inject(NotificationService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly loading = signal(true);
   readonly saving = signal(false);
-  readonly settings = signal<OrganizationSettings | null>(null);
-  readonly Permissions = Permissions;
-
-  name = '';
-  description = '';
   fiscalYearStart = 1;
+
+  readonly form = new FormGroup({
+    name: new FormControl<string>(''),
+    description: new FormControl<string>(''),
+  });
 
   readonly orgId = signal<string>('');
 
@@ -121,10 +120,19 @@ export class OrganizationSettingsComponent implements OnInit {
     this.loading.set(true);
     this.dataService.getSettings(orgId).subscribe({
       next: (settings) => {
-        this.settings.set(settings);
-        this.name = settings.name;
-        this.description = settings.description || '';
         this.fiscalYearStart = settings.fiscalYearStart;
+        this.form.setValue({
+          name: settings.name,
+          description: settings.description || '',
+        });
+
+        this.form.valueChanges.pipe(
+          skip(1),
+          debounceTime(800),
+          distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+          takeUntilDestroyed(this.destroyRef),
+        ).subscribe(() => this.autoSave());
+
         this.loading.set(false);
       },
       error: () => {
@@ -134,20 +142,17 @@ export class OrganizationSettingsComponent implements OnInit {
     });
   }
 
-  save(): void {
+  private autoSave(): void {
     const orgId = this.orgId();
     if (!orgId) return;
 
     this.saving.set(true);
 
-    const update: Partial<OrganizationSettings> = {
-      name: this.name,
-      description: this.description || undefined,
-    };
-
-    this.dataService.updateSettings(orgId, update).subscribe({
+    this.dataService.updateSettings(orgId, {
+      name: this.form.controls.name.value ?? undefined,
+      description: this.form.controls.description.value ?? undefined,
+    }).subscribe({
       next: () => {
-        this.notifications.success($localize`Einstellungen erfolgreich aktualisiert`);
         this.saving.set(false);
       },
       error: () => {

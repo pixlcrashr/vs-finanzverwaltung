@@ -15,26 +15,26 @@ export class MockAccountGroupEditDataService extends AccountGroupEditDataService
   constructor() {
     super();
     // Create root accounts (depth 0)
-    const root1 = this.createAccount('1', '1', 'Aktiva', 0, null, false);
-    const root2 = this.createAccount('2', '2', 'Passiva', 0, null, false);
-    const root3 = this.createAccount('3', '3', 'Archiviert', 0, null, true);
+    const root1 = this.createAccount('1', '1', 'Aktiva', null, false);
+    const root2 = this.createAccount('2', '2', 'Passiva', null, false);
+    const root3 = this.createAccount('3', '3', 'Archiviert', null, true);
 
     // Create level 1 accounts (depth 1)
-    const acc1_1 = this.createAccount('1.1', '1.1', 'Kasse', 1, root1.id, false);
-    const acc1_2 = this.createAccount('1.2', '1.2', 'Bank', 1, root1.id, false);
-    const acc2_1 = this.createAccount('2.1', '2.1', 'Personal', 1, root2.id, false);
-    const acc2_2 = this.createAccount('2.2', '2.2', 'Sachkosten', 1, root2.id, false);
+    const acc1_1 = this.createAccount('1.1', '1.1', 'Kasse', root1.id, false);
+    const acc1_2 = this.createAccount('1.2', '1.2', 'Bank', root1.id, false);
+    const acc2_1 = this.createAccount('2.1', '2.1', 'Personal', root2.id, false);
+    const acc2_2 = this.createAccount('2.2', '2.2', 'Sachkosten', root2.id, false);
 
     // Create level 2 accounts (depth 2)
-    const acc2_1_1 = this.createAccount('2.1.1', '2.1.1', 'Gehälter', 2, acc2_1.id, false);
-    const acc2_1_2 = this.createAccount('2.1.2', '2.1.2', 'Sozialabgaben', 2, acc2_1.id, false);
-    const acc2_1_3 = this.createAccount('2.1.3', '2.1.3', 'Weiterbildung', 2, acc2_1.id, false);
-    const acc2_2_1 = this.createAccount('2.2.1', '2.2.1', 'Büromaterial', 2, acc2_2.id, false);
-    const acc2_2_2 = this.createAccount('2.2.2', '2.2.2', 'IT-Ausstattung', 2, acc2_2.id, false);
+    const acc2_1_1 = this.createAccount('2.1.1', '2.1.1', 'Gehälter', acc2_1.id, false);
+    const acc2_1_2 = this.createAccount('2.1.2', '2.1.2', 'Sozialabgaben', acc2_1.id, false);
+    const acc2_1_3 = this.createAccount('2.1.3', '2.1.3', 'Weiterbildung', acc2_1.id, false);
+    const acc2_2_1 = this.createAccount('2.2.1', '2.2.1', 'Büromaterial', acc2_2.id, false);
+    const acc2_2_2 = this.createAccount('2.2.2', '2.2.2', 'IT-Ausstattung', acc2_2.id, false);
 
     // Archived accounts
-    const acc3_1 = this.createAccount('3.1', '3.1', 'Altes Konto', 1, root3.id, true);
-    const acc3_2 = this.createAccount('3.2', '3.2', 'Nicht mehr verwendet', 1, root3.id, true);
+    const acc3_1 = this.createAccount('3.1', '3.1', 'Altes Konto', root3.id, true);
+    const acc3_2 = this.createAccount('3.2', '3.2', 'Nicht mehr verwendet', root3.id, true);
 
     this.allAccounts = [
       root1, acc1_1, acc1_2,
@@ -155,7 +155,6 @@ export class MockAccountGroupEditDataService extends AccountGroupEditDataService
     code: string,
     fullCode: string,
     name: string,
-    depth: number,
     parentAccountId: string | null,
     isArchived: boolean
   ): Account {
@@ -165,10 +164,8 @@ export class MockAccountGroupEditDataService extends AccountGroupEditDataService
       fullCode,
       name,
       description: '',
-      depth,
       isArchived,
       parentAccountId,
-      children: [],
     };
   }
 }

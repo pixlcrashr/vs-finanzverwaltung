@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { MainLayoutDataService } from './shared/layout/main-layout/main-layout.data-service';
 import { ReportTemplateEditDataService } from './routes/report-templates/report-template-edit/report-template-edit.data-service';
+import { UserProfileDataService } from './routes/profile/user-profile.data-service';
 import { environment } from '../environments/environment';
 import { authGuard } from './auth/auth.guard';
 
@@ -45,6 +46,17 @@ export const routes: Routes = [
           import('./routes/permission-denied/permission-denied.component').then(
             (m) => m.PermissionDeniedComponent,
           ),
+      },
+      // User profile (self-service settings)
+      {
+        path: 'me',
+        loadComponent: () =>
+          import('./routes/profile/user-profile.component').then(
+            (m) => m.UserProfileComponent,
+          ),
+        providers: [
+          { provide: UserProfileDataService, useClass: environment.dataServices.userProfile },
+        ],
       },
       // Admin routes
       {

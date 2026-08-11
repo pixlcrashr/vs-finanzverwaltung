@@ -13,8 +13,8 @@ type User struct {
 	Name         string    `gorm:"not null"`
 	Picture      *string   `gorm:"default:null"`
 	PasswordHash *string   `gorm:"default:null"`
-	CreatedAt    time.Time `gorm:"not null;default:now()"`
-	UpdatedAt    time.Time `gorm:"not null;default:now()"`
+	CreatedAt    time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	UpdatedAt    time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 
 	// Relations
 	UserIdentities []UserIdentity `gorm:"foreignKey:UserID"`

@@ -7,8 +7,10 @@ import (
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
+	sqlitedriver "github.com/golang-migrate/migrate/v4/database/sqlite3"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/pixlcrashr/vsfv/migrations"
+	"github.com/pixlcrashr/vsfv/pkg/db/dialect"
 )
 
 // Run applies all pending up migrations.
@@ -98,22 +100,43 @@ func Force(db *sql.DB, version int) error {
 }
 
 func newMigrator(db *sql.DB) (*migrate.Migrate, error) {
-	dbDriver, err := postgres.WithInstance(db, &postgres.Config{})
-	if err != nil {
-		return nil, fmt.Errorf("creating database driver: %w", err)
+	switch dialect.Current {
+	case dialect.SQLite:
+		dbDriver, err := sqlitedriver.WithInstance(db, &sqlitedriver.Config{})
+		if err != nil {
+			return nil, fmt.Errorf("creating sqlite database driver: %w", err)
+		}
+
+		sD, err := iofs.New(migrations.SQLiteFS, "sqlite")
+		if err != nil {
+			return nil, fmt.Errorf("creating source driver: %w", err)
+		}
+
+		m, err := migrate.NewWithInstance("iofs", sD, "sqlite", dbDriver)
+		if err != nil {
+			return nil, fmt.Errorf("creating migrator: %w", err)
+		}
+
+		sD.First()
+		return m, nil
+
+	default:
+		dbDriver, err := postgres.WithInstance(db, &postgres.Config{})
+		if err != nil {
+			return nil, fmt.Errorf("creating postgres database driver: %w", err)
+		}
+
+		sD, err := iofs.New(migrations.PostgreSQLFS, "postgresql")
+		if err != nil {
+			return nil, fmt.Errorf("creating source driver: %w", err)
+		}
+
+		m, err := migrate.NewWithInstance("iofs", sD, "postgres", dbDriver)
+		if err != nil {
+			return nil, fmt.Errorf("creating migrator: %w", err)
+		}
+
+		sD.First()
+		return m, nil
 	}
-
-	sD, err := iofs.New(migrations.FS, "postgresql")
-	if err != nil {
-		return nil, fmt.Errorf("creating source driver: %w", err)
-	}
-
-	m, err := migrate.NewWithInstance("iofs", sD, "postgres", dbDriver)
-	if err != nil {
-		return nil, fmt.Errorf("creating migrator: %w", err)
-	}
-
-	sD.First()
-
-	return m, nil
 }

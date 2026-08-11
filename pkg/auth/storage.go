@@ -10,12 +10,12 @@ import (
 
 	"github.com/go-jose/go-jose/v3"
 	"github.com/google/uuid"
-	"github.com/lib/pq"
 	"github.com/ory/fosite"
 	"github.com/ory/fosite/handler/openid"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
+	"github.com/pixlcrashr/vsfv/pkg/db/types"
 	"gorm.io/gorm"
 )
 
@@ -189,8 +189,8 @@ func (s *Storage) CreateAccessTokenSession(ctx context.Context, signature string
 		RequestType:  requestTypeAccessToken,
 		ClientID:     req.GetClient().GetID(),
 		UserID:       userID,
-		Scope:        pq.StringArray(req.GetRequestedScopes()),
-		GrantedScope: pq.StringArray(req.GetGrantedScopes()),
+		Scope:        types.StringArray(req.GetRequestedScopes()),
+		GrantedScope: types.StringArray(req.GetGrantedScopes()),
 		FormData:     formData,
 		SessionData:  sessionData,
 	})
@@ -232,8 +232,8 @@ func (s *Storage) CreateRefreshTokenSession(ctx context.Context, signature strin
 		RequestType:  requestTypeRefreshToken,
 		ClientID:     req.GetClient().GetID(),
 		UserID:       userID,
-		Scope:        pq.StringArray(req.GetRequestedScopes()),
-		GrantedScope: pq.StringArray(req.GetGrantedScopes()),
+		Scope:        types.StringArray(req.GetRequestedScopes()),
+		GrantedScope: types.StringArray(req.GetGrantedScopes()),
 		FormData:     formData,
 		SessionData:  sessionData,
 	})
@@ -275,8 +275,8 @@ func (s *Storage) CreateAuthorizeCodeSession(ctx context.Context, code string, r
 		RequestType:  requestTypeAuthorizeCode,
 		ClientID:     req.GetClient().GetID(),
 		UserID:       userID,
-		Scope:        pq.StringArray(req.GetRequestedScopes()),
-		GrantedScope: pq.StringArray(req.GetGrantedScopes()),
+		Scope:        types.StringArray(req.GetRequestedScopes()),
+		GrantedScope: types.StringArray(req.GetGrantedScopes()),
 		FormData:     formData,
 		SessionData:  sessionData,
 	})
@@ -310,8 +310,8 @@ func (s *Storage) CreatePKCERequestSession(ctx context.Context, code string, req
 		Signature:    code,
 		RequestType:  requestTypePKCERequest,
 		ClientID:     req.GetClient().GetID(),
-		Scope:        pq.StringArray(req.GetRequestedScopes()),
-		GrantedScope: pq.StringArray(req.GetGrantedScopes()),
+		Scope:        types.StringArray(req.GetRequestedScopes()),
+		GrantedScope: types.StringArray(req.GetGrantedScopes()),
 		FormData:     formData,
 		SessionData:  sessionData,
 	})
@@ -345,8 +345,8 @@ func (s *Storage) CreateOpenIDConnectSession(ctx context.Context, authorizeCode 
 		Signature:    authorizeCode,
 		RequestType:  requestTypeOIDCSession,
 		ClientID:     req.GetClient().GetID(),
-		Scope:        pq.StringArray(req.GetRequestedScopes()),
-		GrantedScope: pq.StringArray(req.GetGrantedScopes()),
+		Scope:        types.StringArray(req.GetRequestedScopes()),
+		GrantedScope: types.StringArray(req.GetGrantedScopes()),
 		FormData:     formData,
 		SessionData:  sessionData,
 	})

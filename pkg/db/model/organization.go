@@ -8,12 +8,13 @@ import (
 )
 
 type Organization struct {
-	ID          uuid.UUID  `gorm:"type:uuid;primaryKey"`
-	CustomID    string     `gorm:"uniqueIndex:idx_organizations_custom_id"`
-	DisplayName string     `gorm:"not null;default:''"`
-	StartMonth  time.Month `gorm:"type:int;not null;default:1"`
-	UpdatedAt   time.Time  `gorm:"not null;default:now()"`
-	CreatedAt   time.Time  `gorm:"not null;default:now()"`
+	ID                 uuid.UUID  `gorm:"type:uuid;primaryKey"`
+	CustomID           string     `gorm:"uniqueIndex:idx_organizations_custom_id"`
+	DisplayName        string     `gorm:"not null;default:''"`
+	DisplayDescription string     `gorm:"not null;default:''"`
+	StartMonth         time.Month `gorm:"type:int;not null;default:1"`
+	UpdatedAt          time.Time  `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	CreatedAt          time.Time  `gorm:"not null;default:CURRENT_TIMESTAMP"`
 
 	// Relations
 	AccountGroupAssignments     []AccountGroupAssignment     `gorm:"foreignKey:OrganizationID"`

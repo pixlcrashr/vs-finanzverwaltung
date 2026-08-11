@@ -35,6 +35,8 @@ type Organization struct {
 	Uid string `protobuf:"bytes,2,opt,name=uid,proto3" json:"uid,omitempty"`
 	// Human-readable organization name.
 	DisplayName string `protobuf:"bytes,3,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
+	// Optional free-text description.
+	DisplayDescription string `protobuf:"bytes,8,opt,name=display_description,json=displayDescription,proto3" json:"display_description,omitempty"`
 	// The start month of ledger years for this organization. It is assumed that the start date is the 1st of the month.
 	StartMonth Month `protobuf:"varint,7,opt,name=start_month,json=startMonth,proto3,enum=pixlcrashr.vsfv.v1.Month" json:"start_month,omitempty"`
 	// Last modification timestamp.
@@ -94,6 +96,13 @@ func (x *Organization) GetUid() string {
 func (x *Organization) GetDisplayName() string {
 	if x != nil {
 		return x.DisplayName
+	}
+	return ""
+}
+
+func (x *Organization) GetDisplayDescription() string {
+	if x != nil {
+		return x.DisplayDescription
 	}
 	return ""
 }
@@ -559,11 +568,12 @@ var File_pixlcrashr_vsfv_v1_organization_proto protoreflect.FileDescriptor
 
 const file_pixlcrashr_vsfv_v1_organization_proto_rawDesc = "" +
 	"\n" +
-	"%pixlcrashr/vsfv/v1/organization.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1fpixlcrashr/vsfv/v1/common.proto\"\x91\x03\n" +
+	"%pixlcrashr/vsfv/v1/organization.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1fpixlcrashr/vsfv/v1/common.proto\"\xc7\x03\n" +
 	"\fOrganization\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x03R\x04name\x12\x1d\n" +
 	"\x03uid\x18\x02 \x01(\tB\v\xe0A\x03\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12&\n" +
-	"\fdisplay_name\x18\x03 \x01(\tB\x03\xe0A\x02R\vdisplayName\x12?\n" +
+	"\fdisplay_name\x18\x03 \x01(\tB\x03\xe0A\x02R\vdisplayName\x124\n" +
+	"\x13display_description\x18\b \x01(\tB\x03\xe0A\x01R\x12displayDescription\x12?\n" +
 	"\vstart_month\x18\a \x01(\x0e2\x19.pixlcrashr.vsfv.v1.MonthB\x03\xe0A\x02R\n" +
 	"startMonth\x12@\n" +
 	"\vupdate_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +

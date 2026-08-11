@@ -30,6 +30,7 @@ func newOrganization(db *gorm.DB, opts ...gen.DOOption) organization {
 	_organization.ID = field.NewField(tableName, "id")
 	_organization.CustomID = field.NewString(tableName, "custom_id")
 	_organization.DisplayName = field.NewString(tableName, "display_name")
+	_organization.DisplayDescription = field.NewString(tableName, "display_description")
 	_organization.StartMonth = field.NewInt(tableName, "start_month")
 	_organization.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_organization.CreatedAt = field.NewTime(tableName, "created_at")
@@ -771,6 +772,7 @@ type organization struct {
 	ID                      field.Field
 	CustomID                field.String
 	DisplayName             field.String
+	DisplayDescription      field.String
 	StartMonth              field.Int
 	UpdatedAt               field.Time
 	CreatedAt               field.Time
@@ -818,6 +820,7 @@ func (o *organization) updateTableName(table string) *organization {
 	o.ID = field.NewField(table, "id")
 	o.CustomID = field.NewString(table, "custom_id")
 	o.DisplayName = field.NewString(table, "display_name")
+	o.DisplayDescription = field.NewString(table, "display_description")
 	o.StartMonth = field.NewInt(table, "start_month")
 	o.UpdatedAt = field.NewTime(table, "updated_at")
 	o.CreatedAt = field.NewTime(table, "created_at")
@@ -849,10 +852,11 @@ func (o *organization) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (o *organization) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 19)
+	o.fieldMap = make(map[string]field.Expr, 20)
 	o.fieldMap["id"] = o.ID
 	o.fieldMap["custom_id"] = o.CustomID
 	o.fieldMap["display_name"] = o.DisplayName
+	o.fieldMap["display_description"] = o.DisplayDescription
 	o.fieldMap["start_month"] = o.StartMonth
 	o.fieldMap["updated_at"] = o.UpdatedAt
 	o.fieldMap["created_at"] = o.CreatedAt

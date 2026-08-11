@@ -6,9 +6,9 @@ import (
 	"log"
 	"strings"
 
-	"github.com/lib/pq"
 	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
+	"github.com/pixlcrashr/vsfv/pkg/db/types"
 )
 
 const DefaultWebClientID = "web-app"
@@ -32,10 +32,10 @@ func SeedDefaultClient(ctx context.Context, repo *repository.OAuth2ClientReposit
 	_, err = repo.Create(ctx, repository.CreateOAuth2ClientParams{
 		ClientID:      DefaultWebClientID,
 		ClientName:    "Web",
-		RedirectURIs:  pq.StringArray(redirectURIs),
-		GrantTypes:    pq.StringArray{"authorization_code", "refresh_token"},
-		ResponseTypes: pq.StringArray{"code", "code id_token"},
-		Scopes:        pq.StringArray(append([]string{"openid", "profile", "email", "offline"}, authz.AllAPIScopes...)),
+		RedirectURIs:  types.StringArray(redirectURIs),
+		GrantTypes:    types.StringArray{"authorization_code", "refresh_token"},
+		ResponseTypes: types.StringArray{"code", "code id_token"},
+		Scopes:        types.StringArray(append([]string{"openid", "profile", "email", "offline"}, authz.AllAPIScopes...)),
 		Public:        true,
 	})
 	if err != nil {

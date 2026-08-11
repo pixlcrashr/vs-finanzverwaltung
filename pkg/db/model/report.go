@@ -12,8 +12,8 @@ type Report struct {
 	CustomID       string    `gorm:"uniqueIndex:idx_reports_custom_id_org,priority:1"`
 	OrganizationID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_reports_org_id,priority:2;uniqueIndex:idx_reports_custom_id_org,priority:2"`
 	DisplayName    string    `gorm:"not null;default:''"`
-	Data           []byte    `gorm:"type:bytea;not null"`
-	CreatedAt      time.Time `gorm:"not null;default:now()"`
+	Data           []byte    `gorm:"not null"`
+	CreatedAt      time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 
 	// Relations
 	Organization Organization `gorm:"foreignKey:OrganizationID"`

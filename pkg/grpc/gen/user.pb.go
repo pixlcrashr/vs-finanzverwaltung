@@ -543,11 +543,104 @@ func (x *BatchCheckUserPermissionsResponse) GetResults() []*CheckUserPermissions
 	return nil
 }
 
+// ListUserGroupsRequest requests the groups a user belongs to.
+type ListUserGroupsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The resource name of the user.
+	// Format: users/{user}
+	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListUserGroupsRequest) Reset() {
+	*x = ListUserGroupsRequest{}
+	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListUserGroupsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListUserGroupsRequest) ProtoMessage() {}
+
+func (x *ListUserGroupsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListUserGroupsRequest.ProtoReflect.Descriptor instead.
+func (*ListUserGroupsRequest) Descriptor() ([]byte, []int) {
+	return file_pixlcrashr_vsfv_v1_user_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ListUserGroupsRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+// ListUserGroupsResponse returns the groups a user belongs to.
+type ListUserGroupsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The groups the user is a member of.
+	Groups        []*Group `protobuf:"bytes,1,rep,name=groups,proto3" json:"groups,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListUserGroupsResponse) Reset() {
+	*x = ListUserGroupsResponse{}
+	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListUserGroupsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListUserGroupsResponse) ProtoMessage() {}
+
+func (x *ListUserGroupsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pixlcrashr_vsfv_v1_user_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListUserGroupsResponse.ProtoReflect.Descriptor instead.
+func (*ListUserGroupsResponse) Descriptor() ([]byte, []int) {
+	return file_pixlcrashr_vsfv_v1_user_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ListUserGroupsResponse) GetGroups() []*Group {
+	if x != nil {
+		return x.Groups
+	}
+	return nil
+}
+
 var File_pixlcrashr_vsfv_v1_user_proto protoreflect.FileDescriptor
 
 const file_pixlcrashr_vsfv_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x1dpixlcrashr/vsfv/v1/user.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xed\x02\n" +
+	"\x1dpixlcrashr/vsfv/v1/user.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1epixlcrashr/vsfv/v1/group.proto\"\xed\x02\n" +
 	"\x04User\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x03R\x04name\x12\x1d\n" +
 	"\x03uid\x18\x02 \x01(\tB\v\xe0A\x03\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12&\n" +
@@ -585,12 +678,18 @@ const file_pixlcrashr_vsfv_v1_user_proto_rawDesc = "" +
 	" BatchCheckUserPermissionsRequest\x12P\n" +
 	"\brequests\x18\x01 \x03(\v2/.pixlcrashr.vsfv.v1.CheckUserPermissionsRequestB\x03\xe0A\x02R\brequests\"t\n" +
 	"!BatchCheckUserPermissionsResponse\x12O\n" +
-	"\aresults\x18\x01 \x03(\v20.pixlcrashr.vsfv.v1.CheckUserPermissionsResponseB\x03\xe0A\x03R\aresults2\xfb\x04\n" +
+	"\aresults\x18\x01 \x03(\v20.pixlcrashr.vsfv.v1.CheckUserPermissionsResponseB\x03\xe0A\x03R\aresults\"M\n" +
+	"\x15ListUserGroupsRequest\x124\n" +
+	"\x04name\x18\x01 \x01(\tB \xe0A\x02\xfaA\x1a\n" +
+	"\x18vsfv.pixlcrashr.dev/UserR\x04name\"P\n" +
+	"\x16ListUserGroupsResponse\x126\n" +
+	"\x06groups\x18\x01 \x03(\v2\x19.pixlcrashr.vsfv.v1.GroupB\x03\xe0A\x03R\x06groups2\x8c\x06\n" +
 	"\vUserService\x12j\n" +
 	"\aGetUser\x12\".pixlcrashr.vsfv.v1.GetUserRequest\x1a\x18.pixlcrashr.vsfv.v1.User\"!\xdaA\x04name\x82\xd3\xe4\x93\x02\x14\x12\x12/v1/{name=users/*}\x12k\n" +
 	"\tListUsers\x12$.pixlcrashr.vsfv.v1.ListUsersRequest\x1a%.pixlcrashr.vsfv.v1.ListUsersResponse\"\x11\x82\xd3\xe4\x93\x02\v\x12\t/v1/users\x12\xc3\x01\n" +
 	"\x14CheckUserPermissions\x12/.pixlcrashr.vsfv.v1.CheckUserPermissionsRequest\x1a0.pixlcrashr.vsfv.v1.CheckUserPermissionsResponse\"H\xdaA\x17name,domain,permissions\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/{name=users/*}:checkPermissions\x12\xb4\x01\n" +
-	"\x19BatchCheckUserPermissions\x124.pixlcrashr.vsfv.v1.BatchCheckUserPermissionsRequest\x1a5.pixlcrashr.vsfv.v1.BatchCheckUserPermissionsResponse\"*\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/v1/users:batchCheckPermissions\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xb6\x01\n" +
+	"\x19BatchCheckUserPermissions\x124.pixlcrashr.vsfv.v1.BatchCheckUserPermissionsRequest\x1a5.pixlcrashr.vsfv.v1.BatchCheckUserPermissionsResponse\"*\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/v1/users:batchCheckPermissions\x12\x8e\x01\n" +
+	"\x0eListUserGroups\x12).pixlcrashr.vsfv.v1.ListUserGroupsRequest\x1a*.pixlcrashr.vsfv.v1.ListUserGroupsResponse\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/v1/{name=users/*}:listGroups\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xb6\x01\n" +
 	"\x16com.pixlcrashr.vsfv.v1B\tUserProtoP\x01Z'github.com/pixlcrashr/vsfv/pkg/grpc/gen\xa2\x02\x03PVX\xaa\x02\x12Pixlcrashr.Vsfv.V1\xca\x02\x12Pixlcrashr\\Vsfv\\V1\xe2\x02\x1ePixlcrashr\\Vsfv\\V1\\GPBMetadata\xea\x02\x14Pixlcrashr::Vsfv::V1b\x06proto3"
 
 var (
@@ -605,7 +704,7 @@ func file_pixlcrashr_vsfv_v1_user_proto_rawDescGZIP() []byte {
 	return file_pixlcrashr_vsfv_v1_user_proto_rawDescData
 }
 
-var file_pixlcrashr_vsfv_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_pixlcrashr_vsfv_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_pixlcrashr_vsfv_v1_user_proto_goTypes = []any{
 	(*User)(nil),                              // 0: pixlcrashr.vsfv.v1.User
 	(*GetUserRequest)(nil),                    // 1: pixlcrashr.vsfv.v1.GetUserRequest
@@ -615,27 +714,33 @@ var file_pixlcrashr_vsfv_v1_user_proto_goTypes = []any{
 	(*CheckUserPermissionsResponse)(nil),      // 5: pixlcrashr.vsfv.v1.CheckUserPermissionsResponse
 	(*BatchCheckUserPermissionsRequest)(nil),  // 6: pixlcrashr.vsfv.v1.BatchCheckUserPermissionsRequest
 	(*BatchCheckUserPermissionsResponse)(nil), // 7: pixlcrashr.vsfv.v1.BatchCheckUserPermissionsResponse
-	(*timestamppb.Timestamp)(nil),             // 8: google.protobuf.Timestamp
+	(*ListUserGroupsRequest)(nil),             // 8: pixlcrashr.vsfv.v1.ListUserGroupsRequest
+	(*ListUserGroupsResponse)(nil),            // 9: pixlcrashr.vsfv.v1.ListUserGroupsResponse
+	(*timestamppb.Timestamp)(nil),             // 10: google.protobuf.Timestamp
+	(*Group)(nil),                             // 11: pixlcrashr.vsfv.v1.Group
 }
 var file_pixlcrashr_vsfv_v1_user_proto_depIdxs = []int32{
-	8, // 0: pixlcrashr.vsfv.v1.User.update_time:type_name -> google.protobuf.Timestamp
-	8, // 1: pixlcrashr.vsfv.v1.User.create_time:type_name -> google.protobuf.Timestamp
-	0, // 2: pixlcrashr.vsfv.v1.ListUsersResponse.users:type_name -> pixlcrashr.vsfv.v1.User
-	4, // 3: pixlcrashr.vsfv.v1.BatchCheckUserPermissionsRequest.requests:type_name -> pixlcrashr.vsfv.v1.CheckUserPermissionsRequest
-	5, // 4: pixlcrashr.vsfv.v1.BatchCheckUserPermissionsResponse.results:type_name -> pixlcrashr.vsfv.v1.CheckUserPermissionsResponse
-	1, // 5: pixlcrashr.vsfv.v1.UserService.GetUser:input_type -> pixlcrashr.vsfv.v1.GetUserRequest
-	2, // 6: pixlcrashr.vsfv.v1.UserService.ListUsers:input_type -> pixlcrashr.vsfv.v1.ListUsersRequest
-	4, // 7: pixlcrashr.vsfv.v1.UserService.CheckUserPermissions:input_type -> pixlcrashr.vsfv.v1.CheckUserPermissionsRequest
-	6, // 8: pixlcrashr.vsfv.v1.UserService.BatchCheckUserPermissions:input_type -> pixlcrashr.vsfv.v1.BatchCheckUserPermissionsRequest
-	0, // 9: pixlcrashr.vsfv.v1.UserService.GetUser:output_type -> pixlcrashr.vsfv.v1.User
-	3, // 10: pixlcrashr.vsfv.v1.UserService.ListUsers:output_type -> pixlcrashr.vsfv.v1.ListUsersResponse
-	5, // 11: pixlcrashr.vsfv.v1.UserService.CheckUserPermissions:output_type -> pixlcrashr.vsfv.v1.CheckUserPermissionsResponse
-	7, // 12: pixlcrashr.vsfv.v1.UserService.BatchCheckUserPermissions:output_type -> pixlcrashr.vsfv.v1.BatchCheckUserPermissionsResponse
-	9, // [9:13] is the sub-list for method output_type
-	5, // [5:9] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	10, // 0: pixlcrashr.vsfv.v1.User.update_time:type_name -> google.protobuf.Timestamp
+	10, // 1: pixlcrashr.vsfv.v1.User.create_time:type_name -> google.protobuf.Timestamp
+	0,  // 2: pixlcrashr.vsfv.v1.ListUsersResponse.users:type_name -> pixlcrashr.vsfv.v1.User
+	4,  // 3: pixlcrashr.vsfv.v1.BatchCheckUserPermissionsRequest.requests:type_name -> pixlcrashr.vsfv.v1.CheckUserPermissionsRequest
+	5,  // 4: pixlcrashr.vsfv.v1.BatchCheckUserPermissionsResponse.results:type_name -> pixlcrashr.vsfv.v1.CheckUserPermissionsResponse
+	11, // 5: pixlcrashr.vsfv.v1.ListUserGroupsResponse.groups:type_name -> pixlcrashr.vsfv.v1.Group
+	1,  // 6: pixlcrashr.vsfv.v1.UserService.GetUser:input_type -> pixlcrashr.vsfv.v1.GetUserRequest
+	2,  // 7: pixlcrashr.vsfv.v1.UserService.ListUsers:input_type -> pixlcrashr.vsfv.v1.ListUsersRequest
+	4,  // 8: pixlcrashr.vsfv.v1.UserService.CheckUserPermissions:input_type -> pixlcrashr.vsfv.v1.CheckUserPermissionsRequest
+	6,  // 9: pixlcrashr.vsfv.v1.UserService.BatchCheckUserPermissions:input_type -> pixlcrashr.vsfv.v1.BatchCheckUserPermissionsRequest
+	8,  // 10: pixlcrashr.vsfv.v1.UserService.ListUserGroups:input_type -> pixlcrashr.vsfv.v1.ListUserGroupsRequest
+	0,  // 11: pixlcrashr.vsfv.v1.UserService.GetUser:output_type -> pixlcrashr.vsfv.v1.User
+	3,  // 12: pixlcrashr.vsfv.v1.UserService.ListUsers:output_type -> pixlcrashr.vsfv.v1.ListUsersResponse
+	5,  // 13: pixlcrashr.vsfv.v1.UserService.CheckUserPermissions:output_type -> pixlcrashr.vsfv.v1.CheckUserPermissionsResponse
+	7,  // 14: pixlcrashr.vsfv.v1.UserService.BatchCheckUserPermissions:output_type -> pixlcrashr.vsfv.v1.BatchCheckUserPermissionsResponse
+	9,  // 15: pixlcrashr.vsfv.v1.UserService.ListUserGroups:output_type -> pixlcrashr.vsfv.v1.ListUserGroupsResponse
+	11, // [11:16] is the sub-list for method output_type
+	6,  // [6:11] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_pixlcrashr_vsfv_v1_user_proto_init() }
@@ -643,13 +748,14 @@ func file_pixlcrashr_vsfv_v1_user_proto_init() {
 	if File_pixlcrashr_vsfv_v1_user_proto != nil {
 		return
 	}
+	file_pixlcrashr_vsfv_v1_group_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pixlcrashr_vsfv_v1_user_proto_rawDesc), len(file_pixlcrashr_vsfv_v1_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -14,8 +14,8 @@ type AuthSession struct {
 	Token     string    `gorm:"not null;uniqueIndex:idx_auth_sessions_token"`
 	UserID    uuid.UUID `gorm:"type:uuid;not null;index:idx_auth_sessions_user_id"`
 	ExpiresAt time.Time `gorm:"not null"`
-	CreatedAt time.Time `gorm:"not null;default:now()"`
-	UpdatedAt time.Time `gorm:"not null;default:now()"`
+	CreatedAt time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	UpdatedAt time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 }
 
 func (AuthSession) TableName() string { return "auth_sessions" }

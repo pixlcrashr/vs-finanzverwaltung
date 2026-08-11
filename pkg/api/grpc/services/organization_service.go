@@ -124,9 +124,10 @@ func (s *organizationServiceServer) CreateOrganization(ctx context.Context, req 
 	}
 
 	m, err := s.repo.Create(ctx, repository.CreateOrganizationParams{
-		DisplayName: req.Organization.DisplayName,
-		StartMonth:  time.Month(req.Organization.StartMonth),
-		CustomID:    req.OrganizationId,
+		DisplayName:        req.Organization.DisplayName,
+		DisplayDescription: req.Organization.DisplayDescription,
+		StartMonth:         time.Month(req.Organization.StartMonth),
+		CustomID:           req.OrganizationId,
 	})
 	if err != nil {
 		if errors.Is(err, repository.ErrOrganizationAlreadyExists) {
@@ -169,7 +170,8 @@ func (s *organizationServiceServer) UpdateOrganization(ctx context.Context, req 
 	}
 
 	updateParams := repository.UpdateOrganizationParams{
-		DisplayName: optional.From(req.Organization.DisplayName),
+		DisplayName:        optional.From(req.Organization.DisplayName),
+		DisplayDescription: optional.From(req.Organization.DisplayDescription),
 	}
 
 	if err := s.repo.Update(ctx, m.ID, updateParams); err != nil {

@@ -33,6 +33,7 @@ func newBudgetRevision(db *gorm.DB, opts ...gen.DOOption) budgetRevision {
 	_budgetRevision.BudgetID = field.NewField(tableName, "budget_id")
 	_budgetRevision.DisplayName = field.NewString(tableName, "display_name")
 	_budgetRevision.DisplayDescription = field.NewString(tableName, "display_description")
+	_budgetRevision.IsPublished = field.NewBool(tableName, "is_published")
 	_budgetRevision.Date = field.NewTime(tableName, "date")
 	_budgetRevision.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_budgetRevision.CreatedAt = field.NewTime(tableName, "created_at")
@@ -765,6 +766,7 @@ type budgetRevision struct {
 	BudgetID                    field.Field
 	DisplayName                 field.String
 	DisplayDescription          field.String
+	IsPublished                 field.Bool
 	Date                        field.Time
 	UpdatedAt                   field.Time
 	CreatedAt                   field.Time
@@ -795,6 +797,7 @@ func (b *budgetRevision) updateTableName(table string) *budgetRevision {
 	b.BudgetID = field.NewField(table, "budget_id")
 	b.DisplayName = field.NewString(table, "display_name")
 	b.DisplayDescription = field.NewString(table, "display_description")
+	b.IsPublished = field.NewBool(table, "is_published")
 	b.Date = field.NewTime(table, "date")
 	b.UpdatedAt = field.NewTime(table, "updated_at")
 	b.CreatedAt = field.NewTime(table, "created_at")
@@ -826,13 +829,14 @@ func (b *budgetRevision) GetFieldByName(fieldName string) (field.OrderExpr, bool
 }
 
 func (b *budgetRevision) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 12)
+	b.fieldMap = make(map[string]field.Expr, 13)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["custom_id"] = b.CustomID
 	b.fieldMap["organization_id"] = b.OrganizationID
 	b.fieldMap["budget_id"] = b.BudgetID
 	b.fieldMap["display_name"] = b.DisplayName
 	b.fieldMap["display_description"] = b.DisplayDescription
+	b.fieldMap["is_published"] = b.IsPublished
 	b.fieldMap["date"] = b.Date
 	b.fieldMap["updated_at"] = b.UpdatedAt
 	b.fieldMap["created_at"] = b.CreatedAt

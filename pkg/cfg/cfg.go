@@ -23,7 +23,7 @@ type Server struct {
 }
 
 type Database struct {
-	URL string `mapstructure:"url"`
+	DSN string `mapstructure:"dsn"`
 }
 
 type Auth struct {

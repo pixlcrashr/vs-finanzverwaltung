@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pixlcrashr/vsfv/pkg/db"
+	"github.com/pixlcrashr/vsfv/pkg/db/dialect"
 )
 
 var migrateCmd = &cobra.Command{
@@ -141,10 +142,26 @@ func init() {
 }
 
 // mustOpenDB opens a *sql.DB using the configured DSN.
-// The golang-migrate postgres driver (imported transitively via pkg/db) registers
-// the "postgres" driver with database/sql automatically.
+// The driver is selected based on the DSN scheme:
+//   - postgres:// or postgresql:// → "postgres" driver (lib/pq)
+//   - sqlite://                   → "sqlite3" driver (mattn/go-sqlite3)
 func mustOpenDB() *sql.DB {
-	sqlDB, err := sql.Open("postgres", config.Database.URL)
+	d, connStr, err := db.ParseDialect(config.Database.DSN)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to parse DSN: %v\n", err)
+		os.Exit(1)
+	}
+	dialect.Current = d
+
+	var driverName string
+	switch d {
+	case dialect.SQLite:
+		driverName = "sqlite3"
+	default:
+		driverName = "postgres"
+	}
+
+	sqlDB, err := sql.Open(driverName, connStr)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to open database: %v\n", err)
 		os.Exit(1)

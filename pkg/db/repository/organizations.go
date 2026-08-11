@@ -147,17 +147,19 @@ func (r *OrganizationRepository) ExistsByCustomID(ctx context.Context, customID 
 
 // CreateOrganizationParams holds the fields required to create an organization.
 type CreateOrganizationParams struct {
-	DisplayName string
-	StartMonth  time.Month
-	CustomID    string
+	DisplayName        string
+	DisplayDescription string
+	StartMonth         time.Month
+	CustomID           string
 }
 
 // Create inserts a new organization.
 func (r *OrganizationRepository) Create(ctx context.Context, params CreateOrganizationParams) (*model.Organization, error) {
 	m := &model.Organization{
-		DisplayName: params.DisplayName,
-		StartMonth:  params.StartMonth,
-		CustomID:    params.CustomID,
+		DisplayName:        params.DisplayName,
+		DisplayDescription: params.DisplayDescription,
+		StartMonth:         params.StartMonth,
+		CustomID:           params.CustomID,
 	}
 	if err := r.q.Organization.WithContext(ctx).Create(m); err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
@@ -170,9 +172,10 @@ func (r *OrganizationRepository) Create(ctx context.Context, params CreateOrgani
 
 // UpdateOrganizationParams holds the fields that can be updated for an organization.
 type UpdateOrganizationParams struct {
-	DisplayName optional.Optional[string]
-	StartMonth  optional.Optional[time.Month]
-	CustomID    optional.Optional[string]
+	DisplayName        optional.Optional[string]
+	DisplayDescription optional.Optional[string]
+	StartMonth         optional.Optional[time.Month]
+	CustomID           optional.Optional[string]
 }
 
 // Update updates fields of an existing organization matched by its primary key.
@@ -184,6 +187,9 @@ func (r *OrganizationRepository) Update(ctx context.Context, id uuid.UUID, param
 
 	if params.DisplayName.IsSet {
 		m.DisplayName = params.DisplayName.Value
+	}
+	if params.DisplayDescription.IsSet {
+		m.DisplayDescription = params.DisplayDescription.Value
 	}
 	if params.StartMonth.IsSet {
 		m.StartMonth = params.StartMonth.Value

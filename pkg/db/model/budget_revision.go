@@ -14,9 +14,10 @@ type BudgetRevision struct {
 	BudgetID           uuid.UUID `gorm:"type:uuid;not null;index:idx_budget_tags_org_budget,priority:2;uniqueIndex:idx_budget_revisions_custom_id,priority:3"`
 	DisplayName        string    `gorm:"not null;default:''"`
 	DisplayDescription string    `gorm:"not null;default:''"`
+	IsPublished        bool      `gorm:"not null;default:false"`
 	Date               time.Time `gorm:"not null;index:idx_budget_revisions_date"`
-	UpdatedAt          time.Time `gorm:"not null;default:now()"`
-	CreatedAt          time.Time `gorm:"not null;default:now()"`
+	UpdatedAt          time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	CreatedAt          time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 
 	// Relations
 	Organization                Organization                 `gorm:"foreignKey:OrganizationID"`

@@ -62,6 +62,8 @@ type UpdateUserGroupParams struct {
 	Organizations optional.Optional[[]string]
 	// Permissions, when IsSet, replaces all permissions.
 	Permissions optional.Optional[[]string]
+	// ForceSystem bypasses the IsSystem guard, allowing updates to system groups.
+	ForceSystem bool
 }
 
 type UserGroupRepository struct {
@@ -211,7 +213,7 @@ func (r *UserGroupRepository) Update(ctx context.Context, id uuid.UUID, params U
 		return err
 	}
 
-	if m.IsSystem {
+	if m.IsSystem && !params.ForceSystem {
 		return errors.Join(ErrUserGroupIsSystem, fmt.Errorf("id=%s", id))
 	}
 

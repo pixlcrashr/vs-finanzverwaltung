@@ -11,6 +11,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
+	"github.com/theater-improrama/go-utils/optional"
 	"gorm.io/gorm"
 )
 
@@ -141,6 +142,29 @@ func (r *BudgetRevisionRepository) GetLatest(ctx context.Context, budgetID uuid.
 		return nil, fmt.Errorf("get latest budget revision budget_id=%s: %w", budgetID, err)
 	}
 	return &m, nil
+}
+
+// UpdateBudgetRevisionParams holds the fields that can be updated for a budget revision.
+type UpdateBudgetRevisionParams struct {
+	IsPublished optional.Optional[bool]
+}
+
+// Update updates fields of an existing budget revision matched by its primary key.
+func (r *BudgetRevisionRepository) Update(ctx context.Context, id uuid.UUID, params UpdateBudgetRevisionParams) error {
+	updates := map[string]any{}
+
+	if params.IsPublished.IsSet {
+		updates["is_published"] = params.IsPublished.Value
+	}
+
+	if len(updates) == 0 {
+		return nil
+	}
+
+	if _, err := r.q.BudgetRevision.WithContext(ctx).Where(r.q.BudgetRevision.ID.Eq(id)).Updates(updates); err != nil {
+		return fmt.Errorf("update budget revision id=%s: %w", id, err)
+	}
+	return nil
 }
 
 // CreateWithSnapshotParams holds the fields required to create a budget revision with a snapshot.

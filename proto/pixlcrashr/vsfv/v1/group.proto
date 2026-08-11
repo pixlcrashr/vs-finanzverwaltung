@@ -124,6 +124,40 @@ message DeleteGroupRequest {
   ];
 }
 
+// ── User-Group membership ─────────────────────────────────────────────────────
+
+message AddUserToGroupRequest {
+  // The resource name of the group.
+  // Format: groups/{group}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Group"}
+  ];
+
+  // The resource name of the user to add.
+  // Format: users/{user}
+  string user = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/User"}
+  ];
+}
+
+message RemoveUserFromGroupRequest {
+  // The resource name of the group.
+  // Format: groups/{group}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Group"}
+  ];
+
+  // The resource name of the user to remove.
+  // Format: users/{user}
+  string user = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/User"}
+  ];
+}
+
 // ── Service ───────────────────────────────────────────────────────────────────
 
 // GroupService manages groups and their per-organization permission policies.
@@ -183,5 +217,29 @@ service GroupService {
   rpc DeleteGroup(DeleteGroupRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/{name=groups/*}"};
     option (google.api.method_signature) = "name";
+  }
+
+  // Adds a user to a group (custom method, AIP-136).
+  // Authorization:
+  //   Scope: groups:write
+  //   Permission: groups:update
+  //   Domain: global
+  rpc AddUserToGroup(AddUserToGroupRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/{name=groups/*}:addUser"
+      body: "*"
+    };
+  }
+
+  // Removes a user from a group (custom method, AIP-136).
+  // Authorization:
+  //   Scope: groups:write
+  //   Permission: groups:update
+  //   Domain: global
+  rpc RemoveUserFromGroup(RemoveUserFromGroupRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/{name=groups/*}:removeUser"
+      body: "*"
+    };
   }
 }

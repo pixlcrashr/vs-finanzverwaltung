@@ -11,6 +11,7 @@ import (
 	date "google.golang.org/genproto/googleapis/type/date"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -47,7 +48,10 @@ type BudgetRevision struct {
 	// Timestamp when this revision was created.
 	CreateTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
 	// Entity tag for optimistic concurrency control.
-	Etag          string `protobuf:"bytes,8,opt,name=etag,proto3" json:"etag,omitempty"`
+	Etag string `protobuf:"bytes,8,opt,name=etag,proto3" json:"etag,omitempty"`
+	// Whether the revision is published. A revision can only be published if
+	// its parent budget is published.
+	IsPublished   bool `protobuf:"varint,9,opt,name=is_published,json=isPublished,proto3" json:"is_published,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -136,6 +140,13 @@ func (x *BudgetRevision) GetEtag() string {
 		return x.Etag
 	}
 	return ""
+}
+
+func (x *BudgetRevision) GetIsPublished() bool {
+	if x != nil {
+		return x.IsPublished
+	}
+	return false
 }
 
 type GetBudgetRevisionRequest struct {
@@ -388,6 +399,61 @@ func (x *CreateBudgetRevisionRequest) GetBudgetRevisionId() string {
 	return ""
 }
 
+type UpdateBudgetRevisionRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The revision to update. Only is_published can be changed; all other
+	// fields are immutable after creation.
+	Revision *BudgetRevision `protobuf:"bytes,1,opt,name=revision,proto3" json:"revision,omitempty"`
+	// The list of fields to update.
+	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateBudgetRevisionRequest) Reset() {
+	*x = UpdateBudgetRevisionRequest{}
+	mi := &file_pixlcrashr_vsfv_v1_budget_revision_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateBudgetRevisionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateBudgetRevisionRequest) ProtoMessage() {}
+
+func (x *UpdateBudgetRevisionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pixlcrashr_vsfv_v1_budget_revision_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateBudgetRevisionRequest.ProtoReflect.Descriptor instead.
+func (*UpdateBudgetRevisionRequest) Descriptor() ([]byte, []int) {
+	return file_pixlcrashr_vsfv_v1_budget_revision_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *UpdateBudgetRevisionRequest) GetRevision() *BudgetRevision {
+	if x != nil {
+		return x.Revision
+	}
+	return nil
+}
+
+func (x *UpdateBudgetRevisionRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
+	if x != nil {
+		return x.UpdateMask
+	}
+	return nil
+}
+
 type GetLatestBudgetRevisionRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The parent budget resource name.
@@ -399,7 +465,7 @@ type GetLatestBudgetRevisionRequest struct {
 
 func (x *GetLatestBudgetRevisionRequest) Reset() {
 	*x = GetLatestBudgetRevisionRequest{}
-	mi := &file_pixlcrashr_vsfv_v1_budget_revision_proto_msgTypes[5]
+	mi := &file_pixlcrashr_vsfv_v1_budget_revision_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -411,7 +477,7 @@ func (x *GetLatestBudgetRevisionRequest) String() string {
 func (*GetLatestBudgetRevisionRequest) ProtoMessage() {}
 
 func (x *GetLatestBudgetRevisionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_budget_revision_proto_msgTypes[5]
+	mi := &file_pixlcrashr_vsfv_v1_budget_revision_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -424,7 +490,7 @@ func (x *GetLatestBudgetRevisionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLatestBudgetRevisionRequest.ProtoReflect.Descriptor instead.
 func (*GetLatestBudgetRevisionRequest) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_budget_revision_proto_rawDescGZIP(), []int{5}
+	return file_pixlcrashr_vsfv_v1_budget_revision_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetLatestBudgetRevisionRequest) GetParent() string {
@@ -438,7 +504,7 @@ var File_pixlcrashr_vsfv_v1_budget_revision_proto protoreflect.FileDescriptor
 
 const file_pixlcrashr_vsfv_v1_budget_revision_proto_rawDesc = "" +
 	"\n" +
-	"(pixlcrashr/vsfv/v1/budget_revision.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16google/type/date.proto\"\xd6\x03\n" +
+	"(pixlcrashr/vsfv/v1/budget_revision.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16google/type/date.proto\"\xfe\x03\n" +
 	"\x0eBudgetRevision\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x03R\x04name\x12\x1d\n" +
 	"\x03uid\x18\x02 \x01(\tB\v\xe0A\x03\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12:\n" +
@@ -449,7 +515,8 @@ const file_pixlcrashr_vsfv_v1_budget_revision_proto_rawDesc = "" +
 	"\x04date\x18\x06 \x01(\v2\x11.google.type.DateB\x03\xe0A\x01R\x04date\x12@\n" +
 	"\vcreate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"createTime\x12\x17\n" +
-	"\x04etag\x18\b \x01(\tB\x03\xe0A\x03R\x04etag:k\xeaAh\n" +
+	"\x04etag\x18\b \x01(\tB\x03\xe0A\x03R\x04etag\x12&\n" +
+	"\fis_published\x18\t \x01(\bB\x03\xe0A\x01R\visPublished:k\xeaAh\n" +
 	"\"vsfv.pixlcrashr.dev/BudgetRevision\x12Borganizations/{organization}/budgets/{budget}/revisions/{revision}\"Z\n" +
 	"\x18GetBudgetRevisionRequest\x12>\n" +
 	"\x04name\x18\x01 \x01(\tB*\xe0A\x02\xfaA$\n" +
@@ -470,15 +537,20 @@ const file_pixlcrashr_vsfv_v1_budget_revision_proto_rawDesc = "" +
 	"\x06parent\x18\x01 \x01(\tB\"\xe0A\x02\xfaA\x1c\n" +
 	"\x1avsfv.pixlcrashr.dev/BudgetR\x06parent\x12C\n" +
 	"\brevision\x18\x02 \x01(\v2\".pixlcrashr.vsfv.v1.BudgetRevisionB\x03\xe0A\x02R\brevision\x121\n" +
-	"\x12budget_revision_id\x18\x03 \x01(\tB\x03\xe0A\x01R\x10budgetRevisionId\"\\\n" +
+	"\x12budget_revision_id\x18\x03 \x01(\tB\x03\xe0A\x01R\x10budgetRevisionId\"\xa4\x01\n" +
+	"\x1bUpdateBudgetRevisionRequest\x12C\n" +
+	"\brevision\x18\x01 \x01(\v2\".pixlcrashr.vsfv.v1.BudgetRevisionB\x03\xe0A\x02R\brevision\x12@\n" +
+	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
+	"updateMask\"\\\n" +
 	"\x1eGetLatestBudgetRevisionRequest\x12:\n" +
 	"\x06parent\x18\x01 \x01(\tB\"\xe0A\x02\xfaA\x1c\n" +
-	"\x1avsfv.pixlcrashr.dev/BudgetR\x06parent2\xac\x06\n" +
+	"\x1avsfv.pixlcrashr.dev/BudgetR\x06parent2\xfe\a\n" +
 	"\x15BudgetRevisionService\x12\xa6\x01\n" +
 	"\x11GetBudgetRevision\x12,.pixlcrashr.vsfv.v1.GetBudgetRevisionRequest\x1a\".pixlcrashr.vsfv.v1.BudgetRevision\"?\xdaA\x04name\x82\xd3\xe4\x93\x022\x120/v1/{name=organizations/*/budgets/*/revisions/*}\x12\xb9\x01\n" +
 	"\x13ListBudgetRevisions\x12..pixlcrashr.vsfv.v1.ListBudgetRevisionsRequest\x1a/.pixlcrashr.vsfv.v1.ListBudgetRevisionsResponse\"A\xdaA\x06parent\x82\xd3\xe4\x93\x022\x120/v1/{parent=organizations/*/budgets/*}/revisions\x12\xbe\x01\n" +
 	"\x17GetLatestBudgetRevision\x122.pixlcrashr.vsfv.v1.GetLatestBudgetRevisionRequest\x1a\".pixlcrashr.vsfv.v1.BudgetRevision\"K\xdaA\x06parent\x82\xd3\xe4\x93\x02<\x12:/v1/{parent=organizations/*/budgets/*}/revisions:getLatest\x12\xd4\x01\n" +
-	"\x14CreateBudgetRevision\x12/.pixlcrashr.vsfv.v1.CreateBudgetRevisionRequest\x1a\".pixlcrashr.vsfv.v1.BudgetRevision\"g\xdaA\"parent,revision,budget_revision_id\x82\xd3\xe4\x93\x02<:\brevision\"0/v1/{parent=organizations/*/budgets/*}/revisions\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xc0\x01\n" +
+	"\x14CreateBudgetRevision\x12/.pixlcrashr.vsfv.v1.CreateBudgetRevisionRequest\x1a\".pixlcrashr.vsfv.v1.BudgetRevision\"g\xdaA\"parent,revision,budget_revision_id\x82\xd3\xe4\x93\x02<:\brevision\"0/v1/{parent=organizations/*/budgets/*}/revisions\x12\xcf\x01\n" +
+	"\x14UpdateBudgetRevision\x12/.pixlcrashr.vsfv.v1.UpdateBudgetRevisionRequest\x1a\".pixlcrashr.vsfv.v1.BudgetRevision\"b\xdaA\x14revision,update_mask\x82\xd3\xe4\x93\x02E:\brevision29/v1/{revision.name=organizations/*/budgets/*/revisions/*}\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xc0\x01\n" +
 	"\x16com.pixlcrashr.vsfv.v1B\x13BudgetRevisionProtoP\x01Z'github.com/pixlcrashr/vsfv/pkg/grpc/gen\xa2\x02\x03PVX\xaa\x02\x12Pixlcrashr.Vsfv.V1\xca\x02\x12Pixlcrashr\\Vsfv\\V1\xe2\x02\x1ePixlcrashr\\Vsfv\\V1\\GPBMetadata\xea\x02\x14Pixlcrashr::Vsfv::V1b\x06proto3"
 
 var (
@@ -493,35 +565,41 @@ func file_pixlcrashr_vsfv_v1_budget_revision_proto_rawDescGZIP() []byte {
 	return file_pixlcrashr_vsfv_v1_budget_revision_proto_rawDescData
 }
 
-var file_pixlcrashr_vsfv_v1_budget_revision_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_pixlcrashr_vsfv_v1_budget_revision_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_pixlcrashr_vsfv_v1_budget_revision_proto_goTypes = []any{
 	(*BudgetRevision)(nil),                 // 0: pixlcrashr.vsfv.v1.BudgetRevision
 	(*GetBudgetRevisionRequest)(nil),       // 1: pixlcrashr.vsfv.v1.GetBudgetRevisionRequest
 	(*ListBudgetRevisionsRequest)(nil),     // 2: pixlcrashr.vsfv.v1.ListBudgetRevisionsRequest
 	(*ListBudgetRevisionsResponse)(nil),    // 3: pixlcrashr.vsfv.v1.ListBudgetRevisionsResponse
 	(*CreateBudgetRevisionRequest)(nil),    // 4: pixlcrashr.vsfv.v1.CreateBudgetRevisionRequest
-	(*GetLatestBudgetRevisionRequest)(nil), // 5: pixlcrashr.vsfv.v1.GetLatestBudgetRevisionRequest
-	(*date.Date)(nil),                      // 6: google.type.Date
-	(*timestamppb.Timestamp)(nil),          // 7: google.protobuf.Timestamp
+	(*UpdateBudgetRevisionRequest)(nil),    // 5: pixlcrashr.vsfv.v1.UpdateBudgetRevisionRequest
+	(*GetLatestBudgetRevisionRequest)(nil), // 6: pixlcrashr.vsfv.v1.GetLatestBudgetRevisionRequest
+	(*date.Date)(nil),                      // 7: google.type.Date
+	(*timestamppb.Timestamp)(nil),          // 8: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),          // 9: google.protobuf.FieldMask
 }
 var file_pixlcrashr_vsfv_v1_budget_revision_proto_depIdxs = []int32{
-	6, // 0: pixlcrashr.vsfv.v1.BudgetRevision.date:type_name -> google.type.Date
-	7, // 1: pixlcrashr.vsfv.v1.BudgetRevision.create_time:type_name -> google.protobuf.Timestamp
-	0, // 2: pixlcrashr.vsfv.v1.ListBudgetRevisionsResponse.revisions:type_name -> pixlcrashr.vsfv.v1.BudgetRevision
-	0, // 3: pixlcrashr.vsfv.v1.CreateBudgetRevisionRequest.revision:type_name -> pixlcrashr.vsfv.v1.BudgetRevision
-	1, // 4: pixlcrashr.vsfv.v1.BudgetRevisionService.GetBudgetRevision:input_type -> pixlcrashr.vsfv.v1.GetBudgetRevisionRequest
-	2, // 5: pixlcrashr.vsfv.v1.BudgetRevisionService.ListBudgetRevisions:input_type -> pixlcrashr.vsfv.v1.ListBudgetRevisionsRequest
-	5, // 6: pixlcrashr.vsfv.v1.BudgetRevisionService.GetLatestBudgetRevision:input_type -> pixlcrashr.vsfv.v1.GetLatestBudgetRevisionRequest
-	4, // 7: pixlcrashr.vsfv.v1.BudgetRevisionService.CreateBudgetRevision:input_type -> pixlcrashr.vsfv.v1.CreateBudgetRevisionRequest
-	0, // 8: pixlcrashr.vsfv.v1.BudgetRevisionService.GetBudgetRevision:output_type -> pixlcrashr.vsfv.v1.BudgetRevision
-	3, // 9: pixlcrashr.vsfv.v1.BudgetRevisionService.ListBudgetRevisions:output_type -> pixlcrashr.vsfv.v1.ListBudgetRevisionsResponse
-	0, // 10: pixlcrashr.vsfv.v1.BudgetRevisionService.GetLatestBudgetRevision:output_type -> pixlcrashr.vsfv.v1.BudgetRevision
-	0, // 11: pixlcrashr.vsfv.v1.BudgetRevisionService.CreateBudgetRevision:output_type -> pixlcrashr.vsfv.v1.BudgetRevision
-	8, // [8:12] is the sub-list for method output_type
-	4, // [4:8] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	7,  // 0: pixlcrashr.vsfv.v1.BudgetRevision.date:type_name -> google.type.Date
+	8,  // 1: pixlcrashr.vsfv.v1.BudgetRevision.create_time:type_name -> google.protobuf.Timestamp
+	0,  // 2: pixlcrashr.vsfv.v1.ListBudgetRevisionsResponse.revisions:type_name -> pixlcrashr.vsfv.v1.BudgetRevision
+	0,  // 3: pixlcrashr.vsfv.v1.CreateBudgetRevisionRequest.revision:type_name -> pixlcrashr.vsfv.v1.BudgetRevision
+	0,  // 4: pixlcrashr.vsfv.v1.UpdateBudgetRevisionRequest.revision:type_name -> pixlcrashr.vsfv.v1.BudgetRevision
+	9,  // 5: pixlcrashr.vsfv.v1.UpdateBudgetRevisionRequest.update_mask:type_name -> google.protobuf.FieldMask
+	1,  // 6: pixlcrashr.vsfv.v1.BudgetRevisionService.GetBudgetRevision:input_type -> pixlcrashr.vsfv.v1.GetBudgetRevisionRequest
+	2,  // 7: pixlcrashr.vsfv.v1.BudgetRevisionService.ListBudgetRevisions:input_type -> pixlcrashr.vsfv.v1.ListBudgetRevisionsRequest
+	6,  // 8: pixlcrashr.vsfv.v1.BudgetRevisionService.GetLatestBudgetRevision:input_type -> pixlcrashr.vsfv.v1.GetLatestBudgetRevisionRequest
+	4,  // 9: pixlcrashr.vsfv.v1.BudgetRevisionService.CreateBudgetRevision:input_type -> pixlcrashr.vsfv.v1.CreateBudgetRevisionRequest
+	5,  // 10: pixlcrashr.vsfv.v1.BudgetRevisionService.UpdateBudgetRevision:input_type -> pixlcrashr.vsfv.v1.UpdateBudgetRevisionRequest
+	0,  // 11: pixlcrashr.vsfv.v1.BudgetRevisionService.GetBudgetRevision:output_type -> pixlcrashr.vsfv.v1.BudgetRevision
+	3,  // 12: pixlcrashr.vsfv.v1.BudgetRevisionService.ListBudgetRevisions:output_type -> pixlcrashr.vsfv.v1.ListBudgetRevisionsResponse
+	0,  // 13: pixlcrashr.vsfv.v1.BudgetRevisionService.GetLatestBudgetRevision:output_type -> pixlcrashr.vsfv.v1.BudgetRevision
+	0,  // 14: pixlcrashr.vsfv.v1.BudgetRevisionService.CreateBudgetRevision:output_type -> pixlcrashr.vsfv.v1.BudgetRevision
+	0,  // 15: pixlcrashr.vsfv.v1.BudgetRevisionService.UpdateBudgetRevision:output_type -> pixlcrashr.vsfv.v1.BudgetRevision
+	11, // [11:16] is the sub-list for method output_type
+	6,  // [6:11] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_pixlcrashr_vsfv_v1_budget_revision_proto_init() }
@@ -535,7 +613,7 @@ func file_pixlcrashr_vsfv_v1_budget_revision_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pixlcrashr_vsfv_v1_budget_revision_proto_rawDesc), len(file_pixlcrashr_vsfv_v1_budget_revision_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -23,6 +23,7 @@ const (
 	BudgetRevisionService_ListBudgetRevisions_FullMethodName     = "/pixlcrashr.vsfv.v1.BudgetRevisionService/ListBudgetRevisions"
 	BudgetRevisionService_GetLatestBudgetRevision_FullMethodName = "/pixlcrashr.vsfv.v1.BudgetRevisionService/GetLatestBudgetRevision"
 	BudgetRevisionService_CreateBudgetRevision_FullMethodName    = "/pixlcrashr.vsfv.v1.BudgetRevisionService/CreateBudgetRevision"
+	BudgetRevisionService_UpdateBudgetRevision_FullMethodName    = "/pixlcrashr.vsfv.v1.BudgetRevisionService/UpdateBudgetRevision"
 )
 
 // BudgetRevisionServiceClient is the client API for BudgetRevisionService service.
@@ -64,6 +65,14 @@ type BudgetRevisionServiceClient interface {
 	//	Permission: budgets:create
 	//	Domain: organization-scoped
 	CreateBudgetRevision(ctx context.Context, in *CreateBudgetRevisionRequest, opts ...grpc.CallOption) (*BudgetRevision, error)
+	// Updates a revision. Only the is_published field may be updated.
+	// Setting is_published to true requires the parent budget to be published.
+	// Authorization:
+	//
+	//	Scope: budgets:write
+	//	Permission: budgets:update
+	//	Domain: organization-scoped
+	UpdateBudgetRevision(ctx context.Context, in *UpdateBudgetRevisionRequest, opts ...grpc.CallOption) (*BudgetRevision, error)
 }
 
 type budgetRevisionServiceClient struct {
@@ -114,6 +123,16 @@ func (c *budgetRevisionServiceClient) CreateBudgetRevision(ctx context.Context, 
 	return out, nil
 }
 
+func (c *budgetRevisionServiceClient) UpdateBudgetRevision(ctx context.Context, in *UpdateBudgetRevisionRequest, opts ...grpc.CallOption) (*BudgetRevision, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BudgetRevision)
+	err := c.cc.Invoke(ctx, BudgetRevisionService_UpdateBudgetRevision_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BudgetRevisionServiceServer is the server API for BudgetRevisionService service.
 // All implementations should embed UnimplementedBudgetRevisionServiceServer
 // for forward compatibility.
@@ -153,6 +172,14 @@ type BudgetRevisionServiceServer interface {
 	//	Permission: budgets:create
 	//	Domain: organization-scoped
 	CreateBudgetRevision(context.Context, *CreateBudgetRevisionRequest) (*BudgetRevision, error)
+	// Updates a revision. Only the is_published field may be updated.
+	// Setting is_published to true requires the parent budget to be published.
+	// Authorization:
+	//
+	//	Scope: budgets:write
+	//	Permission: budgets:update
+	//	Domain: organization-scoped
+	UpdateBudgetRevision(context.Context, *UpdateBudgetRevisionRequest) (*BudgetRevision, error)
 }
 
 // UnimplementedBudgetRevisionServiceServer should be embedded to have
@@ -173,6 +200,9 @@ func (UnimplementedBudgetRevisionServiceServer) GetLatestBudgetRevision(context.
 }
 func (UnimplementedBudgetRevisionServiceServer) CreateBudgetRevision(context.Context, *CreateBudgetRevisionRequest) (*BudgetRevision, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateBudgetRevision not implemented")
+}
+func (UnimplementedBudgetRevisionServiceServer) UpdateBudgetRevision(context.Context, *UpdateBudgetRevisionRequest) (*BudgetRevision, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateBudgetRevision not implemented")
 }
 func (UnimplementedBudgetRevisionServiceServer) testEmbeddedByValue() {}
 
@@ -266,6 +296,24 @@ func _BudgetRevisionService_CreateBudgetRevision_Handler(srv interface{}, ctx co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BudgetRevisionService_UpdateBudgetRevision_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateBudgetRevisionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BudgetRevisionServiceServer).UpdateBudgetRevision(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BudgetRevisionService_UpdateBudgetRevision_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BudgetRevisionServiceServer).UpdateBudgetRevision(ctx, req.(*UpdateBudgetRevisionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BudgetRevisionService_ServiceDesc is the grpc.ServiceDesc for BudgetRevisionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -288,6 +336,10 @@ var BudgetRevisionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateBudgetRevision",
 			Handler:    _BudgetRevisionService_CreateBudgetRevision_Handler,
+		},
+		{
+			MethodName: "UpdateBudgetRevision",
+			Handler:    _BudgetRevisionService_UpdateBudgetRevision_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

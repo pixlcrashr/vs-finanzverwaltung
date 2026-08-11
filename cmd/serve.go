@@ -27,7 +27,7 @@ var serveCmd = &cobra.Command{
 The server connects to the configured PostgreSQL database and listens for
 incoming HTTP requests. It shuts down gracefully on SIGINT or SIGTERM.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		gormDB, err := db.Connect(config.Database.URL)
+		gormDB, err := db.Connect(config.Database.DSN)
 		if err != nil {
 			return fmt.Errorf("connecting to database: %w", err)
 		}

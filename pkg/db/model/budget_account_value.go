@@ -15,8 +15,8 @@ type BudgetAccountValue struct {
 	BudgetID       uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_budget_account_values_org_budget_account,priority:2;uniqueIndex:idx_budget_account_values_custom_id,priority:3"`
 	AccountID      uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_budget_account_values_org_budget_account,priority:3"`
 	Value          apd.Decimal `gorm:"type:decimal;not null;default:0"`
-	UpdatedAt      time.Time   `gorm:"not null;default:now()"`
-	CreatedAt      time.Time   `gorm:"not null;default:now()"`
+	UpdatedAt      time.Time   `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	CreatedAt      time.Time   `gorm:"not null;default:CURRENT_TIMESTAMP"`
 
 	// Relations
 	Organization Organization `gorm:"foreignKey:OrganizationID"`

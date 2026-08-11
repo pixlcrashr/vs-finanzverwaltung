@@ -61,6 +61,18 @@ message Budget {
 
   // Entity tag for optimistic concurrency control.
   string etag = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether the budget is published. Only published budgets allow their
+  // revisions to be published.
+  bool is_published = 11 [(google.api.field_behavior) = OPTIONAL];
+
+  // Whether current actual (Ist) account values are publicly visible.
+  bool publish_actual_values = 12 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional date until which current actual values are publicly visible.
+  // Must lie within the budget period. If unset, the end of the budget period
+  // is assumed.
+  google.type.Date publish_actual_values_until = 13 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message GetBudgetRequest {

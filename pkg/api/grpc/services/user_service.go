@@ -8,6 +8,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
 	"github.com/pixlcrashr/vsfv/pkg/authz"
+	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
@@ -29,12 +30,13 @@ var (
 
 type userServiceServer struct {
 	gen.UnimplementedUserServiceServer
-	repo     *repository.UserRepository
-	enforcer *authz.Enforcer
+	repo          *repository.UserRepository
+	userGroupRepo *repository.UserGroupRepository
+	enforcer      *authz.Enforcer
 }
 
-func newUserServiceServer(repo *repository.UserRepository, enforcer *authz.Enforcer) gen.UserServiceServer {
-	return &userServiceServer{repo: repo, enforcer: enforcer}
+func newUserServiceServer(repo *repository.UserRepository, userGroupRepo *repository.UserGroupRepository, enforcer *authz.Enforcer) gen.UserServiceServer {
+	return &userServiceServer{repo: repo, userGroupRepo: userGroupRepo, enforcer: enforcer}
 }
 
 func (s *userServiceServer) GetUser(ctx context.Context, req *gen.GetUserRequest) (*gen.User, error) {
@@ -174,6 +176,56 @@ func (s *userServiceServer) BatchCheckUserPermissions(ctx context.Context, req *
 	}
 
 	return resp, nil
+}
+
+func (s *userServiceServer) ListUserGroups(ctx context.Context, req *gen.ListUserGroupsRequest) (*gen.ListUserGroupsResponse, error) {
+	var n gen.UserResourceName
+	if err := n.UnmarshalString(req.Name); err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidUserName}
+	}
+
+	if err := authz.CheckGlobal(ctx, s.enforcer, authz.ResourceUsers, authz.ActionRead); err != nil {
+		return nil, authError(err)
+	}
+
+	groupIDs, err := s.enforcer.GetGlobalRolesForUser(n.User)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedListUsers}
+	}
+
+	resp := &gen.ListUserGroupsResponse{}
+	for _, gid := range groupIDs {
+		id, err := uuid.Parse(gid)
+		if err != nil {
+			continue
+		}
+		m, err := s.userGroupRepo.GetByID(ctx, id)
+		if err != nil {
+			continue
+		}
+		orgs, perms, err := s.buildUserGroupPermissions(ctx, m)
+		if err != nil {
+			return nil, &ServerError{Err: err, Status: statusFailedListUsers}
+		}
+		resp.Groups = append(resp.Groups, UserGroupToProto(m, orgs, perms))
+	}
+
+	return resp, nil
+}
+
+// buildUserGroupPermissions reads the organization assignments and permissions
+// for a group from the repository. This is the same logic as
+// groupServiceServer.buildGroupPermissions but scoped to the user service.
+func (s *userServiceServer) buildUserGroupPermissions(ctx context.Context, m *model.UserGroup) (organizations, permissions []string, err error) {
+	organizations, err = s.userGroupRepo.GetOrganizations(ctx, m.ID)
+	if err != nil {
+		return nil, nil, err
+	}
+	permissions, err = s.userGroupRepo.GetPermissions(m.ID.String())
+	if err != nil {
+		return nil, nil, err
+	}
+	return organizations, permissions, nil
 }
 
 // checkPermissions evaluates the requested permissions against casbin.

@@ -10,6 +10,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
+	"github.com/theater-improrama/go-utils/optional"
 	"go.einride.tech/aip/ordering"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -24,6 +25,8 @@ var (
 	statusFailedGetBudgetRevision         = status.New(codes.Internal, "failed to get budget revision")
 	statusFailedListBudgetRevisions       = status.New(codes.Internal, "failed to list budget revisions")
 	statusFailedCreateBudgetRevision      = status.New(codes.Internal, "failed to create budget revision")
+	statusFailedUpdateBudgetRevision      = status.New(codes.Internal, "failed to update budget revision")
+	statusBudgetNotPublished              = status.New(codes.FailedPrecondition, "budget must be published before a revision can be published")
 )
 
 type budgetRevisionServiceServer struct {
@@ -159,6 +162,68 @@ func (s *budgetRevisionServiceServer) GetLatestBudgetRevision(ctx context.Contex
 	}
 
 	return BudgetRevisionToProto(pn, m), nil
+}
+
+func (s *budgetRevisionServiceServer) UpdateBudgetRevision(ctx context.Context, req *gen.UpdateBudgetRevisionRequest) (*gen.BudgetRevision, error) {
+	if req.Revision == nil {
+		return nil, &ServerError{Status: statusRevisionRequired}
+	}
+
+	var n gen.BudgetRevisionResourceName
+
+	if err := n.UnmarshalString(req.Revision.Name); err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidBudgetRevisionName}
+	}
+
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceBudgets, authz.ActionUpdate, authz.OrgDomain(n.Organization)); err != nil {
+		return nil, authError(err)
+	}
+
+	budgetID, err := uuid.Parse(n.Budget)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidBudgetRevisionName}
+	}
+
+	revisionID, err := uuid.Parse(n.Revision)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidBudgetRevisionName}
+	}
+
+	// A revision can only be published if its parent budget is published.
+	if req.Revision.IsPublished {
+		budget, err := s.budgetRepo.GetByID(ctx, budgetID)
+		if err != nil {
+			if errors.Is(err, repository.ErrBudgetNotFound) {
+				return nil, &ServerError{Err: err, Status: statusBudgetNotFound}
+			}
+
+			return nil, &ServerError{Err: err, Status: statusFailedGetBudget}
+		}
+
+		if !budget.IsPublished {
+			return nil, &ServerError{Status: statusBudgetNotPublished}
+		}
+	}
+
+	updateParams := repository.UpdateBudgetRevisionParams{
+		IsPublished: optional.From(req.Revision.IsPublished),
+	}
+
+	if err := s.repo.Update(ctx, revisionID, updateParams); err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedUpdateBudgetRevision}
+	}
+
+	// Refresh the model after update
+	m, err := s.repo.GetByID(ctx, revisionID)
+	if err != nil {
+		if errors.Is(err, repository.ErrBudgetRevisionNotFound) {
+			return nil, &ServerError{Err: err, Status: statusBudgetRevisionNotFound}
+		}
+
+		return nil, &ServerError{Err: err, Status: statusFailedGetBudgetRevision}
+	}
+
+	return BudgetRevisionToProto(n.BudgetResourceName(), m), nil
 }
 
 func (s *budgetRevisionServiceServer) CreateBudgetRevision(ctx context.Context, req *gen.CreateBudgetRevisionRequest) (*gen.BudgetRevision, error) {

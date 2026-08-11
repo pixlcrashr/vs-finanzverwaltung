@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"time"
@@ -192,13 +193,16 @@ func (r *BudgetRepository) GetByResourceName(ctx context.Context, organization s
 
 // CreateBudgetParams holds the fields required to create a budget.
 type CreateBudgetParams struct {
-	OrganizationID     uuid.UUID
-	DisplayName        string
-	DisplayDescription string
-	PeriodStart        time.Time
-	PeriodEnd          time.Time
-	IsClosed           bool
-	CustomID           string
+	OrganizationID           uuid.UUID
+	DisplayName              string
+	DisplayDescription       string
+	PeriodStart              time.Time
+	PeriodEnd                time.Time
+	IsClosed                 bool
+	IsPublished              bool
+	PublishActualValues      bool
+	PublishActualValuesUntil *time.Time
+	CustomID                 string
 }
 
 // Create inserts a new budget.
@@ -211,13 +215,18 @@ func (r *BudgetRepository) Create(ctx context.Context, params CreateBudgetParams
 		return nil, errors.Join(ErrOrganizationNotFound, fmt.Errorf("organization_id=%s: %w", params.OrganizationID, gorm.ErrRecordNotFound))
 	}
 	m := &model.Budget{
-		OrganizationID:     params.OrganizationID,
-		DisplayName:        params.DisplayName,
-		DisplayDescription: params.DisplayDescription,
-		PeriodStart:        params.PeriodStart,
-		PeriodEnd:          params.PeriodEnd,
-		IsClosed:           params.IsClosed,
-		CustomID:           params.CustomID,
+		OrganizationID:      params.OrganizationID,
+		DisplayName:         params.DisplayName,
+		DisplayDescription:  params.DisplayDescription,
+		PeriodStart:         params.PeriodStart,
+		PeriodEnd:           params.PeriodEnd,
+		IsClosed:            params.IsClosed,
+		IsPublished:         params.IsPublished,
+		PublishActualValues: params.PublishActualValues,
+		CustomID:            params.CustomID,
+	}
+	if params.PublishActualValuesUntil != nil {
+		m.PublishActualValuesUntil = sql.NullTime{Time: *params.PublishActualValuesUntil, Valid: true}
 	}
 	if err := r.q.Budget.WithContext(ctx).Create(m); err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
@@ -230,43 +239,55 @@ func (r *BudgetRepository) Create(ctx context.Context, params CreateBudgetParams
 
 // UpdateBudgetParams holds the fields that can be updated for a budget.
 type UpdateBudgetParams struct {
-	DisplayName        optional.Optional[string]
-	DisplayDescription optional.Optional[string]
-	PeriodStart        optional.Optional[time.Time]
-	PeriodEnd          optional.Optional[time.Time]
-	IsClosed           optional.Optional[bool]
-	CustomID           optional.Optional[string]
+	DisplayName              optional.Optional[string]
+	DisplayDescription       optional.Optional[string]
+	PeriodStart              optional.Optional[time.Time]
+	PeriodEnd                optional.Optional[time.Time]
+	IsClosed                 optional.Optional[bool]
+	IsPublished              optional.Optional[bool]
+	PublishActualValues      optional.Optional[bool]
+	PublishActualValuesUntil optional.Optional[sql.NullTime]
+	CustomID                 optional.Optional[string]
 }
 
 // Update updates fields of an existing budget matched by its primary key.
 func (r *BudgetRepository) Update(ctx context.Context, id uuid.UUID, params UpdateBudgetParams) error {
-	m, err := r.GetByID(ctx, id)
-	if err != nil {
-		return err
-	}
+	updates := map[string]any{}
 
 	if params.DisplayName.IsSet {
-		m.DisplayName = params.DisplayName.Value
+		updates["display_name"] = params.DisplayName.Value
 	}
 	if params.DisplayDescription.IsSet {
-		m.DisplayDescription = params.DisplayDescription.Value
+		updates["display_description"] = params.DisplayDescription.Value
 	}
 	if params.PeriodStart.IsSet {
-		m.PeriodStart = params.PeriodStart.Value
+		updates["period_start"] = params.PeriodStart.Value
 	}
 	if params.PeriodEnd.IsSet {
-		m.PeriodEnd = params.PeriodEnd.Value
+		updates["period_end"] = params.PeriodEnd.Value
 	}
 	if params.IsClosed.IsSet {
-		m.IsClosed = params.IsClosed.Value
+		updates["is_closed"] = params.IsClosed.Value
+	}
+	if params.IsPublished.IsSet {
+		updates["is_published"] = params.IsPublished.Value
+	}
+	if params.PublishActualValues.IsSet {
+		updates["publish_actual_values"] = params.PublishActualValues.Value
+	}
+	if params.PublishActualValuesUntil.IsSet {
+		updates["publish_actual_values_until"] = params.PublishActualValuesUntil.Value
 	}
 	if params.CustomID.IsSet {
-		m.CustomID = params.CustomID.Value
+		updates["custom_id"] = params.CustomID.Value
 	}
 
-	_, err = r.q.Budget.WithContext(ctx).Where(r.q.Budget.ID.Eq(m.ID)).Updates(m)
-	if err != nil {
-		return fmt.Errorf("update budget id=%s: %w", m.ID, err)
+	if len(updates) == 0 {
+		return nil
+	}
+
+	if _, err := r.q.Budget.WithContext(ctx).Where(r.q.Budget.ID.Eq(id)).Updates(updates); err != nil {
+		return fmt.Errorf("update budget id=%s: %w", id, err)
 	}
 	return nil
 }

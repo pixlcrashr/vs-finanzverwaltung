@@ -43,7 +43,7 @@ Example:
 			os.Exit(1)
 		}
 
-		gormDB, err := db.ConnectSilent(config.Database.URL)
+		gormDB, err := db.ConnectSilent(config.Database.DSN)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: connecting to database: %v\n", err)
 			os.Exit(1)

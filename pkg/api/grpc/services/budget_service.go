@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 
 	"github.com/google/uuid"
@@ -30,6 +31,7 @@ var (
 	statusFailedUpdateBudget              = status.New(codes.Internal, "failed to update budget")
 	statusFailedCloseBudget               = status.New(codes.Internal, "failed to close budget")
 	statusFailedDeleteBudget              = status.New(codes.Internal, "failed to delete budget")
+	statusInvalidPublishActualValuesUntil = status.New(codes.InvalidArgument, "publish_actual_values_until must lie within the budget period")
 )
 
 type budgetServiceServer struct {
@@ -153,10 +155,12 @@ func (s *budgetServiceServer) CreateBudget(ctx context.Context, req *gen.CreateB
 
 	b := req.Budget
 	params := repository.CreateBudgetParams{
-		OrganizationID:     orgID,
-		DisplayName:        b.DisplayName,
-		DisplayDescription: b.DisplayDescription,
-		CustomID:           req.BudgetId,
+		OrganizationID:      orgID,
+		DisplayName:         b.DisplayName,
+		DisplayDescription:  b.DisplayDescription,
+		IsPublished:         b.IsPublished,
+		PublishActualValues: b.PublishActualValues,
+		CustomID:            req.BudgetId,
 	}
 	if b.PeriodStart != nil {
 		params.PeriodStart = protoDateToTime(b.PeriodStart)
@@ -164,6 +168,14 @@ func (s *budgetServiceServer) CreateBudget(ctx context.Context, req *gen.CreateB
 
 	if b.PeriodEnd != nil {
 		params.PeriodEnd = protoDateToTime(b.PeriodEnd)
+	}
+
+	if b.PublishActualValuesUntil != nil {
+		until := protoDateToTime(b.PublishActualValuesUntil)
+		if until.Before(params.PeriodStart) || until.After(params.PeriodEnd) {
+			return nil, &ServerError{Status: statusInvalidPublishActualValuesUntil}
+		}
+		params.PublishActualValuesUntil = &until
 	}
 
 	m, err := s.repo.Create(ctx, params)
@@ -212,9 +224,21 @@ func (s *budgetServiceServer) UpdateBudget(ctx context.Context, req *gen.UpdateB
 		return nil, &ServerError{Err: err, Status: statusFailedGetBudget}
 	}
 
+	until := sql.NullTime{}
+	if req.Budget.PublishActualValuesUntil != nil {
+		until.Time = protoDateToTime(req.Budget.PublishActualValuesUntil)
+		until.Valid = true
+		if until.Time.Before(m.PeriodStart) || until.Time.After(m.PeriodEnd) {
+			return nil, &ServerError{Status: statusInvalidPublishActualValuesUntil}
+		}
+	}
+
 	updateParams := repository.UpdateBudgetParams{
-		DisplayName:        optional.From(req.Budget.DisplayName),
-		DisplayDescription: optional.From(req.Budget.DisplayDescription),
+		DisplayName:              optional.From(req.Budget.DisplayName),
+		DisplayDescription:       optional.From(req.Budget.DisplayDescription),
+		IsPublished:              optional.From(req.Budget.IsPublished),
+		PublishActualValues:      optional.From(req.Budget.PublishActualValues),
+		PublishActualValuesUntil: optional.From(until),
 	}
 
 	if err := s.repo.Update(ctx, m.ID, updateParams); err != nil {

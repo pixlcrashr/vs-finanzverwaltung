@@ -30,6 +30,9 @@ message UserSettings {
   // Preferred UI theme: "light", "dark", or "system".
   string theme = 3 [(google.api.field_behavior) = OPTIONAL];
 
+  // Whether the user wants to receive email notifications.
+  bool email_notifications = 6 [(google.api.field_behavior) = OPTIONAL];
+
   // Last modification timestamp.
   google.protobuf.Timestamp update_time = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 

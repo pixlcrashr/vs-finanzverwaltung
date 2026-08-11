@@ -16,6 +16,7 @@ import (
 )
 
 var updateGroupOrganizations string
+var updateGroupForce bool
 
 var toolUpdateGroupCmd = &cobra.Command{
 	Use:   "group <uuid|customID>",
@@ -38,7 +39,7 @@ Examples:
 			os.Exit(1)
 		}
 
-		gormDB, err := db.ConnectSilent(config.Database.URL)
+		gormDB, err := db.ConnectSilent(config.Database.DSN)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: connecting to database: %v\n", err)
 			os.Exit(1)
@@ -111,6 +112,7 @@ Examples:
 		// Update the group's organization assignments.
 		err = groupRepo.Update(ctx, groupID, repository.UpdateUserGroupParams{
 			Organizations: optional.From(orgResourceNames),
+			ForceSystem:   updateGroupForce,
 		})
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: updating group organizations: %v\n", err)
@@ -125,4 +127,5 @@ func init() {
 	toolUpdateCmd.AddCommand(toolUpdateGroupCmd)
 
 	toolUpdateGroupCmd.Flags().StringVar(&updateGroupOrganizations, "organizations", "", "Comma-separated list of organization UUIDs or custom IDs, or \"*\" for all (replaces current assignments)")
+	toolUpdateGroupCmd.Flags().BoolVarP(&updateGroupForce, "force", "f", false, "Allow modifying system groups")
 }

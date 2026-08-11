@@ -23,6 +23,7 @@ const (
 	UserService_ListUsers_FullMethodName                 = "/pixlcrashr.vsfv.v1.UserService/ListUsers"
 	UserService_CheckUserPermissions_FullMethodName      = "/pixlcrashr.vsfv.v1.UserService/CheckUserPermissions"
 	UserService_BatchCheckUserPermissions_FullMethodName = "/pixlcrashr.vsfv.v1.UserService/BatchCheckUserPermissions"
+	UserService_ListUserGroups_FullMethodName            = "/pixlcrashr.vsfv.v1.UserService/ListUserGroups"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -64,6 +65,13 @@ type UserServiceClient interface {
 	//	Permission: users:read
 	//	Domain: global
 	BatchCheckUserPermissions(ctx context.Context, in *BatchCheckUserPermissionsRequest, opts ...grpc.CallOption) (*BatchCheckUserPermissionsResponse, error)
+	// Lists the groups a user belongs to (custom method, AIP-136).
+	// Authorization:
+	//
+	//	Scope: users:read
+	//	Permission: users:read
+	//	Domain: global
+	ListUserGroups(ctx context.Context, in *ListUserGroupsRequest, opts ...grpc.CallOption) (*ListUserGroupsResponse, error)
 }
 
 type userServiceClient struct {
@@ -114,6 +122,16 @@ func (c *userServiceClient) BatchCheckUserPermissions(ctx context.Context, in *B
 	return out, nil
 }
 
+func (c *userServiceClient) ListUserGroups(ctx context.Context, in *ListUserGroupsRequest, opts ...grpc.CallOption) (*ListUserGroupsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListUserGroupsResponse)
+	err := c.cc.Invoke(ctx, UserService_ListUserGroups_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations should embed UnimplementedUserServiceServer
 // for forward compatibility.
@@ -153,6 +171,13 @@ type UserServiceServer interface {
 	//	Permission: users:read
 	//	Domain: global
 	BatchCheckUserPermissions(context.Context, *BatchCheckUserPermissionsRequest) (*BatchCheckUserPermissionsResponse, error)
+	// Lists the groups a user belongs to (custom method, AIP-136).
+	// Authorization:
+	//
+	//	Scope: users:read
+	//	Permission: users:read
+	//	Domain: global
+	ListUserGroups(context.Context, *ListUserGroupsRequest) (*ListUserGroupsResponse, error)
 }
 
 // UnimplementedUserServiceServer should be embedded to have
@@ -173,6 +198,9 @@ func (UnimplementedUserServiceServer) CheckUserPermissions(context.Context, *Che
 }
 func (UnimplementedUserServiceServer) BatchCheckUserPermissions(context.Context, *BatchCheckUserPermissionsRequest) (*BatchCheckUserPermissionsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method BatchCheckUserPermissions not implemented")
+}
+func (UnimplementedUserServiceServer) ListUserGroups(context.Context, *ListUserGroupsRequest) (*ListUserGroupsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListUserGroups not implemented")
 }
 func (UnimplementedUserServiceServer) testEmbeddedByValue() {}
 
@@ -266,6 +294,24 @@ func _UserService_BatchCheckUserPermissions_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_ListUserGroups_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListUserGroupsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).ListUserGroups(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_ListUserGroups_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).ListUserGroups(ctx, req.(*ListUserGroupsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -288,6 +334,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "BatchCheckUserPermissions",
 			Handler:    _UserService_BatchCheckUserPermissions_Handler,
+		},
+		{
+			MethodName: "ListUserGroups",
+			Handler:    _UserService_ListUserGroups_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

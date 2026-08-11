@@ -17,8 +17,8 @@ type Account struct {
 	DisplayDescription string        `gorm:"not null;default:''"`
 	IsContainer        bool          `gorm:"not null;default:false;index:idx_accounts_is_container"`
 	IsArchived         bool          `gorm:"not null;default:false"`
-	UpdatedAt          time.Time     `gorm:"not null;default:now()"`
-	CreatedAt          time.Time     `gorm:"not null;default:now()"`
+	UpdatedAt          time.Time     `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	CreatedAt          time.Time     `gorm:"not null;default:CURRENT_TIMESTAMP"`
 
 	// Relations
 	Organization                Organization                 `gorm:"foreignKey:OrganizationID"`

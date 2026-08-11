@@ -14,8 +14,8 @@ type TransactionAssignment struct {
 	TransactionID  uuid.UUID   `gorm:"type:uuid;not null"`
 	AccountID      uuid.UUID   `gorm:"type:uuid;not null"`
 	Value          apd.Decimal `gorm:"type:decimal;not null"`
-	UpdatedAt      time.Time   `gorm:"not null;default:now()"`
-	CreatedAt      time.Time   `gorm:"not null;default:now()"`
+	UpdatedAt      time.Time   `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	CreatedAt      time.Time   `gorm:"not null;default:CURRENT_TIMESTAMP"`
 
 	// Relations
 	Organization Organization `gorm:"foreignKey:OrganizationID"`

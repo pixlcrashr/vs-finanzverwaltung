@@ -231,6 +231,66 @@ func (s *groupServiceServer) DeleteGroup(ctx context.Context, req *gen.DeleteGro
 	return &emptypb.Empty{}, nil
 }
 
+func (s *groupServiceServer) AddUserToGroup(ctx context.Context, req *gen.AddUserToGroupRequest) (*emptypb.Empty, error) {
+	var gn gen.GroupResourceName
+	if err := gn.UnmarshalString(req.Name); err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidGroupName}
+	}
+
+	var un gen.UserResourceName
+	if err := un.UnmarshalString(req.User); err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidUserName}
+	}
+
+	if err := authz.CheckGlobal(ctx, s.enforcer, authz.ResourceGroups, authz.ActionUpdate); err != nil {
+		return nil, authError(err)
+	}
+
+	group, err := s.repo.GetByResourceName(ctx, gn.Group)
+	if err != nil {
+		if errors.Is(err, repository.ErrUserGroupNotFound) {
+			return nil, &ServerError{Err: err, Status: statusGroupNotFound}
+		}
+		return nil, &ServerError{Err: err, Status: statusFailedGetGroup}
+	}
+
+	if _, err := s.enforcer.AddGlobalGroupingPolicy(un.User, group.ID.String()); err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedUpdateGroup}
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (s *groupServiceServer) RemoveUserFromGroup(ctx context.Context, req *gen.RemoveUserFromGroupRequest) (*emptypb.Empty, error) {
+	var gn gen.GroupResourceName
+	if err := gn.UnmarshalString(req.Name); err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidGroupName}
+	}
+
+	var un gen.UserResourceName
+	if err := un.UnmarshalString(req.User); err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidUserName}
+	}
+
+	if err := authz.CheckGlobal(ctx, s.enforcer, authz.ResourceGroups, authz.ActionUpdate); err != nil {
+		return nil, authError(err)
+	}
+
+	group, err := s.repo.GetByResourceName(ctx, gn.Group)
+	if err != nil {
+		if errors.Is(err, repository.ErrUserGroupNotFound) {
+			return nil, &ServerError{Err: err, Status: statusGroupNotFound}
+		}
+		return nil, &ServerError{Err: err, Status: statusFailedGetGroup}
+	}
+
+	if _, err := s.enforcer.RemoveGlobalGroupingPolicy(un.User, group.ID.String()); err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedUpdateGroup}
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
 // buildGroupPermissions reads the organization assignments and permissions
 // for a group from the repository and returns them as string slices.
 // If the group already has Organizations loaded (e.g. from List), those are

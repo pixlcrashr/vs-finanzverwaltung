@@ -8,6 +8,7 @@ import "google/api/field_behavior.proto";
 import "google/api/field_info.proto";
 import "google/api/resource.proto";
 import "google/protobuf/timestamp.proto";
+import "pixlcrashr/vsfv/v1/group.proto";
 
 option csharp_namespace = "Pixlcrashr.Vsfv.Sdk.V1";
 option go_package = "github.com/pixlcrashr/vsfv/pkg/grpc/gen";
@@ -140,6 +141,22 @@ message BatchCheckUserPermissionsResponse {
   repeated CheckUserPermissionsResponse results = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
+// ListUserGroupsRequest requests the groups a user belongs to.
+message ListUserGroupsRequest {
+  // The resource name of the user.
+  // Format: users/{user}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/User"}
+  ];
+}
+
+// ListUserGroupsResponse returns the groups a user belongs to.
+message ListUserGroupsResponse {
+  // The groups the user is a member of.
+  repeated Group groups = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
 // ── Service ───────────────────────────────────────────────────────────────────
 
 // UserService provides a read-only administrative view of users.
@@ -193,5 +210,14 @@ service UserService {
       post: "/v1/users:batchCheckPermissions"
       body: "*"
     };
+  }
+
+  // Lists the groups a user belongs to (custom method, AIP-136).
+  // Authorization:
+  //   Scope: users:read
+  //   Permission: users:read
+  //   Domain: global
+  rpc ListUserGroups(ListUserGroupsRequest) returns (ListUserGroupsResponse) {
+    option (google.api.http) = {get: "/v1/{name=users/*}:listGroups"};
   }
 }

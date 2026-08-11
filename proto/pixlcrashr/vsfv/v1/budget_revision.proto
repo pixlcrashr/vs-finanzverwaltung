@@ -7,6 +7,7 @@ import "google/api/client.proto";
 import "google/api/field_behavior.proto";
 import "google/api/field_info.proto";
 import "google/api/resource.proto";
+import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 import "google/type/date.proto";
 
@@ -54,6 +55,10 @@ message BudgetRevision {
 
   // Entity tag for optimistic concurrency control.
   string etag = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether the revision is published. A revision can only be published if
+  // its parent budget is published.
+  bool is_published = 9 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message GetBudgetRevisionRequest {
@@ -111,6 +116,15 @@ message CreateBudgetRevisionRequest {
   // The ID to use for the revision. If not provided, a system-generated UUID
   // will be used. Must be unique within the parent budget.
   string budget_revision_id = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message UpdateBudgetRevisionRequest {
+  // The revision to update. Only is_published can be changed; all other
+  // fields are immutable after creation.
+  BudgetRevision revision = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The list of fields to update.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message GetLatestBudgetRevisionRequest {
@@ -172,5 +186,19 @@ service BudgetRevisionService {
       body: "revision"
     };
     option (google.api.method_signature) = "parent,revision,budget_revision_id";
+  }
+
+  // Updates a revision. Only the is_published field may be updated.
+  // Setting is_published to true requires the parent budget to be published.
+  // Authorization:
+  //   Scope: budgets:write
+  //   Permission: budgets:update
+  //   Domain: organization-scoped
+  rpc UpdateBudgetRevision(UpdateBudgetRevisionRequest) returns (BudgetRevision) {
+    option (google.api.http) = {
+      patch: "/v1/{revision.name=organizations/*/budgets/*/revisions/*}"
+      body: "revision"
+    };
+    option (google.api.method_signature) = "revision,update_mask";
   }
 }

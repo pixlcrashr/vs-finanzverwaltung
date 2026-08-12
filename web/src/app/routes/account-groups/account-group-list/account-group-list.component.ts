@@ -54,7 +54,7 @@ import { AccountGroupListDataService } from './account-group-list.data-service';
             <app-button (clicked)="openCreateDialog()"><ng-container i18n>Kontengruppe erstellen</ng-container></app-button>
           </app-empty-state>
         } @else {
-          <div class="w-full max-w-3xl">
+          <div class="w-full max-w-6xl">
             <div class="bg-white rounded-lg border border-gray-200">
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">

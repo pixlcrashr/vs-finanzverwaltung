@@ -52,7 +52,7 @@ import { AccountListDataService } from './account-list.data-service';
             <app-button (clicked)="openCreateDialog()"><ng-container i18n>Konto erstellen</ng-container></app-button>
           </app-empty-state>
         } @else {
-          <div class="w-full max-w-3xl">
+          <div class="w-full max-w-6xl">
             <div class="bg-white rounded-lg border border-gray-200">
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -101,7 +101,7 @@ import { AccountListDataService } from './account-list.data-service';
                                 [class.text-blue-700]="account.isContainer"
                                 [class.bg-gray-100]="!account.isContainer"
                                 [class.text-gray-600]="!account.isContainer">
-                            {{ account.isContainer ? 'Gruppe' : 'Blatt' }}
+                            {{ account.isContainer ? 'Gruppe' : 'Konto' }}
                           </span>
                         </td>
                         <td class="px-2.5 py-1.5 text-[11px] text-gray-500">

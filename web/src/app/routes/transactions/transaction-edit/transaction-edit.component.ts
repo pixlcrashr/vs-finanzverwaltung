@@ -158,7 +158,7 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
               </div>
 
               <!-- Assignments Table -->
-              @if (transaction()!.accountAssignments.length > 0) {
+              @if (editableAssignments().length > 0) {
                 <div class="overflow-x-auto mb-4">
                   <table class="w-full">
                     <thead>
@@ -183,7 +183,7 @@ import { TransactionEditDataService } from './transaction-edit.data-service';
                               [class.border-red-300]="!assignment.accountId"
                             >
                               <option value="" i18n>Konto wählen...</option>
-                              @for (account of availableAccounts(); track account.id) {
+                              @for (account of selectableAccounts(); track account.id) {
                                 <option [value]="account.id">{{ account.code }} {{ account.name }}</option>
                               }
                             </select>
@@ -259,6 +259,9 @@ export class TransactionEditComponent implements OnInit {
   readonly assignmentSaving = signal(false);
   readonly transaction = signal<Transaction | null>(null);
   readonly availableAccounts = signal<Account[]>([]);
+  readonly selectableAccounts = computed(() =>
+    this.availableAccounts().filter(a => !a.isContainer)
+  );
 
   description = '';
 
@@ -386,24 +389,7 @@ export class TransactionEditComponent implements OnInit {
 
   removeAssignment(index: number): void {
     const assignments = this.editableAssignments();
-    const assignment = assignments[index];
-    if (assignment.id) {
-      this.assignmentSaving.set(true);
-      this.dataService.deleteAssignment(this.orgId, this.transaction()!.id, assignment.id).subscribe({
-        next: () => {
-          const updated = assignments.filter((_, i) => i !== index);
-          this.editableAssignments.set(updated);
-          this.originalAssignments.set(updated.map(a => ({...a})));
-          this.assignmentSaving.set(false);
-        },
-        error: () => {
-          this.notifications.error($localize`Fehler beim Löschen der Zuweisung`);
-          this.assignmentSaving.set(false);
-        },
-      });
-    } else {
-      this.editableAssignments.set(assignments.filter((_, i) => i !== index));
-    }
+    this.editableAssignments.set(assignments.filter((_, i) => i !== index));
   }
 
   saveAssignments(): void {
@@ -414,44 +400,39 @@ export class TransactionEditComponent implements OnInit {
     const current = this.editableAssignments();
     const original = this.originalAssignments();
 
-    const toCreate = current.filter(a => !a.id && a.accountId);
-    const toRecreate: Array<{oldId: string; accountId: string; value: string}> = [];
-    const toDelete: Array<{id: string}> = [];
+    // The assignment process consists of independent create / update / delete
+    // calls. The backend limit on assignment count may be temporarily
+    // exceeded, so all operations can run in parallel.
+    const toDelete: string[] = [];
+    for (const orig of original) {
+      if (!current.find(c => c.id === orig.id)) {
+        toDelete.push(orig.id);
+      }
+    }
 
-    for (let i = 0; i < current.length; i++) {
-      if (current[i].id) {
-        const orig = original.find(o => o.id === current[i].id);
-        if (orig && (orig.accountId !== current[i].accountId || orig.value !== current[i].value)) {
-          toRecreate.push({ oldId: current[i].id, accountId: current[i].accountId, value: current[i].value });
+    const toCreate: Array<{accountId: string; value: string}> = [];
+    const toUpdate: Array<{id: string; accountId: string; value: string}> = [];
+    for (const curr of current) {
+      if (!curr.accountId) continue;
+      if (!curr.id) {
+        toCreate.push({ accountId: curr.accountId, value: curr.value });
+      } else {
+        const orig = original.find(o => o.id === curr.id);
+        if (orig && (orig.accountId !== curr.accountId || orig.value !== curr.value)) {
+          toUpdate.push({ id: curr.id, accountId: curr.accountId, value: curr.value });
         }
       }
     }
 
-    for (const orig of original) {
-      if (!current.find(c => c.id === orig.id)) {
-        toDelete.push({ id: orig.id });
-      }
-    }
-
     const operations: Observable<unknown>[] = [];
-
-    for (const a of toCreate) {
-      operations.push(this.dataService.createAssignment(this.orgId, tx.id, {
-        accountId: a.accountId,
-        value: a.value,
-      }));
+    for (const id of toDelete) {
+      operations.push(this.dataService.deleteAssignment(this.orgId, tx.id, id));
     }
-
-    for (const r of toRecreate) {
-      operations.push(this.dataService.deleteAssignment(this.orgId, tx.id, r.oldId));
-      operations.push(this.dataService.createAssignment(this.orgId, tx.id, {
-        accountId: r.accountId,
-        value: r.value,
-      }));
+    for (const c of toCreate) {
+      operations.push(this.dataService.createAssignment(this.orgId, tx.id, c));
     }
-
-    for (const d of toDelete) {
-      operations.push(this.dataService.deleteAssignment(this.orgId, tx.id, d.id));
+    for (const u of toUpdate) {
+      operations.push(this.dataService.updateAssignment(this.orgId, tx.id, u.id, u));
     }
 
     if (operations.length === 0) {

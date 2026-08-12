@@ -25,7 +25,7 @@ import {
   JournalAssignmentStatus,
 } from './journal-list.data-service';
 import { HasPermissionPipe } from '../../../../lib/authz/has-permission.pipe';
-import { Permission, Permissions } from '../../../../lib/authz/permissions';
+import { Permissions } from '../../../../lib/authz/permissions';
 
 @Component({
   selector: 'app-journal-list',
@@ -281,7 +281,7 @@ import { Permission, Permissions } from '../../../../lib/authz/permissions';
               </div>
 
               <div class="flex items-center justify-between">
-                <p i18n class="text-xs text-gray-500">
+                <p i18n class="text-xs text-gray-500 mt-2 ml-3">
                   Geladen {{ entries().length }} von {{ total() }} Einträgen
                 </p>
                 @if (hasMore()) {

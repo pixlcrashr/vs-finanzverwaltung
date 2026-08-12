@@ -8,15 +8,13 @@ import { Observable as __Observable } from 'rxjs';
 import { map as __map, filter as __filter } from 'rxjs/operators';
 
 import { V1TransactionAssignment } from '../models/v1transaction-assignment';
+import { V1Decimal } from '../models/v1decimal';
 import { V1ListTransactionAssignmentsResponse } from '../models/v1list-transaction-assignments-response';
-
-/**
- * TransactionAssignmentService manages transaction assignments to budget accounts.
- */
 @Injectable({
   providedIn: 'root',
 })
 class TransactionAssignmentServiceService extends __BaseService {
+  static readonly TransactionAssignmentServiceUpdateTransactionAssignmentPath = '/v1/{assignment.name_1}';
   static readonly TransactionAssignmentServiceDeleteTransactionAssignmentPath = '/v1/{name_10}';
   static readonly TransactionAssignmentServiceGetTransactionAssignmentPath = '/v1/{name_15}';
   static readonly TransactionAssignmentServiceListTransactionAssignmentsPath = '/v1/{parent_1}/assignments';
@@ -27,6 +25,65 @@ class TransactionAssignmentServiceService extends __BaseService {
     http: HttpClient
   ) {
     super(config, http);
+  }
+
+  /**
+   * Updates an existing transaction assignment.
+   * Authorization:
+   *   Scope: transactions:write
+   *   Permission: transactions:update
+   *   Domain: organization-scoped
+   * @param params The `TransactionAssignmentServiceService.TransactionAssignmentServiceUpdateTransactionAssignmentParams` containing the following parameters:
+   *
+   * - `assignment.name_1`: The resource name of the transaction assignment.
+   *   Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
+   *
+   * - `assignment`: The transaction assignment to update.
+   *
+   * @return A successful response.
+   */
+  TransactionAssignmentServiceUpdateTransactionAssignmentResponse(params: TransactionAssignmentServiceService.TransactionAssignmentServiceUpdateTransactionAssignmentParams): __Observable<__StrictHttpResponse<V1TransactionAssignment>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    __body = params.assignment;
+    let req = new HttpRequest<any>(
+      'PATCH',
+      this.rootUrl + `/v1/${encodeURIComponent(String(params.assignmentName1))}`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<V1TransactionAssignment>;
+      })
+    );
+  }
+  /**
+   * Updates an existing transaction assignment.
+   * Authorization:
+   *   Scope: transactions:write
+   *   Permission: transactions:update
+   *   Domain: organization-scoped
+   * @param params The `TransactionAssignmentServiceService.TransactionAssignmentServiceUpdateTransactionAssignmentParams` containing the following parameters:
+   *
+   * - `assignment.name_1`: The resource name of the transaction assignment.
+   *   Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
+   *
+   * - `assignment`: The transaction assignment to update.
+   *
+   * @return A successful response.
+   */
+  TransactionAssignmentServiceUpdateTransactionAssignment(params: TransactionAssignmentServiceService.TransactionAssignmentServiceUpdateTransactionAssignmentParams): __Observable<V1TransactionAssignment> {
+    return this.TransactionAssignmentServiceUpdateTransactionAssignmentResponse(params).pipe(
+      __map(_r => _r.body as V1TransactionAssignment)
+    );
   }
 
   /**
@@ -273,6 +330,23 @@ class TransactionAssignmentServiceService extends __BaseService {
 }
 
 module TransactionAssignmentServiceService {
+
+  /**
+   * Parameters for TransactionAssignmentServiceUpdateTransactionAssignment
+   */
+  export interface TransactionAssignmentServiceUpdateTransactionAssignmentParams {
+
+    /**
+     * The resource name of the transaction assignment.
+     * Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
+     */
+    assignmentName1: string;
+
+    /**
+     * The transaction assignment to update.
+     */
+    assignment: {uid?: string, transaction?: string, account: string, value: V1Decimal, update_time?: string, create_time?: string};
+  }
 
   /**
    * Parameters for TransactionAssignmentServiceListTransactionAssignments

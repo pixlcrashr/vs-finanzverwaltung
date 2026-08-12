@@ -11,10 +11,6 @@ import { V1Budget } from '../models/v1budget';
 import { TypeDate } from '../models/type-date';
 import { BudgetServiceCloseBudgetBody } from '../models/budget-service-close-budget-body';
 import { V1ListBudgetsResponse } from '../models/v1list-budgets-response';
-
-/**
- * BudgetService manages financial budgets.
- */
 @Injectable({
   providedIn: 'root',
 })

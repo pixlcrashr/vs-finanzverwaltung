@@ -10,11 +10,11 @@ import { UserServiceService } from './services/user-service.service';
 import { AccountServiceService } from './services/account-service.service';
 import { AccountGroupServiceService } from './services/account-group-service.service';
 import { BudgetAccountValueServiceService } from './services/budget-account-value-service.service';
+import { TransactionAssignmentServiceService } from './services/transaction-assignment-service.service';
 import { AccountGroupAssignmentServiceService } from './services/account-group-assignment-service.service';
 import { BudgetServiceService } from './services/budget-service.service';
 import { LedgerAccountServiceService } from './services/ledger-account-service.service';
 import { LedgerYearServiceService } from './services/ledger-year-service.service';
-import { TransactionAssignmentServiceService } from './services/transaction-assignment-service.service';
 import { ReportServiceService } from './services/report-service.service';
 import { TransactionServiceService } from './services/transaction-service.service';
 import { UserIdentityServiceService } from './services/user-identity-service.service';
@@ -43,11 +43,11 @@ import { BudgetRevisionAccountValueServiceService } from './services/budget-revi
     AccountServiceService,
     AccountGroupServiceService,
     BudgetAccountValueServiceService,
+    TransactionAssignmentServiceService,
     AccountGroupAssignmentServiceService,
     BudgetServiceService,
     LedgerAccountServiceService,
     LedgerYearServiceService,
-    TransactionAssignmentServiceService,
     ReportServiceService,
     TransactionServiceService,
     UserIdentityServiceService,

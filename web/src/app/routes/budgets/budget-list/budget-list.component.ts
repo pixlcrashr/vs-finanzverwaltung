@@ -64,7 +64,7 @@ import { Permission, Permissions } from '../../../../lib/authz/permissions';
             }
           </app-empty-state>
         } @else {
-          <div class="w-full max-w-3xl">
+          <div class="w-full max-w-6xl">
             <div class="bg-white rounded-lg border border-gray-200">
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">

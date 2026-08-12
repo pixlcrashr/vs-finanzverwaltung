@@ -56,7 +56,7 @@ import { Permission, Permissions } from '../../../../lib/authz/permissions';
         @if (loading()) {
           <app-loading-spinner [fullPage]="true" i18n-text text="Berichte werden geladen..." />
         } @else {
-          <div class="w-full max-w-3xl space-y-3">
+          <div class="w-full max-w-6xl space-y-3">
             <!-- Reports List -->
             @if (reports().length === 0) {
               <app-empty-state

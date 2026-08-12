@@ -5,7 +5,7 @@ import { TransactionAssignmentServiceService } from '../../api/services/transact
 import { LedgerAccountServiceService } from '../../api/services/ledger-account-service.service';
 import { AccountServiceService } from '../../api/services/account-service.service';
 import { Transaction, Account, TransactionAssignment } from '../../../app/shared/models';
-import { TransactionEditDataService, CreateAssignmentParams } from '../../../app/routes/transactions/transaction-edit/transaction-edit.data-service';
+import { TransactionEditDataService, CreateAssignmentParams, UpdateAssignmentParams } from '../../../app/routes/transactions/transaction-edit/transaction-edit.data-service';
 import { mapApiAccount, mapApiTransaction, mapApiTransactionAssignment } from './_mappers';
 
 @Injectable()
@@ -110,6 +110,22 @@ export class HttpTransactionEditDataService extends TransactionEditDataService {
     const assignmentName = `organizations/${organizationId}/transactions/${transactionId}/assignments/${assignmentId}`;
     return this.assignmentSvc.TransactionAssignmentServiceDeleteTransactionAssignment(assignmentName).pipe(
       map(() => undefined),
+    );
+  }
+
+  updateAssignment(organizationId: string, transactionId: string, assignmentId: string, params: UpdateAssignmentParams): Observable<TransactionAssignment> {
+    const assignmentName = `organizations/${organizationId}/transactions/${transactionId}/assignments/${assignmentId}`;
+    const parent = this.txnName(organizationId, transactionId);
+    const accountName = `organizations/${organizationId}/accounts/${params.accountId}`;
+    return this.assignmentSvc.TransactionAssignmentServiceUpdateTransactionAssignment({
+      assignmentName1: assignmentName,
+      assignment: {
+        transaction: parent,
+        account: accountName,
+        value: { value: params.value },
+      },
+    }).pipe(
+      map((a) => mapApiTransactionAssignment(a, '', '')),
     );
   }
 }

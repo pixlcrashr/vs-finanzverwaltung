@@ -11,10 +11,6 @@ import { V1GenerateHtmlPreviewResponse } from '../models/v1generate-html-preview
 import { V1GenerateHtmlPreviewRequest } from '../models/v1generate-html-preview-request';
 import { V1ReportTemplate } from '../models/v1report-template';
 import { V1ListReportTemplatesResponse } from '../models/v1list-report-templates-response';
-
-/**
- * ReportTemplateService manages Handlebars templates used for report generation.
- */
 @Injectable({
   providedIn: 'root',
 })

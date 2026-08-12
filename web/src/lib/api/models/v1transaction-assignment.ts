@@ -13,7 +13,7 @@ export interface V1TransactionAssignment {
    */
   create_time?: string;
   name?: string;
-  transaction: string;
+  transaction?: string;
 
   /**
    * The UUID of the transaction assignment.

@@ -36,7 +36,7 @@ message TransactionAssignment {
   // Resource name of the parent transaction.
   // Format: organizations/{organization}/transactions/{transaction}
   string transaction = 3 [
-    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Transaction"}
   ];
 
@@ -117,6 +117,14 @@ message CreateTransactionAssignmentRequest {
   string assignment_id = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
+message UpdateTransactionAssignmentRequest {
+  // The transaction assignment to update.
+  TransactionAssignment assignment = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The list of fields to update.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
 message DeleteTransactionAssignmentRequest {
   // The resource name of the transaction assignment.
   // Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
@@ -161,6 +169,19 @@ service TransactionAssignmentService {
       body: "assignment"
     };
     option (google.api.method_signature) = "parent,assignment,assignment_id";
+  }
+
+  // Updates an existing transaction assignment.
+  // Authorization:
+  //   Scope: transactions:write
+  //   Permission: transactions:update
+  //   Domain: organization-scoped
+  rpc UpdateTransactionAssignment(UpdateTransactionAssignmentRequest) returns (TransactionAssignment) {
+    option (google.api.http) = {
+      patch: "/v1/{assignment.name=organizations/*/transactions/*/assignments/*}"
+      body: "assignment"
+    };
+    option (google.api.method_signature) = "assignment,update_mask";
   }
 
   // Deletes a transaction assignment.

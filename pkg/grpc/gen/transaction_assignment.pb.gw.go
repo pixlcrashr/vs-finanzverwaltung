@@ -186,6 +186,87 @@ func local_request_TransactionAssignmentService_CreateTransactionAssignment_0(ct
 	return msg, metadata, err
 }
 
+var filter_TransactionAssignmentService_UpdateTransactionAssignment_0 = &utilities.DoubleArray{Encoding: map[string]int{"assignment": 0, "name": 1}, Base: []int{1, 2, 1, 0, 0}, Check: []int{0, 1, 2, 3, 2}}
+
+func request_TransactionAssignmentService_UpdateTransactionAssignment_0(ctx context.Context, marshaler runtime.Marshaler, client TransactionAssignmentServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq UpdateTransactionAssignmentRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.Assignment); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	if protoReq.UpdateMask == nil || len(protoReq.UpdateMask.GetPaths()) == 0 {
+		if fieldMask, err := runtime.FieldMaskFromRequestBody(newReader(), protoReq.Assignment); err != nil {
+			return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+		} else {
+			protoReq.UpdateMask = fieldMask
+		}
+	}
+	val, ok := pathParams["assignment.name"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "assignment.name")
+	}
+	err = runtime.PopulateFieldFromPath(&protoReq, "assignment.name", val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "assignment.name", err)
+	}
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_TransactionAssignmentService_UpdateTransactionAssignment_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := client.UpdateTransactionAssignment(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_TransactionAssignmentService_UpdateTransactionAssignment_0(ctx context.Context, marshaler runtime.Marshaler, server TransactionAssignmentServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq UpdateTransactionAssignmentRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.Assignment); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if protoReq.UpdateMask == nil || len(protoReq.UpdateMask.GetPaths()) == 0 {
+		if fieldMask, err := runtime.FieldMaskFromRequestBody(newReader(), protoReq.Assignment); err != nil {
+			return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+		} else {
+			protoReq.UpdateMask = fieldMask
+		}
+	}
+	val, ok := pathParams["assignment.name"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "assignment.name")
+	}
+	err = runtime.PopulateFieldFromPath(&protoReq, "assignment.name", val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "assignment.name", err)
+	}
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_TransactionAssignmentService_UpdateTransactionAssignment_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.UpdateTransactionAssignment(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 func request_TransactionAssignmentService_DeleteTransactionAssignment_0(ctx context.Context, marshaler runtime.Marshaler, client TransactionAssignmentServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq DeleteTransactionAssignmentRequest
@@ -290,6 +371,26 @@ func RegisterTransactionAssignmentServiceHandlerServer(ctx context.Context, mux 
 			return
 		}
 		forward_TransactionAssignmentService_CreateTransactionAssignment_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPatch, pattern_TransactionAssignmentService_UpdateTransactionAssignment_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.TransactionAssignmentService/UpdateTransactionAssignment", runtime.WithHTTPPathPattern("/v1/{assignment.name=organizations/*/transactions/*/assignments/*}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_TransactionAssignmentService_UpdateTransactionAssignment_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_TransactionAssignmentService_UpdateTransactionAssignment_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodDelete, pattern_TransactionAssignmentService_DeleteTransactionAssignment_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -402,6 +503,23 @@ func RegisterTransactionAssignmentServiceHandlerClient(ctx context.Context, mux 
 		}
 		forward_TransactionAssignmentService_CreateTransactionAssignment_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPatch, pattern_TransactionAssignmentService_UpdateTransactionAssignment_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pixlcrashr.vsfv.v1.TransactionAssignmentService/UpdateTransactionAssignment", runtime.WithHTTPPathPattern("/v1/{assignment.name=organizations/*/transactions/*/assignments/*}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_TransactionAssignmentService_UpdateTransactionAssignment_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_TransactionAssignmentService_UpdateTransactionAssignment_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodDelete, pattern_TransactionAssignmentService_DeleteTransactionAssignment_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -426,6 +544,7 @@ var (
 	pattern_TransactionAssignmentService_GetTransactionAssignment_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 2, 3, 1, 0, 4, 6, 5, 4}, []string{"v1", "organizations", "transactions", "assignments", "name"}, ""))
 	pattern_TransactionAssignmentService_ListTransactionAssignments_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3, 2, 4}, []string{"v1", "organizations", "transactions", "parent", "assignments"}, ""))
 	pattern_TransactionAssignmentService_CreateTransactionAssignment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3, 2, 4}, []string{"v1", "organizations", "transactions", "parent", "assignments"}, ""))
+	pattern_TransactionAssignmentService_UpdateTransactionAssignment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 2, 3, 1, 0, 4, 6, 5, 4}, []string{"v1", "organizations", "transactions", "assignments", "assignment.name"}, ""))
 	pattern_TransactionAssignmentService_DeleteTransactionAssignment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 2, 3, 1, 0, 4, 6, 5, 4}, []string{"v1", "organizations", "transactions", "assignments", "name"}, ""))
 )
 
@@ -433,5 +552,6 @@ var (
 	forward_TransactionAssignmentService_GetTransactionAssignment_0    = runtime.ForwardResponseMessage
 	forward_TransactionAssignmentService_ListTransactionAssignments_0  = runtime.ForwardResponseMessage
 	forward_TransactionAssignmentService_CreateTransactionAssignment_0 = runtime.ForwardResponseMessage
+	forward_TransactionAssignmentService_UpdateTransactionAssignment_0 = runtime.ForwardResponseMessage
 	forward_TransactionAssignmentService_DeleteTransactionAssignment_0 = runtime.ForwardResponseMessage
 )

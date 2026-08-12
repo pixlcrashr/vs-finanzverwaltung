@@ -2,7 +2,9 @@ package grpc
 
 import (
 	"context"
+	"log"
 	"net/http"
+	"runtime/debug"
 
 	"github.com/gofiber/adaptor/v2"
 	"github.com/gofiber/fiber/v2"
@@ -12,6 +14,23 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 )
+
+// recoveryHandler wraps an http.Handler with a recover that logs the panic
+// value and full stack trace. This is needed because the fasthttp adaptor
+// re-panics in a different goroutine, hiding the original panic location.
+type recoveryHandler struct {
+	inner http.Handler
+}
+
+func (h *recoveryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if rec := recover(); rec != nil {
+			log.Printf("panic in grpc-gateway handler: %v\n%s", rec, debug.Stack())
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+		}
+	}()
+	h.inner.ServeHTTP(w, r)
+}
 
 // RegisterRoutes registers the grpc-gateway HTTP/JSON transcoded routes onto
 // the given Fiber app. All gRPC service implementations are wired in-process
@@ -56,6 +75,7 @@ func RegisterRoutes(app *fiber.App, svc *services.Services, authMiddleware func(
 	if authMiddleware != nil {
 		handler = authMiddleware(handler)
 	}
+	handler = &recoveryHandler{inner: handler}
 
 	app.All("/api/v1/*", adaptor.HTTPHandler(handler))
 }

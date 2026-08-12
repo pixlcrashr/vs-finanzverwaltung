@@ -11,7 +11,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
-	_ "google.golang.org/protobuf/types/known/fieldmaskpb"
+	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -388,6 +388,60 @@ func (x *CreateTransactionAssignmentRequest) GetAssignmentId() string {
 	return ""
 }
 
+type UpdateTransactionAssignmentRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The transaction assignment to update.
+	Assignment *TransactionAssignment `protobuf:"bytes,1,opt,name=assignment,proto3" json:"assignment,omitempty"`
+	// The list of fields to update.
+	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateTransactionAssignmentRequest) Reset() {
+	*x = UpdateTransactionAssignmentRequest{}
+	mi := &file_pixlcrashr_vsfv_v1_transaction_assignment_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateTransactionAssignmentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateTransactionAssignmentRequest) ProtoMessage() {}
+
+func (x *UpdateTransactionAssignmentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pixlcrashr_vsfv_v1_transaction_assignment_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateTransactionAssignmentRequest.ProtoReflect.Descriptor instead.
+func (*UpdateTransactionAssignmentRequest) Descriptor() ([]byte, []int) {
+	return file_pixlcrashr_vsfv_v1_transaction_assignment_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *UpdateTransactionAssignmentRequest) GetAssignment() *TransactionAssignment {
+	if x != nil {
+		return x.Assignment
+	}
+	return nil
+}
+
+func (x *UpdateTransactionAssignmentRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
+	if x != nil {
+		return x.UpdateMask
+	}
+	return nil
+}
+
 type DeleteTransactionAssignmentRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The resource name of the transaction assignment.
@@ -399,7 +453,7 @@ type DeleteTransactionAssignmentRequest struct {
 
 func (x *DeleteTransactionAssignmentRequest) Reset() {
 	*x = DeleteTransactionAssignmentRequest{}
-	mi := &file_pixlcrashr_vsfv_v1_transaction_assignment_proto_msgTypes[5]
+	mi := &file_pixlcrashr_vsfv_v1_transaction_assignment_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -411,7 +465,7 @@ func (x *DeleteTransactionAssignmentRequest) String() string {
 func (*DeleteTransactionAssignmentRequest) ProtoMessage() {}
 
 func (x *DeleteTransactionAssignmentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_transaction_assignment_proto_msgTypes[5]
+	mi := &file_pixlcrashr_vsfv_v1_transaction_assignment_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -424,7 +478,7 @@ func (x *DeleteTransactionAssignmentRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use DeleteTransactionAssignmentRequest.ProtoReflect.Descriptor instead.
 func (*DeleteTransactionAssignmentRequest) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_transaction_assignment_proto_rawDescGZIP(), []int{5}
+	return file_pixlcrashr_vsfv_v1_transaction_assignment_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *DeleteTransactionAssignmentRequest) GetName() string {
@@ -442,7 +496,7 @@ const file_pixlcrashr_vsfv_v1_transaction_assignment_proto_rawDesc = "" +
 	"\x15TransactionAssignment\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x03R\x04name\x12\x1d\n" +
 	"\x03uid\x18\x02 \x01(\tB\v\xe0A\x03\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12I\n" +
-	"\vtransaction\x18\x03 \x01(\tB'\xe0A\x02\xfaA!\n" +
+	"\vtransaction\x18\x03 \x01(\tB'\xe0A\x05\xfaA!\n" +
 	"\x1fvsfv.pixlcrashr.dev/TransactionR\vtransaction\x12=\n" +
 	"\aaccount\x18\x04 \x01(\tB#\xe0A\x02\xfaA\x1d\n" +
 	"\x1bvsfv.pixlcrashr.dev/AccountR\aaccount\x126\n" +
@@ -474,15 +528,23 @@ const file_pixlcrashr_vsfv_v1_transaction_assignment_proto_rawDesc = "" +
 	"\n" +
 	"assignment\x18\x02 \x01(\v2).pixlcrashr.vsfv.v1.TransactionAssignmentB\x03\xe0A\x02R\n" +
 	"assignment\x12(\n" +
-	"\rassignment_id\x18\x03 \x01(\tB\x03\xe0A\x01R\fassignmentId\"k\n" +
+	"\rassignment_id\x18\x03 \x01(\tB\x03\xe0A\x01R\fassignmentId\"\xb6\x01\n" +
+	"\"UpdateTransactionAssignmentRequest\x12N\n" +
+	"\n" +
+	"assignment\x18\x01 \x01(\v2).pixlcrashr.vsfv.v1.TransactionAssignmentB\x03\xe0A\x02R\n" +
+	"assignment\x12@\n" +
+	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
+	"updateMask\"k\n" +
 	"\"DeleteTransactionAssignmentRequest\x12E\n" +
 	"\x04name\x18\x01 \x01(\tB1\xe0A\x02\xfaA+\n" +
-	")vsfv.pixlcrashr.dev/TransactionAssignmentR\x04name2\xfd\x06\n" +
+	")vsfv.pixlcrashr.dev/TransactionAssignmentR\x04name2\xf1\b\n" +
 	"\x1cTransactionAssignmentService\x12\xc2\x01\n" +
 	"\x18GetTransactionAssignment\x123.pixlcrashr.vsfv.v1.GetTransactionAssignmentRequest\x1a).pixlcrashr.vsfv.v1.TransactionAssignment\"F\xdaA\x04name\x82\xd3\xe4\x93\x029\x127/v1/{name=organizations/*/transactions/*/assignments/*}\x12\xd5\x01\n" +
 	"\x1aListTransactionAssignments\x125.pixlcrashr.vsfv.v1.ListTransactionAssignmentsRequest\x1a6.pixlcrashr.vsfv.v1.ListTransactionAssignmentsResponse\"H\xdaA\x06parent\x82\xd3\xe4\x93\x029\x127/v1/{parent=organizations/*/transactions/*}/assignments\x12\xef\x01\n" +
 	"\x1bCreateTransactionAssignment\x126.pixlcrashr.vsfv.v1.CreateTransactionAssignmentRequest\x1a).pixlcrashr.vsfv.v1.TransactionAssignment\"m\xdaA\x1fparent,assignment,assignment_id\x82\xd3\xe4\x93\x02E:\n" +
-	"assignment\"7/v1/{parent=organizations/*/transactions/*}/assignments\x12\xb5\x01\n" +
+	"assignment\"7/v1/{parent=organizations/*/transactions/*}/assignments\x12\xf1\x01\n" +
+	"\x1bUpdateTransactionAssignment\x126.pixlcrashr.vsfv.v1.UpdateTransactionAssignmentRequest\x1a).pixlcrashr.vsfv.v1.TransactionAssignment\"o\xdaA\x16assignment,update_mask\x82\xd3\xe4\x93\x02P:\n" +
+	"assignment2B/v1/{assignment.name=organizations/*/transactions/*/assignments/*}\x12\xb5\x01\n" +
 	"\x1bDeleteTransactionAssignment\x126.pixlcrashr.vsfv.v1.DeleteTransactionAssignmentRequest\x1a\x16.google.protobuf.Empty\"F\xdaA\x04name\x82\xd3\xe4\x93\x029*7/v1/{name=organizations/*/transactions/*/assignments/*}\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xc7\x01\n" +
 	"\x16com.pixlcrashr.vsfv.v1B\x1aTransactionAssignmentProtoP\x01Z'github.com/pixlcrashr/vsfv/pkg/grpc/gen\xa2\x02\x03PVX\xaa\x02\x12Pixlcrashr.Vsfv.V1\xca\x02\x12Pixlcrashr\\Vsfv\\V1\xe2\x02\x1ePixlcrashr\\Vsfv\\V1\\GPBMetadata\xea\x02\x14Pixlcrashr::Vsfv::V1b\x06proto3"
 
@@ -498,37 +560,43 @@ func file_pixlcrashr_vsfv_v1_transaction_assignment_proto_rawDescGZIP() []byte {
 	return file_pixlcrashr_vsfv_v1_transaction_assignment_proto_rawDescData
 }
 
-var file_pixlcrashr_vsfv_v1_transaction_assignment_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_pixlcrashr_vsfv_v1_transaction_assignment_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_pixlcrashr_vsfv_v1_transaction_assignment_proto_goTypes = []any{
 	(*TransactionAssignment)(nil),              // 0: pixlcrashr.vsfv.v1.TransactionAssignment
 	(*GetTransactionAssignmentRequest)(nil),    // 1: pixlcrashr.vsfv.v1.GetTransactionAssignmentRequest
 	(*ListTransactionAssignmentsRequest)(nil),  // 2: pixlcrashr.vsfv.v1.ListTransactionAssignmentsRequest
 	(*ListTransactionAssignmentsResponse)(nil), // 3: pixlcrashr.vsfv.v1.ListTransactionAssignmentsResponse
 	(*CreateTransactionAssignmentRequest)(nil), // 4: pixlcrashr.vsfv.v1.CreateTransactionAssignmentRequest
-	(*DeleteTransactionAssignmentRequest)(nil), // 5: pixlcrashr.vsfv.v1.DeleteTransactionAssignmentRequest
-	(*Decimal)(nil),               // 6: pixlcrashr.vsfv.v1.Decimal
-	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),         // 8: google.protobuf.Empty
+	(*UpdateTransactionAssignmentRequest)(nil), // 5: pixlcrashr.vsfv.v1.UpdateTransactionAssignmentRequest
+	(*DeleteTransactionAssignmentRequest)(nil), // 6: pixlcrashr.vsfv.v1.DeleteTransactionAssignmentRequest
+	(*Decimal)(nil),               // 7: pixlcrashr.vsfv.v1.Decimal
+	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil), // 9: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),         // 10: google.protobuf.Empty
 }
 var file_pixlcrashr_vsfv_v1_transaction_assignment_proto_depIdxs = []int32{
-	6, // 0: pixlcrashr.vsfv.v1.TransactionAssignment.value:type_name -> pixlcrashr.vsfv.v1.Decimal
-	7, // 1: pixlcrashr.vsfv.v1.TransactionAssignment.update_time:type_name -> google.protobuf.Timestamp
-	7, // 2: pixlcrashr.vsfv.v1.TransactionAssignment.create_time:type_name -> google.protobuf.Timestamp
-	0, // 3: pixlcrashr.vsfv.v1.ListTransactionAssignmentsResponse.assignments:type_name -> pixlcrashr.vsfv.v1.TransactionAssignment
-	0, // 4: pixlcrashr.vsfv.v1.CreateTransactionAssignmentRequest.assignment:type_name -> pixlcrashr.vsfv.v1.TransactionAssignment
-	1, // 5: pixlcrashr.vsfv.v1.TransactionAssignmentService.GetTransactionAssignment:input_type -> pixlcrashr.vsfv.v1.GetTransactionAssignmentRequest
-	2, // 6: pixlcrashr.vsfv.v1.TransactionAssignmentService.ListTransactionAssignments:input_type -> pixlcrashr.vsfv.v1.ListTransactionAssignmentsRequest
-	4, // 7: pixlcrashr.vsfv.v1.TransactionAssignmentService.CreateTransactionAssignment:input_type -> pixlcrashr.vsfv.v1.CreateTransactionAssignmentRequest
-	5, // 8: pixlcrashr.vsfv.v1.TransactionAssignmentService.DeleteTransactionAssignment:input_type -> pixlcrashr.vsfv.v1.DeleteTransactionAssignmentRequest
-	0, // 9: pixlcrashr.vsfv.v1.TransactionAssignmentService.GetTransactionAssignment:output_type -> pixlcrashr.vsfv.v1.TransactionAssignment
-	3, // 10: pixlcrashr.vsfv.v1.TransactionAssignmentService.ListTransactionAssignments:output_type -> pixlcrashr.vsfv.v1.ListTransactionAssignmentsResponse
-	0, // 11: pixlcrashr.vsfv.v1.TransactionAssignmentService.CreateTransactionAssignment:output_type -> pixlcrashr.vsfv.v1.TransactionAssignment
-	8, // 12: pixlcrashr.vsfv.v1.TransactionAssignmentService.DeleteTransactionAssignment:output_type -> google.protobuf.Empty
-	9, // [9:13] is the sub-list for method output_type
-	5, // [5:9] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	7,  // 0: pixlcrashr.vsfv.v1.TransactionAssignment.value:type_name -> pixlcrashr.vsfv.v1.Decimal
+	8,  // 1: pixlcrashr.vsfv.v1.TransactionAssignment.update_time:type_name -> google.protobuf.Timestamp
+	8,  // 2: pixlcrashr.vsfv.v1.TransactionAssignment.create_time:type_name -> google.protobuf.Timestamp
+	0,  // 3: pixlcrashr.vsfv.v1.ListTransactionAssignmentsResponse.assignments:type_name -> pixlcrashr.vsfv.v1.TransactionAssignment
+	0,  // 4: pixlcrashr.vsfv.v1.CreateTransactionAssignmentRequest.assignment:type_name -> pixlcrashr.vsfv.v1.TransactionAssignment
+	0,  // 5: pixlcrashr.vsfv.v1.UpdateTransactionAssignmentRequest.assignment:type_name -> pixlcrashr.vsfv.v1.TransactionAssignment
+	9,  // 6: pixlcrashr.vsfv.v1.UpdateTransactionAssignmentRequest.update_mask:type_name -> google.protobuf.FieldMask
+	1,  // 7: pixlcrashr.vsfv.v1.TransactionAssignmentService.GetTransactionAssignment:input_type -> pixlcrashr.vsfv.v1.GetTransactionAssignmentRequest
+	2,  // 8: pixlcrashr.vsfv.v1.TransactionAssignmentService.ListTransactionAssignments:input_type -> pixlcrashr.vsfv.v1.ListTransactionAssignmentsRequest
+	4,  // 9: pixlcrashr.vsfv.v1.TransactionAssignmentService.CreateTransactionAssignment:input_type -> pixlcrashr.vsfv.v1.CreateTransactionAssignmentRequest
+	5,  // 10: pixlcrashr.vsfv.v1.TransactionAssignmentService.UpdateTransactionAssignment:input_type -> pixlcrashr.vsfv.v1.UpdateTransactionAssignmentRequest
+	6,  // 11: pixlcrashr.vsfv.v1.TransactionAssignmentService.DeleteTransactionAssignment:input_type -> pixlcrashr.vsfv.v1.DeleteTransactionAssignmentRequest
+	0,  // 12: pixlcrashr.vsfv.v1.TransactionAssignmentService.GetTransactionAssignment:output_type -> pixlcrashr.vsfv.v1.TransactionAssignment
+	3,  // 13: pixlcrashr.vsfv.v1.TransactionAssignmentService.ListTransactionAssignments:output_type -> pixlcrashr.vsfv.v1.ListTransactionAssignmentsResponse
+	0,  // 14: pixlcrashr.vsfv.v1.TransactionAssignmentService.CreateTransactionAssignment:output_type -> pixlcrashr.vsfv.v1.TransactionAssignment
+	0,  // 15: pixlcrashr.vsfv.v1.TransactionAssignmentService.UpdateTransactionAssignment:output_type -> pixlcrashr.vsfv.v1.TransactionAssignment
+	10, // 16: pixlcrashr.vsfv.v1.TransactionAssignmentService.DeleteTransactionAssignment:output_type -> google.protobuf.Empty
+	12, // [12:17] is the sub-list for method output_type
+	7,  // [7:12] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_pixlcrashr_vsfv_v1_transaction_assignment_proto_init() }
@@ -543,7 +611,7 @@ func file_pixlcrashr_vsfv_v1_transaction_assignment_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pixlcrashr_vsfv_v1_transaction_assignment_proto_rawDesc), len(file_pixlcrashr_vsfv_v1_transaction_assignment_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

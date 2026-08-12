@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/cockroachdb/apd/v3"
 	"github.com/google/uuid"
@@ -14,6 +15,7 @@ import (
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
+	"github.com/theater-improrama/go-utils/optional"
 	"go.einride.tech/aip/ordering"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -29,7 +31,10 @@ var (
 	statusFailedGetTransactionAssignment     = status.New(codes.Internal, "failed to get transaction assignment")
 	statusFailedListTransactionAssignments   = status.New(codes.Internal, "failed to list transaction assignments")
 	statusFailedCreateTransactionAssignment  = status.New(codes.Internal, "failed to create transaction assignment")
+	statusFailedUpdateTransactionAssignment  = status.New(codes.Internal, "failed to update transaction assignment")
 	statusFailedDeleteTransactionAssignment  = status.New(codes.Internal, "failed to delete transaction assignment")
+	statusAccountIsContainer                 = status.New(codes.InvalidArgument, "account is a container account and cannot be assigned to")
+	statusNegativeAssignmentValue            = status.New(codes.InvalidArgument, "assignment value must not be negative")
 )
 
 type transactionAssignmentServiceServer struct {
@@ -40,8 +45,8 @@ type transactionAssignmentServiceServer struct {
 	enforcer         *authz.Enforcer
 }
 
-func newTransactionAssignmentServiceServer(repo *repository.TransactionAssignmentRepository, accountRepo *repository.AccountRepository, enforcer *authz.Enforcer) gen.TransactionAssignmentServiceServer {
-	return &transactionAssignmentServiceServer{repo: repo, accountRepo: accountRepo, enforcer: enforcer}
+func newTransactionAssignmentServiceServer(repo *repository.TransactionAssignmentRepository, accountRepo *repository.AccountRepository, organizationRepo *repository.OrganizationRepository, enforcer *authz.Enforcer) gen.TransactionAssignmentServiceServer {
+	return &transactionAssignmentServiceServer{repo: repo, accountRepo: accountRepo, organizationRepo: organizationRepo, enforcer: enforcer}
 }
 
 func (s *transactionAssignmentServiceServer) GetTransactionAssignment(ctx context.Context, req *gen.GetTransactionAssignmentRequest) (*gen.TransactionAssignment, error) {
@@ -223,6 +228,110 @@ func (s *transactionAssignmentServiceServer) CreateTransactionAssignment(ctx con
 	}
 
 	return TransactionAssignmentToProto(pn, m, a), nil
+}
+
+func (s *transactionAssignmentServiceServer) UpdateTransactionAssignment(ctx context.Context, req *gen.UpdateTransactionAssignmentRequest) (*gen.TransactionAssignment, error) {
+	if req.Assignment == nil {
+		return nil, &ServerError{Status: statusTransactionAssignmentRequired}
+	}
+
+	var n gen.TransactionAssignmentResourceName
+
+	if err := n.UnmarshalString(req.Assignment.Name); err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidTransactionAssignmentName}
+	}
+
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceTransactions, authz.ActionUpdate, authz.OrgDomain(n.Organization)); err != nil {
+		return nil, authError(err)
+	}
+
+	assignmentID, err := uuid.Parse(n.Assignment)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidTransactionAssignmentName}
+	}
+
+	m, err := s.repo.GetByID(ctx, assignmentID)
+	if err != nil {
+		if errors.Is(err, repository.ErrTransactionAssignmentNotFound) {
+			return nil, &ServerError{Err: err, Status: statusTransactionAssignmentNotFound}
+		}
+
+		return nil, &ServerError{Err: err, Status: statusFailedGetTransactionAssignment}
+	}
+
+	updateParams := repository.UpdateTransactionAssignmentParams{}
+
+	// Determine which fields are in the update_mask. If no mask is provided,
+	// grpc-gateway auto-generates one from the JSON body. For nested message
+	// fields (e.g. the Decimal "value"), the auto-generated mask contains the
+	// fully-qualified leaf path (e.g. "value.value") rather than the top-level
+	// field name. We therefore treat a path as matching if it equals or is a
+	// sub-path of the requested field.
+	mask := req.UpdateMask
+	maskContains := func(path string) bool {
+		if mask == nil || len(mask.Paths) == 0 {
+			return true
+		}
+		for _, p := range mask.Paths {
+			if p == path || strings.HasPrefix(p, path+".") {
+				return true
+			}
+		}
+		return false
+	}
+
+	if maskContains("account") {
+		var accountResourceName gen.AccountResourceName
+		if err := accountResourceName.UnmarshalString(req.Assignment.Account); err != nil {
+			return nil, &ServerError{Err: err, Status: statusInvalidAccountID}
+		}
+
+		orgID, err := uuid.Parse(n.Organization)
+		if err != nil {
+			return nil, &ServerError{Err: err, Status: statusInvalidParentTransaction}
+		}
+
+		o, err := s.organizationRepo.GetByID(ctx, orgID)
+		if err != nil {
+			return nil, &ServerError{Err: err, Status: statusOrganizationNotFound}
+		}
+
+		a, err := s.accountRepo.GetByCustomID(ctx, o.ID, accountResourceName.Account)
+		if err != nil {
+			return nil, &ServerError{Err: err, Status: statusAccountNotFound}
+		}
+
+		if a.IsContainer {
+			return nil, &ServerError{Status: statusAccountIsContainer}
+		}
+
+		updateParams.AccountID = optional.From(a.ID)
+	}
+
+	if maskContains("value") && req.Assignment.Value != nil {
+		v := decimalProtoToApd(req.Assignment.Value)
+		if v.Sign() < 0 {
+			return nil, &ServerError{Status: statusNegativeAssignmentValue}
+		}
+		updateParams.Value = optional.From(v)
+	}
+
+	if err := s.repo.Update(ctx, m.ID, updateParams); err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedUpdateTransactionAssignment}
+	}
+
+	// Refresh the model after update.
+	m, err = s.repo.GetByID(ctx, m.ID)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedUpdateTransactionAssignment}
+	}
+
+	a, err := s.accountRepo.GetByID(ctx, m.AccountID)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedUpdateTransactionAssignment}
+	}
+
+	return TransactionAssignmentToProto(n.TransactionResourceName(), m, a), nil
 }
 
 func (s *transactionAssignmentServiceServer) DeleteTransactionAssignment(ctx context.Context, req *gen.DeleteTransactionAssignmentRequest) (*emptypb.Empty, error) {

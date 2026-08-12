@@ -13,6 +13,12 @@ import { V1BatchCheckUserPermissionsRequest } from '../models/v1batch-check-user
 import { V1User } from '../models/v1user';
 import { V1CheckUserPermissionsResponse } from '../models/v1check-user-permissions-response';
 import { UserServiceCheckUserPermissionsBody } from '../models/user-service-check-user-permissions-body';
+import { V1ListUserGroupsResponse } from '../models/v1list-user-groups-response';
+
+/**
+ * UserService provides a read-only administrative view of users.
+ * Users are created exclusively through the SSO/OAuth2 flow.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -21,6 +27,7 @@ class UserServiceService extends __BaseService {
   static readonly UserServiceBatchCheckUserPermissionsPath = '/v1/users:batchCheckPermissions';
   static readonly UserServiceGetUserPath = '/v1/{name_16}';
   static readonly UserServiceCheckUserPermissionsPath = '/v1/{name}:checkPermissions';
+  static readonly UserServiceListUserGroupsPath = '/v1/{name}:listGroups';
 
   constructor(
     config: __Configuration,
@@ -262,6 +269,54 @@ class UserServiceService extends __BaseService {
   UserServiceCheckUserPermissions(params: UserServiceService.UserServiceCheckUserPermissionsParams): __Observable<V1CheckUserPermissionsResponse> {
     return this.UserServiceCheckUserPermissionsResponse(params).pipe(
       __map(_r => _r.body as V1CheckUserPermissionsResponse)
+    );
+  }
+
+  /**
+   * Lists the groups a user belongs to (custom method, AIP-136).
+   * Authorization:
+   *   Scope: users:read
+   *   Permission: users:read
+   *   Domain: global
+   * @param name The resource name of the user.
+   * Format: users/{user}
+   * @return A successful response.
+   */
+  UserServiceListUserGroupsResponse(name: string): __Observable<__StrictHttpResponse<V1ListUserGroupsResponse>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    let req = new HttpRequest<any>(
+      'GET',
+      this.rootUrl + `/v1/${encodeURIComponent(String(name))}:listGroups`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<V1ListUserGroupsResponse>;
+      })
+    );
+  }
+  /**
+   * Lists the groups a user belongs to (custom method, AIP-136).
+   * Authorization:
+   *   Scope: users:read
+   *   Permission: users:read
+   *   Domain: global
+   * @param name The resource name of the user.
+   * Format: users/{user}
+   * @return A successful response.
+   */
+  UserServiceListUserGroups(name: string): __Observable<V1ListUserGroupsResponse> {
+    return this.UserServiceListUserGroupsResponse(name).pipe(
+      __map(_r => _r.body as V1ListUserGroupsResponse)
     );
   }
 }

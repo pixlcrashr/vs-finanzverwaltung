@@ -1,12 +1,12 @@
 import {
   Component,
   ChangeDetectionStrategy,
+  computed,
   inject,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { NgTemplateOutlet } from '@angular/common';
 import { Dialog } from '@angular/cdk/dialog';
 import { concat, forkJoin, merge, map, distinctUntilChanged, filter, timer, switchMap, EMPTY } from 'rxjs';
 import {
@@ -30,14 +30,12 @@ import {
 } from '../../../shared/dialogs/confirm-delete-dialog/confirm-delete-dialog.component';
 import { HierarchicalAccount } from '../../../shared/models';
 import { AccountListDataService } from './account-list.data-service';
-import { AccountHierarchyService } from '../../../shared/services/account-hierarchy.service';
 
 @Component({
   selector: 'app-account-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    NgTemplateOutlet,
     PageContentLayoutComponent,
     ButtonComponent,
     StatusBadgeComponent,
@@ -86,8 +84,79 @@ import { AccountHierarchyService } from '../../../shared/services/account-hierar
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-gray-200 bg-white">
-                    @for (account of accounts(); track account.id) {
-                      <ng-container *ngTemplateOutlet="accountRow; context: { $implicit: account }" />
+                    @for (account of flatAccounts(); track account.id) {
+                      <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-2.5 py-1.5 text-xs text-gray-900 whitespace-nowrap">
+                          <div
+                            class="flex items-center gap-1.5"
+                            [style.marginLeft.px]="account.depth > 0 ? account.depth * 20 : null"
+                          >
+                            @if (account.depth > 0) {
+                              <span class="text-gray-300 select-none">{{ '└─' }}</span>
+                            }
+                            <span>{{ account.code }}</span>
+                          </div>
+                        </td>
+                        <td class="px-2.5 py-1.5 text-xs text-gray-900">
+                          {{ account.name }}
+                        </td>
+                        <td class="px-2.5 py-1.5 text-xs">
+                          <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium"
+                                [class.bg-blue-100]="account.isContainer"
+                                [class.text-blue-700]="account.isContainer"
+                                [class.bg-gray-100]="!account.isContainer"
+                                [class.text-gray-600]="!account.isContainer">
+                            {{ account.isContainer ? 'Gruppe' : 'Blatt' }}
+                          </span>
+                        </td>
+                        <td class="px-2.5 py-1.5 text-[11px] text-gray-500">
+                          <div class="max-w-xs truncate" [title]="account.description || ''">
+                            {{ account.description || '-' }}
+                          </div>
+                        </td>
+                        <td class="px-2.5 py-1.5 text-xs">
+                          <app-status-badge size="sm" [variant]="account.isArchived ? 'neutral' : 'success'">
+                            <ng-container i18n>{{ account.isArchived ? 'Archiviert' : 'Aktiv' }}</ng-container>
+                          </app-status-badge>
+                        </td>
+                        <td class="px-2.5 py-1.5 text-right text-xs">
+                          <div class="flex items-center justify-end gap-2">
+                            @if (account.isArchived) {
+                              <button
+                                type="button"
+                                class="text-xs text-blue-600 hover:underline disabled:text-gray-400 disabled:no-underline"
+                                [disabled]="isMutatingAccount(account.id)"
+                                (click)="restoreAccount(account)"
+                              >
+                                <ng-container i18n>{{ restoringAccountId() === account.id ? 'Wird wiederhergestellt...' : 'Wiederherstellen' }}</ng-container>
+                              </button>
+                              <button
+                                type="button"
+                                class="text-xs text-red-600 hover:underline disabled:text-gray-400 disabled:no-underline"
+                                [disabled]="isMutatingAccount(account.id)"
+                                (click)="openDeleteDialog(account)"
+                              >
+                                <ng-container i18n>{{ deletingAccountId() === account.id ? 'Wird gelöscht...' : 'Löschen' }}</ng-container>
+                              </button>
+                            } @else if (canArchive(account)) {
+                              <button
+                                type="button"
+                                class="text-xs text-blue-600 hover:underline disabled:text-gray-400 disabled:no-underline"
+                                [disabled]="isMutatingAccount(account.id)"
+                                (click)="archiveAccount(account)"
+                              >
+                                <ng-container i18n>{{ archivingAccountId() === account.id ? 'Wird archiviert...' : 'Archivieren' }}</ng-container>
+                              </button>
+                            }
+                            <a
+                              [routerLink]="['/organizations', orgId, 'accounts', account.id]"
+                              class="text-xs text-blue-600 hover:underline"
+                            >
+                              <ng-container i18n>Bearbeiten</ng-container>
+                            </a>
+                          </div>
+                        </td>
+                      </tr>
                     }
                   </tbody>
                 </table>
@@ -97,77 +166,6 @@ import { AccountHierarchyService } from '../../../shared/services/account-hierar
         }
       </div>
     </app-page-content-layout>
-
-    <!-- Account Row Template (recursive) -->
-    <ng-template #accountRow let-account>
-      <tr class="hover:bg-gray-50 transition-colors" [style.padding-left.px]="account.depth * 30">
-        <td class="px-2.5 py-1.5 text-xs text-gray-900">
-          {{ account.code }}
-        </td>
-        <td class="px-2.5 py-1.5 text-xs text-gray-900">
-          {{ account.name }}
-        </td>
-        <td class="px-2.5 py-1.5 text-xs">
-          <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium"
-                [class.bg-blue-100]="account.isContainer"
-                [class.text-blue-700]="account.isContainer"
-                [class.bg-gray-100]="!account.isContainer"
-                [class.text-gray-600]="!account.isContainer">
-            {{ account.isContainer ? 'Gruppe' : 'Blatt' }}
-          </span>
-        </td>
-        <td class="px-2.5 py-1.5 text-[11px] text-gray-500">
-          <div class="max-w-xs truncate" [title]="account.description || ''">
-            {{ account.description || '-' }}
-          </div>
-        </td>
-        <td class="px-2.5 py-1.5 text-xs">
-          <app-status-badge size="sm" [variant]="account.isArchived ? 'neutral' : 'success'">
-            <ng-container i18n>{{ account.isArchived ? 'Archiviert' : 'Aktiv' }}</ng-container>
-          </app-status-badge>
-        </td>
-        <td class="px-2.5 py-1.5 text-right text-xs">
-          <div class="flex items-center justify-end gap-2">
-            @if (account.isArchived) {
-              <button
-                type="button"
-                class="text-xs text-blue-600 hover:underline disabled:text-gray-400 disabled:no-underline"
-                [disabled]="isMutatingAccount(account.id)"
-                (click)="restoreAccount(account)"
-              >
-                <ng-container i18n>{{ restoringAccountId() === account.id ? 'Wird wiederhergestellt...' : 'Wiederherstellen' }}</ng-container>
-              </button>
-              <button
-                type="button"
-                class="text-xs text-red-600 hover:underline disabled:text-gray-400 disabled:no-underline"
-                [disabled]="isMutatingAccount(account.id)"
-                (click)="openDeleteDialog(account)"
-              >
-                <ng-container i18n>{{ deletingAccountId() === account.id ? 'Wird gelöscht...' : 'Löschen' }}</ng-container>
-              </button>
-            } @else if (canArchive(account)) {
-              <button
-                type="button"
-                class="text-xs text-blue-600 hover:underline disabled:text-gray-400 disabled:no-underline"
-                [disabled]="isMutatingAccount(account.id)"
-                (click)="archiveAccount(account)"
-              >
-                <ng-container i18n>{{ archivingAccountId() === account.id ? 'Wird archiviert...' : 'Archivieren' }}</ng-container>
-              </button>
-            }
-            <a
-              [routerLink]="['/organizations', orgId, 'accounts', account.id]"
-              class="text-xs text-blue-600 hover:underline"
-            >
-              <ng-container i18n>Bearbeiten</ng-container>
-            </a>
-          </div>
-        </td>
-      </tr>
-      @for (child of account.children; track child.id) {
-        <ng-container *ngTemplateOutlet="accountRow; context: { $implicit: child }" />
-      }
-    </ng-template>
   `,
 })
 export class AccountListComponent {
@@ -175,7 +173,6 @@ export class AccountListComponent {
   private readonly dataService = inject(AccountListDataService);
   private readonly dialog = inject(Dialog);
   private readonly notifications = inject(NotificationService);
-  private readonly hierarchy = inject(AccountHierarchyService);
 
   orgId = '';
 
@@ -184,7 +181,7 @@ export class AccountListComponent {
   readonly restoringAccountId = signal<string | null>(null);
   readonly deletingAccountId = signal<string | null>(null);
   readonly accounts = signal<HierarchicalAccount[]>([]);
-  readonly expandedIds = signal<Set<string>>(new Set());
+  readonly flatAccounts = computed<HierarchicalAccount[]>(() => this.flatten(this.accounts()));
 
   readonly breadcrumbs: BreadcrumbItem[] = [{ label: $localize`Haushaltskonten` }];
 
@@ -204,12 +201,8 @@ export class AccountListComponent {
 
   private loadAccounts(): void {
     this.dataService.listAccounts(this.orgId).subscribe({
-      next: (flatAccounts) => {
-        const hierarchical = this.hierarchy.build(flatAccounts);
+      next: (hierarchical) => {
         this.accounts.set(hierarchical);
-        const ids = new Set<string>();
-        this.collectIds(hierarchical, ids);
-        this.expandedIds.set(ids);
         this.loading.set(false);
       },
       error: () => {
@@ -219,13 +212,16 @@ export class AccountListComponent {
     });
   }
 
-  private collectIds(accounts: HierarchicalAccount[], ids: Set<string>): void {
-    for (const account of accounts) {
-      if (account.children.length > 0) {
-        ids.add(account.id);
-        this.collectIds(account.children, ids);
+  private flatten(accounts: HierarchicalAccount[]): HierarchicalAccount[] {
+    const result: HierarchicalAccount[] = [];
+    const walk = (nodes: HierarchicalAccount[]) => {
+      for (const node of nodes) {
+        result.push(node);
+        walk(node.children);
       }
-    }
+    };
+    walk(accounts);
+    return result;
   }
 
   openCreateDialog(): void {

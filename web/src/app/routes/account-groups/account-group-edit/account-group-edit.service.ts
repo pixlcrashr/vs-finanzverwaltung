@@ -24,12 +24,16 @@ export class AccountGroupEditService {
   readonly maxDepth = computed(() => {
     const accounts = this.accountsWithOps();
     if (accounts.length === 0) return 0;
-    return Math.max(...accounts.map(x => x.account.depth));
+    return Math.max(...accounts.map(x => this.computeDepth(x.account)));
   });
 
   readonly accountCols = computed(() =>
     Array.from({ length: this.maxDepth() + 1 }, (_, i) => i)
   );
+
+  private computeDepth(account: Account): number {
+    return account.fullCode.split('.').length - 1;
+  }
 
   readonly rows = computed((): AccountGroupRow[] => {
     const accounts = this.accountsWithOps();
@@ -39,7 +43,7 @@ export class AccountGroupEditService {
       displayCode: item.account.code,
       displayName: item.account.name,
       fullCode: item.account.fullCode,
-      depth: item.account.depth,
+      depth: this.computeDepth(item.account),
       isArchived: item.account.isArchived,
       operation: item.assignment?.operation ?? 'I',
       account: item.account,

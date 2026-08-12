@@ -1,11 +1,13 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, of, delay } from 'rxjs';
 import { faker } from '@faker-js/faker';
-import { Account } from '../../../app/shared/models';
+import { Account, HierarchicalAccount } from '../../../app/shared/models';
 import { AccountListDataService } from '../../../app/routes/accounts/account-list/account-list.data-service';
+import { AccountHierarchyService } from '../../../app/shared/services/account-hierarchy.service';
 
 @Injectable()
 export class MockAccountListDataService extends AccountListDataService {
+  private readonly hierarchy = inject(AccountHierarchyService);
   private accountsByOrg = new Map<string, Account[]>();
 
   private getAccounts(organizationId: string): Account[] {
@@ -15,8 +17,9 @@ export class MockAccountListDataService extends AccountListDataService {
     return this.accountsByOrg.get(organizationId)!;
   }
 
-  listAccounts(organizationId: string): Observable<Account[]> {
-    return of([...this.getAccounts(organizationId)]).pipe(delay(300));
+  listAccounts(organizationId: string): Observable<HierarchicalAccount[]> {
+    const flat = [...this.getAccounts(organizationId)];
+    return of(this.hierarchy.build(flat)).pipe(delay(300));
   }
 
   createAccount(

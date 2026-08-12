@@ -4,6 +4,7 @@ import {
   V1AccountGroupAssignment as ApiAccountGroupAssignment,
   V1Budget as ApiBudget,
   V1BudgetRevision as ApiBudgetRevision,
+  V1NestedAccount as ApiNestedAccount,
   V1Report as ApiReport,
   V1ReportTemplate as ApiReportTemplate,
   V1Transaction as ApiTransaction,
@@ -17,6 +18,7 @@ import {
   Budget,
   BudgetRevision,
   BudgetTag,
+  HierarchicalAccount,
   Report,
   ReportTemplate,
   Transaction,
@@ -55,6 +57,23 @@ export function mapApiAccount(a: ApiAccount): Account {
     isArchived: a.is_archived ?? false,
     isContainer: a.is_container ?? false,
     parentAccountId: parentUid,
+  };
+}
+
+export function mapApiNestedAccount(n: ApiNestedAccount, depth = 0): HierarchicalAccount {
+  const a = n.account;
+  const parentUid = a?.parent_account ? a.parent_account.split('/').pop() ?? null : null;
+  return {
+    id: a?.uid ?? '',
+    name: a?.display_name ?? '',
+    code: a?.display_code ?? '',
+    fullCode: a?.display_code ?? '',
+    description: a?.display_description ?? '',
+    isArchived: a?.is_archived ?? false,
+    isContainer: a?.is_container ?? false,
+    parentAccountId: parentUid,
+    depth,
+    children: (n.children ?? []).map((c) => mapApiNestedAccount(c, depth + 1)),
   };
 }
 

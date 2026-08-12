@@ -8,6 +8,10 @@ import { Observable as __Observable } from 'rxjs';
 import { map as __map, filter as __filter } from 'rxjs/operators';
 
 import { V1UserSettings } from '../models/v1user-settings';
+
+/**
+ * UserSettingsService manages per-user application preferences.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -155,7 +159,7 @@ module UserSettingsServiceService {
     /**
      * The user settings to update.
      */
-    settings: {locale?: string, theme?: string, update_time?: string, etag?: string};
+    settings: {locale?: string, theme?: string, email_notifications?: boolean, update_time?: string, etag?: string};
 
     /**
      * If true and the resource does not exist, a new resource will be created.

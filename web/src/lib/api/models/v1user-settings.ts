@@ -6,6 +6,11 @@
 export interface V1UserSettings {
 
   /**
+   * Whether the user wants to receive email notifications.
+   */
+  email_notifications?: boolean;
+
+  /**
    * Entity tag for optimistic concurrency control.
    */
   etag?: string;

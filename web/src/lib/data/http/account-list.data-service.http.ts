@@ -1,10 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, map, expand, reduce, EMPTY, switchMap } from 'rxjs';
+import { Observable, map, switchMap } from 'rxjs';
 import { AccountServiceService } from '../../api/services/account-service.service';
-import { V1ListAccountsResponse } from '../../api/models/v1list-accounts-response';
-import { Account } from '../../../app/shared/models';
+import { Account, HierarchicalAccount } from '../../../app/shared/models';
 import { AccountListDataService } from '../../../app/routes/accounts/account-list/account-list.data-service';
-import { mapApiAccount } from './_mappers';
+import { mapApiAccount, mapApiNestedAccount } from './_mappers';
 
 @Injectable()
 export class HttpAccountListDataService extends AccountListDataService {
@@ -17,18 +16,10 @@ export class HttpAccountListDataService extends AccountListDataService {
     return `${this.orgParent(organizationId)}/accounts/${uid}`;
   }
 
-  listAccounts(organizationId: string): Observable<Account[]> {
+  listAccounts(organizationId: string): Observable<HierarchicalAccount[]> {
     const parent = this.orgParent(organizationId);
-    return this.svc.AccountServiceListAccounts({ parent, pageSize: 1000, showDeleted: true }).pipe(
-      expand((resp: V1ListAccountsResponse) =>
-        resp.next_page_token
-          ? this.svc.AccountServiceListAccounts({ parent, pageSize: 1000, showDeleted: true, pageToken: resp.next_page_token })
-          : EMPTY
-      ),
-      reduce((all: Account[], resp: V1ListAccountsResponse) =>
-        all.concat((resp.accounts ?? []).map(mapApiAccount)),
-        []
-      ),
+    return this.svc.AccountServiceListNestedAccounts({ parent }).pipe(
+      map((resp) => (resp.accounts ?? []).map((n) => mapApiNestedAccount(n))),
     );
   }
 

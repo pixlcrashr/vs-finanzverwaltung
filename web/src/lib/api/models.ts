@@ -1,6 +1,8 @@
 export { AccountServiceArchiveAccountBody } from './models/account-service-archive-account-body';
 export { BudgetAccountValueServiceBatchUpdateBudgetAccountValuesBody } from './models/budget-account-value-service-batch-update-budget-account-values-body';
 export { BudgetServiceCloseBudgetBody } from './models/budget-service-close-budget-body';
+export { GroupServiceAddUserToGroupBody } from './models/group-service-add-user-to-group-body';
+export { GroupServiceRemoveUserFromGroupBody } from './models/group-service-remove-user-from-group-body';
 export { LedgerYearServiceCloseLedgerYearBody } from './models/ledger-year-service-close-ledger-year-body';
 export { UserServiceCheckUserPermissionsBody } from './models/user-service-check-user-permissions-body';
 export { TypeDate } from './models/type-date';
@@ -44,6 +46,7 @@ export { V1ListReportTemplatesResponse } from './models/v1list-report-templates-
 export { V1ListReportsResponse } from './models/v1list-reports-response';
 export { V1ListTransactionAssignmentsResponse } from './models/v1list-transaction-assignments-response';
 export { V1ListTransactionsResponse } from './models/v1list-transactions-response';
+export { V1ListUserGroupsResponse } from './models/v1list-user-groups-response';
 export { V1ListUserIdentitiesResponse } from './models/v1list-user-identities-response';
 export { V1ListUsersResponse } from './models/v1list-users-response';
 export { V1Month } from './models/v1month';

@@ -9,6 +9,12 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 
 import { V1ListGroupsResponse } from '../models/v1list-groups-response';
 import { V1Group } from '../models/v1group';
+import { GroupServiceAddUserToGroupBody } from '../models/group-service-add-user-to-group-body';
+import { GroupServiceRemoveUserFromGroupBody } from '../models/group-service-remove-user-from-group-body';
+
+/**
+ * GroupService manages groups and their per-organization permission policies.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -18,6 +24,8 @@ class GroupServiceService extends __BaseService {
   static readonly GroupServiceUpdateGroupPath = '/v1/{group.name}';
   static readonly GroupServiceDeleteGroupPath = '/v1/{name_5}';
   static readonly GroupServiceGetGroupPath = '/v1/{name_8}';
+  static readonly GroupServiceAddUserToGroupPath = '/v1/{name}:addUser';
+  static readonly GroupServiceRemoveUserFromGroupPath = '/v1/{name}:removeUser';
 
   constructor(
     config: __Configuration,
@@ -310,6 +318,124 @@ class GroupServiceService extends __BaseService {
       __map(_r => _r.body as V1Group)
     );
   }
+
+  /**
+   * Adds a user to a group (custom method, AIP-136).
+   * Authorization:
+   *   Scope: groups:write
+   *   Permission: groups:update
+   *   Domain: global
+   * @param params The `GroupServiceService.GroupServiceAddUserToGroupParams` containing the following parameters:
+   *
+   * - `name`: The resource name of the group.
+   *   Format: groups/{group}
+   *
+   * - `body`:
+   *
+   * @return A successful response.
+   */
+  GroupServiceAddUserToGroupResponse(params: GroupServiceService.GroupServiceAddUserToGroupParams): __Observable<__StrictHttpResponse<{}>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    __body = params.body;
+    let req = new HttpRequest<any>(
+      'POST',
+      this.rootUrl + `/v1/${encodeURIComponent(String(params.name))}:addUser`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<{}>;
+      })
+    );
+  }
+  /**
+   * Adds a user to a group (custom method, AIP-136).
+   * Authorization:
+   *   Scope: groups:write
+   *   Permission: groups:update
+   *   Domain: global
+   * @param params The `GroupServiceService.GroupServiceAddUserToGroupParams` containing the following parameters:
+   *
+   * - `name`: The resource name of the group.
+   *   Format: groups/{group}
+   *
+   * - `body`:
+   *
+   * @return A successful response.
+   */
+  GroupServiceAddUserToGroup(params: GroupServiceService.GroupServiceAddUserToGroupParams): __Observable<{}> {
+    return this.GroupServiceAddUserToGroupResponse(params).pipe(
+      __map(_r => _r.body as {})
+    );
+  }
+
+  /**
+   * Removes a user from a group (custom method, AIP-136).
+   * Authorization:
+   *   Scope: groups:write
+   *   Permission: groups:update
+   *   Domain: global
+   * @param params The `GroupServiceService.GroupServiceRemoveUserFromGroupParams` containing the following parameters:
+   *
+   * - `name`: The resource name of the group.
+   *   Format: groups/{group}
+   *
+   * - `body`:
+   *
+   * @return A successful response.
+   */
+  GroupServiceRemoveUserFromGroupResponse(params: GroupServiceService.GroupServiceRemoveUserFromGroupParams): __Observable<__StrictHttpResponse<{}>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    __body = params.body;
+    let req = new HttpRequest<any>(
+      'POST',
+      this.rootUrl + `/v1/${encodeURIComponent(String(params.name))}:removeUser`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<{}>;
+      })
+    );
+  }
+  /**
+   * Removes a user from a group (custom method, AIP-136).
+   * Authorization:
+   *   Scope: groups:write
+   *   Permission: groups:update
+   *   Domain: global
+   * @param params The `GroupServiceService.GroupServiceRemoveUserFromGroupParams` containing the following parameters:
+   *
+   * - `name`: The resource name of the group.
+   *   Format: groups/{group}
+   *
+   * - `body`:
+   *
+   * @return A successful response.
+   */
+  GroupServiceRemoveUserFromGroup(params: GroupServiceService.GroupServiceRemoveUserFromGroupParams): __Observable<{}> {
+    return this.GroupServiceRemoveUserFromGroupResponse(params).pipe(
+      __map(_r => _r.body as {})
+    );
+  }
 }
 
 module GroupServiceService {
@@ -374,6 +500,32 @@ module GroupServiceService {
      * The group to update.
      */
     group: {uid?: string, display_name: string, display_description?: string, organizations?: Array<string>, permissions?: Array<string>, update_time?: string, create_time?: string, etag?: string};
+  }
+
+  /**
+   * Parameters for GroupServiceAddUserToGroup
+   */
+  export interface GroupServiceAddUserToGroupParams {
+
+    /**
+     * The resource name of the group.
+     * Format: groups/{group}
+     */
+    name: string;
+    body: GroupServiceAddUserToGroupBody;
+  }
+
+  /**
+   * Parameters for GroupServiceRemoveUserFromGroup
+   */
+  export interface GroupServiceRemoveUserFromGroupParams {
+
+    /**
+     * The resource name of the group.
+     * Format: groups/{group}
+     */
+    name: string;
+    body: GroupServiceRemoveUserFromGroupBody;
   }
 }
 

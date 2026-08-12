@@ -1,8 +1,8 @@
 import { Observable } from 'rxjs';
-import { Account } from '../../../shared/models';
+import { Account, HierarchicalAccount } from '../../../shared/models';
 
 export abstract class AccountListDataService {
-  abstract listAccounts(organizationId: string): Observable<Account[]>;
+  abstract listAccounts(organizationId: string): Observable<HierarchicalAccount[]>;
   abstract createAccount(
     organizationId: string,
     name: string,

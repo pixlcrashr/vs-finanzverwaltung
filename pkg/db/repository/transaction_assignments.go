@@ -29,7 +29,12 @@ var TransactionAssignmentOrderFieldMapper = order.FieldMapper{
 
 // ListTransactionAssignmentsParams drives the List query.
 type ListTransactionAssignmentsParams struct {
+	// TransactionID filters to a single transaction. When uuid.Nil, all
+	// transactions within OrganizationID are returned (wildcard parent).
 	TransactionID uuid.UUID
+	// OrganizationID filters by organization. Required when TransactionID
+	// is uuid.Nil; ignored otherwise (TransactionID already implies the org).
+	OrganizationID uuid.UUID
 	// Cond is an optional abstract condition chain (AND/OR/NOT support).
 	Cond cond.Cond
 	// OrderBy specifies the sort field and direction as SQL expressions.
@@ -45,6 +50,8 @@ func transactionAssignmentColumnMapper(field string) (string, bool) {
 	switch field {
 	case "account":
 		return "account_id", true
+	case "transaction":
+		return "transaction_id", true
 	default:
 		return "", false
 	}
@@ -67,8 +74,15 @@ func (r *TransactionAssignmentRepository) List(ctx context.Context, params ListT
 		params.Page = 1
 	}
 
-	db := r.db.WithContext(ctx).Table("transaction_assignments").
-		Where("transaction_id = ?", params.TransactionID)
+	db := r.db.WithContext(ctx).Table("transaction_assignments")
+
+	if params.TransactionID != uuid.Nil {
+		db = db.Where("transaction_id = ?", params.TransactionID)
+	} else if params.OrganizationID != uuid.Nil {
+		db = db.Where("organization_id = ?", params.OrganizationID)
+	} else {
+		return nil, 0, fmt.Errorf("list transaction assignments: either TransactionID or OrganizationID must be set")
+	}
 
 	// Apply abstract condition chain
 	db = cond.Apply(db, params.Cond, transactionAssignmentColumnMapper)

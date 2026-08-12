@@ -60,6 +60,18 @@ func date(y int, m time.Month, d int) time.Time {
 	return time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
 }
 
+// fiscalYearStart returns the first day of the given fiscal year for an
+// organization whose financial year starts in startMonth.
+func fiscalYearStart(year int, startMonth time.Month) time.Time {
+	return date(year, startMonth, 1)
+}
+
+// fiscalYearEnd returns the last day of the given fiscal year for an
+// organization whose financial year starts in startMonth.
+func fiscalYearEnd(year int, startMonth time.Month) time.Time {
+	return date(year+1, startMonth, 1).AddDate(0, 0, -1)
+}
+
 func cr(db *gorm.DB, v any) error { return db.Create(v).Error }
 
 func seed(db *gorm.DB, enforcer *authz.Enforcer) error {
@@ -68,8 +80,10 @@ func seed(db *gorm.DB, enforcer *authz.Enforcer) error {
 	//       membership fees, event income, and operating expenses.
 	// org2: Handwerk Süd GmbH – a small craft company, focuses on materials,
 	//       wages, and customer invoices.
-	org1 := &model.Organization{DisplayName: "Verein Musterstadt e.V."}
-	org2 := &model.Organization{DisplayName: "Handwerk Süd GmbH"}
+	// org1 uses a calendar-year fiscal year (January start).
+	// org2 uses a July-start fiscal year (FY2025 = July 2025 – June 2026).
+	org1 := &model.Organization{DisplayName: "Verein Musterstadt e.V.", StartMonth: time.January}
+	org2 := &model.Organization{DisplayName: "Handwerk Süd GmbH", StartMonth: time.July}
 	if err := cr(db, org1); err != nil {
 		return err
 	}
@@ -163,23 +177,25 @@ func seed(db *gorm.DB, enforcer *authz.Enforcer) error {
 	}
 
 	// ── Budgets ──────────────────────────────────────────────────────────────
-	// org1: two yearly budgets, the 2024 one is closed
+	// org1: two yearly budgets (calendar-year fiscal year, January start).
+	// The 2024 one is closed.
 	bud1 := &model.Budget{
 		OrganizationID: org1.ID, DisplayName: "Vereinshaushalt 2024",
-		PeriodStart: date(2024, 1, 1), PeriodEnd: date(2024, 12, 31), IsClosed: true,
+		PeriodStart: fiscalYearStart(2024, time.January), PeriodEnd: fiscalYearEnd(2024, time.January), IsClosed: true,
 	}
 	bud2 := &model.Budget{
 		OrganizationID: org1.ID, DisplayName: "Vereinshaushalt 2025",
-		PeriodStart: date(2025, 1, 1), PeriodEnd: date(2025, 12, 31),
+		PeriodStart: fiscalYearStart(2025, time.January), PeriodEnd: fiscalYearEnd(2025, time.January),
 	}
-	// org2: quarterly budgets
+	// org2: quarterly budgets within fiscal year 2025 (July 2025 – June 2026).
+	// Q1 = Jul–Sep 2025, Q2 = Oct–Dec 2025.
 	bud3 := &model.Budget{
-		OrganizationID: org2.ID, DisplayName: "Betriebsplan Q1 2025",
-		PeriodStart: date(2025, 1, 1), PeriodEnd: date(2025, 3, 31),
+		OrganizationID: org2.ID, DisplayName: "Betriebsplan Q1 FY2025",
+		PeriodStart: date(2025, 7, 1), PeriodEnd: date(2025, 9, 30),
 	}
 	bud4 := &model.Budget{
-		OrganizationID: org2.ID, DisplayName: "Betriebsplan Q2 2025",
-		PeriodStart: date(2025, 4, 1), PeriodEnd: date(2025, 6, 30),
+		OrganizationID: org2.ID, DisplayName: "Betriebsplan Q2 FY2025",
+		PeriodStart: date(2025, 10, 1), PeriodEnd: date(2025, 12, 31),
 	}
 	for _, v := range []any{bud1, bud2, bud3, bud4} {
 		if err := cr(db, v); err != nil {
@@ -225,11 +241,11 @@ func seed(db *gorm.DB, enforcer *authz.Enforcer) error {
 	}
 	rev3 := &model.BudgetRevision{
 		OrganizationID: org2.ID, BudgetID: bud3.ID,
-		DisplayName: "Q1 Abschluss", Date: date(2025, 3, 31),
+		DisplayName: "Q1 Abschluss", Date: date(2025, 9, 30),
 	}
 	rev4 := &model.BudgetRevision{
 		OrganizationID: org2.ID, BudgetID: bud4.ID,
-		DisplayName: "Q2 Vorschau", Date: date(2025, 4, 15),
+		DisplayName: "Q2 Vorschau", Date: date(2025, 10, 15),
 	}
 	for _, v := range []any{rev1, rev2, rev3, rev4} {
 		if err := cr(db, v); err != nil {
@@ -256,9 +272,13 @@ func seed(db *gorm.DB, enforcer *authz.Enforcer) error {
 	}
 
 	// ── Ledger Years ────────────────────────────────────────────────
+	// org1: calendar-year fiscal years (January start).
+	// org2: July-start fiscal years. FY2024 = Jul 2024 – Jun 2025 (closed),
+	//       FY2025 = Jul 2025 – Jun 2026 (open).
 	for _, v := range []any{
-		&model.LedgerYear{OrganizationID: org1.ID, Year: 2024},
+		&model.LedgerYear{OrganizationID: org1.ID, Year: 2024, IsClosed: true},
 		&model.LedgerYear{OrganizationID: org1.ID, Year: 2025},
+		&model.LedgerYear{OrganizationID: org2.ID, Year: 2024, IsClosed: true},
 		&model.LedgerYear{OrganizationID: org2.ID, Year: 2025},
 	} {
 		if err := cr(db, v); err != nil {
@@ -285,7 +305,7 @@ func seed(db *gorm.DB, enforcer *authz.Enforcer) error {
 	}
 
 	// ── Transactions ─────────────────────────────────────────────────────────
-	// org1 transactions (association)
+	// org1 transactions (association) – fiscal year 2024 (Jan–Dec 2024)
 	txOrg1 := []*model.Transaction_{
 		{
 			OrganizationID: org1.ID, CreditLedgerAccountID: ta2.ID, DebitLedgerAccountID: ta3.ID,
@@ -312,38 +332,65 @@ func seed(db *gorm.DB, enforcer *authz.Enforcer) error {
 			Amount: dec("300.00"), Description: "Barabhebung für Veranstaltung", Reference: "BAR-2024-01",
 			BookedAt: date(2024, 3, 10), DocumentDate: date(2024, 3, 10),
 		},
+		// org1 transactions – fiscal year 2025 (Jan–Dec 2025)
+		{
+			OrganizationID: org1.ID, CreditLedgerAccountID: ta2.ID, DebitLedgerAccountID: ta3.ID,
+			Amount: dec("240.00"), Description: "Mitgliedsbeiträge Januar 2025", Reference: "MB-2025-01",
+			BookedAt: date(2025, 1, 5), DocumentDate: date(2025, 1, 5),
+		},
+		{
+			OrganizationID: org1.ID, CreditLedgerAccountID: ta2.ID, DebitLedgerAccountID: ta4.ID,
+			Amount: dec("2100.00"), Description: "Einnahmen Neujahrsfeier 2025", Reference: "VE-2025-01",
+			BookedAt: date(2025, 1, 20), DocumentDate: date(2025, 1, 19),
+		},
+		{
+			OrganizationID: org1.ID, CreditLedgerAccountID: ta5.ID, DebitLedgerAccountID: ta2.ID,
+			Amount: dec("600.00"), Description: "Miete Februar 2025", Reference: "MIETE-2025-02",
+			BookedAt: date(2025, 2, 1), DocumentDate: date(2025, 2, 1),
+		},
+		{
+			OrganizationID: org1.ID, CreditLedgerAccountID: ta2.ID, DebitLedgerAccountID: ta3.ID,
+			Amount: dec("240.00"), Description: "Mitgliedsbeiträge Februar 2025", Reference: "MB-2025-02",
+			BookedAt: date(2025, 2, 5), DocumentDate: date(2025, 2, 5),
+		},
+		{
+			OrganizationID: org1.ID, CreditLedgerAccountID: ta1.ID, DebitLedgerAccountID: ta2.ID,
+			Amount: dec("350.00"), Description: "Barabhebung für Veranstaltung 2025", Reference: "BAR-2025-01",
+			BookedAt: date(2025, 3, 10), DocumentDate: date(2025, 3, 10),
+		},
 	}
-	// org2 transactions (craft company)
+	// org2 transactions (craft company) – fiscal year 2025 (Jul 2025 – Jun 2026).
+	// All dates fall within Q1 FY2025 (Jul–Sep 2025).
 	txOrg2 := []*model.Transaction_{
 		{
 			OrganizationID: org2.ID, CreditLedgerAccountID: ta7.ID, DebitLedgerAccountID: ta6.ID,
 			Amount: dec("8500.00"), Description: "Rechnung Auftrag K-2025-01", Reference: "RE-2025-001",
-			BookedAt: date(2025, 1, 10), DocumentDate: date(2025, 1, 8),
+			BookedAt: date(2025, 7, 10), DocumentDate: date(2025, 7, 8),
 		},
 		{
 			OrganizationID: org2.ID, CreditLedgerAccountID: ta8.ID, DebitLedgerAccountID: ta6.ID,
 			Amount: dec("3200.00"), Description: "Materialeinkauf Stahl", Reference: "EK-2025-001",
-			BookedAt: date(2025, 1, 14), DocumentDate: date(2025, 1, 12),
+			BookedAt: date(2025, 7, 14), DocumentDate: date(2025, 7, 12),
 		},
 		{
 			OrganizationID: org2.ID, CreditLedgerAccountID: ta9.ID, DebitLedgerAccountID: ta6.ID,
-			Amount: dec("11000.00"), Description: "Lohnzahlung Januar", Reference: "LOHN-2025-01",
-			BookedAt: date(2025, 1, 28), DocumentDate: date(2025, 1, 28),
+			Amount: dec("11000.00"), Description: "Lohnzahlung Juli", Reference: "LOHN-2025-07",
+			BookedAt: date(2025, 7, 28), DocumentDate: date(2025, 7, 28),
 		},
 		{
 			OrganizationID: org2.ID, CreditLedgerAccountID: ta7.ID, DebitLedgerAccountID: ta6.ID,
 			Amount: dec("12400.00"), Description: "Rechnung Auftrag K-2025-02", Reference: "RE-2025-002",
-			BookedAt: date(2025, 2, 7), DocumentDate: date(2025, 2, 5),
+			BookedAt: date(2025, 8, 7), DocumentDate: date(2025, 8, 5),
 		},
 		{
 			OrganizationID: org2.ID, CreditLedgerAccountID: ta8.ID, DebitLedgerAccountID: ta6.ID,
 			Amount: dec("4750.00"), Description: "Materialeinkauf Holz und Schrauben", Reference: "EK-2025-002",
-			BookedAt: date(2025, 2, 11), DocumentDate: date(2025, 2, 10),
+			BookedAt: date(2025, 8, 11), DocumentDate: date(2025, 8, 10),
 		},
 		{
 			OrganizationID: org2.ID, CreditLedgerAccountID: ta9.ID, DebitLedgerAccountID: ta6.ID,
-			Amount: dec("11000.00"), Description: "Lohnzahlung Februar", Reference: "LOHN-2025-02",
-			BookedAt: date(2025, 2, 27), DocumentDate: date(2025, 2, 27),
+			Amount: dec("11000.00"), Description: "Lohnzahlung August", Reference: "LOHN-2025-08",
+			BookedAt: date(2025, 8, 27), DocumentDate: date(2025, 8, 27),
 		},
 	}
 	for _, v := range txOrg1 {
@@ -358,13 +405,19 @@ func seed(db *gorm.DB, enforcer *authz.Enforcer) error {
 	}
 
 	// ── Transaction Account Assignments ──────────────────────────────────────
-	// org1
+	// org1 – fiscal year 2024 transactions
 	for _, pair := range [][2]any{
 		{txOrg1[0].ID, acc3.ID}, // Mitgliedsbeiträge → acc3
 		{txOrg1[1].ID, acc4.ID}, // Veranstaltungserlöse → acc4
 		{txOrg1[2].ID, acc5.ID}, // Raummiete → acc5
 		{txOrg1[3].ID, acc3.ID},
 		{txOrg1[4].ID, acc1a.ID}, // Barabhebung → Handkasse (acc1a, leaf of acc1)
+		// org1 – fiscal year 2025 transactions
+		{txOrg1[5].ID, acc3.ID},
+		{txOrg1[6].ID, acc4.ID},
+		{txOrg1[7].ID, acc5.ID},
+		{txOrg1[8].ID, acc3.ID},
+		{txOrg1[9].ID, acc1a.ID},
 	} {
 		txID := pair[0].(uuid.UUID)
 		acctID := pair[1].(uuid.UUID)
@@ -422,8 +475,8 @@ func seed(db *gorm.DB, enforcer *authz.Enforcer) error {
 	for _, v := range []any{
 		&model.Report{OrganizationID: org1.ID, DisplayName: "Januar 2024", Data: []byte("Monatsbericht Januar 2024 – Verein Musterstadt")},
 		&model.Report{OrganizationID: org1.ID, DisplayName: "Jahresabschluss 2024", Data: []byte("Jahresabschluss 2024 – Verein Musterstadt")},
-		&model.Report{OrganizationID: org2.ID, DisplayName: "Q1 2025", Data: []byte("Quartalsbericht Q1 2025 – Handwerk Süd GmbH")},
-		&model.Report{OrganizationID: org2.ID, DisplayName: "Auftragsübersicht Februar 2025", Data: []byte("Offene und abgeschlossene Aufträge Februar 2025")},
+		&model.Report{OrganizationID: org2.ID, DisplayName: "Q1 FY2025", Data: []byte("Quartalsbericht Q1 FY2025 – Handwerk Süd GmbH")},
+		&model.Report{OrganizationID: org2.ID, DisplayName: "Auftragsübersicht August 2025", Data: []byte("Offene und abgeschlossene Aufträge August 2025")},
 	} {
 		if err := cr(db, v); err != nil {
 			return err

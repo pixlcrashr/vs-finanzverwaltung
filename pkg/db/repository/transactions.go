@@ -219,6 +219,140 @@ func (r *TransactionRepository) GetByID(ctx context.Context, id uuid.UUID) (*mod
 	return m, nil
 }
 
+// GetByCustomID returns the transaction with the given custom ID within an organization.
+func (r *TransactionRepository) GetByCustomID(ctx context.Context, orgID uuid.UUID, customID string) (*model.Transaction_, error) {
+	m, err := r.q.Transaction_.WithContext(ctx).Where(
+		r.q.Transaction_.OrganizationID.Eq(orgID),
+		r.q.Transaction_.CustomID.Eq(customID),
+	).First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Join(ErrTransactionNotFound, fmt.Errorf("organization_id=%s custom_id=%s: %w", orgID, customID, err))
+		}
+		return nil, fmt.Errorf("get transaction organization_id=%s custom_id=%s: %w", orgID, customID, err)
+	}
+	return m, nil
+}
+
+// TransactionResourceNameLookup identifies a transaction by its organization
+// custom ID and transaction custom ID — the two segments of a Transaction
+// resource name.
+type TransactionResourceNameLookup struct {
+	OrganizationCustomID string
+	TransactionCustomID  string
+}
+
+// BatchGetByResourceName resolves a list of transaction resource name lookups
+// to their model entities in a minimal number of queries. The returned slice
+// is 1:1 with the input: each element is either the matching *model.Transaction_
+// or nil if no transaction exists for that lookup. Duplicate lookups are
+// handled correctly (each position gets its own pointer).
+//
+// The underlying query uses a single SELECT with chained OR tuples built via
+// the generated DAO:
+//
+//	WHERE (organization_id = ? AND custom_id = ?)
+//	   OR (organization_id = ? AND custom_id = ?)
+//	   OR ...
+func (r *TransactionRepository) BatchGetByResourceName(ctx context.Context, lookups []TransactionResourceNameLookup) ([]*model.Transaction_, error) {
+	results := make([]*model.Transaction_, len(lookups))
+	if len(lookups) == 0 {
+		return results, nil
+	}
+
+	// Collect unique (orgCustomID, txCustomID) pairs to query once.
+	type key struct {
+		orgCustomID string
+		customID    string
+	}
+	uniqueKeys := make([]key, 0, len(lookups))
+	seen := make(map[key]struct{}, len(lookups))
+	for _, l := range lookups {
+		k := key{l.OrganizationCustomID, l.TransactionCustomID}
+		if _, ok := seen[k]; !ok {
+			seen[k] = struct{}{}
+			uniqueKeys = append(uniqueKeys, k)
+		}
+	}
+
+	// Resolve unique organization custom IDs to UUIDs in a single query.
+	orgCustomIDs := make([]string, 0, len(uniqueKeys))
+	orgSeen := make(map[string]struct{})
+	for _, k := range uniqueKeys {
+		if _, ok := orgSeen[k.orgCustomID]; !ok {
+			orgSeen[k.orgCustomID] = struct{}{}
+			orgCustomIDs = append(orgCustomIDs, k.orgCustomID)
+		}
+	}
+
+	orgs, err := r.q.Organization.WithContext(ctx).Where(r.q.Organization.CustomID.In(orgCustomIDs...)).Find()
+	if err != nil {
+		return nil, fmt.Errorf("batch get transactions: list organizations: %w", err)
+	}
+	orgUUIDByCustomID := make(map[string]uuid.UUID, len(orgs))
+	for _, o := range orgs {
+		orgUUIDByCustomID[o.CustomID] = o.ID
+	}
+
+	// Build OR-chained WHERE clause using the DAO field expressions.
+	var conds []field.Expr
+	for _, k := range uniqueKeys {
+		orgUUID, ok := orgUUIDByCustomID[k.orgCustomID]
+		if !ok {
+			continue
+		}
+		conds = append(conds, field.And(
+			r.q.Transaction_.OrganizationID.Eq(orgUUID),
+			r.q.Transaction_.CustomID.Eq(k.customID),
+		))
+	}
+
+	if len(conds) == 0 {
+		// No valid organization custom IDs — all lookups resolve to nil.
+		return results, nil
+	}
+
+	txns, err := r.q.Transaction_.WithContext(ctx).Where(field.Or(conds...)).Find()
+	if err != nil {
+		return nil, fmt.Errorf("batch get transactions: %w", err)
+	}
+
+	// Build lookup map from (orgCustomID, txCustomID) -> *model.Transaction_.
+	orgCustomIDByUUID := make(map[uuid.UUID]string, len(orgUUIDByCustomID))
+	for customID, uid := range orgUUIDByCustomID {
+		orgCustomIDByUUID[uid] = customID
+	}
+	txnByKey := make(map[key]*model.Transaction_, len(txns))
+	for _, t := range txns {
+		orgCustomID := orgCustomIDByUUID[t.OrganizationID]
+		k := key{orgCustomID: orgCustomID, customID: t.CustomID}
+		txnByKey[k] = t
+	}
+
+	// Fill results 1:1 with input.
+	for i, l := range lookups {
+		k := key{l.OrganizationCustomID, l.TransactionCustomID}
+		if t, ok := txnByKey[k]; ok {
+			results[i] = t
+		}
+	}
+
+	return results, nil
+}
+
+// ListByIDs returns transactions matching the given IDs. If no IDs are given,
+// returns an empty slice.
+func (r *TransactionRepository) ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*model.Transaction_, error) {
+	if len(ids) == 0 {
+		return []*model.Transaction_{}, nil
+	}
+	var ms []*model.Transaction_
+	if err := r.db.WithContext(ctx).Where("id IN ?", ids).Find(&ms).Error; err != nil {
+		return nil, fmt.Errorf("list transactions by ids: %w", err)
+	}
+	return ms, nil
+}
+
 // CreateTransactionParams holds the fields required to create a transaction.
 type CreateTransactionParams struct {
 	OrganizationID        uuid.UUID

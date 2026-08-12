@@ -155,6 +155,111 @@ func (r *AccountRepository) GetByCustomID(ctx context.Context, orgID uuid.UUID, 
 	return m, nil
 }
 
+// AccountResourceNameLookup identifies an account by its organization custom ID
+// and account custom ID — the two segments of an Account resource name.
+type AccountResourceNameLookup struct {
+	OrganizationCustomID string
+	AccountCustomID      string
+}
+
+// BatchGetByResourceName resolves a list of account resource name lookups to
+// their model entities in a minimal number of queries. The returned slice is
+// 1:1 with the input: each element is either the matching *model.Account or
+// nil if no account exists for that lookup. Duplicate lookups are handled
+// correctly (each position gets its own pointer).
+//
+// The underlying query uses a single SELECT with chained OR tuples built via
+// the generated DAO:
+//
+//	WHERE (organization_id = ? AND custom_id = ?)
+//	   OR (organization_id = ? AND custom_id = ?)
+//	   OR ...
+func (r *AccountRepository) BatchGetByResourceName(ctx context.Context, lookups []AccountResourceNameLookup) ([]*model.Account, error) {
+	results := make([]*model.Account, len(lookups))
+	if len(lookups) == 0 {
+		return results, nil
+	}
+
+	// Collect unique (orgCustomID, accountCustomID) pairs to query once.
+	type key struct {
+		orgCustomID string
+		customID    string
+	}
+	uniqueKeys := make([]key, 0, len(lookups))
+	seen := make(map[key]struct{}, len(lookups))
+	for _, l := range lookups {
+		k := key{l.OrganizationCustomID, l.AccountCustomID}
+		if _, ok := seen[k]; !ok {
+			seen[k] = struct{}{}
+			uniqueKeys = append(uniqueKeys, k)
+		}
+	}
+
+	// Resolve unique organization custom IDs to UUIDs in a single query.
+	orgCustomIDs := make([]string, 0, len(uniqueKeys))
+	orgSeen := make(map[string]struct{})
+	for _, k := range uniqueKeys {
+		if _, ok := orgSeen[k.orgCustomID]; !ok {
+			orgSeen[k.orgCustomID] = struct{}{}
+			orgCustomIDs = append(orgCustomIDs, k.orgCustomID)
+		}
+	}
+
+	orgs, err := r.q.Organization.WithContext(ctx).Where(r.q.Organization.CustomID.In(orgCustomIDs...)).Find()
+	if err != nil {
+		return nil, fmt.Errorf("batch get accounts: list organizations: %w", err)
+	}
+	orgUUIDByCustomID := make(map[string]uuid.UUID, len(orgs))
+	for _, o := range orgs {
+		orgUUIDByCustomID[o.CustomID] = o.ID
+	}
+
+	// Build OR-chained WHERE clause using the DAO field expressions.
+	var conds []field.Expr
+	for _, k := range uniqueKeys {
+		orgUUID, ok := orgUUIDByCustomID[k.orgCustomID]
+		if !ok {
+			continue
+		}
+		conds = append(conds, field.And(
+			r.q.Account.OrganizationID.Eq(orgUUID),
+			r.q.Account.CustomID.Eq(k.customID),
+		))
+	}
+
+	if len(conds) == 0 {
+		// No valid organization custom IDs — all lookups resolve to nil.
+		return results, nil
+	}
+
+	accounts, err := r.q.Account.WithContext(ctx).Where(field.Or(conds...)).Find()
+	if err != nil {
+		return nil, fmt.Errorf("batch get accounts: %w", err)
+	}
+
+	// Build lookup map from (orgCustomID, customID) -> *model.Account.
+	orgCustomIDByUUID := make(map[uuid.UUID]string, len(orgUUIDByCustomID))
+	for customID, uid := range orgUUIDByCustomID {
+		orgCustomIDByUUID[uid] = customID
+	}
+	accountByKey := make(map[key]*model.Account, len(accounts))
+	for _, a := range accounts {
+		orgCustomID := orgCustomIDByUUID[a.OrganizationID]
+		k := key{orgCustomID: orgCustomID, customID: a.CustomID}
+		accountByKey[k] = a
+	}
+
+	// Fill results 1:1 with input.
+	for i, l := range lookups {
+		k := key{l.OrganizationCustomID, l.AccountCustomID}
+		if a, ok := accountByKey[k]; ok {
+			results[i] = a
+		}
+	}
+
+	return results, nil
+}
+
 // CreateAccountParams holds the fields required to create an account.
 type CreateAccountParams struct {
 	OrganizationID     uuid.UUID

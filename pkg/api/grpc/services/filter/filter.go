@@ -126,6 +126,7 @@ var (
 	)
 	transactionAssignmentDecls = mustDecls(
 		filtering.DeclareIdent("account", filtering.TypeString),
+		filtering.DeclareIdent("transaction", filtering.TypeString),
 	)
 	reportTemplateDecls = mustDecls(
 		filtering.DeclareIdent("display_name", filtering.TypeString),
@@ -216,10 +217,23 @@ func buildCallCond(call *expr.Expr_Call, depth int) (cond.Cond, error) {
 	}
 }
 
-// buildAndCond builds an AND condition.
+// buildAndCond builds an AND condition. Nested AND chains (produced by CEL's
+// left-associative parsing of a AND b AND c ...) are flattened without
+// incrementing depth, so a long conjunction does not exceed maxFilterDepth.
 func buildAndCond(args []*expr.Expr, depth int) (cond.Cond, error) {
 	var conds []cond.Cond
 	for _, arg := range args {
+		// Flatten nested AND calls without incrementing depth.
+		if call := arg.GetCallExpr(); call != nil && (call.GetFunction() == filtering.FunctionAnd || call.GetFunction() == filtering.FunctionFuzzyAnd) {
+			c, err := buildAndCond(call.GetArgs(), depth)
+			if err != nil {
+				return nil, err
+			}
+			if c != nil && !c.IsEmpty() {
+				conds = append(conds, c)
+			}
+			continue
+		}
 		c, err := buildCond(arg, depth)
 		if err != nil {
 			return nil, err
@@ -234,10 +248,23 @@ func buildAndCond(args []*expr.Expr, depth int) (cond.Cond, error) {
 	return cond.And(conds...), nil
 }
 
-// buildOrCond builds an OR condition.
+// buildOrCond builds an OR condition. Nested OR chains (produced by CEL's
+// left-associative parsing of a OR b OR c ...) are flattened without
+// incrementing depth, so a long disjunction does not exceed maxFilterDepth.
 func buildOrCond(args []*expr.Expr, depth int) (cond.Cond, error) {
 	var conds []cond.Cond
 	for _, arg := range args {
+		// Flatten nested OR calls without incrementing depth.
+		if call := arg.GetCallExpr(); call != nil && call.GetFunction() == filtering.FunctionOr {
+			c, err := buildOrCond(call.GetArgs(), depth)
+			if err != nil {
+				return nil, err
+			}
+			if c != nil && !c.IsEmpty() {
+				conds = append(conds, c)
+			}
+			continue
+		}
 		c, err := buildCond(arg, depth)
 		if err != nil {
 			return nil, err

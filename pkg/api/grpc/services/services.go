@@ -46,7 +46,7 @@ func New(db *gorm.DB, enforcer *authz.Enforcer) *Services {
 		LedgerYear:                 newLedgerYearServiceServer(repository.NewLedgerYearRepository(db), enforcer),
 		LedgerAccount:              newLedgerAccountServiceServer(repository.NewLedgerAccountRepository(db), enforcer),
 		Transaction:                newTransactionServiceServer(repository.NewTransactionRepository(db), repository.NewLedgerAccountRepository(db), enforcer),
-		TransactionAssignment:      newTransactionAssignmentServiceServer(repository.NewTransactionAssignmentRepository(db), repository.NewAccountRepository(db), repository.NewOrganizationRepository(db), enforcer),
+		TransactionAssignment:      newTransactionAssignmentServiceServer(repository.NewTransactionAssignmentRepository(db), repository.NewAccountRepository(db), repository.NewOrganizationRepository(db), repository.NewTransactionRepository(db), enforcer),
 		ReportTemplate:             newReportTemplateServiceServer(repository.NewReportTemplateRepository(db), enforcer),
 		Report:                     newReportServiceServer(repository.NewReportRepository(db), enforcer),
 		User:                       newUserServiceServer(repository.NewUserRepository(db), repository.NewUserGroupRepository(db, enforcer), enforcer),

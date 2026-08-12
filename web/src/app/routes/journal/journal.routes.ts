@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { JournalListDataService } from './journal-list/journal-list.data-service';
+import { JournalAssignmentEditorDataService } from './journal-list/journal-assignment-editor.data-service';
+import { LedgerYearListDataService } from '../ledger/ledger-years/ledger-year-list.data-service';
 import { JournalImportDataService } from './journal-import/journal-import.data-service';
 import { environment } from '../../../environments/environment';
 import { requireAllPermissions } from '../../../lib/authz/permission.guard';
@@ -15,7 +17,11 @@ export const JOURNAL_ROUTES: Routes = [
     },
     loadComponent: () =>
       import('./journal-list/journal-list.component').then((m) => m.JournalListComponent),
-    providers: [{ provide: JournalListDataService, useClass: environment.dataServices.journalList }],
+    providers: [
+      { provide: JournalListDataService, useClass: environment.dataServices.journalList },
+      { provide: JournalAssignmentEditorDataService, useClass: environment.dataServices.journalAssignmentEditor },
+      { provide: LedgerYearListDataService, useClass: environment.dataServices.ledgerYearList },
+    ],
   },
   {
     path: 'import',

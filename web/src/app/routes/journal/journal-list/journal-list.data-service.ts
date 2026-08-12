@@ -33,6 +33,15 @@ export interface JournalEntryFilters {
 }
 
 export abstract class JournalListDataService {
+  /**
+   * Lists transactions for an organization, each fully populated with its
+   * account assignments (see {@link JournalEntry.accountAssignments}) and
+   * derived {@link JournalEntry.assignmentStatus}.
+   *
+   * Implementations are responsible for bulk-loading the assignments for all
+   * returned transactions so that callers do not need to issue per-row
+   * requests.
+   */
   abstract listTransactions(
     organizationId: string,
     page: number,

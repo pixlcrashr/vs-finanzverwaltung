@@ -17,6 +17,7 @@ import { HttpReportListDataService } from '../lib/data/http/report-list.data-ser
 import { HttpReportViewDataService } from '../lib/data/http/report-view.data-service.http';
 import { HttpTransactionEditDataService } from '../lib/data/http/transaction-edit.data-service.http';
 import { HttpJournalListDataService } from '../lib/data/http/journal-list.data-service.http';
+import { HttpJournalAssignmentEditorDataService } from '../lib/data/http/journal-assignment-editor.data-service.http';
 import { HttpJournalImportDataService } from '../lib/data/http/journal-import.data-service.http';
 import { HttpDashboardDataService } from '../lib/data/http/dashboard.data-service.http';
 import { HttpMatrixDataService } from '../lib/data/http/matrix.data-service.http';
@@ -70,6 +71,7 @@ export const environment = {
     reportView: HttpReportViewDataService,
     transactionEdit: HttpTransactionEditDataService,
     journalList: HttpJournalListDataService,
+    journalAssignmentEditor: HttpJournalAssignmentEditorDataService,
     journalImport: HttpJournalImportDataService,
     dashboard: HttpDashboardDataService,
     matrix: HttpMatrixDataService,

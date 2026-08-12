@@ -16,6 +16,7 @@ import { MockReportListDataService } from '../lib/data/mock/report-list.data-ser
 import { MockReportViewDataService } from '../lib/data/mock/report-view.data-service.mock';
 import { MockTransactionEditDataService } from '../lib/data/mock/transaction-edit.data-service.mock';
 import { MockJournalListDataService } from '../lib/data/mock/journal-list.data-service.mock';
+import { MockJournalAssignmentEditorDataService } from '../lib/data/mock/journal-assignment-editor.data-service.mock';
 import { MockJournalImportDataService } from '../lib/data/mock/journal-import.data-service.mock';
 import { MockDashboardDataService } from '../lib/data/mock/dashboard.data-service.mock';
 import { MockMatrixDataService } from '../lib/data/mock/matrix.data-service.mock';
@@ -68,6 +69,7 @@ export const environment = {
     reportView: MockReportViewDataService,
     transactionEdit: MockTransactionEditDataService,
     journalList: MockJournalListDataService,
+    journalAssignmentEditor: MockJournalAssignmentEditorDataService,
     journalImport: MockJournalImportDataService,
     dashboard: MockDashboardDataService,
     matrix: MockMatrixDataService,

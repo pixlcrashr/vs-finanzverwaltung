@@ -67,49 +67,20 @@ message Account {
 // NestedAccount is a read-only view of an Account that includes its full
 // subtree of child accounts. It shares the same resource name as Account.
 message NestedAccount {
-  // The resource name of the account.
-  // Format: organizations/{organization}/accounts/{account}
-  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // The UUID of the account.
-  string uid = 2 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (google.api.field_info) = {format: UUID4}
-  ];
-
   // The resource name of the parent account, if any.
   // Format: organizations/{organization}/accounts/{account}
-  string parent_account = 3 [
+  string parent_account = 2 [
     (google.api.field_behavior) = OPTIONAL,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Account"}
   ];
 
-  // Human-readable account name.
-  string display_name = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // Short account code.
-  string display_code = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // Optional free-text description.
-  string display_description = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // Whether this account is a container account.
-  bool is_container = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // Whether the account is archived.
-  bool is_archived = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+  Account account = 1;
 
   // Child accounts in the subtree.
-  repeated NestedAccount children = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // Last modification timestamp.
-  google.protobuf.Timestamp update_time = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // Creation timestamp.
-  google.protobuf.Timestamp create_time = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+  repeated NestedAccount children = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Entity tag for optimistic concurrency control.
-  string etag = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string etag = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message GetAccountRequest {

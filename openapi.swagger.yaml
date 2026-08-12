@@ -8,24 +8,61 @@ info:
     email: info@pixlcrashr.dev
 tags:
   - name: AccountService
+    description: AccountService manages budget accounts in the chart of accounts.
   - name: AccountGroupService
+    description: AccountGroupService manages named groupings of budget accounts.
   - name: AccountGroupAssignmentService
+    description: AccountGroupAssignmentService manages account memberships within account groups.
   - name: BudgetService
+    description: BudgetService manages financial budgets.
   - name: BudgetAccountValueService
+    description: BudgetAccountValueService manages per-account value assignments within a budget.
   - name: BudgetActualAccountValueService
+    description: |-
+      BudgetActualAccountValueService provides read-only access to the computed
+      actual monetary values per budget account. Values are derived from the sum of
+      TransactionAccountAssignment values for transactions within the budget period.
+      All resources in this service are server-computed and immutable.
   - name: BudgetRevisionService
+    description: |-
+      BudgetRevisionService manages read-only revision history for budgets.
+      Revisions are created on demand and capture the full set of
+      BudgetAccountValues at the time of creation. Revisions are immutable.
   - name: BudgetRevisionAccountValueService
+    description: |-
+      BudgetRevisionAccountValueService provides read-only access to the
+      per-account values captured within a BudgetRevision. All resources in this
+      service are immutable and server-managed.
   - name: GroupService
+    description: GroupService manages groups and their per-organization permission policies.
   - name: LedgerAccountService
+    description: |-
+      LedgerAccountService manages ledger accounts for bookkeeping.
+      Accounts are auto-created during import; only Get, List, Update, Delete are exposed.
   - name: LedgerYearService
+    description: LedgerYearService manages fiscal/economic years within an organization.
   - name: OrganizationService
+    description: OrganizationService manages organizations.
   - name: ReportService
+    description: |-
+      ReportService manages generated report instances.
+      Note: report file download is handled exclusively by the Huma HTTP API.
   - name: ReportTemplateService
+    description: ReportTemplateService manages Handlebars templates used for report generation.
   - name: TransactionService
+    description: TransactionService manages financial transactions.
   - name: TransactionAssignmentService
+    description: TransactionAssignmentService manages transaction assignments to budget accounts.
   - name: UserService
+    description: |-
+      UserService provides a read-only administrative view of users.
+      Users are created exclusively through the SSO/OAuth2 flow.
   - name: UserIdentityService
+    description: |-
+      UserIdentityService provides a read-only view of the OAuth2 / SSO
+      connections linked to a user. No credentials are ever returned.
   - name: UserSettingsService
+    description: UserSettingsService manages per-user application preferences.
 host: test.pixlcrashr.dev
 basePath: /api
 schemes:
@@ -4845,57 +4882,19 @@ definitions:
   v1NestedAccount:
     type: object
     properties:
-      name:
-        type: string
-        title: |-
-          The resource name of the account.
-          Format: organizations/{organization}/accounts/{account}
-        readOnly: true
-      uid:
-        type: string
-        description: The UUID of the account.
-        readOnly: true
       parent_account:
         type: string
         title: |-
           The resource name of the parent account, if any.
           Format: organizations/{organization}/accounts/{account}
-      display_name:
-        type: string
-        description: Human-readable account name.
-        readOnly: true
-      display_code:
-        type: string
-        description: Short account code.
-        readOnly: true
-      display_description:
-        type: string
-        description: Optional free-text description.
-        readOnly: true
-      is_container:
-        type: boolean
-        description: Whether this account is a container account.
-        readOnly: true
-      is_archived:
-        type: boolean
-        description: Whether the account is archived.
-        readOnly: true
+      account:
+        $ref: '#/definitions/v1Account'
       children:
         type: array
         items:
           type: object
           $ref: '#/definitions/v1NestedAccount'
         description: Child accounts in the subtree.
-        readOnly: true
-      update_time:
-        type: string
-        format: date-time
-        description: Last modification timestamp.
-        readOnly: true
-      create_time:
-        type: string
-        format: date-time
-        description: Creation timestamp.
         readOnly: true
       etag:
         type: string

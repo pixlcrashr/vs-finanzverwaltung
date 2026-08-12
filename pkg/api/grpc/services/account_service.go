@@ -439,28 +439,58 @@ func (s *accountServiceServer) DeleteAccount(ctx context.Context, req *gen.Delet
 	return &emptypb.Empty{}, nil
 }
 
+type accountWithChildren struct {
+	account  *model.Account
+	children []*accountWithChildren
+}
+
 // buildNestedTree recursively assembles NestedAccount trees.
 // parentID selects which accounts to treat as roots (empty = top-level roots).
-func buildNestedTree(orgRN gen.OrganizationResourceName, all []*model.Account, parentID uuid.NullUUID) []*gen.NestedAccount {
-	var result []*gen.NestedAccount
+func buildNestedTree(orgRN gen.OrganizationResourceName, as []*model.Account, parentID uuid.NullUUID) []*gen.NestedAccount {
+	rAll := make([]*accountWithChildren, len(as))
+	asToACs := make(map[string]*accountWithChildren, 0)
+	rs := make([]*accountWithChildren, 0)
 
-	var parentM *model.Account
-	if parentID.Valid {
-		for _, a := range all {
-			if a.ID == parentID.UUID {
-				parentM = a
+	for i, a := range as {
+		a := &accountWithChildren{
+			account:  a,
+			children: nil,
+		}
+		rAll[i] = a
+		asToACs[a.account.ID.String()] = a
+
+		if !a.account.ParentAccountID.Valid {
+			rs = append(rs, a)
+		}
+	}
+
+	for len(as) > 0 {
+		a := as[0]
+		as = as[1:]
+
+		aC, ok := asToACs[a.ID.String()]
+		if !ok {
+			continue
+		}
+
+		if !a.ParentAccountID.Valid {
+			continue
+		}
+
+		var p *accountWithChildren
+		for _, r := range rAll {
+			if r.account.ID == a.ParentAccountID.UUID {
+				p = r
 				break
 			}
 		}
-	}
 
-	for _, m := range all {
-		if m.ParentAccountID == parentID {
-			n := NestedAccountToProto(orgRN, m, parentM)
-			n.Children = buildNestedTree(orgRN, all, uuid.NullUUID{Valid: true, UUID: m.ID})
-			result = append(result, n)
+		if p == nil {
+			continue
 		}
+
+		p.children = append(p.children, aC)
 	}
 
-	return result
+	return NestedAccountsToProto(orgRN, rs)
 }

@@ -71,18 +71,52 @@ func AccountToProto(orgRN gen.OrganizationResourceName, m *model.Account, pM *mo
 	return p
 }
 
+func NestedAccountsToProto(orgRN gen.OrganizationResourceName, s []*accountWithChildren) []*gen.NestedAccount {
+	out := make([]*gen.NestedAccount, 0, len(s))
+
+	type frame struct {
+		dest   *gen.NestedAccount
+		src    []*accountWithChildren
+		parent *model.Account
+		idx    int
+	}
+
+	stack := make([]frame, 0, len(s))
+
+	for i := 0; i < len(s); i++ {
+		root := NestedAccountToProto(orgRN, s[i].account, nil)
+		out = append(out, root)
+		if len(s[i].children) > 0 {
+			stack = append(stack, frame{dest: root, src: s[i].children, parent: s[i].account})
+		}
+	}
+
+	for len(stack) > 0 {
+		top := &stack[len(stack)-1]
+
+		if top.idx >= len(top.src) {
+			stack = stack[:len(stack)-1]
+			continue
+		}
+
+		child := top.src[top.idx]
+		top.idx++
+
+		childProto := NestedAccountToProto(orgRN, child.account, top.parent)
+		top.dest.Children = append(top.dest.Children, childProto)
+
+		if len(child.children) > 0 {
+			stack = append(stack, frame{dest: childProto, src: child.children, parent: child.account})
+		}
+	}
+
+	return out
+}
+
 // NestedAccountToProto maps model.Account to gen.NestedAccount (without children; caller fills them).
 func NestedAccountToProto(orgRN gen.OrganizationResourceName, m *model.Account, pM *model.Account) *gen.NestedAccount {
 	p := &gen.NestedAccount{
-		Name:               orgRN.AccountResourceName(m.CustomID).String(),
-		Uid:                m.ID.String(),
-		DisplayName:        m.DisplayName,
-		DisplayCode:        m.DisplayCode,
-		DisplayDescription: m.DisplayDescription,
-		IsContainer:        m.IsContainer,
-		IsArchived:         m.IsArchived,
-		UpdateTime:         ts(m.UpdatedAt),
-		CreateTime:         ts(m.CreatedAt),
+		Account: AccountToProto(orgRN, m, pM),
 	}
 	if m.ParentAccountID.Valid && pM != nil {
 		p.ParentAccount = orgRN.AccountResourceName(pM.CustomID).String()

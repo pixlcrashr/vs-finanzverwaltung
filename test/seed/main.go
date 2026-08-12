@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log"
 	"time"
 
@@ -64,27 +63,6 @@ func date(y int, m time.Month, d int) time.Time {
 func cr(db *gorm.DB, v any) error { return db.Create(v).Error }
 
 func seed(db *gorm.DB, enforcer *authz.Enforcer) error {
-	// ── Admin User ───────────────────────────────────────────────────────────
-	adminUser := &model.User{
-		Email: "admin@vsfv.local",
-		Name:  "Admin",
-	}
-	if err := cr(db, adminUser); err != nil {
-		return err
-	}
-
-	// Assign admin user to the admin group (g2: user → group)
-	var adminGroup model.UserGroup
-	if err := db.Where("custom_id = ?", authz.AdminGroupCustomID).First(&adminGroup).Error; err != nil {
-		return fmt.Errorf("find admin group: %w", err)
-	}
-	if _, err := enforcer.AddGlobalGroupingPolicy(adminUser.ID.String(), adminGroup.ID.String()); err != nil {
-		return fmt.Errorf("assign admin user to admin group: %w", err)
-	}
-	if err := enforcer.Flush(); err != nil {
-		return fmt.Errorf("flush enforcer after user assignment: %w", err)
-	}
-
 	// ── Organizations ────────────────────────────────────────────────────────
 	// org1: Verein Musterstadt – a registered association (Verein), focuses on
 	//       membership fees, event income, and operating expenses.
@@ -118,7 +96,7 @@ func seed(db *gorm.DB, enforcer *authz.Enforcer) error {
 
 	// ── Accounts ─────────────────────────────────────────────────────────────
 	// org1 accounts
-	acc1 := &model.Account{OrganizationID: org1.ID, DisplayName: "Kasse", DisplayCode: "1000", DisplayDescription: "Barkasse des Vereins"}
+	acc1 := &model.Account{OrganizationID: org1.ID, DisplayName: "Kasse", DisplayCode: "1000", DisplayDescription: "Barkasse des Vereins", IsContainer: true}
 	acc2 := &model.Account{OrganizationID: org1.ID, DisplayName: "Girokonto", DisplayCode: "1200", DisplayDescription: "Hauptbankkonto"}
 	acc3 := &model.Account{OrganizationID: org1.ID, DisplayName: "Mitgliedsbeiträge", DisplayCode: "4000", DisplayDescription: "Jährliche Mitgliedsbeiträge"}
 	acc4 := &model.Account{OrganizationID: org1.ID, DisplayName: "Veranstaltungserlöse", DisplayCode: "4100", DisplayDescription: "Einnahmen aus Vereinsveranstaltungen"}
@@ -126,7 +104,7 @@ func seed(db *gorm.DB, enforcer *authz.Enforcer) error {
 	acc6 := &model.Account{OrganizationID: org1.ID, DisplayName: "Bürobedarf", DisplayCode: "6100", DisplayDescription: "Büromaterial und Druckkosten"}
 	// org2 accounts
 	acc7 := &model.Account{OrganizationID: org2.ID, DisplayName: "Geschäftskonto", DisplayCode: "1210", DisplayDescription: "Hauptgeschäftskonto"}
-	acc8 := &model.Account{OrganizationID: org2.ID, DisplayName: "Maschinen", DisplayCode: "0200", DisplayDescription: "Produktionsmaschinen"}
+	acc8 := &model.Account{OrganizationID: org2.ID, DisplayName: "Maschinen", DisplayCode: "0200", DisplayDescription: "Produktionsmaschinen", IsContainer: true}
 	acc9 := &model.Account{OrganizationID: org2.ID, DisplayName: "Fahrzeuge", DisplayCode: "0300", DisplayDescription: "Firmenfahrzeuge"}
 	acc10 := &model.Account{OrganizationID: org2.ID, DisplayName: "Erlöse Aufträge", DisplayCode: "8000", DisplayDescription: "Erlöse aus Handwerkeraufträgen"}
 	acc11 := &model.Account{OrganizationID: org2.ID, DisplayName: "Materialaufwand", DisplayCode: "5000", DisplayDescription: "Verbrauchtes Rohmaterial"}
@@ -212,12 +190,12 @@ func seed(db *gorm.DB, enforcer *authz.Enforcer) error {
 	// ── Budget Account Values ────────────────────────────────────────────────
 	for _, v := range []any{
 		// org1 – bud1 (2024, closed)
-		&model.BudgetAccountValue{OrganizationID: org1.ID, BudgetID: bud1.ID, AccountID: acc1.ID, Value: dec("2000")},
+		&model.BudgetAccountValue{OrganizationID: org1.ID, BudgetID: bud1.ID, AccountID: acc1a.ID, Value: dec("2000")},
 		&model.BudgetAccountValue{OrganizationID: org1.ID, BudgetID: bud1.ID, AccountID: acc2.ID, Value: dec("8000")},
 		&model.BudgetAccountValue{OrganizationID: org1.ID, BudgetID: bud1.ID, AccountID: acc3.ID, Value: dec("12000")},
 		&model.BudgetAccountValue{OrganizationID: org1.ID, BudgetID: bud1.ID, AccountID: acc5.ID, Value: dec("3600")},
 		// org1 – bud2 (2025)
-		&model.BudgetAccountValue{OrganizationID: org1.ID, BudgetID: bud2.ID, AccountID: acc1.ID, Value: dec("2500")},
+		&model.BudgetAccountValue{OrganizationID: org1.ID, BudgetID: bud2.ID, AccountID: acc1a.ID, Value: dec("2500")},
 		&model.BudgetAccountValue{OrganizationID: org1.ID, BudgetID: bud2.ID, AccountID: acc2.ID, Value: dec("10000")},
 		&model.BudgetAccountValue{OrganizationID: org1.ID, BudgetID: bud2.ID, AccountID: acc3.ID, Value: dec("13500")},
 		&model.BudgetAccountValue{OrganizationID: org1.ID, BudgetID: bud2.ID, AccountID: acc4.ID, Value: dec("5000")},
@@ -261,10 +239,10 @@ func seed(db *gorm.DB, enforcer *authz.Enforcer) error {
 
 	// ── Budget Revision Account Values ───────────────────────────────────────
 	for _, v := range []any{
-		&model.BudgetRevisionAccountValue{OrganizationID: org1.ID, BudgetID: bud1.ID, BudgetRevisionID: rev1.ID, AccountID: acc1.ID, Value: dec("1850")},
+		&model.BudgetRevisionAccountValue{OrganizationID: org1.ID, BudgetID: bud1.ID, BudgetRevisionID: rev1.ID, AccountID: acc1a.ID, Value: dec("1850")},
 		&model.BudgetRevisionAccountValue{OrganizationID: org1.ID, BudgetID: bud1.ID, BudgetRevisionID: rev1.ID, AccountID: acc2.ID, Value: dec("7600")},
 		&model.BudgetRevisionAccountValue{OrganizationID: org1.ID, BudgetID: bud1.ID, BudgetRevisionID: rev1.ID, AccountID: acc3.ID, Value: dec("11800")},
-		&model.BudgetRevisionAccountValue{OrganizationID: org1.ID, BudgetID: bud2.ID, BudgetRevisionID: rev2.ID, AccountID: acc1.ID, Value: dec("2500")},
+		&model.BudgetRevisionAccountValue{OrganizationID: org1.ID, BudgetID: bud2.ID, BudgetRevisionID: rev2.ID, AccountID: acc1a.ID, Value: dec("2500")},
 		&model.BudgetRevisionAccountValue{OrganizationID: org1.ID, BudgetID: bud2.ID, BudgetRevisionID: rev2.ID, AccountID: acc3.ID, Value: dec("7200")},
 		&model.BudgetRevisionAccountValue{OrganizationID: org2.ID, BudgetID: bud3.ID, BudgetRevisionID: rev3.ID, AccountID: acc10.ID, Value: dec("43500")},
 		&model.BudgetRevisionAccountValue{OrganizationID: org2.ID, BudgetID: bud3.ID, BudgetRevisionID: rev3.ID, AccountID: acc11.ID, Value: dec("17200")},
@@ -386,7 +364,7 @@ func seed(db *gorm.DB, enforcer *authz.Enforcer) error {
 		{txOrg1[1].ID, acc4.ID}, // Veranstaltungserlöse → acc4
 		{txOrg1[2].ID, acc5.ID}, // Raummiete → acc5
 		{txOrg1[3].ID, acc3.ID},
-		{txOrg1[4].ID, acc1.ID},
+		{txOrg1[4].ID, acc1a.ID}, // Barabhebung → Handkasse (acc1a, leaf of acc1)
 	} {
 		txID := pair[0].(uuid.UUID)
 		acctID := pair[1].(uuid.UUID)

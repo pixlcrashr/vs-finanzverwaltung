@@ -1513,21 +1513,6 @@ Example: &#34;is_archived=true&#34;. </p></td>
             <tbody>
               
                 <tr>
-                  <td>name</td>
-                  <td><a href="#string">string</a></td>
-                  <td></td>
-                  <td><p>The resource name of the account.
-Format: organizations/{organization}/accounts/{account} </p></td>
-                </tr>
-              
-                <tr>
-                  <td>uid</td>
-                  <td><a href="#string">string</a></td>
-                  <td></td>
-                  <td><p>The UUID of the account. </p></td>
-                </tr>
-              
-                <tr>
                   <td>parent_account</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
@@ -1536,38 +1521,10 @@ Format: organizations/{organization}/accounts/{account} </p></td>
                 </tr>
               
                 <tr>
-                  <td>display_name</td>
-                  <td><a href="#string">string</a></td>
+                  <td>account</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.Account">Account</a></td>
                   <td></td>
-                  <td><p>Human-readable account name. </p></td>
-                </tr>
-              
-                <tr>
-                  <td>display_code</td>
-                  <td><a href="#string">string</a></td>
-                  <td></td>
-                  <td><p>Short account code. </p></td>
-                </tr>
-              
-                <tr>
-                  <td>display_description</td>
-                  <td><a href="#string">string</a></td>
-                  <td></td>
-                  <td><p>Optional free-text description. </p></td>
-                </tr>
-              
-                <tr>
-                  <td>is_container</td>
-                  <td><a href="#bool">bool</a></td>
-                  <td></td>
-                  <td><p>Whether this account is a container account. </p></td>
-                </tr>
-              
-                <tr>
-                  <td>is_archived</td>
-                  <td><a href="#bool">bool</a></td>
-                  <td></td>
-                  <td><p>Whether the account is archived. </p></td>
+                  <td><p> </p></td>
                 </tr>
               
                 <tr>
@@ -1575,20 +1532,6 @@ Format: organizations/{organization}/accounts/{account} </p></td>
                   <td><a href="#pixlcrashr.vsfv.v1.NestedAccount">NestedAccount</a></td>
                   <td>repeated</td>
                   <td><p>Child accounts in the subtree. </p></td>
-                </tr>
-              
-                <tr>
-                  <td>update_time</td>
-                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
-                  <td></td>
-                  <td><p>Last modification timestamp. </p></td>
-                </tr>
-              
-                <tr>
-                  <td>create_time</td>
-                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
-                  <td></td>
-                  <td><p>Creation timestamp. </p></td>
                 </tr>
               
                 <tr>

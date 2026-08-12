@@ -168,32 +168,14 @@ func (x *Account) GetEtag() string {
 // subtree of child accounts. It shares the same resource name as Account.
 type NestedAccount struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The resource name of the account.
-	// Format: organizations/{organization}/accounts/{account}
-	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// The UUID of the account.
-	Uid string `protobuf:"bytes,2,opt,name=uid,proto3" json:"uid,omitempty"`
 	// The resource name of the parent account, if any.
 	// Format: organizations/{organization}/accounts/{account}
-	ParentAccount string `protobuf:"bytes,3,opt,name=parent_account,json=parentAccount,proto3" json:"parent_account,omitempty"`
-	// Human-readable account name.
-	DisplayName string `protobuf:"bytes,4,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
-	// Short account code.
-	DisplayCode string `protobuf:"bytes,5,opt,name=display_code,json=displayCode,proto3" json:"display_code,omitempty"`
-	// Optional free-text description.
-	DisplayDescription string `protobuf:"bytes,6,opt,name=display_description,json=displayDescription,proto3" json:"display_description,omitempty"`
-	// Whether this account is a container account.
-	IsContainer bool `protobuf:"varint,7,opt,name=is_container,json=isContainer,proto3" json:"is_container,omitempty"`
-	// Whether the account is archived.
-	IsArchived bool `protobuf:"varint,8,opt,name=is_archived,json=isArchived,proto3" json:"is_archived,omitempty"`
+	ParentAccount string   `protobuf:"bytes,2,opt,name=parent_account,json=parentAccount,proto3" json:"parent_account,omitempty"`
+	Account       *Account `protobuf:"bytes,1,opt,name=account,proto3" json:"account,omitempty"`
 	// Child accounts in the subtree.
-	Children []*NestedAccount `protobuf:"bytes,9,rep,name=children,proto3" json:"children,omitempty"`
-	// Last modification timestamp.
-	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
-	// Creation timestamp.
-	CreateTime *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	Children []*NestedAccount `protobuf:"bytes,3,rep,name=children,proto3" json:"children,omitempty"`
 	// Entity tag for optimistic concurrency control.
-	Etag          string `protobuf:"bytes,12,opt,name=etag,proto3" json:"etag,omitempty"`
+	Etag          string `protobuf:"bytes,4,opt,name=etag,proto3" json:"etag,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -228,20 +210,6 @@ func (*NestedAccount) Descriptor() ([]byte, []int) {
 	return file_pixlcrashr_vsfv_v1_account_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *NestedAccount) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *NestedAccount) GetUid() string {
-	if x != nil {
-		return x.Uid
-	}
-	return ""
-}
-
 func (x *NestedAccount) GetParentAccount() string {
 	if x != nil {
 		return x.ParentAccount
@@ -249,58 +217,16 @@ func (x *NestedAccount) GetParentAccount() string {
 	return ""
 }
 
-func (x *NestedAccount) GetDisplayName() string {
+func (x *NestedAccount) GetAccount() *Account {
 	if x != nil {
-		return x.DisplayName
+		return x.Account
 	}
-	return ""
-}
-
-func (x *NestedAccount) GetDisplayCode() string {
-	if x != nil {
-		return x.DisplayCode
-	}
-	return ""
-}
-
-func (x *NestedAccount) GetDisplayDescription() string {
-	if x != nil {
-		return x.DisplayDescription
-	}
-	return ""
-}
-
-func (x *NestedAccount) GetIsContainer() bool {
-	if x != nil {
-		return x.IsContainer
-	}
-	return false
-}
-
-func (x *NestedAccount) GetIsArchived() bool {
-	if x != nil {
-		return x.IsArchived
-	}
-	return false
+	return nil
 }
 
 func (x *NestedAccount) GetChildren() []*NestedAccount {
 	if x != nil {
 		return x.Children
-	}
-	return nil
-}
-
-func (x *NestedAccount) GetUpdateTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.UpdateTime
-	}
-	return nil
-}
-
-func (x *NestedAccount) GetCreateTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.CreateTime
 	}
 	return nil
 }
@@ -960,25 +886,13 @@ const file_pixlcrashr_vsfv_v1_account_proto_rawDesc = "" +
 	" \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"createTime\x12\x17\n" +
 	"\x04etag\x18\v \x01(\tB\x03\xe0A\x03R\x04etag:Q\xeaAN\n" +
-	"\x1bvsfv.pixlcrashr.dev/Account\x12/organizations/{organization}/accounts/{account}\"\xc8\x04\n" +
-	"\rNestedAccount\x12\x17\n" +
-	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x03R\x04name\x12\x1d\n" +
-	"\x03uid\x18\x02 \x01(\tB\v\xe0A\x03\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12J\n" +
-	"\x0eparent_account\x18\x03 \x01(\tB#\xe0A\x01\xfaA\x1d\n" +
-	"\x1bvsfv.pixlcrashr.dev/AccountR\rparentAccount\x12&\n" +
-	"\fdisplay_name\x18\x04 \x01(\tB\x03\xe0A\x03R\vdisplayName\x12&\n" +
-	"\fdisplay_code\x18\x05 \x01(\tB\x03\xe0A\x03R\vdisplayCode\x124\n" +
-	"\x13display_description\x18\x06 \x01(\tB\x03\xe0A\x03R\x12displayDescription\x12&\n" +
-	"\fis_container\x18\a \x01(\bB\x03\xe0A\x03R\visContainer\x12$\n" +
-	"\vis_archived\x18\b \x01(\bB\x03\xe0A\x03R\n" +
-	"isArchived\x12B\n" +
-	"\bchildren\x18\t \x03(\v2!.pixlcrashr.vsfv.v1.NestedAccountB\x03\xe0A\x03R\bchildren\x12@\n" +
-	"\vupdate_time\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
-	"updateTime\x12@\n" +
-	"\vcreate_time\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
-	"createTime\x12\x17\n" +
-	"\x04etag\x18\f \x01(\tB\x03\xe0A\x03R\x04etag\"L\n" +
+	"\x1bvsfv.pixlcrashr.dev/Account\x12/organizations/{organization}/accounts/{account}\"\xef\x01\n" +
+	"\rNestedAccount\x12J\n" +
+	"\x0eparent_account\x18\x02 \x01(\tB#\xe0A\x01\xfaA\x1d\n" +
+	"\x1bvsfv.pixlcrashr.dev/AccountR\rparentAccount\x125\n" +
+	"\aaccount\x18\x01 \x01(\v2\x1b.pixlcrashr.vsfv.v1.AccountR\aaccount\x12B\n" +
+	"\bchildren\x18\x03 \x03(\v2!.pixlcrashr.vsfv.v1.NestedAccountB\x03\xe0A\x03R\bchildren\x12\x17\n" +
+	"\x04etag\x18\x04 \x01(\tB\x03\xe0A\x03R\x04etag\"L\n" +
 	"\x11GetAccountRequest\x127\n" +
 	"\x04name\x18\x01 \x01(\tB#\xe0A\x02\xfaA\x1d\n" +
 	"\x1bvsfv.pixlcrashr.dev/AccountR\x04name\"\x82\x02\n" +
@@ -1071,36 +985,35 @@ var file_pixlcrashr_vsfv_v1_account_proto_goTypes = []any{
 var file_pixlcrashr_vsfv_v1_account_proto_depIdxs = []int32{
 	13, // 0: pixlcrashr.vsfv.v1.Account.update_time:type_name -> google.protobuf.Timestamp
 	13, // 1: pixlcrashr.vsfv.v1.Account.create_time:type_name -> google.protobuf.Timestamp
-	1,  // 2: pixlcrashr.vsfv.v1.NestedAccount.children:type_name -> pixlcrashr.vsfv.v1.NestedAccount
-	13, // 3: pixlcrashr.vsfv.v1.NestedAccount.update_time:type_name -> google.protobuf.Timestamp
-	13, // 4: pixlcrashr.vsfv.v1.NestedAccount.create_time:type_name -> google.protobuf.Timestamp
-	0,  // 5: pixlcrashr.vsfv.v1.ListAccountsResponse.accounts:type_name -> pixlcrashr.vsfv.v1.Account
-	0,  // 6: pixlcrashr.vsfv.v1.CreateAccountRequest.account:type_name -> pixlcrashr.vsfv.v1.Account
-	0,  // 7: pixlcrashr.vsfv.v1.UpdateAccountRequest.account:type_name -> pixlcrashr.vsfv.v1.Account
-	14, // 8: pixlcrashr.vsfv.v1.UpdateAccountRequest.update_mask:type_name -> google.protobuf.FieldMask
-	1,  // 9: pixlcrashr.vsfv.v1.ListNestedAccountsResponse.accounts:type_name -> pixlcrashr.vsfv.v1.NestedAccount
-	1,  // 10: pixlcrashr.vsfv.v1.GetNestedAccountResponse.account:type_name -> pixlcrashr.vsfv.v1.NestedAccount
-	2,  // 11: pixlcrashr.vsfv.v1.AccountService.GetAccount:input_type -> pixlcrashr.vsfv.v1.GetAccountRequest
-	3,  // 12: pixlcrashr.vsfv.v1.AccountService.ListAccounts:input_type -> pixlcrashr.vsfv.v1.ListAccountsRequest
-	9,  // 13: pixlcrashr.vsfv.v1.AccountService.ListNestedAccounts:input_type -> pixlcrashr.vsfv.v1.ListNestedAccountsRequest
-	11, // 14: pixlcrashr.vsfv.v1.AccountService.GetNestedAccount:input_type -> pixlcrashr.vsfv.v1.GetNestedAccountRequest
-	5,  // 15: pixlcrashr.vsfv.v1.AccountService.CreateAccount:input_type -> pixlcrashr.vsfv.v1.CreateAccountRequest
-	6,  // 16: pixlcrashr.vsfv.v1.AccountService.UpdateAccount:input_type -> pixlcrashr.vsfv.v1.UpdateAccountRequest
-	8,  // 17: pixlcrashr.vsfv.v1.AccountService.ArchiveAccount:input_type -> pixlcrashr.vsfv.v1.ArchiveAccountRequest
-	7,  // 18: pixlcrashr.vsfv.v1.AccountService.DeleteAccount:input_type -> pixlcrashr.vsfv.v1.DeleteAccountRequest
-	0,  // 19: pixlcrashr.vsfv.v1.AccountService.GetAccount:output_type -> pixlcrashr.vsfv.v1.Account
-	4,  // 20: pixlcrashr.vsfv.v1.AccountService.ListAccounts:output_type -> pixlcrashr.vsfv.v1.ListAccountsResponse
-	10, // 21: pixlcrashr.vsfv.v1.AccountService.ListNestedAccounts:output_type -> pixlcrashr.vsfv.v1.ListNestedAccountsResponse
-	12, // 22: pixlcrashr.vsfv.v1.AccountService.GetNestedAccount:output_type -> pixlcrashr.vsfv.v1.GetNestedAccountResponse
-	0,  // 23: pixlcrashr.vsfv.v1.AccountService.CreateAccount:output_type -> pixlcrashr.vsfv.v1.Account
-	0,  // 24: pixlcrashr.vsfv.v1.AccountService.UpdateAccount:output_type -> pixlcrashr.vsfv.v1.Account
-	0,  // 25: pixlcrashr.vsfv.v1.AccountService.ArchiveAccount:output_type -> pixlcrashr.vsfv.v1.Account
-	15, // 26: pixlcrashr.vsfv.v1.AccountService.DeleteAccount:output_type -> google.protobuf.Empty
-	19, // [19:27] is the sub-list for method output_type
-	11, // [11:19] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	0,  // 2: pixlcrashr.vsfv.v1.NestedAccount.account:type_name -> pixlcrashr.vsfv.v1.Account
+	1,  // 3: pixlcrashr.vsfv.v1.NestedAccount.children:type_name -> pixlcrashr.vsfv.v1.NestedAccount
+	0,  // 4: pixlcrashr.vsfv.v1.ListAccountsResponse.accounts:type_name -> pixlcrashr.vsfv.v1.Account
+	0,  // 5: pixlcrashr.vsfv.v1.CreateAccountRequest.account:type_name -> pixlcrashr.vsfv.v1.Account
+	0,  // 6: pixlcrashr.vsfv.v1.UpdateAccountRequest.account:type_name -> pixlcrashr.vsfv.v1.Account
+	14, // 7: pixlcrashr.vsfv.v1.UpdateAccountRequest.update_mask:type_name -> google.protobuf.FieldMask
+	1,  // 8: pixlcrashr.vsfv.v1.ListNestedAccountsResponse.accounts:type_name -> pixlcrashr.vsfv.v1.NestedAccount
+	1,  // 9: pixlcrashr.vsfv.v1.GetNestedAccountResponse.account:type_name -> pixlcrashr.vsfv.v1.NestedAccount
+	2,  // 10: pixlcrashr.vsfv.v1.AccountService.GetAccount:input_type -> pixlcrashr.vsfv.v1.GetAccountRequest
+	3,  // 11: pixlcrashr.vsfv.v1.AccountService.ListAccounts:input_type -> pixlcrashr.vsfv.v1.ListAccountsRequest
+	9,  // 12: pixlcrashr.vsfv.v1.AccountService.ListNestedAccounts:input_type -> pixlcrashr.vsfv.v1.ListNestedAccountsRequest
+	11, // 13: pixlcrashr.vsfv.v1.AccountService.GetNestedAccount:input_type -> pixlcrashr.vsfv.v1.GetNestedAccountRequest
+	5,  // 14: pixlcrashr.vsfv.v1.AccountService.CreateAccount:input_type -> pixlcrashr.vsfv.v1.CreateAccountRequest
+	6,  // 15: pixlcrashr.vsfv.v1.AccountService.UpdateAccount:input_type -> pixlcrashr.vsfv.v1.UpdateAccountRequest
+	8,  // 16: pixlcrashr.vsfv.v1.AccountService.ArchiveAccount:input_type -> pixlcrashr.vsfv.v1.ArchiveAccountRequest
+	7,  // 17: pixlcrashr.vsfv.v1.AccountService.DeleteAccount:input_type -> pixlcrashr.vsfv.v1.DeleteAccountRequest
+	0,  // 18: pixlcrashr.vsfv.v1.AccountService.GetAccount:output_type -> pixlcrashr.vsfv.v1.Account
+	4,  // 19: pixlcrashr.vsfv.v1.AccountService.ListAccounts:output_type -> pixlcrashr.vsfv.v1.ListAccountsResponse
+	10, // 20: pixlcrashr.vsfv.v1.AccountService.ListNestedAccounts:output_type -> pixlcrashr.vsfv.v1.ListNestedAccountsResponse
+	12, // 21: pixlcrashr.vsfv.v1.AccountService.GetNestedAccount:output_type -> pixlcrashr.vsfv.v1.GetNestedAccountResponse
+	0,  // 22: pixlcrashr.vsfv.v1.AccountService.CreateAccount:output_type -> pixlcrashr.vsfv.v1.Account
+	0,  // 23: pixlcrashr.vsfv.v1.AccountService.UpdateAccount:output_type -> pixlcrashr.vsfv.v1.Account
+	0,  // 24: pixlcrashr.vsfv.v1.AccountService.ArchiveAccount:output_type -> pixlcrashr.vsfv.v1.Account
+	15, // 25: pixlcrashr.vsfv.v1.AccountService.DeleteAccount:output_type -> google.protobuf.Empty
+	18, // [18:26] is the sub-list for method output_type
+	10, // [10:18] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_pixlcrashr_vsfv_v1_account_proto_init() }

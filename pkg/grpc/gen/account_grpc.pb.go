@@ -11,7 +11,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -27,7 +26,7 @@ const (
 	AccountService_CreateAccount_FullMethodName      = "/pixlcrashr.vsfv.v1.AccountService/CreateAccount"
 	AccountService_UpdateAccount_FullMethodName      = "/pixlcrashr.vsfv.v1.AccountService/UpdateAccount"
 	AccountService_ArchiveAccount_FullMethodName     = "/pixlcrashr.vsfv.v1.AccountService/ArchiveAccount"
-	AccountService_DeleteAccount_FullMethodName      = "/pixlcrashr.vsfv.v1.AccountService/DeleteAccount"
+	AccountService_RestoreAccount_FullMethodName     = "/pixlcrashr.vsfv.v1.AccountService/RestoreAccount"
 )
 
 // AccountServiceClient is the client API for AccountService service.
@@ -85,13 +84,13 @@ type AccountServiceClient interface {
 	//	Permission: accounts:archive
 	//	Domain: organization-scoped
 	ArchiveAccount(ctx context.Context, in *ArchiveAccountRequest, opts ...grpc.CallOption) (*Account, error)
-	// Permanently deletes an account.
+	// Restores an archived account (undo of ArchiveAccount).
 	// Authorization:
 	//
 	//	Scope: accounts:write
-	//	Permission: accounts:delete
+	//	Permission: accounts:restore
 	//	Domain: organization-scoped
-	DeleteAccount(ctx context.Context, in *DeleteAccountRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RestoreAccount(ctx context.Context, in *RestoreAccountRequest, opts ...grpc.CallOption) (*Account, error)
 }
 
 type accountServiceClient struct {
@@ -172,10 +171,10 @@ func (c *accountServiceClient) ArchiveAccount(ctx context.Context, in *ArchiveAc
 	return out, nil
 }
 
-func (c *accountServiceClient) DeleteAccount(ctx context.Context, in *DeleteAccountRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *accountServiceClient) RestoreAccount(ctx context.Context, in *RestoreAccountRequest, opts ...grpc.CallOption) (*Account, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, AccountService_DeleteAccount_FullMethodName, in, out, cOpts...)
+	out := new(Account)
+	err := c.cc.Invoke(ctx, AccountService_RestoreAccount_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -237,13 +236,13 @@ type AccountServiceServer interface {
 	//	Permission: accounts:archive
 	//	Domain: organization-scoped
 	ArchiveAccount(context.Context, *ArchiveAccountRequest) (*Account, error)
-	// Permanently deletes an account.
+	// Restores an archived account (undo of ArchiveAccount).
 	// Authorization:
 	//
 	//	Scope: accounts:write
-	//	Permission: accounts:delete
+	//	Permission: accounts:restore
 	//	Domain: organization-scoped
-	DeleteAccount(context.Context, *DeleteAccountRequest) (*emptypb.Empty, error)
+	RestoreAccount(context.Context, *RestoreAccountRequest) (*Account, error)
 }
 
 // UnimplementedAccountServiceServer should be embedded to have
@@ -274,8 +273,8 @@ func (UnimplementedAccountServiceServer) UpdateAccount(context.Context, *UpdateA
 func (UnimplementedAccountServiceServer) ArchiveAccount(context.Context, *ArchiveAccountRequest) (*Account, error) {
 	return nil, status.Error(codes.Unimplemented, "method ArchiveAccount not implemented")
 }
-func (UnimplementedAccountServiceServer) DeleteAccount(context.Context, *DeleteAccountRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method DeleteAccount not implemented")
+func (UnimplementedAccountServiceServer) RestoreAccount(context.Context, *RestoreAccountRequest) (*Account, error) {
+	return nil, status.Error(codes.Unimplemented, "method RestoreAccount not implemented")
 }
 func (UnimplementedAccountServiceServer) testEmbeddedByValue() {}
 
@@ -423,20 +422,20 @@ func _AccountService_ArchiveAccount_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AccountService_DeleteAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteAccountRequest)
+func _AccountService_RestoreAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RestoreAccountRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AccountServiceServer).DeleteAccount(ctx, in)
+		return srv.(AccountServiceServer).RestoreAccount(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AccountService_DeleteAccount_FullMethodName,
+		FullMethod: AccountService_RestoreAccount_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountServiceServer).DeleteAccount(ctx, req.(*DeleteAccountRequest))
+		return srv.(AccountServiceServer).RestoreAccount(ctx, req.(*RestoreAccountRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -477,8 +476,8 @@ var AccountService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AccountService_ArchiveAccount_Handler,
 		},
 		{
-			MethodName: "DeleteAccount",
-			Handler:    _AccountService_DeleteAccount_Handler,
+			MethodName: "RestoreAccount",
+			Handler:    _AccountService_RestoreAccount_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -52,6 +52,7 @@ const (
 	ActionDelete     = "delete"
 	ActionImport     = "import"
 	ActionArchive    = "archive"
+	ActionRestore    = "restore"
 	ActionClose      = "close"
 	ActionComment    = "comment"
 	ActionReadOwn    = "read_own"

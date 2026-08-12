@@ -11,6 +11,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"github.com/theater-improrama/go-utils/optional"
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 )
 
@@ -153,25 +154,28 @@ type UpdateLedgerYearParams struct {
 
 // Update updates fields of an existing ledger year.
 func (r *LedgerYearRepository) Update(ctx context.Context, id uuid.UUID, params UpdateLedgerYearParams) error {
-	m, err := r.GetByID(ctx, id)
-	if err != nil {
-		return err
-	}
+	var cols []field.AssignExpr
 
 	if params.Year.IsSet {
-		m.Year = params.Year.Value
-	}
-	if params.IsClosed.IsSet {
-		m.IsClosed = params.IsClosed.Value
-	}
-	if params.CustomID.IsSet {
-		m.CustomID = params.CustomID.Value
+		cols = append(cols, r.q.LedgerYear.Year.Value(params.Year.Value))
 	}
 
-	_, err = r.q.LedgerYear.WithContext(ctx).Where(r.q.LedgerYear.ID.Eq(m.ID)).Updates(m)
-	if err != nil {
-		return fmt.Errorf("update ledger year id=%s: %w", m.ID, err)
+	if params.IsClosed.IsSet {
+		cols = append(cols, r.q.LedgerYear.IsClosed.Value(params.IsClosed.Value))
 	}
+
+	if params.CustomID.IsSet {
+		cols = append(cols, r.q.LedgerYear.CustomID.Value(params.CustomID.Value))
+	}
+
+	if len(cols) == 0 {
+		return nil
+	}
+
+	if _, err := r.q.LedgerYear.WithContext(ctx).Where(r.q.LedgerYear.ID.Eq(id)).UpdateSimple(cols...); err != nil {
+		return fmt.Errorf("update ledger year id=%s: %w", id, err)
+	}
+
 	return nil
 }
 

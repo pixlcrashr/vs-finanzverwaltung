@@ -26,7 +26,7 @@ type ListBudgetRevisionAccountValuesParams struct {
 
 func budgetRevisionAccountValueColumnMapper(field string) (string, bool) {
 	switch field {
-	case "account_id":
+	case "account":
 		return "account_id", true
 	default:
 		return "", false

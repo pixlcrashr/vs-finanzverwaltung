@@ -12,6 +12,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"github.com/theater-improrama/go-utils/optional"
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 )
 
@@ -151,19 +152,20 @@ type UpdateBudgetRevisionParams struct {
 
 // Update updates fields of an existing budget revision matched by its primary key.
 func (r *BudgetRevisionRepository) Update(ctx context.Context, id uuid.UUID, params UpdateBudgetRevisionParams) error {
-	updates := map[string]any{}
+	var cols []field.AssignExpr
 
 	if params.IsPublished.IsSet {
-		updates["is_published"] = params.IsPublished.Value
+		cols = append(cols, r.q.BudgetRevision.IsPublished.Value(params.IsPublished.Value))
 	}
 
-	if len(updates) == 0 {
+	if len(cols) == 0 {
 		return nil
 	}
 
-	if _, err := r.q.BudgetRevision.WithContext(ctx).Where(r.q.BudgetRevision.ID.Eq(id)).Updates(updates); err != nil {
+	if _, err := r.q.BudgetRevision.WithContext(ctx).Where(r.q.BudgetRevision.ID.Eq(id)).UpdateSimple(cols...); err != nil {
 		return fmt.Errorf("update budget revision id=%s: %w", id, err)
 	}
+
 	return nil
 }
 

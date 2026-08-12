@@ -41,8 +41,9 @@ message BudgetAccountValue {
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Budget"}
   ];
 
-  // The UUID of the account this value is assigned to.
-  string account_id = 4 [
+  // Resource name of the account this value is assigned to.
+  // Format: organizations/{organization}/accounts/{account}
+  string account = 4 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Account"}
   ];
@@ -85,8 +86,8 @@ message ListBudgetAccountValuesRequest {
   string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
 
   // Filter expression conforming to AIP-160.
-  // Supported fields: account_id.
-  // Example: "account_id=\"<uuid>\"".
+  // Supported fields: account.
+  // Example: "account=\"organizations/{organization}/accounts/{account}\"".
   string filter = 4 [(google.api.field_behavior) = OPTIONAL];
 
   // Order by expression (e.g. "create_time desc").

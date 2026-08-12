@@ -14,6 +14,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/theater-improrama/go-utils/optional"
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -38,9 +39,9 @@ type ListTransactionsParams struct {
 // transactionColumnMapper maps filter field names to database column names.
 func transactionColumnMapper(field string) (string, bool) {
 	switch field {
-	case "credit_ledger_account_id":
+	case "credit_ledger_account":
 		return "credit_ledger_account_id", true
-	case "debit_ledger_account_id":
+	case "debit_ledger_account":
 		return "debit_ledger_account_id", true
 	case "booked_at":
 		return "booked_at", true
@@ -281,40 +282,48 @@ type UpdateTransactionParams struct {
 
 // Update updates fields of an existing transaction matched by its primary key.
 func (r *TransactionRepository) Update(ctx context.Context, id uuid.UUID, params UpdateTransactionParams) error {
-	m, err := r.GetByID(ctx, id)
-	if err != nil {
-		return err
-	}
+	var cols []field.AssignExpr
 
 	if params.CreditLedgerAccountID.IsSet {
-		m.CreditLedgerAccountID = params.CreditLedgerAccountID.Value
-	}
-	if params.DebitLedgerAccountID.IsSet {
-		m.DebitLedgerAccountID = params.DebitLedgerAccountID.Value
-	}
-	if params.Amount.IsSet {
-		m.Amount = params.Amount.Value
-	}
-	if params.Description.IsSet {
-		m.Description = params.Description.Value
-	}
-	if params.Reference.IsSet {
-		m.Reference = params.Reference.Value
-	}
-	if params.BookedAt.IsSet {
-		m.BookedAt = params.BookedAt.Value
-	}
-	if params.DocumentDate.IsSet {
-		m.DocumentDate = params.DocumentDate.Value
-	}
-	if params.CustomID.IsSet {
-		m.CustomID = params.CustomID.Value
+		cols = append(cols, r.q.Transaction_.CreditLedgerAccountID.Value(params.CreditLedgerAccountID.Value))
 	}
 
-	_, err = r.q.Transaction_.WithContext(ctx).Where(r.q.Transaction_.ID.Eq(m.ID)).Updates(m)
-	if err != nil {
-		return fmt.Errorf("update transaction id=%s: %w", m.ID, err)
+	if params.DebitLedgerAccountID.IsSet {
+		cols = append(cols, r.q.Transaction_.DebitLedgerAccountID.Value(params.DebitLedgerAccountID.Value))
 	}
+
+	if params.Amount.IsSet {
+		cols = append(cols, r.q.Transaction_.Amount.Value(params.Amount.Value))
+	}
+
+	if params.Description.IsSet {
+		cols = append(cols, r.q.Transaction_.Description.Value(params.Description.Value))
+	}
+
+	if params.Reference.IsSet {
+		cols = append(cols, r.q.Transaction_.Reference.Value(params.Reference.Value))
+	}
+
+	if params.BookedAt.IsSet {
+		cols = append(cols, r.q.Transaction_.BookedAt.Value(params.BookedAt.Value))
+	}
+
+	if params.DocumentDate.IsSet {
+		cols = append(cols, r.q.Transaction_.DocumentDate.Value(params.DocumentDate.Value))
+	}
+
+	if params.CustomID.IsSet {
+		cols = append(cols, r.q.Transaction_.CustomID.Value(params.CustomID.Value))
+	}
+
+	if len(cols) == 0 {
+		return nil
+	}
+
+	if _, err := r.q.Transaction_.WithContext(ctx).Where(r.q.Transaction_.ID.Eq(id)).UpdateSimple(cols...); err != nil {
+		return fmt.Errorf("update transaction id=%s: %w", id, err)
+	}
+
 	return nil
 }
 

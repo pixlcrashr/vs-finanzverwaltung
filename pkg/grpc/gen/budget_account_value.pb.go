@@ -38,8 +38,9 @@ type BudgetAccountValue struct {
 	// The resource name of the parent budget.
 	// Format: organizations/{organization}/budgets/{budget}
 	Budget string `protobuf:"bytes,3,opt,name=budget,proto3" json:"budget,omitempty"`
-	// The UUID of the account this value is assigned to.
-	AccountId string `protobuf:"bytes,4,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	// Resource name of the account this value is assigned to.
+	// Format: organizations/{organization}/accounts/{account}
+	Account string `protobuf:"bytes,4,opt,name=account,proto3" json:"account,omitempty"`
 	// The target monetary value assigned to the account for this budget.
 	Value *Decimal `protobuf:"bytes,5,opt,name=value,proto3" json:"value,omitempty"`
 	// Last modification timestamp.
@@ -103,9 +104,9 @@ func (x *BudgetAccountValue) GetBudget() string {
 	return ""
 }
 
-func (x *BudgetAccountValue) GetAccountId() string {
+func (x *BudgetAccountValue) GetAccount() string {
 	if x != nil {
-		return x.AccountId
+		return x.Account
 	}
 	return ""
 }
@@ -195,8 +196,8 @@ type ListBudgetAccountValuesRequest struct {
 	// A page token from a previous ListBudgetAccountValues call.
 	PageToken string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	// Filter expression conforming to AIP-160.
-	// Supported fields: account_id.
-	// Example: "account_id=\"<uuid>\"".
+	// Supported fields: account.
+	// Example: "account=\"organizations/{organization}/accounts/{account}\"".
 	Filter string `protobuf:"bytes,4,opt,name=filter,proto3" json:"filter,omitempty"`
 	// Order by expression (e.g. "create_time desc").
 	OrderBy       string `protobuf:"bytes,5,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
@@ -614,15 +615,14 @@ var File_pixlcrashr_vsfv_v1_budget_account_value_proto protoreflect.FileDescript
 
 const file_pixlcrashr_vsfv_v1_budget_account_value_proto_rawDesc = "" +
 	"\n" +
-	"-pixlcrashr/vsfv/v1/budget_account_value.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a pixlcrashr/vsfv/v1/decimal.proto\"\x9b\x04\n" +
+	"-pixlcrashr/vsfv/v1/budget_account_value.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a pixlcrashr/vsfv/v1/decimal.proto\"\x96\x04\n" +
 	"\x12BudgetAccountValue\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x03R\x04name\x12\x1d\n" +
 	"\x03uid\x18\x02 \x01(\tB\v\xe0A\x03\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12:\n" +
 	"\x06budget\x18\x03 \x01(\tB\"\xe0A\x03\xfaA\x1c\n" +
-	"\x1avsfv.pixlcrashr.dev/BudgetR\x06budget\x12B\n" +
-	"\n" +
-	"account_id\x18\x04 \x01(\tB#\xe0A\x02\xfaA\x1d\n" +
-	"\x1bvsfv.pixlcrashr.dev/AccountR\taccountId\x126\n" +
+	"\x1avsfv.pixlcrashr.dev/BudgetR\x06budget\x12=\n" +
+	"\aaccount\x18\x04 \x01(\tB#\xe0A\x02\xfaA\x1d\n" +
+	"\x1bvsfv.pixlcrashr.dev/AccountR\aaccount\x126\n" +
 	"\x05value\x18\x05 \x01(\v2\x1b.pixlcrashr.vsfv.v1.DecimalB\x03\xe0A\x02R\x05value\x12@\n" +
 	"\vupdate_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"updateTime\x12@\n" +

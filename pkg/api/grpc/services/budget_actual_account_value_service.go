@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
@@ -157,16 +158,22 @@ func evalActualAccountValueCond(c cond.Cond, v *repository.ActualAccountValue) b
 	}
 	switch cc := c.(type) {
 	case cond.FieldCond:
-		if cc.Field == "account_id" {
+		if cc.Field == "account" {
 			s, ok := cc.Value.(string)
 			if !ok {
 				return false
 			}
+			// Extract the account custom ID from the resource name
+			// (last path segment of "organizations/{org}/accounts/{account}").
+			accountCustomID := s
+			if idx := strings.LastIndex(s, "/"); idx >= 0 {
+				accountCustomID = s[idx+1:]
+			}
 			switch cc.Op {
 			case cond.OpEq:
-				return v.AccountID.String() == s
+				return v.AccountCustomID == accountCustomID
 			case cond.OpNe:
-				return v.AccountID.String() != s
+				return v.AccountCustomID != accountCustomID
 			}
 		}
 		return false

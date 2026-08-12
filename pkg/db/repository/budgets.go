@@ -252,43 +252,52 @@ type UpdateBudgetParams struct {
 
 // Update updates fields of an existing budget matched by its primary key.
 func (r *BudgetRepository) Update(ctx context.Context, id uuid.UUID, params UpdateBudgetParams) error {
-	updates := map[string]any{}
+	var cols []field.AssignExpr
 
 	if params.DisplayName.IsSet {
-		updates["display_name"] = params.DisplayName.Value
-	}
-	if params.DisplayDescription.IsSet {
-		updates["display_description"] = params.DisplayDescription.Value
-	}
-	if params.PeriodStart.IsSet {
-		updates["period_start"] = params.PeriodStart.Value
-	}
-	if params.PeriodEnd.IsSet {
-		updates["period_end"] = params.PeriodEnd.Value
-	}
-	if params.IsClosed.IsSet {
-		updates["is_closed"] = params.IsClosed.Value
-	}
-	if params.IsPublished.IsSet {
-		updates["is_published"] = params.IsPublished.Value
-	}
-	if params.PublishActualValues.IsSet {
-		updates["publish_actual_values"] = params.PublishActualValues.Value
-	}
-	if params.PublishActualValuesUntil.IsSet {
-		updates["publish_actual_values_until"] = params.PublishActualValuesUntil.Value
-	}
-	if params.CustomID.IsSet {
-		updates["custom_id"] = params.CustomID.Value
+		cols = append(cols, r.q.Budget.DisplayName.Value(params.DisplayName.Value))
 	}
 
-	if len(updates) == 0 {
+	if params.DisplayDescription.IsSet {
+		cols = append(cols, r.q.Budget.DisplayDescription.Value(params.DisplayDescription.Value))
+	}
+
+	if params.PeriodStart.IsSet {
+		cols = append(cols, r.q.Budget.PeriodStart.Value(params.PeriodStart.Value))
+	}
+
+	if params.PeriodEnd.IsSet {
+		cols = append(cols, r.q.Budget.PeriodEnd.Value(params.PeriodEnd.Value))
+	}
+
+	if params.IsClosed.IsSet {
+		cols = append(cols, r.q.Budget.IsClosed.Value(params.IsClosed.Value))
+	}
+
+	if params.IsPublished.IsSet {
+		cols = append(cols, r.q.Budget.IsPublished.Value(params.IsPublished.Value))
+	}
+
+	if params.PublishActualValues.IsSet {
+		cols = append(cols, r.q.Budget.PublishActualValues.Value(params.PublishActualValues.Value))
+	}
+
+	if params.PublishActualValuesUntil.IsSet {
+		cols = append(cols, r.q.Budget.PublishActualValuesUntil.Value(params.PublishActualValuesUntil.Value))
+	}
+
+	if params.CustomID.IsSet {
+		cols = append(cols, r.q.Budget.CustomID.Value(params.CustomID.Value))
+	}
+
+	if len(cols) == 0 {
 		return nil
 	}
 
-	if _, err := r.q.Budget.WithContext(ctx).Where(r.q.Budget.ID.Eq(id)).Updates(updates); err != nil {
+	if _, err := r.q.Budget.WithContext(ctx).Where(r.q.Budget.ID.Eq(id)).UpdateSimple(cols...); err != nil {
 		return fmt.Errorf("update budget id=%s: %w", id, err)
 	}
+
 	return nil
 }
 

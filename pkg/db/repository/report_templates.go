@@ -11,6 +11,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"github.com/theater-improrama/go-utils/optional"
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 )
 
@@ -153,25 +154,28 @@ type UpdateReportTemplateParams struct {
 
 // Update updates fields of an existing report template.
 func (r *ReportTemplateRepository) Update(ctx context.Context, id uuid.UUID, params UpdateReportTemplateParams) error {
-	m, err := r.GetByID(ctx, id)
-	if err != nil {
-		return err
-	}
+	var cols []field.AssignExpr
 
 	if params.DisplayName.IsSet {
-		m.DisplayName = params.DisplayName.Value
-	}
-	if params.Template.IsSet {
-		m.Template = params.Template.Value
-	}
-	if params.CustomID.IsSet {
-		m.CustomID = params.CustomID.Value
+		cols = append(cols, r.q.ReportTemplate.DisplayName.Value(params.DisplayName.Value))
 	}
 
-	_, err = r.q.ReportTemplate.WithContext(ctx).Where(r.q.ReportTemplate.ID.Eq(m.ID)).Updates(m)
-	if err != nil {
-		return fmt.Errorf("update report template id=%s: %w", m.ID, err)
+	if params.Template.IsSet {
+		cols = append(cols, r.q.ReportTemplate.Template.Value(params.Template.Value))
 	}
+
+	if params.CustomID.IsSet {
+		cols = append(cols, r.q.ReportTemplate.CustomID.Value(params.CustomID.Value))
+	}
+
+	if len(cols) == 0 {
+		return nil
+	}
+
+	if _, err := r.q.ReportTemplate.WithContext(ctx).Where(r.q.ReportTemplate.ID.Eq(id)).UpdateSimple(cols...); err != nil {
+		return fmt.Errorf("update report template id=%s: %w", id, err)
+	}
+
 	return nil
 }
 

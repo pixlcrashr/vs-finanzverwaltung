@@ -99,13 +99,13 @@ var (
 		filtering.DeclareIdent("date", filtering.TypeString),
 	)
 	budgetRevisionAccountValueDecls = mustDecls(
-		filtering.DeclareIdent("account_id", filtering.TypeString),
+		filtering.DeclareIdent("account", filtering.TypeString),
 	)
 	budgetAccountValueDecls = mustDecls(
-		filtering.DeclareIdent("account_id", filtering.TypeString),
+		filtering.DeclareIdent("account", filtering.TypeString),
 	)
 	budgetActualAccountValueDecls = mustDecls(
-		filtering.DeclareIdent("account_id", filtering.TypeString),
+		filtering.DeclareIdent("account", filtering.TypeString),
 	)
 	organizationDecls = mustDecls(
 		filtering.DeclareIdent("display_name", filtering.TypeString),
@@ -115,8 +115,8 @@ var (
 		filtering.DeclareIdent("is_closed", filtering.TypeBool),
 	)
 	transactionDecls = mustDecls(
-		filtering.DeclareIdent("credit_ledger_account_id", filtering.TypeString),
-		filtering.DeclareIdent("debit_ledger_account_id", filtering.TypeString),
+		filtering.DeclareIdent("credit_ledger_account", filtering.TypeString),
+		filtering.DeclareIdent("debit_ledger_account", filtering.TypeString),
 		filtering.DeclareIdent("booked_at", filtering.TypeString),
 	)
 	ledgerAccountDecls = mustDecls(
@@ -125,7 +125,7 @@ var (
 		filtering.DeclareIdent("display_name", filtering.TypeString),
 	)
 	transactionAssignmentDecls = mustDecls(
-		filtering.DeclareIdent("account_id", filtering.TypeString),
+		filtering.DeclareIdent("account", filtering.TypeString),
 	)
 	reportTemplateDecls = mustDecls(
 		filtering.DeclareIdent("display_name", filtering.TypeString),

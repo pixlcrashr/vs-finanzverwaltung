@@ -202,10 +202,6 @@
                 </li>
               
                 <li>
-                  <a href="#pixlcrashr.vsfv.v1.DeleteAccountRequest"><span class="badge">M</span>DeleteAccountRequest</a>
-                </li>
-              
-                <li>
                   <a href="#pixlcrashr.vsfv.v1.GetAccountRequest"><span class="badge">M</span>GetAccountRequest</a>
                 </li>
               
@@ -235,6 +231,10 @@
               
                 <li>
                   <a href="#pixlcrashr.vsfv.v1.NestedAccount"><span class="badge">M</span>NestedAccount</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.RestoreAccountRequest"><span class="badge">M</span>RestoreAccountRequest</a>
                 </li>
               
                 <li>
@@ -1231,31 +1231,6 @@ will be used. Must be unique within the parent organization. </p></td>
 
         
       
-        <h3 id="pixlcrashr.vsfv.v1.DeleteAccountRequest">DeleteAccountRequest</h3>
-        <p></p>
-
-        
-          <table class="field-table">
-            <thead>
-              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
-            </thead>
-            <tbody>
-              
-                <tr>
-                  <td>name</td>
-                  <td><a href="#string">string</a></td>
-                  <td></td>
-                  <td><p>The resource name of the account.
-Format: organizations/{organization}/accounts/{account} </p></td>
-                </tr>
-              
-            </tbody>
-          </table>
-
-          
-
-        
-      
         <h3 id="pixlcrashr.vsfv.v1.GetAccountRequest">GetAccountRequest</h3>
         <p></p>
 
@@ -1548,6 +1523,31 @@ Format: organizations/{organization}/accounts/{account} </p></td>
 
         
       
+        <h3 id="pixlcrashr.vsfv.v1.RestoreAccountRequest">RestoreAccountRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The resource name of the account.
+Format: organizations/{organization}/accounts/{account} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
         <h3 id="pixlcrashr.vsfv.v1.UpdateAccountRequest">UpdateAccountRequest</h3>
         <p></p>
 
@@ -1671,13 +1671,13 @@ Authorization:
               </tr>
             
               <tr>
-                <td>DeleteAccount</td>
-                <td><a href="#pixlcrashr.vsfv.v1.DeleteAccountRequest">DeleteAccountRequest</a></td>
-                <td><a href="#google.protobuf.Empty">.google.protobuf.Empty</a></td>
-                <td><p>Permanently deletes an account.
+                <td>RestoreAccount</td>
+                <td><a href="#pixlcrashr.vsfv.v1.RestoreAccountRequest">RestoreAccountRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.Account">Account</a></td>
+                <td><p>Restores an archived account (undo of ArchiveAccount).
 Authorization:
   Scope: accounts:write
-  Permission: accounts:delete
+  Permission: accounts:restore
   Domain: organization-scoped</p></td>
               </tr>
             
@@ -1772,10 +1772,10 @@ Authorization:
               
               
               <tr>
-                <td>DeleteAccount</td>
-                <td>DELETE</td>
-                <td>/v1/{name=organizations/*/accounts/*}</td>
-                <td></td>
+                <td>RestoreAccount</td>
+                <td>POST</td>
+                <td>/v1/{name=organizations/*/accounts/*}:restore</td>
+                <td>*</td>
               </tr>
               
             
@@ -3321,10 +3321,11 @@ Format: organizations/{organization}/budgets/{budget} </p></td>
                 </tr>
               
                 <tr>
-                  <td>account_id</td>
+                  <td>account</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>The UUID of the account this value is assigned to. </p></td>
+                  <td><p>Resource name of the account this value is assigned to.
+Format: organizations/{organization}/accounts/{account} </p></td>
                 </tr>
               
                 <tr>
@@ -3490,8 +3491,8 @@ If unspecified, at most 20 are returned. Maximum value is 100. </p></td>
                   <td><a href="#string">string</a></td>
                   <td></td>
                   <td><p>Filter expression conforming to AIP-160.
-Supported fields: account_id.
-Example: &#34;account_id=\&#34;&lt;uuid&gt;\&#34;&#34;. </p></td>
+Supported fields: account.
+Example: &#34;account=\&#34;organizations/{organization}/accounts/{account}\&#34;&#34;. </p></td>
                 </tr>
               
                 <tr>
@@ -3867,15 +3868,15 @@ fewer. If unspecified, at most 50 are returned. Maximum value is 200. </p></td>
                   <td><a href="#string">string</a></td>
                   <td></td>
                   <td><p>Filter expression conforming to AIP-160.
-Supported fields: account_id.
-Example: &#34;account_id=\&#34;&lt;uuid&gt;\&#34;&#34;. </p></td>
+Supported fields: account.
+Example: &#34;account=\&#34;organizations/{organization}/accounts/{account}\&#34;&#34;. </p></td>
                 </tr>
               
                 <tr>
                   <td>order_by</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Order by expression (e.g. &#34;account_id&#34;, &#34;value desc&#34;). </p></td>
+                  <td><p>Order by expression (e.g. &#34;account&#34;, &#34;value desc&#34;). </p></td>
                 </tr>
               
             </tbody>
@@ -4488,10 +4489,11 @@ Format: organizations/{organization}/budgets/{budget}/revisions/{revision} </p><
                 </tr>
               
                 <tr>
-                  <td>account_id</td>
+                  <td>account</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>The UUID of the account whose value is recorded here. </p></td>
+                  <td><p>Resource name of the account whose value is recorded here.
+Format: organizations/{organization}/accounts/{account} </p></td>
                 </tr>
               
                 <tr>
@@ -4586,15 +4588,15 @@ If unspecified, at most 50 are returned. Maximum value is 200. </p></td>
                   <td><a href="#string">string</a></td>
                   <td></td>
                   <td><p>Filter expression conforming to AIP-160.
-Supported fields: account_id.
-Example: &#34;account_id=\&#34;&lt;uuid&gt;\&#34;&#34;. </p></td>
+Supported fields: account.
+Example: &#34;account=\&#34;organizations/{organization}/accounts/{account}\&#34;&#34;. </p></td>
                 </tr>
               
                 <tr>
                   <td>order_by</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Order by expression (e.g. &#34;account_id&#34;, &#34;value desc&#34;). </p></td>
+                  <td><p>Order by expression (e.g. &#34;account&#34;, &#34;value desc&#34;). </p></td>
                 </tr>
               
             </tbody>
@@ -7689,9 +7691,9 @@ If unspecified, at most 20 are returned. Maximum value is 100. </p></td>
                   <td><a href="#string">string</a></td>
                   <td></td>
                   <td><p>Filter expression conforming to AIP-160.
-Supported fields: credit_transaction_account_id, debit_transaction_account_id,
+Supported fields: credit_ledger_account, debit_ledger_account,
 booked_at, document_date, amount.
-Example: &#34;credit_transaction_account_id=\&#34;&lt;uuid&gt;\&#34; AND booked_at&gt;=\&#34;2025-01-01T00:00:00Z\&#34;&#34;. </p></td>
+Example: &#34;credit_ledger_account=\&#34;organizations/{organization}/ledgerAccounts/{ledger_account}\&#34; AND booked_at&gt;=\&#34;2025-01-01T00:00:00Z\&#34;&#34;. </p></td>
                 </tr>
               
                 <tr>

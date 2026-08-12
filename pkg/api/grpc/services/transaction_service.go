@@ -10,6 +10,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/authz"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
+	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/theater-improrama/go-utils/optional"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -93,6 +94,32 @@ func (s *transactionServiceServer) ListTransactions(ctx context.Context, req *ge
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidFilter}
 	}
+
+	// Resolve "credit_ledger_account" and "debit_ledger_account" resource names in the filter
+	// to ledger account UUIDs. The filter fields are resource_references, but the DB columns
+	// are "credit_ledger_account_id" and "debit_ledger_account_id" (UUIDs).
+	orgID, err := uuid.Parse(pn.Organization)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidParent}
+	}
+	c = cond.Transform(c, func(field string, value interface{}) (string, interface{}, bool) {
+		if field != "credit_ledger_account" && field != "debit_ledger_account" {
+			return field, value, true
+		}
+		laName, ok := value.(string)
+		if !ok {
+			return field, value, true
+		}
+		var laRN gen.LedgerAccountResourceName
+		if err := laRN.UnmarshalString(laName); err != nil {
+			return field, value, false
+		}
+		la, err := s.ledgerAccountRepo.GetByCustomID(ctx, orgID, laRN.LedgerAccount)
+		if err != nil {
+			return field, value, false
+		}
+		return field, la.ID.String(), true
+	})
 
 	pageSize := normalizePageSize(req.PageSize)
 

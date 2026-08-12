@@ -7,7 +7,6 @@ import "google/api/client.proto";
 import "google/api/field_behavior.proto";
 import "google/api/field_info.proto";
 import "google/api/resource.proto";
-import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 
@@ -158,7 +157,7 @@ message UpdateAccountRequest {
   google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
-message DeleteAccountRequest {
+message ArchiveAccountRequest {
   // The resource name of the account.
   // Format: organizations/{organization}/accounts/{account}
   string name = 1 [
@@ -167,7 +166,7 @@ message DeleteAccountRequest {
   ];
 }
 
-message ArchiveAccountRequest {
+message RestoreAccountRequest {
   // The resource name of the account.
   // Format: organizations/{organization}/accounts/{account}
   string name = 1 [
@@ -301,13 +300,16 @@ service AccountService {
     option (google.api.method_signature) = "name";
   }
 
-  // Permanently deletes an account.
+  // Restores an archived account (undo of ArchiveAccount).
   // Authorization:
   //   Scope: accounts:write
-  //   Permission: accounts:delete
+  //   Permission: accounts:restore
   //   Domain: organization-scoped
-  rpc DeleteAccount(DeleteAccountRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {delete: "/v1/{name=organizations/*/accounts/*}"};
+  rpc RestoreAccount(RestoreAccountRequest) returns (Account) {
+    option (google.api.http) = {
+      post: "/v1/{name=organizations/*/accounts/*}:restore"
+      body: "*"
+    };
     option (google.api.method_signature) = "name";
   }
 }

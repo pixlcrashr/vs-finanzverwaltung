@@ -158,10 +158,10 @@ type ListBudgetActualAccountValuesRequest struct {
 	// A page token from a previous ListBudgetActualAccountValues call.
 	PageToken string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	// Filter expression conforming to AIP-160.
-	// Supported fields: account_id.
-	// Example: "account_id=\"<uuid>\"".
+	// Supported fields: account.
+	// Example: "account=\"organizations/{organization}/accounts/{account}\"".
 	Filter string `protobuf:"bytes,4,opt,name=filter,proto3" json:"filter,omitempty"`
-	// Order by expression (e.g. "account_id", "value desc").
+	// Order by expression (e.g. "account", "value desc").
 	OrderBy       string `protobuf:"bytes,5,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

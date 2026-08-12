@@ -10,7 +10,6 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
@@ -564,52 +563,6 @@ func (x *UpdateAccountRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
-type DeleteAccountRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The resource name of the account.
-	// Format: organizations/{organization}/accounts/{account}
-	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteAccountRequest) Reset() {
-	*x = DeleteAccountRequest{}
-	mi := &file_pixlcrashr_vsfv_v1_account_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteAccountRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteAccountRequest) ProtoMessage() {}
-
-func (x *DeleteAccountRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_account_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteAccountRequest.ProtoReflect.Descriptor instead.
-func (*DeleteAccountRequest) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_account_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *DeleteAccountRequest) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
 type ArchiveAccountRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The resource name of the account.
@@ -621,7 +574,7 @@ type ArchiveAccountRequest struct {
 
 func (x *ArchiveAccountRequest) Reset() {
 	*x = ArchiveAccountRequest{}
-	mi := &file_pixlcrashr_vsfv_v1_account_proto_msgTypes[8]
+	mi := &file_pixlcrashr_vsfv_v1_account_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -633,7 +586,7 @@ func (x *ArchiveAccountRequest) String() string {
 func (*ArchiveAccountRequest) ProtoMessage() {}
 
 func (x *ArchiveAccountRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_account_proto_msgTypes[8]
+	mi := &file_pixlcrashr_vsfv_v1_account_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -646,10 +599,56 @@ func (x *ArchiveAccountRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArchiveAccountRequest.ProtoReflect.Descriptor instead.
 func (*ArchiveAccountRequest) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_account_proto_rawDescGZIP(), []int{8}
+	return file_pixlcrashr_vsfv_v1_account_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ArchiveAccountRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type RestoreAccountRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The resource name of the account.
+	// Format: organizations/{organization}/accounts/{account}
+	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RestoreAccountRequest) Reset() {
+	*x = RestoreAccountRequest{}
+	mi := &file_pixlcrashr_vsfv_v1_account_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RestoreAccountRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RestoreAccountRequest) ProtoMessage() {}
+
+func (x *RestoreAccountRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pixlcrashr_vsfv_v1_account_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RestoreAccountRequest.ProtoReflect.Descriptor instead.
+func (*RestoreAccountRequest) Descriptor() ([]byte, []int) {
+	return file_pixlcrashr_vsfv_v1_account_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *RestoreAccountRequest) GetName() string {
 	if x != nil {
 		return x.Name
 	}
@@ -868,7 +867,7 @@ var File_pixlcrashr_vsfv_v1_account_proto protoreflect.FileDescriptor
 
 const file_pixlcrashr_vsfv_v1_account_proto_rawDesc = "" +
 	"\n" +
-	" pixlcrashr/vsfv/v1/account.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd1\x04\n" +
+	" pixlcrashr/vsfv/v1/account.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd1\x04\n" +
 	"\aAccount\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x03R\x04name\x12\x1d\n" +
 	"\x03uid\x18\x02 \x01(\tB\v\xe0A\x03\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12J\n" +
@@ -919,11 +918,11 @@ const file_pixlcrashr_vsfv_v1_account_proto_rawDesc = "" +
 	"\x14UpdateAccountRequest\x12:\n" +
 	"\aaccount\x18\x01 \x01(\v2\x1b.pixlcrashr.vsfv.v1.AccountB\x03\xe0A\x02R\aaccount\x12@\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
-	"updateMask\"O\n" +
-	"\x14DeleteAccountRequest\x127\n" +
+	"updateMask\"P\n" +
+	"\x15ArchiveAccountRequest\x127\n" +
 	"\x04name\x18\x01 \x01(\tB#\xe0A\x02\xfaA\x1d\n" +
 	"\x1bvsfv.pixlcrashr.dev/AccountR\x04name\"P\n" +
-	"\x15ArchiveAccountRequest\x127\n" +
+	"\x15RestoreAccountRequest\x127\n" +
 	"\x04name\x18\x01 \x01(\tB#\xe0A\x02\xfaA\x1d\n" +
 	"\x1bvsfv.pixlcrashr.dev/AccountR\x04name\"z\n" +
 	"\x19ListNestedAccountsRequest\x12@\n" +
@@ -937,7 +936,7 @@ const file_pixlcrashr_vsfv_v1_account_proto_rawDesc = "" +
 	"\x1bvsfv.pixlcrashr.dev/AccountR\x04name\x12\x1b\n" +
 	"\x06filter\x18\x02 \x01(\tB\x03\xe0A\x01R\x06filter\"W\n" +
 	"\x18GetNestedAccountResponse\x12;\n" +
-	"\aaccount\x18\x01 \x01(\v2!.pixlcrashr.vsfv.v1.NestedAccountR\aaccount2\xb8\n" +
+	"\aaccount\x18\x01 \x01(\v2!.pixlcrashr.vsfv.v1.NestedAccountR\aaccount2\xca\n" +
 	"\n" +
 	"\x0eAccountService\x12\x86\x01\n" +
 	"\n" +
@@ -947,8 +946,8 @@ const file_pixlcrashr_vsfv_v1_account_proto_rawDesc = "" +
 	"\x10GetNestedAccount\x12+.pixlcrashr.vsfv.v1.GetNestedAccountRequest\x1a,.pixlcrashr.vsfv.v1.GetNestedAccountResponse\">\xdaA\x04name\x82\xd3\xe4\x93\x021\x12//v1/{name=organizations/*/accounts/*}:getNested\x12\xaa\x01\n" +
 	"\rCreateAccount\x12(.pixlcrashr.vsfv.v1.CreateAccountRequest\x1a\x1b.pixlcrashr.vsfv.v1.Account\"R\xdaA\x19parent,account,account_id\x82\xd3\xe4\x93\x020:\aaccount\"%/v1/{parent=organizations/*}/accounts\x12\xac\x01\n" +
 	"\rUpdateAccount\x12(.pixlcrashr.vsfv.v1.UpdateAccountRequest\x1a\x1b.pixlcrashr.vsfv.v1.Account\"T\xdaA\x13account,update_mask\x82\xd3\xe4\x93\x028:\aaccount2-/v1/{account.name=organizations/*/accounts/*}\x12\x99\x01\n" +
-	"\x0eArchiveAccount\x12).pixlcrashr.vsfv.v1.ArchiveAccountRequest\x1a\x1b.pixlcrashr.vsfv.v1.Account\"?\xdaA\x04name\x82\xd3\xe4\x93\x022:\x01*\"-/v1/{name=organizations/*/accounts/*}:archive\x12\x87\x01\n" +
-	"\rDeleteAccount\x12(.pixlcrashr.vsfv.v1.DeleteAccountRequest\x1a\x16.google.protobuf.Empty\"4\xdaA\x04name\x82\xd3\xe4\x93\x02'*%/v1/{name=organizations/*/accounts/*}\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xb9\x01\n" +
+	"\x0eArchiveAccount\x12).pixlcrashr.vsfv.v1.ArchiveAccountRequest\x1a\x1b.pixlcrashr.vsfv.v1.Account\"?\xdaA\x04name\x82\xd3\xe4\x93\x022:\x01*\"-/v1/{name=organizations/*/accounts/*}:archive\x12\x99\x01\n" +
+	"\x0eRestoreAccount\x12).pixlcrashr.vsfv.v1.RestoreAccountRequest\x1a\x1b.pixlcrashr.vsfv.v1.Account\"?\xdaA\x04name\x82\xd3\xe4\x93\x022:\x01*\"-/v1/{name=organizations/*/accounts/*}:restore\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xb9\x01\n" +
 	"\x16com.pixlcrashr.vsfv.v1B\fAccountProtoP\x01Z'github.com/pixlcrashr/vsfv/pkg/grpc/gen\xa2\x02\x03PVX\xaa\x02\x12Pixlcrashr.Vsfv.V1\xca\x02\x12Pixlcrashr\\Vsfv\\V1\xe2\x02\x1ePixlcrashr\\Vsfv\\V1\\GPBMetadata\xea\x02\x14Pixlcrashr::Vsfv::V1b\x06proto3"
 
 var (
@@ -972,15 +971,14 @@ var file_pixlcrashr_vsfv_v1_account_proto_goTypes = []any{
 	(*ListAccountsResponse)(nil),       // 4: pixlcrashr.vsfv.v1.ListAccountsResponse
 	(*CreateAccountRequest)(nil),       // 5: pixlcrashr.vsfv.v1.CreateAccountRequest
 	(*UpdateAccountRequest)(nil),       // 6: pixlcrashr.vsfv.v1.UpdateAccountRequest
-	(*DeleteAccountRequest)(nil),       // 7: pixlcrashr.vsfv.v1.DeleteAccountRequest
-	(*ArchiveAccountRequest)(nil),      // 8: pixlcrashr.vsfv.v1.ArchiveAccountRequest
+	(*ArchiveAccountRequest)(nil),      // 7: pixlcrashr.vsfv.v1.ArchiveAccountRequest
+	(*RestoreAccountRequest)(nil),      // 8: pixlcrashr.vsfv.v1.RestoreAccountRequest
 	(*ListNestedAccountsRequest)(nil),  // 9: pixlcrashr.vsfv.v1.ListNestedAccountsRequest
 	(*ListNestedAccountsResponse)(nil), // 10: pixlcrashr.vsfv.v1.ListNestedAccountsResponse
 	(*GetNestedAccountRequest)(nil),    // 11: pixlcrashr.vsfv.v1.GetNestedAccountRequest
 	(*GetNestedAccountResponse)(nil),   // 12: pixlcrashr.vsfv.v1.GetNestedAccountResponse
 	(*timestamppb.Timestamp)(nil),      // 13: google.protobuf.Timestamp
 	(*fieldmaskpb.FieldMask)(nil),      // 14: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),              // 15: google.protobuf.Empty
 }
 var file_pixlcrashr_vsfv_v1_account_proto_depIdxs = []int32{
 	13, // 0: pixlcrashr.vsfv.v1.Account.update_time:type_name -> google.protobuf.Timestamp
@@ -999,8 +997,8 @@ var file_pixlcrashr_vsfv_v1_account_proto_depIdxs = []int32{
 	11, // 13: pixlcrashr.vsfv.v1.AccountService.GetNestedAccount:input_type -> pixlcrashr.vsfv.v1.GetNestedAccountRequest
 	5,  // 14: pixlcrashr.vsfv.v1.AccountService.CreateAccount:input_type -> pixlcrashr.vsfv.v1.CreateAccountRequest
 	6,  // 15: pixlcrashr.vsfv.v1.AccountService.UpdateAccount:input_type -> pixlcrashr.vsfv.v1.UpdateAccountRequest
-	8,  // 16: pixlcrashr.vsfv.v1.AccountService.ArchiveAccount:input_type -> pixlcrashr.vsfv.v1.ArchiveAccountRequest
-	7,  // 17: pixlcrashr.vsfv.v1.AccountService.DeleteAccount:input_type -> pixlcrashr.vsfv.v1.DeleteAccountRequest
+	7,  // 16: pixlcrashr.vsfv.v1.AccountService.ArchiveAccount:input_type -> pixlcrashr.vsfv.v1.ArchiveAccountRequest
+	8,  // 17: pixlcrashr.vsfv.v1.AccountService.RestoreAccount:input_type -> pixlcrashr.vsfv.v1.RestoreAccountRequest
 	0,  // 18: pixlcrashr.vsfv.v1.AccountService.GetAccount:output_type -> pixlcrashr.vsfv.v1.Account
 	4,  // 19: pixlcrashr.vsfv.v1.AccountService.ListAccounts:output_type -> pixlcrashr.vsfv.v1.ListAccountsResponse
 	10, // 20: pixlcrashr.vsfv.v1.AccountService.ListNestedAccounts:output_type -> pixlcrashr.vsfv.v1.ListNestedAccountsResponse
@@ -1008,7 +1006,7 @@ var file_pixlcrashr_vsfv_v1_account_proto_depIdxs = []int32{
 	0,  // 22: pixlcrashr.vsfv.v1.AccountService.CreateAccount:output_type -> pixlcrashr.vsfv.v1.Account
 	0,  // 23: pixlcrashr.vsfv.v1.AccountService.UpdateAccount:output_type -> pixlcrashr.vsfv.v1.Account
 	0,  // 24: pixlcrashr.vsfv.v1.AccountService.ArchiveAccount:output_type -> pixlcrashr.vsfv.v1.Account
-	15, // 25: pixlcrashr.vsfv.v1.AccountService.DeleteAccount:output_type -> google.protobuf.Empty
+	0,  // 25: pixlcrashr.vsfv.v1.AccountService.RestoreAccount:output_type -> pixlcrashr.vsfv.v1.Account
 	18, // [18:26] is the sub-list for method output_type
 	10, // [10:18] is the sub-list for method input_type
 	10, // [10:10] is the sub-list for extension type_name

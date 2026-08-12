@@ -13,6 +13,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"github.com/theater-improrama/go-utils/optional"
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 )
 
@@ -217,27 +218,36 @@ func (r *UserGroupRepository) Update(ctx context.Context, id uuid.UUID, params U
 		return errors.Join(ErrUserGroupIsSystem, fmt.Errorf("id=%s", id))
 	}
 
+	var cols []field.AssignExpr
+
 	if params.DisplayName.IsSet {
-		m.Name = params.DisplayName.Value
-	}
-	if params.DisplayDescription.IsSet {
-		m.Description = params.DisplayDescription.Value
+		cols = append(cols, r.q.UserGroup.Name.Value(params.DisplayName.Value))
 	}
 
-	_, err = r.q.UserGroup.WithContext(ctx).Where(r.q.UserGroup.ID.Eq(m.ID)).Updates(m)
-	if err != nil {
-		return fmt.Errorf("update user group id=%s: %w", m.ID, err)
+	if params.DisplayDescription.IsSet {
+		cols = append(cols, r.q.UserGroup.Description.Value(params.DisplayDescription.Value))
+	}
+
+	if len(cols) == 0 {
+		return nil
+	}
+
+	if _, err := r.q.UserGroup.WithContext(ctx).Where(r.q.UserGroup.ID.Eq(id)).UpdateSimple(cols...); err != nil {
+		return fmt.Errorf("update user group id=%s: %w", id, err)
 	}
 
 	if params.Organizations.IsSet || params.Permissions.IsSet {
 		var orgs []string
 		var perms []string
+
 		if params.Organizations.IsSet {
 			orgs = params.Organizations.Value
 		}
+
 		if params.Permissions.IsSet {
 			perms = params.Permissions.Value
 		}
+
 		if err := r.syncAssignmentsAndPolicies(ctx, m.ID, orgs, perms); err != nil {
 			return fmt.Errorf("update user group sync id=%s: %w", m.ID, err)
 		}

@@ -16,7 +16,6 @@ import (
 	"go.einride.tech/aip/ordering"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 var (
@@ -27,6 +26,7 @@ var (
 	statusInvalidParentAccountOrganization = status.New(codes.InvalidArgument, "invalid parent_account organization")
 	statusParentAccountMustBeContainer     = status.New(codes.InvalidArgument, "parent account must be a container account")
 	statusParentAccountNotFound            = status.New(codes.NotFound, "parent account not found")
+	statusParentAccountArchived            = status.New(codes.FailedPrecondition, "parent account is archived, restore the parent first")
 	statusAccountAlreadyExists             = status.New(codes.AlreadyExists, "account with this ID already exists")
 	statusFailedGetAccount                 = status.New(codes.Internal, "failed to get account")
 	statusFailedGetParentAccount           = status.New(codes.Internal, "failed to get parent account")
@@ -34,7 +34,7 @@ var (
 	statusFailedCreateAccount              = status.New(codes.Internal, "failed to create account")
 	statusFailedUpdateAccount              = status.New(codes.Internal, "failed to update account")
 	statusFailedArchiveAccount             = status.New(codes.Internal, "failed to archive account")
-	statusFailedDeleteAccount              = status.New(codes.Internal, "failed to delete account")
+	statusFailedRestoreAccount             = status.New(codes.Internal, "failed to restore account")
 )
 
 type accountServiceServer struct {
@@ -402,14 +402,14 @@ func (s *accountServiceServer) ArchiveAccount(ctx context.Context, req *gen.Arch
 	return AccountToProto(gen.OrganizationResourceName{Organization: n.Organization}, m, parentM), nil
 }
 
-func (s *accountServiceServer) DeleteAccount(ctx context.Context, req *gen.DeleteAccountRequest) (*emptypb.Empty, error) {
+func (s *accountServiceServer) RestoreAccount(ctx context.Context, req *gen.RestoreAccountRequest) (*gen.Account, error) {
 	var n gen.AccountResourceName
 
 	if err := n.UnmarshalString(req.Name); err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountName}
 	}
 
-	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionDelete, authz.OrgDomain(n.Organization)); err != nil {
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceAccounts, authz.ActionRestore, authz.OrgDomain(n.Organization)); err != nil {
 		return nil, authError(err)
 	}
 
@@ -428,15 +428,39 @@ func (s *accountServiceServer) DeleteAccount(ctx context.Context, req *gen.Delet
 		return nil, &ServerError{Err: err, Status: statusFailedGetAccount}
 	}
 
-	if err := s.repo.Delete(ctx, m.ID); err != nil {
-		if errors.Is(err, repository.ErrAccountNotFound) {
-			return nil, &ServerError{Err: err, Status: statusAccountNotFound}
+	// An account cannot be restored while its parent is still archived.
+	// Restoring must happen top-down: restore the parent first.
+	if m.ParentAccountID.Valid {
+		parent, err := s.repo.GetByID(ctx, m.ParentAccountID.UUID)
+		if err != nil {
+			return nil, &ServerError{Err: err, Status: statusFailedGetParentAccount}
 		}
 
-		return nil, &ServerError{Err: err, Status: statusFailedDeleteAccount}
+		if parent.IsArchived {
+			return nil, &ServerError{Status: statusParentAccountArchived}
+		}
 	}
 
-	return &emptypb.Empty{}, nil
+	if err := s.repo.Update(ctx, m.ID, repository.UpdateAccountParams{
+		IsArchived: optional.From(false),
+	}); err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedRestoreAccount}
+	}
+
+	// Refresh the model after update
+	m, err = s.repo.GetByID(ctx, m.ID)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedRestoreAccount}
+	}
+
+	var parentM *model.Account
+	if m.ParentAccountID.Valid {
+		parentM, err = s.repo.GetByID(ctx, m.ParentAccountID.UUID)
+		if err != nil {
+			return nil, &ServerError{Err: err, Status: statusFailedGetParentAccount}
+		}
+	}
+	return AccountToProto(gen.OrganizationResourceName{Organization: n.Organization}, m, parentM), nil
 }
 
 type accountWithChildren struct {

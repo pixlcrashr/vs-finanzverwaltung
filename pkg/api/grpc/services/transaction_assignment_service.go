@@ -12,6 +12,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
+	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"go.einride.tech/aip/ordering"
 	"google.golang.org/grpc/codes"
@@ -96,6 +97,31 @@ func (s *transactionAssignmentServiceServer) ListTransactionAssignments(ctx cont
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidFilter}
 	}
+
+	// Resolve "account" resource names in the filter to account UUIDs.
+	// The filter field is "account" (a resource_reference), but the DB column is "account_id" (UUID).
+	orgID, err := uuid.Parse(pn.Organization)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidParentTransaction}
+	}
+	c = cond.Transform(c, func(field string, value interface{}) (string, interface{}, bool) {
+		if field != "account" {
+			return field, value, true
+		}
+		accountName, ok := value.(string)
+		if !ok {
+			return field, value, true
+		}
+		var accountRN gen.AccountResourceName
+		if err := accountRN.UnmarshalString(accountName); err != nil {
+			return field, value, false
+		}
+		a, err := s.accountRepo.GetByCustomID(ctx, orgID, accountRN.Account)
+		if err != nil {
+			return field, value, false
+		}
+		return "account", a.ID.String(), true
+	})
 
 	offset, err := pagetoken.Decode(req.PageToken)
 	if err != nil {

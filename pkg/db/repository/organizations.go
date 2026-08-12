@@ -180,28 +180,32 @@ type UpdateOrganizationParams struct {
 
 // Update updates fields of an existing organization matched by its primary key.
 func (r *OrganizationRepository) Update(ctx context.Context, id uuid.UUID, params UpdateOrganizationParams) error {
-	m, err := r.GetByID(ctx, id)
-	if err != nil {
-		return err
-	}
+	var cols []field.AssignExpr
 
 	if params.DisplayName.IsSet {
-		m.DisplayName = params.DisplayName.Value
-	}
-	if params.DisplayDescription.IsSet {
-		m.DisplayDescription = params.DisplayDescription.Value
-	}
-	if params.StartMonth.IsSet {
-		m.StartMonth = params.StartMonth.Value
-	}
-	if params.CustomID.IsSet {
-		m.CustomID = params.CustomID.Value
+		cols = append(cols, r.q.Organization.DisplayName.Value(params.DisplayName.Value))
 	}
 
-	_, err = r.q.Organization.WithContext(ctx).Where(r.q.Organization.ID.Eq(m.ID)).Updates(m)
-	if err != nil {
-		return fmt.Errorf("update organization id=%s: %w", m.ID, err)
+	if params.DisplayDescription.IsSet {
+		cols = append(cols, r.q.Organization.DisplayDescription.Value(params.DisplayDescription.Value))
 	}
+
+	if params.StartMonth.IsSet {
+		cols = append(cols, r.q.Organization.StartMonth.Value(int(params.StartMonth.Value)))
+	}
+
+	if params.CustomID.IsSet {
+		cols = append(cols, r.q.Organization.CustomID.Value(params.CustomID.Value))
+	}
+
+	if len(cols) == 0 {
+		return nil
+	}
+
+	if _, err := r.q.Organization.WithContext(ctx).Where(r.q.Organization.ID.Eq(id)).UpdateSimple(cols...); err != nil {
+		return fmt.Errorf("update organization id=%s: %w", id, err)
+	}
+
 	return nil
 }
 

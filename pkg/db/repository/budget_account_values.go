@@ -8,9 +8,11 @@ import (
 	"github.com/cockroachdb/apd/v3"
 	"github.com/google/uuid"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
+	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"github.com/theater-improrama/go-utils/optional"
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 )
 
@@ -21,7 +23,7 @@ var (
 
 // BudgetAccountValueOrderFieldMapper maps API order_by field names to DB column names.
 var BudgetAccountValueOrderFieldMapper = order.FieldMapper{
-	"accountId":  "account_id",
+	"account":    "account_id",
 	"value":      "value",
 	"createTime": "created_at",
 	"updateTime": "updated_at",
@@ -39,7 +41,7 @@ type ListBudgetAccountValuesParams struct {
 
 func budgetAccountValueColumnMapper(field string) (string, bool) {
 	switch field {
-	case "account_id":
+	case "account":
 		return "account_id", true
 	default:
 		return "", false
@@ -49,11 +51,12 @@ func budgetAccountValueColumnMapper(field string) (string, bool) {
 // BudgetAccountValueRepository provides CRUD for the budget_account_values table.
 type BudgetAccountValueRepository struct {
 	db *gorm.DB
+	q  *dao.Query
 }
 
 // NewBudgetAccountValueRepository creates a BudgetAccountValueRepository backed by db.
 func NewBudgetAccountValueRepository(db *gorm.DB) *BudgetAccountValueRepository {
-	return &BudgetAccountValueRepository{db: db}
+	return &BudgetAccountValueRepository{db: db, q: dao.Use(db)}
 }
 
 // List returns budget account values for the given budget.
@@ -160,20 +163,18 @@ type UpdateBudgetAccountValueParams struct {
 
 // Update saves changes to an existing budget account value.
 func (r *BudgetAccountValueRepository) Update(ctx context.Context, id uuid.UUID, params UpdateBudgetAccountValueParams) error {
-	m, err := r.GetByID(ctx, id)
-	if err != nil {
-		return err
-	}
+	var cols []field.AssignExpr
 
 	if params.Value.IsSet {
-		m.Value = params.Value.Value
-	}
-	if params.CustomID.IsSet {
-		m.CustomID = params.CustomID.Value
+		cols = append(cols, r.q.BudgetAccountValue.Value.Value(params.Value.Value))
 	}
 
-	if err := r.db.WithContext(ctx).Save(m).Error; err != nil {
-		return fmt.Errorf("update budget account value id=%s: %w", m.ID, err)
+	if params.CustomID.IsSet {
+		cols = append(cols, r.q.BudgetAccountValue.CustomID.Value(params.CustomID.Value))
+	}
+
+	if _, err := r.q.BudgetAccountValue.WithContext(ctx).Where(r.q.BudgetAccountValue.ID.Eq(id)).UpdateSimple(cols...); err != nil {
+		return fmt.Errorf("update budget account value id=%s: %w", id, err)
 	}
 	return nil
 }

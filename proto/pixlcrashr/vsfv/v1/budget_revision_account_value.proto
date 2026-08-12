@@ -41,8 +41,9 @@ message BudgetRevisionAccountValue {
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/BudgetRevision"}
   ];
 
-  // The UUID of the account whose value is recorded here.
-  string account_id = 4 [
+  // Resource name of the account whose value is recorded here.
+  // Format: organizations/{organization}/accounts/{account}
+  string account = 4 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/Account"}
   ];
@@ -83,11 +84,11 @@ message ListBudgetRevisionAccountValuesRequest {
   string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
 
   // Filter expression conforming to AIP-160.
-  // Supported fields: account_id.
-  // Example: "account_id=\"<uuid>\"".
+  // Supported fields: account.
+  // Example: "account=\"organizations/{organization}/accounts/{account}\"".
   string filter = 4 [(google.api.field_behavior) = OPTIONAL];
 
-  // Order by expression (e.g. "account_id", "value desc").
+  // Order by expression (e.g. "account", "value desc").
   string order_by = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 

@@ -68,11 +68,11 @@ message ListBudgetActualAccountValuesRequest {
   string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
 
   // Filter expression conforming to AIP-160.
-  // Supported fields: account_id.
-  // Example: "account_id=\"<uuid>\"".
+  // Supported fields: account.
+  // Example: "account=\"organizations/{organization}/accounts/{account}\"".
   string filter = 4 [(google.api.field_behavior) = OPTIONAL];
 
-  // Order by expression (e.g. "account_id", "value desc").
+  // Order by expression (e.g. "account", "value desc").
   string order_by = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 

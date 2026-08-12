@@ -11,6 +11,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"github.com/theater-improrama/go-utils/optional"
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 )
 
@@ -70,6 +71,7 @@ func (r *LedgerAccountRepository) List(ctx context.Context, params ListLedgerAcc
 	if params.PageSize <= 0 {
 		params.PageSize = 20
 	}
+
 	if params.Page <= 0 {
 		params.Page = 1
 	}
@@ -192,31 +194,36 @@ type UpdateLedgerAccountParams struct {
 
 // Update updates fields of an existing ledger account.
 func (r *LedgerAccountRepository) Update(ctx context.Context, id uuid.UUID, params UpdateLedgerAccountParams) error {
-	m, err := r.GetByID(ctx, id)
-	if err != nil {
-		return err
-	}
+	var cols []field.AssignExpr
 
 	if params.Code.IsSet {
-		m.Code = params.Code.Value
-	}
-	if params.AccountType.IsSet {
-		m.AccountType = params.AccountType.Value
-	}
-	if params.DisplayName.IsSet {
-		m.DisplayName = params.DisplayName.Value
-	}
-	if params.DisplayDescription.IsSet {
-		m.DisplayDescription = params.DisplayDescription.Value
-	}
-	if params.CustomID.IsSet {
-		m.CustomID = params.CustomID.Value
+		cols = append(cols, r.q.LedgerAccount.Code.Value(params.Code.Value))
 	}
 
-	_, err = r.q.LedgerAccount.WithContext(ctx).Where(r.q.LedgerAccount.ID.Eq(m.ID)).Updates(m)
-	if err != nil {
-		return fmt.Errorf("update ledger account id=%s: %w", m.ID, err)
+	if params.AccountType.IsSet {
+		cols = append(cols, r.q.LedgerAccount.AccountType.Value(int(params.AccountType.Value)))
 	}
+
+	if params.DisplayName.IsSet {
+		cols = append(cols, r.q.LedgerAccount.DisplayName.Value(params.DisplayName.Value))
+	}
+
+	if params.DisplayDescription.IsSet {
+		cols = append(cols, r.q.LedgerAccount.DisplayDescription.Value(params.DisplayDescription.Value))
+	}
+
+	if params.CustomID.IsSet {
+		cols = append(cols, r.q.LedgerAccount.CustomID.Value(params.CustomID.Value))
+	}
+
+	if len(cols) == 0 {
+		return nil
+	}
+
+	if _, err := r.q.LedgerAccount.WithContext(ctx).Where(r.q.LedgerAccount.ID.Eq(id)).UpdateSimple(cols...); err != nil {
+		return fmt.Errorf("update ledger account id=%s: %w", id, err)
+	}
+
 	return nil
 }
 

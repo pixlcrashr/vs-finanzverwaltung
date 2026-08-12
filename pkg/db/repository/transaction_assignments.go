@@ -12,6 +12,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"github.com/theater-improrama/go-utils/optional"
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 )
 
@@ -42,7 +43,7 @@ type ListTransactionAssignmentsParams struct {
 // transactionAssignmentColumnMapper maps filter field names to database column names.
 func transactionAssignmentColumnMapper(field string) (string, bool) {
 	switch field {
-	case "account_id":
+	case "account":
 		return "account_id", true
 	default:
 		return "", false
@@ -150,22 +151,22 @@ type UpdateTransactionAssignmentParams struct {
 
 // Update updates fields of an existing transaction assignment.
 func (r *TransactionAssignmentRepository) Update(ctx context.Context, id uuid.UUID, params UpdateTransactionAssignmentParams) error {
-	m, err := r.GetByID(ctx, id)
-	if err != nil {
-		return err
-	}
+	var cols []field.AssignExpr
 
 	if params.AccountID.IsSet {
-		m.AccountID = params.AccountID.Value
+		cols = append(cols, r.q.TransactionAssignment.AccountID.Value(params.AccountID.Value))
 	}
 
 	if params.Value.IsSet {
-		m.Value = params.Value.Value
+		cols = append(cols, r.q.TransactionAssignment.Value.Value(params.Value.Value))
 	}
 
-	_, err = r.q.TransactionAssignment.WithContext(ctx).Where(r.q.TransactionAssignment.ID.Eq(m.ID)).Updates(m)
-	if err != nil {
-		return fmt.Errorf("update transaction assignment id=%s: %w", m.ID, err)
+	if len(cols) == 0 {
+		return nil
+	}
+
+	if _, err := r.q.TransactionAssignment.WithContext(ctx).Where(r.q.TransactionAssignment.ID.Eq(id)).UpdateSimple(cols...); err != nil {
+		return fmt.Errorf("update transaction assignment id=%s: %w", id, err)
 	}
 	return nil
 }

@@ -553,9 +553,11 @@ paths:
                   The resource name of the parent budget.
                   Format: organizations/{organization}/budgets/{budget}
                 readOnly: true
-              account_id:
+              account:
                 type: string
-                description: The UUID of the account this value is assigned to.
+                title: |-
+                  Resource name of the account this value is assigned to.
+                  Format: organizations/{organization}/accounts/{account}
               value:
                 $ref: '#/definitions/v1Decimal'
                 description: The target monetary value assigned to the account for this budget.
@@ -575,7 +577,7 @@ paths:
                 readOnly: true
             title: The budget account value to update.
             required:
-              - account_id
+              - account
               - value
         - name: allow_missing
           description: |-
@@ -922,12 +924,12 @@ paths:
         - LedgerYearService
     delete:
       summary: |-
-        Permanently deletes a transaction.
+        Deletes a transaction assignment.
         Authorization:
-          Scope: transactions:write
+          Scope: transactions:delete
           Permission: transactions:delete
           Domain: organization-scoped
-      operationId: TransactionService_DeleteTransaction
+      operationId: TransactionAssignmentService_DeleteTransactionAssignment
       responses:
         "200":
           description: A successful response.
@@ -941,14 +943,14 @@ paths:
       parameters:
         - name: name_10
           description: |-
-            The resource name of the transaction.
-            Format: organizations/{organization}/transactions/{transaction}
+            The resource name of the transaction assignment.
+            Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
           in: path
           required: true
           type: string
-          pattern: organizations/[^/]+/transactions/[^/]+
+          pattern: organizations/[^/]+/transactions/[^/]+/assignments/[^/]+
       tags:
-        - TransactionService
+        - TransactionAssignmentService
   /v1/{name_11}:
     get:
       summary: |-
@@ -978,35 +980,6 @@ paths:
           pattern: organizations/[^/]+
       tags:
         - OrganizationService
-    delete:
-      summary: |-
-        Deletes a transaction assignment.
-        Authorization:
-          Scope: transactions:delete
-          Permission: transactions:delete
-          Domain: organization-scoped
-      operationId: TransactionAssignmentService_DeleteTransactionAssignment
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            type: object
-            properties: {}
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: name_11
-          description: |-
-            The resource name of the transaction assignment.
-            Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
-          in: path
-          required: true
-          type: string
-          pattern: organizations/[^/]+/transactions/[^/]+/assignments/[^/]+
-      tags:
-        - TransactionAssignmentService
   /v1/{name_12}:
     get:
       summary: |-
@@ -1241,12 +1214,12 @@ paths:
         - AccountGroupService
     delete:
       summary: |-
-        Permanently deletes an account group.
+        Permanently deletes an assignment.
         Authorization:
           Scope: accountGroups:write
           Permission: accountGroups:delete
           Domain: organization-scoped
-      operationId: AccountGroupService_DeleteAccountGroup
+      operationId: AccountGroupAssignmentService_DeleteAccountGroupAssignment
       responses:
         "200":
           description: A successful response.
@@ -1260,14 +1233,14 @@ paths:
       parameters:
         - name: name_1
           description: |-
-            The resource name of the account group.
-            Format: organizations/{organization}/accountGroups/{account_group}
+            The resource name of the assignment.
+            Format: organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}
           in: path
           required: true
           type: string
-          pattern: organizations/[^/]+/accountGroups/[^/]+
+          pattern: organizations/[^/]+/accountGroups/[^/]+/assignments/[^/]+
       tags:
-        - AccountGroupService
+        - AccountGroupAssignmentService
   /v1/{name_1}:close:
     post:
       summary: |-
@@ -1333,12 +1306,12 @@ paths:
         - AccountGroupAssignmentService
     delete:
       summary: |-
-        Permanently deletes an assignment.
+        Permanently deletes a budget.
         Authorization:
-          Scope: accountGroups:write
-          Permission: accountGroups:delete
+          Scope: budgets:write
+          Permission: budgets:delete
           Domain: organization-scoped
-      operationId: AccountGroupAssignmentService_DeleteAccountGroupAssignment
+      operationId: BudgetService_DeleteBudget
       responses:
         "200":
           description: A successful response.
@@ -1352,14 +1325,14 @@ paths:
       parameters:
         - name: name_2
           description: |-
-            The resource name of the assignment.
-            Format: organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}
+            The resource name of the budget.
+            Format: organizations/{organization}/budgets/{budget}
           in: path
           required: true
           type: string
-          pattern: organizations/[^/]+/accountGroups/[^/]+/assignments/[^/]+
+          pattern: organizations/[^/]+/budgets/[^/]+
       tags:
-        - AccountGroupAssignmentService
+        - BudgetService
   /v1/{name_3}:
     get:
       summary: |-
@@ -1391,12 +1364,12 @@ paths:
         - BudgetService
     delete:
       summary: |-
-        Permanently deletes a budget.
+        Permanently deletes a budget account value.
         Authorization:
           Scope: budgets:write
           Permission: budgets:delete
           Domain: organization-scoped
-      operationId: BudgetService_DeleteBudget
+      operationId: BudgetAccountValueService_DeleteBudgetAccountValue
       responses:
         "200":
           description: A successful response.
@@ -1410,14 +1383,14 @@ paths:
       parameters:
         - name: name_3
           description: |-
-            The resource name of the budget.
-            Format: organizations/{organization}/budgets/{budget}
+            The resource name of the budget account value.
+            Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
           in: path
           required: true
           type: string
-          pattern: organizations/[^/]+/budgets/[^/]+
+          pattern: organizations/[^/]+/budgets/[^/]+/accountValues/[^/]+
       tags:
-        - BudgetService
+        - BudgetAccountValueService
   /v1/{name_4}:
     get:
       summary: |-
@@ -1449,12 +1422,12 @@ paths:
         - BudgetAccountValueService
     delete:
       summary: |-
-        Permanently deletes a budget account value.
+        Permanently deletes a group.
         Authorization:
-          Scope: budgets:write
-          Permission: budgets:delete
-          Domain: organization-scoped
-      operationId: BudgetAccountValueService_DeleteBudgetAccountValue
+          Scope: groups:write
+          Permission: groups:delete
+          Domain: global
+      operationId: GroupService_DeleteGroup
       responses:
         "200":
           description: A successful response.
@@ -1468,14 +1441,14 @@ paths:
       parameters:
         - name: name_4
           description: |-
-            The resource name of the budget account value.
-            Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
+            The resource name of the group.
+            Format: groups/{group}
           in: path
           required: true
           type: string
-          pattern: organizations/[^/]+/budgets/[^/]+/accountValues/[^/]+
+          pattern: groups/[^/]+
       tags:
-        - BudgetAccountValueService
+        - GroupService
   /v1/{name_5}:
     get:
       summary: |-
@@ -1507,12 +1480,12 @@ paths:
         - BudgetActualAccountValueService
     delete:
       summary: |-
-        Permanently deletes a group.
+        Permanently deletes a ledger account.
         Authorization:
-          Scope: groups:write
-          Permission: groups:delete
-          Domain: global
-      operationId: GroupService_DeleteGroup
+          Scope: ledgerAccount:write
+          Permission: ledgerAccount:delete
+          Domain: organization-scoped
+      operationId: LedgerAccountService_DeleteLedgerAccount
       responses:
         "200":
           description: A successful response.
@@ -1526,14 +1499,14 @@ paths:
       parameters:
         - name: name_5
           description: |-
-            The resource name of the group.
-            Format: groups/{group}
+            The resource name of the ledger account.
+            Format: organizations/{organization}/ledgerAccounts/{ledger_account}
           in: path
           required: true
           type: string
-          pattern: groups/[^/]+
+          pattern: organizations/[^/]+/ledgerAccounts/[^/]+
       tags:
-        - GroupService
+        - LedgerAccountService
   /v1/{name_6}:
     get:
       summary: |-
@@ -1565,12 +1538,12 @@ paths:
         - BudgetRevisionService
     delete:
       summary: |-
-        Permanently deletes a ledger account.
+        Permanently deletes an organization.
         Authorization:
-          Scope: ledgerAccount:write
-          Permission: ledgerAccount:delete
-          Domain: organization-scoped
-      operationId: LedgerAccountService_DeleteLedgerAccount
+          Scope: organizations:write
+          Permission: organizations:delete
+          Domain: global
+      operationId: OrganizationService_DeleteOrganization
       responses:
         "200":
           description: A successful response.
@@ -1584,14 +1557,14 @@ paths:
       parameters:
         - name: name_6
           description: |-
-            The resource name of the ledger account.
-            Format: organizations/{organization}/ledgerAccounts/{ledger_account}
+            The resource name of the organization.
+            Format: organizations/{organization}
           in: path
           required: true
           type: string
-          pattern: organizations/[^/]+/ledgerAccounts/[^/]+
+          pattern: organizations/[^/]+
       tags:
-        - LedgerAccountService
+        - OrganizationService
   /v1/{name_7}:
     get:
       summary: |-
@@ -1623,12 +1596,12 @@ paths:
         - BudgetRevisionAccountValueService
     delete:
       summary: |-
-        Permanently deletes an organization.
+        Permanently deletes a report.
         Authorization:
-          Scope: organizations:write
-          Permission: organizations:delete
-          Domain: global
-      operationId: OrganizationService_DeleteOrganization
+          Scope: reports:write
+          Permission: reports:delete
+          Domain: organization-scoped
+      operationId: ReportService_DeleteReport
       responses:
         "200":
           description: A successful response.
@@ -1642,14 +1615,14 @@ paths:
       parameters:
         - name: name_7
           description: |-
-            The resource name of the organization.
-            Format: organizations/{organization}
+            The resource name of the report.
+            Format: organizations/{organization}/reports/{report}
           in: path
           required: true
           type: string
-          pattern: organizations/[^/]+
+          pattern: organizations/[^/]+/reports/[^/]+
       tags:
-        - OrganizationService
+        - ReportService
   /v1/{name_8}:
     get:
       summary: |-
@@ -1681,12 +1654,12 @@ paths:
         - GroupService
     delete:
       summary: |-
-        Permanently deletes a report.
+        Permanently deletes a report template.
         Authorization:
-          Scope: reports:write
-          Permission: reports:delete
+          Scope: reportTemplates:write
+          Permission: reportTemplates:delete
           Domain: organization-scoped
-      operationId: ReportService_DeleteReport
+      operationId: ReportTemplateService_DeleteReportTemplate
       responses:
         "200":
           description: A successful response.
@@ -1700,14 +1673,14 @@ paths:
       parameters:
         - name: name_8
           description: |-
-            The resource name of the report.
-            Format: organizations/{organization}/reports/{report}
+            The resource name of the report template.
+            Format: organizations/{organization}/reportTemplates/{report_template}
           in: path
           required: true
           type: string
-          pattern: organizations/[^/]+/reports/[^/]+
+          pattern: organizations/[^/]+/reportTemplates/[^/]+
       tags:
-        - ReportService
+        - ReportTemplateService
   /v1/{name_9}:
     get:
       summary: |-
@@ -1739,12 +1712,12 @@ paths:
         - LedgerAccountService
     delete:
       summary: |-
-        Permanently deletes a report template.
+        Permanently deletes a transaction.
         Authorization:
-          Scope: reportTemplates:write
-          Permission: reportTemplates:delete
+          Scope: transactions:write
+          Permission: transactions:delete
           Domain: organization-scoped
-      operationId: ReportTemplateService_DeleteReportTemplate
+      operationId: TransactionService_DeleteTransaction
       responses:
         "200":
           description: A successful response.
@@ -1758,14 +1731,14 @@ paths:
       parameters:
         - name: name_9
           description: |-
-            The resource name of the report template.
-            Format: organizations/{organization}/reportTemplates/{report_template}
+            The resource name of the transaction.
+            Format: organizations/{organization}/transactions/{transaction}
           in: path
           required: true
           type: string
-          pattern: organizations/[^/]+/reportTemplates/[^/]+
+          pattern: organizations/[^/]+/transactions/[^/]+
       tags:
-        - ReportTemplateService
+        - TransactionService
   /v1/{name}:
     get:
       summary: |-
@@ -1797,12 +1770,12 @@ paths:
         - AccountService
     delete:
       summary: |-
-        Permanently deletes an account.
+        Permanently deletes an account group.
         Authorization:
-          Scope: accounts:write
-          Permission: accounts:delete
+          Scope: accountGroups:write
+          Permission: accountGroups:delete
           Domain: organization-scoped
-      operationId: AccountService_DeleteAccount
+      operationId: AccountGroupService_DeleteAccountGroup
       responses:
         "200":
           description: A successful response.
@@ -1816,14 +1789,14 @@ paths:
       parameters:
         - name: name
           description: |-
-            The resource name of the account.
-            Format: organizations/{organization}/accounts/{account}
+            The resource name of the account group.
+            Format: organizations/{organization}/accountGroups/{account_group}
           in: path
           required: true
           type: string
-          pattern: organizations/[^/]+/accounts/[^/]+
+          pattern: organizations/[^/]+/accountGroups/[^/]+
       tags:
-        - AccountService
+        - AccountGroupService
   /v1/{name}:addUser:
     post:
       summary: |-
@@ -2065,6 +2038,40 @@ paths:
             $ref: '#/definitions/GroupServiceRemoveUserFromGroupBody'
       tags:
         - GroupService
+  /v1/{name}:restore:
+    post:
+      summary: |-
+        Restores an archived account (undo of ArchiveAccount).
+        Authorization:
+          Scope: accounts:write
+          Permission: accounts:restore
+          Domain: organization-scoped
+      operationId: AccountService_RestoreAccount
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1Account'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: name
+          description: |-
+            The resource name of the account.
+            Format: organizations/{organization}/accounts/{account}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+/accounts/[^/]+
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/AccountServiceRestoreAccountBody'
+      tags:
+        - AccountService
   /v1/{organization.name}:
     patch:
       summary: |-
@@ -2175,13 +2182,13 @@ paths:
         - name: filter
           description: |-
             Filter expression conforming to AIP-160.
-            Supported fields: account_id.
-            Example: "account_id=\"<uuid>\"".
+            Supported fields: account.
+            Example: "account=\"organizations/{organization}/accounts/{account}\"".
           in: query
           required: false
           type: string
         - name: order_by
-          description: Order by expression (e.g. "account_id", "value desc").
+          description: Order by expression (e.g. "account", "value desc").
           in: query
           required: false
           type: string
@@ -2422,8 +2429,8 @@ paths:
         - name: filter
           description: |-
             Filter expression conforming to AIP-160.
-            Supported fields: account_id.
-            Example: "account_id=\"<uuid>\"".
+            Supported fields: account.
+            Example: "account=\"organizations/{organization}/accounts/{account}\"".
           in: query
           required: false
           type: string
@@ -2698,13 +2705,13 @@ paths:
         - name: filter
           description: |-
             Filter expression conforming to AIP-160.
-            Supported fields: account_id.
-            Example: "account_id=\"<uuid>\"".
+            Supported fields: account.
+            Example: "account=\"organizations/{organization}/accounts/{account}\"".
           in: query
           required: false
           type: string
         - name: order_by
-          description: Order by expression (e.g. "account_id", "value desc").
+          description: Order by expression (e.g. "account", "value desc").
           in: query
           required: false
           type: string
@@ -3423,9 +3430,9 @@ paths:
         - name: filter
           description: |-
             Filter expression conforming to AIP-160.
-            Supported fields: credit_transaction_account_id, debit_transaction_account_id,
+            Supported fields: credit_ledger_account, debit_ledger_account,
             booked_at, document_date, amount.
-            Example: "credit_transaction_account_id=\"<uuid>\" AND booked_at>=\"2025-01-01T00:00:00Z\"".
+            Example: "credit_ledger_account=\"organizations/{organization}/ledgerAccounts/{ledger_account}\" AND booked_at>=\"2025-01-01T00:00:00Z\"".
           in: query
           required: false
           type: string
@@ -3774,6 +3781,8 @@ paths:
         - TransactionService
 definitions:
   AccountServiceArchiveAccountBody:
+    type: object
+  AccountServiceRestoreAccountBody:
     type: object
   BudgetAccountValueServiceBatchUpdateBudgetAccountValuesBody:
     type: object
@@ -4167,9 +4176,11 @@ definitions:
           The resource name of the parent budget.
           Format: organizations/{organization}/budgets/{budget}
         readOnly: true
-      account_id:
+      account:
         type: string
-        description: The UUID of the account this value is assigned to.
+        title: |-
+          Resource name of the account this value is assigned to.
+          Format: organizations/{organization}/accounts/{account}
       value:
         $ref: '#/definitions/v1Decimal'
         description: The target monetary value assigned to the account for this budget.
@@ -4192,7 +4203,7 @@ definitions:
       a budget. Accounts may optionally be assigned a value; not all accounts in
       the system need to be present.
     required:
-      - account_id
+      - account
       - value
   v1BudgetActualAccountValue:
     type: object
@@ -4292,9 +4303,11 @@ definitions:
           The resource name of the parent revision.
           Format: organizations/{organization}/budgets/{budget}/revisions/{revision}
         readOnly: true
-      account_id:
+      account:
         type: string
-        description: The UUID of the account whose value is recorded here.
+        title: |-
+          Resource name of the account whose value is recorded here.
+          Format: organizations/{organization}/accounts/{account}
         readOnly: true
       value:
         $ref: '#/definitions/v1Decimal'

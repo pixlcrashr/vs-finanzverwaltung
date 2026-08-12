@@ -171,16 +171,19 @@ func BudgetToProto(orgRN gen.OrganizationResourceName, m *model.Budget) *gen.Bud
 }
 
 // BudgetAccountValueToProto maps model.BudgetAccountValue to gen.BudgetAccountValue.
-func BudgetAccountValueToProto(budgetRN gen.BudgetResourceName, m *model.BudgetAccountValue) *gen.BudgetAccountValue {
-	return &gen.BudgetAccountValue{
+func BudgetAccountValueToProto(budgetRN gen.BudgetResourceName, m *model.BudgetAccountValue, account *model.Account) *gen.BudgetAccountValue {
+	p := &gen.BudgetAccountValue{
 		Name:       budgetRN.BudgetAccountValueResourceName(m.CustomID).String(),
 		Uid:        m.ID.String(),
 		Budget:     budgetRN.String(),
-		AccountId:  m.AccountID.String(),
 		Value:      &gen.Decimal{Value: decimalStr(m.Value.String())},
 		UpdateTime: ts(m.UpdatedAt),
 		CreateTime: ts(m.CreatedAt),
 	}
+	if account != nil {
+		p.Account = gen.AccountResourceName{Organization: budgetRN.Organization, Account: account.CustomID}.String()
+	}
+	return p
 }
 
 // BudgetRevisionToProto maps model.BudgetRevision to gen.BudgetRevision.
@@ -198,15 +201,18 @@ func BudgetRevisionToProto(budgetRN gen.BudgetResourceName, m *model.BudgetRevis
 }
 
 // BudgetRevisionAccountValueToProto maps model.BudgetRevisionAccountValue to gen.BudgetRevisionAccountValue.
-func BudgetRevisionAccountValueToProto(revisionRN gen.BudgetRevisionResourceName, m *model.BudgetRevisionAccountValue) *gen.BudgetRevisionAccountValue {
-	return &gen.BudgetRevisionAccountValue{
+func BudgetRevisionAccountValueToProto(revisionRN gen.BudgetRevisionResourceName, m *model.BudgetRevisionAccountValue, account *model.Account) *gen.BudgetRevisionAccountValue {
+	p := &gen.BudgetRevisionAccountValue{
 		Name:       revisionRN.BudgetRevisionAccountValueResourceName(m.CustomID).String(),
 		Uid:        m.ID.String(),
 		Revision:   revisionRN.String(),
-		AccountId:  m.AccountID.String(),
 		Value:      &gen.Decimal{Value: decimalStr(m.Value.String())},
 		CreateTime: ts(m.CreatedAt),
 	}
+	if account != nil {
+		p.Account = gen.AccountResourceName{Organization: revisionRN.Organization, Account: account.CustomID}.String()
+	}
+	return p
 }
 
 // LedgerYearToProto maps a model.LedgerYear to its proto representation.

@@ -12,6 +12,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"github.com/theater-improrama/go-utils/optional"
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 )
 
@@ -216,37 +217,44 @@ type UpdateAccountParams struct {
 
 // Update updates fields of an existing account matched by its primary key.
 func (r *AccountRepository) Update(ctx context.Context, id uuid.UUID, params UpdateAccountParams) error {
-	m, err := r.GetByID(ctx, id)
-	if err != nil {
-		return err
-	}
+	var cols []field.AssignExpr
 
 	if params.ParentAccountID.IsSet {
-		m.ParentAccountID = params.ParentAccountID.Value
-	}
-	if params.DisplayName.IsSet {
-		m.DisplayName = params.DisplayName.Value
-	}
-	if params.DisplayCode.IsSet {
-		m.DisplayCode = params.DisplayCode.Value
-	}
-	if params.DisplayDescription.IsSet {
-		m.DisplayDescription = params.DisplayDescription.Value
-	}
-	if params.IsContainer.IsSet {
-		m.IsContainer = params.IsContainer.Value
-	}
-	if params.IsArchived.IsSet {
-		m.IsArchived = params.IsArchived.Value
-	}
-	if params.CustomID.IsSet {
-		m.CustomID = params.CustomID.Value
+		cols = append(cols, r.q.Account.ParentAccountID.Value(params.ParentAccountID.Value))
 	}
 
-	_, err = r.q.Account.WithContext(ctx).Where(r.q.Account.ID.Eq(m.ID)).Updates(m)
-	if err != nil {
-		return fmt.Errorf("update account id=%s: %w", m.ID, err)
+	if params.DisplayName.IsSet {
+		cols = append(cols, r.q.Account.DisplayName.Value(params.DisplayName.Value))
 	}
+
+	if params.DisplayCode.IsSet {
+		cols = append(cols, r.q.Account.DisplayCode.Value(params.DisplayCode.Value))
+	}
+
+	if params.DisplayDescription.IsSet {
+		cols = append(cols, r.q.Account.DisplayDescription.Value(params.DisplayDescription.Value))
+	}
+
+	if params.IsContainer.IsSet {
+		cols = append(cols, r.q.Account.IsContainer.Value(params.IsContainer.Value))
+	}
+
+	if params.IsArchived.IsSet {
+		cols = append(cols, r.q.Account.IsArchived.Value(params.IsArchived.Value))
+	}
+
+	if params.CustomID.IsSet {
+		cols = append(cols, r.q.Account.CustomID.Value(params.CustomID.Value))
+	}
+
+	if len(cols) == 0 {
+		return nil
+	}
+
+	if _, err := r.q.Account.WithContext(ctx).Where(r.q.Account.ID.Eq(id)).UpdateSimple(cols...); err != nil {
+		return fmt.Errorf("update account id=%s: %w", id, err)
+	}
+
 	return nil
 }
 

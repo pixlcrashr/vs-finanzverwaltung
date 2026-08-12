@@ -9,8 +9,10 @@ import (
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
 	"github.com/pixlcrashr/vsfv/pkg/api/grpc/services/pagetoken"
 	"github.com/pixlcrashr/vsfv/pkg/authz"
+	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 	gen "github.com/pixlcrashr/vsfv/pkg/grpc/gen"
+	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
 	"github.com/theater-improrama/go-utils/optional"
 	"go.einride.tech/aip/ordering"
@@ -34,18 +36,32 @@ var (
 	statusFailedBatchUpdateBudgetAccountValues = status.New(codes.Internal, "failed to batch update budget account values")
 	statusAccountValueNameMismatch             = status.New(codes.InvalidArgument, "account value name does not match batch parent")
 	statusAccountValueRequestRequired          = status.New(codes.InvalidArgument, "account_value is required in each request")
-	statusInvalidAccountValueInBatch           = status.New(codes.InvalidArgument, "invalid account_id in batch request")
+	statusInvalidAccountValueInBatch           = status.New(codes.InvalidArgument, "invalid account in batch request")
 	statusInvalidValueInBatch                  = status.New(codes.InvalidArgument, "invalid value in batch request")
 )
 
 type budgetAccountValueServiceServer struct {
 	gen.UnimplementedBudgetAccountValueServiceServer
-	repo     *repository.BudgetAccountValueRepository
-	enforcer *authz.Enforcer
+	repo        *repository.BudgetAccountValueRepository
+	accountRepo *repository.AccountRepository
+	enforcer    *authz.Enforcer
 }
 
-func newBudgetAccountValueServiceServer(repo *repository.BudgetAccountValueRepository, enforcer *authz.Enforcer) gen.BudgetAccountValueServiceServer {
-	return &budgetAccountValueServiceServer{repo: repo, enforcer: enforcer}
+func newBudgetAccountValueServiceServer(repo *repository.BudgetAccountValueRepository, accountRepo *repository.AccountRepository, enforcer *authz.Enforcer) gen.BudgetAccountValueServiceServer {
+	return &budgetAccountValueServiceServer{repo: repo, accountRepo: accountRepo, enforcer: enforcer}
+}
+
+// resolveAccount parses an account resource name and resolves it to a UUID via the account repo.
+func (s *budgetAccountValueServiceServer) resolveAccount(ctx context.Context, orgID uuid.UUID, accountName string) (uuid.UUID, *model.Account, error) {
+	var accountRN gen.AccountResourceName
+	if err := accountRN.UnmarshalString(accountName); err != nil {
+		return uuid.Nil, nil, err
+	}
+	a, err := s.accountRepo.GetByCustomID(ctx, orgID, accountRN.Account)
+	if err != nil {
+		return uuid.Nil, nil, err
+	}
+	return a.ID, a, nil
 }
 
 func (s *budgetAccountValueServiceServer) CreateBudgetAccountValue(ctx context.Context, req *gen.CreateBudgetAccountValueRequest) (*gen.BudgetAccountValue, error) {
@@ -73,7 +89,7 @@ func (s *budgetAccountValueServiceServer) CreateBudgetAccountValue(ctx context.C
 		return nil, &ServerError{Err: err, Status: statusInvalidParentBudgetName}
 	}
 
-	accountID, err := uuid.Parse(req.AccountValue.AccountId)
+	accountID, account, err := s.resolveAccount(ctx, orgID, req.AccountValue.Account)
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidAccountID}
 	}
@@ -109,7 +125,7 @@ func (s *budgetAccountValueServiceServer) CreateBudgetAccountValue(ctx context.C
 		return nil, &ServerError{Err: err, Status: statusFailedCreateBudgetAccountValue}
 	}
 
-	return BudgetAccountValueToProto(pn, m), nil
+	return BudgetAccountValueToProto(pn, m, account), nil
 }
 
 func (s *budgetAccountValueServiceServer) GetBudgetAccountValue(ctx context.Context, req *gen.GetBudgetAccountValueRequest) (*gen.BudgetAccountValue, error) {
@@ -137,7 +153,9 @@ func (s *budgetAccountValueServiceServer) GetBudgetAccountValue(ctx context.Cont
 		return nil, &ServerError{Err: err, Status: statusFailedGetBudgetAccountValue}
 	}
 
-	return BudgetAccountValueToProto(n.BudgetResourceName(), m), nil
+	account, _ := s.accountRepo.GetByID(ctx, m.AccountID)
+
+	return BudgetAccountValueToProto(n.BudgetResourceName(), m, account), nil
 }
 
 func (s *budgetAccountValueServiceServer) ListBudgetAccountValues(ctx context.Context, req *gen.ListBudgetAccountValuesRequest) (*gen.ListBudgetAccountValuesResponse, error) {
@@ -165,6 +183,22 @@ func (s *budgetAccountValueServiceServer) ListBudgetAccountValues(ctx context.Co
 	if err != nil {
 		return nil, &ServerError{Err: err, Status: statusInvalidFilter}
 	}
+
+	// Resolve "account" resource names in the filter to account UUIDs.
+	c = cond.Transform(c, func(field string, value interface{}) (string, interface{}, bool) {
+		if field != "account" {
+			return field, value, true
+		}
+		accountName, ok := value.(string)
+		if !ok {
+			return field, value, true
+		}
+		accountID, _, err := s.resolveAccount(ctx, orgID, accountName)
+		if err != nil {
+			return field, value, false
+		}
+		return "account", accountID.String(), true
+	})
 
 	offset, err := pagetoken.Decode(req.PageToken)
 	if err != nil {
@@ -194,9 +228,16 @@ func (s *budgetAccountValueServiceServer) ListBudgetAccountValues(ctx context.Co
 		return nil, &ServerError{Err: err, Status: statusFailedListBudgetAccountValues}
 	}
 
+	// Batch-fetch account models for the response.
+	accountIDs := make([]uuid.UUID, 0, len(ms))
+	for _, m := range ms {
+		accountIDs = append(accountIDs, m.AccountID)
+	}
+	accountMap := s.fetchAccountsByIDs(ctx, accountIDs)
+
 	resp := &gen.ListBudgetAccountValuesResponse{TotalSize: total}
 	for _, m := range ms {
-		resp.AccountValues = append(resp.AccountValues, BudgetAccountValueToProto(pn, m))
+		resp.AccountValues = append(resp.AccountValues, BudgetAccountValueToProto(pn, m, accountMap[m.AccountID]))
 	}
 
 	nextOffset := offset + int64(len(ms))
@@ -248,7 +289,7 @@ func (s *budgetAccountValueServiceServer) UpdateBudgetAccountValue(ctx context.C
 			return nil, &ServerError{Err: err, Status: statusInvalidAccountValueName}
 		}
 
-		accountID, err := uuid.Parse(req.AccountValue.AccountId)
+		accountID, account, err := s.resolveAccount(ctx, orgID, req.AccountValue.Account)
 		if err != nil {
 			return nil, &ServerError{Err: err, Status: statusInvalidAccountID}
 		}
@@ -271,7 +312,7 @@ func (s *budgetAccountValueServiceServer) UpdateBudgetAccountValue(ctx context.C
 			return nil, &ServerError{Err: err, Status: statusFailedCreateBudgetAccountValue}
 		}
 
-		return BudgetAccountValueToProto(n.BudgetResourceName(), newM), nil
+		return BudgetAccountValueToProto(n.BudgetResourceName(), newM, account), nil
 	}
 
 	updateParams := repository.UpdateBudgetAccountValueParams{}
@@ -293,7 +334,9 @@ func (s *budgetAccountValueServiceServer) UpdateBudgetAccountValue(ctx context.C
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateBudgetAccountValue}
 	}
 
-	return BudgetAccountValueToProto(n.BudgetResourceName(), m), nil
+	account, _ := s.accountRepo.GetByID(ctx, m.AccountID)
+
+	return BudgetAccountValueToProto(n.BudgetResourceName(), m, account), nil
 }
 
 func (s *budgetAccountValueServiceServer) BatchUpdateBudgetAccountValues(ctx context.Context, req *gen.BatchUpdateBudgetAccountValuesRequest) (*gen.BatchUpdateBudgetAccountValuesResponse, error) {
@@ -318,6 +361,7 @@ func (s *budgetAccountValueServiceServer) BatchUpdateBudgetAccountValues(ctx con
 	}
 
 	entries := make([]repository.UpsertEntry, 0, len(req.Requests))
+	accountIDs := make([]uuid.UUID, 0, len(req.Requests))
 	for _, r := range req.Requests {
 		if r.AccountValue == nil {
 			return nil, &ServerError{Status: statusAccountValueRequestRequired}
@@ -336,7 +380,7 @@ func (s *budgetAccountValueServiceServer) BatchUpdateBudgetAccountValues(ctx con
 			}
 		}
 
-		accountID, err := uuid.Parse(r.AccountValue.AccountId)
+		accountID, _, err := s.resolveAccount(ctx, orgID, r.AccountValue.Account)
 		if err != nil {
 			return nil, &ServerError{Err: err, Status: statusInvalidAccountValueInBatch}
 		}
@@ -350,6 +394,7 @@ func (s *budgetAccountValueServiceServer) BatchUpdateBudgetAccountValues(ctx con
 		}
 
 		entries = append(entries, repository.UpsertEntry{AccountID: accountID, Value: val})
+		accountIDs = append(accountIDs, accountID)
 	}
 
 	ms, err := s.repo.BatchUpsert(ctx, orgID, budgetID, entries)
@@ -357,9 +402,13 @@ func (s *budgetAccountValueServiceServer) BatchUpdateBudgetAccountValues(ctx con
 		return nil, &ServerError{Err: err, Status: statusFailedBatchUpdateBudgetAccountValues}
 	}
 
+	// Batch-fetch account models for the response.
+	// Use the account IDs from the upsert entries (same order as ms).
+	accountMap := s.fetchAccountsByIDs(ctx, accountIDs)
+
 	resp := &gen.BatchUpdateBudgetAccountValuesResponse{}
 	for _, m := range ms {
-		resp.AccountValues = append(resp.AccountValues, BudgetAccountValueToProto(pn, m))
+		resp.AccountValues = append(resp.AccountValues, BudgetAccountValueToProto(pn, m, accountMap[m.AccountID]))
 	}
 
 	return resp, nil
@@ -390,4 +439,16 @@ func (s *budgetAccountValueServiceServer) DeleteBudgetAccountValue(ctx context.C
 	}
 
 	return &emptypb.Empty{}, nil
+}
+
+// fetchAccountsByIDs fetches multiple accounts by ID and returns a map keyed by account ID.
+// Accounts that cannot be found are omitted from the map.
+func (s *budgetAccountValueServiceServer) fetchAccountsByIDs(ctx context.Context, ids []uuid.UUID) map[uuid.UUID]*model.Account {
+	result := make(map[uuid.UUID]*model.Account, len(ids))
+	for _, id := range ids {
+		if a, err := s.accountRepo.GetByID(ctx, id); err == nil {
+			result[id] = a
+		}
+	}
+	return result
 }

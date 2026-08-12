@@ -239,9 +239,9 @@ type ListTransactionsRequest struct {
 	// A page token from a previous ListTransactions call.
 	PageToken string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	// Filter expression conforming to AIP-160.
-	// Supported fields: credit_transaction_account_id, debit_transaction_account_id,
+	// Supported fields: credit_ledger_account, debit_ledger_account,
 	// booked_at, document_date, amount.
-	// Example: "credit_transaction_account_id=\"<uuid>\" AND booked_at>=\"2025-01-01T00:00:00Z\"".
+	// Example: "credit_ledger_account=\"organizations/{organization}/ledgerAccounts/{ledger_account}\" AND booked_at>=\"2025-01-01T00:00:00Z\"".
 	Filter string `protobuf:"bytes,4,opt,name=filter,proto3" json:"filter,omitempty"`
 	// Order by expression (e.g. "booked_at desc", "amount").
 	OrderBy       string `protobuf:"bytes,5,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`

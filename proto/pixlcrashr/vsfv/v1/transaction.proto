@@ -100,9 +100,9 @@ message ListTransactionsRequest {
   string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
 
   // Filter expression conforming to AIP-160.
-  // Supported fields: credit_transaction_account_id, debit_transaction_account_id,
+  // Supported fields: credit_ledger_account, debit_ledger_account,
   // booked_at, document_date, amount.
-  // Example: "credit_transaction_account_id=\"<uuid>\" AND booked_at>=\"2025-01-01T00:00:00Z\"".
+  // Example: "credit_ledger_account=\"organizations/{organization}/ledgerAccounts/{ledger_account}\" AND booked_at>=\"2025-01-01T00:00:00Z\"".
   string filter = 4 [(google.api.field_behavior) = OPTIONAL];
 
   // Order by expression (e.g. "booked_at desc", "amount").

@@ -217,25 +217,28 @@ type UpdateAccountGroupParams struct {
 
 // Update updates fields of an existing account group matched by its primary key.
 func (r *AccountGroupRepository) Update(ctx context.Context, id uuid.UUID, params UpdateAccountGroupParams) error {
-	m, err := r.GetByID(ctx, id)
-	if err != nil {
-		return err
-	}
+	var cols []field.AssignExpr
 
 	if params.DisplayName.IsSet {
-		m.DisplayName = params.DisplayName.Value
-	}
-	if params.DisplayDescription.IsSet {
-		m.DisplayDescription = params.DisplayDescription.Value
-	}
-	if params.CustomID.IsSet {
-		m.CustomID = params.CustomID.Value
+		cols = append(cols, r.q.AccountGroup.DisplayName.Value(params.DisplayName.Value))
 	}
 
-	_, err = r.q.AccountGroup.WithContext(ctx).Where(r.q.AccountGroup.ID.Eq(m.ID)).Updates(m)
-	if err != nil {
-		return fmt.Errorf("update account group id=%s: %w", m.ID, err)
+	if params.DisplayDescription.IsSet {
+		cols = append(cols, r.q.AccountGroup.DisplayDescription.Value(params.DisplayDescription.Value))
 	}
+
+	if params.CustomID.IsSet {
+		cols = append(cols, r.q.AccountGroup.CustomID.Value(params.CustomID.Value))
+	}
+
+	if len(cols) == 0 {
+		return nil
+	}
+
+	if _, err := r.q.AccountGroup.WithContext(ctx).Where(r.q.AccountGroup.ID.Eq(id)).UpdateSimple(cols...); err != nil {
+		return fmt.Errorf("update account group id=%s: %w", id, err)
+	}
+
 	return nil
 }
 

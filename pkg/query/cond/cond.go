@@ -22,7 +22,6 @@
 //	// Use in repository (field names mapped to DB columns)
 //	params := ListAccountsParams{Cond: c}
 //	accounts, total, err := repo.List(ctx, params)
-//
 package cond
 
 // Op represents a comparison operator as an integer constant.
@@ -172,4 +171,59 @@ func Or(conds ...Cond) Cond {
 // Not negates a condition.
 func Not(c Cond) Cond {
 	return NotCond{Inner: c}
+}
+
+// Transform walks a condition tree and applies fn to each FieldCond.
+// If fn returns ok=false, the FieldCond is dropped (treated as no-op).
+// Returns a new cond tree with transformed fields; the input cond is not mutated.
+// Nil or empty conditions are returned as-is.
+func Transform(c Cond, fn func(field string, value interface{}) (newField string, newValue interface{}, ok bool)) Cond {
+	if c == nil || c.IsEmpty() {
+		return c
+	}
+	switch cc := c.(type) {
+	case FieldCond:
+		newField, newValue, ok := fn(cc.Field, cc.Value)
+		if !ok {
+			return FieldCond{} // empty, will be filtered out
+		}
+		return FieldCond{Field: newField, Op: cc.Op, Value: newValue}
+	case AndCond:
+		var transformed []Cond
+		for _, inner := range cc.Conds {
+			t := Transform(inner, fn)
+			if t != nil && !t.IsEmpty() {
+				transformed = append(transformed, t)
+			}
+		}
+		if len(transformed) == 0 {
+			return AndCond{}
+		}
+		if len(transformed) == 1 {
+			return transformed[0]
+		}
+		return AndCond{Conds: transformed}
+	case OrCond:
+		var transformed []Cond
+		for _, inner := range cc.Conds {
+			t := Transform(inner, fn)
+			if t != nil && !t.IsEmpty() {
+				transformed = append(transformed, t)
+			}
+		}
+		if len(transformed) == 0 {
+			return OrCond{}
+		}
+		if len(transformed) == 1 {
+			return transformed[0]
+		}
+		return OrCond{Conds: transformed}
+	case NotCond:
+		inner := Transform(cc.Inner, fn)
+		if inner == nil || inner.IsEmpty() {
+			return NotCond{}
+		}
+		return NotCond{Inner: inner}
+	}
+	return c
 }

@@ -18,5 +18,4 @@ export abstract class AccountEditDataService {
     description: string
   ): Observable<AccountDetails>;
   abstract listParentAccounts(organizationId: string): Observable<Account[]>;
-  abstract deleteAccount(organizationId: string, accountId: string): Observable<void>;
 }

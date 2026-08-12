@@ -8,7 +8,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
-import { concat, forkJoin, merge, map, distinctUntilChanged, filter, timer, switchMap, EMPTY } from 'rxjs';
+import { forkJoin, merge, map, distinctUntilChanged, filter, timer } from 'rxjs';
 import {
   PageContentLayoutComponent,
   BreadcrumbItem,
@@ -23,11 +23,6 @@ import {
   CreateAccountDialogInput,
   CreateAccountDialogOutput,
 } from '../../../shared/dialogs/create-account-dialog/create-account-dialog.component';
-import {
-  ConfirmDeleteDialogComponent,
-  ConfirmDeleteDialogInput,
-  ConfirmDeleteDialogOutput,
-} from '../../../shared/dialogs/confirm-delete-dialog/confirm-delete-dialog.component';
 import { HierarchicalAccount } from '../../../shared/models';
 import { AccountListDataService } from './account-list.data-service';
 
@@ -121,7 +116,7 @@ import { AccountListDataService } from './account-list.data-service';
                         </td>
                         <td class="px-2.5 py-1.5 text-right text-xs">
                           <div class="flex items-center justify-end gap-2">
-                            @if (account.isArchived) {
+                            @if (account.isArchived && canRestore(account)) {
                               <button
                                 type="button"
                                 class="text-xs text-blue-600 hover:underline disabled:text-gray-400 disabled:no-underline"
@@ -130,15 +125,7 @@ import { AccountListDataService } from './account-list.data-service';
                               >
                                 <ng-container i18n>{{ restoringAccountId() === account.id ? 'Wird wiederhergestellt...' : 'Wiederherstellen' }}</ng-container>
                               </button>
-                              <button
-                                type="button"
-                                class="text-xs text-red-600 hover:underline disabled:text-gray-400 disabled:no-underline"
-                                [disabled]="isMutatingAccount(account.id)"
-                                (click)="openDeleteDialog(account)"
-                              >
-                                <ng-container i18n>{{ deletingAccountId() === account.id ? 'Wird gelöscht...' : 'Löschen' }}</ng-container>
-                              </button>
-                            } @else if (canArchive(account)) {
+                            } @else if (!account.isArchived && canArchive(account)) {
                               <button
                                 type="button"
                                 class="text-xs text-blue-600 hover:underline disabled:text-gray-400 disabled:no-underline"
@@ -179,7 +166,6 @@ export class AccountListComponent {
   readonly loading = signal(true);
   readonly archivingAccountId = signal<string | null>(null);
   readonly restoringAccountId = signal<string | null>(null);
-  readonly deletingAccountId = signal<string | null>(null);
   readonly accounts = signal<HierarchicalAccount[]>([]);
   readonly flatAccounts = computed<HierarchicalAccount[]>(() => this.flatten(this.accounts()));
 
@@ -245,22 +231,12 @@ export class AccountListComponent {
     return this.allChildrenArchived(account.children);
   }
 
-  private findArchivedAncestors(targetId: string, nodes: HierarchicalAccount[]): string[] | null {
-    for (const node of nodes) {
-      if (node.id === targetId) {
-        return [];
-      }
-      const descendantResult = this.findArchivedAncestors(targetId, node.children);
-      if (descendantResult !== null) {
-        const ids: string[] = [];
-        if (node.isArchived) {
-          ids.push(node.id);
-        }
-        ids.push(...descendantResult);
-        return ids;
-      }
-    }
-    return null;
+  canRestore(account: HierarchicalAccount): boolean {
+    // An account can only be restored if its parent is not archived.
+    // Restoring must happen top-down: restore the parent first.
+    if (!account.parentAccountId) return true;
+    const parent = this.flatAccounts().find((a) => a.id === account.parentAccountId);
+    return !parent || !parent.isArchived;
   }
 
   private allChildrenArchived(children: HierarchicalAccount[]): boolean {
@@ -268,41 +244,7 @@ export class AccountListComponent {
   }
 
   isMutatingAccount(id: string): boolean {
-    return this.archivingAccountId() === id || this.restoringAccountId() === id || this.deletingAccountId() === id;
-  }
-
-  openDeleteDialog(account: HierarchicalAccount): void {
-    if (this.isMutatingAccount(account.id)) return;
-
-    const dialogRef = this.dialog.open<ConfirmDeleteDialogOutput, ConfirmDeleteDialogInput>(
-      ConfirmDeleteDialogComponent,
-      {
-        backdropClass: 'cdk-overlay-dark-backdrop',
-        width: '400px',
-        data: {
-          title: $localize`Konto löschen`,
-          message: $localize`Möchten Sie das Konto wirklich unwiderruflich löschen?`,
-          itemName: `${account.code} – ${account.name}`,
-        },
-      },
-    );
-
-    dialogRef.closed.pipe(
-      switchMap((result) => {
-        if (!result?.confirmed) return EMPTY;
-        this.deletingAccountId.set(account.id);
-        return forkJoin([this.dataService.deleteAccount(this.orgId, account.id), timer(500)]);
-      }),
-    ).subscribe({
-      next: () => {
-        this.deletingAccountId.set(null);
-        this.loadAccounts();
-      },
-      error: () => {
-        this.deletingAccountId.set(null);
-        this.notifications.error($localize`Fehler beim Löschen des Kontos`);
-      },
-    });
+    return this.archivingAccountId() === id || this.restoringAccountId() === id;
   }
 
   archiveAccount(account: HierarchicalAccount): void {
@@ -324,12 +266,8 @@ export class AccountListComponent {
   restoreAccount(account: HierarchicalAccount): void {
     if (this.isMutatingAccount(account.id)) return;
 
-    const archivedAncestorIds = this.findArchivedAncestors(account.id, this.accounts()) ?? [];
-    const restoreCalls = [account.id, ...archivedAncestorIds]
-      .map((id) => this.dataService.restoreAccount(this.orgId, id));
-
     this.restoringAccountId.set(account.id);
-    forkJoin([concat(...restoreCalls), timer(500)]).subscribe({
+    forkJoin([this.dataService.restoreAccount(this.orgId, account.id), timer(500)]).subscribe({
       next: () => {
         this.restoringAccountId.set(null);
         this.loadAccounts();

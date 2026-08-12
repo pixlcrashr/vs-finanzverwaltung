@@ -14,9 +14,9 @@ import { AccountGroupAssignmentServiceService } from './services/account-group-a
 import { BudgetServiceService } from './services/budget-service.service';
 import { LedgerAccountServiceService } from './services/ledger-account-service.service';
 import { LedgerYearServiceService } from './services/ledger-year-service.service';
-import { TransactionServiceService } from './services/transaction-service.service';
 import { TransactionAssignmentServiceService } from './services/transaction-assignment-service.service';
 import { ReportServiceService } from './services/report-service.service';
+import { TransactionServiceService } from './services/transaction-service.service';
 import { UserIdentityServiceService } from './services/user-identity-service.service';
 import { UserSettingsServiceService } from './services/user-settings-service.service';
 import { BudgetActualAccountValueServiceService } from './services/budget-actual-account-value-service.service';
@@ -47,9 +47,9 @@ import { BudgetRevisionAccountValueServiceService } from './services/budget-revi
     BudgetServiceService,
     LedgerAccountServiceService,
     LedgerYearServiceService,
-    TransactionServiceService,
     TransactionAssignmentServiceService,
     ReportServiceService,
+    TransactionServiceService,
     UserIdentityServiceService,
     UserSettingsServiceService,
     BudgetActualAccountValueServiceService,

@@ -20,8 +20,8 @@ import { V1ListBudgetsResponse } from '../models/v1list-budgets-response';
 })
 class BudgetServiceService extends __BaseService {
   static readonly BudgetServiceUpdateBudgetPath = '/v1/{budget.name}';
+  static readonly BudgetServiceDeleteBudgetPath = '/v1/{name_2}';
   static readonly BudgetServiceGetBudgetPath = '/v1/{name_3}';
-  static readonly BudgetServiceDeleteBudgetPath = '/v1/{name_3}';
   static readonly BudgetServiceCloseBudgetPath = '/v1/{name}:close';
   static readonly BudgetServiceListBudgetsPath = '/v1/{parent}/budgets';
   static readonly BudgetServiceCreateBudgetPath = '/v1/{parent}/budgets';
@@ -93,6 +93,54 @@ class BudgetServiceService extends __BaseService {
   }
 
   /**
+   * Permanently deletes a budget.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: budgets:delete
+   *   Domain: organization-scoped
+   * @param name_2 The resource name of the budget.
+   * Format: organizations/{organization}/budgets/{budget}
+   * @return A successful response.
+   */
+  BudgetServiceDeleteBudgetResponse(name2: string): __Observable<__StrictHttpResponse<{}>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    let req = new HttpRequest<any>(
+      'DELETE',
+      this.rootUrl + `/v1/${encodeURIComponent(String(name2))}`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<{}>;
+      })
+    );
+  }
+  /**
+   * Permanently deletes a budget.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: budgets:delete
+   *   Domain: organization-scoped
+   * @param name_2 The resource name of the budget.
+   * Format: organizations/{organization}/budgets/{budget}
+   * @return A successful response.
+   */
+  BudgetServiceDeleteBudget(name2: string): __Observable<{}> {
+    return this.BudgetServiceDeleteBudgetResponse(name2).pipe(
+      __map(_r => _r.body as {})
+    );
+  }
+
+  /**
    * Gets a single budget by resource name.
    * Authorization:
    *   Scope: budgets:read
@@ -137,54 +185,6 @@ class BudgetServiceService extends __BaseService {
   BudgetServiceGetBudget(name3: string): __Observable<V1Budget> {
     return this.BudgetServiceGetBudgetResponse(name3).pipe(
       __map(_r => _r.body as V1Budget)
-    );
-  }
-
-  /**
-   * Permanently deletes a budget.
-   * Authorization:
-   *   Scope: budgets:write
-   *   Permission: budgets:delete
-   *   Domain: organization-scoped
-   * @param name_3 The resource name of the budget.
-   * Format: organizations/{organization}/budgets/{budget}
-   * @return A successful response.
-   */
-  BudgetServiceDeleteBudgetResponse(name3: string): __Observable<__StrictHttpResponse<{}>> {
-    let __params = this.newParams();
-    let __headers = new HttpHeaders();
-    let __body: any = null;
-
-    let req = new HttpRequest<any>(
-      'DELETE',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name3))}`,
-      __body,
-      {
-        headers: __headers,
-        params: __params,
-        responseType: 'json'
-      });
-
-    return this.http.request<any>(req).pipe(
-      __filter(_r => _r instanceof HttpResponse),
-      __map((_r) => {
-        return _r as __StrictHttpResponse<{}>;
-      })
-    );
-  }
-  /**
-   * Permanently deletes a budget.
-   * Authorization:
-   *   Scope: budgets:write
-   *   Permission: budgets:delete
-   *   Domain: organization-scoped
-   * @param name_3 The resource name of the budget.
-   * Format: organizations/{organization}/budgets/{budget}
-   * @return A successful response.
-   */
-  BudgetServiceDeleteBudget(name3: string): __Observable<{}> {
-    return this.BudgetServiceDeleteBudgetResponse(name3).pipe(
-      __map(_r => _r.body as {})
     );
   }
 

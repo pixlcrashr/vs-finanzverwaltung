@@ -1,4 +1,5 @@
 export { AccountServiceArchiveAccountBody } from './models/account-service-archive-account-body';
+export { AccountServiceRestoreAccountBody } from './models/account-service-restore-account-body';
 export { BudgetAccountValueServiceBatchUpdateBudgetAccountValuesBody } from './models/budget-account-value-service-batch-update-budget-account-values-body';
 export { BudgetServiceCloseBudgetBody } from './models/budget-service-close-budget-body';
 export { GroupServiceAddUserToGroupBody } from './models/group-service-add-user-to-group-body';

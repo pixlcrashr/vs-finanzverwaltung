@@ -7,11 +7,7 @@ import { V1Decimal } from './v1decimal';
  * the system need to be present.
  */
 export interface V1BudgetAccountValue {
-
-  /**
-   * The UUID of the account this value is assigned to.
-   */
-  account_id: string;
+  account: string;
   budget?: string;
 
   /**

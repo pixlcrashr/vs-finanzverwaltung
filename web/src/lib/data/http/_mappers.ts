@@ -156,7 +156,7 @@ export function mapApiReport(
   };
 }
 
-function extractUidFromResourceName(resourceName: string): string {
+export function extractUidFromResourceName(resourceName: string): string {
   return resourceName.split('/').pop() ?? '';
 }
 

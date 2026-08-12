@@ -10,6 +10,7 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 import { V1Account } from '../models/v1account';
 import { AccountServiceArchiveAccountBody } from '../models/account-service-archive-account-body';
 import { V1GetNestedAccountResponse } from '../models/v1get-nested-account-response';
+import { AccountServiceRestoreAccountBody } from '../models/account-service-restore-account-body';
 import { V1ListAccountsResponse } from '../models/v1list-accounts-response';
 import { V1ListNestedAccountsResponse } from '../models/v1list-nested-accounts-response';
 
@@ -22,9 +23,9 @@ import { V1ListNestedAccountsResponse } from '../models/v1list-nested-accounts-r
 class AccountServiceService extends __BaseService {
   static readonly AccountServiceUpdateAccountPath = '/v1/{account.name}';
   static readonly AccountServiceGetAccountPath = '/v1/{name}';
-  static readonly AccountServiceDeleteAccountPath = '/v1/{name}';
   static readonly AccountServiceArchiveAccountPath = '/v1/{name}:archive';
   static readonly AccountServiceGetNestedAccountPath = '/v1/{name}:getNested';
+  static readonly AccountServiceRestoreAccountPath = '/v1/{name}:restore';
   static readonly AccountServiceListAccountsPath = '/v1/{parent}/accounts';
   static readonly AccountServiceCreateAccountPath = '/v1/{parent}/accounts';
   static readonly AccountServiceListNestedAccountsPath = '/v1/{parent}/accounts:listNested';
@@ -140,54 +141,6 @@ class AccountServiceService extends __BaseService {
   AccountServiceGetAccount(name: string): __Observable<V1Account> {
     return this.AccountServiceGetAccountResponse(name).pipe(
       __map(_r => _r.body as V1Account)
-    );
-  }
-
-  /**
-   * Permanently deletes an account.
-   * Authorization:
-   *   Scope: accounts:write
-   *   Permission: accounts:delete
-   *   Domain: organization-scoped
-   * @param name The resource name of the account.
-   * Format: organizations/{organization}/accounts/{account}
-   * @return A successful response.
-   */
-  AccountServiceDeleteAccountResponse(name: string): __Observable<__StrictHttpResponse<{}>> {
-    let __params = this.newParams();
-    let __headers = new HttpHeaders();
-    let __body: any = null;
-
-    let req = new HttpRequest<any>(
-      'DELETE',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name))}`,
-      __body,
-      {
-        headers: __headers,
-        params: __params,
-        responseType: 'json'
-      });
-
-    return this.http.request<any>(req).pipe(
-      __filter(_r => _r instanceof HttpResponse),
-      __map((_r) => {
-        return _r as __StrictHttpResponse<{}>;
-      })
-    );
-  }
-  /**
-   * Permanently deletes an account.
-   * Authorization:
-   *   Scope: accounts:write
-   *   Permission: accounts:delete
-   *   Domain: organization-scoped
-   * @param name The resource name of the account.
-   * Format: organizations/{organization}/accounts/{account}
-   * @return A successful response.
-   */
-  AccountServiceDeleteAccount(name: string): __Observable<{}> {
-    return this.AccountServiceDeleteAccountResponse(name).pipe(
-      __map(_r => _r.body as {})
     );
   }
 
@@ -310,6 +263,65 @@ class AccountServiceService extends __BaseService {
   AccountServiceGetNestedAccount(params: AccountServiceService.AccountServiceGetNestedAccountParams): __Observable<V1GetNestedAccountResponse> {
     return this.AccountServiceGetNestedAccountResponse(params).pipe(
       __map(_r => _r.body as V1GetNestedAccountResponse)
+    );
+  }
+
+  /**
+   * Restores an archived account (undo of ArchiveAccount).
+   * Authorization:
+   *   Scope: accounts:write
+   *   Permission: accounts:restore
+   *   Domain: organization-scoped
+   * @param params The `AccountServiceService.AccountServiceRestoreAccountParams` containing the following parameters:
+   *
+   * - `name`: The resource name of the account.
+   *   Format: organizations/{organization}/accounts/{account}
+   *
+   * - `body`:
+   *
+   * @return A successful response.
+   */
+  AccountServiceRestoreAccountResponse(params: AccountServiceService.AccountServiceRestoreAccountParams): __Observable<__StrictHttpResponse<V1Account>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    __body = params.body;
+    let req = new HttpRequest<any>(
+      'POST',
+      this.rootUrl + `/v1/${encodeURIComponent(String(params.name))}:restore`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<V1Account>;
+      })
+    );
+  }
+  /**
+   * Restores an archived account (undo of ArchiveAccount).
+   * Authorization:
+   *   Scope: accounts:write
+   *   Permission: accounts:restore
+   *   Domain: organization-scoped
+   * @param params The `AccountServiceService.AccountServiceRestoreAccountParams` containing the following parameters:
+   *
+   * - `name`: The resource name of the account.
+   *   Format: organizations/{organization}/accounts/{account}
+   *
+   * - `body`:
+   *
+   * @return A successful response.
+   */
+  AccountServiceRestoreAccount(params: AccountServiceService.AccountServiceRestoreAccountParams): __Observable<V1Account> {
+    return this.AccountServiceRestoreAccountResponse(params).pipe(
+      __map(_r => _r.body as V1Account)
     );
   }
 
@@ -583,6 +595,19 @@ module AccountServiceService {
      * Example: "is_archived=false".
      */
     filter?: string;
+  }
+
+  /**
+   * Parameters for AccountServiceRestoreAccount
+   */
+  export interface AccountServiceRestoreAccountParams {
+
+    /**
+     * The resource name of the account.
+     * Format: organizations/{organization}/accounts/{account}
+     */
+    name: string;
+    body: AccountServiceRestoreAccountBody;
   }
 
   /**

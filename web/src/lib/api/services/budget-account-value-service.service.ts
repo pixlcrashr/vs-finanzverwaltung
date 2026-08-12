@@ -21,8 +21,8 @@ import { BudgetAccountValueServiceBatchUpdateBudgetAccountValuesBody } from '../
 })
 class BudgetAccountValueServiceService extends __BaseService {
   static readonly BudgetAccountValueServiceUpdateBudgetAccountValuePath = '/v1/{account_value.name}';
+  static readonly BudgetAccountValueServiceDeleteBudgetAccountValuePath = '/v1/{name_3}';
   static readonly BudgetAccountValueServiceGetBudgetAccountValuePath = '/v1/{name_4}';
-  static readonly BudgetAccountValueServiceDeleteBudgetAccountValuePath = '/v1/{name_4}';
   static readonly BudgetAccountValueServiceListBudgetAccountValuesPath = '/v1/{parent}/accountValues';
   static readonly BudgetAccountValueServiceCreateBudgetAccountValuePath = '/v1/{parent}/accountValues';
   static readonly BudgetAccountValueServiceBatchUpdateBudgetAccountValuesPath = '/v1/{parent}/accountValues:batchUpdate';
@@ -101,6 +101,54 @@ class BudgetAccountValueServiceService extends __BaseService {
   }
 
   /**
+   * Permanently deletes a budget account value.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: budgets:delete
+   *   Domain: organization-scoped
+   * @param name_3 The resource name of the budget account value.
+   * Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
+   * @return A successful response.
+   */
+  BudgetAccountValueServiceDeleteBudgetAccountValueResponse(name3: string): __Observable<__StrictHttpResponse<{}>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    let req = new HttpRequest<any>(
+      'DELETE',
+      this.rootUrl + `/v1/${encodeURIComponent(String(name3))}`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<{}>;
+      })
+    );
+  }
+  /**
+   * Permanently deletes a budget account value.
+   * Authorization:
+   *   Scope: budgets:write
+   *   Permission: budgets:delete
+   *   Domain: organization-scoped
+   * @param name_3 The resource name of the budget account value.
+   * Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
+   * @return A successful response.
+   */
+  BudgetAccountValueServiceDeleteBudgetAccountValue(name3: string): __Observable<{}> {
+    return this.BudgetAccountValueServiceDeleteBudgetAccountValueResponse(name3).pipe(
+      __map(_r => _r.body as {})
+    );
+  }
+
+  /**
    * Gets a single budget account value by resource name.
    * Authorization:
    *   Scope: budgets:read
@@ -149,54 +197,6 @@ class BudgetAccountValueServiceService extends __BaseService {
   }
 
   /**
-   * Permanently deletes a budget account value.
-   * Authorization:
-   *   Scope: budgets:write
-   *   Permission: budgets:delete
-   *   Domain: organization-scoped
-   * @param name_4 The resource name of the budget account value.
-   * Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
-   * @return A successful response.
-   */
-  BudgetAccountValueServiceDeleteBudgetAccountValueResponse(name4: string): __Observable<__StrictHttpResponse<{}>> {
-    let __params = this.newParams();
-    let __headers = new HttpHeaders();
-    let __body: any = null;
-
-    let req = new HttpRequest<any>(
-      'DELETE',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name4))}`,
-      __body,
-      {
-        headers: __headers,
-        params: __params,
-        responseType: 'json'
-      });
-
-    return this.http.request<any>(req).pipe(
-      __filter(_r => _r instanceof HttpResponse),
-      __map((_r) => {
-        return _r as __StrictHttpResponse<{}>;
-      })
-    );
-  }
-  /**
-   * Permanently deletes a budget account value.
-   * Authorization:
-   *   Scope: budgets:write
-   *   Permission: budgets:delete
-   *   Domain: organization-scoped
-   * @param name_4 The resource name of the budget account value.
-   * Format: organizations/{organization}/budgets/{budget}/accountValues/{account_value}
-   * @return A successful response.
-   */
-  BudgetAccountValueServiceDeleteBudgetAccountValue(name4: string): __Observable<{}> {
-    return this.BudgetAccountValueServiceDeleteBudgetAccountValueResponse(name4).pipe(
-      __map(_r => _r.body as {})
-    );
-  }
-
-  /**
    * Lists account values for a budget.
    * Authorization:
    *   Scope: budgets:read
@@ -215,8 +215,8 @@ class BudgetAccountValueServiceService extends __BaseService {
    * - `order_by`: Order by expression (e.g. "create_time desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
-   *   Supported fields: account_id.
-   *   Example: "account_id=\"<uuid>\"".
+   *   Supported fields: account.
+   *   Example: "account=\"organizations/{organization}/accounts/{account}\"".
    *
    * @return A successful response.
    */
@@ -265,8 +265,8 @@ class BudgetAccountValueServiceService extends __BaseService {
    * - `order_by`: Order by expression (e.g. "create_time desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
-   *   Supported fields: account_id.
-   *   Example: "account_id=\"<uuid>\"".
+   *   Supported fields: account.
+   *   Example: "account=\"organizations/{organization}/accounts/{account}\"".
    *
    * @return A successful response.
    */
@@ -424,7 +424,7 @@ module BudgetAccountValueServiceService {
     /**
      * The budget account value to update.
      */
-    accountValue: {uid?: string, budget?: string, account_id: string, value: V1Decimal, update_time?: string, create_time?: string, etag?: string};
+    accountValue: {uid?: string, budget?: string, account: string, value: V1Decimal, update_time?: string, create_time?: string, etag?: string};
 
     /**
      * If set to true, and the resource is not found, a new resource will be
@@ -462,8 +462,8 @@ module BudgetAccountValueServiceService {
 
     /**
      * Filter expression conforming to AIP-160.
-     * Supported fields: account_id.
-     * Example: "account_id=\"<uuid>\"".
+     * Supported fields: account.
+     * Example: "account=\"organizations/{organization}/accounts/{account}\"".
      */
     filter?: string;
   }

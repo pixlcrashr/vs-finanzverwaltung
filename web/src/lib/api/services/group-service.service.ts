@@ -22,7 +22,7 @@ class GroupServiceService extends __BaseService {
   static readonly GroupServiceListGroupsPath = '/v1/groups';
   static readonly GroupServiceCreateGroupPath = '/v1/groups';
   static readonly GroupServiceUpdateGroupPath = '/v1/{group.name}';
-  static readonly GroupServiceDeleteGroupPath = '/v1/{name_5}';
+  static readonly GroupServiceDeleteGroupPath = '/v1/{name_4}';
   static readonly GroupServiceGetGroupPath = '/v1/{name_8}';
   static readonly GroupServiceAddUserToGroupPath = '/v1/{name}:addUser';
   static readonly GroupServiceRemoveUserFromGroupPath = '/v1/{name}:removeUser';
@@ -229,18 +229,18 @@ class GroupServiceService extends __BaseService {
    *   Scope: groups:write
    *   Permission: groups:delete
    *   Domain: global
-   * @param name_5 The resource name of the group.
+   * @param name_4 The resource name of the group.
    * Format: groups/{group}
    * @return A successful response.
    */
-  GroupServiceDeleteGroupResponse(name5: string): __Observable<__StrictHttpResponse<{}>> {
+  GroupServiceDeleteGroupResponse(name4: string): __Observable<__StrictHttpResponse<{}>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
 
     let req = new HttpRequest<any>(
       'DELETE',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name5))}`,
+      this.rootUrl + `/v1/${encodeURIComponent(String(name4))}`,
       __body,
       {
         headers: __headers,
@@ -261,12 +261,12 @@ class GroupServiceService extends __BaseService {
    *   Scope: groups:write
    *   Permission: groups:delete
    *   Domain: global
-   * @param name_5 The resource name of the group.
+   * @param name_4 The resource name of the group.
    * Format: groups/{group}
    * @return A successful response.
    */
-  GroupServiceDeleteGroup(name5: string): __Observable<{}> {
-    return this.GroupServiceDeleteGroupResponse(name5).pipe(
+  GroupServiceDeleteGroup(name4: string): __Observable<{}> {
+    return this.GroupServiceDeleteGroupResponse(name4).pipe(
       __map(_r => _r.body as {})
     );
   }

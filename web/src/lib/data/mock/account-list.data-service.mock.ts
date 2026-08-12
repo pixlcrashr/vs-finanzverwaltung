@@ -47,12 +47,6 @@ export class MockAccountListDataService extends AccountListDataService {
     return of(newAccount).pipe(delay(300));
   }
 
-  deleteAccount(organizationId: string, id: string): Observable<void> {
-    const accounts = this.getAccounts(organizationId);
-    this.accountsByOrg.set(organizationId, accounts.filter((a) => a.id !== id));
-    return of(undefined).pipe(delay(300));
-  }
-
   archiveAccount(organizationId: string, id: string): Observable<void> {
     const account = this.getAccounts(organizationId).find((a) => a.id === id);
     if (account) {

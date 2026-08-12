@@ -9,11 +9,7 @@ import { V1Decimal } from './v1decimal';
  * created.
  */
 export interface V1BudgetRevisionAccountValue {
-
-  /**
-   * The UUID of the account whose value is recorded here.
-   */
-  account_id?: string;
+  account?: string;
 
   /**
    * Timestamp when this record was created (equals the revision create_time).

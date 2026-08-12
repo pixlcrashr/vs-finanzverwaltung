@@ -11,7 +11,6 @@ export abstract class AccountListDataService {
     parentAccountId: string | null,
     isContainer: boolean,
   ): Observable<Account>;
-  abstract deleteAccount(organizationId: string, accountId: string): Observable<void>;
   abstract archiveAccount(organizationId: string, accountId: string): Observable<void>;
   abstract restoreAccount(organizationId: string, accountId: string): Observable<void>;
 }

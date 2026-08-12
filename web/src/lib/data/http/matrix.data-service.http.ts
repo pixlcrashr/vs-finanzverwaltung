@@ -15,6 +15,7 @@ import {
   MatrixEditableValuesByBudget,
   MatrixBudgetValueUpdate,
 } from '../../../app/routes/matrix/matrix.data-service';
+import { extractUidFromResourceName } from './_mappers';
 
 @Injectable()
 export class HttpMatrixDataService extends MatrixDataService {
@@ -126,7 +127,7 @@ export class HttpMatrixDataService extends MatrixDataService {
                         map((valResp) =>
                           (valResp.account_values ?? []).map((v) => ({
                             tagId: r.uid ?? '',
-                            accountId: v.account_id ?? '',
+                            accountId: extractUidFromResourceName(v.account ?? ''),
                             value: new Decimal(v.value?.value ?? '0'),
                           })),
                         ),
@@ -168,7 +169,7 @@ export class HttpMatrixDataService extends MatrixDataService {
                 map((valResp) => ({
                   budgetId: b.uid ?? '',
                   values: (valResp.account_values ?? []).map((v) => ({
-                    accountId: v.account_id,
+                    accountId: extractUidFromResourceName(v.account),
                     value: new Decimal(v.value?.value ?? '0'),
                   })),
                 })),
@@ -209,7 +210,7 @@ export class HttpMatrixDataService extends MatrixDataService {
                   budgetId: b.uid ?? '',
                   editableValues: Object.fromEntries(
                     (valResp.account_values ?? []).map((v) => [
-                      v.account_id,
+                      extractUidFromResourceName(v.account),
                       new Decimal(v.value?.value ?? '0'),
                     ]),
                   ),
@@ -241,7 +242,7 @@ export class HttpMatrixDataService extends MatrixDataService {
             requests: budgetUpdates.map((u) => ({
               account_value: {
                 name: `${this.budgetName(organizationId, budgetId)}/accountValues/${u.accountId}`,
-                account_id: u.accountId,
+                account: `organizations/${organizationId}/accounts/${u.accountId}`,
                 value: { value: u.value.toString() },
               },
               allow_missing: true,

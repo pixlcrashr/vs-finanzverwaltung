@@ -13,7 +13,7 @@ import {
   BudgetChange,
   UpdateBudgetParams,
 } from '../../../app/routes/budgets/budget-edit/budget-edit.data-service';
-import { mapApiBudget, mapApiBudgetTag, dateToTypeDate } from './_mappers';
+import { mapApiBudget, mapApiBudgetTag, dateToTypeDate, extractUidFromResourceName } from './_mappers';
 
 @Injectable()
 export class HttpBudgetEditDataService extends BudgetEditDataService {
@@ -51,7 +51,8 @@ export class HttpBudgetEditDataService extends BudgetEditDataService {
 
         const currentMap = new Map<string, Decimal>();
         for (const av of currentValues.account_values ?? []) {
-          currentMap.set(av.account_id, new Decimal(av.value?.value ?? '0'));
+          const accountId = extractUidFromResourceName(av.account);
+          currentMap.set(accountId, new Decimal(av.value?.value ?? '0'));
         }
 
         const latestRevision = revisions.revisions?.[0];
@@ -74,7 +75,8 @@ export class HttpBudgetEditDataService extends BudgetEditDataService {
             switchMap((revisionValues) => {
               const revisionMap = new Map<string, Decimal>();
               for (const rav of revisionValues.account_values ?? []) {
-                revisionMap.set(rav.account_id ?? '', new Decimal(rav.value?.value ?? '0'));
+                const accountId = extractUidFromResourceName(rav.account ?? '');
+                revisionMap.set(accountId, new Decimal(rav.value?.value ?? '0'));
               }
 
               const changes: BudgetChange[] = [];

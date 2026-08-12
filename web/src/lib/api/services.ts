@@ -9,9 +9,9 @@ export { AccountGroupAssignmentServiceService } from './services/account-group-a
 export { BudgetServiceService } from './services/budget-service.service';
 export { LedgerAccountServiceService } from './services/ledger-account-service.service';
 export { LedgerYearServiceService } from './services/ledger-year-service.service';
-export { TransactionServiceService } from './services/transaction-service.service';
 export { TransactionAssignmentServiceService } from './services/transaction-assignment-service.service';
 export { ReportServiceService } from './services/report-service.service';
+export { TransactionServiceService } from './services/transaction-service.service';
 export { UserIdentityServiceService } from './services/user-identity-service.service';
 export { UserSettingsServiceService } from './services/user-settings-service.service';
 export { BudgetActualAccountValueServiceService } from './services/budget-actual-account-value-service.service';

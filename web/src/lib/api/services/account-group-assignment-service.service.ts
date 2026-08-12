@@ -18,8 +18,8 @@ import { V1ListAccountGroupAssignmentsResponse } from '../models/v1list-account-
 })
 class AccountGroupAssignmentServiceService extends __BaseService {
   static readonly AccountGroupAssignmentServiceUpdateAccountGroupAssignmentPath = '/v1/{assignment.name}';
+  static readonly AccountGroupAssignmentServiceDeleteAccountGroupAssignmentPath = '/v1/{name_1}';
   static readonly AccountGroupAssignmentServiceGetAccountGroupAssignmentPath = '/v1/{name_2}';
-  static readonly AccountGroupAssignmentServiceDeleteAccountGroupAssignmentPath = '/v1/{name_2}';
   static readonly AccountGroupAssignmentServiceListAccountGroupAssignmentsPath = '/v1/{parent}/assignments';
   static readonly AccountGroupAssignmentServiceCreateAccountGroupAssignmentPath = '/v1/{parent}/assignments';
 
@@ -90,6 +90,54 @@ class AccountGroupAssignmentServiceService extends __BaseService {
   }
 
   /**
+   * Permanently deletes an assignment.
+   * Authorization:
+   *   Scope: accountGroups:write
+   *   Permission: accountGroups:delete
+   *   Domain: organization-scoped
+   * @param name_1 The resource name of the assignment.
+   * Format: organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}
+   * @return A successful response.
+   */
+  AccountGroupAssignmentServiceDeleteAccountGroupAssignmentResponse(name1: string): __Observable<__StrictHttpResponse<{}>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    let req = new HttpRequest<any>(
+      'DELETE',
+      this.rootUrl + `/v1/${encodeURIComponent(String(name1))}`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<{}>;
+      })
+    );
+  }
+  /**
+   * Permanently deletes an assignment.
+   * Authorization:
+   *   Scope: accountGroups:write
+   *   Permission: accountGroups:delete
+   *   Domain: organization-scoped
+   * @param name_1 The resource name of the assignment.
+   * Format: organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}
+   * @return A successful response.
+   */
+  AccountGroupAssignmentServiceDeleteAccountGroupAssignment(name1: string): __Observable<{}> {
+    return this.AccountGroupAssignmentServiceDeleteAccountGroupAssignmentResponse(name1).pipe(
+      __map(_r => _r.body as {})
+    );
+  }
+
+  /**
    * Gets a single assignment by resource name.
    * Authorization:
    *   Scope: accountGroups:read
@@ -134,54 +182,6 @@ class AccountGroupAssignmentServiceService extends __BaseService {
   AccountGroupAssignmentServiceGetAccountGroupAssignment(name2: string): __Observable<V1AccountGroupAssignment> {
     return this.AccountGroupAssignmentServiceGetAccountGroupAssignmentResponse(name2).pipe(
       __map(_r => _r.body as V1AccountGroupAssignment)
-    );
-  }
-
-  /**
-   * Permanently deletes an assignment.
-   * Authorization:
-   *   Scope: accountGroups:write
-   *   Permission: accountGroups:delete
-   *   Domain: organization-scoped
-   * @param name_2 The resource name of the assignment.
-   * Format: organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}
-   * @return A successful response.
-   */
-  AccountGroupAssignmentServiceDeleteAccountGroupAssignmentResponse(name2: string): __Observable<__StrictHttpResponse<{}>> {
-    let __params = this.newParams();
-    let __headers = new HttpHeaders();
-    let __body: any = null;
-
-    let req = new HttpRequest<any>(
-      'DELETE',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name2))}`,
-      __body,
-      {
-        headers: __headers,
-        params: __params,
-        responseType: 'json'
-      });
-
-    return this.http.request<any>(req).pipe(
-      __filter(_r => _r instanceof HttpResponse),
-      __map((_r) => {
-        return _r as __StrictHttpResponse<{}>;
-      })
-    );
-  }
-  /**
-   * Permanently deletes an assignment.
-   * Authorization:
-   *   Scope: accountGroups:write
-   *   Permission: accountGroups:delete
-   *   Domain: organization-scoped
-   * @param name_2 The resource name of the assignment.
-   * Format: organizations/{organization}/accountGroups/{account_group}/assignments/{assignment}
-   * @return A successful response.
-   */
-  AccountGroupAssignmentServiceDeleteAccountGroupAssignment(name2: string): __Observable<{}> {
-    return this.AccountGroupAssignmentServiceDeleteAccountGroupAssignmentResponse(name2).pipe(
-      __map(_r => _r.body as {})
     );
   }
 

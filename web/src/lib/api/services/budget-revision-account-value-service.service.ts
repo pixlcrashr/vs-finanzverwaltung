@@ -93,11 +93,11 @@ class BudgetRevisionAccountValueServiceService extends __BaseService {
    * - `page_size`: Maximum number of account values to return. The service may return fewer.
    *   If unspecified, at most 50 are returned. Maximum value is 200.
    *
-   * - `order_by`: Order by expression (e.g. "account_id", "value desc").
+   * - `order_by`: Order by expression (e.g. "account", "value desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
-   *   Supported fields: account_id.
-   *   Example: "account_id=\"<uuid>\"".
+   *   Supported fields: account.
+   *   Example: "account=\"organizations/{organization}/accounts/{account}\"".
    *
    * @return A successful response.
    */
@@ -143,11 +143,11 @@ class BudgetRevisionAccountValueServiceService extends __BaseService {
    * - `page_size`: Maximum number of account values to return. The service may return fewer.
    *   If unspecified, at most 50 are returned. Maximum value is 200.
    *
-   * - `order_by`: Order by expression (e.g. "account_id", "value desc").
+   * - `order_by`: Order by expression (e.g. "account", "value desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
-   *   Supported fields: account_id.
-   *   Example: "account_id=\"<uuid>\"".
+   *   Supported fields: account.
+   *   Example: "account=\"organizations/{organization}/accounts/{account}\"".
    *
    * @return A successful response.
    */
@@ -183,14 +183,14 @@ module BudgetRevisionAccountValueServiceService {
     pageSize?: number;
 
     /**
-     * Order by expression (e.g. "account_id", "value desc").
+     * Order by expression (e.g. "account", "value desc").
      */
     orderBy?: string;
 
     /**
      * Filter expression conforming to AIP-160.
-     * Supported fields: account_id.
-     * Example: "account_id=\"<uuid>\"".
+     * Supported fields: account.
+     * Example: "account=\"organizations/{organization}/accounts/{account}\"".
      */
     filter?: string;
   }

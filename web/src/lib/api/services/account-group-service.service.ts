@@ -19,7 +19,7 @@ import { V1ListAccountGroupsResponse } from '../models/v1list-account-groups-res
 class AccountGroupServiceService extends __BaseService {
   static readonly AccountGroupServiceUpdateAccountGroupPath = '/v1/{account_group.name}';
   static readonly AccountGroupServiceGetAccountGroupPath = '/v1/{name_1}';
-  static readonly AccountGroupServiceDeleteAccountGroupPath = '/v1/{name_1}';
+  static readonly AccountGroupServiceDeleteAccountGroupPath = '/v1/{name}';
   static readonly AccountGroupServiceListAccountGroupsPath = '/v1/{parent}/accountGroups';
   static readonly AccountGroupServiceCreateAccountGroupPath = '/v1/{parent}/accountGroups';
 
@@ -143,18 +143,18 @@ class AccountGroupServiceService extends __BaseService {
    *   Scope: accountGroups:write
    *   Permission: accountGroups:delete
    *   Domain: organization-scoped
-   * @param name_1 The resource name of the account group.
+   * @param name The resource name of the account group.
    * Format: organizations/{organization}/accountGroups/{account_group}
    * @return A successful response.
    */
-  AccountGroupServiceDeleteAccountGroupResponse(name1: string): __Observable<__StrictHttpResponse<{}>> {
+  AccountGroupServiceDeleteAccountGroupResponse(name: string): __Observable<__StrictHttpResponse<{}>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
 
     let req = new HttpRequest<any>(
       'DELETE',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name1))}`,
+      this.rootUrl + `/v1/${encodeURIComponent(String(name))}`,
       __body,
       {
         headers: __headers,
@@ -175,12 +175,12 @@ class AccountGroupServiceService extends __BaseService {
    *   Scope: accountGroups:write
    *   Permission: accountGroups:delete
    *   Domain: organization-scoped
-   * @param name_1 The resource name of the account group.
+   * @param name The resource name of the account group.
    * Format: organizations/{organization}/accountGroups/{account_group}
    * @return A successful response.
    */
-  AccountGroupServiceDeleteAccountGroup(name1: string): __Observable<{}> {
-    return this.AccountGroupServiceDeleteAccountGroupResponse(name1).pipe(
+  AccountGroupServiceDeleteAccountGroup(name: string): __Observable<{}> {
+    return this.AccountGroupServiceDeleteAccountGroupResponse(name).pipe(
       __map(_r => _r.body as {})
     );
   }

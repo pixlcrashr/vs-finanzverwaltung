@@ -24,7 +24,7 @@ class OrganizationServiceService extends __BaseService {
   static readonly OrganizationServiceCreateOrganizationPath = '/v1/organizations';
   static readonly OrganizationServiceCheckOrganizationIdPath = '/v1/organizations:checkId';
   static readonly OrganizationServiceGetOrganizationPath = '/v1/{name_11}';
-  static readonly OrganizationServiceDeleteOrganizationPath = '/v1/{name_7}';
+  static readonly OrganizationServiceDeleteOrganizationPath = '/v1/{name_6}';
   static readonly OrganizationServiceUpdateOrganizationPath = '/v1/{organization.name}';
 
   constructor(
@@ -266,18 +266,18 @@ class OrganizationServiceService extends __BaseService {
    *   Scope: organizations:write
    *   Permission: organizations:delete
    *   Domain: global
-   * @param name_7 The resource name of the organization.
+   * @param name_6 The resource name of the organization.
    * Format: organizations/{organization}
    * @return A successful response.
    */
-  OrganizationServiceDeleteOrganizationResponse(name7: string): __Observable<__StrictHttpResponse<{}>> {
+  OrganizationServiceDeleteOrganizationResponse(name6: string): __Observable<__StrictHttpResponse<{}>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
 
     let req = new HttpRequest<any>(
       'DELETE',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name7))}`,
+      this.rootUrl + `/v1/${encodeURIComponent(String(name6))}`,
       __body,
       {
         headers: __headers,
@@ -298,12 +298,12 @@ class OrganizationServiceService extends __BaseService {
    *   Scope: organizations:write
    *   Permission: organizations:delete
    *   Domain: global
-   * @param name_7 The resource name of the organization.
+   * @param name_6 The resource name of the organization.
    * Format: organizations/{organization}
    * @return A successful response.
    */
-  OrganizationServiceDeleteOrganization(name7: string): __Observable<{}> {
-    return this.OrganizationServiceDeleteOrganizationResponse(name7).pipe(
+  OrganizationServiceDeleteOrganization(name6: string): __Observable<{}> {
+    return this.OrganizationServiceDeleteOrganizationResponse(name6).pipe(
       __map(_r => _r.body as {})
     );
   }

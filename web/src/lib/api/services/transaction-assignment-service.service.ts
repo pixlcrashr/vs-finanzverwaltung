@@ -17,7 +17,7 @@ import { V1ListTransactionAssignmentsResponse } from '../models/v1list-transacti
   providedIn: 'root',
 })
 class TransactionAssignmentServiceService extends __BaseService {
-  static readonly TransactionAssignmentServiceDeleteTransactionAssignmentPath = '/v1/{name_11}';
+  static readonly TransactionAssignmentServiceDeleteTransactionAssignmentPath = '/v1/{name_10}';
   static readonly TransactionAssignmentServiceGetTransactionAssignmentPath = '/v1/{name_15}';
   static readonly TransactionAssignmentServiceListTransactionAssignmentsPath = '/v1/{parent_1}/assignments';
   static readonly TransactionAssignmentServiceCreateTransactionAssignmentPath = '/v1/{parent_1}/assignments';
@@ -35,18 +35,18 @@ class TransactionAssignmentServiceService extends __BaseService {
    *   Scope: transactions:delete
    *   Permission: transactions:delete
    *   Domain: organization-scoped
-   * @param name_11 The resource name of the transaction assignment.
+   * @param name_10 The resource name of the transaction assignment.
    * Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
    * @return A successful response.
    */
-  TransactionAssignmentServiceDeleteTransactionAssignmentResponse(name11: string): __Observable<__StrictHttpResponse<{}>> {
+  TransactionAssignmentServiceDeleteTransactionAssignmentResponse(name10: string): __Observable<__StrictHttpResponse<{}>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
 
     let req = new HttpRequest<any>(
       'DELETE',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name11))}`,
+      this.rootUrl + `/v1/${encodeURIComponent(String(name10))}`,
       __body,
       {
         headers: __headers,
@@ -67,12 +67,12 @@ class TransactionAssignmentServiceService extends __BaseService {
    *   Scope: transactions:delete
    *   Permission: transactions:delete
    *   Domain: organization-scoped
-   * @param name_11 The resource name of the transaction assignment.
+   * @param name_10 The resource name of the transaction assignment.
    * Format: organizations/{organization}/transactions/{transaction}/assignments/{assignment}
    * @return A successful response.
    */
-  TransactionAssignmentServiceDeleteTransactionAssignment(name11: string): __Observable<{}> {
-    return this.TransactionAssignmentServiceDeleteTransactionAssignmentResponse(name11).pipe(
+  TransactionAssignmentServiceDeleteTransactionAssignment(name10: string): __Observable<{}> {
+    return this.TransactionAssignmentServiceDeleteTransactionAssignmentResponse(name10).pipe(
       __map(_r => _r.body as {})
     );
   }

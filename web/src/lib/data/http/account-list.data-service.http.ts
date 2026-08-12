@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, map, switchMap } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { AccountServiceService } from '../../api/services/account-service.service';
 import { Account, HierarchicalAccount } from '../../../app/shared/models';
 import { AccountListDataService } from '../../../app/routes/accounts/account-list/account-list.data-service';
@@ -44,24 +44,11 @@ export class HttpAccountListDataService extends AccountListDataService {
     }).pipe(map(mapApiAccount));
   }
 
-  deleteAccount(organizationId: string, id: string): Observable<void> {
-    return this.svc.AccountServiceDeleteAccount(this.accountName(organizationId, id)).pipe(map(() => undefined));
-  }
-
   archiveAccount(organizationId: string, id: string): Observable<void> {
     return this.svc.AccountServiceArchiveAccount({ name: this.accountName(organizationId, id), body: {} }).pipe(map(() => undefined));
   }
 
   restoreAccount(organizationId: string, id: string): Observable<void> {
-    const name = this.accountName(organizationId, id);
-    return this.svc.AccountServiceGetAccount(name).pipe(
-      switchMap((existing) =>
-        this.svc.AccountServiceUpdateAccount({
-          accountName: name,
-          account: { ...existing, display_name: existing.display_name, display_code: existing.display_code, is_archived: false },
-        }),
-      ),
-      map(() => undefined),
-    );
+    return this.svc.AccountServiceRestoreAccount({ name: this.accountName(organizationId, id), body: {} }).pipe(map(() => undefined));
   }
 }

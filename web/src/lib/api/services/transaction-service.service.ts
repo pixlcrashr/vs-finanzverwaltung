@@ -18,8 +18,8 @@ import { V1Decimal } from '../models/v1decimal';
   providedIn: 'root',
 })
 class TransactionServiceService extends __BaseService {
-  static readonly TransactionServiceDeleteTransactionPath = '/v1/{name_10}';
   static readonly TransactionServiceGetTransactionPath = '/v1/{name_14}';
+  static readonly TransactionServiceDeleteTransactionPath = '/v1/{name_9}';
   static readonly TransactionServiceListTransactionsPath = '/v1/{parent}/transactions';
   static readonly TransactionServiceCreateTransactionPath = '/v1/{parent}/transactions';
   static readonly TransactionServiceUpdateTransactionPath = '/v1/{transaction.name}';
@@ -29,54 +29,6 @@ class TransactionServiceService extends __BaseService {
     http: HttpClient
   ) {
     super(config, http);
-  }
-
-  /**
-   * Permanently deletes a transaction.
-   * Authorization:
-   *   Scope: transactions:write
-   *   Permission: transactions:delete
-   *   Domain: organization-scoped
-   * @param name_10 The resource name of the transaction.
-   * Format: organizations/{organization}/transactions/{transaction}
-   * @return A successful response.
-   */
-  TransactionServiceDeleteTransactionResponse(name10: string): __Observable<__StrictHttpResponse<{}>> {
-    let __params = this.newParams();
-    let __headers = new HttpHeaders();
-    let __body: any = null;
-
-    let req = new HttpRequest<any>(
-      'DELETE',
-      this.rootUrl + `/v1/${encodeURIComponent(String(name10))}`,
-      __body,
-      {
-        headers: __headers,
-        params: __params,
-        responseType: 'json'
-      });
-
-    return this.http.request<any>(req).pipe(
-      __filter(_r => _r instanceof HttpResponse),
-      __map((_r) => {
-        return _r as __StrictHttpResponse<{}>;
-      })
-    );
-  }
-  /**
-   * Permanently deletes a transaction.
-   * Authorization:
-   *   Scope: transactions:write
-   *   Permission: transactions:delete
-   *   Domain: organization-scoped
-   * @param name_10 The resource name of the transaction.
-   * Format: organizations/{organization}/transactions/{transaction}
-   * @return A successful response.
-   */
-  TransactionServiceDeleteTransaction(name10: string): __Observable<{}> {
-    return this.TransactionServiceDeleteTransactionResponse(name10).pipe(
-      __map(_r => _r.body as {})
-    );
   }
 
   /**
@@ -128,6 +80,54 @@ class TransactionServiceService extends __BaseService {
   }
 
   /**
+   * Permanently deletes a transaction.
+   * Authorization:
+   *   Scope: transactions:write
+   *   Permission: transactions:delete
+   *   Domain: organization-scoped
+   * @param name_9 The resource name of the transaction.
+   * Format: organizations/{organization}/transactions/{transaction}
+   * @return A successful response.
+   */
+  TransactionServiceDeleteTransactionResponse(name9: string): __Observable<__StrictHttpResponse<{}>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    let req = new HttpRequest<any>(
+      'DELETE',
+      this.rootUrl + `/v1/${encodeURIComponent(String(name9))}`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<{}>;
+      })
+    );
+  }
+  /**
+   * Permanently deletes a transaction.
+   * Authorization:
+   *   Scope: transactions:write
+   *   Permission: transactions:delete
+   *   Domain: organization-scoped
+   * @param name_9 The resource name of the transaction.
+   * Format: organizations/{organization}/transactions/{transaction}
+   * @return A successful response.
+   */
+  TransactionServiceDeleteTransaction(name9: string): __Observable<{}> {
+    return this.TransactionServiceDeleteTransactionResponse(name9).pipe(
+      __map(_r => _r.body as {})
+    );
+  }
+
+  /**
    * Lists transactions with keyset pagination and optional filters.
    * Authorization:
    *   Scope: transactions:read
@@ -146,9 +146,9 @@ class TransactionServiceService extends __BaseService {
    * - `order_by`: Order by expression (e.g. "booked_at desc", "amount").
    *
    * - `filter`: Filter expression conforming to AIP-160.
-   *   Supported fields: credit_transaction_account_id, debit_transaction_account_id,
+   *   Supported fields: credit_ledger_account, debit_ledger_account,
    *   booked_at, document_date, amount.
-   *   Example: "credit_transaction_account_id=\"<uuid>\" AND booked_at>=\"2025-01-01T00:00:00Z\"".
+   *   Example: "credit_ledger_account=\"organizations/{organization}/ledgerAccounts/{ledger_account}\" AND booked_at>=\"2025-01-01T00:00:00Z\"".
    *
    * @return A successful response.
    */
@@ -197,9 +197,9 @@ class TransactionServiceService extends __BaseService {
    * - `order_by`: Order by expression (e.g. "booked_at desc", "amount").
    *
    * - `filter`: Filter expression conforming to AIP-160.
-   *   Supported fields: credit_transaction_account_id, debit_transaction_account_id,
+   *   Supported fields: credit_ledger_account, debit_ledger_account,
    *   booked_at, document_date, amount.
-   *   Example: "credit_transaction_account_id=\"<uuid>\" AND booked_at>=\"2025-01-01T00:00:00Z\"".
+   *   Example: "credit_ledger_account=\"organizations/{organization}/ledgerAccounts/{ledger_account}\" AND booked_at>=\"2025-01-01T00:00:00Z\"".
    *
    * @return A successful response.
    */
@@ -366,9 +366,9 @@ module TransactionServiceService {
 
     /**
      * Filter expression conforming to AIP-160.
-     * Supported fields: credit_transaction_account_id, debit_transaction_account_id,
+     * Supported fields: credit_ledger_account, debit_ledger_account,
      * booked_at, document_date, amount.
-     * Example: "credit_transaction_account_id=\"<uuid>\" AND booked_at>=\"2025-01-01T00:00:00Z\"".
+     * Example: "credit_ledger_account=\"organizations/{organization}/ledgerAccounts/{ledger_account}\" AND booked_at>=\"2025-01-01T00:00:00Z\"".
      */
     filter?: string;
   }

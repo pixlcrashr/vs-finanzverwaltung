@@ -11,8 +11,8 @@ import (
 type TransactionAssignment struct {
 	ID             uuid.UUID   `gorm:"type:uuid;primaryKey;uniqueIndex:idx_transaction_assignments_org_id,priority:1"`
 	OrganizationID uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_transaction_assignments_org_id,priority:2"`
-	TransactionID  uuid.UUID   `gorm:"type:uuid;not null"`
-	AccountID      uuid.UUID   `gorm:"type:uuid;not null"`
+	TransactionID  uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_transaction_assignments_transaction_account,priority:1"`
+	AccountID      uuid.UUID   `gorm:"type:uuid;not null;uniqueIndex:idx_transaction_assignments_transaction_account,priority:2"`
 	Value          apd.Decimal `gorm:"type:decimal;not null"`
 	UpdatedAt      time.Time   `gorm:"not null;default:CURRENT_TIMESTAMP"`
 	CreatedAt      time.Time   `gorm:"not null;default:CURRENT_TIMESTAMP"`

@@ -460,6 +460,10 @@ func (s *transactionAssignmentServiceServer) UpdateTransactionAssignment(ctx con
 	}
 
 	if err := s.repo.Update(ctx, m.ID, updateParams); err != nil {
+		if errors.Is(err, repository.ErrTransactionAssignmentAlreadyExists) {
+			return nil, &ServerError{Err: err, Status: statusTransactionAssignmentAlreadyExists}
+		}
+
 		return nil, &ServerError{Err: err, Status: statusFailedUpdateTransactionAssignment}
 	}
 

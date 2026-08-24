@@ -141,6 +141,13 @@ func (r *TransactionAssignmentRepository) Create(ctx context.Context, params Cre
 	if transCount == 0 {
 		return nil, errors.Join(ErrTransactionNotFound, fmt.Errorf("transaction_id=%s: %w", params.TransactionID, gorm.ErrRecordNotFound))
 	}
+	existingCount, err := r.q.TransactionAssignment.WithContext(ctx).Where(r.q.TransactionAssignment.TransactionID.Eq(params.TransactionID)).Count()
+	if err != nil {
+		return nil, fmt.Errorf("create transaction assignment: check existing assignment transaction_id=%s: %w", params.TransactionID, err)
+	}
+	if existingCount > 0 {
+		return nil, errors.Join(ErrTransactionAssignmentAlreadyExists, fmt.Errorf("transaction_id=%s", params.TransactionID))
+	}
 	m := &model.TransactionAssignment{
 		OrganizationID: params.OrganizationID,
 		TransactionID:  params.TransactionID,
@@ -168,6 +175,20 @@ func (r *TransactionAssignmentRepository) Update(ctx context.Context, id uuid.UU
 	var cols []field.AssignExpr
 
 	if params.AccountID.IsSet {
+		m, err := r.GetByID(ctx, id)
+		if err != nil {
+			return err
+		}
+		existingCount, err := r.q.TransactionAssignment.WithContext(ctx).
+			Where(r.q.TransactionAssignment.TransactionID.Eq(m.TransactionID)).
+			Where(r.q.TransactionAssignment.ID.Neq(id)).
+			Count()
+		if err != nil {
+			return fmt.Errorf("update transaction assignment id=%s: check existing assignment: %w", id, err)
+		}
+		if existingCount > 0 {
+			return errors.Join(ErrTransactionAssignmentAlreadyExists, fmt.Errorf("id=%s transaction_id=%s", id, m.TransactionID))
+		}
 		cols = append(cols, r.q.TransactionAssignment.AccountID.Value(params.AccountID.Value))
 	}
 

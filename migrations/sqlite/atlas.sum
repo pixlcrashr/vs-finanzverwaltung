@@ -1,4 +1,9 @@
-h1:fGKlbF+LHA5kEztQx19LditJ59Mjkw1yhYLOMYfn70M=
-20260808000131_add-sqlite.up.sql h1:XTBhX/rk/XFLLJxmjVpxVmuiP9TZ7g8A/j/IU6Tb5bM=
-20260811133620_user-management-changes.up.sql h1:BMNdenZsE5fmP6aDaihkad0bEmgdVXxzBtlL94/TbDA=
-20260823132251_update_fields.up.sql h1:5kfESZJRnfiuBalVRfQQBXv/caoPYGL3OSBvK/horjs=
+h1:1WWvgGy+zjcF/pEndjHEhVCQl0YrhlzA3B2PiW6KbNM=
+20260808000131_add-sqlite.down.sql h1:ii3N+xVrj7ybv9x1vpNdTSEb6ItgyiUIrFnuE1zouX0=
+20260808000131_add-sqlite.up.sql h1:RNic8LONJkCcaR7FXxlrXx6fB8KPyJA/k6vmD4zRnT0=
+20260811133620_user-management-changes.down.sql h1:dGuQItArM4ts0aIT79to0Snq2Y/5IKQ5Qpm04ZMjGC4=
+20260811133620_user-management-changes.up.sql h1:gkczzPxR1bbs9Xq+Jhisq/IxpB0ZZIAUnX3o3AOcph8=
+20260823132251_update_fields.down.sql h1:636dGiRCVaKLyTuYjJkBNOq5RxDK30olQKkLrPITS6M=
+20260823132251_update_fields.up.sql h1:mRVnEqQVj8JtT+Oq9CpdjzQ7sO8cWuLSt4qWwGM51Q0=
+20260824084409_add_transaction_assignment_constraint.down.sql h1:VX8qEd29/BfIttOXv1OzKAPur9ne5N+741tgJ+Tv4rc=
+20260824084409_add_transaction_assignment_constraint.up.sql h1:J5z7UIK35Qmb2+DVIcMs9AbcI0JqlvdcD0FgkVHC2N4=

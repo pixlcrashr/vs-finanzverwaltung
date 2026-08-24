@@ -224,9 +224,10 @@ var _ = Describe("BudgetActualAccountValueRepository", func() {
 			creditTxAcc := createLedgerAccount(org.ID, "BANK-001", model.AccountTypeAsset)
 			debitTxAcc := createLedgerAccount(org.ID, "REV-001", model.AccountTypeRevenue)
 
-			tx := createTransaction(org.ID, creditTxAcc.ID, debitTxAcc.ID, time.Date(2024, 6, 15, 0, 0, 0, 0, time.UTC), "1000.00")
-			createAssignment(org.ID, tx.ID, account1.ID, "500.00")
-			createAssignment(org.ID, tx.ID, account2.ID, "500.00")
+			tx1 := createTransaction(org.ID, creditTxAcc.ID, debitTxAcc.ID, time.Date(2024, 6, 15, 0, 0, 0, 0, time.UTC), "500.00")
+			createAssignment(org.ID, tx1.ID, account1.ID, "500.00")
+			tx2 := createTransaction(org.ID, creditTxAcc.ID, debitTxAcc.ID, time.Date(2024, 6, 16, 0, 0, 0, 0, time.UTC), "500.00")
+			createAssignment(org.ID, tx2.ID, account2.ID, "500.00")
 
 			result, err := BudgetActualAccountValueRepo.ListByBudget(ctx, org.ID, startDate, endDate)
 			Expect(err).NotTo(HaveOccurred())

@@ -298,7 +298,7 @@ func ReportToProto(orgRN gen.OrganizationResourceName, m *model.Report) *gen.Rep
 
 // UserToProto maps a model.User to its proto representation.
 func UserToProto(m *model.User) *gen.User {
-	return &gen.User{
+	p := &gen.User{
 		Name:        gen.UserResourceName{User: m.ID.String()}.String(),
 		Uid:         m.ID.String(),
 		DisplayName: m.Name,
@@ -307,6 +307,10 @@ func UserToProto(m *model.User) *gen.User {
 		UpdateTime:  ts(m.UpdatedAt),
 		CreateTime:  ts(m.CreatedAt),
 	}
+	if m.PictureURL.Valid {
+		p.PictureUrl = m.PictureURL.String
+	}
+	return p
 }
 
 // UserIdentityToProto maps a model.UserIdentity to its proto representation.

@@ -39,6 +39,9 @@ type User struct {
 	Email string `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
 	// Whether the user account is active.
 	IsActive bool `protobuf:"varint,5,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
+	// URL of the user's profile picture (derived from SSO provider at last login).
+	// Empty when the user has no picture.
+	PictureUrl string `protobuf:"bytes,9,opt,name=picture_url,json=pictureUrl,proto3" json:"picture_url,omitempty"`
 	// Last modification timestamp.
 	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
 	// Creation timestamp (first SSO login).
@@ -112,6 +115,13 @@ func (x *User) GetIsActive() bool {
 		return x.IsActive
 	}
 	return false
+}
+
+func (x *User) GetPictureUrl() string {
+	if x != nil {
+		return x.PictureUrl
+	}
+	return ""
 }
 
 func (x *User) GetUpdateTime() *timestamppb.Timestamp {
@@ -640,13 +650,15 @@ var File_pixlcrashr_vsfv_v1_user_proto protoreflect.FileDescriptor
 
 const file_pixlcrashr_vsfv_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x1dpixlcrashr/vsfv/v1/user.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1epixlcrashr/vsfv/v1/group.proto\"\xed\x02\n" +
+	"\x1dpixlcrashr/vsfv/v1/user.proto\x12\x12pixlcrashr.vsfv.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1epixlcrashr/vsfv/v1/group.proto\"\x93\x03\n" +
 	"\x04User\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x03R\x04name\x12\x1d\n" +
 	"\x03uid\x18\x02 \x01(\tB\v\xe0A\x03\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12&\n" +
 	"\fdisplay_name\x18\x03 \x01(\tB\x03\xe0A\x03R\vdisplayName\x12\x19\n" +
 	"\x05email\x18\x04 \x01(\tB\x03\xe0A\x03R\x05email\x12 \n" +
-	"\tis_active\x18\x05 \x01(\bB\x03\xe0A\x03R\bisActive\x12@\n" +
+	"\tis_active\x18\x05 \x01(\bB\x03\xe0A\x03R\bisActive\x12$\n" +
+	"\vpicture_url\x18\t \x01(\tB\x03\xe0A\x03R\n" +
+	"pictureUrl\x12@\n" +
 	"\vupdate_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"updateTime\x12@\n" +
 	"\vcreate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +

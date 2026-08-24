@@ -39,10 +39,11 @@ func (s *Server) MeHandler(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{
-		"id":      user.ID.String(),
-		"email":   user.Email,
-		"name":    user.Name,
-		"picture": derefString(user.Picture),
+		"id":          user.ID.String(),
+		"email":       user.Email,
+		"name":        user.Name,
+		"picture":     user.PictureURL.String,
+		"picture_url": user.PictureURL.String,
 	})
 }
 

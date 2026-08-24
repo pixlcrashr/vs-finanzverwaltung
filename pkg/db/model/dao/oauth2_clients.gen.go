@@ -30,7 +30,7 @@ func newOAuth2Client(db *gorm.DB, opts ...gen.DOOption) oAuth2Client {
 	_oAuth2Client.ID = field.NewField(tableName, "id")
 	_oAuth2Client.ClientID = field.NewString(tableName, "client_id")
 	_oAuth2Client.ClientName = field.NewString(tableName, "client_name")
-	_oAuth2Client.ClientSecret = field.NewString(tableName, "client_secret")
+	_oAuth2Client.ClientSecret = field.NewField(tableName, "client_secret")
 	_oAuth2Client.RedirectURIs = field.NewField(tableName, "redirect_uris")
 	_oAuth2Client.GrantTypes = field.NewField(tableName, "grant_types")
 	_oAuth2Client.ResponseTypes = field.NewField(tableName, "response_types")
@@ -53,7 +53,7 @@ type oAuth2Client struct {
 	ID                      field.Field
 	ClientID                field.String
 	ClientName              field.String
-	ClientSecret            field.String
+	ClientSecret            field.Field
 	RedirectURIs            field.Field
 	GrantTypes              field.Field
 	ResponseTypes           field.Field
@@ -82,7 +82,7 @@ func (o *oAuth2Client) updateTableName(table string) *oAuth2Client {
 	o.ID = field.NewField(table, "id")
 	o.ClientID = field.NewString(table, "client_id")
 	o.ClientName = field.NewString(table, "client_name")
-	o.ClientSecret = field.NewString(table, "client_secret")
+	o.ClientSecret = field.NewField(table, "client_secret")
 	o.RedirectURIs = field.NewField(table, "redirect_uris")
 	o.GrantTypes = field.NewField(table, "grant_types")
 	o.ResponseTypes = field.NewField(table, "response_types")

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -8,13 +9,13 @@ import (
 )
 
 type User struct {
-	ID           uuid.UUID `gorm:"type:uuid;primaryKey"`
-	Email        string    `gorm:"not null;uniqueIndex;index:idx_users_email"`
-	Name         string    `gorm:"not null"`
-	Picture      *string   `gorm:"default:null"`
-	PasswordHash *string   `gorm:"default:null"`
-	CreatedAt    time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
-	UpdatedAt    time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	ID           uuid.UUID      `gorm:"type:uuid;primaryKey"`
+	Email        string         `gorm:"not null;uniqueIndex;index:idx_users_email"`
+	Name         string         `gorm:"not null"`
+	PictureURL   sql.NullString `gorm:"column:picture_url;default:null"`
+	PasswordHash sql.NullString `gorm:"default:null"`
+	CreatedAt    time.Time      `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	UpdatedAt    time.Time      `gorm:"not null;default:CURRENT_TIMESTAMP"`
 
 	// Relations
 	UserIdentities []UserIdentity `gorm:"foreignKey:UserID"`

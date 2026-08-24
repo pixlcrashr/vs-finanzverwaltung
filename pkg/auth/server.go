@@ -260,7 +260,7 @@ func (s *Server) userInfoHandler(w http.ResponseWriter, r *http.Request) {
 		"sub":     user.ID.String(),
 		"email":   user.Email,
 		"name":    user.Name,
-		"picture": derefString(user.Picture),
+		"picture": user.PictureURL.String,
 	})
 }
 
@@ -287,17 +287,10 @@ func NewSession(user *model.User) fosite.Session {
 		s.Claims.Extra = map[string]interface{}{
 			"email":   user.Email,
 			"name":    user.Name,
-			"picture": derefString(user.Picture),
+			"picture": user.PictureURL.String,
 		}
 	}
 	return s
-}
-
-func derefString(s *string) string {
-	if s == nil {
-		return ""
-	}
-	return *s
 }
 
 func getBearerToken(r *http.Request) string {

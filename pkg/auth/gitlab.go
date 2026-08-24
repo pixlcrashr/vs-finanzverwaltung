@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"crypto/rand"
+	"database/sql"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -15,6 +16,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/cfg"
 	"github.com/pixlcrashr/vsfv/pkg/db/model"
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
+	"github.com/theater-improrama/go-utils/optional"
 	"golang.org/x/oauth2"
 )
 
@@ -260,14 +262,14 @@ func (g *GitLabHandler) findOrCreateUser(ctx context.Context, info *gitlabUserIn
 	user, err := g.userRepo.GetByEmail(ctx, info.Email)
 	if err != nil {
 		// User doesn't exist, create one
-		var picture *string
+		var pictureURL sql.NullString
 		if info.Picture != "" {
-			picture = &info.Picture
+			pictureURL = sql.NullString{String: info.Picture, Valid: true}
 		}
 		user, err = g.userRepo.CreateWithPassword(ctx, repository.CreateUserWithPasswordParams{
-			Email:   info.Email,
-			Name:    info.Name,
-			Picture: picture,
+			Email:      info.Email,
+			Name:       info.Name,
+			PictureURL: optional.From(pictureURL.String),
 		})
 		if err != nil {
 			return nil, fmt.Errorf("creating user: %w", err)

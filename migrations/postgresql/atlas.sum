@@ -1,4 +1,4 @@
-h1:zuOFTO45FyS/h4oT/p4WLn2PfukLXCPkdGI2sjbR2Dw=
+h1:tdnh1El9kUWUu8NkQOeEw1PShY2/LFeAYfyWTV/MN+g=
 20260608003436_initial.up.sql h1:4HFKA1ctWkWeGmIRkz4ShIh0G3Rwmm3B3smquXmxmdU=
 20260609124713_update-indicies.up.sql h1:TNDgsk/qMGNQlbNvqSxQ/zWIfzMrBEpNiXb7G2xG/AQ=
 20260611005718_fix-budget-revision-index.up.sql h1:KK4QfDl04+U6sXeQl2VpldjxwTJrMH7BTOP+OxcQhz8=
@@ -13,3 +13,4 @@ h1:zuOFTO45FyS/h4oT/p4WLn2PfukLXCPkdGI2sjbR2Dw=
 20260807150928_fixes-2.up.sql h1:A0Z7B1Mn4pJqlfKB/x55jdckaPb6aVB82264DcV5AHw=
 20260808000127_add-sqlite.up.sql h1:3dms03G/Dt8mwZ2CTFZMBG/+Q0jJvhIMPkefLs0psM8=
 20260811133616_user-management-changes.up.sql h1:uyiczasknWnX+CmdqN+n5fsVGNDa3TQp/KM7M5hiL8g=
+20260823132232_update_fields.up.sql h1:wuCZqqt9BSIeexdXFuwx7VQOR4xrEoz51n34yE79koo=

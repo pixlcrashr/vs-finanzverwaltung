@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 
@@ -48,13 +49,13 @@ func (r *OAuth2ClientRepository) List(ctx context.Context) ([]*model.OAuth2Clien
 type CreateOAuth2ClientParams struct {
 	ClientID                string
 	ClientName              string
-	ClientSecret            *string
+	ClientSecret            sql.NullString
 	RedirectURIs            types.StringArray
 	GrantTypes              types.StringArray
 	ResponseTypes           types.StringArray
 	Scopes                  types.StringArray
 	TokenEndpointAuthMethod string
-	UserID                  *uuid.UUID
+	UserID                  sql.Null[uuid.UUID]
 	Public                  bool
 }
 

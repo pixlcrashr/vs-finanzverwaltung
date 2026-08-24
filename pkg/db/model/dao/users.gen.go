@@ -30,8 +30,8 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 	_user.ID = field.NewField(tableName, "id")
 	_user.Email = field.NewString(tableName, "email")
 	_user.Name = field.NewString(tableName, "name")
-	_user.Picture = field.NewString(tableName, "picture")
-	_user.PasswordHash = field.NewString(tableName, "password_hash")
+	_user.PictureURL = field.NewField(tableName, "picture_url")
+	_user.PasswordHash = field.NewField(tableName, "password_hash")
 	_user.CreatedAt = field.NewTime(tableName, "created_at")
 	_user.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_user.UserIdentities = userHasManyUserIdentities{
@@ -65,8 +65,8 @@ type user struct {
 	ID             field.Field
 	Email          field.String
 	Name           field.String
-	Picture        field.String
-	PasswordHash   field.String
+	PictureURL     field.Field
+	PasswordHash   field.Field
 	CreatedAt      field.Time
 	UpdatedAt      field.Time
 	UserIdentities userHasManyUserIdentities
@@ -89,8 +89,8 @@ func (u *user) updateTableName(table string) *user {
 	u.ID = field.NewField(table, "id")
 	u.Email = field.NewString(table, "email")
 	u.Name = field.NewString(table, "name")
-	u.Picture = field.NewString(table, "picture")
-	u.PasswordHash = field.NewString(table, "password_hash")
+	u.PictureURL = field.NewField(table, "picture_url")
+	u.PasswordHash = field.NewField(table, "password_hash")
 	u.CreatedAt = field.NewTime(table, "created_at")
 	u.UpdatedAt = field.NewTime(table, "updated_at")
 
@@ -121,7 +121,7 @@ func (u *user) fillFieldMap() {
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["email"] = u.Email
 	u.fieldMap["name"] = u.Name
-	u.fieldMap["picture"] = u.Picture
+	u.fieldMap["picture_url"] = u.PictureURL
 	u.fieldMap["password_hash"] = u.PasswordHash
 	u.fieldMap["created_at"] = u.CreatedAt
 	u.fieldMap["updated_at"] = u.UpdatedAt

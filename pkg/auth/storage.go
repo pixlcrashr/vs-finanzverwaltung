@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -95,8 +96,8 @@ func (c *fositeClient) GetAudience() fosite.Arguments      { return nil }
 
 func toFositeClient(m *model.OAuth2Client) *fositeClient {
 	secret := ""
-	if m.ClientSecret != nil {
-		secret = *m.ClientSecret
+	if m.ClientSecret.Valid {
+		secret = m.ClientSecret.String
 	}
 	return &fositeClient{
 		id:                      m.ClientID,
@@ -177,10 +178,10 @@ func (s *Storage) CreateAccessTokenSession(ctx context.Context, signature string
 		return err
 	}
 
-	var userID *uuid.UUID
+	var userID sql.Null[uuid.UUID]
 	if subj := req.GetSession().GetSubject(); subj != "" {
 		if id, err := uuid.Parse(subj); err == nil {
-			userID = &id
+			userID = sql.Null[uuid.UUID]{V: id, Valid: true}
 		}
 	}
 
@@ -220,10 +221,10 @@ func (s *Storage) CreateRefreshTokenSession(ctx context.Context, signature strin
 		return err
 	}
 
-	var userID *uuid.UUID
+	var userID sql.Null[uuid.UUID]
 	if subj := req.GetSession().GetSubject(); subj != "" {
 		if id, err := uuid.Parse(subj); err == nil {
-			userID = &id
+			userID = sql.Null[uuid.UUID]{V: id, Valid: true}
 		}
 	}
 
@@ -263,10 +264,10 @@ func (s *Storage) CreateAuthorizeCodeSession(ctx context.Context, code string, r
 		return err
 	}
 
-	var userID *uuid.UUID
+	var userID sql.Null[uuid.UUID]
 	if subj := req.GetSession().GetSubject(); subj != "" {
 		if id, err := uuid.Parse(subj); err == nil {
-			userID = &id
+			userID = sql.Null[uuid.UUID]{V: id, Valid: true}
 		}
 	}
 

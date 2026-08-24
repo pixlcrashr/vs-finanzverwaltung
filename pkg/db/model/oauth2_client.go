@@ -1,6 +1,7 @@
 package model
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -9,19 +10,19 @@ import (
 )
 
 type OAuth2Client struct {
-	ID                      uuid.UUID         `gorm:"type:uuid;primaryKey"`
-	ClientID                string            `gorm:"not null;uniqueIndex:idx_oauth2_clients_client_id"`
-	ClientName              string            `gorm:"not null;default:''"`
-	ClientSecret            *string           `gorm:"default:null"`
-	RedirectURIs            types.StringArray `gorm:"type:text[];default:'{}'"`
-	GrantTypes              types.StringArray `gorm:"type:text[];default:'{}'"`
-	ResponseTypes           types.StringArray `gorm:"type:text[];default:'{}'"`
-	Scopes                  types.StringArray `gorm:"type:text[];default:'{}'"`
-	TokenEndpointAuthMethod string            `gorm:"not null;default:'none'"`
-	UserID                  *uuid.UUID        `gorm:"type:uuid;default:null"`
-	Public                  bool              `gorm:"not null;default:false"`
-	CreatedAt               time.Time         `gorm:"not null;default:CURRENT_TIMESTAMP"`
-	UpdatedAt               time.Time         `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	ID                      uuid.UUID           `gorm:"type:uuid;primaryKey"`
+	ClientID                string              `gorm:"not null;uniqueIndex:idx_oauth2_clients_client_id"`
+	ClientName              string              `gorm:"not null;default:''"`
+	ClientSecret            sql.NullString      `gorm:"default:null"`
+	RedirectURIs            types.StringArray   `gorm:"type:text[];default:'{}'"`
+	GrantTypes              types.StringArray   `gorm:"type:text[];default:'{}'"`
+	ResponseTypes           types.StringArray   `gorm:"type:text[];default:'{}'"`
+	Scopes                  types.StringArray   `gorm:"type:text[];default:'{}'"`
+	TokenEndpointAuthMethod string              `gorm:"not null;default:'none'"`
+	UserID                  sql.Null[uuid.UUID] `gorm:"type:uuid;default:null"`
+	Public                  bool                `gorm:"not null;default:false"`
+	CreatedAt               time.Time           `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	UpdatedAt               time.Time           `gorm:"not null;default:CURRENT_TIMESTAMP"`
 }
 
 func (OAuth2Client) TableName() string { return "oauth2_clients" }

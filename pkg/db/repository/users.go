@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/model/dao"
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"github.com/pixlcrashr/vsfv/pkg/query/order"
+	"github.com/theater-improrama/go-utils/optional"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -136,10 +138,10 @@ func (r *UserRepository) GetByName(ctx context.Context, name string, isCaseInsen
 }
 
 type CreateUserWithPasswordParams struct {
-	Email    string
-	Name     string
-	Password string
-	Picture  *string
+	Email      string
+	Name       string
+	Password   string
+	PictureURL optional.Optional[string]
 }
 
 func (r *UserRepository) CreateWithPassword(ctx context.Context, params CreateUserWithPasswordParams) (*model.User, error) {
@@ -147,13 +149,14 @@ func (r *UserRepository) CreateWithPassword(ctx context.Context, params CreateUs
 	if err != nil {
 		return nil, fmt.Errorf("hash password: %w", err)
 	}
-	hashStr := string(hash)
 
 	m := &model.User{
 		Email:        params.Email,
 		Name:         params.Name,
-		PasswordHash: &hashStr,
-		Picture:      params.Picture,
+		PasswordHash: sql.NullString{String: string(hash), Valid: true},
+	}
+	if params.PictureURL.IsSet {
+		m.PictureURL = sql.NullString{String: params.PictureURL.Value, Valid: true}
 	}
 	if err := r.q.User.WithContext(ctx).Create(m); err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {

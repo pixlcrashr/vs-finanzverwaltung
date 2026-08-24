@@ -41,6 +41,10 @@ message User {
   // Whether the user account is active.
   bool is_active = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 
+  // URL of the user's profile picture (derived from SSO provider at last login).
+  // Empty when the user has no picture.
+  string picture_url = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
   // Last modification timestamp.
   google.protobuf.Timestamp update_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 

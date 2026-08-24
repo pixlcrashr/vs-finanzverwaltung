@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 
@@ -29,7 +30,7 @@ type CreateOAuth2TokenParams struct {
 	Signature    string
 	RequestType  string
 	ClientID     string
-	UserID       *uuid.UUID
+	UserID       sql.Null[uuid.UUID]
 	Scope        types.StringArray
 	GrantedScope types.StringArray
 	FormData     string

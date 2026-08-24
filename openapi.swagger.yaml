@@ -5205,6 +5205,12 @@ definitions:
         type: boolean
         description: Whether the user account is active.
         readOnly: true
+      picture_url:
+        type: string
+        description: |-
+          URL of the user's profile picture (derived from SSO provider at last login).
+          Empty when the user has no picture.
+        readOnly: true
       update_time:
         type: string
         format: date-time

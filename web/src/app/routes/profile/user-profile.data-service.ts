@@ -4,6 +4,7 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
+  pictureUrl?: string;
   locale: string;
   theme: string;
   emailNotifications: boolean;

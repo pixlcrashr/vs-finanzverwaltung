@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, filter } from 'rxjs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faSun, faMoon, faGear, faRightFromBracket, faCircleUser } from '@fortawesome/free-solid-svg-icons';
-import { OAuthService } from 'angular-oauth2-oidc';
 import { MenuItem, Organization } from '../../models';
+import { getMostRecentOrganization } from '../../utils/organization.utils';
 import { CurrentOrganizationService } from '../../services/current-organization.service';
 import { MainLayoutDataService } from './main-layout.data-service';
 import { CurrentUserService, CurrentUserInfo } from '../../../../lib/authz/current-user.service';
@@ -141,8 +141,12 @@ import { Permissions } from '../../../../lib/authz/permissions';
               class="flex items-center gap-2 flex-1 min-w-0 rounded p-1 hover:bg-gray-800 transition-colors"
               [title]="'Profil'"
             >
-              <div class="flex-shrink-0 w-7 h-7 rounded-full bg-gray-700 flex items-center justify-center">
-                <fa-icon [icon]="faCircleUser" class="text-gray-400 text-sm"></fa-icon>
+              <div class="flex-shrink-0 w-7 h-7 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden">
+                @if (currentUser()?.pictureUrl) {
+                  <img [src]="currentUser()!.pictureUrl" [alt]="currentUser()!.name" class="w-full h-full object-cover" />
+                } @else {
+                  <fa-icon [icon]="faCircleUser" class="text-gray-400 text-sm"></fa-icon>
+                }
               </div>
               <p class="text-xs font-medium text-white truncate">{{ currentUser()?.name || 'Guest' }}</p>
             </button>
@@ -215,7 +219,6 @@ export class MainLayoutComponent implements OnInit {
   private readonly dataService = inject(MainLayoutDataService);
   private readonly currentUserService = inject(CurrentUserService);
   private readonly authorizationService = inject(AuthorizationService);
-  private readonly oauthService = inject(OAuthService);
 
   readonly faSun = faSun;
   readonly faMoon = faMoon;
@@ -356,7 +359,7 @@ export class MainLayoutComponent implements OnInit {
   }
 
   logout(): void {
-    this.oauthService.logOut();
+    void this.router.navigate(['/logout']);
   }
 
   ngOnDestroy(): void {
@@ -392,7 +395,10 @@ export class MainLayoutComponent implements OnInit {
               this.currentOrganizationId.set(org.id);
             }
           } else if (!currentOrg && orgs.length > 0) {
-            this.selectOrganization(orgs[0].id);
+            const defaultOrg = getMostRecentOrganization(orgs);
+            if (defaultOrg) {
+              this.selectOrganization(defaultOrg.id);
+            }
           }
         } else if (currentOrg) {
           this.currentOrganizationId.set(currentOrg.id);
@@ -400,9 +406,12 @@ export class MainLayoutComponent implements OnInit {
             this.router.navigate(['/organizations', currentOrg.id, 'dashboard']);
           }
         } else if (orgs.length > 0) {
-          this.selectOrganization(orgs[0].id);
-          if (this.router.url === '/' || this.router.url === '') {
-            this.router.navigate(['/organizations', orgs[0].id, 'dashboard']);
+          const defaultOrg = getMostRecentOrganization(orgs);
+          if (defaultOrg) {
+            this.selectOrganization(defaultOrg.id);
+            if (this.router.url === '/' || this.router.url === '') {
+              this.router.navigate(['/organizations', defaultOrg.id, 'dashboard']);
+            }
           }
         }
       },

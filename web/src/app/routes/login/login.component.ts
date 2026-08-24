@@ -1,6 +1,8 @@
-import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { OAuthService } from 'angular-oauth2-oidc';
+import { OAuthService, OAuthEvent } from 'angular-oauth2-oidc';
+import { Subscription } from 'rxjs';
+import { filter, take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login',
@@ -36,11 +38,13 @@ import { OAuthService } from 'angular-oauth2-oidc';
     </div>
   `,
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   private readonly oauthService = inject(OAuthService);
   private readonly router = inject(Router);
 
   readonly isProcessing = signal(false);
+  private tokenSub: Subscription | null = null;
+  private tokenCheckTimeout: ReturnType<typeof setTimeout> | null = null;
 
   async ngOnInit() {
     // If already authenticated, redirect to home
@@ -51,19 +55,50 @@ export class LoginComponent implements OnInit {
 
     // Check if this is a callback (code in URL) — the library processes it
     // automatically via loadDiscoveryDocumentAndTryLogin() in app.config.ts.
-    // We just need to wait and check.
+    // We wait for the token_received event and fall back to a polling timeout.
     const hasCode = new URLSearchParams(window.location.search).has('code');
     if (hasCode) {
       this.isProcessing.set(true);
-      // Wait a tick for the library to process the callback
-      setTimeout(async () => {
+
+      this.tokenSub = this.oauthService.events
+        .pipe(
+          filter((event: OAuthEvent) => event.type === 'token_received' || event.type === 'token_refreshed'),
+          take(1),
+        )
+        .subscribe(async () => {
+          this.cleanupTokenCheck();
+          if (this.oauthService.hasValidAccessToken()) {
+            await this.router.navigate(['/']);
+          } else {
+            this.isProcessing.set(false);
+          }
+        });
+
+      this.tokenCheckTimeout = setTimeout(() => {
+        this.tokenSub?.unsubscribe();
+        this.tokenSub = null;
+        this.tokenCheckTimeout = null;
+
         if (this.oauthService.hasValidAccessToken()) {
-          await this.router.navigate(['/']);
+          this.router.navigate(['/']);
         } else {
           this.isProcessing.set(false);
         }
-      }, 100);
+      }, 5000);
     }
+  }
+
+  private cleanupTokenCheck(): void {
+    if (this.tokenCheckTimeout) {
+      clearTimeout(this.tokenCheckTimeout);
+      this.tokenCheckTimeout = null;
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.cleanupTokenCheck();
+    this.tokenSub?.unsubscribe();
+    this.tokenSub = null;
   }
 
   loginWithGitLab() {

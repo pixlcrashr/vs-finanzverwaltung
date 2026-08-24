@@ -35,10 +35,14 @@ import { UserProfileDataService, UserProfile } from './user-profile.data-service
             <!-- User Info -->
             <div class="bg-white rounded-lg border border-gray-200 p-6 mb-4">
               <div class="flex items-center gap-4 mb-6">
-                <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
-                  <span class="text-xl font-medium text-gray-500">
-                    {{ getInitials(profile()!.name) }}
-                  </span>
+                <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+                  @if (profile()!.pictureUrl) {
+                    <img [src]="profile()!.pictureUrl" [alt]="profile()!.name" class="w-full h-full object-cover" />
+                  } @else {
+                    <span class="text-xl font-medium text-gray-500">
+                      {{ getInitials(profile()!.name) }}
+                    </span>
+                  }
                 </div>
                 <div>
                   <h2 class="text-lg font-semibold text-gray-900">{{ profile()!.name }}</h2>

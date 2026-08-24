@@ -16,6 +16,7 @@ export class HttpCurrentUserService extends CurrentUserService {
         id: claims['sub'],
         name: claims['name'] || '',
         email: claims['email'] || '',
+        pictureUrl: claims['picture'] || claims['picture_url'] || undefined,
       });
     }
 
@@ -27,6 +28,7 @@ export class HttpCurrentUserService extends CurrentUserService {
           id: body.id,
           name: body.name,
           email: body.email,
+          pictureUrl: body.pictureUrl || body.pictureUrl,
         })),
         catchError(() => of(null)),
       );

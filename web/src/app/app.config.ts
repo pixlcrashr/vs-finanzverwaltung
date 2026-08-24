@@ -22,15 +22,13 @@ import { CreateOrganizationDialogDataService } from './shared/dialogs/create-org
 import { AuthorizationDataService } from '../lib/authz/authorization.service';
 import { CurrentUserService, CurrentUserInitializer, CurrentUserInfo } from '../lib/authz/current-user.service';
 
-async function initializeAuth(): Promise<void> {
+async function initializeAuthAndUser(): Promise<void> {
   const oauthService = inject(OAuthService);
+  const currentUserInitializer = inject(CurrentUserInitializer);
+
   oauthService.configure(authConfig);
   await oauthService.loadDiscoveryDocumentAndTryLogin();
-}
-
-function initializeCurrentUser(): Promise<CurrentUserInfo | null> {
-  const initializer = inject(CurrentUserInitializer);
-  return firstValueFrom(initializer.initialize());
+  await firstValueFrom(currentUserInitializer.initialize());
 }
 
 export const appConfig: ApplicationConfig = {
@@ -51,7 +49,6 @@ export const appConfig: ApplicationConfig = {
     { provide: CreateOrganizationDialogDataService, useClass: environment.dataServices.createOrganizationDialog },
     { provide: AuthorizationDataService, useClass: environment.dataServices.authorizationData },
     { provide: CurrentUserService, useClass: environment.dataServices.currentUser },
-    provideAppInitializer(initializeAuth),
-    provideAppInitializer(initializeCurrentUser),
+    provideAppInitializer(initializeAuthAndUser),
   ],
 };

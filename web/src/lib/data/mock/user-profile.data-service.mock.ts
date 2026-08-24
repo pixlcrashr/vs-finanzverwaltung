@@ -12,6 +12,7 @@ export class MockUserProfileDataService extends UserProfileDataService {
     id: '00000000-0000-0000-0000-000000000001',
     name: 'Mock User',
     email: 'mock@vsfv.local',
+    pictureUrl: undefined,
     locale: 'de-DE',
     theme: 'system',
     emailNotifications: true,

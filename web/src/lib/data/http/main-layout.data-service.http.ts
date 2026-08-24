@@ -14,7 +14,9 @@ export class HttpMainLayoutDataService extends MainLayoutDataService {
         (resp.organizations ?? []).map((o) => ({
           id: o.uid ?? '',
           name: o.display_name,
-          description: '',
+          description: o.display_description ?? '',
+          createTime: o.create_time,
+          updateTime: o.update_time,
         })),
       ),
     );

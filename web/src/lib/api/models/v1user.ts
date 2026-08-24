@@ -34,6 +34,12 @@ export interface V1User {
   name?: string;
 
   /**
+   * URL of the user's profile picture (derived from SSO provider at last login).
+   * Empty when the user has no picture.
+   */
+  picture_url?: string;
+
+  /**
    * The UUID of the user.
    */
   uid?: string;

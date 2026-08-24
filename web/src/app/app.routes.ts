@@ -4,6 +4,7 @@ import { ReportTemplateEditDataService } from './routes/report-templates/report-
 import { UserProfileDataService } from './routes/profile/user-profile.data-service';
 import { environment } from '../environments/environment';
 import { authGuard } from './auth/auth.guard';
+import { organizationRedirectGuard } from './auth/organization-redirect.guard';
 
 
 
@@ -25,6 +26,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./routes/login/login.component').then(
         (m) => m.LoginComponent,
+      ),
+  },
+  // Logout route (no main layout, no auth guard, no menu)
+  {
+    path: 'logout',
+    loadComponent: () =>
+      import('./routes/logout/logout.component').then(
+        (m) => m.LogoutComponent,
       ),
   },
   // Main layout with left sidebar - single instance for all routes
@@ -155,6 +164,13 @@ export const routes: Routes = [
           import('./routes/permission-denied/permission-denied.component').then(
             (m) => m.PermissionDeniedComponent,
           ),
+      },
+      // Redirect the empty (root) route to the most recent organization
+      {
+        path: '',
+        pathMatch: 'full',
+        canActivate: [organizationRedirectGuard],
+        children: [],
       },
     ],
   },

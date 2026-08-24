@@ -8,6 +8,7 @@ export class MockCurrentUserService extends CurrentUserService {
     id: '00000000-0000-0000-0000-000000000001',
     name: 'Mock User',
     email: 'mock@vsfv.local',
+    pictureUrl: undefined,
   };
 
   getCurrentUser(): Observable<CurrentUserInfo | null> {

@@ -6,6 +6,7 @@ export interface CurrentUserInfo {
   id: string;
   name: string;
   email: string;
+  pictureUrl?: string;
 }
 
 export abstract class CurrentUserService {

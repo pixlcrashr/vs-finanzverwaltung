@@ -52,8 +52,8 @@ var _ = Describe("AccountService", func() {
 				Parent: orgName,
 				Account: &gen.Account{
 					DisplayName: "Container Account",
-					DisplayCode:   "1000-C",
-					IsContainer:   true,
+					DisplayCode: "1000-C",
+					IsContainer: true,
 				},
 			})
 			Expect(err).NotTo(HaveOccurred())
@@ -74,8 +74,8 @@ var _ = Describe("AccountService", func() {
 				Parent: orgName,
 				Account: &gen.Account{
 					DisplayName: "Parent Container",
-					DisplayCode:   "1000",
-					IsContainer:   true,
+					DisplayCode: "1000",
+					IsContainer: true,
 				},
 			})
 			Expect(err).NotTo(HaveOccurred())
@@ -103,7 +103,7 @@ var _ = Describe("AccountService", func() {
 				Parent: orgName,
 				Account: &gen.Account{
 					DisplayName: "Get Account",
-					DisplayCode:   "2000",
+					DisplayCode: "2000",
 				},
 			})
 			Expect(err).NotTo(HaveOccurred())
@@ -115,6 +115,32 @@ var _ = Describe("AccountService", func() {
 			Expect(resp.Name).To(Equal(created.Name))
 			Expect(resp.Uid).To(Equal(created.Uid))
 			Expect(resp.DisplayName).To(Equal("Get Account"))
+		})
+
+		It("populates parent_account for a child account", func() {
+			parent, err := AccountClient.CreateAccount(ctx, &gen.CreateAccountRequest{
+				Parent: orgName,
+				Account: &gen.Account{
+					DisplayName: "Get Parent Container",
+					DisplayCode: "2000-P",
+					IsContainer: true,
+				},
+			})
+			Expect(err).NotTo(HaveOccurred())
+
+			child, err := AccountClient.CreateAccount(ctx, &gen.CreateAccountRequest{
+				Parent: orgName,
+				Account: &gen.Account{
+					DisplayName:   "Get Child Account",
+					DisplayCode:   "2000-C",
+					ParentAccount: parent.Name,
+				},
+			})
+			Expect(err).NotTo(HaveOccurred())
+
+			resp, err := AccountClient.GetAccount(ctx, &gen.GetAccountRequest{Name: child.Name})
+			Expect(err).NotTo(HaveOccurred())
+			Expect(resp.ParentAccount).To(Equal(parent.Name))
 		})
 
 		It("returns NotFound for an unknown resource name", func() {
@@ -139,7 +165,7 @@ var _ = Describe("AccountService", func() {
 					Parent: orgName,
 					Account: &gen.Account{
 						DisplayName: name,
-						DisplayCode:   name,
+						DisplayCode: name,
 					},
 				})
 				Expect(err).NotTo(HaveOccurred())
@@ -186,6 +212,44 @@ var _ = Describe("AccountService", func() {
 			}
 			Expect(len(all)).To(BeNumerically(">=", 3))
 		})
+
+		It("populates parent_account for child accounts", func() {
+			parent, err := AccountClient.CreateAccount(ctx, &gen.CreateAccountRequest{
+				Parent: orgName,
+				Account: &gen.Account{
+					DisplayName: "Parent Container",
+					DisplayCode: "LIST-P",
+					IsContainer: true,
+				},
+			})
+			Expect(err).NotTo(HaveOccurred())
+
+			_, err = AccountClient.CreateAccount(ctx, &gen.CreateAccountRequest{
+				Parent: orgName,
+				Account: &gen.Account{
+					DisplayName:   "Child Account",
+					DisplayCode:   "LIST-C",
+					ParentAccount: parent.Name,
+				},
+			})
+			Expect(err).NotTo(HaveOccurred())
+
+			resp, err := AccountClient.ListAccounts(ctx, &gen.ListAccountsRequest{
+				Parent:   orgName,
+				PageSize: 100,
+			})
+			Expect(err).NotTo(HaveOccurred())
+
+			var child *gen.Account
+			for _, a := range resp.Accounts {
+				if a.DisplayName == "Child Account" {
+					child = a
+					break
+				}
+			}
+			Expect(child).NotTo(BeNil())
+			Expect(child.ParentAccount).To(Equal(parent.Name))
+		})
 	})
 
 	Describe("ListNestedAccounts", func() {
@@ -195,8 +259,8 @@ var _ = Describe("AccountService", func() {
 				Parent: orgName,
 				Account: &gen.Account{
 					DisplayName: "Root Container",
-					DisplayCode:   "3000",
-					IsContainer:   true,
+					DisplayCode: "3000",
+					IsContainer: true,
 				},
 			})
 			Expect(err).NotTo(HaveOccurred())
@@ -231,8 +295,8 @@ var _ = Describe("AccountService", func() {
 				Parent: orgName,
 				Account: &gen.Account{
 					DisplayName: "Nested Root",
-					DisplayCode:   "4000",
-					IsContainer:   true,
+					DisplayCode: "4000",
+					IsContainer: true,
 				},
 			})
 			Expect(err).NotTo(HaveOccurred())
@@ -254,7 +318,8 @@ var _ = Describe("AccountService", func() {
 			})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(resp.Account).NotTo(BeNil())
-			Expect(resp.Account.Name).To(Equal(parent.Name))
+			Expect(resp.Account.Account).NotTo(BeNil())
+			Expect(resp.Account.Account.Name).To(Equal(parent.Name))
 		})
 
 		It("returns NotFound for unknown account", func() {
@@ -275,7 +340,7 @@ var _ = Describe("AccountService", func() {
 				Parent: orgName,
 				Account: &gen.Account{
 					DisplayName: "Before Update",
-					DisplayCode:   "5000",
+					DisplayCode: "5000",
 				},
 			})
 			Expect(err).NotTo(HaveOccurred())
@@ -322,7 +387,7 @@ var _ = Describe("AccountService", func() {
 				Parent: orgName,
 				Account: &gen.Account{
 					DisplayName: "To Archive",
-					DisplayCode:   "6000",
+					DisplayCode: "6000",
 				},
 			})
 			Expect(err).NotTo(HaveOccurred())
@@ -348,42 +413,4 @@ var _ = Describe("AccountService", func() {
 		})
 	})
 
-	Describe("DeleteAccount", func() {
-		var created *gen.Account
-
-		BeforeEach(func() {
-			var err error
-			created, err = AccountClient.CreateAccount(ctx, &gen.CreateAccountRequest{
-				Parent: orgName,
-				Account: &gen.Account{
-					DisplayName: "To Delete",
-					DisplayCode:   "7000",
-				},
-			})
-			Expect(err).NotTo(HaveOccurred())
-		})
-
-		It("permanently deletes the account", func() {
-			_, err := AccountClient.DeleteAccount(ctx, &gen.DeleteAccountRequest{Name: created.Name})
-			Expect(err).NotTo(HaveOccurred())
-
-			_, err = AccountClient.GetAccount(ctx, &gen.GetAccountRequest{Name: created.Name})
-			Expect(err).To(HaveOccurred())
-			Expect(status.Code(err)).To(Equal(codes.NotFound))
-		})
-
-		It("returns NotFound when deleting a non-existent account", func() {
-			_, err := AccountClient.DeleteAccount(ctx, &gen.DeleteAccountRequest{
-				Name: "organizations/00000000-0000-0000-0000-000000000000/accounts/00000000-0000-0000-0000-000000000000",
-			})
-			Expect(err).To(HaveOccurred())
-			Expect(status.Code(err)).To(Equal(codes.NotFound))
-		})
-
-		It("returns InvalidArgument for a malformed resource name", func() {
-			_, err := AccountClient.DeleteAccount(ctx, &gen.DeleteAccountRequest{Name: "bad-name"})
-			Expect(err).To(HaveOccurred())
-			Expect(status.Code(err)).To(Equal(codes.InvalidArgument))
-		})
-	})
 })

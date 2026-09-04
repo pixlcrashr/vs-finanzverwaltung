@@ -120,6 +120,16 @@ A budget with base account values and ordered revisions.
 Dates are formatted as `YYYY-MM-DD`. Decimal values are represented as strings to
 avoid precision loss.
 
+#### `<budgetRevision>` attributes
+
+| Attribute | Required | Description |
+|-----------|----------|-------------|
+| `id` | yes | Original revision UUID. |
+| `customId` | no | Custom identifier; falls back to `id` when absent. |
+| `displayName` | no | Human-readable name, e.g. `"Nachtrag I"`. Falls back to the revision `date` (`YYYY-MM-DD`) on import when absent. |
+| `displayDescription` | no | Optional description. |
+| `date` | yes | Revision date (`YYYY-MM-DD`). |
+
 ### `<transactions>`
 
 Journal transactions and their account assignments.

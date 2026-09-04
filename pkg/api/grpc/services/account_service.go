@@ -132,9 +132,39 @@ func (s *accountServiceServer) ListAccounts(ctx context.Context, req *gen.ListAc
 		return nil, &ServerError{Err: err, Status: statusFailedListAccounts}
 	}
 
+	// Batch-fetch any parent accounts referenced by the listed accounts so
+	// that the response can populate parent_account for each child.
+	parentIDs := make([]uuid.UUID, 0, len(ms))
+	parentIDSet := make(map[uuid.UUID]struct{}, len(ms))
+	for _, m := range ms {
+		if !m.ParentAccountID.Valid {
+			continue
+		}
+		if _, ok := parentIDSet[m.ParentAccountID.UUID]; ok {
+			continue
+		}
+		parentIDSet[m.ParentAccountID.UUID] = struct{}{}
+		parentIDs = append(parentIDs, m.ParentAccountID.UUID)
+	}
+
+	parentByID := make(map[uuid.UUID]*model.Account)
+	if len(parentIDs) > 0 {
+		parents, err := s.repo.GetByIDs(ctx, parentIDs)
+		if err != nil {
+			return nil, &ServerError{Err: err, Status: statusFailedGetParentAccount}
+		}
+		for _, p := range parents {
+			parentByID[p.ID] = p
+		}
+	}
+
 	resp := &gen.ListAccountsResponse{TotalSize: total}
 	for _, m := range ms {
-		resp.Accounts = append(resp.Accounts, AccountToProto(pn, m, nil))
+		var parentM *model.Account
+		if m.ParentAccountID.Valid {
+			parentM = parentByID[m.ParentAccountID.UUID]
+		}
+		resp.Accounts = append(resp.Accounts, AccountToProto(pn, m, parentM))
 	}
 
 	nextOffset := offset + int64(len(ms))

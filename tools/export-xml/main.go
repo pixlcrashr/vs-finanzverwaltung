@@ -1,7 +1,8 @@
 // export-xml reads the legacy Prisma-based VSFV database (schema defined in
-// tmp/vsfv_public.sql and prisma/schema.prisma in the old repository at
-// github.com/pixlcrashr/vsfv) and produces an XML document matching the current
-// import/export format (pkg/api/importexport/xmlformat).
+// prisma/schema.prisma in the old repository at github.com/pixlcrashr/vsfv_old,
+// checked out at D:\git\github.com\pixlcrashr\vsfv_old) and produces an XML
+// document matching the current import/export format
+// (pkg/api/importexport/xmlformat).
 //
 // Old-to-new schema mapping
 // -------------------------
@@ -40,7 +41,11 @@
 //
 // budget_revisions → <budgetRevisions><budgetRevision>
 //
+//	The old schema has no display_name column, so revisions are exported without
+//	displayName; the importer falls back to the revision date as the name.
 //	budget_revision_account_values → <accountValues><accountValue>
+//	The old schema has no unique constraint on (budget_revision_id, account_id);
+//	duplicate rows are consolidated by summing their values.
 //
 // transactions → <transactions><transaction>
 //
@@ -55,7 +60,9 @@
 //	that behaviour: explicit transaction_account_assignments are exported first;
 //	only when none exist is assigned_account_id used.
 //	transaction_account_assignments → <transactionAssignments><transactionAssignment>
-//	account_id references accounts.id (budget accounts).
+//	account_id references accounts.id (budget accounts). The old schema has no
+//	unique constraint on (transaction_id, account_id); duplicate rows are
+//	consolidated by summing their values.
 package main
 
 import (
@@ -448,12 +455,14 @@ func loadLedgerYearsFromImportSourcePeriods(db *sql.DB, schema string) ([]xmlfor
 
 // loadBudgets reads public.budgets, public.budget_revisions and
 // public.budget_revision_account_values. The old schema has no base budget account
-// values, only revision values.
+// values, only revision values. budget_revisions has no display_name column; the
+// revisions are exported without displayName and the importer falls back to the
+// revision date.
 func loadBudgets(db *sql.DB, schema string) ([]xmlformat.Budget, error) {
 	bRows, err := db.Query(fmt.Sprintf(`
 		SELECT id, display_name, display_description, is_closed, period_start, period_end
 		FROM %s.budgets
-		ORDER BY created_at
+		ORDER BY created_at, id
 	`, schema))
 	if err != nil {
 		return nil, err
@@ -484,19 +493,22 @@ func loadBudgets(db *sql.DB, schema string) ([]xmlformat.Budget, error) {
 		return nil, err
 	}
 
+	// Revisions are collected in a flat slice with the owning budget id kept in a
+	// parallel slice; they are grouped into budgets only after all account values
+	// have been attached. Storing pointers into the revisions slice while it is
+	// still growing would leave dangling pointers after reallocation.
 	rRows, err := db.Query(fmt.Sprintf(`
 		SELECT id, budget_id, date, display_description
 		FROM %s.budget_revisions
-		ORDER BY date
+		ORDER BY date, created_at, id
 	`, schema))
 	if err != nil {
 		return nil, err
 	}
 	defer rRows.Close()
 
-	// Collect revisions in a flat slice first, then build a stable pointer map.
 	var revisions []xmlformat.BudgetRevision
-	revisionsByBudget := make(map[string][]*xmlformat.BudgetRevision)
+	var revisionBudgetIDs []string
 	for rRows.Next() {
 		var id, budgetID, displayDescription string
 		var date time.Time
@@ -509,8 +521,7 @@ func loadBudgets(db *sql.DB, schema string) ([]xmlformat.Budget, error) {
 			DisplayDescription: displayDescription,
 			Date:               date.Format(xmlformat.DateLayout),
 		})
-		rev := &revisions[len(revisions)-1]
-		revisionsByBudget[budgetID] = append(revisionsByBudget[budgetID], rev)
+		revisionBudgetIDs = append(revisionBudgetIDs, budgetID)
 	}
 	if err := rRows.Err(); err != nil {
 		return nil, err
@@ -521,9 +532,14 @@ func loadBudgets(db *sql.DB, schema string) ([]xmlformat.Budget, error) {
 		revByID[revisions[i].ID] = &revisions[i]
 	}
 
+	// The old schema has no unique constraint on (budget_revision_id, account_id)
+	// while the new schema does. Duplicate rows are consolidated by summing their
+	// values, mirroring the transaction_assignments consolidation migration.
 	vRows, err := db.Query(fmt.Sprintf(`
-		SELECT budget_revision_id, account_id, value
+		SELECT budget_revision_id, account_id, SUM(value)
 		FROM %s.budget_revision_account_values
+		GROUP BY budget_revision_id, account_id
+		ORDER BY MIN(created_at), MIN(id::text)
 	`, schema))
 	if err != nil {
 		return nil, err
@@ -531,15 +547,14 @@ func loadBudgets(db *sql.DB, schema string) ([]xmlformat.Budget, error) {
 	defer vRows.Close()
 
 	for vRows.Next() {
-		var revID, accountID string
-		var value []byte
+		var revID, accountID, value string
 		if err := vRows.Scan(&revID, &accountID, &value); err != nil {
 			return nil, err
 		}
 		if rev, ok := revByID[revID]; ok {
 			rev.AccountValues = append(rev.AccountValues, xmlformat.BudgetValue{
 				AccountID: accountID,
-				Value:     string(value),
+				Value:     value,
 			})
 		}
 	}
@@ -547,12 +562,13 @@ func loadBudgets(db *sql.DB, schema string) ([]xmlformat.Budget, error) {
 		return nil, err
 	}
 
-	// Link revisions into their budgets. Pointers are stable because the revisions
-	// slice is no longer growing.
+	revisionsByBudget := make(map[string][]xmlformat.BudgetRevision)
+	for i := range revisions {
+		budgetID := revisionBudgetIDs[i]
+		revisionsByBudget[budgetID] = append(revisionsByBudget[budgetID], revisions[i])
+	}
 	for i := range budgets {
-		for _, rev := range revisionsByBudget[budgets[i].ID] {
-			budgets[i].Revisions = append(budgets[i].Revisions, *rev)
-		}
+		budgets[i].Revisions = revisionsByBudget[budgets[i].ID]
 	}
 
 	return budgets, nil
@@ -571,7 +587,7 @@ func loadTransactions(db *sql.DB, schema string) ([]xmlformat.Transaction, error
 		SELECT id, custom_id, credit_transaction_account_id, debit_transaction_account_id,
 		       amount, description, reference, assigned_account_id, booked_at, document_date
 		FROM %s.transactions
-		ORDER BY document_date, booked_at
+		ORDER BY document_date, booked_at, id
 	`, schema))
 	if err != nil {
 		return nil, err
@@ -619,9 +635,14 @@ func loadTransactions(db *sql.DB, schema string) ([]xmlformat.Transaction, error
 		byID[transactions[i].ID] = &transactions[i]
 	}
 
+	// The old schema has no unique constraint on (transaction_id, account_id)
+	// while the new schema does. Duplicate rows are consolidated by summing their
+	// values, mirroring the consolidation migration performed on the new schema.
 	aRows, err := db.Query(fmt.Sprintf(`
-		SELECT transaction_id, account_id, value
+		SELECT transaction_id, account_id, SUM(value)
 		FROM %s.transaction_account_assignments
+		GROUP BY transaction_id, account_id
+		ORDER BY MIN(created_at), MIN(id::text)
 	`, schema))
 	if err != nil {
 		return nil, err
@@ -629,15 +650,14 @@ func loadTransactions(db *sql.DB, schema string) ([]xmlformat.Transaction, error
 	defer aRows.Close()
 
 	for aRows.Next() {
-		var txID, accountID string
-		var value []byte
+		var txID, accountID, value string
 		if err := aRows.Scan(&txID, &accountID, &value); err != nil {
 			return nil, err
 		}
 		if tx, ok := byID[txID]; ok {
 			tx.Assignments = append(tx.Assignments, xmlformat.TransactionAssignment{
 				AccountID: accountID,
-				Value:     string(value),
+				Value:     value,
 			})
 		}
 	}

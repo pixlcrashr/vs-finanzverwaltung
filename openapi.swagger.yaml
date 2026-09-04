@@ -8,24 +8,61 @@ info:
     email: info@pixlcrashr.dev
 tags:
   - name: AccountService
+    description: AccountService manages budget accounts in the chart of accounts.
   - name: AccountGroupService
+    description: AccountGroupService manages named groupings of budget accounts.
   - name: AccountGroupAssignmentService
+    description: AccountGroupAssignmentService manages account memberships within account groups.
   - name: BudgetService
+    description: BudgetService manages financial budgets.
   - name: BudgetAccountValueService
+    description: BudgetAccountValueService manages per-account value assignments within a budget.
   - name: BudgetActualAccountValueService
+    description: |-
+      BudgetActualAccountValueService provides read-only access to the computed
+      actual monetary values per budget account. Values are derived from the sum of
+      TransactionAccountAssignment values for transactions within the budget period.
+      All resources in this service are server-computed and immutable.
   - name: BudgetRevisionService
+    description: |-
+      BudgetRevisionService manages read-only revision history for budgets.
+      Revisions are created on demand and capture the full set of
+      BudgetAccountValues at the time of creation. Revisions are immutable.
   - name: BudgetRevisionAccountValueService
+    description: |-
+      BudgetRevisionAccountValueService provides read-only access to the
+      per-account values captured within a BudgetRevision. All resources in this
+      service are immutable and server-managed.
   - name: GroupService
+    description: GroupService manages groups and their per-organization permission policies.
   - name: LedgerAccountService
+    description: |-
+      LedgerAccountService manages ledger accounts for bookkeeping.
+      Accounts are auto-created during import; only Get, List, Update, Delete are exposed.
   - name: LedgerYearService
+    description: LedgerYearService manages fiscal/economic years within an organization.
   - name: OrganizationService
+    description: OrganizationService manages organizations.
   - name: ReportService
+    description: |-
+      ReportService manages generated report instances.
+      Note: report file download is handled exclusively by the Huma HTTP API.
   - name: ReportTemplateService
+    description: ReportTemplateService manages Handlebars templates used for report generation.
   - name: TransactionService
+    description: TransactionService manages financial transactions.
   - name: TransactionAssignmentService
+    description: TransactionAssignmentService manages transaction assignments to budget accounts.
   - name: UserService
+    description: |-
+      UserService provides a read-only administrative view of users.
+      Users are created exclusively through the SSO/OAuth2 flow.
   - name: UserIdentityService
+    description: |-
+      UserIdentityService provides a read-only view of the OAuth2 / SSO
+      connections linked to a user. No credentials are ever returned.
   - name: UserSettingsService
+    description: UserSettingsService manages per-user application preferences.
 host: test.pixlcrashr.dev
 basePath: /api
 schemes:
@@ -2695,7 +2732,7 @@ paths:
   /v1/{parent}/actualAccountValues:
     get:
       summary: |-
-        Lists computed actual account values for a budget, with pagination.
+        Lists computed actual account values, with pagination.
         Authorization:
           Scope: budgets:read
           Permission: budgets:read
@@ -2735,8 +2772,15 @@ paths:
         - name: filter
           description: |-
             Filter expression conforming to AIP-160.
-            Supported fields: account.
-            Example: "account=\"organizations/{organization}/accounts/{account}\"".
+            Supported fields:
+              - account:     the account resource name (e.g. "organizations/{org}/accounts/{account}").
+              - budget:      the budget resource name. Useful when the budget segment of
+                             the parent is the wildcard "-", e.g.:
+                             budget="..." OR budget="...".
+              - document_date: the transaction document date range. Only the date portion
+                               is considered. Use >= and <= to specify a range, e.g.:
+                               document_date>="2024-01-01" AND document_date<="2024-12-31".
+            Values with a computed amount of zero or less are omitted from the result.
           in: query
           required: false
           type: string
@@ -2944,6 +2988,46 @@ paths:
           type: string
       tags:
         - BudgetService
+  /v1/{parent}/budgets/-/actualAccountValues:batchGet:
+    get:
+      summary: |-
+        Batch gets computed actual account values by resource name.
+        Authorization:
+          Scope: budgets:read
+          Permission: budgets:read
+          Domain: organization-scoped
+      operationId: BudgetActualAccountValueService_BatchGetBudgetActualAccountValues
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1BatchGetBudgetActualAccountValuesResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: parent
+          description: |-
+            The parent organization resource name.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
+        - name: names
+          description: |-
+            The resource names of the budget actual account values to retrieve.
+            A maximum of 1000 actual account values can be retrieved in a batch.
+            Format: organizations/{organization}/budgets/{budget}/actualAccountValues/{account}
+          in: query
+          required: true
+          type: array
+          items:
+            type: string
+          collectionFormat: multi
+      tags:
+        - BudgetActualAccountValueService
   /v1/{parent}/identities:
     get:
       summary: |-
@@ -4156,6 +4240,17 @@ definitions:
     description: |-
       BatchCheckUserPermissionsResponse returns one result entry per requested
       check, in the same order as the request.
+  v1BatchGetBudgetActualAccountValuesResponse:
+    type: object
+    properties:
+      actual_account_values:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1BudgetActualAccountValue'
+        description: |-
+          The actual account values returned, in the same order as the names in the
+          request. Values with a computed amount of zero or less are omitted.
   v1BatchGetLedgerAccountsResponse:
     type: object
     properties:

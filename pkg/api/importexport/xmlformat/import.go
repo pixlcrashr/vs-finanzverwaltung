@@ -17,7 +17,20 @@ import (
 // that already contains records from a previous import) does not fail on
 // primary-key conflicts.
 func upsert(tx *gorm.DB, value any) error {
-	return tx.Clauses(clause.OnConflict{UpdateAll: true}).Create(value).Error
+	return upsertOn(tx, value, "id")
+}
+
+// upsertOn inserts value and updates the existing row on conflict. PostgreSQL
+// requires an explicit conflict target for ON CONFLICT DO UPDATE, so callers
+// must name the key that identifies the row: "id" for entities whose IDs come
+// from the document, and the business unique key for value/assignment rows that
+// get a fresh random ID on every import.
+func upsertOn(tx *gorm.DB, value any, columns ...string) error {
+	cols := make([]clause.Column, len(columns))
+	for i, c := range columns {
+		cols[i] = clause.Column{Name: c}
+	}
+	return tx.Clauses(clause.OnConflict{Columns: cols, UpdateAll: true}).Create(value).Error
 }
 
 // ImportDocument imports a V1 XML document into the given organization within a
@@ -210,7 +223,7 @@ func ImportDocument(ctx context.Context, db *gorm.DB, orgID uuid.UUID, doc *Docu
 					AccountID:      accountID,
 					Negate:         a.Negate,
 				}
-				if err := upsert(tx, m); err != nil {
+				if err := upsertOn(tx, m, "organization_id", "account_group_id", "account_id"); err != nil {
 					return fmt.Errorf("create account group assignment: %w", err)
 				}
 			}
@@ -271,7 +284,7 @@ func ImportDocument(ctx context.Context, db *gorm.DB, orgID uuid.UUID, doc *Docu
 					AccountID:      accountID,
 					Value:          val,
 				}
-				if err := upsert(tx, bav); err != nil {
+				if err := upsertOn(tx, bav, "organization_id", "budget_id", "account_id"); err != nil {
 					return fmt.Errorf("create budget account value: %w", err)
 				}
 			}
@@ -292,12 +305,16 @@ func ImportDocument(ctx context.Context, db *gorm.DB, orgID uuid.UUID, doc *Docu
 				if revCustomID == "" {
 					revCustomID = revisionID.String()
 				}
+				revDisplayName := r.DisplayName
+				if revDisplayName == "" {
+					revDisplayName = revDate.Format(DateLayout)
+				}
 				rm := &model.BudgetRevision{
 					ID:                 revisionID,
 					CustomID:           revCustomID,
 					OrganizationID:     orgID,
 					BudgetID:           budgetID,
-					DisplayName:        r.DisplayName,
+					DisplayName:        revDisplayName,
 					DisplayDescription: r.DisplayDescription,
 					Date:               revDate,
 				}
@@ -321,7 +338,7 @@ func ImportDocument(ctx context.Context, db *gorm.DB, orgID uuid.UUID, doc *Docu
 						AccountID:        accountID,
 						Value:            val,
 					}
-					if err := upsert(tx, rav); err != nil {
+					if err := upsertOn(tx, rav, "organization_id", "budget_id", "budget_revision_id", "account_id"); err != nil {
 						return fmt.Errorf("create revision account value: %w", err)
 					}
 				}
@@ -404,7 +421,7 @@ func ImportDocument(ctx context.Context, db *gorm.DB, orgID uuid.UUID, doc *Docu
 					AccountID:      accountID,
 					Value:          value,
 				}
-				if err := upsert(tx, ta); err != nil {
+				if err := upsertOn(tx, ta, "transaction_id", "account_id"); err != nil {
 					return fmt.Errorf("create transaction assignment: %w", err)
 				}
 			}

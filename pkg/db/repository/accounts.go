@@ -155,6 +155,21 @@ func (r *AccountRepository) GetByCustomID(ctx context.Context, orgID uuid.UUID, 
 	return m, nil
 }
 
+// GetByIDs returns all accounts matching the given IDs in a single query.
+// The caller is responsible for mapping returned rows by ID; missing IDs are
+// simply omitted from the result.
+func (r *AccountRepository) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*model.Account, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+
+	var ms []*model.Account
+	if err := r.db.WithContext(ctx).Where("id IN ?", ids).Find(&ms).Error; err != nil {
+		return nil, fmt.Errorf("get accounts by ids: %w", err)
+	}
+	return ms, nil
+}
+
 // AccountResourceNameLookup identifies an account by its organization custom ID
 // and account custom ID — the two segments of an Account resource name.
 type AccountResourceNameLookup struct {

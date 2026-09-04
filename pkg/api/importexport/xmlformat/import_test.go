@@ -115,6 +115,7 @@ func TestImportExportRoundtrip(t *testing.T) {
 	require.Len(t, exported.Budgets, 1)
 	require.Len(t, exported.Budgets[0].AccountValues, 1)
 	require.Len(t, exported.Budgets[0].Revisions, 1)
+	require.Equal(t, "2026-03-01", exported.Budgets[0].Revisions[0].DisplayName)
 	require.Len(t, exported.Transactions, 1)
 	require.Len(t, exported.Transactions[0].Assignments, 1)
 }
@@ -125,6 +126,72 @@ func TestImportUnsupportedVersion(t *testing.T) {
 	err := ImportDocument(t.Context(), dbConn, uuid.New(), doc)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "unsupported format version")
+}
+
+// TestImportTwiceIsIdempotent imports the same document twice into the same
+// organization. Value and assignment rows get fresh IDs on every import, so the
+// second run must hit the business-key conflict targets instead of "id".
+func TestImportTwiceIsIdempotent(t *testing.T) {
+	dbConn := setupTestDB(t)
+	ctx := t.Context()
+
+	orgID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
+	require.NoError(t, dbConn.Create(&model.Organization{
+		ID:          orgID,
+		DisplayName: "Test",
+	}).Error)
+
+	doc := &Document{
+		Version: Version,
+		Accounts: []Account{
+			{
+				ID:          "10000000-0000-0000-0000-000000000001",
+				DisplayName: "Root",
+			},
+		},
+		LedgerAccounts: []LedgerAccount{
+			{ID: "20000000-0000-0000-0000-000000000001", Code: "1000", DisplayName: "Bank"},
+		},
+		Budgets: []Budget{
+			{
+				ID:          "30000000-0000-0000-0000-000000000001",
+				DisplayName: "Budget 2026",
+				PeriodStart: "2026-01-01",
+				PeriodEnd:   "2026-12-31",
+				Revisions: []BudgetRevision{
+					{
+						ID:   "31000000-0000-0000-0000-000000000001",
+						Date: "2026-03-01",
+						AccountValues: []BudgetValue{
+							{AccountID: "10000000-0000-0000-0000-000000000001", Value: "200.00"},
+						},
+					},
+				},
+			},
+		},
+		Transactions: []Transaction{
+			{
+				ID:                    "40000000-0000-0000-0000-000000000001",
+				CreditLedgerAccountID: "20000000-0000-0000-0000-000000000001",
+				DebitLedgerAccountID:  "20000000-0000-0000-0000-000000000001",
+				Amount:                "50.00",
+				BookedAt:              "2026-01-15",
+				DocumentDate:          "2026-01-15",
+				Assignments: []TransactionAssignment{
+					{AccountID: "10000000-0000-0000-0000-000000000001", Value: "50.00"},
+				},
+			},
+		},
+	}
+
+	require.NoError(t, ImportDocument(ctx, dbConn, orgID, doc))
+	require.NoError(t, ImportDocument(ctx, dbConn, orgID, doc))
+
+	var ravCount, taCount int64
+	require.NoError(t, dbConn.Model(&model.BudgetRevisionAccountValue{}).Where("organization_id = ?", orgID).Count(&ravCount).Error)
+	require.NoError(t, dbConn.Model(&model.TransactionAssignment{}).Where("organization_id = ?", orgID).Count(&taCount).Error)
+	require.EqualValues(t, 1, ravCount)
+	require.EqualValues(t, 1, taCount)
 }
 
 func TestImportAutoCreatesMissingLedgerAccount(t *testing.T) {

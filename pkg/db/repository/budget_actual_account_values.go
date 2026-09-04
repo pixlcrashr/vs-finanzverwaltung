@@ -19,6 +19,7 @@ var (
 // ActualAccountValue is a computed (non-persisted) result representing the
 // actual monetary value for a single budget account within a budget period.
 type ActualAccountValue struct {
+	BudgetCustomID  string
 	AccountID       uuid.UUID
 	AccountCustomID string
 	Value           apd.Decimal
@@ -151,4 +152,81 @@ GROUP BY taa.account_id, a.custom_id
 		AccountCustomID: row.AccountCustomID,
 		Value:           row.Amount,
 	}, nil
+}
+
+// budgetActualMultiRow is the raw SQL scan target for the multi-budget
+// actual-value query.
+type budgetActualMultiRow struct {
+	BudgetCustomID  string      `gorm:"column:budget_custom_id"`
+	AccountID       uuid.UUID   `gorm:"column:account_id"`
+	AccountCustomID string      `gorm:"column:account_custom_id"`
+	Amount          apd.Decimal `gorm:"column:amount"`
+}
+
+// ListByBudgets computes the actual values for every account that has
+// assignments within the requested budgets' periods. An optional document_date
+// range can further restrict the transactions that are summed.
+func (r *BudgetActualAccountValueRepository) ListByBudgets(
+	ctx context.Context,
+	organizationID uuid.UUID,
+	budgetCustomIDs []string,
+	documentDateFrom,
+	documentDateTo *time.Time,
+) ([]*ActualAccountValue, error) {
+	query := `
+SELECT
+    b.custom_id AS budget_custom_id,
+    a.id AS account_id,
+    a.custom_id AS account_custom_id,
+    SUM(
+        CASE
+            WHEN la.account_type IN (1, 5) THEN -taa.value
+            ELSE taa.value
+        END
+    ) AS amount
+FROM transaction_assignments taa
+JOIN transactions t ON t.id = taa.transaction_id
+JOIN ledger_accounts la ON la.id = t.credit_ledger_account_id
+JOIN accounts a ON a.id = taa.account_id
+JOIN budgets b ON b.organization_id = ? AND t.document_date >= b.period_start AND t.document_date <= b.period_end
+WHERE t.organization_id = ?
+  AND b.organization_id = ?
+`
+	args := []interface{}{organizationID, organizationID, organizationID}
+
+	if len(budgetCustomIDs) > 0 {
+		query += " AND b.custom_id IN ?"
+		args = append(args, budgetCustomIDs)
+	}
+	if documentDateFrom != nil {
+		query += " AND t.document_date >= ?"
+		args = append(args, *documentDateFrom)
+	}
+	if documentDateTo != nil {
+		query += " AND t.document_date <= ?"
+		args = append(args, *documentDateTo)
+	}
+
+	query += `
+GROUP BY b.custom_id, a.id, a.custom_id
+ORDER BY b.custom_id, a.custom_id
+`
+
+	var rows []budgetActualMultiRow
+	if err := r.db.WithContext(ctx).Raw(query, args...).Scan(&rows).Error; err != nil {
+		return nil, fmt.Errorf("list budget actual account values: %w", err)
+	}
+
+	result := make([]*ActualAccountValue, 0, len(rows))
+	for _, row := range rows {
+		v := &ActualAccountValue{
+			BudgetCustomID:  row.BudgetCustomID,
+			AccountID:       row.AccountID,
+			AccountCustomID: row.AccountCustomID,
+		}
+		v.Value.Set(&row.Amount)
+		result = append(result, v)
+	}
+
+	return result, nil
 }

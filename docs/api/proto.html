@@ -456,6 +456,14 @@
             <ul>
               
                 <li>
+                  <a href="#pixlcrashr.vsfv.v1.BatchGetBudgetActualAccountValuesRequest"><span class="badge">M</span>BatchGetBudgetActualAccountValuesRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.BatchGetBudgetActualAccountValuesResponse"><span class="badge">M</span>BatchGetBudgetActualAccountValuesResponse</a>
+                </li>
+              
+                <li>
                   <a href="#pixlcrashr.vsfv.v1.BudgetActualAccountValue"><span class="badge">M</span>BudgetActualAccountValue</a>
                 </li>
               
@@ -3769,6 +3777,65 @@ Authorization:
       <p></p>
 
       
+        <h3 id="pixlcrashr.vsfv.v1.BatchGetBudgetActualAccountValuesRequest">BatchGetBudgetActualAccountValuesRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>parent</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The parent organization resource name.
+Format: organizations/{organization} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>names</td>
+                  <td><a href="#string">string</a></td>
+                  <td>repeated</td>
+                  <td><p>The resource names of the budget actual account values to retrieve.
+A maximum of 1000 actual account values can be retrieved in a batch.
+Format: organizations/{organization}/budgets/{budget}/actualAccountValues/{account} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.BatchGetBudgetActualAccountValuesResponse">BatchGetBudgetActualAccountValuesResponse</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>actual_account_values</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.BudgetActualAccountValue">BudgetActualAccountValue</a></td>
+                  <td>repeated</td>
+                  <td><p>The actual account values returned, in the same order as the names in the
+request. Values with a computed amount of zero or less are omitted. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
         <h3 id="pixlcrashr.vsfv.v1.BudgetActualAccountValue">BudgetActualAccountValue</h3>
         <p>BudgetActualAccountValue is a read-only, server-computed resource that</p><p>represents the actual monetary value for a single budget account within a</p><p>budget. The value is calculated by summing all TransactionAccountAssignment</p><p>values whose parent transactions fall within the budget's period.</p>
 
@@ -3880,8 +3947,15 @@ fewer. If unspecified, at most 50 are returned. Maximum value is 200. </p></td>
                   <td><a href="#string">string</a></td>
                   <td></td>
                   <td><p>Filter expression conforming to AIP-160.
-Supported fields: account.
-Example: &#34;account=\&#34;organizations/{organization}/accounts/{account}\&#34;&#34;. </p></td>
+Supported fields:
+  - account:     the account resource name (e.g. &#34;organizations/{org}/accounts/{account}&#34;).
+  - budget:      the budget resource name. Useful when the budget segment of
+                 the parent is the wildcard &#34;-&#34;, e.g.:
+                 budget=&#34;...&#34; OR budget=&#34;...&#34;.
+  - document_date: the transaction document date range. Only the date portion
+                   is considered. Use &gt;= and &lt;= to specify a range, e.g.:
+                   document_date&gt;=&#34;2024-01-01&#34; AND document_date&lt;=&#34;2024-12-31&#34;.
+Values with a computed amount of zero or less are omitted from the result. </p></td>
                 </tr>
               
                 <tr>
@@ -3965,7 +4039,18 @@ Authorization:
                 <td>ListBudgetActualAccountValues</td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListBudgetActualAccountValuesRequest">ListBudgetActualAccountValuesRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.ListBudgetActualAccountValuesResponse">ListBudgetActualAccountValuesResponse</a></td>
-                <td><p>Lists computed actual account values for a budget, with pagination.
+                <td><p>Lists computed actual account values, with pagination.
+Authorization:
+  Scope: budgets:read
+  Permission: budgets:read
+  Domain: organization-scoped</p></td>
+              </tr>
+            
+              <tr>
+                <td>BatchGetBudgetActualAccountValues</td>
+                <td><a href="#pixlcrashr.vsfv.v1.BatchGetBudgetActualAccountValuesRequest">BatchGetBudgetActualAccountValuesRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.BatchGetBudgetActualAccountValuesResponse">BatchGetBudgetActualAccountValuesResponse</a></td>
+                <td><p>Batch gets computed actual account values by resource name.
 Authorization:
   Scope: budgets:read
   Permission: budgets:read
@@ -4006,6 +4091,16 @@ Authorization:
                 <td>ListBudgetActualAccountValues</td>
                 <td>GET</td>
                 <td>/v1/{parent=organizations/*/budgets/*}/actualAccountValues</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>BatchGetBudgetActualAccountValues</td>
+                <td>GET</td>
+                <td>/v1/{parent=organizations/*}/budgets/-/actualAccountValues:batchGet</td>
                 <td></td>
               </tr>
               

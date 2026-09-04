@@ -17,6 +17,7 @@ package filter
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/pixlcrashr/vsfv/pkg/query/cond"
 	"go.einride.tech/aip/filtering"
@@ -106,6 +107,8 @@ var (
 	)
 	budgetActualAccountValueDecls = mustDecls(
 		filtering.DeclareIdent("account", filtering.TypeString),
+		filtering.DeclareIdent("budget", filtering.TypeString),
+		filtering.DeclareIdent("document_date", filtering.TypeString),
 	)
 	organizationDecls = mustDecls(
 		filtering.DeclareIdent("display_name", filtering.TypeString),
@@ -417,6 +420,88 @@ func ParseBudgetActualAccountValueFilter(raw string) (cond.Cond, error) {
 		return nil, err
 	}
 	return buildCond(f.CheckedExpr.GetExpr(), 0)
+}
+
+// BudgetActualAccountValueFilters holds the special filter parameters that are
+// applied at the SQL level for BudgetActualAccountValue queries.
+type BudgetActualAccountValueFilters struct {
+	Budgets  []string
+	DateFrom *time.Time
+	DateTo   *time.Time
+}
+
+// ExtractBudgetActualAccountValueFilters parses the supported special filters
+// (budget, document_date) out of a condition chain and returns the remaining
+// account-level condition for in-memory evaluation.
+func ExtractBudgetActualAccountValueFilters(c cond.Cond) (*BudgetActualAccountValueFilters, cond.Cond, error) {
+	filters := &BudgetActualAccountValueFilters{}
+	var extractErr error
+
+	var extract func(c cond.Cond)
+	extract = func(c cond.Cond) {
+		if c == nil || c.IsEmpty() {
+			return
+		}
+		if extractErr != nil {
+			return
+		}
+
+		switch cc := c.(type) {
+		case cond.FieldCond:
+			s, ok := cc.Value.(string)
+			if !ok {
+				return
+			}
+			switch cc.Field {
+			case "budget":
+				if cc.Op == cond.OpEq {
+					filters.Budgets = append(filters.Budgets, s)
+				}
+			case "document_date":
+				d, err := time.Parse(time.DateOnly, s)
+				if err != nil {
+					extractErr = fmt.Errorf("invalid document_date %q: %w", s, err)
+					return
+				}
+				switch cc.Op {
+				case cond.OpEq:
+					filters.DateFrom = &d
+					filters.DateTo = &d
+				case cond.OpGte, cond.OpGt:
+					filters.DateFrom = &d
+				case cond.OpLte, cond.OpLt:
+					filters.DateTo = &d
+				}
+			}
+		case cond.AndCond:
+			for _, inner := range cc.Conds {
+				extract(inner)
+			}
+		case cond.OrCond:
+			for _, inner := range cc.Conds {
+				extract(inner)
+			}
+		case cond.NotCond:
+			extract(cc.Inner)
+		}
+	}
+	extract(c)
+
+	if extractErr != nil {
+		return nil, nil, extractErr
+	}
+
+	accountCond := cond.Transform(c, func(field string, value interface{}) (string, interface{}, bool) {
+		if field == "budget" || field == "document_date" {
+			return "", nil, false
+		}
+		return field, value, true
+	})
+	if accountCond != nil && accountCond.IsEmpty() {
+		accountCond = nil
+	}
+
+	return filters, accountCond, nil
 }
 
 // ── Organization ─────────────────────────────────────────────────────────────

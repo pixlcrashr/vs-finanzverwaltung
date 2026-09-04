@@ -133,7 +133,7 @@ Eine Revision (Nachtrag) eines Budgets.
 | Feld | Typ | Pflicht | Beschreibung |
 |------|-----|---------|--------------|
 | `id` | `string` (UUID v4) | ja | Referenz-ID innerhalb der Importdatei (Format: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`). Muss innerhalb der Datei eindeutig sein. |
-| `display_name` | `string` | nein | Anzeigename der Revision (z.B. `"Nachtrag I"`). |
+| `display_name` | `string` | nein | Anzeigename der Revision (z.B. `"Nachtrag I"`). Fehlt der Name, wird beim Import das Revisionsdatum (`date`, Format `YYYY-MM-DD`) als Name verwendet. |
 | `display_description` | `string` | nein | Optionale Beschreibung. |
 | `date` | `string` (YYYY-MM-DD) | ja | Datum der Revision. |
 | `account_values` | `object` (`{ [account_id: UUID]: string }`) | nein | Planwerte der Konten fuer diese Revision. Schluessel ist die `id` eines Kontos, Wert der Planwert als Dezimalstring. |
@@ -223,7 +223,7 @@ Eine Revision (Nachtrag) eines Budgets.
 - **IDs:** Alle `id`-Felder muessen gueltige UUIDs im Format `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx` sein. Sie dienen ausschliesslich der internen Referenzierung innerhalb der Datei (z.B. `account_id` in Planwerten) und werden **nicht** in die Datenbank uebernommen – die Datenbank vergibt immer neue UUIDs.
 - **Leere Felder:** Felder mit leerem String (`""`) oder `null` werden wie weggelassene Felder behandelt und auf Datenbankstandards (i.d.R. leerer String) gesetzt.
 - **Reihenfolge:** Konten werden rekursiv ueber `children` eingebettet; Elternkonten sind daher immer implizit vor ihren Kindern bekannt.
-- **Revisionen:** Revisionen werden in der angegebenen Reihenfolge erstellt; die Reihenfolge bestimmt damit implizit die Erstellungszeit.
+- **Revisionen:** Revisionen werden in der angegebenen Reihenfolge erstellt; die Reihenfolge bestimmt damit implizit die Erstellungszeit. Fehlt `display_name` einer Revision, wird das Revisionsdatum (`date`, Format `YYYY-MM-DD`) als Anzeigename gesetzt.
 - **`is_container`:** Wird automatisch auf `true` gesetzt, wenn ein Konto Unterkonten hat, auch wenn das Feld `false` oder weggelassen ist.
 
 ## Export-Semantik

@@ -82,8 +82,8 @@ var _ = Describe("BudgetRevisionService", func() {
 			_, err = BudgetAccountValueClient.CreateBudgetAccountValue(ctx, &gen.CreateBudgetAccountValueRequest{
 				Parent: budget.Name,
 				AccountValue: &gen.BudgetAccountValue{
-					AccountId: account1.Uid,
-					Value:     &gen.Decimal{Value: "100.00"},
+					Account: account1.Name,
+					Value:   &gen.Decimal{Value: "100.00"},
 				},
 			})
 			Expect(err).NotTo(HaveOccurred())
@@ -91,8 +91,8 @@ var _ = Describe("BudgetRevisionService", func() {
 			_, err = BudgetAccountValueClient.CreateBudgetAccountValue(ctx, &gen.CreateBudgetAccountValueRequest{
 				Parent: budget.Name,
 				AccountValue: &gen.BudgetAccountValue{
-					AccountId: account2.Uid,
-					Value:     &gen.Decimal{Value: "250.50"},
+					Account: account2.Name,
+					Value:   &gen.Decimal{Value: "250.50"},
 				},
 			})
 			Expect(err).NotTo(HaveOccurred())
@@ -113,11 +113,11 @@ var _ = Describe("BudgetRevisionService", func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(avResp.TotalSize).To(Equal(int64(2)))
 
-			accountIDs := make([]string, 0, len(avResp.AccountValues))
+			accountNames := make([]string, 0, len(avResp.AccountValues))
 			for _, av := range avResp.AccountValues {
-				accountIDs = append(accountIDs, av.AccountId)
+				accountNames = append(accountNames, av.Account)
 			}
-			Expect(accountIDs).To(ConsistOf(account1.Uid, account2.Uid))
+			Expect(accountNames).To(ConsistOf(account1.Name, account2.Name))
 		})
 
 		It("snapshot is independent: updating a budget account value after does not affect the revision", func() {
@@ -130,8 +130,8 @@ var _ = Describe("BudgetRevisionService", func() {
 			bav, err := BudgetAccountValueClient.CreateBudgetAccountValue(ctx, &gen.CreateBudgetAccountValueRequest{
 				Parent: budget.Name,
 				AccountValue: &gen.BudgetAccountValue{
-					AccountId: account.Uid,
-					Value:     &gen.Decimal{Value: "500.00"},
+					Account: account.Name,
+					Value:   &gen.Decimal{Value: "500.00"},
 				},
 			})
 			Expect(err).NotTo(HaveOccurred())

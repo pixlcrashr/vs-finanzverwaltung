@@ -158,8 +158,16 @@ type ListBudgetActualAccountValuesRequest struct {
 	// A page token from a previous ListBudgetActualAccountValues call.
 	PageToken string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	// Filter expression conforming to AIP-160.
-	// Supported fields: account.
-	// Example: "account=\"organizations/{organization}/accounts/{account}\"".
+	// Supported fields:
+	//   - account:     the account resource name (e.g. "organizations/{org}/accounts/{account}").
+	//   - budget:      the budget resource name. Useful when the budget segment of
+	//     the parent is the wildcard "-", e.g.:
+	//     budget="..." OR budget="...".
+	//   - document_date: the transaction document date range. Only the date portion
+	//     is considered. Use >= and <= to specify a range, e.g.:
+	//     document_date>="2024-01-01" AND document_date<="2024-12-31".
+	//
+	// Values with a computed amount of zero or less are omitted from the result.
 	Filter string `protobuf:"bytes,4,opt,name=filter,proto3" json:"filter,omitempty"`
 	// Order by expression (e.g. "account", "value desc").
 	OrderBy       string `protobuf:"bytes,5,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
@@ -295,6 +303,109 @@ func (x *ListBudgetActualAccountValuesResponse) GetTotalSize() int64 {
 	return 0
 }
 
+type BatchGetBudgetActualAccountValuesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The parent organization resource name.
+	// Format: organizations/{organization}
+	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
+	// The resource names of the budget actual account values to retrieve.
+	// A maximum of 1000 actual account values can be retrieved in a batch.
+	// Format: organizations/{organization}/budgets/{budget}/actualAccountValues/{account}
+	Names         []string `protobuf:"bytes,2,rep,name=names,proto3" json:"names,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BatchGetBudgetActualAccountValuesRequest) Reset() {
+	*x = BatchGetBudgetActualAccountValuesRequest{}
+	mi := &file_pixlcrashr_vsfv_v1_budget_actual_account_value_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BatchGetBudgetActualAccountValuesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BatchGetBudgetActualAccountValuesRequest) ProtoMessage() {}
+
+func (x *BatchGetBudgetActualAccountValuesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pixlcrashr_vsfv_v1_budget_actual_account_value_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BatchGetBudgetActualAccountValuesRequest.ProtoReflect.Descriptor instead.
+func (*BatchGetBudgetActualAccountValuesRequest) Descriptor() ([]byte, []int) {
+	return file_pixlcrashr_vsfv_v1_budget_actual_account_value_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *BatchGetBudgetActualAccountValuesRequest) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
+}
+
+func (x *BatchGetBudgetActualAccountValuesRequest) GetNames() []string {
+	if x != nil {
+		return x.Names
+	}
+	return nil
+}
+
+type BatchGetBudgetActualAccountValuesResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The actual account values returned, in the same order as the names in the
+	// request. Values with a computed amount of zero or less are omitted.
+	ActualAccountValues []*BudgetActualAccountValue `protobuf:"bytes,1,rep,name=actual_account_values,json=actualAccountValues,proto3" json:"actual_account_values,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *BatchGetBudgetActualAccountValuesResponse) Reset() {
+	*x = BatchGetBudgetActualAccountValuesResponse{}
+	mi := &file_pixlcrashr_vsfv_v1_budget_actual_account_value_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BatchGetBudgetActualAccountValuesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BatchGetBudgetActualAccountValuesResponse) ProtoMessage() {}
+
+func (x *BatchGetBudgetActualAccountValuesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pixlcrashr_vsfv_v1_budget_actual_account_value_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BatchGetBudgetActualAccountValuesResponse.ProtoReflect.Descriptor instead.
+func (*BatchGetBudgetActualAccountValuesResponse) Descriptor() ([]byte, []int) {
+	return file_pixlcrashr_vsfv_v1_budget_actual_account_value_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *BatchGetBudgetActualAccountValuesResponse) GetActualAccountValues() []*BudgetActualAccountValue {
+	if x != nil {
+		return x.ActualAccountValues
+	}
+	return nil
+}
+
 var File_pixlcrashr_vsfv_v1_budget_actual_account_value_proto protoreflect.FileDescriptor
 
 const file_pixlcrashr_vsfv_v1_budget_actual_account_value_proto_rawDesc = "" +
@@ -323,10 +434,17 @@ const file_pixlcrashr_vsfv_v1_budget_actual_account_value_proto_rawDesc = "" +
 	"\x15actual_account_values\x18\x01 \x03(\v2,.pixlcrashr.vsfv.v1.BudgetActualAccountValueR\x13actualAccountValues\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize2\xee\x03\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xc4\x01\n" +
+	"(BatchGetBudgetActualAccountValuesRequest\x12L\n" +
+	"\x06parent\x18\x01 \x01(\tB4\xe0A\x02\xfaA.\x12,vsfv.pixlcrashr.dev/BudgetActualAccountValueR\x06parent\x12J\n" +
+	"\x05names\x18\x02 \x03(\tB4\xe0A\x02\xfaA.\n" +
+	",vsfv.pixlcrashr.dev/BudgetActualAccountValueR\x05names\"\x8d\x01\n" +
+	")BatchGetBudgetActualAccountValuesResponse\x12`\n" +
+	"\x15actual_account_values\x18\x01 \x03(\v2,.pixlcrashr.vsfv.v1.BudgetActualAccountValueR\x13actualAccountValues2\xed\x05\n" +
 	"\x1fBudgetActualAccountValueService\x12\xce\x01\n" +
 	"\x1bGetBudgetActualAccountValue\x126.pixlcrashr.vsfv.v1.GetBudgetActualAccountValueRequest\x1a,.pixlcrashr.vsfv.v1.BudgetActualAccountValue\"I\xdaA\x04name\x82\xd3\xe4\x93\x02<\x12:/v1/{name=organizations/*/budgets/*/actualAccountValues/*}\x12\xe1\x01\n" +
-	"\x1dListBudgetActualAccountValues\x128.pixlcrashr.vsfv.v1.ListBudgetActualAccountValuesRequest\x1a9.pixlcrashr.vsfv.v1.ListBudgetActualAccountValuesResponse\"K\xdaA\x06parent\x82\xd3\xe4\x93\x02<\x12:/v1/{parent=organizations/*/budgets/*}/actualAccountValues\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xca\x01\n" +
+	"\x1dListBudgetActualAccountValues\x128.pixlcrashr.vsfv.v1.ListBudgetActualAccountValuesRequest\x1a9.pixlcrashr.vsfv.v1.ListBudgetActualAccountValuesResponse\"K\xdaA\x06parent\x82\xd3\xe4\x93\x02<\x12:/v1/{parent=organizations/*/budgets/*}/actualAccountValues\x12\xfc\x01\n" +
+	"!BatchGetBudgetActualAccountValues\x12<.pixlcrashr.vsfv.v1.BatchGetBudgetActualAccountValuesRequest\x1a=.pixlcrashr.vsfv.v1.BatchGetBudgetActualAccountValuesResponse\"Z\xdaA\fparent,names\x82\xd3\xe4\x93\x02E\x12C/v1/{parent=organizations/*}/budgets/-/actualAccountValues:batchGet\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xca\x01\n" +
 	"\x16com.pixlcrashr.vsfv.v1B\x1dBudgetActualAccountValueProtoP\x01Z'github.com/pixlcrashr/vsfv/pkg/grpc/gen\xa2\x02\x03PVX\xaa\x02\x12Pixlcrashr.Vsfv.V1\xca\x02\x12Pixlcrashr\\Vsfv\\V1\xe2\x02\x1ePixlcrashr\\Vsfv\\V1\\GPBMetadata\xea\x02\x14Pixlcrashr::Vsfv::V1b\x06proto3"
 
 var (
@@ -341,26 +459,31 @@ func file_pixlcrashr_vsfv_v1_budget_actual_account_value_proto_rawDescGZIP() []b
 	return file_pixlcrashr_vsfv_v1_budget_actual_account_value_proto_rawDescData
 }
 
-var file_pixlcrashr_vsfv_v1_budget_actual_account_value_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_pixlcrashr_vsfv_v1_budget_actual_account_value_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_pixlcrashr_vsfv_v1_budget_actual_account_value_proto_goTypes = []any{
-	(*BudgetActualAccountValue)(nil),              // 0: pixlcrashr.vsfv.v1.BudgetActualAccountValue
-	(*GetBudgetActualAccountValueRequest)(nil),    // 1: pixlcrashr.vsfv.v1.GetBudgetActualAccountValueRequest
-	(*ListBudgetActualAccountValuesRequest)(nil),  // 2: pixlcrashr.vsfv.v1.ListBudgetActualAccountValuesRequest
-	(*ListBudgetActualAccountValuesResponse)(nil), // 3: pixlcrashr.vsfv.v1.ListBudgetActualAccountValuesResponse
-	(*Decimal)(nil), // 4: pixlcrashr.vsfv.v1.Decimal
+	(*BudgetActualAccountValue)(nil),                  // 0: pixlcrashr.vsfv.v1.BudgetActualAccountValue
+	(*GetBudgetActualAccountValueRequest)(nil),        // 1: pixlcrashr.vsfv.v1.GetBudgetActualAccountValueRequest
+	(*ListBudgetActualAccountValuesRequest)(nil),      // 2: pixlcrashr.vsfv.v1.ListBudgetActualAccountValuesRequest
+	(*ListBudgetActualAccountValuesResponse)(nil),     // 3: pixlcrashr.vsfv.v1.ListBudgetActualAccountValuesResponse
+	(*BatchGetBudgetActualAccountValuesRequest)(nil),  // 4: pixlcrashr.vsfv.v1.BatchGetBudgetActualAccountValuesRequest
+	(*BatchGetBudgetActualAccountValuesResponse)(nil), // 5: pixlcrashr.vsfv.v1.BatchGetBudgetActualAccountValuesResponse
+	(*Decimal)(nil), // 6: pixlcrashr.vsfv.v1.Decimal
 }
 var file_pixlcrashr_vsfv_v1_budget_actual_account_value_proto_depIdxs = []int32{
-	4, // 0: pixlcrashr.vsfv.v1.BudgetActualAccountValue.value:type_name -> pixlcrashr.vsfv.v1.Decimal
+	6, // 0: pixlcrashr.vsfv.v1.BudgetActualAccountValue.value:type_name -> pixlcrashr.vsfv.v1.Decimal
 	0, // 1: pixlcrashr.vsfv.v1.ListBudgetActualAccountValuesResponse.actual_account_values:type_name -> pixlcrashr.vsfv.v1.BudgetActualAccountValue
-	1, // 2: pixlcrashr.vsfv.v1.BudgetActualAccountValueService.GetBudgetActualAccountValue:input_type -> pixlcrashr.vsfv.v1.GetBudgetActualAccountValueRequest
-	2, // 3: pixlcrashr.vsfv.v1.BudgetActualAccountValueService.ListBudgetActualAccountValues:input_type -> pixlcrashr.vsfv.v1.ListBudgetActualAccountValuesRequest
-	0, // 4: pixlcrashr.vsfv.v1.BudgetActualAccountValueService.GetBudgetActualAccountValue:output_type -> pixlcrashr.vsfv.v1.BudgetActualAccountValue
-	3, // 5: pixlcrashr.vsfv.v1.BudgetActualAccountValueService.ListBudgetActualAccountValues:output_type -> pixlcrashr.vsfv.v1.ListBudgetActualAccountValuesResponse
-	4, // [4:6] is the sub-list for method output_type
-	2, // [2:4] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	0, // 2: pixlcrashr.vsfv.v1.BatchGetBudgetActualAccountValuesResponse.actual_account_values:type_name -> pixlcrashr.vsfv.v1.BudgetActualAccountValue
+	1, // 3: pixlcrashr.vsfv.v1.BudgetActualAccountValueService.GetBudgetActualAccountValue:input_type -> pixlcrashr.vsfv.v1.GetBudgetActualAccountValueRequest
+	2, // 4: pixlcrashr.vsfv.v1.BudgetActualAccountValueService.ListBudgetActualAccountValues:input_type -> pixlcrashr.vsfv.v1.ListBudgetActualAccountValuesRequest
+	4, // 5: pixlcrashr.vsfv.v1.BudgetActualAccountValueService.BatchGetBudgetActualAccountValues:input_type -> pixlcrashr.vsfv.v1.BatchGetBudgetActualAccountValuesRequest
+	0, // 6: pixlcrashr.vsfv.v1.BudgetActualAccountValueService.GetBudgetActualAccountValue:output_type -> pixlcrashr.vsfv.v1.BudgetActualAccountValue
+	3, // 7: pixlcrashr.vsfv.v1.BudgetActualAccountValueService.ListBudgetActualAccountValues:output_type -> pixlcrashr.vsfv.v1.ListBudgetActualAccountValuesResponse
+	5, // 8: pixlcrashr.vsfv.v1.BudgetActualAccountValueService.BatchGetBudgetActualAccountValues:output_type -> pixlcrashr.vsfv.v1.BatchGetBudgetActualAccountValuesResponse
+	6, // [6:9] is the sub-list for method output_type
+	3, // [3:6] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_pixlcrashr_vsfv_v1_budget_actual_account_value_proto_init() }
@@ -375,7 +498,7 @@ func file_pixlcrashr_vsfv_v1_budget_actual_account_value_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pixlcrashr_vsfv_v1_budget_actual_account_value_proto_rawDesc), len(file_pixlcrashr_vsfv_v1_budget_actual_account_value_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

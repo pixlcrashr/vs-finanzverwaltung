@@ -162,10 +162,15 @@ func makeImportHandler(db *gorm.DB) func(context.Context, *importInput) (*import
 						return fmt.Errorf("budget %q revision %q: invalid date %q: %w", b.ID, rev.ID, rev.Date, err)
 					}
 
+					revDisplayName := rev.DisplayName
+					if revDisplayName == "" {
+						revDisplayName = revDate.Format(dateLayout)
+					}
+
 					rm := &model.BudgetRevision{
 						OrganizationID:     orgID,
 						BudgetID:           bm.ID,
-						DisplayName:        rev.DisplayName,
+						DisplayName:        revDisplayName,
 						DisplayDescription: rev.DisplayDescription,
 						Date:               revDate,
 					}

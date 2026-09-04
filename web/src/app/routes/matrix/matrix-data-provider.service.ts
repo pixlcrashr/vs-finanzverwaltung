@@ -1,4 +1,4 @@
-import { inject, Injectable, Signal, WritableSignal } from '@angular/core';
+import { computed, inject, Injectable, Signal, signal, WritableSignal } from '@angular/core';
 import {
   MatrixDataService,
   MatrixEditableValuesByBudget
@@ -57,15 +57,25 @@ export interface MatrixRow {
   isArchived: boolean;
   values: {
     budgetId: string;
+    /**
+     * Actual values are not expected to change once the page was opened, so
+     * they stay plain Decimals.
+     */
     actualValue: Decimal;
     editableTargetValue: Signal<Decimal>;
     editableTargetWritableValue?: WritableSignal<Decimal>;
     tags: {
       tagId: string;
       isLatest: boolean;
-      targetValue: Decimal;
-      diffValue: Decimal;
-    }[];
+      /**
+       * Target value per budget revision. The matrix component replaces these
+       * with a signal chain that sums the leaf values below group accounts, so
+       * the latest revision reflects pending edits live.
+       */
+      targetValue: Signal<Decimal>;
+      /** Target minus actual; recomputed when the target signal changes. */
+      diffValue: Signal<Decimal>;
+    }[]
   }[]
 }
 
@@ -274,18 +284,19 @@ export class MatrixDataProviderService {
                 editableTargetValue,
                 editableTargetWritableValue,
                 tags: budget.tags.map((tag, index) => {
-                  const targetValue = this.getTargetRevisionValue(
+                  const staticTargetValue = this.getTargetRevisionValue(
                     targetValuesByBudgetAccountTag,
                     budget.id,
                     account.id,
                     tag.id
                   );
+                  const targetValueSignal = signal(staticTargetValue);
 
                   return {
                     tagId: tag.id,
                     isLatest: index === budget.tags.length - 1,
-                    targetValue,
-                    diffValue: targetValue.minus(actualValue)
+                    targetValue: targetValueSignal,
+                    diffValue: computed(() => targetValueSignal().minus(actualValue))
                   };
                 })
               };

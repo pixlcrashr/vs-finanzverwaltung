@@ -9,12 +9,21 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 
 import { V1BudgetActualAccountValue } from '../models/v1budget-actual-account-value';
 import { V1ListBudgetActualAccountValuesResponse } from '../models/v1list-budget-actual-account-values-response';
+import { V1BatchGetBudgetActualAccountValuesResponse } from '../models/v1batch-get-budget-actual-account-values-response';
+
+/**
+ * BudgetActualAccountValueService provides read-only access to the computed
+ * actual monetary values per budget account. Values are derived from the sum of
+ * TransactionAccountAssignment values for transactions within the budget period.
+ * All resources in this service are server-computed and immutable.
+ */
 @Injectable({
   providedIn: 'root',
 })
 class BudgetActualAccountValueServiceService extends __BaseService {
   static readonly BudgetActualAccountValueServiceGetBudgetActualAccountValuePath = '/v1/{name_5}';
   static readonly BudgetActualAccountValueServiceListBudgetActualAccountValuesPath = '/v1/{parent}/actualAccountValues';
+  static readonly BudgetActualAccountValueServiceBatchGetBudgetActualAccountValuesPath = '/v1/{parent}/budgets/-/actualAccountValues:batchGet';
 
   constructor(
     config: __Configuration,
@@ -72,7 +81,7 @@ class BudgetActualAccountValueServiceService extends __BaseService {
   }
 
   /**
-   * Lists computed actual account values for a budget, with pagination.
+   * Lists computed actual account values, with pagination.
    * Authorization:
    *   Scope: budgets:read
    *   Permission: budgets:read
@@ -90,8 +99,15 @@ class BudgetActualAccountValueServiceService extends __BaseService {
    * - `order_by`: Order by expression (e.g. "account", "value desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
-   *   Supported fields: account.
-   *   Example: "account=\"organizations/{organization}/accounts/{account}\"".
+   *   Supported fields:
+   *     - account:     the account resource name (e.g. "organizations/{org}/accounts/{account}").
+   *     - budget:      the budget resource name. Useful when the budget segment of
+   *                    the parent is the wildcard "-", e.g.:
+   *                    budget="..." OR budget="...".
+   *     - document_date: the transaction document date range. Only the date portion
+   *                      is considered. Use >= and <= to specify a range, e.g.:
+   *                      document_date>="2024-01-01" AND document_date<="2024-12-31".
+   *   Values with a computed amount of zero or less are omitted from the result.
    *
    * @return A successful response.
    */
@@ -122,7 +138,7 @@ class BudgetActualAccountValueServiceService extends __BaseService {
     );
   }
   /**
-   * Lists computed actual account values for a budget, with pagination.
+   * Lists computed actual account values, with pagination.
    * Authorization:
    *   Scope: budgets:read
    *   Permission: budgets:read
@@ -140,14 +156,84 @@ class BudgetActualAccountValueServiceService extends __BaseService {
    * - `order_by`: Order by expression (e.g. "account", "value desc").
    *
    * - `filter`: Filter expression conforming to AIP-160.
-   *   Supported fields: account.
-   *   Example: "account=\"organizations/{organization}/accounts/{account}\"".
+   *   Supported fields:
+   *     - account:     the account resource name (e.g. "organizations/{org}/accounts/{account}").
+   *     - budget:      the budget resource name. Useful when the budget segment of
+   *                    the parent is the wildcard "-", e.g.:
+   *                    budget="..." OR budget="...".
+   *     - document_date: the transaction document date range. Only the date portion
+   *                      is considered. Use >= and <= to specify a range, e.g.:
+   *                      document_date>="2024-01-01" AND document_date<="2024-12-31".
+   *   Values with a computed amount of zero or less are omitted from the result.
    *
    * @return A successful response.
    */
   BudgetActualAccountValueServiceListBudgetActualAccountValues(params: BudgetActualAccountValueServiceService.BudgetActualAccountValueServiceListBudgetActualAccountValuesParams): __Observable<V1ListBudgetActualAccountValuesResponse> {
     return this.BudgetActualAccountValueServiceListBudgetActualAccountValuesResponse(params).pipe(
       __map(_r => _r.body as V1ListBudgetActualAccountValuesResponse)
+    );
+  }
+
+  /**
+   * Batch gets computed actual account values by resource name.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: budgets:read
+   *   Domain: organization-scoped
+   * @param params The `BudgetActualAccountValueServiceService.BudgetActualAccountValueServiceBatchGetBudgetActualAccountValuesParams` containing the following parameters:
+   *
+   * - `parent`: The parent organization resource name.
+   *   Format: organizations/{organization}
+   *
+   * - `names`: The resource names of the budget actual account values to retrieve.
+   *   A maximum of 1000 actual account values can be retrieved in a batch.
+   *   Format: organizations/{organization}/budgets/{budget}/actualAccountValues/{account}
+   *
+   * @return A successful response.
+   */
+  BudgetActualAccountValueServiceBatchGetBudgetActualAccountValuesResponse(params: BudgetActualAccountValueServiceService.BudgetActualAccountValueServiceBatchGetBudgetActualAccountValuesParams): __Observable<__StrictHttpResponse<V1BatchGetBudgetActualAccountValuesResponse>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    (params.names || []).forEach(val => {if (val != null) __params = __params.append('names', val.toString())});
+    let req = new HttpRequest<any>(
+      'GET',
+      this.rootUrl + `/v1/${encodeURIComponent(String(params.parent))}/budgets/-/actualAccountValues:batchGet`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<V1BatchGetBudgetActualAccountValuesResponse>;
+      })
+    );
+  }
+  /**
+   * Batch gets computed actual account values by resource name.
+   * Authorization:
+   *   Scope: budgets:read
+   *   Permission: budgets:read
+   *   Domain: organization-scoped
+   * @param params The `BudgetActualAccountValueServiceService.BudgetActualAccountValueServiceBatchGetBudgetActualAccountValuesParams` containing the following parameters:
+   *
+   * - `parent`: The parent organization resource name.
+   *   Format: organizations/{organization}
+   *
+   * - `names`: The resource names of the budget actual account values to retrieve.
+   *   A maximum of 1000 actual account values can be retrieved in a batch.
+   *   Format: organizations/{organization}/budgets/{budget}/actualAccountValues/{account}
+   *
+   * @return A successful response.
+   */
+  BudgetActualAccountValueServiceBatchGetBudgetActualAccountValues(params: BudgetActualAccountValueServiceService.BudgetActualAccountValueServiceBatchGetBudgetActualAccountValuesParams): __Observable<V1BatchGetBudgetActualAccountValuesResponse> {
+    return this.BudgetActualAccountValueServiceBatchGetBudgetActualAccountValuesResponse(params).pipe(
+      __map(_r => _r.body as V1BatchGetBudgetActualAccountValuesResponse)
     );
   }
 }
@@ -183,10 +269,36 @@ module BudgetActualAccountValueServiceService {
 
     /**
      * Filter expression conforming to AIP-160.
-     * Supported fields: account.
-     * Example: "account=\"organizations/{organization}/accounts/{account}\"".
+     * Supported fields:
+     *   - account:     the account resource name (e.g. "organizations/{org}/accounts/{account}").
+     *   - budget:      the budget resource name. Useful when the budget segment of
+     *                  the parent is the wildcard "-", e.g.:
+     *                  budget="..." OR budget="...".
+     *   - document_date: the transaction document date range. Only the date portion
+     *                    is considered. Use >= and <= to specify a range, e.g.:
+     *                    document_date>="2024-01-01" AND document_date<="2024-12-31".
+     * Values with a computed amount of zero or less are omitted from the result.
      */
     filter?: string;
+  }
+
+  /**
+   * Parameters for BudgetActualAccountValueServiceBatchGetBudgetActualAccountValues
+   */
+  export interface BudgetActualAccountValueServiceBatchGetBudgetActualAccountValuesParams {
+
+    /**
+     * The parent organization resource name.
+     * Format: organizations/{organization}
+     */
+    parent: string;
+
+    /**
+     * The resource names of the budget actual account values to retrieve.
+     * A maximum of 1000 actual account values can be retrieved in a batch.
+     * Format: organizations/{organization}/budgets/{budget}/actualAccountValues/{account}
+     */
+    names: Array<string>;
   }
 }
 

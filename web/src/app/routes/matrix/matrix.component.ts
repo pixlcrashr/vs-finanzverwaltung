@@ -1,8 +1,9 @@
-import { Component, computed, inject, signal, effect } from '@angular/core';
+import { Component, computed, inject, signal, effect, Signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
 import { merge, map, distinctUntilChanged, filter, delay } from 'rxjs';
+import { Decimal } from 'decimal.js';
 import { MatrixHeader, ExportButtonClickArgs } from "./matrix-header/matrix-header";
 import { MatrixContent } from "./matrix-content/matrix-content";
 import { MatrixValueStoreService } from './matrix-value-store.service';
@@ -91,6 +92,108 @@ export class Matrix {
   selectedTagIds = signal<string[]>([]);
   selectedAccountIds = signal<string[]>([]);
 
+  private readonly groupAccountValueSignals = new Map<string, Signal<Decimal>>();
+
+  private groupAccountValueKey(budgetId: string, tagId: string, accountId: string): string {
+    return `${budgetId}|${tagId}|${accountId}`;
+  }
+
+  /**
+   * Group accounts (parent accounts in the account tree) carry no stored values
+   * of their own — the API only ever returns leaf values — so their value for a
+   * single budget revision must be computed locally as the sum of all leaf
+   * values below them. The sums are built as a signal chain: every group
+   * account's signal adds up its immediate children's signals, so a parent
+   * group containing subgroups refers to the subgroup's signal instead of
+   * re-walking all leaves. Leaves use the per-revision target signals carried
+   * on their matrix rows.
+   */
+  getGroupAccountValue(budgetId: string, tagId: string, accountId: string): Signal<Decimal> | undefined {
+    return this.groupAccountValueSignals.get(this.groupAccountValueKey(budgetId, tagId, accountId));
+  }
+
+  private buildGroupAccountValueSignals(): void {
+    this.groupAccountValueSignals.clear();
+
+    const data = this.matrixData();
+
+    const childrenByParentId = new Map<string | null, string[]>();
+    for (const account of data.accounts) {
+      const siblings = childrenByParentId.get(account.parentAccountId) ?? [];
+      siblings.push(account.id);
+      childrenByParentId.set(account.parentAccountId, siblings);
+    }
+
+    const rowByAccountId = new Map(
+      data.rows.filter(row => !row.isSumRow).map(row => [row.accountId, row])
+    );
+
+    const leafTargetSignal = (budgetId: string, tagId: string, accountId: string): Signal<Decimal> | undefined =>
+      rowByAccountId.get(accountId)
+        ?.values.find(v => v.budgetId === budgetId)
+        ?.tags.find(t => t.tagId === tagId)
+        ?.targetValue;
+
+    // Build deepest-first so a parent group's computed signal can reference the
+    // subgroup signals that were created for its children beforehand.
+    const depthSortedAccounts = [...data.accounts].sort((a, b) => b.depth - a.depth);
+
+    for (const account of depthSortedAccounts) {
+      const children = childrenByParentId.get(account.id) ?? [];
+      if (children.length === 0) {
+        continue; // leaf accounts keep the per-revision signals from their rows
+      }
+
+      for (const budget of data.budgets) {
+        for (const tag of budget.tags) {
+          const childSignals = children
+            .map(childId =>
+              this.groupAccountValueSignals.get(this.groupAccountValueKey(budget.id, tag.id, childId))
+              ?? leafTargetSignal(budget.id, tag.id, childId)
+            )
+            .filter((s): s is Signal<Decimal> => !!s);
+
+          this.groupAccountValueSignals.set(
+            this.groupAccountValueKey(budget.id, tag.id, account.id),
+            computed(() =>
+              childSignals.reduce((sum, childSignal) => sum.plus(childSignal()), new Decimal(0))
+            )
+          );
+        }
+      }
+    }
+
+    // Expose the computed signals on the matrix rows so the table renders them.
+    // Sum rows carry their source account's id because they duplicate group
+    // rows. Diff values are rebuilt against the static actual value.
+    this.matrixData.update(d => ({
+      ...d,
+      rows: d.rows.map(row => {
+        const sourceAccountId = (row.isSumRow ? row.sourceAccountId : null) ?? row.accountId;
+
+        return {
+          ...row,
+          values: row.values.map(value => ({
+            ...value,
+            tags: value.tags.map(tag => {
+              const targetValueSignal = this.groupAccountValueSignals.get(
+                this.groupAccountValueKey(value.budgetId, tag.tagId, sourceAccountId)
+              );
+
+              return targetValueSignal
+                ? {
+                    ...tag,
+                    targetValue: targetValueSignal,
+                    diffValue: computed(() => targetValueSignal().minus(value.actualValue)),
+                  }
+                : tag;
+            })
+          }))
+        };
+      })
+    }));
+  }
+
   private readonly configKey = computed(() => `vsfv:matrix-config:${this.orgId}`);
 
   private saveConfigToStorage(): void {
@@ -136,6 +239,7 @@ export class Matrix {
       this.isLoading.set(true);
       this.hasLoadedData.set(false);
       this.matrixData.set({ columns: [], rows: [], budgets: [], accounts: [] });
+      this.buildGroupAccountValueSignals();
       const saved = this.loadConfigFromStorage();
       this.selectedBudgetIds.set(saved?.selectedBudgetIds ?? []);
       this.selectedTagIds.set(saved?.selectedTagIds ?? []);
@@ -189,13 +293,12 @@ export class Matrix {
             this.selectedAccountIds.set(validAccountIds);
           }
         } else if (data.accounts.length > 0 && this.selectedAccountIds().length === 0) {
-          const nonArchivedIds = data.accounts
-            .filter(a => !a.isArchived)
-            .map(a => a.id);
-          this.selectedAccountIds.set(nonArchivedIds);
+          // Auto-select the full (extended) account list by default.
+          this.selectedAccountIds.set(data.accounts.map(a => a.id));
         }
 
         this.matrixData.set(data);
+        this.buildGroupAccountValueSignals();
         this.hasLoadedData.set(true);
         this.isLoading.set(false);
         this.saveConfigToStorage();

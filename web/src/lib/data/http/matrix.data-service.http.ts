@@ -1,12 +1,14 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, forkJoin, of, switchMap } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { EMPTY, Observable, expand, forkJoin, map, of, switchMap, toArray } from 'rxjs';
 import { Decimal } from 'decimal.js';
 import { AccountServiceService } from '../../api/services/account-service.service';
 import { BudgetServiceService } from '../../api/services/budget-service.service';
 import { BudgetRevisionServiceService } from '../../api/services/budget-revision-service.service';
 import { BudgetRevisionAccountValueServiceService } from '../../api/services/budget-revision-account-value-service.service';
 import { BudgetAccountValueServiceService } from '../../api/services/budget-account-value-service.service';
+import { BudgetActualAccountValueServiceService } from '../../api/services/budget-actual-account-value-service.service';
+import { V1ListBudgetActualAccountValuesResponse } from '../../api/models/v1list-budget-actual-account-values-response';
 import { Account, Budget } from '../../../app/routes/matrix/matrix-data-provider.service';
 import {
   MatrixDataService,
@@ -19,11 +21,13 @@ import { extractUidFromResourceName } from './_mappers';
 
 @Injectable()
 export class HttpMatrixDataService extends MatrixDataService {
+  private readonly http = inject(HttpClient);
   private readonly accountSvc = inject(AccountServiceService);
   private readonly budgetSvc = inject(BudgetServiceService);
   private readonly revisionSvc = inject(BudgetRevisionServiceService);
   private readonly revisionValueSvc = inject(BudgetRevisionAccountValueServiceService);
   private readonly budgetValueSvc = inject(BudgetAccountValueServiceService);
+  private readonly actualValueSvc = inject(BudgetActualAccountValueServiceService);
 
   private budgetName(organizationId: string, budgetId: string): string {
     return `organizations/${organizationId}/budgets/${budgetId}`;
@@ -63,38 +67,53 @@ export class HttpMatrixDataService extends MatrixDataService {
   }
 
   listAccounts(organizationId: string): Observable<Account[]> {
-    return this.accountSvc
-      .AccountServiceListAccounts({ parent: `organizations/${organizationId}`, pageSize: 500, showDeleted: true })
-      .pipe(
-        map((resp) => {
-          const flat = resp.accounts ?? [];
-          const accountMap = new Map<string, Account>();
-          flat.forEach((a) => {
-            accountMap.set(a.uid ?? '', {
-              id: a.uid ?? '',
-              name: a.display_name,
-              displayCode: a.display_code,
-              depth: 0,
-              parentAccountId: a.parent_account ? a.parent_account.split('/').pop() ?? null : null,
-              isArchived: a.is_archived ?? false,
-            });
+    const parent = `organizations/${organizationId}`;
+    const pageSize = 200; // server maximum; anything larger is clamped
+
+    const fetchPage = (pageToken?: string) =>
+      this.accountSvc.AccountServiceListAccounts({
+        parent,
+        pageSize,
+        pageToken,
+        showDeleted: true,
+      });
+
+    return fetchPage(undefined).pipe(
+      expand((resp) => {
+        const next = resp.next_page_token;
+        return next ? fetchPage(next) : EMPTY;
+      }),
+      map((resp) => resp.accounts ?? []),
+      toArray(),
+      map((pages) => {
+        const flat = pages.flat();
+        const accountMap = new Map<string, Account>();
+        flat.forEach((a) => {
+          accountMap.set(a.uid ?? '', {
+            id: a.uid ?? '',
+            name: a.display_name,
+            displayCode: a.display_code,
+            depth: 0,
+            parentAccountId: a.parent_account ? a.parent_account.split('/').pop() ?? null : null,
+            isArchived: a.is_archived ?? false,
           });
+        });
 
-          const computeDepth = (id: string, visited = new Set<string>()): number => {
-            if (visited.has(id)) return 0;
-            visited.add(id);
-            const acc = accountMap.get(id);
-            if (!acc || !acc.parentAccountId) return 0;
-            return 1 + computeDepth(acc.parentAccountId, visited);
-          };
+        const computeDepth = (id: string, visited = new Set<string>()): number => {
+          if (visited.has(id)) return 0;
+          visited.add(id);
+          const acc = accountMap.get(id);
+          if (!acc || !acc.parentAccountId) return 0;
+          return 1 + computeDepth(acc.parentAccountId, visited);
+        };
 
-          accountMap.forEach((acc) => {
-            acc.depth = computeDepth(acc.id);
-          });
+        accountMap.forEach((acc) => {
+          acc.depth = computeDepth(acc.id);
+        });
 
-          return Array.from(accountMap.values());
-        }),
-      );
+        return Array.from(accountMap.values());
+      }),
+    );
   }
 
   listMatrixTargetValues(organizationId: string): Observable<MatrixTargetValues> {
@@ -152,41 +171,44 @@ export class HttpMatrixDataService extends MatrixDataService {
   }
 
   listMatrixActualValues(organizationId: string): Observable<MatrixActualValues> {
-    return this.budgetSvc.BudgetServiceListBudgets({ parent: `organizations/${organizationId}`, pageSize: 100 }).pipe(
-      switchMap((resp) => {
-        const budgets = resp.budgets ?? [];
-        if (budgets.length === 0) {
-          return of({} as MatrixActualValues);
-        }
-        return forkJoin(
-          budgets.map((b) =>
-            this.budgetValueSvc
-              .BudgetAccountValueServiceListBudgetAccountValues({
-                parent: this.budgetName(organizationId, b.uid ?? ''),
-                pageSize: 500,
-              })
-              .pipe(
-                map((valResp) => ({
-                  budgetId: b.uid ?? '',
-                  values: (valResp.account_values ?? []).map((v) => ({
-                    accountId: extractUidFromResourceName(v.account),
-                    value: new Decimal(v.value?.value ?? '0'),
-                  })),
-                })),
-              ),
-          ),
-        ).pipe(
-          map((perBudget) => {
-            const result: MatrixActualValues = {};
-            perBudget.forEach(({ budgetId, values }) => {
-              result[budgetId] = {};
-              values.forEach(({ accountId, value }) => {
-                result[budgetId][accountId] = { actualValue: value };
-              });
-            });
-            return result;
-          }),
-        );
+    // Use a wildcard budget parent so a single request can return actual values
+    // for every budget in the organization. The URL is built manually because
+    // the generated client URL-encodes the slashes in the resource name, which
+    // breaks the grpc-gateway routing.
+    const parent = `organizations/${organizationId}/budgets/-`;
+    const pageSize = 200;
+    const baseUrl = this.actualValueSvc.rootUrl;
+
+    const fetchPage = (pageToken?: string): Observable<V1ListBudgetActualAccountValuesResponse> => {
+      let params = new HttpParams().set('page_size', pageSize.toString());
+      if (pageToken) {
+        params = params.set('page_token', pageToken);
+      }
+      return this.http.get<V1ListBudgetActualAccountValuesResponse>(
+        `${baseUrl}/v1/${parent}/actualAccountValues`,
+        { params },
+      );
+    };
+
+    return fetchPage(undefined).pipe(
+      expand((resp) => {
+        const next = resp.next_page_token;
+        return next ? fetchPage(next) : EMPTY;
+      }),
+      map((resp) => resp.actual_account_values ?? []),
+      toArray(),
+      map((pages) => {
+        const result: MatrixActualValues = {};
+        pages.flat().forEach((v) => {
+          const budgetId = extractUidFromResourceName(v.budget ?? '');
+          const accountId = extractUidFromResourceName(v.account ?? '');
+          if (!budgetId || !accountId) {
+            return;
+          }
+          result[budgetId] ??= {};
+          result[budgetId][accountId] = { actualValue: new Decimal(v.value?.value ?? '0') };
+        });
+        return result;
       }),
     );
   }

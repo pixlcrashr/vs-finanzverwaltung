@@ -203,49 +203,41 @@ import { MatrixValueStoreService } from '../matrix-value-store.service';
                 <td>{{ row.displayDescription }}</td>
               }
 
-              @for (budgetValues of row.values; track budgetValues.budgetId) {
-                @let budgetColumn = selectedBudgets.find(b => b.budgetId === budgetValues.budgetId);
-                @if (isEditing && budgetColumn && !budgetColumn.isClosed) {
-                  <td class="value-cell">
-                    @if (!row.isParent) {
-                      @if (row.isSumRow) {
-                        <app-matrix-value-span [value]="budgetValues.editableTargetValue()" />
-                      } @else if (budgetValues.editableTargetWritableValue) {
-                        <app-matrix-value-input
-                          [(value)]="budgetValues.editableTargetWritableValue"
-                          [hasChanged]="hasChanged(budgetValues.budgetId, row.accountId)"
-                          [disabled]="isSaving()"
-                          (resetClick)="onResetValue(budgetValues.budgetId, row.accountId)"
-                        />
-                      }
-                    }
+            @for (budgetValues of row.values; track budgetValues.budgetId) {
+              @let budgetColumn = selectedBudgets.find(b => b.budgetId === budgetValues.budgetId);
+              @if (isEditing && budgetColumn && !budgetColumn.isClosed) {
+                <td class="value-cell">
+                  @if (row.isSumRow || row.isParent) {
+                    <app-matrix-value-span [value]="budgetValues.editableTargetValue()" />
+                  } @else if (budgetValues.editableTargetWritableValue) {
+                    <app-matrix-value-input
+                      [(value)]="budgetValues.editableTargetWritableValue"
+                      [hasChanged]="hasChanged(budgetValues.budgetId, row.accountId)"
+                      [disabled]="isSaving()"
+                      (resetClick)="onResetValue(budgetValues.budgetId, row.accountId)"
+                    />
+                  }
+                </td>
+              }
+
+              @for (tagValues of budgetValues.tags; track tagValues.tagId) {
+                @if (targetEnabled) {
+                  <td [class.last-revision-column]="!(actualEnabled || differenceEnabled)" class="value-cell">
+                    <app-matrix-value-span [value]="tagValues.targetValue()" />
                   </td>
                 }
-
-                @for (tagValues of budgetValues.tags; track tagValues.tagId) {
-                  @if (targetEnabled) {
-                    <td [class.last-revision-column]="!(actualEnabled || differenceEnabled)" class="value-cell">
-                      @if (!row.isParent) {
-                        <app-matrix-value-span [value]="tagValues.targetValue" />
-                      }
-                    </td>
-                  }
-                  @if (actualEnabled) {
-                    <td [class.last-revision-column]="!differenceEnabled" class="value-cell">
-                      @if (!row.isParent) {
-                        <app-matrix-value-span [value]="budgetValues.actualValue" />
-                      }
-                    </td>
-                  }
-                  @if (differenceEnabled) {
-                    <td class="last-revision-column value-cell">
-                      @if (!row.isParent) {
-                        <app-matrix-value-span [value]="tagValues.diffValue" />
-                      }
-                    </td>
-                  }
+                @if (actualEnabled) {
+                  <td [class.last-revision-column]="!differenceEnabled" class="value-cell">
+                    <app-matrix-value-span [value]="budgetValues.actualValue" />
+                  </td>
+                }
+                @if (differenceEnabled) {
+                  <td class="last-revision-column value-cell">
+                    <app-matrix-value-span [value]="tagValues.diffValue()" />
+                  </td>
                 }
               }
+            }
             </tr>
             @if (row.isSumRow) {
               <tr class="empty-row">

@@ -14,6 +14,7 @@ import (
 	"github.com/theater-improrama/go-utils/optional"
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 var (
@@ -209,14 +210,26 @@ func (r *OrganizationRepository) Update(ctx context.Context, id uuid.UUID, param
 	return nil
 }
 
-// Delete removes the organization with the given ID.
+// Delete removes the organization with the given ID and all associated data.
 func (r *OrganizationRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	result, err := r.q.Organization.WithContext(ctx).Where(r.q.Organization.ID.Eq(id)).Delete()
-	if err != nil {
-		return fmt.Errorf("delete organization id=%s: %w", id, err)
-	}
-	if result.RowsAffected == 0 {
-		return errors.Join(ErrOrganizationNotFound, fmt.Errorf("id=%s: %w", id, gorm.ErrRecordNotFound))
-	}
-	return nil
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var count int64
+		if err := tx.Model(&model.Organization{}).Where("id = ?", id).Count(&count).Error; err != nil {
+			return fmt.Errorf("check organization id=%s: %w", id, err)
+		}
+		if count == 0 {
+			return errors.Join(ErrOrganizationNotFound, fmt.Errorf("id=%s: %w", id, gorm.ErrRecordNotFound))
+		}
+
+		// Break account self-references so GORM's association cascade can delete
+		// the account hierarchy without violating the parent_account_id FK.
+		if err := tx.Model(&model.Account{}).Where("organization_id = ?", id).Update("parent_account_id", nil).Error; err != nil {
+			return fmt.Errorf("clear account parents for organization id=%s: %w", id, err)
+		}
+
+		if err := tx.Select(clause.Associations).Delete(&model.Organization{ID: id}).Error; err != nil {
+			return fmt.Errorf("delete organization id=%s: %w", id, err)
+		}
+		return nil
+	})
 }

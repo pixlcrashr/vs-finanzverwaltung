@@ -120,6 +120,35 @@ func (r *LedgerAccountRepository) GetByID(ctx context.Context, id uuid.UUID) (*m
 	return m, nil
 }
 
+// BatchGetByCustomID returns ledger accounts for the given custom IDs within an
+// organization. The returned slice is 1:1 with the input IDs; missing accounts
+// are returned as nil.
+func (r *LedgerAccountRepository) BatchGetByCustomID(ctx context.Context, orgID uuid.UUID, customIDs []string) ([]*model.LedgerAccount, error) {
+	results := make([]*model.LedgerAccount, len(customIDs))
+	if len(customIDs) == 0 {
+		return results, nil
+	}
+
+	accounts, err := r.q.LedgerAccount.WithContext(ctx).Where(
+		r.q.LedgerAccount.OrganizationID.Eq(orgID),
+		r.q.LedgerAccount.CustomID.In(customIDs...),
+	).Find()
+	if err != nil {
+		return nil, fmt.Errorf("batch get ledger accounts: %w", err)
+	}
+
+	accountByCustomID := make(map[string]*model.LedgerAccount, len(accounts))
+	for _, a := range accounts {
+		accountByCustomID[a.CustomID] = a
+	}
+
+	for i, id := range customIDs {
+		results[i] = accountByCustomID[id]
+	}
+
+	return results, nil
+}
+
 // GetByCustomID returns the ledger account with the given custom ID within an organization.
 func (r *LedgerAccountRepository) GetByCustomID(ctx context.Context, orgID uuid.UUID, customID string) (*model.LedgerAccount, error) {
 	m, err := r.q.LedgerAccount.WithContext(ctx).Where(

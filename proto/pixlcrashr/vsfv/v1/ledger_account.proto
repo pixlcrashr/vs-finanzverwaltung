@@ -125,6 +125,28 @@ message ListLedgerAccountsResponse {
   int64 total_size = 3;
 }
 
+message BatchGetLedgerAccountsRequest {
+  // The parent organization resource name.
+  // Format: organizations/{organization}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {child_type: "vsfv.pixlcrashr.dev/LedgerAccount"}
+  ];
+
+  // The resource names of the ledger accounts to retrieve.
+  // A maximum of 1000 ledger accounts can be retrieved in a batch.
+  // Format: organizations/{organization}/ledgerAccounts/{ledger_account}
+  repeated string names = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "vsfv.pixlcrashr.dev/LedgerAccount"}
+  ];
+}
+
+message BatchGetLedgerAccountsResponse {
+  // The ledger accounts returned, in the same order as the names in the request.
+  repeated LedgerAccount ledger_accounts = 1;
+}
+
 message UpdateLedgerAccountRequest {
   // The ledger account to update.
   LedgerAccount ledger_account = 1 [(google.api.field_behavior) = REQUIRED];
@@ -165,6 +187,16 @@ service LedgerAccountService {
   rpc ListLedgerAccounts(ListLedgerAccountsRequest) returns (ListLedgerAccountsResponse) {
     option (google.api.http) = {get: "/v1/{parent=organizations/*}/ledgerAccounts"};
     option (google.api.method_signature) = "parent";
+  }
+
+  // Batch gets ledger accounts by resource name.
+  // Authorization:
+  //   Scope: ledgerAccount:read
+  //   Permission: ledgerAccount:read
+  //   Domain: organization-scoped
+  rpc BatchGetLedgerAccounts(BatchGetLedgerAccountsRequest) returns (BatchGetLedgerAccountsResponse) {
+    option (google.api.http) = {get: "/v1/{parent=organizations/*}/ledgerAccounts:batchGet"};
+    option (google.api.method_signature) = "parent,names";
   }
 
   // Updates an existing ledger account (e.g., display name).

@@ -38,6 +38,7 @@ var (
 	statusInvalidCreditLedgerAccountID           = status.New(codes.InvalidArgument, "invalid credit_transaction_account_id")
 	statusInvalidDebitLedgerAccountID            = status.New(codes.InvalidArgument, "invalid debit_transaction_account_id")
 	statusInvalidOrganizationInLedgerAccountName = status.New(codes.InvalidArgument, "invalid organization in ledger account name")
+	statusFailedBatchGetLedgerAccounts           = status.New(codes.Internal, "failed to batch get ledger accounts")
 
 	// used by account_group_assignment, transaction_assignment services
 	statusAssignmentRequired      = status.New(codes.InvalidArgument, "assignment is required")

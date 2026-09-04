@@ -3046,6 +3046,46 @@ paths:
           type: boolean
       tags:
         - LedgerAccountService
+  /v1/{parent}/ledgerAccounts:batchGet:
+    get:
+      summary: |-
+        Batch gets ledger accounts by resource name.
+        Authorization:
+          Scope: ledgerAccount:read
+          Permission: ledgerAccount:read
+          Domain: organization-scoped
+      operationId: LedgerAccountService_BatchGetLedgerAccounts
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1BatchGetLedgerAccountsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: parent
+          description: |-
+            The parent organization resource name.
+            Format: organizations/{organization}
+          in: path
+          required: true
+          type: string
+          pattern: organizations/[^/]+
+        - name: names
+          description: |-
+            The resource names of the ledger accounts to retrieve.
+            A maximum of 1000 ledger accounts can be retrieved in a batch.
+            Format: organizations/{organization}/ledgerAccounts/{ledger_account}
+          in: query
+          required: true
+          type: array
+          items:
+            type: string
+          collectionFormat: multi
+      tags:
+        - LedgerAccountService
   /v1/{parent}/ledgerYears:
     get:
       summary: |-
@@ -4116,6 +4156,15 @@ definitions:
     description: |-
       BatchCheckUserPermissionsResponse returns one result entry per requested
       check, in the same order as the request.
+  v1BatchGetLedgerAccountsResponse:
+    type: object
+    properties:
+      ledger_accounts:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1LedgerAccount'
+        description: The ledger accounts returned, in the same order as the names in the request.
   v1BatchUpdateBudgetAccountValuesResponse:
     type: object
     properties:

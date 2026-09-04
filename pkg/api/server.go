@@ -54,7 +54,7 @@ func New(db *gorm.DB, svc *services.Services, version string, corsCfg cfg.CORS, 
 	api := humafiber.New(app, humaConfig)
 
 	s := &Server{app: app, API: api}
-	RegisterRoutes(s.API, db)
+	RegisterRoutes(s.app, s.API, db)
 
 	// Build auth middleware for gRPC gateway routes
 	var authMiddleware func(http.Handler) http.Handler

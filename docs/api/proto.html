@@ -627,6 +627,14 @@
             <ul>
               
                 <li>
+                  <a href="#pixlcrashr.vsfv.v1.BatchGetLedgerAccountsRequest"><span class="badge">M</span>BatchGetLedgerAccountsRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#pixlcrashr.vsfv.v1.BatchGetLedgerAccountsResponse"><span class="badge">M</span>BatchGetLedgerAccountsResponse</a>
+                </li>
+              
+                <li>
                   <a href="#pixlcrashr.vsfv.v1.DeleteLedgerAccountRequest"><span class="badge">M</span>DeleteLedgerAccountRequest</a>
                 </li>
               
@@ -5375,6 +5383,64 @@ Authorization:
       <p></p>
 
       
+        <h3 id="pixlcrashr.vsfv.v1.BatchGetLedgerAccountsRequest">BatchGetLedgerAccountsRequest</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>parent</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The parent organization resource name.
+Format: organizations/{organization} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>names</td>
+                  <td><a href="#string">string</a></td>
+                  <td>repeated</td>
+                  <td><p>The resource names of the ledger accounts to retrieve.
+A maximum of 1000 ledger accounts can be retrieved in a batch.
+Format: organizations/{organization}/ledgerAccounts/{ledger_account} </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="pixlcrashr.vsfv.v1.BatchGetLedgerAccountsResponse">BatchGetLedgerAccountsResponse</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>ledger_accounts</td>
+                  <td><a href="#pixlcrashr.vsfv.v1.LedgerAccount">LedgerAccount</a></td>
+                  <td>repeated</td>
+                  <td><p>The ledger accounts returned, in the same order as the names in the request. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
         <h3 id="pixlcrashr.vsfv.v1.DeleteLedgerAccountRequest">DeleteLedgerAccountRequest</h3>
         <p></p>
 
@@ -5728,6 +5794,17 @@ Authorization:
               </tr>
             
               <tr>
+                <td>BatchGetLedgerAccounts</td>
+                <td><a href="#pixlcrashr.vsfv.v1.BatchGetLedgerAccountsRequest">BatchGetLedgerAccountsRequest</a></td>
+                <td><a href="#pixlcrashr.vsfv.v1.BatchGetLedgerAccountsResponse">BatchGetLedgerAccountsResponse</a></td>
+                <td><p>Batch gets ledger accounts by resource name.
+Authorization:
+  Scope: ledgerAccount:read
+  Permission: ledgerAccount:read
+  Domain: organization-scoped</p></td>
+              </tr>
+            
+              <tr>
                 <td>UpdateLedgerAccount</td>
                 <td><a href="#pixlcrashr.vsfv.v1.UpdateLedgerAccountRequest">UpdateLedgerAccountRequest</a></td>
                 <td><a href="#pixlcrashr.vsfv.v1.LedgerAccount">LedgerAccount</a></td>
@@ -5783,6 +5860,16 @@ Authorization:
                 <td>ListLedgerAccounts</td>
                 <td>GET</td>
                 <td>/v1/{parent=organizations/*}/ledgerAccounts</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>BatchGetLedgerAccounts</td>
+                <td>GET</td>
+                <td>/v1/{parent=organizations/*}/ledgerAccounts:batchGet</td>
                 <td></td>
               </tr>
               

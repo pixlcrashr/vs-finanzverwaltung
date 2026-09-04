@@ -20,10 +20,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	LedgerAccountService_GetLedgerAccount_FullMethodName    = "/pixlcrashr.vsfv.v1.LedgerAccountService/GetLedgerAccount"
-	LedgerAccountService_ListLedgerAccounts_FullMethodName  = "/pixlcrashr.vsfv.v1.LedgerAccountService/ListLedgerAccounts"
-	LedgerAccountService_UpdateLedgerAccount_FullMethodName = "/pixlcrashr.vsfv.v1.LedgerAccountService/UpdateLedgerAccount"
-	LedgerAccountService_DeleteLedgerAccount_FullMethodName = "/pixlcrashr.vsfv.v1.LedgerAccountService/DeleteLedgerAccount"
+	LedgerAccountService_GetLedgerAccount_FullMethodName       = "/pixlcrashr.vsfv.v1.LedgerAccountService/GetLedgerAccount"
+	LedgerAccountService_ListLedgerAccounts_FullMethodName     = "/pixlcrashr.vsfv.v1.LedgerAccountService/ListLedgerAccounts"
+	LedgerAccountService_BatchGetLedgerAccounts_FullMethodName = "/pixlcrashr.vsfv.v1.LedgerAccountService/BatchGetLedgerAccounts"
+	LedgerAccountService_UpdateLedgerAccount_FullMethodName    = "/pixlcrashr.vsfv.v1.LedgerAccountService/UpdateLedgerAccount"
+	LedgerAccountService_DeleteLedgerAccount_FullMethodName    = "/pixlcrashr.vsfv.v1.LedgerAccountService/DeleteLedgerAccount"
 )
 
 // LedgerAccountServiceClient is the client API for LedgerAccountService service.
@@ -47,6 +48,13 @@ type LedgerAccountServiceClient interface {
 	//	Permission: ledgerAccount:read
 	//	Domain: organization-scoped
 	ListLedgerAccounts(ctx context.Context, in *ListLedgerAccountsRequest, opts ...grpc.CallOption) (*ListLedgerAccountsResponse, error)
+	// Batch gets ledger accounts by resource name.
+	// Authorization:
+	//
+	//	Scope: ledgerAccount:read
+	//	Permission: ledgerAccount:read
+	//	Domain: organization-scoped
+	BatchGetLedgerAccounts(ctx context.Context, in *BatchGetLedgerAccountsRequest, opts ...grpc.CallOption) (*BatchGetLedgerAccountsResponse, error)
 	// Updates an existing ledger account (e.g., display name).
 	// Authorization:
 	//
@@ -85,6 +93,16 @@ func (c *ledgerAccountServiceClient) ListLedgerAccounts(ctx context.Context, in 
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListLedgerAccountsResponse)
 	err := c.cc.Invoke(ctx, LedgerAccountService_ListLedgerAccounts_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ledgerAccountServiceClient) BatchGetLedgerAccounts(ctx context.Context, in *BatchGetLedgerAccountsRequest, opts ...grpc.CallOption) (*BatchGetLedgerAccountsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BatchGetLedgerAccountsResponse)
+	err := c.cc.Invoke(ctx, LedgerAccountService_BatchGetLedgerAccounts_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -132,6 +150,13 @@ type LedgerAccountServiceServer interface {
 	//	Permission: ledgerAccount:read
 	//	Domain: organization-scoped
 	ListLedgerAccounts(context.Context, *ListLedgerAccountsRequest) (*ListLedgerAccountsResponse, error)
+	// Batch gets ledger accounts by resource name.
+	// Authorization:
+	//
+	//	Scope: ledgerAccount:read
+	//	Permission: ledgerAccount:read
+	//	Domain: organization-scoped
+	BatchGetLedgerAccounts(context.Context, *BatchGetLedgerAccountsRequest) (*BatchGetLedgerAccountsResponse, error)
 	// Updates an existing ledger account (e.g., display name).
 	// Authorization:
 	//
@@ -160,6 +185,9 @@ func (UnimplementedLedgerAccountServiceServer) GetLedgerAccount(context.Context,
 }
 func (UnimplementedLedgerAccountServiceServer) ListLedgerAccounts(context.Context, *ListLedgerAccountsRequest) (*ListLedgerAccountsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListLedgerAccounts not implemented")
+}
+func (UnimplementedLedgerAccountServiceServer) BatchGetLedgerAccounts(context.Context, *BatchGetLedgerAccountsRequest) (*BatchGetLedgerAccountsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method BatchGetLedgerAccounts not implemented")
 }
 func (UnimplementedLedgerAccountServiceServer) UpdateLedgerAccount(context.Context, *UpdateLedgerAccountRequest) (*LedgerAccount, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateLedgerAccount not implemented")
@@ -223,6 +251,24 @@ func _LedgerAccountService_ListLedgerAccounts_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _LedgerAccountService_BatchGetLedgerAccounts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatchGetLedgerAccountsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LedgerAccountServiceServer).BatchGetLedgerAccounts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: LedgerAccountService_BatchGetLedgerAccounts_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LedgerAccountServiceServer).BatchGetLedgerAccounts(ctx, req.(*BatchGetLedgerAccountsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _LedgerAccountService_UpdateLedgerAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateLedgerAccountRequest)
 	if err := dec(in); err != nil {
@@ -273,6 +319,10 @@ var LedgerAccountService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListLedgerAccounts",
 			Handler:    _LedgerAccountService_ListLedgerAccounts_Handler,
+		},
+		{
+			MethodName: "BatchGetLedgerAccounts",
+			Handler:    _LedgerAccountService_BatchGetLedgerAccounts_Handler,
 		},
 		{
 			MethodName: "UpdateLedgerAccount",

@@ -417,6 +417,108 @@ func (x *ListLedgerAccountsResponse) GetTotalSize() int64 {
 	return 0
 }
 
+type BatchGetLedgerAccountsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The parent organization resource name.
+	// Format: organizations/{organization}
+	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
+	// The resource names of the ledger accounts to retrieve.
+	// A maximum of 1000 ledger accounts can be retrieved in a batch.
+	// Format: organizations/{organization}/ledgerAccounts/{ledger_account}
+	Names         []string `protobuf:"bytes,2,rep,name=names,proto3" json:"names,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BatchGetLedgerAccountsRequest) Reset() {
+	*x = BatchGetLedgerAccountsRequest{}
+	mi := &file_pixlcrashr_vsfv_v1_ledger_account_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BatchGetLedgerAccountsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BatchGetLedgerAccountsRequest) ProtoMessage() {}
+
+func (x *BatchGetLedgerAccountsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pixlcrashr_vsfv_v1_ledger_account_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BatchGetLedgerAccountsRequest.ProtoReflect.Descriptor instead.
+func (*BatchGetLedgerAccountsRequest) Descriptor() ([]byte, []int) {
+	return file_pixlcrashr_vsfv_v1_ledger_account_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *BatchGetLedgerAccountsRequest) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
+}
+
+func (x *BatchGetLedgerAccountsRequest) GetNames() []string {
+	if x != nil {
+		return x.Names
+	}
+	return nil
+}
+
+type BatchGetLedgerAccountsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The ledger accounts returned, in the same order as the names in the request.
+	LedgerAccounts []*LedgerAccount `protobuf:"bytes,1,rep,name=ledger_accounts,json=ledgerAccounts,proto3" json:"ledger_accounts,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *BatchGetLedgerAccountsResponse) Reset() {
+	*x = BatchGetLedgerAccountsResponse{}
+	mi := &file_pixlcrashr_vsfv_v1_ledger_account_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BatchGetLedgerAccountsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BatchGetLedgerAccountsResponse) ProtoMessage() {}
+
+func (x *BatchGetLedgerAccountsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pixlcrashr_vsfv_v1_ledger_account_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BatchGetLedgerAccountsResponse.ProtoReflect.Descriptor instead.
+func (*BatchGetLedgerAccountsResponse) Descriptor() ([]byte, []int) {
+	return file_pixlcrashr_vsfv_v1_ledger_account_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *BatchGetLedgerAccountsResponse) GetLedgerAccounts() []*LedgerAccount {
+	if x != nil {
+		return x.LedgerAccounts
+	}
+	return nil
+}
+
 type UpdateLedgerAccountRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The ledger account to update.
@@ -429,7 +531,7 @@ type UpdateLedgerAccountRequest struct {
 
 func (x *UpdateLedgerAccountRequest) Reset() {
 	*x = UpdateLedgerAccountRequest{}
-	mi := &file_pixlcrashr_vsfv_v1_ledger_account_proto_msgTypes[4]
+	mi := &file_pixlcrashr_vsfv_v1_ledger_account_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -441,7 +543,7 @@ func (x *UpdateLedgerAccountRequest) String() string {
 func (*UpdateLedgerAccountRequest) ProtoMessage() {}
 
 func (x *UpdateLedgerAccountRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_ledger_account_proto_msgTypes[4]
+	mi := &file_pixlcrashr_vsfv_v1_ledger_account_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -454,7 +556,7 @@ func (x *UpdateLedgerAccountRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateLedgerAccountRequest.ProtoReflect.Descriptor instead.
 func (*UpdateLedgerAccountRequest) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_ledger_account_proto_rawDescGZIP(), []int{4}
+	return file_pixlcrashr_vsfv_v1_ledger_account_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UpdateLedgerAccountRequest) GetLedgerAccount() *LedgerAccount {
@@ -482,7 +584,7 @@ type DeleteLedgerAccountRequest struct {
 
 func (x *DeleteLedgerAccountRequest) Reset() {
 	*x = DeleteLedgerAccountRequest{}
-	mi := &file_pixlcrashr_vsfv_v1_ledger_account_proto_msgTypes[5]
+	mi := &file_pixlcrashr_vsfv_v1_ledger_account_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -494,7 +596,7 @@ func (x *DeleteLedgerAccountRequest) String() string {
 func (*DeleteLedgerAccountRequest) ProtoMessage() {}
 
 func (x *DeleteLedgerAccountRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pixlcrashr_vsfv_v1_ledger_account_proto_msgTypes[5]
+	mi := &file_pixlcrashr_vsfv_v1_ledger_account_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -507,7 +609,7 @@ func (x *DeleteLedgerAccountRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteLedgerAccountRequest.ProtoReflect.Descriptor instead.
 func (*DeleteLedgerAccountRequest) Descriptor() ([]byte, []int) {
-	return file_pixlcrashr_vsfv_v1_ledger_account_proto_rawDescGZIP(), []int{5}
+	return file_pixlcrashr_vsfv_v1_ledger_account_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *DeleteLedgerAccountRequest) GetName() string {
@@ -551,7 +653,13 @@ const file_pixlcrashr_vsfv_v1_ledger_account_proto_rawDesc = "" +
 	"\x0fledger_accounts\x18\x01 \x03(\v2!.pixlcrashr.vsfv.v1.LedgerAccountR\x0eledgerAccounts\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xad\x01\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xa3\x01\n" +
+	"\x1dBatchGetLedgerAccountsRequest\x12A\n" +
+	"\x06parent\x18\x01 \x01(\tB)\xe0A\x02\xfaA#\x12!vsfv.pixlcrashr.dev/LedgerAccountR\x06parent\x12?\n" +
+	"\x05names\x18\x02 \x03(\tB)\xe0A\x02\xfaA#\n" +
+	"!vsfv.pixlcrashr.dev/LedgerAccountR\x05names\"l\n" +
+	"\x1eBatchGetLedgerAccountsResponse\x12J\n" +
+	"\x0fledger_accounts\x18\x01 \x03(\v2!.pixlcrashr.vsfv.v1.LedgerAccountR\x0eledgerAccounts\"\xad\x01\n" +
 	"\x1aUpdateLedgerAccountRequest\x12M\n" +
 	"\x0eledger_account\x18\x01 \x01(\v2!.pixlcrashr.vsfv.v1.LedgerAccountB\x03\xe0A\x02R\rledgerAccount\x12@\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
@@ -566,10 +674,11 @@ const file_pixlcrashr_vsfv_v1_ledger_account_proto_rawDesc = "" +
 	"\x13ACCOUNT_TYPE_EQUITY\x10\x03\x12\x18\n" +
 	"\x14ACCOUNT_TYPE_REVENUE\x10\x04\x12\x18\n" +
 	"\x14ACCOUNT_TYPE_EXPENSE\x10\x05\x12\x17\n" +
-	"\x13ACCOUNT_TYPE_SYSTEM\x10\x062\xfb\x05\n" +
+	"\x13ACCOUNT_TYPE_SYSTEM\x10\x062\xca\a\n" +
 	"\x14LedgerAccountService\x12\x9e\x01\n" +
 	"\x10GetLedgerAccount\x12+.pixlcrashr.vsfv.v1.GetLedgerAccountRequest\x1a!.pixlcrashr.vsfv.v1.LedgerAccount\":\xdaA\x04name\x82\xd3\xe4\x93\x02-\x12+/v1/{name=organizations/*/ledgerAccounts/*}\x12\xb1\x01\n" +
-	"\x12ListLedgerAccounts\x12-.pixlcrashr.vsfv.v1.ListLedgerAccountsRequest\x1a..pixlcrashr.vsfv.v1.ListLedgerAccountsResponse\"<\xdaA\x06parent\x82\xd3\xe4\x93\x02-\x12+/v1/{parent=organizations/*}/ledgerAccounts\x12\xd9\x01\n" +
+	"\x12ListLedgerAccounts\x12-.pixlcrashr.vsfv.v1.ListLedgerAccountsRequest\x1a..pixlcrashr.vsfv.v1.ListLedgerAccountsResponse\"<\xdaA\x06parent\x82\xd3\xe4\x93\x02-\x12+/v1/{parent=organizations/*}/ledgerAccounts\x12\xcc\x01\n" +
+	"\x16BatchGetLedgerAccounts\x121.pixlcrashr.vsfv.v1.BatchGetLedgerAccountsRequest\x1a2.pixlcrashr.vsfv.v1.BatchGetLedgerAccountsResponse\"K\xdaA\fparent,names\x82\xd3\xe4\x93\x026\x124/v1/{parent=organizations/*}/ledgerAccounts:batchGet\x12\xd9\x01\n" +
 	"\x13UpdateLedgerAccount\x12..pixlcrashr.vsfv.v1.UpdateLedgerAccountRequest\x1a!.pixlcrashr.vsfv.v1.LedgerAccount\"o\xdaA\x1aledger_account,update_mask\x82\xd3\xe4\x93\x02L:\x0eledger_account2:/v1/{ledger_account.name=organizations/*/ledgerAccounts/*}\x12\x99\x01\n" +
 	"\x13DeleteLedgerAccount\x12..pixlcrashr.vsfv.v1.DeleteLedgerAccountRequest\x1a\x16.google.protobuf.Empty\":\xdaA\x04name\x82\xd3\xe4\x93\x02-*+/v1/{name=organizations/*/ledgerAccounts/*}\x1a\x16\xcaA\x13vsfv.pixlcrashr.devB\xbf\x01\n" +
 	"\x16com.pixlcrashr.vsfv.v1B\x12LedgerAccountProtoP\x01Z'github.com/pixlcrashr/vsfv/pkg/grpc/gen\xa2\x02\x03PVX\xaa\x02\x12Pixlcrashr.Vsfv.V1\xca\x02\x12Pixlcrashr\\Vsfv\\V1\xe2\x02\x1ePixlcrashr\\Vsfv\\V1\\GPBMetadata\xea\x02\x14Pixlcrashr::Vsfv::V1b\x06proto3"
@@ -587,39 +696,44 @@ func file_pixlcrashr_vsfv_v1_ledger_account_proto_rawDescGZIP() []byte {
 }
 
 var file_pixlcrashr_vsfv_v1_ledger_account_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_pixlcrashr_vsfv_v1_ledger_account_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_pixlcrashr_vsfv_v1_ledger_account_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_pixlcrashr_vsfv_v1_ledger_account_proto_goTypes = []any{
-	(AccountType)(0),                   // 0: pixlcrashr.vsfv.v1.AccountType
-	(*LedgerAccount)(nil),              // 1: pixlcrashr.vsfv.v1.LedgerAccount
-	(*GetLedgerAccountRequest)(nil),    // 2: pixlcrashr.vsfv.v1.GetLedgerAccountRequest
-	(*ListLedgerAccountsRequest)(nil),  // 3: pixlcrashr.vsfv.v1.ListLedgerAccountsRequest
-	(*ListLedgerAccountsResponse)(nil), // 4: pixlcrashr.vsfv.v1.ListLedgerAccountsResponse
-	(*UpdateLedgerAccountRequest)(nil), // 5: pixlcrashr.vsfv.v1.UpdateLedgerAccountRequest
-	(*DeleteLedgerAccountRequest)(nil), // 6: pixlcrashr.vsfv.v1.DeleteLedgerAccountRequest
-	(*timestamppb.Timestamp)(nil),      // 7: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),      // 8: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),              // 9: google.protobuf.Empty
+	(AccountType)(0),                       // 0: pixlcrashr.vsfv.v1.AccountType
+	(*LedgerAccount)(nil),                  // 1: pixlcrashr.vsfv.v1.LedgerAccount
+	(*GetLedgerAccountRequest)(nil),        // 2: pixlcrashr.vsfv.v1.GetLedgerAccountRequest
+	(*ListLedgerAccountsRequest)(nil),      // 3: pixlcrashr.vsfv.v1.ListLedgerAccountsRequest
+	(*ListLedgerAccountsResponse)(nil),     // 4: pixlcrashr.vsfv.v1.ListLedgerAccountsResponse
+	(*BatchGetLedgerAccountsRequest)(nil),  // 5: pixlcrashr.vsfv.v1.BatchGetLedgerAccountsRequest
+	(*BatchGetLedgerAccountsResponse)(nil), // 6: pixlcrashr.vsfv.v1.BatchGetLedgerAccountsResponse
+	(*UpdateLedgerAccountRequest)(nil),     // 7: pixlcrashr.vsfv.v1.UpdateLedgerAccountRequest
+	(*DeleteLedgerAccountRequest)(nil),     // 8: pixlcrashr.vsfv.v1.DeleteLedgerAccountRequest
+	(*timestamppb.Timestamp)(nil),          // 9: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),          // 10: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),                  // 11: google.protobuf.Empty
 }
 var file_pixlcrashr_vsfv_v1_ledger_account_proto_depIdxs = []int32{
 	0,  // 0: pixlcrashr.vsfv.v1.LedgerAccount.account_type:type_name -> pixlcrashr.vsfv.v1.AccountType
-	7,  // 1: pixlcrashr.vsfv.v1.LedgerAccount.update_time:type_name -> google.protobuf.Timestamp
-	7,  // 2: pixlcrashr.vsfv.v1.LedgerAccount.create_time:type_name -> google.protobuf.Timestamp
+	9,  // 1: pixlcrashr.vsfv.v1.LedgerAccount.update_time:type_name -> google.protobuf.Timestamp
+	9,  // 2: pixlcrashr.vsfv.v1.LedgerAccount.create_time:type_name -> google.protobuf.Timestamp
 	1,  // 3: pixlcrashr.vsfv.v1.ListLedgerAccountsResponse.ledger_accounts:type_name -> pixlcrashr.vsfv.v1.LedgerAccount
-	1,  // 4: pixlcrashr.vsfv.v1.UpdateLedgerAccountRequest.ledger_account:type_name -> pixlcrashr.vsfv.v1.LedgerAccount
-	8,  // 5: pixlcrashr.vsfv.v1.UpdateLedgerAccountRequest.update_mask:type_name -> google.protobuf.FieldMask
-	2,  // 6: pixlcrashr.vsfv.v1.LedgerAccountService.GetLedgerAccount:input_type -> pixlcrashr.vsfv.v1.GetLedgerAccountRequest
-	3,  // 7: pixlcrashr.vsfv.v1.LedgerAccountService.ListLedgerAccounts:input_type -> pixlcrashr.vsfv.v1.ListLedgerAccountsRequest
-	5,  // 8: pixlcrashr.vsfv.v1.LedgerAccountService.UpdateLedgerAccount:input_type -> pixlcrashr.vsfv.v1.UpdateLedgerAccountRequest
-	6,  // 9: pixlcrashr.vsfv.v1.LedgerAccountService.DeleteLedgerAccount:input_type -> pixlcrashr.vsfv.v1.DeleteLedgerAccountRequest
-	1,  // 10: pixlcrashr.vsfv.v1.LedgerAccountService.GetLedgerAccount:output_type -> pixlcrashr.vsfv.v1.LedgerAccount
-	4,  // 11: pixlcrashr.vsfv.v1.LedgerAccountService.ListLedgerAccounts:output_type -> pixlcrashr.vsfv.v1.ListLedgerAccountsResponse
-	1,  // 12: pixlcrashr.vsfv.v1.LedgerAccountService.UpdateLedgerAccount:output_type -> pixlcrashr.vsfv.v1.LedgerAccount
-	9,  // 13: pixlcrashr.vsfv.v1.LedgerAccountService.DeleteLedgerAccount:output_type -> google.protobuf.Empty
-	10, // [10:14] is the sub-list for method output_type
-	6,  // [6:10] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	1,  // 4: pixlcrashr.vsfv.v1.BatchGetLedgerAccountsResponse.ledger_accounts:type_name -> pixlcrashr.vsfv.v1.LedgerAccount
+	1,  // 5: pixlcrashr.vsfv.v1.UpdateLedgerAccountRequest.ledger_account:type_name -> pixlcrashr.vsfv.v1.LedgerAccount
+	10, // 6: pixlcrashr.vsfv.v1.UpdateLedgerAccountRequest.update_mask:type_name -> google.protobuf.FieldMask
+	2,  // 7: pixlcrashr.vsfv.v1.LedgerAccountService.GetLedgerAccount:input_type -> pixlcrashr.vsfv.v1.GetLedgerAccountRequest
+	3,  // 8: pixlcrashr.vsfv.v1.LedgerAccountService.ListLedgerAccounts:input_type -> pixlcrashr.vsfv.v1.ListLedgerAccountsRequest
+	5,  // 9: pixlcrashr.vsfv.v1.LedgerAccountService.BatchGetLedgerAccounts:input_type -> pixlcrashr.vsfv.v1.BatchGetLedgerAccountsRequest
+	7,  // 10: pixlcrashr.vsfv.v1.LedgerAccountService.UpdateLedgerAccount:input_type -> pixlcrashr.vsfv.v1.UpdateLedgerAccountRequest
+	8,  // 11: pixlcrashr.vsfv.v1.LedgerAccountService.DeleteLedgerAccount:input_type -> pixlcrashr.vsfv.v1.DeleteLedgerAccountRequest
+	1,  // 12: pixlcrashr.vsfv.v1.LedgerAccountService.GetLedgerAccount:output_type -> pixlcrashr.vsfv.v1.LedgerAccount
+	4,  // 13: pixlcrashr.vsfv.v1.LedgerAccountService.ListLedgerAccounts:output_type -> pixlcrashr.vsfv.v1.ListLedgerAccountsResponse
+	6,  // 14: pixlcrashr.vsfv.v1.LedgerAccountService.BatchGetLedgerAccounts:output_type -> pixlcrashr.vsfv.v1.BatchGetLedgerAccountsResponse
+	1,  // 15: pixlcrashr.vsfv.v1.LedgerAccountService.UpdateLedgerAccount:output_type -> pixlcrashr.vsfv.v1.LedgerAccount
+	11, // 16: pixlcrashr.vsfv.v1.LedgerAccountService.DeleteLedgerAccount:output_type -> google.protobuf.Empty
+	12, // [12:17] is the sub-list for method output_type
+	7,  // [7:12] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_pixlcrashr_vsfv_v1_ledger_account_proto_init() }
@@ -633,7 +747,7 @@ func file_pixlcrashr_vsfv_v1_ledger_account_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pixlcrashr_vsfv_v1_ledger_account_proto_rawDesc), len(file_pixlcrashr_vsfv_v1_ledger_account_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   6,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

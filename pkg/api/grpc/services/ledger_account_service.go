@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	svcfilter "github.com/pixlcrashr/vsfv/pkg/api/grpc/services/filter"
@@ -65,6 +66,46 @@ func (s *ledgerAccountServiceServer) GetLedgerAccount(ctx context.Context, req *
 	}
 
 	return LedgerAccountToProto(n.OrganizationResourceName(), m), nil
+}
+
+func (s *ledgerAccountServiceServer) BatchGetLedgerAccounts(ctx context.Context, req *gen.BatchGetLedgerAccountsRequest) (*gen.BatchGetLedgerAccountsResponse, error) {
+	var pn gen.OrganizationResourceName
+
+	if err := pn.UnmarshalString(req.Parent); err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidParent}
+	}
+
+	if err := authz.CheckOrg(ctx, s.enforcer, authz.ResourceLedgerAccount, authz.ActionRead, authz.OrgDomain(pn.Organization)); err != nil {
+		return nil, authError(err)
+	}
+
+	orgID, err := uuid.Parse(pn.Organization)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: statusInvalidOrganizationInLedgerAccountName}
+	}
+
+	customIDs := make([]string, 0, len(req.Names))
+	for _, name := range req.Names {
+		var n gen.LedgerAccountResourceName
+		if err := n.UnmarshalString(name); err != nil {
+			return nil, &ServerError{Err: err, Status: statusInvalidLedgerAccountName}
+		}
+		customIDs = append(customIDs, n.LedgerAccount)
+	}
+
+	ms, err := s.repo.BatchGetByCustomID(ctx, orgID, customIDs)
+	if err != nil {
+		return nil, &ServerError{Err: err, Status: statusFailedBatchGetLedgerAccounts}
+	}
+
+	resp := &gen.BatchGetLedgerAccountsResponse{}
+	for i, m := range ms {
+		if m == nil {
+			return nil, &ServerError{Err: fmt.Errorf("ledger account not found: %s", req.Names[i]), Status: statusLedgerAccountNotFound}
+		}
+		resp.LedgerAccounts = append(resp.LedgerAccounts, LedgerAccountToProto(pn, m))
+	}
+	return resp, nil
 }
 
 func (s *ledgerAccountServiceServer) ListLedgerAccounts(ctx context.Context, req *gen.ListLedgerAccountsRequest) (*gen.ListLedgerAccountsResponse, error) {

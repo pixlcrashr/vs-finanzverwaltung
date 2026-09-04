@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, delay } from 'rxjs';
+import { Observable, of, delay, throwError } from 'rxjs';
 import { faker } from '@faker-js/faker';
 import { Transaction, Account, TransactionAssignment } from '../../../app/shared/models';
 import { TransactionEditDataService, CreateAssignmentParams, UpdateAssignmentParams } from '../../../app/routes/transactions/transaction-edit/transaction-edit.data-service';
@@ -26,14 +26,7 @@ export class MockTransactionEditDataService extends TransactionEditDataService {
         accountId: faker.string.uuid(),
         accountCode: '2.1.1',
         accountName: 'Gehälter',
-        value: '1000.00',
-      },
-      {
-        id: faker.string.uuid(),
-        accountId: faker.string.uuid(),
-        accountCode: '2.1.2',
-        accountName: 'Sozialabgaben',
-        value: '500.00',
+        value: '1500.00',
       },
     ],
   };
@@ -70,6 +63,9 @@ export class MockTransactionEditDataService extends TransactionEditDataService {
   }
 
   createAssignment(organizationId: string, transactionId: string, params: CreateAssignmentParams): Observable<TransactionAssignment> {
+    if (this.transaction.accountAssignments.length > 0) {
+      return throwError(() => new Error('transaction assignment already exists')).pipe(delay(200));
+    }
     const assignment: TransactionAssignment = {
       id: faker.string.uuid(),
       accountId: params.accountId,

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, delay } from 'rxjs';
+import { Observable, of, delay, throwError } from 'rxjs';
 import { faker } from '@faker-js/faker';
 import { Account } from '../../../app/shared/models';
 import {
@@ -32,6 +32,10 @@ export class MockJournalAssignmentEditorDataService extends JournalAssignmentEdi
     transactionId: string,
     params: CreateAssignmentParams,
   ): Observable<JournalAccountAssignment> {
+    const list = this.getTxnAssignments(transactionId);
+    if (list.length > 0) {
+      return throwError(() => new Error('transaction assignment already exists')).pipe(delay(200));
+    }
     const account = this.accounts.find((a) => a.id === params.accountId);
     const assignment: JournalAccountAssignment = {
       id: faker.string.uuid(),
@@ -40,7 +44,7 @@ export class MockJournalAssignmentEditorDataService extends JournalAssignmentEdi
       accountName: account?.name ?? '',
       value: params.value,
     };
-    this.getTxnAssignments(transactionId).push(assignment);
+    list.push(assignment);
     return of(assignment).pipe(delay(200));
   }
 

@@ -30,6 +30,7 @@ var (
 	LedgerAccountRepo            *repository.LedgerAccountRepository
 	LedgerYearRepo               *repository.LedgerYearRepository
 	BudgetAccountValueRepo       *repository.BudgetAccountValueRepository
+	TransactionAssignmentRepo    *repository.TransactionAssignmentRepository
 )
 
 func TestRepository(t *testing.T) {
@@ -72,6 +73,7 @@ var _ = BeforeSuite(func() {
 	LedgerAccountRepo = repository.NewLedgerAccountRepository(dbConn)
 	LedgerYearRepo = repository.NewLedgerYearRepository(dbConn)
 	BudgetAccountValueRepo = repository.NewBudgetAccountValueRepository(dbConn)
+	TransactionAssignmentRepo = repository.NewTransactionAssignmentRepository(dbConn)
 
 	DeferCleanup(func() {
 		_ = sqlDB.Close()

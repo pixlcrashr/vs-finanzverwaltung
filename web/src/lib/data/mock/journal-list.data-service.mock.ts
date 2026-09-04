@@ -150,29 +150,17 @@ export class MockJournalListDataService extends JournalListDataService {
       ? totalCents
       : Math.max(1, Math.floor(totalCents * faker.number.float({ min: 0.3, max: 0.8 })));
 
-    const assignmentCount = faker.number.int({ min: 1, max: 3 });
-    const assignments: JournalEntry['accountAssignments'] = [];
+    // At most one assignment per transaction (1:1 mapping between value and account).
+    const account = accounts[faker.number.int({ min: 0, max: accounts.length - 1 })];
 
-    let remaining = targetCents;
-
-    for (let index = 0; index < assignmentCount; index++) {
-      const account = accounts[(index + faker.number.int({ min: 0, max: accounts.length - 1 })) % accounts.length];
-      const isLast = index === assignmentCount - 1;
-      const min = isLast ? remaining : 1;
-      const max = isLast ? remaining : Math.max(1, remaining - (assignmentCount - index - 1));
-      const value = isLast ? remaining : faker.number.int({ min, max });
-
-      assignments.push({
+    return [
+      {
         id: faker.string.uuid(),
         accountId: account.id,
         accountCode: account.code,
         accountName: account.name,
-        value: (value / 100).toFixed(2),
-      });
-
-      remaining -= value;
-    }
-
-    return assignments;
+        value: (targetCents / 100).toFixed(2),
+      },
+    ];
   }
 }

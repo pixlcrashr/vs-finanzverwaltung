@@ -13,6 +13,7 @@ export { V1AccountGroupAssignment } from './models/v1account-group-assignment';
 export { V1AccountType } from './models/v1account-type';
 export { V1BatchCheckUserPermissionsRequest } from './models/v1batch-check-user-permissions-request';
 export { V1BatchCheckUserPermissionsResponse } from './models/v1batch-check-user-permissions-response';
+export { V1BatchGetLedgerAccountsResponse } from './models/v1batch-get-ledger-accounts-response';
 export { V1BatchUpdateBudgetAccountValuesResponse } from './models/v1batch-update-budget-account-values-response';
 export { V1Budget } from './models/v1budget';
 export { V1BudgetAccountValue } from './models/v1budget-account-value';

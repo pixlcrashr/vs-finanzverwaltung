@@ -4,7 +4,10 @@ import { TransactionServiceService } from '../../api/services/transaction-servic
 import { TransactionAssignmentServiceService } from '../../api/services/transaction-assignment-service.service';
 import { LedgerAccountServiceService } from '../../api/services/ledger-account-service.service';
 import { AccountServiceService } from '../../api/services/account-service.service';
+import { V1Transaction } from '../../api/models/v1transaction';
 import { V1TransactionAssignment } from '../../api/models/v1transaction-assignment';
+import { V1LedgerAccount } from '../../api/models/v1ledger-account';
+import { V1Account } from '../../api/models/v1account';
 import {
   JournalListDataService,
   JournalEntry,
@@ -13,6 +16,13 @@ import {
   JournalAccountAssignment,
 } from '../../../app/routes/journal/journal-list/journal-list.data-service';
 import { extractUidFromResourceName } from './_mappers';
+
+/**
+ * Number of transaction names grouped into a single assignment-list request.
+ * Keeps the generated AIP-160 filter short enough to stay well within URL-length
+ * limits.
+ */
+const ASSIGNMENT_BATCH_SIZE = 20;
 
 @Injectable()
 export class HttpJournalListDataService extends JournalListDataService {
@@ -23,39 +33,204 @@ export class HttpJournalListDataService extends JournalListDataService {
 
   listTransactions(
     organizationId: string,
-    _page: number,
     pageSize: number,
+    pageToken: string | undefined,
     filters?: JournalEntryFilters,
-  ): Observable<{ entries: JournalEntry[]; total: number }> {
+  ): Observable<{ entries: JournalEntry[]; total: number; nextPageToken?: string }> {
     const parent = `organizations/${organizationId}`;
 
-    // Step 1: fetch transactions, ledger accounts (for debit/credit code/name),
-    // and budget accounts (for assignment code/name) in parallel.
-    return combineLatest([
-      this.txnSvc.TransactionServiceListTransactions({ parent, pageSize }),
-      this.ledgerAccountSvc.LedgerAccountServiceListLedgerAccounts({ parent, pageSize: 100 }),
-      this.accountSvc.AccountServiceListAccounts({ parent, pageSize: 100, showDeleted: false }),
-    ]).pipe(
-      switchMap(([txnResp, ledgerAccountsResp, accountsResp]) => {
-        const transactions = txnResp.transactions ?? [];
-        if (transactions.length === 0) {
-          return of({ txnResp, ledgerAccountsResp, accountsResp, assignmentsByTxn: new Map<string, JournalAccountAssignment[]>() });
-        }
+    // Step 1: fetch one page of transactions, ordered by document date so the
+    // cursor pagination is stable.
+    return this.txnSvc
+      .TransactionServiceListTransactions({
+        parent,
+        pageSize,
+        pageToken,
+        orderBy: 'document_date desc',
+        filter: this.buildApiFilter(filters),
+      })
+      .pipe(
+        switchMap((txnResp) => {
+          const transactions = txnResp.transactions ?? [];
+          const total = Number(txnResp.total_size ?? 0);
+          const nextPageToken = txnResp.next_page_token;
 
-        // Step 2: bulk-load transaction assignments for the organization
-        // using the AIP wildcard parent notation
-        // "organizations/{orgId}/transactions/-/assignments" (the server
-        // interprets the "-" segment as "all transactions in the org").
-        // We page through all results (the server caps page_size at 100) and
-        // group assignments by transaction resource name client-side. No
-        // AIP-160 filter is used — a filter that OR-concatenates every
-        // transaction resource name would produce a URL/query string far
-        // exceeding server limits, causing the request to fail silently.
-        const wildcardParent = `organizations/${organizationId}/transactions/-`;
-        return this.assignmentSvc
+          if (transactions.length === 0) {
+            return of({
+              transactions,
+              ledgerAccountsMap: new Map<string, V1LedgerAccount>(),
+              accountsMap: new Map<string, V1Account>(),
+              assignmentsByTxn: new Map<string, V1TransactionAssignment[]>(),
+              total,
+              nextPageToken,
+            });
+          }
+
+          const ledgerAccountNames = this.collectLedgerAccountNames(transactions);
+
+          return combineLatest([
+            of(transactions),
+            ledgerAccountNames.length > 0
+              ? this.ledgerAccountSvc.LedgerAccountServiceBatchGetLedgerAccounts({
+                  parent,
+                  names: ledgerAccountNames,
+                }).pipe(
+                  map((resp) => {
+                    const map = new Map<string, V1LedgerAccount>();
+                    for (const a of resp.ledger_accounts ?? []) {
+                      const uid = a.uid ?? '';
+                      if (uid) {
+                        map.set(uid, a);
+                      }
+                    }
+                    return map;
+                  }),
+                  catchError(() => of(new Map<string, V1LedgerAccount>())),
+                )
+              : of(new Map<string, V1LedgerAccount>()),
+            this.loadAllAccounts(parent),
+            this.loadAssignmentsForTransactions(organizationId, transactions),
+          ]).pipe(
+            map(([transactions, ledgerAccountsMap, accountsMap, assignmentsByTxn]) => ({
+              transactions,
+              ledgerAccountsMap,
+              accountsMap,
+              assignmentsByTxn,
+              total,
+              nextPageToken,
+            })),
+          );
+        }),
+        map(({ transactions, ledgerAccountsMap, accountsMap, assignmentsByTxn, total, nextPageToken }) => {
+          const entries: JournalEntry[] = transactions.map((t) => {
+            const debitUid = t.debit_ledger_account?.split('/').pop() ?? '';
+            const creditUid = t.credit_ledger_account?.split('/').pop() ?? '';
+            const debitAcct = ledgerAccountsMap.get(debitUid);
+            const creditAcct = ledgerAccountsMap.get(creditUid);
+
+            const rawAssignments = assignmentsByTxn.get(t.name ?? '') ?? [];
+            const amount = t.amount?.value ?? '';
+
+            const assignments: JournalAccountAssignment[] = rawAssignments.map((a) => {
+              const accountUid = extractUidFromResourceName(a.account ?? '');
+              const acct = accountsMap.get(accountUid);
+              return {
+                id: a.uid ?? '',
+                accountId: accountUid,
+                accountCode: acct?.display_code ?? '',
+                accountName: acct?.display_name ?? '',
+                value: a.value?.value ?? '',
+              };
+            });
+
+            return {
+              id: t.uid ?? '',
+              documentDate: new Date(t.document_date),
+              bookedAt: new Date(t.booked_at),
+              amount,
+              reference: t.reference ?? '',
+              debitAccountCode: debitAcct?.code ?? '',
+              debitAccountName: debitAcct?.display_name ?? '',
+              creditAccountCode: creditAcct?.code ?? '',
+              creditAccountName: creditAcct?.display_name ?? '',
+              description: t.description ?? '',
+              assignmentStatus: this.deriveAssignmentStatus(amount, assignments),
+              accountAssignments: assignments,
+            };
+          });
+
+          // Apply filters that the API does not support (text query and
+          // assignment status). Date filtering is already done server-side.
+          let filtered = entries;
+          if (filters?.query) {
+            const q = filters.query.toLowerCase();
+            filtered = filtered.filter(
+              (e) =>
+                e.description.toLowerCase().includes(q) ||
+                e.reference.toLowerCase().includes(q) ||
+                e.debitAccountName.toLowerCase().includes(q) ||
+                e.creditAccountName.toLowerCase().includes(q),
+            );
+          }
+          if (filters?.assignmentStatus && filters.assignmentStatus !== 'all') {
+            filtered = filtered.filter(
+              (e) => e.assignmentStatus === filters.assignmentStatus,
+            );
+          }
+
+          return {
+            entries: filtered,
+            total,
+            nextPageToken,
+          };
+        }),
+      );
+  }
+
+  private collectLedgerAccountNames(transactions: V1Transaction[]): string[] {
+    const seen = new Set<string>();
+    const names: string[] = [];
+    for (const t of transactions) {
+      for (const name of [t.debit_ledger_account, t.credit_ledger_account]) {
+        if (name && !seen.has(name)) {
+          seen.add(name);
+          names.push(name);
+        }
+      }
+    }
+    return names;
+  }
+
+  private loadAllAccounts(parent: string): Observable<Map<string, V1Account>> {
+    return this.accountSvc.AccountServiceListAccounts({ parent, pageSize: 100, showDeleted: false }).pipe(
+      expand((resp) =>
+        resp.next_page_token
+          ? this.accountSvc.AccountServiceListAccounts({
+              parent,
+              pageSize: 100,
+              pageToken: resp.next_page_token,
+              showDeleted: false,
+            })
+          : EMPTY,
+      ),
+      reduce((all: V1Account[], resp) => all.concat(resp.accounts ?? []), []),
+      map((accounts) => {
+        const map = new Map<string, V1Account>();
+        for (const a of accounts) {
+          const uid = a.uid ?? '';
+          if (uid) {
+            map.set(uid, a);
+          }
+        }
+        return map;
+      }),
+      catchError(() => of(new Map<string, V1Account>())),
+    );
+  }
+
+  private loadAssignmentsForTransactions(
+    organizationId: string,
+    transactions: V1Transaction[],
+  ): Observable<Map<string, V1TransactionAssignment[]>> {
+    if (transactions.length === 0) {
+      return of(new Map<string, V1TransactionAssignment[]>());
+    }
+
+    const txnNames = transactions.map((t) => t.name ?? '').filter((n) => n.length > 0);
+    const chunks: string[][] = [];
+    for (let i = 0; i < txnNames.length; i += ASSIGNMENT_BATCH_SIZE) {
+      chunks.push(txnNames.slice(i, i + ASSIGNMENT_BATCH_SIZE));
+    }
+
+    const wildcardParent = `organizations/${organizationId}/transactions/-`;
+
+    return combineLatest(
+      chunks.map((chunk) =>
+        this.assignmentSvc
           .TransactionAssignmentServiceListTransactionAssignments({
             parent1: wildcardParent,
             pageSize: 100,
+            filter: chunk.map((name) => `transaction="${name}"`).join(' OR '),
           })
           .pipe(
             expand((resp) =>
@@ -67,113 +242,36 @@ export class HttpJournalListDataService extends JournalListDataService {
                   })
                 : EMPTY,
             ),
-            reduce(
-              (all: V1TransactionAssignment[], resp) =>
-                all.concat(resp.assignments ?? []),
-              [],
-            ),
-            map((assignments) => {
-              const accountsMap = new Map(
-                (accountsResp.accounts ?? []).map((a) => [a.uid ?? '', a]),
-              );
-              // Group assignments by transaction resource name so each
-              // JournalEntry can pick up its own list. The server sets the
-              // assignment's "transaction" field to the full resource name
-              // (organizations/{org}/transactions/{customId}), and the
-              // transaction list's "name" field uses the same format.
-              // Assignments for transactions outside the current page are
-              // simply never looked up and are ignored.
-              const assignmentsByTxn = new Map<string, JournalAccountAssignment[]>();
-              for (const a of assignments) {
-                const txnName = a.transaction ?? '';
-                const accountUid = extractUidFromResourceName(a.account ?? '');
-                const acct = accountsMap.get(accountUid);
-                const assignment: JournalAccountAssignment = {
-                  id: a.uid ?? '',
-                  accountId: accountUid,
-                  accountCode: acct?.display_code ?? '',
-                  accountName: acct?.display_name ?? '',
-                  value: a.value?.value ?? '',
-                };
-                const list = assignmentsByTxn.get(txnName) ?? [];
-                list.push(assignment);
-                assignmentsByTxn.set(txnName, list);
-              }
-              return { txnResp, ledgerAccountsResp, accountsResp, assignmentsByTxn };
-            }),
-            // If the bulk assignment load fails (e.g. wildcard parent not
-            // supported), fall back to empty assignments so the journal list
-            // still renders with transactions.
-            catchError(() => of({
-              txnResp,
-              ledgerAccountsResp,
-              accountsResp,
-              assignmentsByTxn: new Map<string, JournalAccountAssignment[]>(),
-            })),
-          );
-      }),
-      map(({ txnResp, ledgerAccountsResp, assignmentsByTxn }) => {
-        const ledgerAccountsMap = new Map(
-          (ledgerAccountsResp.ledger_accounts ?? []).map((a) => [a.uid ?? '', a]),
-        );
-
-        const entries: JournalEntry[] = (txnResp.transactions ?? []).map((t) => {
-          const debitUid = t.debit_ledger_account?.split('/').pop() ?? '';
-          const creditUid = t.credit_ledger_account?.split('/').pop() ?? '';
-          const debitAcct = ledgerAccountsMap.get(debitUid);
-          const creditAcct = ledgerAccountsMap.get(creditUid);
-
-          const assignments = assignmentsByTxn.get(t.name ?? '') ?? [];
-          const amount = t.amount?.value ?? '';
-
-          return {
-            id: t.uid ?? '',
-            documentDate: new Date(t.document_date),
-            bookedAt: new Date(t.booked_at),
-            amount,
-            reference: t.reference ?? '',
-            debitAccountCode: debitAcct?.code ?? '',
-            debitAccountName: debitAcct?.display_name ?? '',
-            creditAccountCode: creditAcct?.code ?? '',
-            creditAccountName: creditAcct?.display_name ?? '',
-            description: t.description ?? '',
-            assignmentStatus: this.deriveAssignmentStatus(amount, assignments),
-            accountAssignments: assignments,
-          };
-        });
-
-        let filtered = entries;
-        if (filters?.query) {
-          const q = filters.query.toLowerCase();
-          filtered = filtered.filter(
-            (e) =>
-              e.description.toLowerCase().includes(q) ||
-              e.reference.toLowerCase().includes(q) ||
-              e.debitAccountName.toLowerCase().includes(q) ||
-              e.creditAccountName.toLowerCase().includes(q),
-          );
+            reduce((all: V1TransactionAssignment[], resp) => all.concat(resp.assignments ?? []), []),
+            catchError(() => of<V1TransactionAssignment[]>([])),
+          ),
+      ),
+    ).pipe(
+      map((chunkResults) => {
+        const assignments = chunkResults.flat();
+        const result = new Map<string, V1TransactionAssignment[]>();
+        for (const a of assignments) {
+          const txnName = a.transaction ?? '';
+          const list = result.get(txnName) ?? [];
+          list.push(a);
+          result.set(txnName, list);
         }
-        if (filters?.afterDate) {
-          const after = new Date(filters.afterDate);
-          filtered = filtered.filter((e) => e.documentDate >= after);
-        }
-        if (filters?.beforeDate) {
-          const before = new Date(filters.beforeDate);
-          before.setHours(23, 59, 59, 999);
-          filtered = filtered.filter((e) => e.documentDate <= before);
-        }
-        if (filters?.assignmentStatus && filters.assignmentStatus !== 'all') {
-          filtered = filtered.filter(
-            (e) => e.assignmentStatus === filters.assignmentStatus,
-          );
-        }
-
-        return {
-          entries: filtered,
-          total: filtered.length,
-        };
+        return result;
       }),
     );
+  }
+
+  private buildApiFilter(filters?: JournalEntryFilters): string | undefined {
+    // The backend only supports booked_at in transaction filters, so use that
+    // as a server-side pre-filter for the date range.
+    const parts: string[] = [];
+    if (filters?.afterDate) {
+      parts.push(`booked_at>="${filters.afterDate}T00:00:00Z"`);
+    }
+    if (filters?.beforeDate) {
+      parts.push(`booked_at<="${filters.beforeDate}T23:59:59Z"`);
+    }
+    return parts.length > 0 ? parts.join(' AND ') : undefined;
   }
 
   private deriveAssignmentStatus(

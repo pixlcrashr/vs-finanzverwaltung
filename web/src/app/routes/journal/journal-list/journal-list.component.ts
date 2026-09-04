@@ -1,9 +1,12 @@
 import {
   Component,
   ChangeDetectionStrategy,
+  ElementRef,
   inject,
   signal,
   computed,
+  effect,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime, merge, map, distinctUntilChanged, filter } from 'rxjs';
@@ -20,12 +23,12 @@ import {
 import { formatDateShort } from '../../../shared/utils';
 import { Account } from '../../../shared/models';
 import {
-  JournalListDataService,
   JournalEntry,
   JournalEntryFilters,
   JournalAssignmentStatus,
   JournalAccountAssignment,
 } from './journal-list.data-service';
+import { JournalListQueryService } from './journal-list.query-service';
 import { JournalAssignmentEditorDataService } from './journal-assignment-editor.data-service';
 import { JournalAssignmentEditorComponent } from './journal-assignment-editor.component';
 import { LedgerYearListDataService, LedgerYearListItem } from '../../ledger/ledger-years/ledger-year-list.data-service';
@@ -290,6 +293,10 @@ import { Permissions } from '../../../../lib/authz/permissions';
                   </app-button>
                 }
               </div>
+
+              @if (hasMore()) {
+                <div #loadMoreSentinel class="h-1"></div>
+              }
               }
             </div>
           </div>
@@ -300,12 +307,13 @@ import { Permissions } from '../../../../lib/authz/permissions';
 })
 export class JournalListComponent {
   private readonly route = inject(ActivatedRoute);
-  private readonly dataService = inject(JournalListDataService);
+  private readonly queryService = inject(JournalListQueryService);
   private readonly assignmentEditorSvc = inject(JournalAssignmentEditorDataService);
   private readonly ledgerYearSvc = inject(LedgerYearListDataService);
   private readonly notifications = inject(NotificationService);
 
   private readonly filterChange$ = new Subject<void>();
+  private readonly loadMoreSentinel = viewChild<ElementRef<HTMLElement>>('loadMoreSentinel');
 
   orgId = '';
 
@@ -313,9 +321,10 @@ export class JournalListComponent {
   readonly loadingMore = signal(false);
   readonly entries = signal<JournalEntry[]>([]);
   readonly total = signal(0);
+  readonly nextPageToken = signal<string | undefined>(undefined);
   readonly currentPage = signal(0);
-  readonly pageSize = 20;
-  readonly hasMore = computed(() => this.entries().length < this.total());
+  readonly pageSize = 100;
+  readonly hasMore = computed(() => this.nextPageToken() !== undefined);
   readonly Permissions = Permissions;
 
   readonly availableAccounts = signal<Account[]>([]);
@@ -341,7 +350,27 @@ export class JournalListComponent {
       takeUntilDestroyed(),
     ).subscribe(() => {
       this.currentPage.set(0);
+      this.nextPageToken.set(undefined);
       this.fetchEntries(0, false);
+    });
+
+    effect((onCleanup) => {
+      const sentinel = this.loadMoreSentinel()?.nativeElement;
+      if (!sentinel) {
+        return;
+      }
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0]?.isIntersecting) {
+            this.loadMore();
+          }
+        },
+        { rootMargin: '200px' },
+      );
+      observer.observe(sentinel);
+
+      onCleanup(() => observer.disconnect());
     });
 
     merge(...this.route.pathFromRoot.map(r => r.params)).pipe(
@@ -352,6 +381,7 @@ export class JournalListComponent {
     ).subscribe(id => {
       this.orgId = id;
       this.currentPage.set(0);
+      this.nextPageToken.set(undefined);
       this.entries.set([]);
       this.total.set(0);
       this.fetchEntries(0, false);
@@ -398,7 +428,7 @@ export class JournalListComponent {
       this.loading.set(true);
     }
 
-    this.dataService.listTransactions(this.orgId, page, this.pageSize, this.buildFilters()).subscribe({
+    this.queryService.fetchPage(this.orgId, page, this.pageSize, this.buildFilters()).subscribe({
       next: (result) => {
         if (append) {
           this.entries.update((existing) => [...existing, ...result.entries]);
@@ -410,6 +440,7 @@ export class JournalListComponent {
 
         this.currentPage.set(page);
         this.total.set(result.total);
+        this.nextPageToken.set(result.nextPageToken);
       },
       error: () => {
         this.notifications.error($localize`Fehler beim Laden der Buchungen`);

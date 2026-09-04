@@ -14,10 +14,11 @@ export class MockJournalListDataService extends JournalListDataService {
 
   listTransactions(
     organizationId: string,
-    page: number,
     pageSize: number,
+    pageToken: string | undefined,
     filters: JournalEntryFilters = {},
-  ): Observable<{ entries: JournalEntry[]; total: number }> {
+  ): Observable<{ entries: JournalEntry[]; total: number; nextPageToken?: string }> {
+    const page = pageToken ? parseInt(pageToken, 10) : 0;
     const filtered = this.applyFilters(this.entries, filters);
     const start = page * pageSize;
     const end = start + pageSize;
@@ -26,6 +27,7 @@ export class MockJournalListDataService extends JournalListDataService {
     return of({
       entries: paged,
       total: filtered.length,
+      nextPageToken: end < filtered.length ? String(page + 1) : undefined,
     }).pipe(delay(250));
   }
 

@@ -55,12 +55,26 @@ import { MatrixValueStoreService } from '../matrix-value-store.service';
         }
       }
 
+      .account-indent-col {
+        width: 1.25rem;
+        min-width: 1.25rem;
+      }
+
+      .account-name-col {
+        min-width: 12rem;
+      }
+
       .account-prefix-width {
-        min-width: 30px;
+        width: 1.25rem;
+        min-width: 1.25rem;
+        max-width: 1.25rem;
+        padding-left: 0;
+        padding-right: 0;
       }
 
       .title-cell {
-        min-width: 30px;
+        min-width: 12rem;
+        white-space: nowrap;
       }
 
       .empty-row {
@@ -103,14 +117,20 @@ import { MatrixValueStoreService } from '../matrix-value-store.service';
     @let actualEnabled = header.isActualButtonSelected();
     @let differenceEnabled = header.isDifferenceButtonSelected();
     @let accColSpan = accountColSpan();
-    @let colGroupSpan = accColSpan + (descriptionEnabled ? 1 : 0);
     @let selectedBudgets = filteredColumns();
     @let rows = filteredRows();
     @let isEditing = matrixHeader().isEditMode();
 
     <div class="fullwidth fullheight overflow-auto">
       <table class="table is-narrow">
-        <colgroup [span]="colGroupSpan" class="vertical-divider"></colgroup>
+        <colgroup class="vertical-divider">
+          @for (colIndex of accountCols(); track colIndex) {
+            <col [class.account-indent-col]="colIndex < accColSpan - 1" [class.account-name-col]="colIndex === accColSpan - 1" />
+          }
+          @if (descriptionEnabled) {
+            <col />
+          }
+        </colgroup>
         <thead>
           <tr>
             <th [rowSpan]="2" [colSpan]="accColSpan">Konto</th>
@@ -140,8 +160,8 @@ import { MatrixValueStoreService } from '../matrix-value-store.service';
             }
           </tr>
           <tr>
-            @for (i of [].constructor(accColSpan); track $index) {
-              <th class="account-prefix-width"></th>
+            @for (colIndex of accountCols(); track colIndex) {
+              <th [class.account-prefix-width]="colIndex < accColSpan - 1"></th>
             }
 
             @for (col of selectedBudgets; track col.budgetId) {
@@ -166,16 +186,16 @@ import { MatrixValueStoreService } from '../matrix-value-store.service';
         <tbody>
           @for (row of rows; track row.accountId) {
             <tr [class.font-bold]="row.isSumRow || parentAccountIds().has(row.accountId)">
-              @for (i of accountCols(); track $index) {
-                @if (row.depth === $index) {
-                  <td [colSpan]="accColSpan - $index">
+              @for (colIndex of accountCols(); track colIndex) {
+                @if (row.depth === colIndex) {
+                  <td [colSpan]="accColSpan - colIndex" class="title-cell">
                     {{ row.displayCode }} &mdash; {{ row.displayName }}
                     @if (row.isArchived) {
                       <span class="ml-1.5 px-1 py-0.5 text-[10px] bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded" i18n>Archiviert</span>
                     }
                   </td>
-                } @else if (row.depth > $index) {
-                  <td></td>
+                } @else if (row.depth > colIndex) {
+                  <td class="account-prefix-width"></td>
                 }
               }
 
@@ -229,8 +249,8 @@ import { MatrixValueStoreService } from '../matrix-value-store.service';
             </tr>
             @if (row.isSumRow) {
               <tr class="empty-row">
-                @for (i of accountCols(); track $index) {
-                  <td></td>
+                @for (colIndex of accountCols(); track colIndex) {
+                  <td [class.account-prefix-width]="colIndex < accColSpan - 1"></td>
                 }
                 @if (descriptionEnabled) {
                   <td></td>

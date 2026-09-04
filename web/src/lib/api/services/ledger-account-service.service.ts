@@ -10,6 +10,7 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 import { V1LedgerAccount } from '../models/v1ledger-account';
 import { V1AccountType } from '../models/v1account-type';
 import { V1ListLedgerAccountsResponse } from '../models/v1list-ledger-accounts-response';
+import { V1BatchGetLedgerAccountsResponse } from '../models/v1batch-get-ledger-accounts-response';
 @Injectable({
   providedIn: 'root',
 })
@@ -18,6 +19,7 @@ class LedgerAccountServiceService extends __BaseService {
   static readonly LedgerAccountServiceDeleteLedgerAccountPath = '/v1/{name_5}';
   static readonly LedgerAccountServiceGetLedgerAccountPath = '/v1/{name_9}';
   static readonly LedgerAccountServiceListLedgerAccountsPath = '/v1/{parent}/ledgerAccounts';
+  static readonly LedgerAccountServiceBatchGetLedgerAccountsPath = '/v1/{parent}/ledgerAccounts:batchGet';
 
   constructor(
     config: __Configuration,
@@ -265,6 +267,69 @@ class LedgerAccountServiceService extends __BaseService {
       __map(_r => _r.body as V1ListLedgerAccountsResponse)
     );
   }
+
+  /**
+   * Batch gets ledger accounts by resource name.
+   * Authorization:
+   *   Scope: ledgerAccount:read
+   *   Permission: ledgerAccount:read
+   *   Domain: organization-scoped
+   * @param params The `LedgerAccountServiceService.LedgerAccountServiceBatchGetLedgerAccountsParams` containing the following parameters:
+   *
+   * - `parent`: The parent organization resource name.
+   *   Format: organizations/{organization}
+   *
+   * - `names`: The resource names of the ledger accounts to retrieve.
+   *   A maximum of 1000 ledger accounts can be retrieved in a batch.
+   *   Format: organizations/{organization}/ledgerAccounts/{ledger_account}
+   *
+   * @return A successful response.
+   */
+  LedgerAccountServiceBatchGetLedgerAccountsResponse(params: LedgerAccountServiceService.LedgerAccountServiceBatchGetLedgerAccountsParams): __Observable<__StrictHttpResponse<V1BatchGetLedgerAccountsResponse>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    (params.names || []).forEach(val => {if (val != null) __params = __params.append('names', val.toString())});
+    let req = new HttpRequest<any>(
+      'GET',
+      this.rootUrl + `/v1/${encodeURIComponent(String(params.parent))}/ledgerAccounts:batchGet`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<V1BatchGetLedgerAccountsResponse>;
+      })
+    );
+  }
+  /**
+   * Batch gets ledger accounts by resource name.
+   * Authorization:
+   *   Scope: ledgerAccount:read
+   *   Permission: ledgerAccount:read
+   *   Domain: organization-scoped
+   * @param params The `LedgerAccountServiceService.LedgerAccountServiceBatchGetLedgerAccountsParams` containing the following parameters:
+   *
+   * - `parent`: The parent organization resource name.
+   *   Format: organizations/{organization}
+   *
+   * - `names`: The resource names of the ledger accounts to retrieve.
+   *   A maximum of 1000 ledger accounts can be retrieved in a batch.
+   *   Format: organizations/{organization}/ledgerAccounts/{ledger_account}
+   *
+   * @return A successful response.
+   */
+  LedgerAccountServiceBatchGetLedgerAccounts(params: LedgerAccountServiceService.LedgerAccountServiceBatchGetLedgerAccountsParams): __Observable<V1BatchGetLedgerAccountsResponse> {
+    return this.LedgerAccountServiceBatchGetLedgerAccountsResponse(params).pipe(
+      __map(_r => _r.body as V1BatchGetLedgerAccountsResponse)
+    );
+  }
 }
 
 module LedgerAccountServiceService {
@@ -324,6 +389,25 @@ module LedgerAccountServiceService {
      * Example: "account_type=ASSET" or "code:\"1000\"".
      */
     filter?: string;
+  }
+
+  /**
+   * Parameters for LedgerAccountServiceBatchGetLedgerAccounts
+   */
+  export interface LedgerAccountServiceBatchGetLedgerAccountsParams {
+
+    /**
+     * The parent organization resource name.
+     * Format: organizations/{organization}
+     */
+    parent: string;
+
+    /**
+     * The resource names of the ledger accounts to retrieve.
+     * A maximum of 1000 ledger accounts can be retrieved in a batch.
+     * Format: organizations/{organization}/ledgerAccounts/{ledger_account}
+     */
+    names: Array<string>;
   }
 }
 

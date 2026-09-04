@@ -44,8 +44,8 @@ export abstract class JournalListDataService {
    */
   abstract listTransactions(
     organizationId: string,
-    page: number,
     pageSize: number,
+    pageToken: string | undefined,
     filters?: JournalEntryFilters,
-  ): Observable<{ entries: JournalEntry[]; total: number }>;
+  ): Observable<{ entries: JournalEntry[]; total: number; nextPageToken?: string }>;
 }

@@ -14,7 +14,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 )
 
-var toolListUsersCmd = &cobra.Command{
+var listUsersCmd = &cobra.Command{
 	Use:   "users",
 	Short: "List all users",
 	Long:  `List all users with their ID, email, name, and group assignments.`,
@@ -80,5 +80,5 @@ func joinNonEmpty(ss []string, sep string) string {
 }
 
 func init() {
-	toolListCmd.AddCommand(toolListUsersCmd)
+	listCmd.AddCommand(listUsersCmd)
 }

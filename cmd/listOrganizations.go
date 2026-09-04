@@ -12,7 +12,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 )
 
-var toolListOrganizationsCmd = &cobra.Command{
+var listOrganizationsCmd = &cobra.Command{
 	Use:   "organizations",
 	Short: "List all organizations",
 	Long:  `List all organizations with their ID, custom ID, and display name.`,
@@ -51,5 +51,5 @@ var toolListOrganizationsCmd = &cobra.Command{
 }
 
 func init() {
-	toolListCmd.AddCommand(toolListOrganizationsCmd)
+	listCmd.AddCommand(listOrganizationsCmd)
 }

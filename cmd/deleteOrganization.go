@@ -12,19 +12,19 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 )
 
-var toolDeleteOrganizationID string
+var deleteOrganizationID string
 
-var toolDeleteOrganizationCmd = &cobra.Command{
+var deleteOrganizationCmd = &cobra.Command{
 	Use:   "organization",
 	Short: "Delete an organization",
 	Long:  `Delete an organization by its ID. This also deletes all data owned by the organization.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if toolDeleteOrganizationID == "" {
+		if deleteOrganizationID == "" {
 			fmt.Fprintln(os.Stderr, "error: --id is required")
 			os.Exit(1)
 		}
 
-		id, err := uuid.Parse(toolDeleteOrganizationID)
+		id, err := uuid.Parse(deleteOrganizationID)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: invalid organization id: %v\n", err)
 			os.Exit(1)
@@ -54,6 +54,6 @@ var toolDeleteOrganizationCmd = &cobra.Command{
 }
 
 func init() {
-	toolDeleteOrganizationCmd.Flags().StringVar(&toolDeleteOrganizationID, "id", "", "Organization ID to delete")
-	toolDeleteCmd.AddCommand(toolDeleteOrganizationCmd)
+	deleteOrganizationCmd.Flags().StringVar(&deleteOrganizationID, "id", "", "Organization ID to delete")
+	deleteCmd.AddCommand(deleteOrganizationCmd)
 }

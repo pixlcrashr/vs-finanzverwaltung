@@ -20,7 +20,7 @@ var (
 	updateUserGroups string
 )
 
-var toolUpdateUserCmd = &cobra.Command{
+var updateUserCmd = &cobra.Command{
 	Use:   "user <uuid>",
 	Short: "Update an existing user",
 	Long: `Update an existing user's email, name, and/or group assignments.
@@ -149,7 +149,7 @@ Example:
 }
 
 func init() {
-	toolUpdateCmd.AddCommand(toolUpdateUserCmd)
+	updateCmd.AddCommand(updateUserCmd)
 
-	toolUpdateUserCmd.Flags().StringVar(&updateUserGroups, "groups", "", "Comma-separated list of group UUIDs or custom IDs (replaces current assignments)")
+	updateUserCmd.Flags().StringVar(&updateUserGroups, "groups", "", "Comma-separated list of group UUIDs or custom IDs (replaces current assignments)")
 }

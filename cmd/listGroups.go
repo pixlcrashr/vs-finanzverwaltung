@@ -13,7 +13,7 @@ import (
 	"github.com/pixlcrashr/vsfv/pkg/db/repository"
 )
 
-var toolListGroupsCmd = &cobra.Command{
+var listGroupsCmd = &cobra.Command{
 	Use:   "groups",
 	Short: "List all user groups",
 	Long:  `List all user groups with their ID, custom ID, name, system flag, and description.`,
@@ -62,5 +62,5 @@ var toolListGroupsCmd = &cobra.Command{
 }
 
 func init() {
-	toolListCmd.AddCommand(toolListGroupsCmd)
+	listCmd.AddCommand(listGroupsCmd)
 }

@@ -18,7 +18,7 @@ import (
 var updateGroupOrganizations string
 var updateGroupForce bool
 
-var toolUpdateGroupCmd = &cobra.Command{
+var updateGroupCmd = &cobra.Command{
 	Use:   "group <uuid|customID>",
 	Short: "Update an existing group",
 	Long: `Update an existing group's organization assignments.
@@ -124,8 +124,8 @@ Examples:
 }
 
 func init() {
-	toolUpdateCmd.AddCommand(toolUpdateGroupCmd)
+	updateCmd.AddCommand(updateGroupCmd)
 
-	toolUpdateGroupCmd.Flags().StringVar(&updateGroupOrganizations, "organizations", "", "Comma-separated list of organization UUIDs or custom IDs, or \"*\" for all (replaces current assignments)")
-	toolUpdateGroupCmd.Flags().BoolVarP(&updateGroupForce, "force", "f", false, "Allow modifying system groups")
+	updateGroupCmd.Flags().StringVar(&updateGroupOrganizations, "organizations", "", "Comma-separated list of organization UUIDs or custom IDs, or \"*\" for all (replaces current assignments)")
+	updateGroupCmd.Flags().BoolVarP(&updateGroupForce, "force", "f", false, "Allow modifying system groups")
 }

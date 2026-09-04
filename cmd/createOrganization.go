@@ -14,24 +14,24 @@ import (
 )
 
 var (
-	toolCreateOrganizationName        string
-	toolCreateOrganizationDescription string
-	toolCreateOrganizationStartMonth  int
-	toolCreateOrganizationCustomID    string
+	createOrganizationName        string
+	createOrganizationDescription string
+	createOrganizationStartMonth  int
+	createOrganizationCustomID    string
 )
 
-var toolCreateOrganizationCmd = &cobra.Command{
+var createOrganizationCmd = &cobra.Command{
 	Use:   "organization",
 	Short: "Create a new organization",
 	Long: `Create a new organization with a display name, optional description,
 fiscal-year start month, and optional custom ID.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if toolCreateOrganizationName == "" {
+		if createOrganizationName == "" {
 			fmt.Fprintln(os.Stderr, "error: --name is required")
 			os.Exit(1)
 		}
 
-		if toolCreateOrganizationStartMonth < 1 || toolCreateOrganizationStartMonth > 12 {
+		if createOrganizationStartMonth < 1 || createOrganizationStartMonth > 12 {
 			fmt.Fprintln(os.Stderr, "error: --start-month must be between 1 and 12")
 			os.Exit(1)
 		}
@@ -51,10 +51,10 @@ fiscal-year start month, and optional custom ID.`,
 
 		repo := repository.NewOrganizationRepository(gormDB)
 		org, err := repo.Create(context.Background(), repository.CreateOrganizationParams{
-			DisplayName:        toolCreateOrganizationName,
-			DisplayDescription: toolCreateOrganizationDescription,
-			StartMonth:         time.Month(toolCreateOrganizationStartMonth),
-			CustomID:           toolCreateOrganizationCustomID,
+			DisplayName:        createOrganizationName,
+			DisplayDescription: createOrganizationDescription,
+			StartMonth:         time.Month(createOrganizationStartMonth),
+			CustomID:           createOrganizationCustomID,
 		})
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: creating organization: %v\n", err)
@@ -66,12 +66,12 @@ fiscal-year start month, and optional custom ID.`,
 }
 
 func init() {
-	toolCreateOrganizationCmd.Flags().StringVar(&toolCreateOrganizationName, "name", "", "Display name of the organization")
-	toolCreateOrganizationCmd.Flags().StringVar(&toolCreateOrganizationDescription, "description", "", "Optional description")
-	toolCreateOrganizationCmd.Flags().IntVar(&toolCreateOrganizationStartMonth, "start-month", 1, "Fiscal year start month (1-12)")
-	toolCreateOrganizationCmd.Flags().StringVar(&toolCreateOrganizationCustomID, "custom-id", "", "Optional custom identifier")
+	createOrganizationCmd.Flags().StringVar(&createOrganizationName, "name", "", "Display name of the organization")
+	createOrganizationCmd.Flags().StringVar(&createOrganizationDescription, "description", "", "Optional description")
+	createOrganizationCmd.Flags().IntVar(&createOrganizationStartMonth, "start-month", 1, "Fiscal year start month (1-12)")
+	createOrganizationCmd.Flags().StringVar(&createOrganizationCustomID, "custom-id", "", "Optional custom identifier")
 
-	_ = toolCreateOrganizationCmd.RegisterFlagCompletionFunc("start-month", func(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
+	_ = createOrganizationCmd.RegisterFlagCompletionFunc("start-month", func(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
 		months := make([]string, 12)
 		for i := 1; i <= 12; i++ {
 			months[i-1] = strconv.Itoa(i)
@@ -79,5 +79,5 @@ func init() {
 		return months, cobra.ShellCompDirectiveDefault
 	})
 
-	toolCreateCmd.AddCommand(toolCreateOrganizationCmd)
+	createCmd.AddCommand(createOrganizationCmd)
 }
